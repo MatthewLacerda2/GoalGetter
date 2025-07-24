@@ -1,2 +1,5 @@
 # GoalGetter
-An Agenda planner, with focus on healthy routines and goal achievments
+
+An Agenda planner focused on achieving goals via consistent routines
+
+This project is a 'monorepo' but for now it only has a Flutter project
