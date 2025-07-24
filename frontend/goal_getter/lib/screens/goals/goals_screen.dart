@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'create_goal_screen.dart';
+import '../../models/goal.dart';
+import '../../utils/goal_storage.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -9,12 +11,24 @@ class GoalsScreen extends StatefulWidget {
 }
 
 class _GoalsScreenState extends State<GoalsScreen> {
-  List<Map<String, dynamic>> goals = [];
+  List<Goal> goals = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGoals();
+  }
+
+  Future<void> _loadGoals() async {
+    final loadedGoals = await GoalStorage.loadAll();
+    setState(() {
+      goals = loadedGoals;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Removed the AppBar here
       body: goals.isEmpty
           ? Center(
               child: Column(
@@ -54,27 +68,27 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     title: Text(
-                      goal['title'],
+                      goal.title,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(goal['description']),
+                        Text(goal.description),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
                             const SizedBox(width: 4),
                             Text(
-                              '${goal['weeklyHours']}h/week',
+                              '${goal.weeklyHours}h/week',
                               style: TextStyle(color: Colors.grey.shade600),
                             ),
                             const SizedBox(width: 16),
                             Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
                             const SizedBox(width: 4),
                             Text(
-                              '${goal['totalHours']}h total',
+                              '${goal.totalHours}h total',
                               style: TextStyle(color: Colors.grey.shade600),
                             ),
                           ],
@@ -98,9 +112,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           );
           
           if (result != null) {
-            setState(() {
-              goals.add(result as Map<String, dynamic>);
-            });
+            await _loadGoals(); // Reload goals from storage
           }
         },
         backgroundColor: Theme.of(context).primaryColor,

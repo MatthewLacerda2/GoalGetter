@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../models/goal.dart';
+import '../../utils/goal_storage.dart';
 
 class CreateGoalScreen extends StatefulWidget {
   const CreateGoalScreen({super.key});
@@ -33,7 +35,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
     });
   }
 
-  void _saveGoal() {
+  void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
       // Check if at least one day is selected
       if (!_selectedDays.contains(true)) {
@@ -46,17 +48,21 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
         return;
       }
 
-      // Create goal object (you can modify this based on your data model)
-      final goal = {
-        'title': _titleController.text,
-        'description': _descriptionController.text,
-        'weeklyHours': double.parse(_weeklyHoursController.text),
-        'totalHours': double.parse(_totalHoursController.text),
-        'selectedDays': _selectedDays,
-      };
+      // Create Goal object
+      final goal = Goal(
+        id: '', // Let storage assign a UUID
+        title: _titleController.text,
+        description: _descriptionController.text,
+        weeklyHours: double.parse(_weeklyHoursController.text),
+        totalHours: double.parse(_totalHoursController.text),
+        selectedDays: List<bool>.from(_selectedDays),
+      );
 
-      // TODO: Save goal to your data storage
-      print('Goal created: $goal');
+      // Save goal to storage
+      await GoalStorage.saveNew(goal);
+
+      // Check if widget is still mounted before using context
+      if (!mounted) return;
 
       // Show success message and navigate back
       ScaffoldMessenger.of(context).showSnackBar(
