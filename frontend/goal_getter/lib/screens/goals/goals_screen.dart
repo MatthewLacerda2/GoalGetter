@@ -27,8 +27,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
     });
   }
 
+  String _weekdayLetter(int index) {
+    const letters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    return letters[index];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final darkGreen = Color(0xFF206A3B);
     return Scaffold(
       body: goals.isEmpty
           ? Center(
@@ -109,7 +115,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     setState(() {
                       goals.removeAt(index);
                     });
-                    if (mounted) {
+                    if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Goal "${goal.title}" deleted'),
@@ -126,43 +132,91 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   },
                   child: Card(
                     margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      title: Text(
-                        goal.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(goal.description),
-                          const SizedBox(height: 4),
-                          Row(
+                          // Main content (title, description, days)
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  goal.title,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(goal.description),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    for (int i = 0; i < 7; i++)
+                                      if (goal.selectedDays[i])
+                                        Container(
+                                          margin: const EdgeInsets.only(right: 4),
+                                          width: 24,
+                                          height: 24,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white,
+                                            border: Border.all(
+                                              color: darkGreen,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            _weekdayLetter(i),
+                                            style: TextStyle(
+                                              color: darkGreen,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Hours info
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${goal.weeklyHours}h/week',
-                                style: TextStyle(color: Colors.grey.shade600),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${goal.weeklyHours}h / w',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 16),
-                              Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${goal.totalHours}h total',
-                                style: TextStyle(color: Colors.grey.shade600),
+                              const SizedBox(height: 2),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${goal.totalHours}h',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GoalScreen(goal: goal),
-                          ),
-                        );
-                      },
                     ),
                   ),
                 );

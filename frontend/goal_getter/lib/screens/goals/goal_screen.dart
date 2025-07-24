@@ -290,7 +290,7 @@ class _GoalScreenState extends State<GoalScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${widget.goal?.totalWeekSpent.toStringAsFixed(1) ?? '0.0'}',
+                          (widget.goal?.totalWeekSpent.toStringAsFixed(1) ?? '0.0'),
                           style: TextStyle(
                             fontSize: 56, // 4x bigger than the text above
                             fontWeight: FontWeight.bold,
@@ -317,7 +317,7 @@ class _GoalScreenState extends State<GoalScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${widget.goal?.totalSpent.toStringAsFixed(1) ?? '0.0'}',
+                          (widget.goal?.totalSpent.toStringAsFixed(1) ?? '0.0'),
                           style: TextStyle(
                             fontSize: 56, // 4x bigger than the text above
                             fontWeight: FontWeight.bold,
