@@ -65,45 +65,105 @@ class _GoalsScreenState extends State<GoalsScreen> {
               itemCount: goals.length,
               itemBuilder: (context, index) {
                 final goal = goals[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    title: Text(
-                      goal.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                return Dismissible(
+                  key: Key(goal.id),
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    child: const Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                      size: 30,
                     ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(goal.description),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${goal.weeklyHours}h/week',
-                              style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                  direction: DismissDirection.endToStart,
+                  confirmDismiss: (direction) async {
+                    return await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Delete Goal'),
+                          content: Text(
+                            'Are you sure you want to delete "${goal.title}"? This action cannot be undone.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
                             ),
-                            const SizedBox(width: 16),
-                            Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${goal.totalHours}h total',
-                              style: TextStyle(color: Colors.grey.shade600),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red,
+                              ),
+                              child: const Text('Delete'),
                             ),
                           ],
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GoalScreen(goal: goal),
+                        );
+                      },
+                    );
+                  },
+                  onDismissed: (direction) async {
+                    await GoalStorage.deleteGoal(goal.id);
+                    setState(() {
+                      goals.removeAt(index);
+                    });
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Goal "${goal.title}" deleted'),
+                          action: SnackBarAction(
+                            label: 'Undo',
+                            onPressed: () async {
+                              await GoalStorage.saveNew(goal);
+                              await _loadGoals();
+                            },
+                          ),
                         ),
                       );
-                    },
+                    }
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      title: Text(
+                        goal.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(goal.description),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${goal.weeklyHours}h/week',
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                              const SizedBox(width: 16),
+                              Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${goal.totalHours}h total',
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GoalScreen(goal: goal),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
               },

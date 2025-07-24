@@ -44,6 +44,13 @@ class GoalStorage {
       await prefs.setString(_goalsKey, json.encode(all.map((g) => g.toMap()).toList()));
     }
   }
+
+  static Future<void> deleteGoal(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final all = await loadAll();
+    all.removeWhere((g) => g.id == id);
+    await prefs.setString(_goalsKey, json.encode(all.map((g) => g.toMap()).toList()));
+  }
 }
 
 extension GoalCopyWith on Goal {
