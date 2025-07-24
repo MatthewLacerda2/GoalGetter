@@ -27,11 +27,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
     });
   }
 
-  String _weekdayLetter(int index) {
-    const letters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    return letters[index];
-  }
-
   @override
   Widget build(BuildContext context) {
     final darkGreen = Color(0xFF206A3B);
@@ -161,35 +156,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   Text(goal.description),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      for (int i = 0; i < 7; i++)
-                                        if (goal.selectedDays[i])
-                                          Container(
-                                            margin: const EdgeInsets.only(right: 4),
-                                            width: 24,
-                                            height: 24,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.white,
-                                              border: Border.all(
-                                                color: darkGreen,
-                                                width: 1,
-                                              ),
-                                            ),
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              _weekdayLetter(i),
-                                              style: TextStyle(
-                                                color: darkGreen,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                    ],
-                                  ),
                                 ],
                               ),
                             ),

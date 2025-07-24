@@ -18,23 +18,12 @@ class _AgendaScreenState extends State<AgendaScreen> {
   @override
   void initState() {
     super.initState();
-    _loadGoals();
-  }
-
-  Future<void> _loadGoals() async {
-    setState(() => _loading = true);
-    final goals = await GoalStorage.loadByWeekDay(_selectedDay);
-    setState(() {
-      _goals = goals;
-      _loading = false;
-    });
   }
 
   void _onDayChanged(int day) {
     setState(() {
       _selectedDay = day;
     });
-    _loadGoals();
   }
 
   @override

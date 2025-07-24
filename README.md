@@ -4,11 +4,14 @@ An app to setup a weekly-routine with long term goals
 
 # How it works
 
-- Goals: define what you want to do. It can be endless your an end goal
+- Goals: define what you want to do
+    It can be something endless, like bodybuilding,
+    Or an endgoal, like building a robot
     You can look at the goal's history
     Edit it as your plan evolves
-- Agenda: create a routine that keeps you consistent in your pursue
+- Agenda: create your weekly schedule
     Look what you have for the day of the week
+    Keep consistent in your goals
 - Xp: get reminded and rewarded for progress (a lá Duolingo)
     Look how consistent you've been
     Get encouraged to continue

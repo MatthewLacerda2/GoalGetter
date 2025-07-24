@@ -1,5 +1,3 @@
-// frontend/goal_getter/lib/utils/goal_storage.dart
-
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/goal.dart';
@@ -23,11 +21,6 @@ class GoalStorage {
     } catch (e) {
       return null;
     }
-  }
-
-  static Future<List<Goal>> loadByWeekDay(int weekday) async {
-    final all = await loadAll();
-    return all.where((g) => g.selectedDays.length > weekday && g.selectedDays[weekday]).toList();
   }
 
   static Future<void> saveNew(Goal goal) async {
@@ -65,7 +58,6 @@ extension GoalCopyWith on Goal {
     String? description,
     double? weeklyHours,
     double? totalHours,
-    List<bool>? selectedDays,
     double? totalWeekSpent,
     double? totalSpent,
   }) {
@@ -75,7 +67,6 @@ extension GoalCopyWith on Goal {
       description: description ?? this.description,
       weeklyHours: weeklyHours ?? this.weeklyHours,
       totalHours: totalHours ?? this.totalHours,
-      selectedDays: selectedDays ?? this.selectedDays,
       totalWeekSpent: totalWeekSpent ?? this.totalWeekSpent,
       totalSpent: totalSpent ?? this.totalSpent,
     );

@@ -17,10 +17,6 @@ class _GoalScreenState extends State<GoalScreen> {
   final _weeklyHoursController = TextEditingController();
   final _totalHoursController = TextEditingController();
   
-  final List<bool> _selectedDays = List.filled(7, false);
-  final List<String> _weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  final List<String> _fullWeekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
   @override
   void dispose() {
     _titleController.dispose();
@@ -38,31 +34,11 @@ class _GoalScreenState extends State<GoalScreen> {
       _descriptionController.text = widget.goal!.description;
       _weeklyHoursController.text = widget.goal!.weeklyHours.toString();
       _totalHoursController.text = widget.goal!.totalHours.toString();
-      for (int i = 0; i < _selectedDays.length; i++) {
-        _selectedDays[i] = widget.goal!.selectedDays[i];
-      }
     }
-  }
-
-  void _toggleDay(int index) {
-    setState(() {
-      _selectedDays[index] = !_selectedDays[index];
-    });
   }
 
   void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
-      // Check if at least one day is selected
-      if (!_selectedDays.contains(true)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select at least one day of the week'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
       // Create Goal object
       final goal = Goal(
         id: widget.goal?.id ?? '', // Use existing ID if editing, otherwise empty
@@ -70,18 +46,14 @@ class _GoalScreenState extends State<GoalScreen> {
         description: _descriptionController.text,
         weeklyHours: double.parse(_weeklyHoursController.text),
         totalHours: double.parse(_totalHoursController.text),
-        selectedDays: List<bool>.from(_selectedDays),
       );
 
       if (widget.goal != null) {
-        // Update existing goal
         await GoalStorage.saveById(widget.goal!.id, goal);
       } else {
-        // Save new goal
         await GoalStorage.saveNew(goal);
       }
 
-      // Check if widget is still mounted before using context
       if (!mounted) return;
 
       // Show success message and navigate back
@@ -204,79 +176,13 @@ class _GoalScreenState extends State<GoalScreen> {
                   if (double.tryParse(value) == null) {
                     return 'Please enter a valid number';
                   }
-                  if (double.parse(value) <= 0) {
-                    return 'Total hours must be greater than 0';
+                  if (double.parse(value) < 0) {
+                    return 'Total hours must be greater than or equal to 0';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-
-              // Days of the Week Section
-              const Text(
-                'Days of the Week',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Days Selection
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(7, (index) {
-                  return GestureDetector(
-                    onTap: () => _toggleDay(index),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _selectedDays[index]
-                                ? Theme.of(context).primaryColor
-                                : Colors.grey.shade200,
-                            border: Border.all(
-                              color: _selectedDays[index]
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey.shade400,
-                              width: 2,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              _weekDays[index],
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: _selectedDays[index]
-                                    ? Colors.white
-                                    : Colors.grey.shade700,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _fullWeekDays[index].substring(0, 3),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: _selectedDays[index]
-                                ? Theme.of(context).primaryColor
-                                : Colors.grey.shade600,
-                            fontWeight: _selectedDays[index]
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 24),
 
               // Progress Section
               Row(

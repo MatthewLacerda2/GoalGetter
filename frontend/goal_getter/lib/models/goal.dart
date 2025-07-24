@@ -1,5 +1,3 @@
-// frontend/goal_getter/lib/models/goal.dart
-
 import 'dart:convert';
 
 class Goal {
@@ -8,7 +6,6 @@ class Goal {
   final String description;
   final double weeklyHours;
   final double totalHours;
-  final List<bool> selectedDays;
   final double totalWeekSpent;
   final double totalSpent;
 
@@ -18,7 +15,6 @@ class Goal {
     required this.description,
     required this.weeklyHours,
     required this.totalHours,
-    required this.selectedDays,
     this.totalWeekSpent = 0.0,
     this.totalSpent = 0.0,
   });
@@ -30,7 +26,6 @@ class Goal {
       description: map['description'],
       weeklyHours: map['weeklyHours'].toDouble(),
       totalHours: map['totalHours'].toDouble(),
-      selectedDays: List<bool>.from(map['selectedDays']),
       totalWeekSpent: (map['totalWeekSpent'] ?? 0.0).toDouble(),
       totalSpent: (map['totalSpent'] ?? 0.0).toDouble(),
     );
@@ -43,7 +38,6 @@ class Goal {
       'description': description,
       'weeklyHours': weeklyHours,
       'totalHours': totalHours,
-      'selectedDays': selectedDays,
       'totalWeekSpent': totalWeekSpent,
       'totalSpent': totalSpent,
     };
