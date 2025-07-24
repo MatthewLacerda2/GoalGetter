@@ -14,11 +14,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Goals'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        elevation: 0,
-      ),
+      // Removed the AppBar here
       body: goals.isEmpty
           ? Center(
               child: Column(
@@ -57,13 +53,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      child: const Icon(
-                        Icons.flag,
-                        color: Colors.white,
-                      ),
-                    ),
                     title: Text(
                       goal['title'],
                       style: const TextStyle(fontWeight: FontWeight.bold),

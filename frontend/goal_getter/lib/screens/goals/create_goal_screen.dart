@@ -15,8 +15,8 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   final _totalHoursController = TextEditingController();
   
   final List<bool> _selectedDays = List.filled(7, false);
-  final List<String> _weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  final List<String> _fullWeekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  final List<String> _weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  final List<String> _fullWeekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   @override
   void dispose() {
@@ -94,6 +94,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.flag),
                 ),
+                maxLength: 128,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a goal title';
@@ -101,7 +102,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
               // Description Field
               TextFormField(
@@ -113,6 +114,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
+                maxLength: 128,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -120,7 +122,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
               // Hours Section
               const Text(
@@ -130,7 +132,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
 
               // Weekly Hours
               TextFormField(
@@ -156,7 +158,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               // Total Hours
               TextFormField(
@@ -182,7 +184,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Days of the Week Section
               const Text(
@@ -192,7 +194,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
 
               // Days Selection
               Row(
@@ -248,31 +250,32 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   );
                 }),
               ),
-              const SizedBox(height: 32),
-
-              // Save Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _saveGoal,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Create Goal',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              const SizedBox(height: 24),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        child: SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: _saveGoal,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Create',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
       ),
