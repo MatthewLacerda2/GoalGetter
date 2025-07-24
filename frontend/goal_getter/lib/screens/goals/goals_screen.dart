@@ -66,9 +66,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ],
               ),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+          : ListView.separated(
+              padding: EdgeInsets.zero, // Remove vertical padding
               itemCount: goals.length,
+              separatorBuilder: (context, index) => const Divider(height: 1, thickness: 1),
               itemBuilder: (context, index) {
                 final goal = goals[index];
                 return Dismissible(
@@ -141,7 +142,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       await _loadGoals(); // Optionally reload goals if details can change
                     },
                     child: Card(
-                      margin: const EdgeInsets.only(bottom: 12),
+                      margin: EdgeInsets.zero, // No margin between cards
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero, // Rectangular, no rounded corners
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                         child: Row(

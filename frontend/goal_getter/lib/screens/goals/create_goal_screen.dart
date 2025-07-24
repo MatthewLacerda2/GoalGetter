@@ -170,7 +170,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               TextFormField(
                 controller: _totalHoursController,
                 decoration: const InputDecoration(
-                  labelText: 'Total Hours Goal',
+                  labelText: 'Target Hours',
                   hintText: 'e.g., 360',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.timeline),
@@ -179,7 +179,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter total hours goal';
+                    return 'Please enter target hours';
                   }
                   if (double.tryParse(value) == null) {
                     return 'Please enter a valid number';
