@@ -25,6 +25,11 @@ class GoalStorage {
     }
   }
 
+  static Future<List<Goal>> loadByWeekDay(int weekday) async {
+    final all = await loadAll();
+    return all.where((g) => g.selectedDays.length > weekday && g.selectedDays[weekday]).toList();
+  }
+
   static Future<void> saveNew(Goal goal) async {
     final prefs = await SharedPreferences.getInstance();
     final all = await loadAll();

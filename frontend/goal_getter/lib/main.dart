@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/goals/goals_screen.dart';
+import 'screens/agenda_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
   static const List<Widget> _tabPages = <Widget>[
-    Center(child: Text('Agenda Page (Coming Soon)')),
+    AgendaScreen(),
     GoalsScreen(),
     Center(child: Text('XP Page (Coming Soon)')),
     Center(child: Text('Profile Page (Coming Soon)')),

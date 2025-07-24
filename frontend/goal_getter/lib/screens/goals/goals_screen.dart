@@ -237,22 +237,30 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CreateGoalScreen(),
-            ),
-          );
-          
-          if (result != null) {
-            await _loadGoals(); // Reload goals from storage
-          }
-        },
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
+        child: SizedBox(
+          width: 70,
+          height: 70,
+          child: FloatingActionButton(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CreateGoalScreen(),
+              ),
+            );
+            
+            if (result != null) {
+              await _loadGoals(); // Reload goals from storage
+            }
+          },
+          backgroundColor: Theme.of(context).primaryColor,
+          foregroundColor: Colors.white,
+          mini: false,
+          child: const Icon(Icons.add, size: 48)
+        ),
+        ),
       ),
     );
   }
