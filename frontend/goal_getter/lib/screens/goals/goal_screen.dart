@@ -73,8 +73,13 @@ class _GoalScreenState extends State<GoalScreen> {
         selectedDays: List<bool>.from(_selectedDays),
       );
 
-      // Save goal to storage
-      await GoalStorage.saveNew(goal);
+      if (widget.goal != null) {
+        // Update existing goal
+        await GoalStorage.saveById(widget.goal!.id, goal);
+      } else {
+        // Save new goal
+        await GoalStorage.saveNew(goal);
+      }
 
       // Check if widget is still mounted before using context
       if (!mounted) return;

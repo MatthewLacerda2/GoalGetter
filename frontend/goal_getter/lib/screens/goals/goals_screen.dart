@@ -67,7 +67,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ),
             )
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               itemCount: goals.length,
               itemBuilder: (context, index) {
                 final goal = goals[index];
@@ -130,92 +130,103 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       );
                     }
                   },
-                  child: Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Main content (title, description, days)
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                  child: InkWell(
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GoalScreen(goal: goal),
+                        ),
+                      );
+                      await _loadGoals(); // Optionally reload goals if details can change
+                    },
+                    child: Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Main content (title, description, days)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    goal.title,
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(goal.description),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      for (int i = 0; i < 7; i++)
+                                        if (goal.selectedDays[i])
+                                          Container(
+                                            margin: const EdgeInsets.only(right: 4),
+                                            width: 24,
+                                            height: 24,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                color: darkGreen,
+                                                width: 1,
+                                              ),
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              _weekdayLetter(i),
+                                              style: TextStyle(
+                                                color: darkGreen,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Hours info
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(
-                                  goal.title,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text(goal.description),
-                                const SizedBox(height: 8),
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    for (int i = 0; i < 7; i++)
-                                      if (goal.selectedDays[i])
-                                        Container(
-                                          margin: const EdgeInsets.only(right: 4),
-                                          width: 24,
-                                          height: 24,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white,
-                                            border: Border.all(
-                                              color: darkGreen,
-                                              width: 1,
-                                            ),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            _weekdayLetter(i),
-                                            style: TextStyle(
-                                              color: darkGreen,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ),
+                                    Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${goal.weeklyHours}h / w',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${goal.totalHours}h',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
                             ),
-                          ),
-                          // Hours info
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${goal.weeklyHours}h / w',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${goal.totalHours}h',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
