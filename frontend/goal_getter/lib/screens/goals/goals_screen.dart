@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'create_goal_screen.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
+import 'goal_screen.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -96,7 +97,12 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       ],
                     ),
                     onTap: () {
-                      // TODO: Navigate to goal detail screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GoalScreen(goal: goal),
+                        ),
+                      );
                     },
                   ),
                 );

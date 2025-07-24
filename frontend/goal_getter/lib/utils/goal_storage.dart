@@ -54,6 +54,8 @@ extension GoalCopyWith on Goal {
     double? weeklyHours,
     double? totalHours,
     List<bool>? selectedDays,
+    double? totalWeekSpent,
+    double? totalSpent,
   }) {
     return Goal(
       id: id ?? this.id,
@@ -62,6 +64,8 @@ extension GoalCopyWith on Goal {
       weeklyHours: weeklyHours ?? this.weeklyHours,
       totalHours: totalHours ?? this.totalHours,
       selectedDays: selectedDays ?? this.selectedDays,
+      totalWeekSpent: totalWeekSpent ?? this.totalWeekSpent,
+      totalSpent: totalSpent ?? this.totalSpent,
     );
   }
 }

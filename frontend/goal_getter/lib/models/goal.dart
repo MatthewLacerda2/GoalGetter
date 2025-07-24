@@ -9,6 +9,8 @@ class Goal {
   final double weeklyHours;
   final double totalHours;
   final List<bool> selectedDays;
+  final double totalWeekSpent;
+  final double totalSpent;
 
   Goal({
     required this.id,
@@ -17,6 +19,8 @@ class Goal {
     required this.weeklyHours,
     required this.totalHours,
     required this.selectedDays,
+    this.totalWeekSpent = 0.0,
+    this.totalSpent = 0.0,
   });
 
   factory Goal.fromMap(Map<String, dynamic> map) {
@@ -27,6 +31,8 @@ class Goal {
       weeklyHours: map['weeklyHours'].toDouble(),
       totalHours: map['totalHours'].toDouble(),
       selectedDays: List<bool>.from(map['selectedDays']),
+      totalWeekSpent: (map['totalWeekSpent'] ?? 0.0).toDouble(),
+      totalSpent: (map['totalSpent'] ?? 0.0).toDouble(),
     );
   }
 
@@ -38,6 +44,8 @@ class Goal {
       'weeklyHours': weeklyHours,
       'totalHours': totalHours,
       'selectedDays': selectedDays,
+      'totalWeekSpent': totalWeekSpent,
+      'totalSpent': totalSpent,
     };
   }
 
