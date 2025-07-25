@@ -3,7 +3,7 @@ import '../../widgets/screens/goals/week.dart';
 import 'create_task_screen.dart';
 import '../../models/task.dart';
 import '../../utils/task_storage.dart';
-
+import '../../utils/tasked_goal.dart';
 
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});
@@ -11,16 +11,24 @@ class AgendaScreen extends StatefulWidget {
   @override
   State<AgendaScreen> createState() => _AgendaScreenState();
 }
-//TODO: we need to warn the user when there is a goal without a task
+
 class _AgendaScreenState extends State<AgendaScreen> {
   int _selectedDay = DateTime.now().weekday % 7;
   List<Task> _tasks = [];
   bool _loading = true;
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? _snackBarController;
 
   @override
   void initState() {
     super.initState();
     _loadTasks();
+    _checkForUnassignedGoals();
+  }
+
+  @override
+  void dispose() {
+    _snackBarController?.close();
+    super.dispose();
   }
 
   void _onDayChanged(int day) {
@@ -41,6 +49,38 @@ class _AgendaScreenState extends State<AgendaScreen> {
       _tasks = tasks;
       _loading = false;
     });
+  }
+
+  Future<void> _checkForUnassignedGoals() async {
+    final unassignedGoalInfo = await findUnassignedGoal();
+    
+    if (unassignedGoalInfo != null && mounted) {
+      // Close any existing snackbar
+      _snackBarController?.close();
+      
+      // Show persistent snackbar
+      _snackBarController = ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${unassignedGoalInfo.goalTitle} needs ${unassignedGoalInfo.minutesMissing} more minutes per week',
+            style: const TextStyle(fontSize: 16),
+          ),
+          backgroundColor: Colors.orange,
+          duration: const Duration(days: 365), // Very long duration to make it persistent
+          action: SnackBarAction(
+            label: 'Dismiss',
+            textColor: Colors.white,
+            onPressed: () {
+              _snackBarController?.close();
+            },
+          ),
+        ),
+      );
+    } else if (unassignedGoalInfo == null && _snackBarController != null) {
+      // If no unassigned goals, close the snackbar
+      _snackBarController?.close();
+      _snackBarController = null;
+    }
   }
 
   @override
@@ -139,6 +179,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
                                   ),
                                 );
                               }
+                              // Check for unassigned goals after task deletion
+                              _checkForUnassignedGoals();
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -182,6 +224,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
               );
               // Refresh tasks when returning from create task screen
               _loadTasks();
+              // Check for unassigned goals after creating a task
+              _checkForUnassignedGoals();
             },
             backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Colors.white,

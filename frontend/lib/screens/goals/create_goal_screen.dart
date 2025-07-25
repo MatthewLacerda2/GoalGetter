@@ -8,7 +8,7 @@ class CreateGoalScreen extends StatefulWidget {
   @override
   State<CreateGoalScreen> createState() => _CreateGoalScreenState();
 }
-
+//TODO: dont let the user put more than 12 * 7 hours per week
 class _CreateGoalScreenState extends State<CreateGoalScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
