@@ -15,10 +15,13 @@ class CreateTaskScreen extends StatefulWidget {
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
+  final TextEditingController _goalSearchController = TextEditingController();
   TimeOfDay? _selectedTime;
   Set<int> selectedWeekdays = {};
   List<Goal> _goals = [];
   String? _selectedGoalId;
+  bool _isGoalDropdownOpen = false;
+  List<Goal> _filteredGoals = [];
 
   static const List<String> weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -26,12 +29,49 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   void initState() {
     super.initState();
     _loadGoals();
+    _goalSearchController.addListener(_filterGoals);
+  }
+
+  @override
+  void dispose() {
+    _goalSearchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadGoals() async {
     final goals = await GoalStorage.loadAll();
     setState(() {
       _goals = goals;
+      _filteredGoals = goals;
+    });
+  }
+
+  void _filterGoals() {
+    final searchTerm = _goalSearchController.text.toLowerCase().trim();
+    
+    if (searchTerm.isEmpty) {
+      setState(() {
+        _filteredGoals = _goals;
+      });
+      return;
+    }
+
+    final matchingGoals = _goals.where((goal) => 
+      goal.title.toLowerCase().contains(searchTerm)
+    ).toList();
+
+    // Sort goals: those starting with search term first, then others
+    matchingGoals.sort((a, b) {
+      final aStartsWith = a.title.toLowerCase().startsWith(searchTerm);
+      final bStartsWith = b.title.toLowerCase().startsWith(searchTerm);
+      
+      if (aStartsWith && !bStartsWith) return -1;
+      if (!aStartsWith && bStartsWith) return 1;
+      return a.title.compareTo(b.title); // Alphabetical order for same type
+    });
+
+    setState(() {
+      _filteredGoals = matchingGoals;
     });
   }
 
@@ -68,6 +108,22 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     await TaskStorage.saveNew(task);
     if (!mounted) return;
     Navigator.of(context).pop(); // Go back after saving
+  }
+
+  void _selectGoal(Goal goal) {
+    setState(() {
+      _selectedGoalId = goal.id;
+      _goalSearchController.text = goal.title;
+      _isGoalDropdownOpen = false;
+    });
+  }
+
+  void _clearGoalSelection() {
+    setState(() {
+      _selectedGoalId = null;
+      _goalSearchController.clear();
+      _isGoalDropdownOpen = false;
+    });
   }
 
   @override
@@ -108,28 +164,94 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
             const SizedBox(height: 16),
             // Goal Selection
-            DropdownButtonFormField<String>(
-              value: _selectedGoalId,
-              decoration: const InputDecoration(
-                labelText: 'Goal (optional)',
-                border: OutlineInputBorder(),
-              ),
-              hint: const Text('Select a goal'),
-              items: [
-                const DropdownMenuItem<String>(
-                  value: null,
-                  child: Text('No goal'),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Goal (optional)', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Column(
+                    children: [
+                      // Search input
+                      TextField(
+                        controller: _goalSearchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search goals...',
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_selectedGoalId != null)
+                                IconButton(
+                                  icon: const Icon(Icons.clear, size: 20),
+                                  onPressed: _clearGoalSelection,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              IconButton(
+                                icon: Icon(
+                                  _isGoalDropdownOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isGoalDropdownOpen = !_isGoalDropdownOpen;
+                                  });
+                                },
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _isGoalDropdownOpen = true;
+                          });
+                        },
+                      ),
+                      // Dropdown list
+                      if (_isGoalDropdownOpen)
+                        Container(
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                              top: BorderSide(color: Colors.grey.shade300),
+                            ),
+                          ),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _filteredGoals.length + 1, // +1 for "No goal" option
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                return ListTile(
+                                  dense: true,
+                                  title: const Text('No goal'),
+                                  onTap: _clearGoalSelection,
+                                  tileColor: _selectedGoalId == null ? Colors.blue.shade50 : null,
+                                );
+                              }
+                              final goal = _filteredGoals[index - 1];
+                              final isSelected = _selectedGoalId == goal.id;
+                              return ListTile(
+                                dense: true,
+                                title: Text(goal.title),
+                                onTap: () => _selectGoal(goal),
+                                tileColor: isSelected ? Colors.blue.shade50 : null,
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-                ..._goals.map((goal) => DropdownMenuItem<String>(
-                  value: goal.id,
-                  child: Text(goal.title),
-                )).toList(),
               ],
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedGoalId = newValue;
-                });
-              },
             ),
             const SizedBox(height: 24),
             // Weekday selector
@@ -148,7 +270,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                     });
                   },
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    margin: const EdgeInsets.symmetric(horizontal: 4), // Reduced from 6 to 4
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(

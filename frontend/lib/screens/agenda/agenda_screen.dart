@@ -81,26 +81,86 @@ class _AgendaScreenState extends State<AgendaScreen> {
                         separatorBuilder: (context, index) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final task = _tasks[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(task.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                      const SizedBox(height: 4),
-                                      Text('Duration: ${task.durationMinutes} minutes', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                          return Dismissible(
+                            key: Key(task.id),
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            ),
+                            direction: DismissDirection.endToStart,
+                            confirmDismiss: (direction) async {
+                              return await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Delete Task'),
+                                    content: Text(
+                                      'Are you sure you want to delete "${task.title}"? This action cannot be undone.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(true),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                        ),
+                                        child: const Text('Delete'),
+                                      ),
                                     ],
+                                  );
+                                },
+                              );
+                            },
+                            onDismissed: (direction) async {
+                              await TaskStorage.deleteTask(task.id);
+                              setState(() {
+                                _tasks.removeAt(index);
+                              });
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Task "${task.title}" deleted'),
+                                    action: SnackBarAction(
+                                      label: 'Undo',
+                                      onPressed: () async {
+                                        await TaskStorage.saveNew(task);
+                                        await _loadTasks();
+                                      },
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  task.startTime.format(context),
-                                  style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                                );
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(task.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text('Duration: ${task.durationMinutes} minutes', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    task.startTime.format(context),
+                                    style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
