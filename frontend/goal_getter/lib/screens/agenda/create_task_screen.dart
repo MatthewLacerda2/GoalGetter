@@ -69,15 +69,13 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               children: [
                 const Text('Time:'),
                 const SizedBox(width: 16),
-                Text(
-                  _selectedTime == null
-                      ? 'No time selected'
-                      : _selectedTime!.format(context),
-                ),
-                const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () => _pickTime(context),
-                  child: const Text('Pick Time'),
+                  child: Text(
+                    _selectedTime == null
+                        ? 'Pick Time'
+                        : _selectedTime!.format(context),
+                  ),
                 ),
               ],
             ),

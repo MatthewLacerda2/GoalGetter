@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../models/goal.dart';
 import '../../widgets/screens/goals/week.dart';
 import 'create_task_screen.dart';
+import '../../models/task.dart';
+import '../../utils/task_storage.dart';
 
 
 class AgendaScreen extends StatefulWidget {
@@ -13,17 +14,29 @@ class AgendaScreen extends StatefulWidget {
 
 class _AgendaScreenState extends State<AgendaScreen> {
   int _selectedDay = DateTime.now().weekday % 7;
-  List<Goal> _goals = [];
+  List<Task> _tasks = [];
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    _loadTasks();
   }
 
   void _onDayChanged(int day) {
     setState(() {
       _selectedDay = day;
+      _loading = true;
+    });
+    _loadTasks(day: day);
+  }
+
+  Future<void> _loadTasks({int? day}) async {
+    final weekday = day ?? _selectedDay;
+    final tasks = await TaskStorage.loadByDay(weekday);
+    setState(() {
+      _tasks = tasks;
+      _loading = false;
     });
   }
 
@@ -39,20 +52,29 @@ class _AgendaScreenState extends State<AgendaScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.separated(
-                    itemCount: _goals.length,
+                    itemCount: _tasks.length,
                     separatorBuilder: (context, index) => const Divider(height: 1),
                     itemBuilder: (context, index) {
-                      final goal = _goals[index];
+                      final task = _tasks[index];
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                        child: Column(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(goal.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            Text(goal.description, style: const TextStyle(fontSize: 14, color: Colors.black87)),
-                            const SizedBox(height: 4),
-                            Text('Hours: ${goal.weeklyHours}', style: const TextStyle(fontSize: 14, color: Colors.blue, fontWeight: FontWeight.bold)),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(task.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 4),
+                                  Text('Duration: ${task.durationMinutes} minutes', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              task.startTime.format(context),
+                              style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                       );
