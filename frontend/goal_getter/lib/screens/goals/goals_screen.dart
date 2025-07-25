@@ -29,7 +29,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final darkGreen = Color(0xFF206A3B);
     return Scaffold(
       body: goals.isEmpty
           ? Center(

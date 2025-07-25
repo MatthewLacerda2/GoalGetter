@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/goals/goals_screen.dart';
-import 'screens/agenda_screen.dart';
+import 'screens/agenda/agenda_screen.dart';
 
 void main() {
   runApp(const MyApp());

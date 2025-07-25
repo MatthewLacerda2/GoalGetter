@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../utils/goal_storage.dart';
-import '../models/goal.dart';
-import '../widgets/screens/goals/week.dart';
+import '../../models/goal.dart';
+import '../../widgets/screens/goals/week.dart';
+import 'create_task_screen.dart';
+
 
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});
@@ -67,7 +68,10 @@ class _AgendaScreenState extends State<AgendaScreen> {
           height: 70,
           child: FloatingActionButton(
             onPressed: () {
-              // TODO: Add functionality later
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateTaskScreen()),
+              );
             },
             backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Colors.white,
