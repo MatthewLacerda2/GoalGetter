@@ -1,0 +1,66 @@
+# Git and version control
+.git/
+.gitignore
+.github/
+
+# Documentation
+README.md
+*.md
+
+# Terraform infrastructure files
+terraform/
+
+# Flutter/Dart build artifacts and caches
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub/
+**/.pub-preload-cache/
+**/pubspec.lock
+
+# IDE and editor files
+**/.idea/
+**/.vscode/
+**/*.iml
+**/.metadata
+
+# Platform-specific folders (not needed for web)
+**/android/
+**/ios/
+**/macos/
+**/windows/
+**/linux/
+
+# Test files
+**/test/
+**/coverage/
+
+# Generated files
+**/generated_plugin_registrant.dart
+**/GeneratedPluginRegistrant.*
+
+# Logs and temporary files
+*.log
+*.pyc
+*.swp
+*.lock
+.history/
+.buildlog/
+
+# Analysis and linting
+**/analysis_options.yaml
+
+# Docker files (exclude to avoid recursive copying)
+Dockerfile
+.dockerignore
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db 
