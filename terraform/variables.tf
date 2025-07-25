@@ -1,7 +1,7 @@
  variable "project_id" {
   description = "The ID of the GCP project"
   type        = string
-  default     = "goal-getter-12345" # Change this to your desired project ID
+  default     = "goal-getter"
 }
 
 variable "project_name" {
@@ -13,13 +13,13 @@ variable "project_name" {
 variable "region" {
   description = "The GCP region to deploy resources"
   type        = string
-  default     = "us-central1"
+  default     = "southamerica-west1"
 }
 
 variable "create_project" {
   description = "Whether to create a new GCP project"
   type        = bool
-  default     = false # Set to true if you want to create a new project
+  default     = true
 }
 
 variable "billing_account" {
@@ -37,11 +37,11 @@ variable "org_id" {
 variable "github_owner" {
   description = "GitHub repository owner"
   type        = string
-  default     = "your-github-username" # Change this
+  default     = "MatthewLacerda2"
 }
 
 variable "github_repo" {
   description = "GitHub repository name"
   type        = string
-  default     = "GoalGetter" # Change this if different
+  default     = "GoalGetter"
 }
