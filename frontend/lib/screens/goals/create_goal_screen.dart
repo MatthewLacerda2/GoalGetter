@@ -8,13 +8,16 @@ class CreateGoalScreen extends StatefulWidget {
   @override
   State<CreateGoalScreen> createState() => _CreateGoalScreenState();
 }
-//TODO: dont let the user put more than 12 * 7 hours per week
+
 class _CreateGoalScreenState extends State<CreateGoalScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _weeklyHoursController = TextEditingController();
   final _totalHoursController = TextEditingController();
+  
+  // Maximum weekly hours allowed (12 * 7 = 84 hours)
+  static const double _maxWeeklyHours = 84.0;
   
   @override
   void dispose() {
@@ -136,8 +139,12 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   if (double.tryParse(value) == null) {
                     return 'Please enter a valid number';
                   }
-                  if (double.parse(value) <= 0) {
+                  final hours = double.parse(value);
+                  if (hours <= 0) {
                     return 'Weekly hours must be greater than 0';
+                  }
+                  if (hours > _maxWeeklyHours) {
+                    return 'Weekly hours cannot exceed $_maxWeeklyHours hours';
                   }
                   return null;
                 },
