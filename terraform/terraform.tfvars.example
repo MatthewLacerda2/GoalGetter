@@ -1,0 +1,16 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+project_id = "your-project-id-here"
+project_name = "GoalGetter"
+region = "us-central1"
+
+# Set to true if you want to create a new project
+create_project = false
+
+# Required if creating a new project
+billing_account = "your-billing-account-id"
+org_id = "your-org-id"
+
+# GitHub repository details
+github_owner = "your-github-username"
+github_repo = "GoalGetter" 
