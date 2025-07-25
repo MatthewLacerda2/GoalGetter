@@ -11,7 +11,7 @@ class AgendaScreen extends StatefulWidget {
   @override
   State<AgendaScreen> createState() => _AgendaScreenState();
 }
-
+//TODO: we need to warn the user when there is a goal without a task
 class _AgendaScreenState extends State<AgendaScreen> {
   int _selectedDay = DateTime.now().weekday % 7;
   List<Task> _tasks = [];

@@ -1,7 +1,9 @@
 // create task screen
 import 'package:flutter/material.dart';
 import 'package:goal_getter/models/task.dart';
+import 'package:goal_getter/models/goal.dart';
 import 'package:goal_getter/utils/task_storage.dart';
+import 'package:goal_getter/utils/goal_storage.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   const CreateTaskScreen({super.key});
@@ -15,8 +17,23 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final TextEditingController _durationController = TextEditingController();
   TimeOfDay? _selectedTime;
   Set<int> selectedWeekdays = {};
+  List<Goal> _goals = [];
+  String? _selectedGoalId;
 
   static const List<String> weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGoals();
+  }
+
+  Future<void> _loadGoals() async {
+    final goals = await GoalStorage.loadAll();
+    setState(() {
+      _goals = goals;
+    });
+  }
 
   Future<void> _pickTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -36,7 +53,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     final duration = int.tryParse(_durationController.text.trim());
     if (title.isEmpty || _selectedTime == null || duration == null || selectedWeekdays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields.')),
+        const SnackBar(content: Text('Please fill all required fields.')),
       );
       return;
     }
@@ -45,6 +62,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       title: title,
       startTime: _selectedTime!,
       durationMinutes: duration,
+      goalId: _selectedGoalId,
       weekdays: selectedWeekdays.toList(),
     );
     await TaskStorage.saveNew(task);
@@ -87,6 +105,31 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               controller: _durationController,
               decoration: const InputDecoration(labelText: 'Duration (minutes)'),
               keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            // Goal Selection
+            DropdownButtonFormField<String>(
+              value: _selectedGoalId,
+              decoration: const InputDecoration(
+                labelText: 'Goal (optional)',
+                border: OutlineInputBorder(),
+              ),
+              hint: const Text('Select a goal'),
+              items: [
+                const DropdownMenuItem<String>(
+                  value: null,
+                  child: Text('No goal'),
+                ),
+                ..._goals.map((goal) => DropdownMenuItem<String>(
+                  value: goal.id,
+                  child: Text(goal.title),
+                )).toList(),
+              ],
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedGoalId = newValue;
+                });
+              },
             ),
             const SizedBox(height: 24),
             // Weekday selector

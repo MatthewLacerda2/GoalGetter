@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/goal.dart';
 import 'package:uuid/uuid.dart';
+import 'task_storage.dart';
 
 class GoalStorage {
   static const String _goalsKey = 'goals';
@@ -48,6 +49,14 @@ class GoalStorage {
     final all = await loadAll();
     all.removeWhere((g) => g.id == id);
     await prefs.setString(_goalsKey, json.encode(all.map((g) => g.toMap()).toList()));
+    
+    // Delete all tasks that have this goal assigned
+    final tasks = await TaskStorage.loadAll();
+    for (final task in tasks) {
+      if (task.goalId == id) {
+        await TaskStorage.deleteTask(task.id);
+      }
+    }
   }
 }
 
