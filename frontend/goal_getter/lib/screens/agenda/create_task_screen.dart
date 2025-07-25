@@ -23,6 +23,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       context: context,
       initialTime: _selectedTime ?? TimeOfDay.now(),
     );
+    if (!mounted) return;
     if (picked != null) {
       setState(() {
         _selectedTime = picked;
@@ -47,6 +48,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       weekdays: selectedWeekdays.toList(),
     );
     await TaskStorage.saveNew(task);
+    if (!mounted) return;
     Navigator.of(context).pop(); // Go back after saving
   }
 
@@ -128,9 +130,23 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             // Save button
             SizedBox(
               width: double.infinity,
+              height: 50,
               child: ElevatedButton(
                 onPressed: _saveTask,
-                child: const Text('Save'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Save',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],

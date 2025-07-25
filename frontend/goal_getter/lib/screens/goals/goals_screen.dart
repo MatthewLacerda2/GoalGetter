@@ -42,7 +42,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No goals yet',
+                    'Set up your Goals',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
