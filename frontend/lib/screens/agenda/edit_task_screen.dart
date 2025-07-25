@@ -1,18 +1,20 @@
-// create task screen
+// edit task screen
 import 'package:flutter/material.dart';
 import 'package:goal_getter/models/task.dart';
 import 'package:goal_getter/models/goal.dart';
 import 'package:goal_getter/utils/task_storage.dart';
 import 'package:goal_getter/utils/goal_storage.dart';
 
-class CreateTaskScreen extends StatefulWidget {
-  const CreateTaskScreen({super.key});
+class EditTaskScreen extends StatefulWidget {
+  final Task task;
+  
+  const EditTaskScreen({super.key, required this.task});
 
   @override
-  State<CreateTaskScreen> createState() => _CreateTaskScreenState();
+  State<EditTaskScreen> createState() => _EditTaskScreenState();
 }
 
-class _CreateTaskScreenState extends State<CreateTaskScreen> {
+class _EditTaskScreenState extends State<EditTaskScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
   final TextEditingController _goalSearchController = TextEditingController();
@@ -28,6 +30,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeFields();
     _loadGoals();
     _goalSearchController.addListener(_filterGoals);
   }
@@ -36,6 +39,28 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   void dispose() {
     _goalSearchController.dispose();
     super.dispose();
+  }
+
+  void _initializeFields() {
+    // Initialize fields with existing task data
+    _titleController.text = widget.task.title;
+    _durationController.text = widget.task.durationMinutes.toString();
+    _selectedTime = widget.task.startTime;
+    selectedWeekdays = Set<int>.from(widget.task.weekdays);
+    _selectedGoalId = widget.task.goalId;
+    
+    // Set goal search text if there's a selected goal
+    if (_selectedGoalId != null) {
+      _loadGoals().then((_) {
+        final selectedGoal = _goals.firstWhere(
+          (goal) => goal.id == _selectedGoalId,
+          orElse: () => Goal(id: '', title: '', description: '', weeklyHours: 0, totalHours: 0),
+        );
+        if (selectedGoal.id.isNotEmpty) {
+          _goalSearchController.text = selectedGoal.title;
+        }
+      });
+    }
   }
 
   Future<void> _loadGoals() async {
@@ -97,15 +122,17 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       );
       return;
     }
-    final task = Task(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+    
+    final updatedTask = Task(
+      id: widget.task.id, // Keep the original ID
       title: title,
       startTime: _selectedTime!,
       durationMinutes: duration,
       goalId: _selectedGoalId,
       weekdays: selectedWeekdays.toList(),
     );
-    await TaskStorage.saveNew(task);
+    
+    await TaskStorage.saveById(widget.task.id, updatedTask);
     if (!mounted) return;
     Navigator.of(context).pop(); // Go back after saving
   }
@@ -129,7 +156,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Task')),
+      appBar: AppBar(title: const Text('Edit Task')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -270,7 +297,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                     });
                   },
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4), // Reduced from 6 to 4
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
@@ -306,7 +333,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Save',
+                  'Save Changes',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -319,4 +346,4 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       ),
     );
   }
-}
+} 

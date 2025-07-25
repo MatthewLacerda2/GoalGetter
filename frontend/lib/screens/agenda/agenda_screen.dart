@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/screens/goals/week.dart';
 import 'create_task_screen.dart';
+import 'edit_task_screen.dart'; // Add this import
 import '../../models/task.dart';
 import '../../utils/task_storage.dart';
 import '../../utils/tasked_goal.dart';
@@ -182,26 +183,43 @@ class _AgendaScreenState extends State<AgendaScreen> {
                               // Check for unassigned goals after task deletion
                               _checkForUnassignedGoals();
                             },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(task.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 4),
-                                        Text('Duration: ${task.durationMinutes} minutes', style: const TextStyle(fontSize: 14, color: Colors.black87)),
-                                      ],
-                                    ),
+                            child: GestureDetector(
+                              onTap: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditTaskScreen(task: task),
                                   ),
-                                  Text(
-                                    task.startTime.format(context),
-                                    style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold),
+                                );
+                                // Refresh tasks when returning from edit task screen
+                                _loadTasks();
+                                // Check for unassigned goals after editing a task
+                                _checkForUnassignedGoals();
+                              },
+                              child: Container(
+                                color: Colors.grey.shade100,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(task.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                            const SizedBox(height: 4),
+                                            Text('Duration: ${task.durationMinutes} minutes', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        task.startTime.format(context),
+                                        style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           );

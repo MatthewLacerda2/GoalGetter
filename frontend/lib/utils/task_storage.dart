@@ -37,4 +37,18 @@ class TaskStorage {
     final List<dynamic> jsonList = jsonDecode(jsonString);
     return jsonList.map((json) => Task.fromJson(json)).toList();
   }
+
+  // Save a task by its ID (for editing existing tasks)
+  static Future<void> saveById(String taskId, Task updatedTask) async {
+    final prefs = await SharedPreferences.getInstance();
+    final tasks = await loadAll();
+    
+    // Find and replace the task with the matching ID
+    final taskIndex = tasks.indexWhere((task) => task.id == taskId);
+    if (taskIndex != -1) {
+      tasks[taskIndex] = updatedTask;
+      final tasksJson = tasks.map((t) => t.toJson()).toList();
+      await prefs.setString(_tasksKey, jsonEncode(tasksJson));
+    }
+  }
 }
