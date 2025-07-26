@@ -4,6 +4,7 @@ import 'package:goal_getter/models/task.dart';
 import 'package:goal_getter/models/goal.dart';
 import 'package:goal_getter/utils/task_storage.dart';
 import 'package:goal_getter/utils/goal_storage.dart';
+import '../../widgets/screens/goals/goal_searcher.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final Task task;
@@ -191,94 +192,13 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
             const SizedBox(height: 16),
             // Goal Selection
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Goal (optional)', style: TextStyle(fontSize: 16)),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Column(
-                    children: [
-                      // Search input
-                      TextField(
-                        controller: _goalSearchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search goals...',
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_selectedGoalId != null)
-                                IconButton(
-                                  icon: const Icon(Icons.clear, size: 20),
-                                  onPressed: _clearGoalSelection,
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              IconButton(
-                                icon: Icon(
-                                  _isGoalDropdownOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isGoalDropdownOpen = !_isGoalDropdownOpen;
-                                  });
-                                },
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _isGoalDropdownOpen = true;
-                          });
-                        },
-                      ),
-                      // Dropdown list
-                      if (_isGoalDropdownOpen)
-                        Container(
-                          constraints: const BoxConstraints(maxHeight: 200),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                              top: BorderSide(color: Colors.grey.shade300),
-                            ),
-                          ),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _filteredGoals.length + 1, // +1 for "No goal" option
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return ListTile(
-                                  dense: true,
-                                  title: const Text('No goal'),
-                                  onTap: _clearGoalSelection,
-                                  tileColor: _selectedGoalId == null ? Colors.blue.shade50 : null,
-                                );
-                              }
-                              final goal = _filteredGoals[index - 1];
-                              final isSelected = _selectedGoalId == goal.id;
-                              return ListTile(
-                                dense: true,
-                                title: Text(goal.title),
-                                onTap: () => _selectGoal(goal),
-                                tileColor: isSelected ? Colors.blue.shade50 : null,
-                              );
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+            GoalSearcher(
+              selectedGoalId: _selectedGoalId,
+              onGoalSelected: (goal) {
+                setState(() {
+                  _selectedGoalId = goal?.id;
+                });
+              },
             ),
             const SizedBox(height: 24),
             // Weekday selector
