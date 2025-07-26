@@ -96,7 +96,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
 
   // Helper method to format time range
   String _formatTimeRange(TimeOfDay startTime, TimeOfDay endTime) {
-    return '${startTime.format(context)} - ${endTime.format(context)}';
+    return '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')} - ${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -237,14 +237,26 @@ class _AgendaScreenState extends State<AgendaScreen> {
                                               children: [
                                                 Text(task.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                                 const SizedBox(height: 4),
-                                                if (goalTitle != null)
-                                                  Text('Goal: $goalTitle', style: const TextStyle(fontSize: 14, color: Colors.orange, fontWeight: FontWeight.bold)),
+                                                Text(
+                                                  goalTitle != null ? 'Goal: $goalTitle' : ' ',
+                                                  style: TextStyle(
+                                                    fontSize: 14, 
+                                                    color: goalTitle != null ? Colors.orange : Colors.transparent,
+                                                    fontWeight: goalTitle != null ? FontWeight.bold : FontWeight.normal,
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),
-                                          Text(
-                                            _formatTimeRange(task.startTime, endTime),
-                                            style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              const SizedBox(height: 4), // Align with space between title and goal
+                                              Text(
+                                                _formatTimeRange(task.startTime, endTime),
+                                                style: const TextStyle(fontSize: 24, color: Colors.blue, fontWeight: FontWeight.bold),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
