@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
+import '../../widgets/screens/goals/goal_progress_measurer.dart';
 
 class GoalScreen extends StatefulWidget {
   const GoalScreen({super.key, this.goal});
@@ -178,62 +179,11 @@ class _GoalScreenState extends State<GoalScreen> {
               const SizedBox(height: 16),
 
               // Progress Section
-              Row(
-                children: [
-                  // Hours this week
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hours this week:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          (widget.goal?.totalWeekSpent.toStringAsFixed(1) ?? '0.0'),
-                          style: TextStyle(
-                            fontSize: 56, // 4x bigger than the text above
-                            fontWeight: FontWeight.bold,
-                            color: (widget.goal?.totalWeekSpent ?? 0.0) >= (widget.goal?.weeklyHours ?? 0.0)
-                                ? Colors.blue
-                                : Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Hours total
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hours total:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          (widget.goal?.totalSpent.toStringAsFixed(1) ?? '0.0'),
-                          style: TextStyle(
-                            fontSize: 56, // 4x bigger than the text above
-                            fontWeight: FontWeight.bold,
-                            color: (widget.goal?.totalSpent ?? 0.0) >= (widget.goal?.totalHours ?? 0.0)
-                                ? Colors.blue
-                                : Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              GoalProgressMeasurer(
+                hoursPerWeek: widget.goal?.weeklyHours ?? 0.0,
+                hoursTotal: widget.goal?.totalHours,
+                currentWeekHours: widget.goal?.totalWeekSpent ?? 0.0,
+                currentTotalHours: widget.goal?.totalSpent ?? 0.0,  
               ),
               const SizedBox(height: 24),
             ],
