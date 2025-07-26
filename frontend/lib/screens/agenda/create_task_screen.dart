@@ -1,9 +1,7 @@
 // create task screen
 import 'package:flutter/material.dart';
 import 'package:goal_getter/models/task.dart';
-import 'package:goal_getter/models/goal.dart';
 import 'package:goal_getter/utils/task_storage.dart';
-import 'package:goal_getter/utils/goal_storage.dart';
 import '../../widgets/screens/goals/goal_searcher.dart';
 
 class CreateTaskScreen extends StatefulWidget {
@@ -16,64 +14,20 @@ class CreateTaskScreen extends StatefulWidget {
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
-  final TextEditingController _goalSearchController = TextEditingController();
   TimeOfDay? _selectedTime;
   Set<int> selectedWeekdays = {};
-  List<Goal> _goals = [];
   String? _selectedGoalId;
-  bool _isGoalDropdownOpen = false;
-  List<Goal> _filteredGoals = [];
 
   static const List<String> weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   @override
   void initState() {
     super.initState();
-    _loadGoals();
-    _goalSearchController.addListener(_filterGoals);
   }
 
   @override
   void dispose() {
-    _goalSearchController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadGoals() async {
-    final goals = await GoalStorage.loadAll();
-    setState(() {
-      _goals = goals;
-      _filteredGoals = goals;
-    });
-  }
-
-  void _filterGoals() {
-    final searchTerm = _goalSearchController.text.toLowerCase().trim();
-    
-    if (searchTerm.isEmpty) {
-      setState(() {
-        _filteredGoals = _goals;
-      });
-      return;
-    }
-
-    final matchingGoals = _goals.where((goal) => 
-      goal.title.toLowerCase().contains(searchTerm)
-    ).toList();
-
-    // Sort goals: those starting with search term first, then others
-    matchingGoals.sort((a, b) {
-      final aStartsWith = a.title.toLowerCase().startsWith(searchTerm);
-      final bStartsWith = b.title.toLowerCase().startsWith(searchTerm);
-      
-      if (aStartsWith && !bStartsWith) return -1;
-      if (!aStartsWith && bStartsWith) return 1;
-      return a.title.compareTo(b.title); // Alphabetical order for same type
-    });
-
-    setState(() {
-      _filteredGoals = matchingGoals;
-    });
   }
 
   Future<void> _pickTime(BuildContext context) async {
@@ -109,22 +63,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     await TaskStorage.saveNew(task);
     if (!mounted) return;
     Navigator.of(context).pop(); // Go back after saving
-  }
-
-  void _selectGoal(Goal goal) {
-    setState(() {
-      _selectedGoalId = goal.id;
-      _goalSearchController.text = goal.title;
-      _isGoalDropdownOpen = false;
-    });
-  }
-
-  void _clearGoalSelection() {
-    setState(() {
-      _selectedGoalId = null;
-      _goalSearchController.clear();
-      _isGoalDropdownOpen = false;
-    });
   }
 
   @override
