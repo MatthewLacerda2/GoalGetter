@@ -154,7 +154,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                                     goal.title,
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  Text(goal.description),
+                                  Text(goal.description ?? ''),
                                 ],
                               ),
                             ),

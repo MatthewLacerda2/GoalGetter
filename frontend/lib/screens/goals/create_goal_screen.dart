@@ -34,9 +34,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
       final goal = Goal(
         id: '', // Let storage assign a UUID
         title: _titleController.text,
-        description: _descriptionController.text,
+        description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
         weeklyHours: double.parse(_weeklyHoursController.text),
-        totalHours: double.parse(_totalHoursController.text),
+        totalHours: _totalHoursController.text.isEmpty ? null : double.parse(_totalHoursController.text),
       );
 
       // Save goal to storage
@@ -95,19 +95,13 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                  labelText: 'Description',
+                  labelText: 'Description (Optional)',
                   hintText: 'Describe your goal in detail...',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
                 maxLength: 128,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 12),
 
@@ -155,7 +149,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               TextFormField(
                 controller: _totalHoursController,
                 decoration: const InputDecoration(
-                  labelText: 'Target Hours',
+                  labelText: 'Target Hours (Optional)',
                   hintText: 'e.g., 360',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.timeline),
@@ -163,14 +157,13 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter target hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  if (double.parse(value) < 0) {
-                    return 'Total hours must be greater than or equal to 0';
+                  if (value != null && value.isNotEmpty) {
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    if (double.parse(value) < 0) {
+                      return 'Total hours must be greater than or equal to 0';
+                    }
                   }
                   return null;
                 },

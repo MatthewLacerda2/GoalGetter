@@ -31,9 +31,9 @@ class _GoalScreenState extends State<GoalScreen> {
     super.initState();
     if (widget.goal != null) {
       _titleController.text = widget.goal!.title;
-      _descriptionController.text = widget.goal!.description;
+      _descriptionController.text = widget.goal!.description ?? '';
       _weeklyHoursController.text = widget.goal!.weeklyHours.toString();
-      _totalHoursController.text = widget.goal!.totalHours.toString();
+      _totalHoursController.text = widget.goal!.totalHours?.toString() ?? '';
     }
   }
 
@@ -43,9 +43,9 @@ class _GoalScreenState extends State<GoalScreen> {
       final goal = Goal(
         id: widget.goal?.id ?? '', // Use existing ID if editing, otherwise empty
         title: _titleController.text,
-        description: _descriptionController.text,
+        description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
         weeklyHours: double.parse(_weeklyHoursController.text),
-        totalHours: double.parse(_totalHoursController.text),
+        totalHours: _totalHoursController.text.isEmpty ? null : double.parse(_totalHoursController.text),
       );
 
       if (widget.goal != null) {
@@ -106,19 +106,13 @@ class _GoalScreenState extends State<GoalScreen> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                  labelText: 'Description',
+                  labelText: 'Description (Optional)',
                   hintText: 'Describe your goal in detail...',
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
                 maxLength: 128,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 12),
 
@@ -162,7 +156,7 @@ class _GoalScreenState extends State<GoalScreen> {
               TextFormField(
                 controller: _totalHoursController,
                 decoration: const InputDecoration(
-                  labelText: 'Target Hours',
+                  labelText: 'Target Hours (Optional)',
                   hintText: 'e.g., 360',
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.timeline),
@@ -170,14 +164,13 @@ class _GoalScreenState extends State<GoalScreen> {
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter target hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  if (double.parse(value) < 0) {
-                    return 'Total hours must be greater than or equal to 0';
+                  if (value != null && value.isNotEmpty) {
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    if (double.parse(value) < 0) {
+                      return 'Total hours must be greater than or equal to 0';
+                    }
                   }
                   return null;
                 },

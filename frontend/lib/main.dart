@@ -36,8 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
   static const List<Widget> _tabPages = <Widget>[
-    AgendaScreen(),
     GoalsScreen(),
+    AgendaScreen(),
     Center(child: Text('Profile Page (Coming Soon)')),
   ];
 
@@ -56,12 +56,12 @@ class _MyHomePageState extends State<MyHomePage> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.event_note),
-            label: 'Agenda',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.flag),
             label: 'Goals',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event_note),
+            label: 'Agenda',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
