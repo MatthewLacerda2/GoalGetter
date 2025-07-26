@@ -181,8 +181,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.timeline, size: 16, color: Colors.grey.shade600),
+                                    Icon(
+                                      goal.totalHours != null ? Icons.timeline : Icons.all_inclusive,
+                                      size: 16,
+                                      color: Colors.grey.shade600,
+                                    ),
                                     const SizedBox(width: 4),
+                                    if (goal.totalHours != null)
                                     Text(
                                       '${goal.totalHours}h',
                                       style: TextStyle(
