@@ -87,7 +87,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         children: [
           // Sorting buttons
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               border: Border(
@@ -96,16 +96,43 @@ class _GoalsScreenState extends State<GoalsScreen> {
             ),
             child: Row(
               children: [
+                // Arrow indicator
+                Container(
+                  width: 20,
+                  height: 16,
+                  alignment: Alignment.center,
+                  child: currentSortBy != null
+                      ? Icon(
+                          isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 20,
+                          color: Colors.grey.shade600,
+                        )
+                      : Icon(
+                          Icons.arrow_downward,
+                          size: 20,
+                          color: Colors.grey.shade400,
+                        ),
+                ),
+                const SizedBox(width: 4),
                 Expanded(
-                  child: _buildSortButton('name', 'Name'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: _buildSortButton('name', 'Name'),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _buildSortButton('week', 'Week'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: _buildSortButton('week', 'Week'),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _buildSortButton('total', 'Total'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: _buildSortButton('total', 'Total'),
+                  ),
                 ),
               ],
             ),
@@ -384,24 +411,12 @@ class _GoalsScreenState extends State<GoalsScreen> {
         ),
         padding: const EdgeInsets.symmetric(vertical: 12),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              fontSize: 14,
-            ),
-          ),
-          if (isSelected) ...[
-            const SizedBox(width: 6),
-            Icon(
-              isAscending ? Icons.arrow_upward : Icons.arrow_downward,
-              size: 16,
-            ),
-          ],
-        ],
+      child: Text(
+        label,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          fontSize: 14,
+        ),
       ),
     );
   }
