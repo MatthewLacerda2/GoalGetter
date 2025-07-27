@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/goals/goals_screen.dart';
 import 'screens/agenda/agenda_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
     GoalsScreen(),
     AgendaScreen(),
     Center(child: Text('Profile Page (Coming Soon)')),
+    ProfileScreen(),
   ];
 
   void _onTabTapped(int index) {
@@ -66,6 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
         currentIndex: _selectedIndex,
