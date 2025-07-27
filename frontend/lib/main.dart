@@ -52,7 +52,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Removed the AppBar here
-      body: _tabPages[_selectedIndex],
+      body: SafeArea(
+        child: _tabPages[_selectedIndex],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const [
