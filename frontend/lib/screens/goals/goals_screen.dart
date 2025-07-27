@@ -46,23 +46,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
           return isAscending ? comparison : -comparison;
         });
         break;
-      case 'total':
-        goals.sort((a, b) {
-          // Handle null totalHours (never ending goals)
-          if (a.totalHours == null && b.totalHours == null) {
-            return 0; // Both are never ending, maintain order
-          }
-          if (a.totalHours == null) {
-            return isAscending ? 1 : -1; // Never ending goals go last in ascending, first in descending
-          }
-          if (b.totalHours == null) {
-            return isAscending ? -1 : 1; // Never ending goals go last in ascending, first in descending
-          }
-          // Both have totalHours, compare normally
-          final comparison = a.totalHours!.compareTo(b.totalHours!);
-          return isAscending ? comparison : -comparison;
-        });
-        break;
     }
   }
 
@@ -125,13 +108,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: _buildSortButton('week', 'Week'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _buildSortButton('total', 'Total'),
                   ),
                 ),
               ],
@@ -307,26 +283,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.bold,
                                                     color: Colors.grey.shade700,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  goal.totalHours != null ? Icons.timeline : Icons.all_inclusive,
-                                                  size: 16,
-                                                  color: Colors.grey.shade600,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                if (goal.totalHours != null)
-                                                Text(
-                                                  '${goal.totalHours}h',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey.shade600,
                                                   ),
                                                 ),
                                               ],

@@ -16,14 +16,12 @@ class _GoalScreenState extends State<GoalScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _weeklyHoursController = TextEditingController();
-  final _totalHoursController = TextEditingController();
   
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     _weeklyHoursController.dispose();
-    _totalHoursController.dispose();
     super.dispose();
   }
 
@@ -34,7 +32,6 @@ class _GoalScreenState extends State<GoalScreen> {
       _titleController.text = widget.goal!.title;
       _descriptionController.text = widget.goal!.description ?? '';
       _weeklyHoursController.text = widget.goal!.weeklyHours.toString();
-      _totalHoursController.text = widget.goal!.totalHours?.toString() ?? '';
     }
   }
 
@@ -46,7 +43,6 @@ class _GoalScreenState extends State<GoalScreen> {
         title: _titleController.text,
         description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
         weeklyHours: double.parse(_weeklyHoursController.text),
-        totalHours: _totalHoursController.text.isEmpty ? null : double.parse(_totalHoursController.text),
       );
 
       if (widget.goal != null) {
@@ -151,39 +147,9 @@ class _GoalScreenState extends State<GoalScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 8),
-
-              // Total Hours
-              TextFormField(
-                controller: _totalHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Target Hours (Optional)',
-                  hintText: 'e.g., 360',
-                  border: UnderlineInputBorder(),
-                  prefixIcon: Icon(Icons.timeline),
-                  suffixText: 'hours total',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
-                    }
-                    if (double.parse(value) < 0) {
-                      return 'Total hours must be greater than or equal to 0';
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Progress Section
               GoalProgressMeasurer(
                 hoursPerWeek: widget.goal?.weeklyHours ?? 0.0,
-                hoursTotal: widget.goal?.totalHours,
                 currentWeekHours: widget.goal?.totalWeekSpent ?? 0.0,
-                currentTotalHours: widget.goal?.totalSpent ?? 0.0,  
               ),
               const SizedBox(height: 24),
             ],

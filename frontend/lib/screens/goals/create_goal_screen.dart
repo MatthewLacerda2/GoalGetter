@@ -14,7 +14,6 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _weeklyHoursController = TextEditingController();
-  final _totalHoursController = TextEditingController();
   
   // Maximum weekly hours allowed (12 * 7 = 84 hours)
   static const double _maxWeeklyHours = 84.0;
@@ -24,7 +23,6 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     _weeklyHoursController.dispose();
-    _totalHoursController.dispose();
     super.dispose();
   }
 
@@ -36,7 +34,6 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
         title: _titleController.text,
         description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
         weeklyHours: double.parse(_weeklyHoursController.text),
-        totalHours: _totalHoursController.text.isEmpty ? null : double.parse(_totalHoursController.text),
       );
 
       // Save goal to storage
@@ -143,32 +140,6 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 8),
-
-              // Total Hours
-              TextFormField(
-                controller: _totalHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Target Hours (Optional)',
-                  hintText: 'e.g., 360',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.timeline),
-                  suffixText: 'hours total',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
-                    }
-                    if (double.parse(value) < 0) {
-                      return 'Total hours must be greater than or equal to 0';
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
             ],
           ),
         ),

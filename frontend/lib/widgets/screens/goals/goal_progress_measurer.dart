@@ -4,22 +4,14 @@ class GoalProgressMeasurer extends StatelessWidget {
   const GoalProgressMeasurer({
     super.key,
     required this.hoursPerWeek,
-    this.hoursTotal,
     this.currentWeekHours = 0.0,
-    this.currentTotalHours = 0.0,
   });
 
   final double hoursPerWeek;
-  final double? hoursTotal;
   final double currentWeekHours;
-  final double currentTotalHours;
 
   String _formatExpectedTime() {
-    if (hoursTotal == null || hoursTotal == 0) {
-      return 'Not set';
-    }
-    
-    final weeks = (hoursTotal! / hoursPerWeek).ceil();
+    final weeks = (currentWeekHours / hoursPerWeek).ceil();
     
     if (weeks < 4) {
       return '${weeks}w';
@@ -38,7 +30,7 @@ class GoalProgressMeasurer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Check if total hours are set
-    final hasTotalHours = hoursTotal != null && hoursTotal! > 0;
+    final hasTotalHours = currentWeekHours > 0;
     
     return Row(
       children: [
