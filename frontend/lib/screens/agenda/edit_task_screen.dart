@@ -106,10 +106,17 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             // Time Picker
             Row(
               children: [
-                const Text('Time:'),
+                const Text('Hour:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () => _pickTime(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                   child: Text(
                     _selectedTime == null
                         ? 'Pick Time'

@@ -31,7 +31,7 @@ class IntroductionScreenWidget extends StatelessWidget {
             padding: EdgeInsets.only(bottom: 24.0),
             child: Center(
               child: FaIcon(
-                FontAwesomeIcons.tasks,
+                FontAwesomeIcons.listCheck,
                 size: 90,
                 color: Colors.deepPurple,
               ),
