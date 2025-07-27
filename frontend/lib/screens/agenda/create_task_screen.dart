@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/models/task.dart';
 import 'package:goal_getter/utils/task_storage.dart';
 import '../../widgets/screens/goals/goal_searcher.dart';
+import '../../widgets/screens/tasks/days_of_the_week.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   const CreateTaskScreen({super.key});
@@ -17,8 +18,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   TimeOfDay? _selectedTime;
   Set<int> selectedWeekdays = {};
   String? _selectedGoalId;
-
-  static const List<String> weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   @override
   void initState() {
@@ -119,49 +118,17 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Days of the week',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(7, (index) {
-                final isSelected = selectedWeekdays.contains(index);
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        selectedWeekdays.remove(index);
-                      } else {
-                        selectedWeekdays.add(index);
-                      }
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4), // Reduced from 6 to 4
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      weekdayLabels[index],
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              }),
+            DaysOfTheWeekSelector(
+              selectedWeekdays: selectedWeekdays,
+              onDayToggled: (index) {
+                setState(() {
+                  if (selectedWeekdays.contains(index)) {
+                    selectedWeekdays.remove(index);
+                  } else {
+                    selectedWeekdays.add(index);
+                  }
+                });
+              },
             ),
             const Spacer(),
             // Save button
