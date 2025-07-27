@@ -5,13 +5,11 @@ import '../../../utils/goal_storage.dart';
 class GoalSearcher extends StatefulWidget {
   final String? selectedGoalId;
   final Function(Goal? goal) onGoalSelected;
-  final String label;
 
   const GoalSearcher({
     super.key,
     this.selectedGoalId,
     required this.onGoalSelected,
-    this.label = 'Goal (optional)',
   });
 
   @override
@@ -97,7 +95,6 @@ class _GoalSearcherState extends State<GoalSearcher> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: const TextStyle(fontSize: 16)),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
@@ -110,7 +107,7 @@ class _GoalSearcherState extends State<GoalSearcher> {
               TextField(
                 controller: _goalSearchController,
                 decoration: InputDecoration(
-                  hintText: 'Search goals...',
+                  hintText: 'Goal (optional)',
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   suffixIcon: Row(

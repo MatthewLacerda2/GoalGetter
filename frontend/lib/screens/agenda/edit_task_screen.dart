@@ -93,6 +93,16 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               decoration: const InputDecoration(labelText: 'Title'),
             ),
             const SizedBox(height: 16),
+            // Goal Selection
+            GoalSearcher(
+              selectedGoalId: _selectedGoalId,
+              onGoalSelected: (goal) {
+                setState(() {
+                  _selectedGoalId = goal?.id;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
             // Time Picker
             Row(
               children: [
@@ -114,16 +124,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               controller: _durationController,
               decoration: const InputDecoration(labelText: 'Duration (minutes)'),
               keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            // Goal Selection
-            GoalSearcher(
-              selectedGoalId: _selectedGoalId,
-              onGoalSelected: (goal) {
-                setState(() {
-                  _selectedGoalId = goal?.id;
-                });
-              },
             ),
             const SizedBox(height: 24),
             const Text(
