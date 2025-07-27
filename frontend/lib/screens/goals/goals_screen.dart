@@ -384,12 +384,24 @@ class _GoalsScreenState extends State<GoalsScreen> {
         ),
         padding: const EdgeInsets.symmetric(vertical: 12),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          fontSize: 14,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 14,
+            ),
+          ),
+          if (isSelected) ...[
+            const SizedBox(width: 6),
+            Icon(
+              isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+              size: 16,
+            ),
+          ],
+        ],
       ),
     );
   }
