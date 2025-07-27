@@ -39,7 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
   static const List<Widget> _tabPages = <Widget>[
     GoalsScreen(),
     AgendaScreen(),
-    Center(child: Text('Profile Page (Coming Soon)')),
     ProfileScreen(),
   ];
 
@@ -68,10 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
           ),
         ],
         currentIndex: _selectedIndex,

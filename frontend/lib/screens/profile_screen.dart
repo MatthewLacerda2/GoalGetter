@@ -1,7 +1,7 @@
-// profile_screen.dart
 import 'package:flutter/material.dart';
 import '../utils/settings_storage.dart';
 import 'about.dart';
+import 'introduction_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -83,10 +83,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'How to use',
               Icons.help_outline,
               () {
-                // TODO: Navigate to Introduction screen
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Introduction screen coming soon!'),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const IntroductionScreenWidget(),
                   ),
                 );
               },
