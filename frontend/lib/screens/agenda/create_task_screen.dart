@@ -112,7 +112,14 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               },
             ),
             const SizedBox(height: 24),
-            // Weekday selector
+            const Text(
+              'Days of the week',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(7, (index) {
