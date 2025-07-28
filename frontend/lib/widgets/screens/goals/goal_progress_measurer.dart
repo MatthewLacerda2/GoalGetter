@@ -1,37 +1,24 @@
 import 'package:flutter/material.dart';
+import '../../../utils/task_storage.dart';
 
 class GoalProgressMeasurer extends StatelessWidget {
   const GoalProgressMeasurer({
     super.key,
     required this.hoursPerWeek,
-    this.currentWeekHours = 0.0,
+    required this.goalId,
   });
 
   final double hoursPerWeek;
-  final double currentWeekHours;
+  final String goalId;
 
-  String _formatExpectedTime() {
-    final weeks = (currentWeekHours / hoursPerWeek).ceil();
-    
-    if (weeks < 4) {
-      return '${weeks}w';
-    } else {
-      final months = weeks ~/ 4;
-      final remainingWeeks = weeks % 4;
-      
-      if (remainingWeeks == 0) {
-        return '${months}m';
-      } else {
-        return '${months}m${remainingWeeks}w';
-      }
-    }
+  Future<String> _getReservedTime() async {
+    final totalDuration = await TaskStorage.getTotalDurationForGoal(goalId); 
+    return totalDuration.toStringAsFixed(1);
   }
 
+  //I left this as Row because i'll eventually add another text to the side
   @override
   Widget build(BuildContext context) {
-    // Check if total hours are set
-    final hasTotalHours = currentWeekHours > 0;
-    
     return Row(
       children: [
         Expanded(
@@ -39,51 +26,28 @@ class GoalProgressMeasurer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hours this week:',
+                'Time commited:',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade600,
                 ),
               ),
-              Text(
-                currentWeekHours.toStringAsFixed(1),
-                style: TextStyle(
-                  fontSize: 56, // 4x bigger than the text above
-                  fontWeight: FontWeight.bold,
-                  color: currentWeekHours >= hoursPerWeek
-                      ? Colors.blue
-                      : Colors.grey.shade600,
-                ),
+              FutureBuilder<String>(
+                future: _getReservedTime(),
+                builder: (context, snapshot) {
+                  return Text(
+                    snapshot.data ?? '0.0',
+                    style: TextStyle(
+                      fontSize: 56, // 4x bigger than the text above
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade600,
+                    ),
+                  );
+                },
               ),
             ],
           ),
         ),
-        
-        // Expected time - only show if total hours are set
-        if (hasTotalHours)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Expected time:',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatExpectedTime(),
-                  style: TextStyle(
-                    fontSize: 56, // 4x bigger than the text above
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }

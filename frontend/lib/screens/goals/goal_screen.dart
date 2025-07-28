@@ -85,7 +85,7 @@ class _GoalScreenState extends State<GoalScreen> {
                 controller: _titleController,
                 decoration: const InputDecoration(
                   labelText: 'Goal Title',
-                  hintText: 'e.g., Learn Flutter Programming',
+                  hintText: 'e.g., Read a book',
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.flag),
                 ),
@@ -148,7 +148,7 @@ class _GoalScreenState extends State<GoalScreen> {
               const SizedBox(height: 12),
               GoalProgressMeasurer(
                 hoursPerWeek: widget.goal?.weeklyHours ?? 0.0,
-                currentWeekHours: widget.goal?.totalTaskedHours ?? 0.0,
+                goalId: widget.goal?.id ?? '',
               ),
               const SizedBox(height: 16),
             ],

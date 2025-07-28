@@ -74,7 +74,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 controller: _titleController,
                 decoration: const InputDecoration(
                   labelText: 'Goal Title',
-                  hintText: 'e.g., Learn Flutter Programming',
+                  hintText: 'e.g., Read a book',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.flag),
                 ),
