@@ -116,10 +116,6 @@
     "@goalCreatedSuccessfully": {
         "description": "Mensagem de sucesso quando meta é criada"
     },
-    "createTask": "Criar Tarefa",
-    "@createTask": {
-        "description": "Rótulo do botão criar tarefa"
-    },
     "thisFieldIsRequired": "Este campo é obrigatório",
     "@thisFieldIsRequired": {
         "description": "Mensagem de validação para campo obrigatório"
@@ -189,5 +185,55 @@
     "reserved": "Reservado",
     "@reserved": {
         "description": "Rótulo do campo reservado"
+    },
+    "goalNeedsTime": "{goalTitle} precisa de {minutesMissing}min/w",
+    "@goalNeedsTime": {
+        "description": "Mensagem para meta que precisa de tempo",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            },
+            "minutesMissing": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "dismiss": "Descartar",
+    "@dismiss": {
+        "description": "Rótulo do botão descartar"
+    },
+    "pleaseFillAllRequiredFields": "Please fill all required fields.",
+    "@pleaseFillAllRequiredFields": {
+        "description": "Message for required fields"
+    },
+    "title": "Título",
+    "@title": {
+        "description": "Label for title field"
+    },
+    "createTask": "Create Task",
+    "@createTask": {
+        "description": "Label for create task screen"
+    },
+    "ifTheTaskHasASpecificGoal": "If the task has a specific goal, you can select it here.",
+    "@ifTheTaskHasASpecificGoal": {
+        "description": "Helper text for specific goal selection"
+    },
+    "hour": "Hour",
+    "@hour": {
+        "description": "Label for hour field"
+    },
+    "pickTime": "Pick Time",
+    "@pickTime": {
+        "description": "Label for pick time button"
+    },
+    "duration": "Duration",
+    "@duration": {
+        "description": "Label for duration field"
+    },
+    "editTask": "Editar Tarefa",
+    "@editTask": {
+        "description": "Label for edit task screen"
     }
 }

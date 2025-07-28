@@ -5,6 +5,7 @@ import 'package:goal_getter/utils/task_storage.dart';
 import '../../widgets/screens/goals/goal_searcher.dart';
 import '../../widgets/screens/tasks/days_of_the_week.dart';
 import '../../widgets/duration_handler.dart';
+import '../../l10n/app_localizations.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   final String? goalId;
@@ -51,7 +52,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     
     if (title.isEmpty || _selectedTime == null || totalDurationMinutes == 0 || selectedWeekdays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseFillAllRequiredFields)),
       );
       return;
     }
@@ -72,7 +73,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Task')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.createTask)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -81,12 +82,12 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             // Title
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.title),
             ),
             const SizedBox(height: 16),
             // Goal Selection
             Text(
-              'If the task has a specific...',
+              AppLocalizations.of(context)!.ifTheTaskHasASpecificGoal,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontStyle: FontStyle.italic,
@@ -107,7 +108,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             // Time Picker
             Row(
               children: [
-                const Text('Hour:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
+                Text(AppLocalizations.of(context)!.hour, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () => _pickTime(context),
@@ -120,7 +121,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   ),
                   child: Text(
                     _selectedTime == null
-                        ? 'Pick Time'
+                        ? AppLocalizations.of(context)!.pickTime
                         : _selectedTime!.format(context),
                   ),
                 ),
@@ -129,7 +130,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             const SizedBox(height: 16),
             // Duration Handler
             DurationHandler(
-              label: 'Duration',
+              label: AppLocalizations.of(context)!.duration,
               isRequired: true,
               onDurationChanged: (hours, minutes) {
                 setState(() {
@@ -165,8 +166,8 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'Save',
+                child: Text(
+                  AppLocalizations.of(context)!.save,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

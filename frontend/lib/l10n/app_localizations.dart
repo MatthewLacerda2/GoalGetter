@@ -251,12 +251,6 @@ abstract class AppLocalizations {
   /// **'Goal created successfully!'**
   String get goalCreatedSuccessfully;
 
-  /// Create task button label
-  ///
-  /// In en, this message translates to:
-  /// **'Create Task'**
-  String get createTask;
-
   /// Validation message for required field
   ///
   /// In en, this message translates to:
@@ -352,6 +346,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reserved'**
   String get reserved;
+
+  /// Message for goal needs time
+  ///
+  /// In en, this message translates to:
+  /// **'{goalTitle} needs {minutesMissing}min/w'**
+  String goalNeedsTime(String goalTitle, int minutesMissing);
+
+  /// Label for dismiss button
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get dismiss;
+
+  /// Message for required fields
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill all required fields.'**
+  String get pleaseFillAllRequiredFields;
+
+  /// Label for title field
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get title;
+
+  /// Label for create task screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create Task'**
+  String get createTask;
+
+  /// Helper text for specific goal selection
+  ///
+  /// In en, this message translates to:
+  /// **'If the task has a specific goal, you can select it here.'**
+  String get ifTheTaskHasASpecificGoal;
+
+  /// Label for hour field
+  ///
+  /// In en, this message translates to:
+  /// **'Hour'**
+  String get hour;
+
+  /// Label for pick time button
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Time'**
+  String get pickTime;
+
+  /// Label for duration field
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get duration;
+
+  /// Label for edit task screen
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Task'**
+  String get editTask;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

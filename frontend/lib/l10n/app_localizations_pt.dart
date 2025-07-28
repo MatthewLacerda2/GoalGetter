@@ -91,9 +91,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get goalCreatedSuccessfully => 'Meta criada com sucesso!';
 
   @override
-  String get createTask => 'Criar Tarefa';
-
-  @override
   String get thisFieldIsRequired => 'Este campo é obrigatório';
 
   @override
@@ -138,8 +135,40 @@ class AppLocalizationsPt extends AppLocalizations {
   String get delete => 'Excluir';
 
   @override
-  String get commited => 'Comitado';
+  String get commited => 'Comprometido';
 
   @override
   String get reserved => 'Reservado';
+
+  @override
+  String goalNeedsTime(String goalTitle, int minutesMissing) {
+    return '$goalTitle precisa de ${minutesMissing}min/w';
+  }
+
+  @override
+  String get dismiss => 'Descartar';
+
+  @override
+  String get pleaseFillAllRequiredFields => 'Please fill all required fields.';
+
+  @override
+  String get title => 'Título';
+
+  @override
+  String get createTask => 'Create Task';
+
+  @override
+  String get ifTheTaskHasASpecificGoal => 'If the task has a specific goal, you can select it here.';
+
+  @override
+  String get hour => 'Hour';
+
+  @override
+  String get pickTime => 'Pick Time';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String get editTask => 'Editar Tarefa';
 }

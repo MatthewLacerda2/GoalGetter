@@ -116,10 +116,6 @@
     "@goalCreatedSuccessfully": {
         "description": "Success message when goal is created"
     },
-    "createTask": "Create Task",
-    "@createTask": {
-        "description": "Create task button label"
-    },
     "thisFieldIsRequired": "This field is required",
     "@thisFieldIsRequired": {
         "description": "Validation message for required field"
@@ -189,5 +185,55 @@
     "reserved": "Reserved",
     "@reserved": {
         "description": "Label for reserved field"
+    },
+    "goalNeedsTime": "{goalTitle} needs {minutesMissing}min/w",
+    "@goalNeedsTime": {
+        "description": "Message for goal needs time",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            },
+            "minutesMissing": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "dismiss": "Dismiss",
+    "@dismiss": {
+        "description": "Label for dismiss button"
+    },
+    "pleaseFillAllRequiredFields": "Please fill all required fields.",
+    "@pleaseFillAllRequiredFields": {
+        "description": "Message for required fields"
+    },
+    "title": "Title",
+    "@title": {
+        "description": "Label for title field"
+    },
+    "createTask": "Create Task",
+    "@createTask": {
+        "description": "Label for create task screen"
+    },
+    "ifTheTaskHasASpecificGoal": "If the task has a specific goal, you can select it here.",
+    "@ifTheTaskHasASpecificGoal": {
+        "description": "Helper text for specific goal selection"
+    },
+    "hour": "Hour",
+    "@hour": {
+        "description": "Label for hour field"
+    },
+    "pickTime": "Pick Time",
+    "@pickTime": {
+        "description": "Label for pick time button"
+    },
+    "duration": "Duration",
+    "@duration": {
+        "description": "Label for duration field"
+    },
+    "editTask": "Edit Task",
+    "@editTask": {
+        "description": "Label for edit task screen"
     }
 }

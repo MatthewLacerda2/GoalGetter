@@ -91,9 +91,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalCreatedSuccessfully => 'Goal created successfully!';
 
   @override
-  String get createTask => 'Create Task';
-
-  @override
   String get thisFieldIsRequired => 'This field is required';
 
   @override
@@ -142,4 +139,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reserved => 'Reserved';
+
+  @override
+  String goalNeedsTime(String goalTitle, int minutesMissing) {
+    return '$goalTitle needs ${minutesMissing}min/w';
+  }
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get pleaseFillAllRequiredFields => 'Please fill all required fields.';
+
+  @override
+  String get title => 'Title';
+
+  @override
+  String get createTask => 'Create Task';
+
+  @override
+  String get ifTheTaskHasASpecificGoal => 'If the task has a specific goal, you can select it here.';
+
+  @override
+  String get hour => 'Hour';
+
+  @override
+  String get pickTime => 'Pick Time';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String get editTask => 'Edit Task';
 }

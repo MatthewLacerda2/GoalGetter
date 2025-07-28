@@ -5,6 +5,7 @@ import 'package:goal_getter/utils/task_storage.dart';
 import '../../widgets/screens/goals/goal_searcher.dart';
 import '../../widgets/screens/tasks/days_of_the_week.dart';
 import '../../widgets/duration_handler.dart';
+import '../../l10n/app_localizations.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final Task task;
@@ -65,7 +66,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     
     if (title.isEmpty || _selectedTime == null || totalDurationMinutes == 0 || selectedWeekdays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseFillAllRequiredFields)),
       );
       return;
     }
@@ -87,7 +88,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Task')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.editTask)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -95,7 +96,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             // Title
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.title),
             ),
             const SizedBox(height: 16),
             // Goal Selection
@@ -111,7 +112,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             // Time Picker
             Row(
               children: [
-                const Text('Hour:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
+                Text(AppLocalizations.of(context)!.hour, style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () => _pickTime(context),
@@ -124,7 +125,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   ),
                   child: Text(
                     _selectedTime == null
-                        ? 'Pick Time'
+                        ? AppLocalizations.of(context)!.pickTime
                         : _selectedTime!.format(context),
                   ),
                 ),
@@ -133,7 +134,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             const SizedBox(height: 16),
             // Duration Handler
             DurationHandler(
-              label: 'Duration',
+              label: AppLocalizations.of(context)!.duration,
               isRequired: true,
               initialHours: _durationHours,
               initialMinutes: _durationMinutes,
@@ -171,8 +172,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'Save Changes',
+                child: Text(
+                  AppLocalizations.of(context)!.save,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
