@@ -4,6 +4,7 @@ import 'package:goal_getter/models/task.dart';
 import 'package:goal_getter/utils/task_storage.dart';
 import '../../widgets/screens/goals/goal_searcher.dart';
 import '../../widgets/screens/tasks/days_of_the_week.dart';
+import '../../widgets/duration_handler.dart';
 
 class CreateTaskScreen extends StatefulWidget {
   final String? goalId;
@@ -15,10 +16,11 @@ class CreateTaskScreen extends StatefulWidget {
 
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _durationController = TextEditingController();
   TimeOfDay? _selectedTime;
   Set<int> selectedWeekdays = {};
   String? _selectedGoalId;
+  int _durationHours = 0;
+  int _durationMinutes = 0;
 
   @override
   void initState() {
@@ -45,18 +47,20 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
 
   void _saveTask() async {
     final title = _titleController.text.trim();
-    final duration = int.tryParse(_durationController.text.trim());
-    if (title.isEmpty || _selectedTime == null || duration == null || selectedWeekdays.isEmpty) {
+    final totalDurationMinutes = (_durationHours * 60) + _durationMinutes;
+    
+    if (title.isEmpty || _selectedTime == null || totalDurationMinutes == 0 || selectedWeekdays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields.')),
       );
       return;
     }
+    
     final task = Task(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       startTime: _selectedTime!,
-      durationMinutes: duration,
+      durationMinutes: totalDurationMinutes,
       goalId: widget.goalId,
       weekdays: selectedWeekdays.toList(),
     );
@@ -122,12 +126,17 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            // Duration
-            TextField(
-              controller: _durationController,
-              decoration: const InputDecoration(labelText: 'Duration (minutes)'),
-              keyboardType: TextInputType.number,
+            const SizedBox(height: 16),
+            // Duration Handler
+            DurationHandler(
+              label: 'Duration',
+              isRequired: true,
+              onDurationChanged: (hours, minutes) {
+                setState(() {
+                  _durationHours = hours;
+                  _durationMinutes = minutes;
+                });
+              },
             ),
             const SizedBox(height: 24),
             DaysOfTheWeekSelector(

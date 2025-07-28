@@ -4,6 +4,7 @@ import 'package:goal_getter/models/task.dart';
 import 'package:goal_getter/utils/task_storage.dart';
 import '../../widgets/screens/goals/goal_searcher.dart';
 import '../../widgets/screens/tasks/days_of_the_week.dart';
+import '../../widgets/duration_handler.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final Task task;
@@ -16,10 +17,11 @@ class EditTaskScreen extends StatefulWidget {
 
 class _EditTaskScreenState extends State<EditTaskScreen> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _durationController = TextEditingController();
   TimeOfDay? _selectedTime;
   Set<int> selectedWeekdays = {};
   String? _selectedGoalId;
+  int _durationHours = 0;
+  int _durationMinutes = 0;
 
   @override
   void initState() {
@@ -34,10 +36,14 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
   void _initializeFields() {
     _titleController.text = widget.task.title;
-    _durationController.text = widget.task.durationMinutes.toString();
     _selectedTime = widget.task.startTime;
     selectedWeekdays = Set<int>.from(widget.task.weekdays);
     _selectedGoalId = widget.task.goalId;
+    
+    // Convert total minutes to hours and minutes
+    final totalMinutes = widget.task.durationMinutes;
+    _durationHours = totalMinutes ~/ 60;
+    _durationMinutes = totalMinutes % 60;
   }
 
   Future<void> _pickTime(BuildContext context) async {
@@ -55,8 +61,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
   void _saveTask() async {
     final title = _titleController.text.trim();
-    final duration = int.tryParse(_durationController.text.trim());
-    if (title.isEmpty || _selectedTime == null || duration == null || selectedWeekdays.isEmpty) {
+    final totalDurationMinutes = (_durationHours * 60) + _durationMinutes;
+    
+    if (title.isEmpty || _selectedTime == null || totalDurationMinutes == 0 || selectedWeekdays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields.')),
       );
@@ -67,7 +74,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       id: widget.task.id, // Keep the original ID
       title: title,
       startTime: _selectedTime!,
-      durationMinutes: duration,
+      durationMinutes: totalDurationMinutes,
       goalId: _selectedGoalId,
       weekdays: selectedWeekdays.toList(),
     );
@@ -76,7 +83,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     if (!mounted) return;
     Navigator.of(context).pop(); // Go back after saving
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -125,11 +131,18 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            // Duration
-            TextField(
-              controller: _durationController,
-              decoration: const InputDecoration(labelText: 'Duration (minutes)'),
-              keyboardType: TextInputType.number,
+            // Duration Handler
+            DurationHandler(
+              label: 'Duration',
+              isRequired: true,
+              initialHours: _durationHours,
+              initialMinutes: _durationMinutes,
+              onDurationChanged: (hours, minutes) {
+                setState(() {
+                  _durationHours = hours;
+                  _durationMinutes = minutes;
+                });
+              },
             ),
             const SizedBox(height: 24),
             DaysOfTheWeekSelector(
