@@ -66,14 +66,14 @@ extension GoalCopyWith on Goal {
     String? title,
     String? description,
     double? weeklyHours,
-    double? totalWeekSpent,
+    double? totalTaskedHours,
   }) {
     return Goal(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       weeklyHours: weeklyHours ?? this.weeklyHours,
-      totalWeekSpent: totalWeekSpent ?? this.totalWeekSpent,
+      totalTaskedHours: totalTaskedHours ?? this.totalTaskedHours,
     );
   }
 }

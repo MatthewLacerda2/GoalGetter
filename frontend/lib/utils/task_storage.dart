@@ -51,4 +51,16 @@ class TaskStorage {
       await prefs.setString(_tasksKey, jsonEncode(tasksJson));
     }
   }
+
+  // Get total duration of tasks for a specific goal
+  static Future<int> getTotalDurationForGoal(String goalId) async {
+    final tasks = await loadAll();
+    int total = 0;
+    for (final task in tasks) {
+      if (task.goalId == goalId) {
+        total += task.durationMinutes * task.weekdays.length;
+      }
+    }
+    return total;
+  }
 }

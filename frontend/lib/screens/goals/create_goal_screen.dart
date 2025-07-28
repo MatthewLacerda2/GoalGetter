@@ -100,8 +100,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 maxLines: 3,
                 maxLength: 128,
               ),
-              const SizedBox(height: 12),
-
+              const SizedBox(height: 16),
               // Hours Section
               const Text(
                 'Time Commitment',
@@ -110,8 +109,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
-
+              const SizedBox(height: 4),
               // Weekly Hours
               TextFormField(
                 controller: _weeklyHoursController,

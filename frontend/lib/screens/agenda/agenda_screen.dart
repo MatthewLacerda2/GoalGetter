@@ -62,7 +62,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
       _snackBarController = ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${unassignedGoalInfo.goalTitle} needs ${unassignedGoalInfo.minutesMissing} more minutes per week',
+            '"${unassignedGoalInfo.goalTitle}" needs +${unassignedGoalInfo.minutesMissing}min/w',
             style: const TextStyle(fontSize: 16),
           ),
           backgroundColor: Colors.orange,

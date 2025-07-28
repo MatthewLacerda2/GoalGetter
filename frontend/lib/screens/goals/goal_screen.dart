@@ -111,8 +111,7 @@ class _GoalScreenState extends State<GoalScreen> {
                 maxLines: 3,
                 maxLength: 128,
               ),
-              const SizedBox(height: 12),
-
+              const SizedBox(height: 16),
               // Hours Section
               const Text(
                 'Time Commitment',
@@ -121,8 +120,7 @@ class _GoalScreenState extends State<GoalScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
-
+              const SizedBox(height: 4),
               // Weekly Hours
               TextFormField(
                 controller: _weeklyHoursController,
@@ -147,11 +145,12 @@ class _GoalScreenState extends State<GoalScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 12),
               GoalProgressMeasurer(
                 hoursPerWeek: widget.goal?.weeklyHours ?? 0.0,
-                currentWeekHours: widget.goal?.totalWeekSpent ?? 0.0,
+                currentWeekHours: widget.goal?.totalTaskedHours ?? 0.0,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
             ],
           ),
         ),

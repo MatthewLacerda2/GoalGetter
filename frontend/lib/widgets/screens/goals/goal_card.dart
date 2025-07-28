@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/goal.dart';
 import '../../../screens/goals/goal_screen.dart';
+import '../../../utils/task_storage.dart';
 
 class GoalCard extends StatelessWidget {
   final Goal goal;
@@ -110,10 +111,8 @@ class GoalCard extends StatelessWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
-                            const SizedBox(width: 4),
                             Text(
-                              '${goal.weeklyHours}h / w',
+                              'Commited: ${goal.weeklyHours}h/w',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -121,6 +120,22 @@ class GoalCard extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                        FutureBuilder<int>(
+                          future: TaskStorage.getTotalDurationForGoal(goal.id),
+                          builder: (context, snapshot) {
+                            final totalMinutes = snapshot.data ?? 0;
+                            final totalHours = (totalMinutes / 60).toStringAsFixed(1);
+                            final isOvercommitted = double.parse(totalHours) >= goal.weeklyHours;
+                            return Text(
+                              'Reserved: ${totalHours}h',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isOvercommitted ? Colors.lightBlueAccent : Colors.grey.shade600,
+                                fontWeight: isOvercommitted ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

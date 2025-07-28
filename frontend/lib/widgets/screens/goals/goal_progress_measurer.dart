@@ -34,7 +34,6 @@ class GoalProgressMeasurer extends StatelessWidget {
     
     return Row(
       children: [
-        // Hours this week
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,7 +45,6 @@ class GoalProgressMeasurer extends StatelessWidget {
                   color: Colors.grey.shade600,
                 ),
               ),
-              const SizedBox(height: 4),
               Text(
                 currentWeekHours.toStringAsFixed(1),
                 style: TextStyle(
