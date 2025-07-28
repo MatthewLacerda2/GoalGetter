@@ -3,6 +3,7 @@ import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
 import '../../widgets/screens/goals/goal_progress_measurer.dart';
 import '../../widgets/duration_handler.dart';
+import '../../l10n/app_localizations.dart';
 
 class GoalScreen extends StatefulWidget {
   const GoalScreen({super.key, this.goal});
@@ -52,7 +53,7 @@ class _GoalScreenState extends State<GoalScreen> {
   String? _validateWeeklyDuration(String? value) {
     final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
     if (totalHours <= 0) {
-      return 'Weekly time must be greater than 0';
+      return AppLocalizations.of(context)!.weeklyTimeMustBeGreater;
     }
     return null;
   }
@@ -81,7 +82,7 @@ class _GoalScreenState extends State<GoalScreen> {
       // Show success message and navigate back
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.goal != null ? 'Goal updated successfully!' : 'Goal created successfully!'),
+          content: Text(widget.goal != null ? AppLocalizations.of(context)!.goalUpdatedSuccessfully : AppLocalizations.of(context)!.goalCreatedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
@@ -94,7 +95,7 @@ class _GoalScreenState extends State<GoalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.goal != null ? widget.goal!.title : 'Create New Goal'),
+        title: Text(widget.goal != null ? widget.goal!.title : AppLocalizations.of(context)!.createNewGoal),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         elevation: 0,
       ),
@@ -108,16 +109,16 @@ class _GoalScreenState extends State<GoalScreen> {
               // Title Field
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Goal Title',
-                  hintText: 'e.g., Read a book',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.goalTitle,
+                  hintText: AppLocalizations.of(context)!.goalTitleHint,
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.flag),
                 ),
                 maxLength: 128,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a goal title';
+                    return AppLocalizations.of(context)!.pleaseEnterGoalTitle;
                   }
                   return null;
                 },
@@ -127,9 +128,9 @@ class _GoalScreenState extends State<GoalScreen> {
               // Description Field
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (Optional)',
-                  hintText: 'Describe your goal in detail...',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.description,
+                  hintText: AppLocalizations.of(context)!.descriptionHint,
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.description),
                 ),
@@ -137,8 +138,8 @@ class _GoalScreenState extends State<GoalScreen> {
                 maxLength: 128,
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Weekly Time Commitment',
+              Text(
+                AppLocalizations.of(context)!.weeklyTimeCommitment,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -178,7 +179,7 @@ class _GoalScreenState extends State<GoalScreen> {
               ),
             ),
             child: Text(
-              widget.goal != null ? 'Save' : 'Create',
+              widget.goal != null ? AppLocalizations.of(context)!.save : AppLocalizations.of(context)!.create,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

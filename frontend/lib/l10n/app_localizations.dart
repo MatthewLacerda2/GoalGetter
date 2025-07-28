@@ -172,6 +172,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undo'**
   String get undo;
+
+  /// Title for create goal screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Goal'**
+  String get createNewGoal;
+
+  /// Label for goal title field
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Title'**
+  String get goalTitle;
+
+  /// Hint text for goal title field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Read a book'**
+  String get goalTitleHint;
+
+  /// Validation message for empty goal title
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a goal title'**
+  String get pleaseEnterGoalTitle;
+
+  /// Label for description field
+  ///
+  /// In en, this message translates to:
+  /// **'Description (Optional)'**
+  String get description;
+
+  /// Hint text for description field
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your goal in detail...'**
+  String get descriptionHint;
+
+  /// Section title for weekly time commitment
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Time Commitment'**
+  String get weeklyTimeCommitment;
+
+  /// Validation message for empty weekly time
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter weekly time commitment'**
+  String get pleaseEnterWeeklyTime;
+
+  /// Validation message for zero weekly time
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly time must be greater than 0'**
+  String get weeklyTimeMustBeGreater;
+
+  /// Validation message for exceeding max weekly time
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly time cannot exceed {maxHours} hours'**
+  String weeklyTimeCannotExceed(int maxHours);
+
+  /// Helper text about creating tasks later
+  ///
+  /// In en, this message translates to:
+  /// **'You can create tasks for this goal later'**
+  String get youCanCreateTasksLater;
+
+  /// Create button label
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// Success message when goal is created
+  ///
+  /// In en, this message translates to:
+  /// **'Goal created successfully!'**
+  String get goalCreatedSuccessfully;
+
+  /// Create task button label
+  ///
+  /// In en, this message translates to:
+  /// **'Create Task'**
+  String get createTask;
+
+  /// Validation message for required field
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get thisFieldIsRequired;
+
+  /// Validation message for invalid number
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number'**
+  String get pleaseEnterValidNumber;
+
+  /// Validation message for negative value
+  ///
+  /// In en, this message translates to:
+  /// **'Value must be non-negative'**
+  String get valueMustBeNonNegative;
+
+  /// Label for hours field
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get hours;
+
+  /// Label for minutes field
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get minutes;
+
+  /// Validation message for minutes greater than 60
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes must be less than 60'**
+  String get minutesMustBeLessThan60;
+
+  /// Save button label
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// Success message when goal is updated
+  ///
+  /// In en, this message translates to:
+  /// **'Goal updated successfully!'**
+  String get goalUpdatedSuccessfully;
+
+  /// Snackbar message when goal is updated
+  ///
+  /// In en, this message translates to:
+  /// **'Goal updated'**
+  String get goalUpdated;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

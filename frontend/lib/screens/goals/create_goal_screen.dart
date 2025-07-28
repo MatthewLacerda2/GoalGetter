@@ -3,6 +3,7 @@ import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
 import '../agenda/create_task_screen.dart';
 import '../../widgets/duration_handler.dart';
+import '../../l10n/app_localizations.dart';
 
 class CreateGoalScreen extends StatefulWidget {
   const CreateGoalScreen({super.key});
@@ -21,7 +22,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   int _weeklyMinutes = 0;
   
   // Maximum weekly hours allowed (12 * 7 = 84 hours)
-  static const double _maxWeeklyHours = 84.0;
+  static const int _maxWeeklyHours = 84;
   
   @override
   void dispose() {
@@ -39,15 +40,15 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
 
   String? _validateWeeklyDuration(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter weekly time commitment';
+      return AppLocalizations.of(context)!.pleaseEnterWeeklyTime;
     }
     
     final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
     if (totalHours <= 0) {
-      return 'Weekly time must be greater than 0';
+      return AppLocalizations.of(context)!.weeklyTimeMustBeGreater;
     }
     if (totalHours > _maxWeeklyHours) {
-      return 'Weekly time cannot exceed $_maxWeeklyHours hours';
+      return AppLocalizations.of(context)!.weeklyTimeCannotExceed(_maxWeeklyHours);//TODO: Not working
     }
     
     return null;
@@ -75,10 +76,10 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
       // Show success message with action to create task
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Goal created successfully!'),
+          content: Text(AppLocalizations.of(context)!.goalCreatedSuccessfully),
           backgroundColor: Colors.green,
           action: SnackBarAction(
-            label: 'Create Task',
+            label: AppLocalizations.of(context)!.createTask,
             textColor: Colors.white,
             onPressed: () {
               Navigator.push(
@@ -100,7 +101,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create New Goal'),
+        title: Text(AppLocalizations.of(context)!.createNewGoal),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         elevation: 0,
       ),
@@ -114,16 +115,16 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               // Title Field
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Goal Title',
-                  hintText: 'e.g., Read a book',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.flag),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.goalTitle,
+                  hintText: AppLocalizations.of(context)!.goalTitleHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.flag),
                 ),
                 maxLength: 128,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a goal title';
+                    return AppLocalizations.of(context)!.pleaseEnterGoalTitle;
                   }
                   return null;
                 },
@@ -133,11 +134,11 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               // Description Field
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (Optional)',
-                  hintText: 'Describe your goal in detail...',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.description,
+                  hintText: AppLocalizations.of(context)!.descriptionHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.description),
                 ),
                 maxLines: 3,
                 maxLength: 128,
@@ -145,14 +146,14 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               const SizedBox(height: 16),
               
               // Time Commitment Section
-              const Text(
-                'Weekly Time Commitment',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.weeklyTimeCommitment,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               
               // Weekly Duration using DurationHandler
               DurationHandler(
@@ -163,7 +164,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               
               const SizedBox(height: 8),
               Text(
-                'You can create tasks for this goal later',
+                AppLocalizations.of(context)!.youCanCreateTasksLater,
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontStyle: FontStyle.italic,
@@ -188,9 +189,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text(
-              'Create',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.create,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),

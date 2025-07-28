@@ -48,4 +48,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get undo => 'Undo';
+
+  @override
+  String get createNewGoal => 'Create New Goal';
+
+  @override
+  String get goalTitle => 'Goal Title';
+
+  @override
+  String get goalTitleHint => 'e.g., Read a book';
+
+  @override
+  String get pleaseEnterGoalTitle => 'Please enter a goal title';
+
+  @override
+  String get description => 'Description (Optional)';
+
+  @override
+  String get descriptionHint => 'Describe your goal in detail...';
+
+  @override
+  String get weeklyTimeCommitment => 'Weekly Time Commitment';
+
+  @override
+  String get pleaseEnterWeeklyTime => 'Please enter weekly time commitment';
+
+  @override
+  String get weeklyTimeMustBeGreater => 'Weekly time must be greater than 0';
+
+  @override
+  String weeklyTimeCannotExceed(int maxHours) {
+    return 'Weekly time cannot exceed $maxHours hours';
+  }
+
+  @override
+  String get youCanCreateTasksLater => 'You can create tasks for this goal later';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get goalCreatedSuccessfully => 'Goal created successfully!';
+
+  @override
+  String get createTask => 'Create Task';
+
+  @override
+  String get thisFieldIsRequired => 'This field is required';
+
+  @override
+  String get pleaseEnterValidNumber => 'Please enter a valid number';
+
+  @override
+  String get valueMustBeNonNegative => 'Value must be non-negative';
+
+  @override
+  String get hours => 'Hours';
+
+  @override
+  String get minutes => 'Minutes';
+
+  @override
+  String get minutesMustBeLessThan60 => 'Minutes must be less than 60';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get goalUpdatedSuccessfully => 'Goal updated successfully!';
+
+  @override
+  String get goalUpdated => 'Goal updated';
 }

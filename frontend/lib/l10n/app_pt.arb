@@ -57,5 +57,103 @@
     "undo": "Desfazer",
     "@undo": {
         "description": "Rótulo do botão desfazer"
+    },
+    "createNewGoal": "Criar Nova Meta",
+    "@createNewGoal": {
+        "description": "Título da tela de criar meta"
+    },
+    "goalTitle": "Título da Meta",
+    "@goalTitle": {
+        "description": "Rótulo do campo título da meta"
+    },
+    "goalTitleHint": "ex: Ler um livro",
+    "@goalTitleHint": {
+        "description": "Texto de dica para o campo título da meta"
+    },
+    "pleaseEnterGoalTitle": "Por favor, insira um título para a meta",
+    "@pleaseEnterGoalTitle": {
+        "description": "Mensagem de validação para título vazio"
+    },
+    "description": "Descrição (Opcional)",
+    "@description": {
+        "description": "Rótulo do campo descrição"
+    },
+    "descriptionHint": "Descreva sua meta em detalhes...",
+    "@descriptionHint": {
+        "description": "Texto de dica para o campo descrição"
+    },
+    "weeklyTimeCommitment": "Compromisso Semanal de Tempo",
+    "@weeklyTimeCommitment": {
+        "description": "Título da seção de compromisso semanal de tempo"
+    },
+    "pleaseEnterWeeklyTime": "Por favor, insira o compromisso semanal de tempo",
+    "@pleaseEnterWeeklyTime": {
+        "description": "Mensagem de validação para tempo semanal vazio"
+    },
+    "weeklyTimeMustBeGreater": "O tempo semanal deve ser maior que 0",
+    "@weeklyTimeMustBeGreater": {
+        "description": "Mensagem de validação para tempo semanal zero"
+    },
+    "weeklyTimeCannotExceed": "O tempo semanal não pode exceder {maxHours} horas",
+    "@weeklyTimeCannotExceed": {
+        "description": "Mensagem de validação para exceder tempo máximo semanal",
+        "placeholders": {
+            "maxHours": {
+                "type": "int",
+                "example": "168"
+            }
+        }
+    },
+    "youCanCreateTasksLater": "Você pode criar tarefas para esta meta depois",
+    "@youCanCreateTasksLater": {
+        "description": "Texto de ajuda sobre criar tarefas depois"
+    },
+    "create": "Criar",
+    "@create": {
+        "description": "Rótulo do botão criar"
+    },
+    "goalCreatedSuccessfully": "Meta criada com sucesso!",
+    "@goalCreatedSuccessfully": {
+        "description": "Mensagem de sucesso quando meta é criada"
+    },
+    "createTask": "Criar Tarefa",
+    "@createTask": {
+        "description": "Rótulo do botão criar tarefa"
+    },
+    "thisFieldIsRequired": "Este campo é obrigatório",
+    "@thisFieldIsRequired": {
+        "description": "Mensagem de validação para campo obrigatório"
+    },
+    "pleaseEnterValidNumber": "Por favor, insira um número válido",
+    "@pleaseEnterValidNumber": {
+        "description": "Mensagem de validação para número inválido"
+    },
+    "valueMustBeNonNegative": "O valor deve ser não negativo",
+    "@valueMustBeNonNegative": {
+        "description": "Mensagem de validação para valor negativo"
+    },
+    "hours": "Horas",
+    "@hours": {
+        "description": "Rótulo do campo horas"
+    },
+    "minutes": "Minutos",
+    "@minutes": {
+        "description": "Rótulo do campo minutos"
+    },
+    "minutesMustBeLessThan60": "Os minutos devem ser menores que 60",
+    "@minutesMustBeLessThan60": {
+        "description": "Mensagem de validação para minutos maiores que 60"
+    },
+    "save": "Salvar",
+    "@save": {
+        "description": "Rótulo do botão salvar"
+    },
+    "goalUpdatedSuccessfully": "Meta atualizada com sucesso!",
+    "@goalUpdatedSuccessfully": {
+        "description": "Mensagem de sucesso quando meta é atualizada"
+    },
+    "goalUpdated": "Meta atualizada",
+    "@goalUpdated": {
+        "description": "Mensagem do snackbar quando meta é atualizada"
     }
 }

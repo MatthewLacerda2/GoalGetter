@@ -57,5 +57,103 @@
     "undo": "Undo",
     "@undo": {
         "description": "Undo button label"
+    },
+    "createNewGoal": "Create New Goal",
+    "@createNewGoal": {
+        "description": "Title for create goal screen"
+    },
+    "goalTitle": "Goal Title",
+    "@goalTitle": {
+        "description": "Label for goal title field"
+    },
+    "goalTitleHint": "e.g., Read a book",
+    "@goalTitleHint": {
+        "description": "Hint text for goal title field"
+    },
+    "pleaseEnterGoalTitle": "Please enter a goal title",
+    "@pleaseEnterGoalTitle": {
+        "description": "Validation message for empty goal title"
+    },
+    "description": "Description (Optional)",
+    "@description": {
+        "description": "Label for description field"
+    },
+    "descriptionHint": "Describe your goal in detail...",
+    "@descriptionHint": {
+        "description": "Hint text for description field"
+    },
+    "weeklyTimeCommitment": "Weekly Time Commitment",
+    "@weeklyTimeCommitment": {
+        "description": "Section title for weekly time commitment"
+    },
+    "pleaseEnterWeeklyTime": "Please enter weekly time commitment",
+    "@pleaseEnterWeeklyTime": {
+        "description": "Validation message for empty weekly time"
+    },
+    "weeklyTimeMustBeGreater": "Weekly time must be greater than 0",
+    "@weeklyTimeMustBeGreater": {
+        "description": "Validation message for zero weekly time"
+    },
+    "weeklyTimeCannotExceed": "Weekly time cannot exceed {maxHours} hours",
+    "@weeklyTimeCannotExceed": {
+        "description": "Validation message for exceeding max weekly time",
+        "placeholders": {
+            "maxHours": {
+                "type": "int",
+                "example": "168"
+            }
+        }
+    },
+    "youCanCreateTasksLater": "You can create tasks for this goal later",
+    "@youCanCreateTasksLater": {
+        "description": "Helper text about creating tasks later"
+    },
+    "create": "Create",
+    "@create": {
+        "description": "Create button label"
+    },
+    "goalCreatedSuccessfully": "Goal created successfully!",
+    "@goalCreatedSuccessfully": {
+        "description": "Success message when goal is created"
+    },
+    "createTask": "Create Task",
+    "@createTask": {
+        "description": "Create task button label"
+    },
+    "thisFieldIsRequired": "This field is required",
+    "@thisFieldIsRequired": {
+        "description": "Validation message for required field"
+    },
+    "pleaseEnterValidNumber": "Please enter a valid number",
+    "@pleaseEnterValidNumber": {
+        "description": "Validation message for invalid number"
+    },
+    "valueMustBeNonNegative": "Value must be non-negative",
+    "@valueMustBeNonNegative": {
+        "description": "Validation message for negative value"
+    },
+    "hours": "Hours",
+    "@hours": {
+        "description": "Label for hours field"
+    },
+    "minutes": "Minutes",
+    "@minutes": {
+        "description": "Label for minutes field"
+    },
+    "minutesMustBeLessThan60": "Minutes must be less than 60",
+    "@minutesMustBeLessThan60": {
+        "description": "Validation message for minutes greater than 60"
+    },
+    "save": "Save",
+    "@save": {
+        "description": "Save button label"
+    },
+    "goalUpdatedSuccessfully": "Goal updated successfully!",
+    "@goalUpdatedSuccessfully": {
+        "description": "Success message when goal is updated"
+    },
+    "goalUpdated": "Goal updated",
+    "@goalUpdated": {
+        "description": "Snackbar message when goal is updated"
     }
 }
