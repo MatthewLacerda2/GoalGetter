@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
 import '../../widgets/screens/goals/goal_progress_measurer.dart';
+import '../../widgets/duration_handler.dart';
 
 class GoalScreen extends StatefulWidget {
   const GoalScreen({super.key, this.goal});
@@ -15,13 +16,15 @@ class _GoalScreenState extends State<GoalScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _weeklyHoursController = TextEditingController();
+  
+  // Duration state
+  int _weeklyHours = 0;
+  int _weeklyMinutes = 0;
   
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _weeklyHoursController.dispose();
     super.dispose();
   }
 
@@ -31,18 +34,40 @@ class _GoalScreenState extends State<GoalScreen> {
     if (widget.goal != null) {
       _titleController.text = widget.goal!.title;
       _descriptionController.text = widget.goal!.description ?? '';
-      _weeklyHoursController.text = widget.goal!.weeklyHours.toString();
+      
+      // Convert weekly hours to hours and minutes
+      final totalHours = widget.goal!.weeklyHours;
+      _weeklyHours = totalHours.floor();
+      _weeklyMinutes = ((totalHours - _weeklyHours) * 60).round();
     }
+  }
+
+  void _onDurationChanged(int hours, int minutes) {
+    setState(() {
+      _weeklyHours = hours;
+      _weeklyMinutes = minutes;
+    });
+  }
+
+  String? _validateWeeklyDuration(String? value) {
+    final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+    if (totalHours <= 0) {
+      return 'Weekly time must be greater than 0';
+    }
+    return null;
   }
 
   void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
+      // Calculate total hours (including minutes)
+      final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+      
       // Create Goal object
       final goal = Goal(
         id: widget.goal?.id ?? '', // Use existing ID if editing, otherwise empty
         title: _titleController.text,
         description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-        weeklyHours: double.parse(_weeklyHoursController.text),
+        weeklyHours: totalHours,
       );
 
       if (widget.goal != null) {
@@ -112,41 +137,25 @@ class _GoalScreenState extends State<GoalScreen> {
                 maxLength: 128,
               ),
               const SizedBox(height: 16),
-              // Hours Section
               const Text(
-                'Time Commitment',
+                'Weekly Time Commitment',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
-              // Weekly Hours
-              TextFormField(
-                controller: _weeklyHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Weekly Hours',
-                  border: UnderlineInputBorder(),
-                  prefixIcon: Icon(Icons.schedule),
-                  suffixText: 'hours/week',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter weekly hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  if (double.parse(value) <= 0) {
-                    return 'Weekly hours must be greater than 0';
-                  }
-                  return null;
-                },
+              DurationHandler(
+                initialHours: _weeklyHours,
+                initialMinutes: _weeklyMinutes,
+                onDurationChanged: _onDurationChanged,
+                isRequired: true,
+                validator: _validateWeeklyDuration,
               ),
+              
               const SizedBox(height: 12),
               GoalProgressMeasurer(
-                hoursPerWeek: widget.goal?.weeklyHours ?? 0.0,
+                hoursPerWeek: _weeklyHours + (_weeklyMinutes / 60.0),
                 goalId: widget.goal?.id ?? '',
               ),
               const SizedBox(height: 16),

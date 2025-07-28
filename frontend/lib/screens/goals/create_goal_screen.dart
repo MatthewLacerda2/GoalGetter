@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
 import '../agenda/create_task_screen.dart';
+import '../../widgets/duration_handler.dart';
 
 class CreateGoalScreen extends StatefulWidget {
   const CreateGoalScreen({super.key});
@@ -14,7 +15,10 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _weeklyHoursController = TextEditingController();
+  
+  // Duration state
+  int _weeklyHours = 0;
+  int _weeklyMinutes = 0;
   
   // Maximum weekly hours allowed (12 * 7 = 84 hours)
   static const double _maxWeeklyHours = 84.0;
@@ -23,18 +27,43 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _weeklyHoursController.dispose();
     super.dispose();
+  }
+
+  void _onDurationChanged(int hours, int minutes) {
+    setState(() {
+      _weeklyHours = hours;
+      _weeklyMinutes = minutes;
+    });
+  }
+
+  String? _validateWeeklyDuration(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter weekly time commitment';
+    }
+    
+    final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+    if (totalHours <= 0) {
+      return 'Weekly time must be greater than 0';
+    }
+    if (totalHours > _maxWeeklyHours) {
+      return 'Weekly time cannot exceed $_maxWeeklyHours hours';
+    }
+    
+    return null;
   }
 
   void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
+      // Calculate total hours (including minutes)
+      final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+      
       // Create Goal object
       final goal = Goal(
         id: '', // Let storage assign a UUID
         title: _titleController.text,
         description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-        weeklyHours: double.parse(_weeklyHoursController.text),
+        weeklyHours: totalHours,
       );
 
       // Save goal to storage
@@ -114,42 +143,24 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 maxLength: 128,
               ),
               const SizedBox(height: 16),
-              // Hours Section
+              
+              // Time Commitment Section
               const Text(
-                'Time Commitment',
+                'Weekly Time Commitment',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
-              // Weekly Hours
-              TextFormField(
-                controller: _weeklyHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Weekly Hours',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.schedule),
-                  suffixText: 'hours/week',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter weekly hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  final hours = double.parse(value);
-                  if (hours <= 0) {
-                    return 'Weekly hours must be greater than 0';
-                  }
-                  if (hours > _maxWeeklyHours) {
-                    return 'Weekly hours cannot exceed $_maxWeeklyHours hours';
-                  }
-                  return null;
-                },
+              
+              // Weekly Duration using DurationHandler
+              DurationHandler(
+                onDurationChanged: _onDurationChanged,
+                isRequired: true,
+                validator: _validateWeeklyDuration,
               ),
+              
               const SizedBox(height: 8),
               Text(
                 'You can create tasks for this goal later',
