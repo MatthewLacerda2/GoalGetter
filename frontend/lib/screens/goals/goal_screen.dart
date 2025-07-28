@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
+import '../../widgets/screens/goals/goal_progress_measurer.dart';
+import '../../widgets/duration_handler.dart';
 
 class GoalScreen extends StatefulWidget {
   const GoalScreen({super.key, this.goal});
@@ -14,15 +16,15 @@ class _GoalScreenState extends State<GoalScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _weeklyHoursController = TextEditingController();
-  final _totalHoursController = TextEditingController();
+  
+  // Duration state
+  int _weeklyHours = 0;
+  int _weeklyMinutes = 0;
   
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _weeklyHoursController.dispose();
-    _totalHoursController.dispose();
     super.dispose();
   }
 
@@ -31,21 +33,41 @@ class _GoalScreenState extends State<GoalScreen> {
     super.initState();
     if (widget.goal != null) {
       _titleController.text = widget.goal!.title;
-      _descriptionController.text = widget.goal!.description;
-      _weeklyHoursController.text = widget.goal!.weeklyHours.toString();
-      _totalHoursController.text = widget.goal!.totalHours.toString();
+      _descriptionController.text = widget.goal!.description ?? '';
+      
+      // Convert weekly hours to hours and minutes
+      final totalHours = widget.goal!.weeklyHours;
+      _weeklyHours = totalHours.floor();
+      _weeklyMinutes = ((totalHours - _weeklyHours) * 60).round();
     }
+  }
+
+  void _onDurationChanged(int hours, int minutes) {
+    setState(() {
+      _weeklyHours = hours;
+      _weeklyMinutes = minutes;
+    });
+  }
+
+  String? _validateWeeklyDuration(String? value) {
+    final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+    if (totalHours <= 0) {
+      return 'Weekly time must be greater than 0';
+    }
+    return null;
   }
 
   void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
+      // Calculate total hours (including minutes)
+      final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+      
       // Create Goal object
       final goal = Goal(
         id: widget.goal?.id ?? '', // Use existing ID if editing, otherwise empty
         title: _titleController.text,
-        description: _descriptionController.text,
-        weeklyHours: double.parse(_weeklyHoursController.text),
-        totalHours: double.parse(_totalHoursController.text),
+        description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+        weeklyHours: totalHours,
       );
 
       if (widget.goal != null) {
@@ -88,7 +110,7 @@ class _GoalScreenState extends State<GoalScreen> {
                 controller: _titleController,
                 decoration: const InputDecoration(
                   labelText: 'Goal Title',
-                  hintText: 'e.g., Learn Flutter Programming',
+                  hintText: 'e.g., Read a book',
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.flag),
                 ),
@@ -106,143 +128,37 @@ class _GoalScreenState extends State<GoalScreen> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                  labelText: 'Description',
+                  labelText: 'Description (Optional)',
                   hintText: 'Describe your goal in detail...',
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
                 maxLength: 128,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 12),
-
-              // Hours Section
+              const SizedBox(height: 16),
               const Text(
-                'Time Commitment',
+                'Weekly Time Commitment',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
-
-              // Weekly Hours
-              TextFormField(
-                controller: _weeklyHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Weekly Hours',
-                  hintText: 'e.g., 5',
-                  border: UnderlineInputBorder(),
-                  prefixIcon: Icon(Icons.schedule),
-                  suffixText: 'hours/week',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter weekly hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  if (double.parse(value) <= 0) {
-                    return 'Weekly hours must be greater than 0';
-                  }
-                  return null;
-                },
+              const SizedBox(height: 4),
+              DurationHandler(
+                initialHours: _weeklyHours,
+                initialMinutes: _weeklyMinutes,
+                onDurationChanged: _onDurationChanged,
+                isRequired: true,
+                validator: _validateWeeklyDuration,
               ),
-              const SizedBox(height: 8),
-
-              // Total Hours
-              TextFormField(
-                controller: _totalHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Target Hours',
-                  hintText: 'e.g., 360',
-                  border: UnderlineInputBorder(),
-                  prefixIcon: Icon(Icons.timeline),
-                  suffixText: 'hours total',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter target hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  if (double.parse(value) < 0) {
-                    return 'Total hours must be greater than or equal to 0';
-                  }
-                  return null;
-                },
+              
+              const SizedBox(height: 12),
+              GoalProgressMeasurer(
+                hoursPerWeek: _weeklyHours + (_weeklyMinutes / 60.0),
+                goalId: widget.goal?.id ?? '',
               ),
               const SizedBox(height: 16),
-
-              // Progress Section
-              Row(
-                children: [
-                  // Hours this week
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hours this week:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          (widget.goal?.totalWeekSpent.toStringAsFixed(1) ?? '0.0'),
-                          style: TextStyle(
-                            fontSize: 56, // 4x bigger than the text above
-                            fontWeight: FontWeight.bold,
-                            color: (widget.goal?.totalWeekSpent ?? 0.0) >= (widget.goal?.weeklyHours ?? 0.0)
-                                ? Colors.blue
-                                : Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Hours total
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hours total:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          (widget.goal?.totalSpent.toStringAsFixed(1) ?? '0.0'),
-                          style: TextStyle(
-                            fontSize: 56, // 4x bigger than the text above
-                            fontWeight: FontWeight.bold,
-                            color: (widget.goal?.totalSpent ?? 0.0) >= (widget.goal?.totalHours ?? 0.0)
-                                ? Colors.blue
-                                : Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
             ],
           ),
         ),

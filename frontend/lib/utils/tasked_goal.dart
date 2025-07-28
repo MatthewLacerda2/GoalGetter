@@ -17,36 +17,17 @@ class UnassignedGoalInfo {
 /// Returns null if all goals are fully assigned.
 Future<UnassignedGoalInfo?> findUnassignedGoal() async {
   final goals = await GoalStorage.loadAll();
-  final tasks = await TaskStorage.loadAll();
 
   for (final goal in goals) {
-    // Find all tasks assigned to this goal
-    final goalTasks = tasks.where((t) => t.goalId == goal.id).toList();
-
-    if (goalTasks.isEmpty) {
+    final totalMinutes = await TaskStorage.getTotalDurationForGoal(goal.id);
+    
+    if (totalMinutes < goal.weeklyHours * 60) {
       // No tasks for this goal - missing all weekly hours
-      final totalMinutesNeeded = (goal.weeklyHours * 60).round();
+      final totalMinutesNeeded = (goal.weeklyHours * 60).round() - totalMinutes;
       return UnassignedGoalInfo(
         goalTitle: goal.title,
         goalId: goal.id,
         minutesMissing: totalMinutesNeeded,
-      );
-    }
-
-    // Sum up total weekly minutes for this goal
-    int totalMinutes = 0;
-    for (final task in goalTasks) {
-      totalMinutes += task.durationMinutes * task.weekdays.length;
-    }
-    final totalMinutesNeeded = (goal.weeklyHours * 60).round();
-    final minutesMissing = totalMinutesNeeded - totalMinutes;
-
-    if (minutesMissing > 0) {
-      // Not enough hours assigned
-      return UnassignedGoalInfo(
-        goalTitle: goal.title,
-        goalId: goal.id,
-        minutesMissing: minutesMissing,
       );
     }
   }

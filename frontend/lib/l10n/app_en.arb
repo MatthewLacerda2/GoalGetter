@@ -1,0 +1,23 @@
+{
+    "@@locale": "en",
+    "language": "Language",
+    "@language": {
+        "description": "The current language"
+    },
+    "options": "Options",
+    "@options": {
+        "description": "Options menu"
+    },
+    "goals": "Goals",
+    "@goals": {
+        "description": "Goals tab label"
+    },
+    "agenda": "Agenda",
+    "@agenda": {
+        "description": "Agenda tab label"
+    },
+    "profile": "Profile",
+    "@profile": {
+        "description": "Profile tab label"
+    }
+}

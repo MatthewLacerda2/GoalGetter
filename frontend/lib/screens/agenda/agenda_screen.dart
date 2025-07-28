@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../widgets/screens/goals/week.dart';
+import '../../widgets/screens/tasks/task_list_widget.dart';
+import '../../widgets/screens/tasks/empty_tasks_widget.dart';
 import 'create_task_screen.dart';
-import 'edit_task_screen.dart'; // Add this import
 import '../../models/task.dart';
 import '../../utils/task_storage.dart';
 import '../../utils/tasked_goal.dart';
@@ -56,32 +57,37 @@ class _AgendaScreenState extends State<AgendaScreen> {
     final unassignedGoalInfo = await findUnassignedGoal();
     
     if (unassignedGoalInfo != null && mounted) {
-      // Close any existing snackbar
       _snackBarController?.close();
       
-      // Show persistent snackbar
       _snackBarController = ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${unassignedGoalInfo.goalTitle} needs ${unassignedGoalInfo.minutesMissing} more minutes per week',
+            '"${unassignedGoalInfo.goalTitle}" needs +${unassignedGoalInfo.minutesMissing}min/w',
             style: const TextStyle(fontSize: 16),
           ),
           backgroundColor: Colors.orange,
-          duration: const Duration(days: 365), // Very long duration to make it persistent
+          duration: const Duration(days: 365),
           action: SnackBarAction(
             label: 'Dismiss',
             textColor: Colors.white,
-            onPressed: () {
-              _snackBarController?.close();
-            },
+            onPressed: () => _snackBarController?.close(),
           ),
         ),
       );
     } else if (unassignedGoalInfo == null && _snackBarController != null) {
-      // If no unassigned goals, close the snackbar
       _snackBarController?.close();
       _snackBarController = null;
     }
+  }
+
+  void _onTaskDeleted() {
+    _loadTasks();
+    _checkForUnassignedGoals();
+  }
+
+  void _onTaskEdited() {
+    _loadTasks();
+    _checkForUnassignedGoals();
   }
 
   @override
@@ -89,143 +95,17 @@ class _AgendaScreenState extends State<AgendaScreen> {
     return Scaffold(
       body: Column(
         children: [
-          WeekdaySelector(
-            onChanged: _onDayChanged,
-          ),
+          WeekdaySelector(onChanged: _onDayChanged),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
-                : (_tasks.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.event_busy,
-                              size: 80,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No activities for the day (yet)',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.separated(
-                        itemCount: _tasks.length,
-                        separatorBuilder: (context, index) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final task = _tasks[index];
-                          return Dismissible(
-                            key: Key(task.id),
-                            background: Container(
-                              color: Colors.red,
-                              alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.only(right: 20),
-                              child: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                            ),
-                            direction: DismissDirection.endToStart,
-                            confirmDismiss: (direction) async {
-                              return await showDialog<bool>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Delete Task'),
-                                    content: Text(
-                                      'Are you sure you want to delete "${task.title}"? This action cannot be undone.',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.of(context).pop(false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.of(context).pop(true),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: Colors.red,
-                                        ),
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            onDismissed: (direction) async {
-                              await TaskStorage.deleteTask(task.id);
-                              setState(() {
-                                _tasks.removeAt(index);
-                              });
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Task "${task.title}" deleted'),
-                                    action: SnackBarAction(
-                                      label: 'Undo',
-                                      onPressed: () async {
-                                        await TaskStorage.saveNew(task);
-                                        await _loadTasks();
-                                      },
-                                    ),
-                                  ),
-                                );
-                              }
-                              // Check for unassigned goals after task deletion
-                              _checkForUnassignedGoals();
-                            },
-                            child: GestureDetector(
-                              onTap: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditTaskScreen(task: task),
-                                  ),
-                                );
-                                // Refresh tasks when returning from edit task screen
-                                _loadTasks();
-                                // Check for unassigned goals after editing a task
-                                _checkForUnassignedGoals();
-                              },
-                              child: Container(
-                                color: Colors.grey.shade100,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(task.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                            const SizedBox(height: 4),
-                                            Text('Duration: ${task.durationMinutes} minutes', style: const TextStyle(fontSize: 14, color: Colors.black87)),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        task.startTime.format(context),
-                                        style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      )
-                  ),
+                : _tasks.isEmpty
+                    ? const EmptyTasksWidget()
+                    : TaskListWidget(
+                        tasks: _tasks,
+                        onTaskDeleted: _onTaskDeleted,
+                        onTaskEdited: _onTaskEdited,
+                      ),
           ),
         ],
       ),
@@ -240,10 +120,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const CreateTaskScreen()),
               );
-              // Refresh tasks when returning from create task screen
-              _loadTasks();
-              // Check for unassigned goals after creating a task
-              _checkForUnassignedGoals();
+              _onTaskEdited();
             },
             backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Colors.white,

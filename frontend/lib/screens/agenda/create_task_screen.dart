@@ -1,12 +1,14 @@
 // create task screen
 import 'package:flutter/material.dart';
 import 'package:goal_getter/models/task.dart';
-import 'package:goal_getter/models/goal.dart';
 import 'package:goal_getter/utils/task_storage.dart';
-import 'package:goal_getter/utils/goal_storage.dart';
+import '../../widgets/screens/goals/goal_searcher.dart';
+import '../../widgets/screens/tasks/days_of_the_week.dart';
+import '../../widgets/duration_handler.dart';
 
 class CreateTaskScreen extends StatefulWidget {
-  const CreateTaskScreen({super.key});
+  final String? goalId;
+  const CreateTaskScreen({super.key, this.goalId});
 
   @override
   State<CreateTaskScreen> createState() => _CreateTaskScreenState();
@@ -14,65 +16,20 @@ class CreateTaskScreen extends StatefulWidget {
 
 class _CreateTaskScreenState extends State<CreateTaskScreen> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _durationController = TextEditingController();
-  final TextEditingController _goalSearchController = TextEditingController();
   TimeOfDay? _selectedTime;
   Set<int> selectedWeekdays = {};
-  List<Goal> _goals = [];
   String? _selectedGoalId;
-  bool _isGoalDropdownOpen = false;
-  List<Goal> _filteredGoals = [];
-
-  static const List<String> weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  int _durationHours = 0;
+  int _durationMinutes = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadGoals();
-    _goalSearchController.addListener(_filterGoals);
   }
 
   @override
   void dispose() {
-    _goalSearchController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadGoals() async {
-    final goals = await GoalStorage.loadAll();
-    setState(() {
-      _goals = goals;
-      _filteredGoals = goals;
-    });
-  }
-
-  void _filterGoals() {
-    final searchTerm = _goalSearchController.text.toLowerCase().trim();
-    
-    if (searchTerm.isEmpty) {
-      setState(() {
-        _filteredGoals = _goals;
-      });
-      return;
-    }
-
-    final matchingGoals = _goals.where((goal) => 
-      goal.title.toLowerCase().contains(searchTerm)
-    ).toList();
-
-    // Sort goals: those starting with search term first, then others
-    matchingGoals.sort((a, b) {
-      final aStartsWith = a.title.toLowerCase().startsWith(searchTerm);
-      final bStartsWith = b.title.toLowerCase().startsWith(searchTerm);
-      
-      if (aStartsWith && !bStartsWith) return -1;
-      if (!aStartsWith && bStartsWith) return 1;
-      return a.title.compareTo(b.title); // Alphabetical order for same type
-    });
-
-    setState(() {
-      _filteredGoals = matchingGoals;
-    });
   }
 
   Future<void> _pickTime(BuildContext context) async {
@@ -90,40 +47,26 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
 
   void _saveTask() async {
     final title = _titleController.text.trim();
-    final duration = int.tryParse(_durationController.text.trim());
-    if (title.isEmpty || _selectedTime == null || duration == null || selectedWeekdays.isEmpty) {
+    final totalDurationMinutes = (_durationHours * 60) + _durationMinutes;
+    
+    if (title.isEmpty || _selectedTime == null || totalDurationMinutes == 0 || selectedWeekdays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields.')),
       );
       return;
     }
+    
     final task = Task(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       startTime: _selectedTime!,
-      durationMinutes: duration,
-      goalId: _selectedGoalId,
+      durationMinutes: totalDurationMinutes,
+      goalId: widget.goalId,
       weekdays: selectedWeekdays.toList(),
     );
     await TaskStorage.saveNew(task);
     if (!mounted) return;
     Navigator.of(context).pop(); // Go back after saving
-  }
-
-  void _selectGoal(Goal goal) {
-    setState(() {
-      _selectedGoalId = goal.id;
-      _goalSearchController.text = goal.title;
-      _isGoalDropdownOpen = false;
-    });
-  }
-
-  void _clearGoalSelection() {
-    setState(() {
-      _selectedGoalId = null;
-      _goalSearchController.clear();
-      _isGoalDropdownOpen = false;
-    });
   }
 
   @override
@@ -133,6 +76,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title
             TextField(
@@ -140,13 +84,40 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               decoration: const InputDecoration(labelText: 'Title'),
             ),
             const SizedBox(height: 16),
+            // Goal Selection
+            Text(
+              'If the task has a specific...',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(height: 4),
+            GoalSearcher(
+              selectedGoalId: _selectedGoalId,
+              onGoalSelected: (goal) {
+                setState(() {
+                  _selectedGoalId = goal?.id;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
             // Time Picker
             Row(
               children: [
-                const Text('Time:'),
+                const Text('Hour:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () => _pickTime(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                   child: Text(
                     _selectedTime == null
                         ? 'Pick Time'
@@ -156,140 +127,29 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            // Duration
-            TextField(
-              controller: _durationController,
-              decoration: const InputDecoration(labelText: 'Duration (minutes)'),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            // Goal Selection
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Goal (optional)', style: TextStyle(fontSize: 16)),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Column(
-                    children: [
-                      // Search input
-                      TextField(
-                        controller: _goalSearchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search goals...',
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_selectedGoalId != null)
-                                IconButton(
-                                  icon: const Icon(Icons.clear, size: 20),
-                                  onPressed: _clearGoalSelection,
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              IconButton(
-                                icon: Icon(
-                                  _isGoalDropdownOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isGoalDropdownOpen = !_isGoalDropdownOpen;
-                                  });
-                                },
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _isGoalDropdownOpen = true;
-                          });
-                        },
-                      ),
-                      // Dropdown list
-                      if (_isGoalDropdownOpen)
-                        Container(
-                          constraints: const BoxConstraints(maxHeight: 200),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                              top: BorderSide(color: Colors.grey.shade300),
-                            ),
-                          ),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _filteredGoals.length + 1, // +1 for "No goal" option
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return ListTile(
-                                  dense: true,
-                                  title: const Text('No goal'),
-                                  onTap: _clearGoalSelection,
-                                  tileColor: _selectedGoalId == null ? Colors.blue.shade50 : null,
-                                );
-                              }
-                              final goal = _filteredGoals[index - 1];
-                              final isSelected = _selectedGoalId == goal.id;
-                              return ListTile(
-                                dense: true,
-                                title: Text(goal.title),
-                                onTap: () => _selectGoal(goal),
-                                tileColor: isSelected ? Colors.blue.shade50 : null,
-                              );
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+            // Duration Handler
+            DurationHandler(
+              label: 'Duration',
+              isRequired: true,
+              onDurationChanged: (hours, minutes) {
+                setState(() {
+                  _durationHours = hours;
+                  _durationMinutes = minutes;
+                });
+              },
             ),
             const SizedBox(height: 24),
-            // Weekday selector
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(7, (index) {
-                final isSelected = selectedWeekdays.contains(index);
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        selectedWeekdays.remove(index);
-                      } else {
-                        selectedWeekdays.add(index);
-                      }
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4), // Reduced from 6 to 4
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey[300],
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      weekdayLabels[index],
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              }),
+            DaysOfTheWeekSelector(
+              selectedWeekdays: selectedWeekdays,
+              onDayToggled: (index) {
+                setState(() {
+                  if (selectedWeekdays.contains(index)) {
+                    selectedWeekdays.remove(index);
+                  } else {
+                    selectedWeekdays.add(index);
+                  }
+                });
+              },
             ),
             const Spacer(),
             // Save button

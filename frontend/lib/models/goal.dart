@@ -3,20 +3,16 @@ import 'dart:convert';
 class Goal {
   final String id;
   final String title;
-  final String description;
+  final String? description;
   final double weeklyHours;
-  final double totalHours;
-  final double totalWeekSpent;
-  final double totalSpent;
+  final double totalTaskedHours;
 
   Goal({
     required this.id,
     required this.title,
-    required this.description,
+    this.description,
     required this.weeklyHours,
-    required this.totalHours,
-    this.totalWeekSpent = 0.0,
-    this.totalSpent = 0.0,
+    this.totalTaskedHours = 0.0,
   });
 
   factory Goal.fromMap(Map<String, dynamic> map) {
@@ -25,9 +21,7 @@ class Goal {
       title: map['title'],
       description: map['description'],
       weeklyHours: map['weeklyHours'].toDouble(),
-      totalHours: map['totalHours'].toDouble(),
-      totalWeekSpent: (map['totalWeekSpent'] ?? 0.0).toDouble(),
-      totalSpent: (map['totalSpent'] ?? 0.0).toDouble(),
+      totalTaskedHours: (map['totalTaskedHours'] ?? 0.0).toDouble(),
     );
   }
 
@@ -37,9 +31,7 @@ class Goal {
       'title': title,
       'description': description,
       'weeklyHours': weeklyHours,
-      'totalHours': totalHours,
-      'totalWeekSpent': totalWeekSpent,
-      'totalSpent': totalSpent,
+      'totalTaskedHours': totalTaskedHours,
     };
   }
 

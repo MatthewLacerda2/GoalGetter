@@ -1,13 +1,42 @@
 import 'package:flutter/material.dart';
 import 'screens/goals/goals_screen.dart';
 import 'screens/agenda/agenda_screen.dart';
+import 'screens/profile_screen.dart';
+import 'l10n/app_localizations.dart';
+import 'utils/settings_storage.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = const Locale('en');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final language = await SettingsStorage.getUserLanguage();
+    setState(() {
+      _locale = Locale(language);
+    });
+  }
+
+  void _changeLanguage(String language) {
+    setState(() {
+      _locale = Locale(language);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +46,23 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: _locale,
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: 'Goal Getter'),
+      home: MyHomePage(
+        title: 'Goal Getter',
+        onLanguageChanged: _changeLanguage,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.onLanguageChanged});
 
   final String title;
+  final Function(String) onLanguageChanged;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -35,10 +71,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _tabPages = <Widget>[
-    AgendaScreen(),
-    GoalsScreen(),
-    Center(child: Text('Profile Page (Coming Soon)')),
+  List<Widget> get _tabPages => <Widget>[
+    const GoalsScreen(),
+    const AgendaScreen(),
+    ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
 
   void _onTabTapped(int index) {
@@ -51,21 +87,23 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Removed the AppBar here
-      body: _tabPages[_selectedIndex],
+      body: SafeArea(
+        child: _tabPages[_selectedIndex],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.event_note),
-            label: 'Agenda',
+            icon: const Icon(Icons.flag),
+            label: AppLocalizations.of(context)!.goals,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.flag),
-            label: 'Goals',
+            icon: const Icon(Icons.event_note),
+            label: AppLocalizations.of(context)!.agenda,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person),
+            label: AppLocalizations.of(context)!.profile,
           ),
         ],
         currentIndex: _selectedIndex,

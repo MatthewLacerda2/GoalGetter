@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
+import '../agenda/create_task_screen.dart';
+import '../../widgets/duration_handler.dart';
 
 class CreateGoalScreen extends StatefulWidget {
   const CreateGoalScreen({super.key});
@@ -13,8 +15,10 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _weeklyHoursController = TextEditingController();
-  final _totalHoursController = TextEditingController();
+  
+  // Duration state
+  int _weeklyHours = 0;
+  int _weeklyMinutes = 0;
   
   // Maximum weekly hours allowed (12 * 7 = 84 hours)
   static const double _maxWeeklyHours = 84.0;
@@ -23,20 +27,43 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _weeklyHoursController.dispose();
-    _totalHoursController.dispose();
     super.dispose();
+  }
+
+  void _onDurationChanged(int hours, int minutes) {
+    setState(() {
+      _weeklyHours = hours;
+      _weeklyMinutes = minutes;
+    });
+  }
+
+  String? _validateWeeklyDuration(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter weekly time commitment';
+    }
+    
+    final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+    if (totalHours <= 0) {
+      return 'Weekly time must be greater than 0';
+    }
+    if (totalHours > _maxWeeklyHours) {
+      return 'Weekly time cannot exceed $_maxWeeklyHours hours';
+    }
+    
+    return null;
   }
 
   void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
+      // Calculate total hours (including minutes)
+      final totalHours = _weeklyHours + (_weeklyMinutes / 60.0);
+      
       // Create Goal object
       final goal = Goal(
         id: '', // Let storage assign a UUID
         title: _titleController.text,
-        description: _descriptionController.text,
-        weeklyHours: double.parse(_weeklyHoursController.text),
-        totalHours: double.parse(_totalHoursController.text),
+        description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+        weeklyHours: totalHours,
       );
 
       // Save goal to storage
@@ -45,11 +72,23 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
       // Check if widget is still mounted before using context
       if (!mounted) return;
 
-      // Show success message and navigate back
+      // Show success message with action to create task
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Goal created successfully!'),
+        SnackBar(
+          content: const Text('Goal created successfully!'),
           backgroundColor: Colors.green,
+          action: SnackBarAction(
+            label: 'Create Task',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateTaskScreen(goalId: goal.id),
+                ),
+              );
+            },
+          ),
         ),
       );
 
@@ -77,7 +116,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 controller: _titleController,
                 decoration: const InputDecoration(
                   labelText: 'Goal Title',
-                  hintText: 'e.g., Learn Flutter Programming',
+                  hintText: 'e.g., Read a book',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.flag),
                 ),
@@ -95,87 +134,42 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                  labelText: 'Description',
+                  labelText: 'Description (Optional)',
                   hintText: 'Describe your goal in detail...',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
                 maxLength: 128,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 12),
-
-              // Hours Section
+              const SizedBox(height: 16),
+              
+              // Time Commitment Section
               const Text(
-                'Time Commitment',
+                'Weekly Time Commitment',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
-
-              // Weekly Hours
-              TextFormField(
-                controller: _weeklyHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Weekly Hours',
-                  hintText: 'e.g., 5',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.schedule),
-                  suffixText: 'hours/week',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter weekly hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  final hours = double.parse(value);
-                  if (hours <= 0) {
-                    return 'Weekly hours must be greater than 0';
-                  }
-                  if (hours > _maxWeeklyHours) {
-                    return 'Weekly hours cannot exceed $_maxWeeklyHours hours';
-                  }
-                  return null;
-                },
+              const SizedBox(height: 4),
+              
+              // Weekly Duration using DurationHandler
+              DurationHandler(
+                onDurationChanged: _onDurationChanged,
+                isRequired: true,
+                validator: _validateWeeklyDuration,
               ),
+              
               const SizedBox(height: 8),
-
-              // Total Hours
-              TextFormField(
-                controller: _totalHoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Target Hours',
-                  hintText: 'e.g., 360',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.timeline),
-                  suffixText: 'hours total',
+              Text(
+                'You can create tasks for this goal later',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12,
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter target hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  if (double.parse(value) < 0) {
-                    return 'Total hours must be greater than or equal to 0';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 24),
             ],
           ),
         ),
