@@ -85,7 +85,7 @@ class IntroductionScreenWidget extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute<void>(
-            builder: (BuildContext context) => const MyHomePage(title: 'Goal Getter'),
+            builder: (BuildContext context) => MyHomePage(title: 'Goal Getter', onLanguageChanged: (String language) {}),
           ),
         );
       },
