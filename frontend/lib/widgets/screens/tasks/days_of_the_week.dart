@@ -1,25 +1,42 @@
 // days_of_the_week.dart
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 
 class DaysOfTheWeekSelector extends StatelessWidget {
   final Set<int> selectedWeekdays;
   final Function(int) onDayToggled;
-  final List<String> weekdayLabels;
 
   const DaysOfTheWeekSelector({
     super.key,
     required this.selectedWeekdays,
     required this.onDayToggled,
-    this.weekdayLabels = const ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
   });
+
+  List<String> _getWeekdayLabels(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    final weekdays = [
+      localizations.sunday,
+      localizations.monday,
+      localizations.tuesday,
+      localizations.wednesday,
+      localizations.thursday,
+      localizations.friday,
+      localizations.saturday,
+    ];
+    
+    // Take the first letter of each weekday name
+    return weekdays.map((day) => day[0]).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final weekdayLabels = _getWeekdayLabels(context);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Days of the week',
+        Text(
+          AppLocalizations.of(context)!.daysOfTheWeek,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,

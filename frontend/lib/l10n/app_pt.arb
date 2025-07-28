@@ -54,6 +54,16 @@
             }
         }
     },
+    "taskDeleted": "Tarefa \"{taskTitle}\" excluída",
+    "@taskDeleted": {
+        "description": "Mensagem do snackbar quando tarefa é excluída",
+        "placeholders": {
+            "taskTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
+    },
     "undo": "Desfazer",
     "@undo": {
         "description": "Rótulo do botão desfazer"
@@ -77,6 +87,10 @@
     "description": "Descrição (Opcional)",
     "@description": {
         "description": "Rótulo do campo descrição"
+    },
+    "goalOptional": "Meta (opcional)",
+    "@goalOptional": {
+        "description": "Texto de dica para o campo de meta"
     },
     "descriptionHint": "Descreva sua meta em detalhes...",
     "@descriptionHint": {
@@ -186,7 +200,7 @@
     "@reserved": {
         "description": "Rótulo do campo reservado"
     },
-    "goalNeedsTime": "{goalTitle} precisa de {minutesMissing}min/w",
+    "goalNeedsTime": "{goalTitle} precisa de {minutesMissing}min/semana",
     "@goalNeedsTime": {
         "description": "Mensagem para meta que precisa de tempo",
         "placeholders": {
@@ -204,36 +218,100 @@
     "@dismiss": {
         "description": "Rótulo do botão descartar"
     },
-    "pleaseFillAllRequiredFields": "Please fill all required fields.",
+    "pleaseFillAllRequiredFields": "Por favor, preencha todos os campos obrigatórios.",
     "@pleaseFillAllRequiredFields": {
-        "description": "Message for required fields"
+        "description": "Mensagem de validação para campos obrigatórios"
     },
     "title": "Título",
     "@title": {
-        "description": "Label for title field"
+        "description": "Rótulo para campo de título"
     },
-    "createTask": "Create Task",
+    "createTask": "Criar Tarefa",
     "@createTask": {
-        "description": "Label for create task screen"
+        "description": "Rótulo para tela de criação de tarefa"
     },
-    "ifTheTaskHasASpecificGoal": "If the task has a specific goal, you can select it here.",
+    "ifTheTaskHasASpecificGoal": "Se a tarefa tem uma meta específica, você pode selecioná-la aqui.",
     "@ifTheTaskHasASpecificGoal": {
-        "description": "Helper text for specific goal selection"
+        "description": "Texto de ajuda para seleção de meta específica"
     },
-    "hour": "Hour",
+    "hour": "Hora",
     "@hour": {
-        "description": "Label for hour field"
+        "description": "Rótulo para campo de hora"
     },
-    "pickTime": "Pick Time",
+    "pickTime": "Escolher Horário",
     "@pickTime": {
-        "description": "Label for pick time button"
+        "description": "Rótulo para botão de escolher horário"
     },
-    "duration": "Duration",
+    "duration": "Duração",
     "@duration": {
-        "description": "Label for duration field"
+        "description": "Rótulo para campo de duração"
     },
     "editTask": "Editar Tarefa",
     "@editTask": {
-        "description": "Label for edit task screen"
+        "description": "Rótulo para tela de edição de tarefa"
+    },
+    "sunday": "DOM",
+    "@sunday": {
+        "description": "Abreviatura para domingo"
+    },
+    "monday": "SEG",
+    "@monday": {
+        "description": "Abreviatura para segunda-feira"
+    },
+    "tuesday": "TER",
+    "@tuesday": {
+        "description": "Abreviatura para terça-feira"
+    },
+    "wednesday": "QUA",
+    "@wednesday": {
+        "description": "Abreviatura para quarta-feira"
+    },
+    "thursday": "QUI",
+    "@thursday": {
+        "description": "Abreviatura para quinta-feira"
+    },
+    "friday": "SEX",
+    "@friday": {
+        "description": "Abreviatura para sexta-feira"
+    },
+    "saturday": "SAB",
+    "@saturday": {
+        "description": "Abreviatura para sábado"
+    },
+    "noActivitiesForTheDayYet": "Nenhuma atividade para o dia (ainda)",
+    "@noActivitiesForTheDayYet": {
+        "description": "Mensagem para estado vazio de tarefas"
+    },
+    "noGoal": "Sem meta",
+    "@noGoal": {
+        "description": "Rótulo para opção de sem meta"
+    },
+    "daysOfTheWeek": "Dias da semana",
+    "@daysOfTheWeek": {
+        "description": "Rótulo para dias da semana"
+    },
+    "goal": "Meta: {goalTitle}",
+    "@goal": {
+        "description": "Rótulo para meta",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",   
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "deleteTask": "Excluir Tarefa",
+    "@deleteTask": {
+        "description": "Rótulo para botão excluir tarefa"
+    },
+    "areYouSureYouWantToDeleteTask": "Tem certeza que deseja excluir a tarefa \"{taskTitle}\"? Esta ação não pode ser desfeita.",
+    "@areYouSureYouWantToDeleteTask": {
+        "description": "Mensagem de confirmação para excluir tarefa",
+        "placeholders": {
+            "taskTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
     }
 }

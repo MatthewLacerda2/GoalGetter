@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 
 class WeekdaySelector extends StatefulWidget {
   final void Function(int)? onChanged; // Optional callback if you want to use it elsewhere
@@ -10,11 +11,25 @@ class WeekdaySelector extends StatefulWidget {
 }
 
 class _WeekdaySelectorState extends State<WeekdaySelector> {
-  static const List<String> _days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   int _selectedDay = DateTime.now().weekday % 7; // Sunday=0, Monday=1, ..., Saturday=6
+
+  List<String> _getDayAbbreviations(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return [
+      localizations.sunday,
+      localizations.monday,
+      localizations.tuesday,
+      localizations.wednesday,
+      localizations.thursday,
+      localizations.friday,
+      localizations.saturday,
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final days = _getDayAbbreviations(context);
+    
     return Row(
       children: List.generate(7, (index) {
         final bool isSelected = index == _selectedDay;
@@ -38,7 +53,7 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
               ),
               child: Center(
                 child: Text(
-                  _days[index],
+                  days[index],
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

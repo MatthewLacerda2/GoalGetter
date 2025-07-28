@@ -47,6 +47,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String taskDeleted(String taskTitle) {
+    return 'Task \"$taskTitle\" deleted';
+  }
+
+  @override
   String get undo => 'Undo';
 
   @override
@@ -63,6 +68,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get description => 'Description (Optional)';
+
+  @override
+  String get goalOptional => 'Goal (optional)';
 
   @override
   String get descriptionHint => 'Describe your goal in detail...';
@@ -171,4 +179,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editTask => 'Edit Task';
+
+  @override
+  String get sunday => 'SUN';
+
+  @override
+  String get monday => 'MON';
+
+  @override
+  String get tuesday => 'TUE';
+
+  @override
+  String get wednesday => 'WED';
+
+  @override
+  String get thursday => 'THU';
+
+  @override
+  String get friday => 'FRI';
+
+  @override
+  String get saturday => 'SAT';
+
+  @override
+  String get noActivitiesForTheDayYet => 'No activities for the day (yet)';
+
+  @override
+  String get noGoal => 'No goal';
+
+  @override
+  String get daysOfTheWeek => 'Days of the week';
+
+  @override
+  String goal(String goalTitle) {
+    return 'Goal: $goalTitle';
+  }
+
+  @override
+  String get deleteTask => 'Delete Task';
+
+  @override
+  String areYouSureYouWantToDeleteTask(String taskTitle) {
+    return 'Are you sure you want to delete the task \"$taskTitle\"? This action cannot be undone.';
+  }
 }

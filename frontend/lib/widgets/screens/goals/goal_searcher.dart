@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/goal.dart';
 import '../../../utils/goal_storage.dart';
+import '../../../l10n/app_localizations.dart';
 
 class GoalSearcher extends StatefulWidget {
   final String? selectedGoalId;
@@ -107,7 +108,7 @@ class _GoalSearcherState extends State<GoalSearcher> {
               TextField(
                 controller: _goalSearchController,
                 decoration: InputDecoration(
-                  hintText: 'Goal (optional)',
+                  hintText: AppLocalizations.of(context)!.goalOptional,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   suffixIcon: Row(
@@ -160,7 +161,7 @@ class _GoalSearcherState extends State<GoalSearcher> {
                       if (index == 0) {
                         return ListTile(
                           dense: true,
-                          title: const Text('No goal'),
+                          title: Text(AppLocalizations.of(context)!.noGoal),
                           onTap: _clearGoalSelection,
                           tileColor: _selectedGoal == null ? Colors.blue.shade50 : null,
                         );

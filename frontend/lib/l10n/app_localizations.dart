@@ -167,6 +167,12 @@ abstract class AppLocalizations {
   /// **'Goal \"{goalTitle}\" deleted'**
   String goalDeleted(String goalTitle);
 
+  /// Snackbar message when task is deleted
+  ///
+  /// In en, this message translates to:
+  /// **'Task \"{taskTitle}\" deleted'**
+  String taskDeleted(String taskTitle);
+
   /// Undo button label
   ///
   /// In en, this message translates to:
@@ -202,6 +208,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Description (Optional)'**
   String get description;
+
+  /// Hint text for goal field
+  ///
+  /// In en, this message translates to:
+  /// **'Goal (optional)'**
+  String get goalOptional;
 
   /// Hint text for description field
   ///
@@ -406,6 +418,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit Task'**
   String get editTask;
+
+  /// Sunday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'SUN'**
+  String get sunday;
+
+  /// Monday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'MON'**
+  String get monday;
+
+  /// Tuesday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'TUE'**
+  String get tuesday;
+
+  /// Wednesday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'WED'**
+  String get wednesday;
+
+  /// Thursday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'THU'**
+  String get thursday;
+
+  /// Friday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'FRI'**
+  String get friday;
+
+  /// Saturday abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'SAT'**
+  String get saturday;
+
+  /// Message for empty tasks state
+  ///
+  /// In en, this message translates to:
+  /// **'No activities for the day (yet)'**
+  String get noActivitiesForTheDayYet;
+
+  /// Label for no goal option
+  ///
+  /// In en, this message translates to:
+  /// **'No goal'**
+  String get noGoal;
+
+  /// Label for days of the week
+  ///
+  /// In en, this message translates to:
+  /// **'Days of the week'**
+  String get daysOfTheWeek;
+
+  /// Label for goal field
+  ///
+  /// In en, this message translates to:
+  /// **'Goal: {goalTitle}'**
+  String goal(String goalTitle);
+
+  /// Label for delete task button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Task'**
+  String get deleteTask;
+
+  /// Confirmation message for deleting task
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the task \"{taskTitle}\"? This action cannot be undone.'**
+  String areYouSureYouWantToDeleteTask(String taskTitle);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

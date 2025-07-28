@@ -47,6 +47,11 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String taskDeleted(String taskTitle) {
+    return 'Tarefa \"$taskTitle\" excluída';
+  }
+
+  @override
   String get undo => 'Desfazer';
 
   @override
@@ -63,6 +68,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get description => 'Descrição (Opcional)';
+
+  @override
+  String get goalOptional => 'Meta (opcional)';
 
   @override
   String get descriptionHint => 'Descreva sua meta em detalhes...';
@@ -142,33 +150,76 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String goalNeedsTime(String goalTitle, int minutesMissing) {
-    return '$goalTitle precisa de ${minutesMissing}min/w';
+    return '$goalTitle precisa de ${minutesMissing}min/semana';
   }
 
   @override
   String get dismiss => 'Descartar';
 
   @override
-  String get pleaseFillAllRequiredFields => 'Please fill all required fields.';
+  String get pleaseFillAllRequiredFields => 'Por favor, preencha todos os campos obrigatórios.';
 
   @override
   String get title => 'Título';
 
   @override
-  String get createTask => 'Create Task';
+  String get createTask => 'Criar Tarefa';
 
   @override
-  String get ifTheTaskHasASpecificGoal => 'If the task has a specific goal, you can select it here.';
+  String get ifTheTaskHasASpecificGoal => 'Se a tarefa tem uma meta específica, você pode selecioná-la aqui.';
 
   @override
-  String get hour => 'Hour';
+  String get hour => 'Hora';
 
   @override
-  String get pickTime => 'Pick Time';
+  String get pickTime => 'Escolher Horário';
 
   @override
-  String get duration => 'Duration';
+  String get duration => 'Duração';
 
   @override
   String get editTask => 'Editar Tarefa';
+
+  @override
+  String get sunday => 'DOM';
+
+  @override
+  String get monday => 'SEG';
+
+  @override
+  String get tuesday => 'TER';
+
+  @override
+  String get wednesday => 'QUA';
+
+  @override
+  String get thursday => 'QUI';
+
+  @override
+  String get friday => 'SEX';
+
+  @override
+  String get saturday => 'SAB';
+
+  @override
+  String get noActivitiesForTheDayYet => 'Nenhuma atividade para o dia (ainda)';
+
+  @override
+  String get noGoal => 'Sem meta';
+
+  @override
+  String get daysOfTheWeek => 'Dias da semana';
+
+  @override
+  String goal(String goalTitle) {
+    return 'Meta: $goalTitle';
+  }
+
+  @override
+  String get deleteTask => 'Excluir Tarefa';
+
+  @override
+  String areYouSureYouWantToDeleteTask(String taskTitle) {
+    return 'Tem certeza que deseja excluir a tarefa \"$taskTitle\"? Esta ação não pode ser desfeita.';
+  }
 }
