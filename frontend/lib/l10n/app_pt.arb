@@ -313,5 +313,57 @@
                 "example": "Aprender Flutter"
             }
         }
+    },
+    "createYourGoal": "Crie sua meta",
+    "@createYourGoal": {
+        "description": "Rótulo para tela de criação de meta"
+    },
+    "writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": "Escreva o que você quer fazer e quanto tempo você vai dedicar a ele semanalmente",
+    "@writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": {
+        "description": "Texto de ajuda para criação de meta"
+    },
+    "createYourTask": "Crie sua tarefa",
+    "@createYourTask": {
+        "description": "Rótulo para tela de criação de tarefa"
+    },
+    "writeDownHowYouWillUseYourTimeForTheDay": "Escreva como você vai usar seu tempo para o dia",
+    "@writeDownHowYouWillUseYourTimeForTheDay": {
+        "description": "Texto de ajuda para criação de tarefa"
+    },
+    "taskToGoal": "Tarefa para meta",
+    "@taskToGoal": {
+        "description": "Rótulo para tela de tarefa para meta"
+    },
+    "youCanMarkATaskAsBeingPartOfAchievingAGoal": "Você pode marcar uma tarefa como sendo parte de uma meta",
+    "@youCanMarkATaskAsBeingPartOfAchievingAGoal": {
+        "description": "Texto de ajuda para marcar uma tarefa como sendo parte de uma meta"
+    },
+    "freeTasks": "Tarefas livres",
+    "@freeTasks": {
+        "description": "Rótulo para tela de tarefas livres"
+    },
+    "notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": "Não todas as tarefas precisam alcançar uma meta grande. Como fazer as roupas",
+    "@notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": {
+        "description": "Texto de ajuda para tarefas livres"
+    },
+    "readyToAchieve": "Pronto para alcançar?",
+    "@readyToAchieve": {
+        "description": "Rótulo para tela de pronto para alcançar"
+    },
+    "exploreDreamDiscover": "Explore. Sonhe. Descubra",
+    "@exploreDreamDiscover": {
+        "description": "Texto de ajuda para pronto para alcançar"
+    },
+    "skip": "Pular",
+    "@skip": {
+        "description": "Rótulo para botão pular"
+    },
+    "next": "Próximo",
+    "@next": {
+        "description": "Rótulo para botão próximo"
+    },
+    "getStarted": "Começar",
+    "@getStarted": {
+        "description": "Rótulo para botão começar"
     }
 }

@@ -222,4 +222,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String areYouSureYouWantToDeleteTask(String taskTitle) {
     return 'Are you sure you want to delete the task \"$taskTitle\"? This action cannot be undone.';
   }
+
+  @override
+  String get createYourGoal => 'Create your goal';
+
+  @override
+  String get writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly => 'Write what you want to do and how much you\'ll dedicate to it weekly';
+
+  @override
+  String get createYourTask => 'Create your task';
+
+  @override
+  String get writeDownHowYouWillUseYourTimeForTheDay => 'Write down how you\'ll use your time for the day';
+
+  @override
+  String get taskToGoal => 'Task to Goal';
+
+  @override
+  String get youCanMarkATaskAsBeingPartOfAchievingAGoal => 'You can mark a task as being part of achieving a goal';
+
+  @override
+  String get freeTasks => 'Free tasks';
+
+  @override
+  String get notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes => 'Not every task needs to achieve a big goal. Like doing the dishes';
+
+  @override
+  String get readyToAchieve => 'Ready to achieve?';
+
+  @override
+  String get exploreDreamDiscover => 'Explore. Dream. Discover';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get getStarted => 'Get Started';
 }

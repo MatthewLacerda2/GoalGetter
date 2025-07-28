@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../main.dart';
+import '../l10n/app_localizations.dart';
 
 class IntroductionScreenWidget extends StatelessWidget {
   const IntroductionScreenWidget({super.key});
@@ -11,8 +12,8 @@ class IntroductionScreenWidget extends StatelessWidget {
     return IntroductionScreen(
       pages: [
         PageViewModel(
-          title: "Create your goal",
-          body: "Write what you want to do and how much you'll dedicate to it weekly",
+          title: AppLocalizations.of(context)!.createYourGoal,
+          body: AppLocalizations.of(context)!.writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly,
           image: const Padding(
             padding: EdgeInsets.only(bottom: 24.0),
             child: Center(
@@ -25,8 +26,8 @@ class IntroductionScreenWidget extends StatelessWidget {
           ),
         ),
         PageViewModel(
-          title: "Create your Task",
-          body: "Write down how you'll use your time for the day",
+          title: AppLocalizations.of(context)!.createYourTask,
+          body: AppLocalizations.of(context)!.writeDownHowYouWillUseYourTimeForTheDay,
           image: const Padding(
             padding: EdgeInsets.only(bottom: 24.0),
             child: Center(
@@ -39,8 +40,8 @@ class IntroductionScreenWidget extends StatelessWidget {
           ),
         ),
         PageViewModel(
-          title: "Task to Goal",
-          body: "You can mark a task as being part of achieving a goal",
+          title: AppLocalizations.of(context)!.taskToGoal,
+          body: AppLocalizations.of(context)!.youCanMarkATaskAsBeingPartOfAchievingAGoal,
           image: const Padding(
             padding: EdgeInsets.only(bottom: 24.0),
             child: Center(
@@ -53,8 +54,8 @@ class IntroductionScreenWidget extends StatelessWidget {
           ),
         ),
         PageViewModel(
-          title: "Free tasks",
-          body: "Not every task needs to achieve a big goal. Like doing the dishes",
+          title: AppLocalizations.of(context)!.freeTasks,
+          body: AppLocalizations.of(context)!.notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes,
           image: const Padding(
             padding: EdgeInsets.only(bottom: 24.0),
             child: Center(
@@ -67,8 +68,8 @@ class IntroductionScreenWidget extends StatelessWidget {
           ),
         ),
         PageViewModel(
-          title: "Ready to achieve?",
-          body: "Explore. Dream. Discover",
+          title: AppLocalizations.of(context)!.readyToAchieve,
+          body: AppLocalizations.of(context)!.exploreDreamDiscover,
           image: const Padding(
             padding: EdgeInsets.only(bottom: 24.0),
             child: Center(
@@ -90,9 +91,9 @@ class IntroductionScreenWidget extends StatelessWidget {
         );
       },
       showSkipButton: true,
-      skip: const Text("Skip"),
-      next: const Text("Next"),
-      done: const Text("Get Started"),
+      skip: Text(AppLocalizations.of(context)!.skip),
+      next: Text(AppLocalizations.of(context)!.next),
+      done: Text(AppLocalizations.of(context)!.getStarted),
       dotsDecorator: DotsDecorator(
         activeColor: Theme.of(context).primaryColor,
         size: const Size(10.0, 10.0),

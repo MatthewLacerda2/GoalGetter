@@ -222,4 +222,43 @@ class AppLocalizationsPt extends AppLocalizations {
   String areYouSureYouWantToDeleteTask(String taskTitle) {
     return 'Tem certeza que deseja excluir a tarefa \"$taskTitle\"? Esta ação não pode ser desfeita.';
   }
+
+  @override
+  String get createYourGoal => 'Crie sua meta';
+
+  @override
+  String get writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly => 'Escreva o que você quer fazer e quanto tempo você vai dedicar a ele semanalmente';
+
+  @override
+  String get createYourTask => 'Crie sua tarefa';
+
+  @override
+  String get writeDownHowYouWillUseYourTimeForTheDay => 'Escreva como você vai usar seu tempo para o dia';
+
+  @override
+  String get taskToGoal => 'Tarefa para meta';
+
+  @override
+  String get youCanMarkATaskAsBeingPartOfAchievingAGoal => 'Você pode marcar uma tarefa como sendo parte de uma meta';
+
+  @override
+  String get freeTasks => 'Tarefas livres';
+
+  @override
+  String get notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes => 'Não todas as tarefas precisam alcançar uma meta grande. Como fazer as roupas';
+
+  @override
+  String get readyToAchieve => 'Pronto para alcançar?';
+
+  @override
+  String get exploreDreamDiscover => 'Explore. Sonhe. Descubra';
+
+  @override
+  String get skip => 'Pular';
+
+  @override
+  String get next => 'Próximo';
+
+  @override
+  String get getStarted => 'Começar';
 }

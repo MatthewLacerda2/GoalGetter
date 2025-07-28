@@ -496,6 +496,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete the task \"{taskTitle}\"? This action cannot be undone.'**
   String areYouSureYouWantToDeleteTask(String taskTitle);
+
+  /// Label for create goal screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create your goal'**
+  String get createYourGoal;
+
+  /// Helper text for create goal
+  ///
+  /// In en, this message translates to:
+  /// **'Write what you want to do and how much you\'ll dedicate to it weekly'**
+  String get writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly;
+
+  /// Label for create task screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create your task'**
+  String get createYourTask;
+
+  /// Helper text for create task
+  ///
+  /// In en, this message translates to:
+  /// **'Write down how you\'ll use your time for the day'**
+  String get writeDownHowYouWillUseYourTimeForTheDay;
+
+  /// Label for task to goal screen
+  ///
+  /// In en, this message translates to:
+  /// **'Task to Goal'**
+  String get taskToGoal;
+
+  /// Helper text for task to goal
+  ///
+  /// In en, this message translates to:
+  /// **'You can mark a task as being part of achieving a goal'**
+  String get youCanMarkATaskAsBeingPartOfAchievingAGoal;
+
+  /// Label for free tasks screen
+  ///
+  /// In en, this message translates to:
+  /// **'Free tasks'**
+  String get freeTasks;
+
+  /// Helper text for free tasks
+  ///
+  /// In en, this message translates to:
+  /// **'Not every task needs to achieve a big goal. Like doing the dishes'**
+  String get notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes;
+
+  /// Label for ready to achieve screen
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to achieve?'**
+  String get readyToAchieve;
+
+  /// Helper text for ready to achieve
+  ///
+  /// In en, this message translates to:
+  /// **'Explore. Dream. Discover'**
+  String get exploreDreamDiscover;
+
+  /// Label for skip button
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// Label for next button
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// Label for get started button
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

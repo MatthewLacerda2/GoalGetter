@@ -313,5 +313,57 @@
                 "example": "Learn Flutter"
             }
         }
+    },
+    "createYourGoal": "Create your goal",
+    "@createYourGoal": {
+        "description": "Label for create goal screen"
+    },
+    "writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": "Write what you want to do and how much you'll dedicate to it weekly",
+    "@writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": {
+        "description": "Helper text for create goal"
+    },
+    "createYourTask": "Create your task",
+    "@createYourTask": {
+        "description": "Label for create task screen"
+    },
+    "writeDownHowYouWillUseYourTimeForTheDay": "Write down how you'll use your time for the day",
+    "@writeDownHowYouWillUseYourTimeForTheDay": {
+        "description": "Helper text for create task"
+    },
+    "taskToGoal": "Task to Goal",
+    "@taskToGoal": {
+        "description": "Label for task to goal screen"
+    },
+    "youCanMarkATaskAsBeingPartOfAchievingAGoal": "You can mark a task as being part of achieving a goal",
+    "@youCanMarkATaskAsBeingPartOfAchievingAGoal": {
+        "description": "Helper text for task to goal"
+    },
+    "freeTasks": "Free tasks",
+    "@freeTasks": {
+        "description": "Label for free tasks screen"
+    },
+    "notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": "Not every task needs to achieve a big goal. Like doing the dishes",
+    "@notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": {
+        "description": "Helper text for free tasks"
+    },
+    "readyToAchieve": "Ready to achieve?",
+    "@readyToAchieve": {
+        "description": "Label for ready to achieve screen"
+    },
+    "exploreDreamDiscover": "Explore. Dream. Discover",
+    "@exploreDreamDiscover": {
+        "description": "Helper text for ready to achieve"
+    },
+    "skip": "Skip",
+    "@skip": {
+        "description": "Label for skip button"
+    },
+    "next": "Next",
+    "@next": {
+        "description": "Label for next button"
+    },
+    "getStarted": "Get Started",
+    "@getStarted": {
+        "description": "Label for get started button"
     }
 }
