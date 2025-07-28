@@ -72,6 +72,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title
             TextField(
@@ -81,12 +82,13 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             const SizedBox(height: 16),
             // Goal Selection
             Text(
-              'If this task has a specific goal...',
+              'If the task has a specific...',
               style: TextStyle(
                 color: Colors.grey[600],
                 fontStyle: FontStyle.italic,
                 fontSize: 12,
               ),
+              textAlign: TextAlign.left,
             ),
             const SizedBox(height: 4),
             GoalSearcher(
