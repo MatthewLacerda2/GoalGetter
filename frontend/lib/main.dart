@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/goals/goals_screen.dart';
 import 'screens/agenda/agenda_screen.dart';
 import 'screens/profile_screen.dart';
+import 'l10n/app_localizations.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,6 +19,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: 'Goal Getter'),
     );

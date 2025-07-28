@@ -1,0 +1,11 @@
+{
+    "@@locale": "pt",
+    "language": "Idioma",
+    "@language": {
+        "description": "O idioma atual"
+    },
+    "options": "Opções",
+    "@options": {
+        "description": "Menu de opções"
+    }
+}
