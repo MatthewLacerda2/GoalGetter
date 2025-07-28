@@ -3,13 +3,34 @@ import 'screens/goals/goals_screen.dart';
 import 'screens/agenda/agenda_screen.dart';
 import 'screens/profile_screen.dart';
 import 'l10n/app_localizations.dart';
+import 'utils/settings_storage.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = const Locale('en');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final language = await SettingsStorage.getUserLanguage();
+    setState(() {
+      _locale = Locale(language);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +42,7 @@ class MyApp extends StatelessWidget {
       ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('en'),
+      locale: _locale,
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: 'Goal Getter'),
     );
@@ -40,10 +61,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _tabPages = <Widget>[
-    GoalsScreen(),
-    AgendaScreen(),
-    ProfileScreen(),
+  List<Widget> get _tabPages => <Widget>[
+    const GoalsScreen(),
+    const AgendaScreen(),
+    const ProfileScreen(),
   ];
 
   void _onTabTapped(int index) {
@@ -61,18 +82,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.flag),
-            label: 'Goals',
+            icon: const Icon(Icons.flag),
+            label: AppLocalizations.of(context)!.goals,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.event_note),
-            label: 'Agenda',
+            icon: const Icon(Icons.event_note),
+            label: AppLocalizations.of(context)!.agenda,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person),
+            label: AppLocalizations.of(context)!.profile,
           ),
         ],
         currentIndex: _selectedIndex,

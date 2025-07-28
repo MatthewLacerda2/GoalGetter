@@ -31,6 +31,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _currentLanguage = language;
     });
+    
+    // The app will automatically rebuild with the new locale
+    // because we're calling setState on the root MyApp widget
   }
 
   @override

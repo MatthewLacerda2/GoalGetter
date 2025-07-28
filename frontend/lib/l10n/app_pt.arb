@@ -7,5 +7,17 @@
     "options": "Opções",
     "@options": {
         "description": "Menu de opções"
+    },
+    "goals": "Metas",
+    "@goals": {
+        "description": "Rótulo da aba de metas"
+    },
+    "agenda": "Agenda",
+    "@agenda": {
+        "description": "Rótulo da aba de agenda"
+    },
+    "profile": "Perfil",
+    "@profile": {
+        "description": "Rótulo da aba de perfil"
     }
 }

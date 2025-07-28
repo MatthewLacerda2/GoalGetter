@@ -13,4 +13,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get options => 'Opções';
+
+  @override
+  String get goals => 'Metas';
+
+  @override
+  String get agenda => 'Agenda';
+
+  @override
+  String get profile => 'Perfil';
 }

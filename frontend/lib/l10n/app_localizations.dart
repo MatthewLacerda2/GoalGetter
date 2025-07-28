@@ -106,6 +106,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Options'**
   String get options;
+
+  /// Goals tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get goals;
+
+  /// Agenda tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda'**
+  String get agenda;
+
+  /// Profile tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -13,4 +13,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get options => 'Options';
+
+  @override
+  String get goals => 'Goals';
+
+  @override
+  String get agenda => 'Agenda';
+
+  @override
+  String get profile => 'Profile';
 }
