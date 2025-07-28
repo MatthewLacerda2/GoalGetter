@@ -3,6 +3,7 @@ import 'create_goal_screen.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
 import '../../widgets/screens/goals/goal_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -100,14 +101,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _buildSortButton('name', 'Name'),
+                    child: _buildSortButton('name', AppLocalizations.of(context)!.name),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _buildSortButton('week', 'Time'),
+                    child: _buildSortButton('week', AppLocalizations.of(context)!.time),
                   ),
                 ),
               ],
@@ -127,7 +128,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Set up your Goals',
+                          AppLocalizations.of(context)!.setUpYourGoals,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -136,7 +137,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Create your first goal to get started!',
+                          AppLocalizations.of(context)!.createFirstGoalMessage,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey.shade500,
@@ -172,9 +173,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Goal "${goal.title}" deleted'),
+                                content: Text(AppLocalizations.of(context)!.goalDeleted(goal.title)),
                                 action: SnackBarAction(
-                                  label: 'Undo',
+                                  label: AppLocalizations.of(context)!.undo,
                                   onPressed: () async {
                                     await GoalStorage.saveNew(goal);
                                     await _loadGoals();

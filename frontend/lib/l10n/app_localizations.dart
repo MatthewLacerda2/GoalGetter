@@ -136,6 +136,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get about;
+
+  /// Name sort button label
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// Time sort button label
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// Empty state title when no goals exist
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your Goals'**
+  String get setUpYourGoals;
+
+  /// Empty state message when no goals exist
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first goal to get started!'**
+  String get createFirstGoalMessage;
+
+  /// Snackbar message when goal is deleted
+  ///
+  /// In en, this message translates to:
+  /// **'Goal \"{goalTitle}\" deleted'**
+  String goalDeleted(String goalTitle);
+
+  /// Undo button label
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

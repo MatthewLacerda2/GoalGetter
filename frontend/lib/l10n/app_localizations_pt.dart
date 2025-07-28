@@ -28,4 +28,24 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get about => 'Sobre';
+
+  @override
+  String get name => 'Nome';
+
+  @override
+  String get time => 'Tempo';
+
+  @override
+  String get setUpYourGoals => 'Configure suas Metas';
+
+  @override
+  String get createFirstGoalMessage => 'Crie sua primeira meta para começar!';
+
+  @override
+  String goalDeleted(String goalTitle) {
+    return 'Meta \"$goalTitle\" excluída';
+  }
+
+  @override
+  String get undo => 'Desfazer';
 }

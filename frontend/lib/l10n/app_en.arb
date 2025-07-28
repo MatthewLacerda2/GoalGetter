@@ -27,5 +27,35 @@
     "about": "About",
     "@about": {
         "description": "About section title"
+    },
+    "name": "Name",
+    "@name": {
+        "description": "Name sort button label"
+    },
+    "time": "Time",
+    "@time": {
+        "description": "Time sort button label"
+    },
+    "setUpYourGoals": "Set up your Goals",
+    "@setUpYourGoals": {
+        "description": "Empty state title when no goals exist"
+    },
+    "createFirstGoalMessage": "Create your first goal to get started!",
+    "@createFirstGoalMessage": {
+        "description": "Empty state message when no goals exist"
+    },
+    "goalDeleted": "Goal \"{goalTitle}\" deleted",
+    "@goalDeleted": {
+        "description": "Snackbar message when goal is deleted",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            }
+        }
+    },
+    "undo": "Undo",
+    "@undo": {
+        "description": "Undo button label"
     }
 }

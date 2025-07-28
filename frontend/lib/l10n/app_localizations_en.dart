@@ -28,4 +28,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get about => 'About';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get setUpYourGoals => 'Set up your Goals';
+
+  @override
+  String get createFirstGoalMessage => 'Create your first goal to get started!';
+
+  @override
+  String goalDeleted(String goalTitle) {
+    return 'Goal \"$goalTitle\" deleted';
+  }
+
+  @override
+  String get undo => 'Undo';
 }

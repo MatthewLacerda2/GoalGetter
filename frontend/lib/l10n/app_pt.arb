@@ -27,5 +27,35 @@
     "about": "Sobre",
     "@about": {
         "description": "Título da seção sobre"
+    },
+    "name": "Nome",
+    "@name": {
+        "description": "Rótulo do botão de ordenar por nome"
+    },
+    "time": "Tempo",
+    "@time": {
+        "description": "Rótulo do botão de ordenar por tempo"
+    },
+    "setUpYourGoals": "Configure suas Metas",
+    "@setUpYourGoals": {
+        "description": "Título do estado vazio quando não há metas"
+    },
+    "createFirstGoalMessage": "Crie sua primeira meta para começar!",
+    "@createFirstGoalMessage": {
+        "description": "Mensagem do estado vazio quando não há metas"
+    },
+    "goalDeleted": "Meta \"{goalTitle}\" excluída",
+    "@goalDeleted": {
+        "description": "Mensagem do snackbar quando meta é excluída",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "undo": "Desfazer",
+    "@undo": {
+        "description": "Rótulo do botão desfazer"
     }
 }
