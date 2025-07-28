@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/settings_storage.dart';
-import 'about.dart';
+import '../l10n/app_localizations.dart';
 import 'introduction_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -42,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(AppLocalizations.of(context)!.profile),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
@@ -51,9 +51,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Language Section
-            const Text(
-              'Language:',
-              style: TextStyle(
+            Text(
+              '${AppLocalizations.of(context)!.language}:',
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -85,29 +85,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             
             // How to Use Section
             _buildSectionTile(
-              'How to use',
+              AppLocalizations.of(context)!.howToUse,
               Icons.help_outline,
               () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const IntroductionScreenWidget(),
-                  ),
-                );
-              },
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // About Section
-            _buildSectionTile(
-              'About',
-              Icons.info_outline,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AboutScreen(),
                   ),
                 );
               },
@@ -163,6 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  //For now we only use this once, but we will add sections in the future, so might as well leave it here
   Widget _buildSectionTile(String title, IconData icon, VoidCallback onTap) {
     return Container(
       decoration: BoxDecoration(

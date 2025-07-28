@@ -19,5 +19,13 @@
     "profile": "Profile",
     "@profile": {
         "description": "Profile tab label"
+    },
+    "howToUse": "How to use",
+    "@howToUse": {
+        "description": "How to use section title"
+    },
+    "about": "About",
+    "@about": {
+        "description": "About section title"
     }
 }

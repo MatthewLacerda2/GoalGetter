@@ -19,5 +19,13 @@
     "profile": "Perfil",
     "@profile": {
         "description": "Rótulo da aba de perfil"
+    },
+    "howToUse": "Como usar",
+    "@howToUse": {
+        "description": "Título da seção como usar"
+    },
+    "about": "Sobre",
+    "@about": {
+        "description": "Título da seção sobre"
     }
 }

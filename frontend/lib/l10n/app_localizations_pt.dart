@@ -22,4 +22,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get profile => 'Perfil';
+
+  @override
+  String get howToUse => 'Como usar';
+
+  @override
+  String get about => 'Sobre';
 }
