@@ -119,4 +119,27 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get goalUpdated => 'Meta atualizada';
+
+  @override
+  String get timeReserved => 'Tempo reservado';
+
+  @override
+  String get deleteGoal => 'Excluir Meta';
+
+  @override
+  String areYouSureYouWantToDeleteGoal(String goalTitle) {
+    return 'Tem certeza que deseja excluir a meta \"$goalTitle\"? Esta ação não pode ser desfeita.';
+  }
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get delete => 'Excluir';
+
+  @override
+  String get commited => 'Comitado';
+
+  @override
+  String get reserved => 'Reservado';
 }

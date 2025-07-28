@@ -310,6 +310,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Goal updated'**
   String get goalUpdated;
+
+  /// Label for time reserved field
+  ///
+  /// In en, this message translates to:
+  /// **'Time reserved'**
+  String get timeReserved;
+
+  /// Label for delete goal button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Goal'**
+  String get deleteGoal;
+
+  /// Confirmation message for deleting goal
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the goal \"{goalTitle}\"? This action cannot be undone.'**
+  String areYouSureYouWantToDeleteGoal(String goalTitle);
+
+  /// Label for cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Label for delete button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Label for commited field
+  ///
+  /// In en, this message translates to:
+  /// **'Commited'**
+  String get commited;
+
+  /// Label for reserved field
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get reserved;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

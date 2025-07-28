@@ -155,5 +155,39 @@
     "goalUpdated": "Goal updated",
     "@goalUpdated": {
         "description": "Snackbar message when goal is updated"
+    },
+    "timeReserved": "Time reserved",
+    "@timeReserved": {
+        "description": "Label for time reserved field"
+    },
+    "deleteGoal": "Delete Goal",
+    "@deleteGoal": {
+        "description": "Label for delete goal button"
+    },
+    "areYouSureYouWantToDeleteGoal": "Are you sure you want to delete the goal \"{goalTitle}\"? This action cannot be undone.",
+    "@areYouSureYouWantToDeleteGoal": {
+        "description": "Confirmation message for deleting goal",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            }
+        }
+    },
+    "cancel": "Cancel",
+    "@cancel": {
+        "description": "Label for cancel button"
+    },
+    "delete": "Delete",
+    "@delete": {
+        "description": "Label for delete button"
+    },
+    "commited": "Commited",
+    "@commited": {
+        "description": "Label for commited field"
+    },
+    "reserved": "Reserved",
+    "@reserved": {
+        "description": "Label for reserved field"
     }
 }

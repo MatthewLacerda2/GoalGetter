@@ -155,5 +155,39 @@
     "goalUpdated": "Meta atualizada",
     "@goalUpdated": {
         "description": "Mensagem do snackbar quando meta é atualizada"
+    },
+    "timeReserved": "Tempo reservado",
+    "@timeReserved": {
+        "description": "Rótulo do campo tempo reservado"
+    },
+    "deleteGoal": "Excluir Meta",
+    "@deleteGoal": {
+        "description": "Rótulo do botão excluir meta"
+    },
+    "areYouSureYouWantToDeleteGoal": "Tem certeza que deseja excluir a meta \"{goalTitle}\"? Esta ação não pode ser desfeita.",
+    "@areYouSureYouWantToDeleteGoal": {
+        "description": "Mensagem de confirmação para excluir meta",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "cancel": "Cancelar",
+    "@cancel": {
+        "description": "Rótulo do botão cancelar"
+    },
+    "delete": "Excluir",
+    "@delete": {
+        "description": "Rótulo do botão excluir"
+    },
+    "commited": "Comprometido",
+    "@commited": {
+        "description": "Rótulo do campo comprometido"
+    },
+    "reserved": "Reservado",
+    "@reserved": {
+        "description": "Rótulo do campo reservado"
     }
 }

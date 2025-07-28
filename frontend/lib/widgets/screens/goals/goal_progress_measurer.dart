@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../utils/task_storage.dart';
 
 class GoalProgressMeasurer extends StatelessWidget {
@@ -34,7 +35,7 @@ class GoalProgressMeasurer extends StatelessWidget {
             children: [
               const SizedBox(height: 12),
               Text(
-                'Time reserved:',
+                AppLocalizations.of(context)!.timeReserved,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade600,

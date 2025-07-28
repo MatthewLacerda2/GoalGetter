@@ -119,4 +119,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goalUpdated => 'Goal updated';
+
+  @override
+  String get timeReserved => 'Time reserved';
+
+  @override
+  String get deleteGoal => 'Delete Goal';
+
+  @override
+  String areYouSureYouWantToDeleteGoal(String goalTitle) {
+    return 'Are you sure you want to delete the goal \"$goalTitle\"? This action cannot be undone.';
+  }
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get commited => 'Commited';
+
+  @override
+  String get reserved => 'Reserved';
 }
