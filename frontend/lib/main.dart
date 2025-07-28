@@ -32,6 +32,12 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _changeLanguage(String language) {
+    setState(() {
+      _locale = Locale(language);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -44,15 +50,19 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       locale: _locale,
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: 'Goal Getter'),
+      home: MyHomePage(
+        title: 'Goal Getter',
+        onLanguageChanged: _changeLanguage,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.onLanguageChanged});
 
   final String title;
+  final Function(String) onLanguageChanged;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -64,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> get _tabPages => <Widget>[
     const GoalsScreen(),
     const AgendaScreen(),
-    const ProfileScreen(),
+    ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
 
   void _onTabTapped(int index) {

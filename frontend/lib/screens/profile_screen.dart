@@ -4,7 +4,9 @@ import 'about.dart';
 import 'introduction_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final Function(String)? onLanguageChanged;
+  
+  const ProfileScreen({super.key, this.onLanguageChanged});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -32,8 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _currentLanguage = language;
     });
     
-    // The app will automatically rebuild with the new locale
-    // because we're calling setState on the root MyApp widget
+    // Notify the parent widget about the language change
+    widget.onLanguageChanged?.call(language);
   }
 
   @override
