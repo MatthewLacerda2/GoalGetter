@@ -6,7 +6,8 @@ import '../../widgets/screens/goals/goal_searcher.dart';
 import '../../widgets/screens/tasks/days_of_the_week.dart';
 
 class CreateTaskScreen extends StatefulWidget {
-  const CreateTaskScreen({super.key});
+  final String? goalId;
+  const CreateTaskScreen({super.key, this.goalId});
 
   @override
   State<CreateTaskScreen> createState() => _CreateTaskScreenState();
@@ -56,7 +57,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       title: title,
       startTime: _selectedTime!,
       durationMinutes: duration,
-      goalId: _selectedGoalId,
+      goalId: widget.goalId,
       weekdays: selectedWeekdays.toList(),
     );
     await TaskStorage.saveNew(task);

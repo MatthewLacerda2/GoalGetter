@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/goal.dart';
 import '../../utils/goal_storage.dart';
+import '../agenda/create_task_screen.dart';
 
 class CreateGoalScreen extends StatefulWidget {
   const CreateGoalScreen({super.key});
@@ -42,11 +43,23 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
       // Check if widget is still mounted before using context
       if (!mounted) return;
 
-      // Show success message and navigate back
+      // Show success message with action to create task
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Goal created successfully!'),
+        SnackBar(
+          content: const Text('Goal created successfully!'),
           backgroundColor: Colors.green,
+          action: SnackBarAction(
+            label: 'Create Task',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateTaskScreen(goalId: goal.id),
+                ),
+              );
+            },
+          ),
         ),
       );
 
@@ -115,7 +128,6 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 controller: _weeklyHoursController,
                 decoration: const InputDecoration(
                   labelText: 'Weekly Hours',
-                  hintText: 'e.g., 5',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.schedule),
                   suffixText: 'hours/week',

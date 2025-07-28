@@ -12,8 +12,15 @@ class GoalProgressMeasurer extends StatelessWidget {
   final String goalId;
 
   Future<String> _getReservedTime() async {
-    final totalDuration = await TaskStorage.getTotalDurationForGoal(goalId); 
-    return totalDuration.toStringAsFixed(1);
+    final totalMinutes = await TaskStorage.getTotalDurationForGoal(goalId);
+    
+    if (totalMinutes < 60) {
+      return '${totalMinutes}m';
+    } else {
+      final hours = totalMinutes ~/ 60;
+      final minutes = totalMinutes % 60;
+      return minutes > 0 ? '${hours}h${minutes}m' : '${hours}h';
+    }
   }
 
   //I left this as Row because i'll eventually add another text to the side
@@ -25,8 +32,9 @@ class GoalProgressMeasurer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 12),
               Text(
-                'Time commited:',
+                'Time reserved:',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade600,

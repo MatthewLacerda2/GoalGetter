@@ -126,7 +126,6 @@ class _GoalScreenState extends State<GoalScreen> {
                 controller: _weeklyHoursController,
                 decoration: const InputDecoration(
                   labelText: 'Weekly Hours',
-                  hintText: 'e.g., 5',
                   border: UnderlineInputBorder(),
                   prefixIcon: Icon(Icons.schedule),
                   suffixText: 'hours/week',
