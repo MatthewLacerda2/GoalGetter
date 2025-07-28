@@ -150,6 +150,15 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 8),
+              Text(
+                'You can create tasks for this goal later',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12,
+                ),
+              ),
             ],
           ),
         ),

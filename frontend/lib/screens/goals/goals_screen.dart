@@ -107,7 +107,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _buildSortButton('week', 'Week'),
+                    child: _buildSortButton('week', 'Time'),
                   ),
                 ),
               ],

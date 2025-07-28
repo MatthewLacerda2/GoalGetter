@@ -80,6 +80,15 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
             const SizedBox(height: 16),
             // Goal Selection
+            Text(
+              'If this task has a specific goal...',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 4),
             GoalSearcher(
               selectedGoalId: _selectedGoalId,
               onGoalSelected: (goal) {
@@ -111,7 +120,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             // Duration
             TextField(
               controller: _durationController,
