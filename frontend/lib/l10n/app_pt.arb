@@ -27,5 +27,343 @@
     "about": "Sobre",
     "@about": {
         "description": "Título da seção sobre"
+    },
+    "name": "Nome",
+    "@name": {
+        "description": "Rótulo do botão de ordenar por nome"
+    },
+    "time": "Tempo",
+    "@time": {
+        "description": "Rótulo do botão de ordenar por tempo"
+    },
+    "setUpYourGoals": "Configure suas Metas",
+    "@setUpYourGoals": {
+        "description": "Título do estado vazio quando não há metas"
+    },
+    "createFirstGoalMessage": "Crie sua primeira meta para começar!",
+    "@createFirstGoalMessage": {
+        "description": "Mensagem do estado vazio quando não há metas"
+    },
+    "goalDeleted": "Meta \"{goalTitle}\" excluída",
+    "@goalDeleted": {
+        "description": "Mensagem do snackbar quando meta é excluída",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "taskDeleted": "Tarefa \"{taskTitle}\" excluída",
+    "@taskDeleted": {
+        "description": "Mensagem do snackbar quando tarefa é excluída",
+        "placeholders": {
+            "taskTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "undo": "Desfazer",
+    "@undo": {
+        "description": "Rótulo do botão desfazer"
+    },
+    "createNewGoal": "Criar Nova Meta",
+    "@createNewGoal": {
+        "description": "Título da tela de criar meta"
+    },
+    "goalTitle": "Título da Meta",
+    "@goalTitle": {
+        "description": "Rótulo do campo título da meta"
+    },
+    "goalTitleHint": "ex: Ler um livro",
+    "@goalTitleHint": {
+        "description": "Texto de dica para o campo título da meta"
+    },
+    "pleaseEnterGoalTitle": "Por favor, insira um título para a meta",
+    "@pleaseEnterGoalTitle": {
+        "description": "Mensagem de validação para título vazio"
+    },
+    "description": "Descrição (Opcional)",
+    "@description": {
+        "description": "Rótulo do campo descrição"
+    },
+    "goalOptional": "Meta (opcional)",
+    "@goalOptional": {
+        "description": "Texto de dica para o campo de meta"
+    },
+    "descriptionHint": "Descreva sua meta em detalhes...",
+    "@descriptionHint": {
+        "description": "Texto de dica para o campo descrição"
+    },
+    "weeklyTimeCommitment": "Compromisso Semanal de Tempo",
+    "@weeklyTimeCommitment": {
+        "description": "Título da seção de compromisso semanal de tempo"
+    },
+    "pleaseEnterWeeklyTime": "Por favor, insira o compromisso semanal de tempo",
+    "@pleaseEnterWeeklyTime": {
+        "description": "Mensagem de validação para tempo semanal vazio"
+    },
+    "weeklyTimeMustBeGreater": "O tempo semanal deve ser maior que 0",
+    "@weeklyTimeMustBeGreater": {
+        "description": "Mensagem de validação para tempo semanal zero"
+    },
+    "weeklyTimeCannotExceed": "O tempo semanal não pode exceder {maxHours} horas",
+    "@weeklyTimeCannotExceed": {
+        "description": "Mensagem de validação para exceder tempo máximo semanal",
+        "placeholders": {
+            "maxHours": {
+                "type": "int",
+                "example": "168"
+            }
+        }
+    },
+    "youCanCreateTasksLater": "Você pode criar tarefas para esta meta depois",
+    "@youCanCreateTasksLater": {
+        "description": "Texto de ajuda sobre criar tarefas depois"
+    },
+    "create": "Criar",
+    "@create": {
+        "description": "Rótulo do botão criar"
+    },
+    "goalCreatedSuccessfully": "Meta criada com sucesso!",
+    "@goalCreatedSuccessfully": {
+        "description": "Mensagem de sucesso quando meta é criada"
+    },
+    "thisFieldIsRequired": "Este campo é obrigatório",
+    "@thisFieldIsRequired": {
+        "description": "Mensagem de validação para campo obrigatório"
+    },
+    "pleaseEnterValidNumber": "Por favor, insira um número válido",
+    "@pleaseEnterValidNumber": {
+        "description": "Mensagem de validação para número inválido"
+    },
+    "valueMustBeNonNegative": "O valor deve ser não negativo",
+    "@valueMustBeNonNegative": {
+        "description": "Mensagem de validação para valor negativo"
+    },
+    "hours": "Horas",
+    "@hours": {
+        "description": "Rótulo do campo horas"
+    },
+    "minutes": "Minutos",
+    "@minutes": {
+        "description": "Rótulo do campo minutos"
+    },
+    "minutesMustBeLessThan60": "Os minutos devem ser menores que 60",
+    "@minutesMustBeLessThan60": {
+        "description": "Mensagem de validação para minutos maiores que 60"
+    },
+    "save": "Salvar",
+    "@save": {
+        "description": "Rótulo do botão salvar"
+    },
+    "goalUpdatedSuccessfully": "Meta atualizada com sucesso!",
+    "@goalUpdatedSuccessfully": {
+        "description": "Mensagem de sucesso quando meta é atualizada"
+    },
+    "goalUpdated": "Meta atualizada",
+    "@goalUpdated": {
+        "description": "Mensagem do snackbar quando meta é atualizada"
+    },
+    "timeReserved": "Tempo reservado",
+    "@timeReserved": {
+        "description": "Rótulo do campo tempo reservado"
+    },
+    "deleteGoal": "Excluir Meta",
+    "@deleteGoal": {
+        "description": "Rótulo do botão excluir meta"
+    },
+    "areYouSureYouWantToDeleteGoal": "Tem certeza que deseja excluir a meta \"{goalTitle}\"? Esta ação não pode ser desfeita.",
+    "@areYouSureYouWantToDeleteGoal": {
+        "description": "Mensagem de confirmação para excluir meta",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "cancel": "Cancelar",
+    "@cancel": {
+        "description": "Rótulo do botão cancelar"
+    },
+    "delete": "Excluir",
+    "@delete": {
+        "description": "Rótulo do botão excluir"
+    },
+    "commited": "Comprometido",
+    "@commited": {
+        "description": "Rótulo do campo comprometido"
+    },
+    "reserved": "Reservado",
+    "@reserved": {
+        "description": "Rótulo do campo reservado"
+    },
+    "goalNeedsTime": "{goalTitle} precisa de {minutesMissing}min/semana",
+    "@goalNeedsTime": {
+        "description": "Mensagem para meta que precisa de tempo",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            },
+            "minutesMissing": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "dismiss": "Descartar",
+    "@dismiss": {
+        "description": "Rótulo do botão descartar"
+    },
+    "pleaseFillAllRequiredFields": "Por favor, preencha todos os campos obrigatórios.",
+    "@pleaseFillAllRequiredFields": {
+        "description": "Mensagem de validação para campos obrigatórios"
+    },
+    "title": "Título",
+    "@title": {
+        "description": "Rótulo para campo de título"
+    },
+    "createTask": "Criar Tarefa",
+    "@createTask": {
+        "description": "Rótulo para tela de criação de tarefa"
+    },
+    "ifTheTaskHasASpecificGoal": "Se a tarefa tem uma meta específica, você pode selecioná-la aqui.",
+    "@ifTheTaskHasASpecificGoal": {
+        "description": "Texto de ajuda para seleção de meta específica"
+    },
+    "hour": "Hora",
+    "@hour": {
+        "description": "Rótulo para campo de hora"
+    },
+    "pickTime": "Escolher Horário",
+    "@pickTime": {
+        "description": "Rótulo para botão de escolher horário"
+    },
+    "duration": "Duração",
+    "@duration": {
+        "description": "Rótulo para campo de duração"
+    },
+    "editTask": "Editar Tarefa",
+    "@editTask": {
+        "description": "Rótulo para tela de edição de tarefa"
+    },
+    "sunday": "DOM",
+    "@sunday": {
+        "description": "Abreviatura para domingo"
+    },
+    "monday": "SEG",
+    "@monday": {
+        "description": "Abreviatura para segunda-feira"
+    },
+    "tuesday": "TER",
+    "@tuesday": {
+        "description": "Abreviatura para terça-feira"
+    },
+    "wednesday": "QUA",
+    "@wednesday": {
+        "description": "Abreviatura para quarta-feira"
+    },
+    "thursday": "QUI",
+    "@thursday": {
+        "description": "Abreviatura para quinta-feira"
+    },
+    "friday": "SEX",
+    "@friday": {
+        "description": "Abreviatura para sexta-feira"
+    },
+    "saturday": "SAB",
+    "@saturday": {
+        "description": "Abreviatura para sábado"
+    },
+    "noActivitiesForTheDayYet": "Nenhuma atividade para o dia (ainda)",
+    "@noActivitiesForTheDayYet": {
+        "description": "Mensagem para estado vazio de tarefas"
+    },
+    "noGoal": "Sem meta",
+    "@noGoal": {
+        "description": "Rótulo para opção de sem meta"
+    },
+    "daysOfTheWeek": "Dias da semana",
+    "@daysOfTheWeek": {
+        "description": "Rótulo para dias da semana"
+    },
+    "goal": "Meta: {goalTitle}",
+    "@goal": {
+        "description": "Rótulo para meta",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",   
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "deleteTask": "Excluir Tarefa",
+    "@deleteTask": {
+        "description": "Rótulo para botão excluir tarefa"
+    },
+    "areYouSureYouWantToDeleteTask": "Tem certeza que deseja excluir a tarefa \"{taskTitle}\"? Esta ação não pode ser desfeita.",
+    "@areYouSureYouWantToDeleteTask": {
+        "description": "Mensagem de confirmação para excluir tarefa",
+        "placeholders": {
+            "taskTitle": {
+                "type": "String",
+                "example": "Aprender Flutter"
+            }
+        }
+    },
+    "createYourGoal": "Crie sua meta",
+    "@createYourGoal": {
+        "description": "Rótulo para tela de criação de meta"
+    },
+    "writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": "Escreva o que você quer fazer e quanto tempo você vai dedicar a ele semanalmente",
+    "@writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": {
+        "description": "Texto de ajuda para criação de meta"
+    },
+    "createYourTask": "Crie sua tarefa",
+    "@createYourTask": {
+        "description": "Rótulo para tela de criação de tarefa"
+    },
+    "writeDownHowYouWillUseYourTimeForTheDay": "Escreva como você vai usar seu tempo para o dia",
+    "@writeDownHowYouWillUseYourTimeForTheDay": {
+        "description": "Texto de ajuda para criação de tarefa"
+    },
+    "taskToGoal": "Tarefa para meta",
+    "@taskToGoal": {
+        "description": "Rótulo para tela de tarefa para meta"
+    },
+    "youCanMarkATaskAsBeingPartOfAchievingAGoal": "Você pode marcar uma tarefa como sendo parte de uma meta",
+    "@youCanMarkATaskAsBeingPartOfAchievingAGoal": {
+        "description": "Texto de ajuda para marcar uma tarefa como sendo parte de uma meta"
+    },
+    "freeTasks": "Tarefas livres",
+    "@freeTasks": {
+        "description": "Rótulo para tela de tarefas livres"
+    },
+    "notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": "Não todas as tarefas precisam alcançar uma meta grande. Como fazer as roupas",
+    "@notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": {
+        "description": "Texto de ajuda para tarefas livres"
+    },
+    "readyToAchieve": "Pronto para alcançar?",
+    "@readyToAchieve": {
+        "description": "Rótulo para tela de pronto para alcançar"
+    },
+    "exploreDreamDiscover": "Explore. Sonhe. Descubra",
+    "@exploreDreamDiscover": {
+        "description": "Texto de ajuda para pronto para alcançar"
+    },
+    "skip": "Pular",
+    "@skip": {
+        "description": "Rótulo para botão pular"
+    },
+    "next": "Próximo",
+    "@next": {
+        "description": "Rótulo para botão próximo"
+    },
+    "getStarted": "Começar",
+    "@getStarted": {
+        "description": "Rótulo para botão começar"
     }
 }

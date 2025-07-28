@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 
 class EmptyTasksWidget extends StatelessWidget {
   const EmptyTasksWidget({super.key});
@@ -16,7 +17,7 @@ class EmptyTasksWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No activities for the day (yet)',
+            AppLocalizations.of(context)!.noActivitiesForTheDayYet,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

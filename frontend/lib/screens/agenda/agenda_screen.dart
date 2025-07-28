@@ -6,6 +6,7 @@ import 'create_task_screen.dart';
 import '../../models/task.dart';
 import '../../utils/task_storage.dart';
 import '../../utils/tasked_goal.dart';
+import '../../l10n/app_localizations.dart';
 
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});
@@ -62,13 +63,13 @@ class _AgendaScreenState extends State<AgendaScreen> {
       _snackBarController = ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '"${unassignedGoalInfo.goalTitle}" needs +${unassignedGoalInfo.minutesMissing}min/w',
+            AppLocalizations.of(context)!.goalNeedsTime(unassignedGoalInfo.goalTitle, unassignedGoalInfo.minutesMissing),
             style: const TextStyle(fontSize: 16),
           ),
           backgroundColor: Colors.orange,
           duration: const Duration(days: 365),
           action: SnackBarAction(
-            label: 'Dismiss',
+            label: AppLocalizations.of(context)!.dismiss,
             textColor: Colors.white,
             onPressed: () => _snackBarController?.close(),
           ),

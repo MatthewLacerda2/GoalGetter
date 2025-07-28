@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/goal.dart';
 import '../../../screens/goals/goal_screen.dart';
 import '../../../utils/task_storage.dart';
+import '../../../l10n/app_localizations.dart';
 
 class GoalCard extends StatelessWidget {
   final Goal goal;
@@ -37,21 +38,21 @@ class GoalCard extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: const Text('Delete Goal'),
+                  title: Text(AppLocalizations.of(context)!.deleteGoal),
                   content: Text(
-                    'Are you sure you want to delete "${goal.title}"? This action cannot be undone.',
+                    AppLocalizations.of(context)!.areYouSureYouWantToDeleteGoal(goal.title),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.red,
                       ),
-                      child: const Text('Delete'),
+                      child: Text(AppLocalizations.of(context)!.delete),
                     ),
                   ],
                 );
@@ -112,7 +113,7 @@ class GoalCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Commited: ${goal.weeklyHours}h/w',
+                              '${AppLocalizations.of(context)!.commited}: ${goal.weeklyHours}h/w',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -128,7 +129,7 @@ class GoalCard extends StatelessWidget {
                             final totalHours = (totalMinutes / 60).toStringAsFixed(1);
                             final isOvercommitted = double.parse(totalHours) >= goal.weeklyHours;
                             return Text(
-                              'Reserved: ${totalHours}h',
+                              '${AppLocalizations.of(context)!.reserved}: ${totalHours}h',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isOvercommitted ? Colors.lightBlueAccent : Colors.grey.shade600,

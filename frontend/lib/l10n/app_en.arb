@@ -27,5 +27,343 @@
     "about": "About",
     "@about": {
         "description": "About section title"
+    },
+    "name": "Name",
+    "@name": {
+        "description": "Name sort button label"
+    },
+    "time": "Time",
+    "@time": {
+        "description": "Time sort button label"
+    },
+    "setUpYourGoals": "Set up your Goals",
+    "@setUpYourGoals": {
+        "description": "Empty state title when no goals exist"
+    },
+    "createFirstGoalMessage": "Create your first goal to get started!",
+    "@createFirstGoalMessage": {
+        "description": "Empty state message when no goals exist"
+    },
+    "goalDeleted": "Goal \"{goalTitle}\" deleted",
+    "@goalDeleted": {
+        "description": "Snackbar message when goal is deleted",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            }
+        }
+    },
+    "taskDeleted": "Task \"{taskTitle}\" deleted",
+    "@taskDeleted": {
+        "description": "Snackbar message when task is deleted",
+        "placeholders": {
+            "taskTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            }
+        }
+    },
+    "undo": "Undo",
+    "@undo": {
+        "description": "Undo button label"
+    },
+    "createNewGoal": "Create New Goal",
+    "@createNewGoal": {
+        "description": "Title for create goal screen"
+    },
+    "goalTitle": "Goal Title",
+    "@goalTitle": {
+        "description": "Label for goal title field"
+    },
+    "goalTitleHint": "e.g., Read a book",
+    "@goalTitleHint": {
+        "description": "Hint text for goal title field"
+    },
+    "pleaseEnterGoalTitle": "Please enter a goal title",
+    "@pleaseEnterGoalTitle": {
+        "description": "Validation message for empty goal title"
+    },
+    "description": "Description (Optional)",
+    "@description": {
+        "description": "Label for description field"
+    },
+    "goalOptional": "Goal (optional)",
+    "@goalOptional": {
+        "description": "Hint text for goal field"
+    },
+    "descriptionHint": "Describe your goal in detail...",
+    "@descriptionHint": {
+        "description": "Hint text for description field"
+    },
+    "weeklyTimeCommitment": "Weekly Time Commitment",
+    "@weeklyTimeCommitment": {
+        "description": "Section title for weekly time commitment"
+    },
+    "pleaseEnterWeeklyTime": "Please enter weekly time commitment",
+    "@pleaseEnterWeeklyTime": {
+        "description": "Validation message for empty weekly time"
+    },
+    "weeklyTimeMustBeGreater": "Weekly time must be greater than 0",
+    "@weeklyTimeMustBeGreater": {
+        "description": "Validation message for zero weekly time"
+    },
+    "weeklyTimeCannotExceed": "Weekly time cannot exceed {maxHours} hours",
+    "@weeklyTimeCannotExceed": {
+        "description": "Validation message for exceeding max weekly time",
+        "placeholders": {
+            "maxHours": {
+                "type": "int",
+                "example": "168"
+            }
+        }
+    },
+    "youCanCreateTasksLater": "You can create tasks for this goal later",
+    "@youCanCreateTasksLater": {
+        "description": "Helper text about creating tasks later"
+    },
+    "create": "Create",
+    "@create": {
+        "description": "Create button label"
+    },
+    "goalCreatedSuccessfully": "Goal created successfully!",
+    "@goalCreatedSuccessfully": {
+        "description": "Success message when goal is created"
+    },
+    "thisFieldIsRequired": "This field is required",
+    "@thisFieldIsRequired": {
+        "description": "Validation message for required field"
+    },
+    "pleaseEnterValidNumber": "Please enter a valid number",
+    "@pleaseEnterValidNumber": {
+        "description": "Validation message for invalid number"
+    },
+    "valueMustBeNonNegative": "Value must be non-negative",
+    "@valueMustBeNonNegative": {
+        "description": "Validation message for negative value"
+    },
+    "hours": "Hours",
+    "@hours": {
+        "description": "Label for hours field"
+    },
+    "minutes": "Minutes",
+    "@minutes": {
+        "description": "Label for minutes field"
+    },
+    "minutesMustBeLessThan60": "Minutes must be less than 60",
+    "@minutesMustBeLessThan60": {
+        "description": "Validation message for minutes greater than 60"
+    },
+    "save": "Save",
+    "@save": {
+        "description": "Save button label"
+    },
+    "goalUpdatedSuccessfully": "Goal updated successfully!",
+    "@goalUpdatedSuccessfully": {
+        "description": "Success message when goal is updated"
+    },
+    "goalUpdated": "Goal updated",
+    "@goalUpdated": {
+        "description": "Snackbar message when goal is updated"
+    },
+    "timeReserved": "Time reserved",
+    "@timeReserved": {
+        "description": "Label for time reserved field"
+    },
+    "deleteGoal": "Delete Goal",
+    "@deleteGoal": {
+        "description": "Label for delete goal button"
+    },
+    "areYouSureYouWantToDeleteGoal": "Are you sure you want to delete the goal \"{goalTitle}\"? This action cannot be undone.",
+    "@areYouSureYouWantToDeleteGoal": {
+        "description": "Confirmation message for deleting goal",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            }
+        }
+    },
+    "cancel": "Cancel",
+    "@cancel": {
+        "description": "Label for cancel button"
+    },
+    "delete": "Delete",
+    "@delete": {
+        "description": "Label for delete button"
+    },
+    "commited": "Commited",
+    "@commited": {
+        "description": "Label for commited field"
+    },
+    "reserved": "Reserved",
+    "@reserved": {
+        "description": "Label for reserved field"
+    },
+    "goalNeedsTime": "{goalTitle} needs {minutesMissing}min/w",
+    "@goalNeedsTime": {
+        "description": "Message for goal needs time",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            },
+            "minutesMissing": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "dismiss": "Dismiss",
+    "@dismiss": {
+        "description": "Label for dismiss button"
+    },
+    "pleaseFillAllRequiredFields": "Please fill all required fields.",
+    "@pleaseFillAllRequiredFields": {
+        "description": "Message for required fields"
+    },
+    "title": "Title",
+    "@title": {
+        "description": "Label for title field"
+    },
+    "createTask": "Create Task",
+    "@createTask": {
+        "description": "Label for create task screen"
+    },
+    "ifTheTaskHasASpecificGoal": "If the task has a specific goal, you can select it here.",
+    "@ifTheTaskHasASpecificGoal": {
+        "description": "Helper text for specific goal selection"
+    },
+    "hour": "Hour",
+    "@hour": {
+        "description": "Label for hour field"
+    },
+    "pickTime": "Pick Time",
+    "@pickTime": {
+        "description": "Label for pick time button"
+    },
+    "duration": "Duration",
+    "@duration": {
+        "description": "Label for duration field"
+    },
+    "editTask": "Edit Task",
+    "@editTask": {
+        "description": "Label for edit task screen"
+    },
+    "sunday": "SUN",
+    "@sunday": {
+        "description": "Sunday abbreviation"
+    },
+    "monday": "MON",
+    "@monday": {
+        "description": "Monday abbreviation"
+    },
+    "tuesday": "TUE",
+    "@tuesday": {
+        "description": "Tuesday abbreviation"
+    },
+    "wednesday": "WED",
+    "@wednesday": {
+        "description": "Wednesday abbreviation"
+    },
+    "thursday": "THU",
+    "@thursday": {
+        "description": "Thursday abbreviation"
+    },
+    "friday": "FRI",
+    "@friday": {
+        "description": "Friday abbreviation"
+    },
+    "saturday": "SAT",
+    "@saturday": {
+        "description": "Saturday abbreviation"
+    },
+    "noActivitiesForTheDayYet": "No activities for the day (yet)",
+    "@noActivitiesForTheDayYet": {
+        "description": "Message for empty tasks state"
+    },
+    "noGoal": "No goal",
+    "@noGoal": {
+        "description": "Label for no goal option"
+    },
+    "daysOfTheWeek": "Days of the week",
+    "@daysOfTheWeek": {
+        "description": "Label for days of the week"
+    },
+    "goal": "Goal: {goalTitle}",
+    "@goal": {
+        "description": "Label for goal field",
+        "placeholders": {
+            "goalTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            }
+        }
+    },
+    "deleteTask": "Delete Task",
+    "@deleteTask": {
+        "description": "Label for delete task button"
+    },
+    "areYouSureYouWantToDeleteTask": "Are you sure you want to delete the task \"{taskTitle}\"? This action cannot be undone.",
+    "@areYouSureYouWantToDeleteTask": {
+        "description": "Confirmation message for deleting task",
+        "placeholders": {
+            "taskTitle": {
+                "type": "String",
+                "example": "Learn Flutter"
+            }
+        }
+    },
+    "createYourGoal": "Create your goal",
+    "@createYourGoal": {
+        "description": "Label for create goal screen"
+    },
+    "writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": "Write what you want to do and how much you'll dedicate to it weekly",
+    "@writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": {
+        "description": "Helper text for create goal"
+    },
+    "createYourTask": "Create your task",
+    "@createYourTask": {
+        "description": "Label for create task screen"
+    },
+    "writeDownHowYouWillUseYourTimeForTheDay": "Write down how you'll use your time for the day",
+    "@writeDownHowYouWillUseYourTimeForTheDay": {
+        "description": "Helper text for create task"
+    },
+    "taskToGoal": "Task to Goal",
+    "@taskToGoal": {
+        "description": "Label for task to goal screen"
+    },
+    "youCanMarkATaskAsBeingPartOfAchievingAGoal": "You can mark a task as being part of achieving a goal",
+    "@youCanMarkATaskAsBeingPartOfAchievingAGoal": {
+        "description": "Helper text for task to goal"
+    },
+    "freeTasks": "Free tasks",
+    "@freeTasks": {
+        "description": "Label for free tasks screen"
+    },
+    "notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": "Not every task needs to achieve a big goal. Like doing the dishes",
+    "@notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": {
+        "description": "Helper text for free tasks"
+    },
+    "readyToAchieve": "Ready to achieve?",
+    "@readyToAchieve": {
+        "description": "Label for ready to achieve screen"
+    },
+    "exploreDreamDiscover": "Explore. Dream. Discover",
+    "@exploreDreamDiscover": {
+        "description": "Helper text for ready to achieve"
+    },
+    "skip": "Skip",
+    "@skip": {
+        "description": "Label for skip button"
+    },
+    "next": "Next",
+    "@next": {
+        "description": "Label for next button"
+    },
+    "getStarted": "Get Started",
+    "@getStarted": {
+        "description": "Label for get started button"
     }
 }

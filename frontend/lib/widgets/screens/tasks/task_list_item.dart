@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/task.dart';
 import '../../../screens/agenda/edit_task_screen.dart';
 import '../../../utils/task_storage.dart';
+import '../../../l10n/app_localizations.dart';
 
 class TaskListItem extends StatelessWidget {
   final Task task;
@@ -63,7 +64,7 @@ class TaskListItem extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        goalTitle != null ? 'Goal: $goalTitle' : ' ',
+                        goalTitle != null ? AppLocalizations.of(context)!.goal(goalTitle!) : ' ',
                         style: TextStyle(
                           fontSize: 14, 
                           color: goalTitle != null ? Colors.orange : Colors.transparent,
@@ -100,19 +101,19 @@ class TaskListItem extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Task'),
+          title: Text(AppLocalizations.of(context)!.deleteTask),
           content: Text(
-            'Are you sure you want to delete "${task.title}"? This action cannot be undone.',
+            AppLocalizations.of(context)!.areYouSureYouWantToDeleteTask(task.title),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );
@@ -127,9 +128,9 @@ class TaskListItem extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Task "${task.title}" deleted'),
+          content: Text(AppLocalizations.of(context)!.taskDeleted(task.title)),
           action: SnackBarAction(
-            label: 'Undo',
+            label: AppLocalizations.of(context)!.undo,
             onPressed: () async {
               await TaskStorage.saveNew(task);
               onTaskDeleted(); // Refresh the list

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class DurationHandler extends StatefulWidget {
   final int? initialHours;
@@ -60,16 +61,16 @@ class _DurationHandlerState extends State<DurationHandler> {
 
   String? _validateDuration(String? value) {
     if (widget.isRequired && (value == null || value.isEmpty)) {
-      return 'This field is required';
+      return AppLocalizations.of(context)!.thisFieldIsRequired;
     }
     
     if (value != null && value.isNotEmpty) {
       final number = int.tryParse(value);
       if (number == null) {
-        return 'Please enter a valid number';
+        return AppLocalizations.of(context)!.pleaseEnterValidNumber;
       }
       if (number < 0) {
-        return 'Value must be non-negative';
+        return AppLocalizations.of(context)!.valueMustBeNonNegative;
       }
     }
     
@@ -96,8 +97,8 @@ class _DurationHandlerState extends State<DurationHandler> {
             Expanded(
               child: TextFormField(
                 controller: _hoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Hours',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.hours,
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.schedule),
                   suffixText: 'h',
@@ -111,8 +112,8 @@ class _DurationHandlerState extends State<DurationHandler> {
             Expanded(
               child: TextFormField(
                 controller: _minutesController,
-                decoration: const InputDecoration(
-                  labelText: 'Minutes',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.minutes,
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.timer),
                   suffixText: 'min',
@@ -126,7 +127,7 @@ class _DurationHandlerState extends State<DurationHandler> {
                   if (value != null && value.isNotEmpty) {
                     final minutes = int.tryParse(value);
                     if (minutes != null && minutes >= 60) {
-                      return 'Minutes must be less than 60';
+                      return AppLocalizations.of(context)!.minutesMustBeLessThan60;
                     }
                   }
                   
