@@ -393,5 +393,21 @@
     "send": "Send",
     "@send": {
         "description": "Label for send button"
+    },
+    "roadmap": "Roadmap",
+    "@roadmap": {
+        "description": "Label for roadmap screen"
+    },
+    "beforeYouStart": "Just so you know...",
+    "@beforeYouStart": {
+        "description": "Label for before you start"
+    },
+    "goalStarted": "Goal started!",
+    "@goalStarted": {
+        "description": "Label for goal started"
+    },
+    "letSGo": "LET'S GO!",
+    "@letSGo": {
+        "description": "Label for let's go button"
     }
 }

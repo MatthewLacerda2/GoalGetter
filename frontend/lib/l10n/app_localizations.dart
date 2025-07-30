@@ -616,6 +616,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send'**
   String get send;
+
+  /// Label for roadmap screen
+  ///
+  /// In en, this message translates to:
+  /// **'Roadmap'**
+  String get roadmap;
+
+  /// Label for before you start
+  ///
+  /// In en, this message translates to:
+  /// **'Just so you know...'**
+  String get beforeYouStart;
+
+  /// Label for goal started
+  ///
+  /// In en, this message translates to:
+  /// **'Goal started!'**
+  String get goalStarted;
+
+  /// Label for let's go button
+  ///
+  /// In en, this message translates to:
+  /// **'LET\'S GO!'**
+  String get letSGo;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

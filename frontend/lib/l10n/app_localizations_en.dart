@@ -282,4 +282,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get send => 'Send';
+
+  @override
+  String get roadmap => 'Roadmap';
+
+  @override
+  String get beforeYouStart => 'Just so you know...';
+
+  @override
+  String get goalStarted => 'Goal started!';
+
+  @override
+  String get letSGo => 'LET\'S GO!';
 }

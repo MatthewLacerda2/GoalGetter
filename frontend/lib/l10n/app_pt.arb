@@ -393,5 +393,21 @@
     "send": "Send",
     "@send": {
         "description": "Label para botão enviar"
+    },
+    "roadmap": "Roadmap",
+    "@roadmap": {
+        "description": "Label para tela de roadmap"
+    },
+    "beforeYouStart": "Ah, e já vou avisando...",
+    "@beforeYouStart": {
+        "description": "Label para antes de começar"
+    },
+    "goalStarted": "Estrada iniciada!",
+    "@goalStarted": {
+        "description": "Label para meta iniciada"
+    },
+    "letSGo": "BORA LÁ!",
+    "@letSGo": {
+        "description": "Label para botão vamos lá"
     }
 }

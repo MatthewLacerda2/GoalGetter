@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../utils/road_step_data.dart';
 import '../../../widgets/screens/goals/roadmap/road_step_widget.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RoadmapLayOutScreen extends StatefulWidget {
   final List<RoadStepData> steps;
@@ -82,7 +83,7 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Roadmap')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.roadmap)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -102,9 +103,9 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                 const SizedBox(height: 36),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: const Text(
-                    'Before you start:',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.beforeYouStart,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -147,8 +148,8 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                   onPressed: () {
                     //TODO: save the roadmap, goal and task
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Goal started!'),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.goalStarted),
                       ),
                     );
                     Navigator.of(context).popUntil((route) => route.isFirst);
@@ -161,9 +162,9 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text(
-                    'LET\'S GO!',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.letSGo,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
