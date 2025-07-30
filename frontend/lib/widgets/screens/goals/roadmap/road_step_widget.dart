@@ -20,9 +20,10 @@ class RoadStepWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
+            color: Colors.green, // Green background
             border: Border.all(
-              color: Theme.of(context).primaryColor,
-              width: 3.0, // Thick outline
+              color: Colors.black, // Black outline
+              width: 2.6, // Thick outline
             ),
           ),
           child: Text(
@@ -38,9 +39,10 @@ class RoadStepWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
+            color: Colors.yellow.shade100, // Light yellow background
             border: Border.all(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
-              width: 1.0, // Thin outline
+              color: Colors.black, // Black outline
+              width: 2.0, // Medium-thick outline
             ),
           ),
           child: Text(

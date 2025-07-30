@@ -99,16 +99,19 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                 );
               }),
               if (widget.beforehands.isNotEmpty) ...[
-                const SizedBox(height: 32),
-                const Text(
-                  'Before you start:',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                const SizedBox(height: 36),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: const Text(
+                    'Before you start:',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 32),
                 ...List.generate(widget.beforehands.length, (i) {
                   return SlideTransition(
                     position: _beforehandAnimations[i],
@@ -123,6 +126,7 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                             width: 2.0, // Medium thickness
                           ),
                           borderRadius: BorderRadius.circular(8.0),
+                          color: Colors.green.shade200,
                         ),
                         child: Text(
                           widget.beforehands[i],
@@ -136,22 +140,24 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                   );
                 }),
               ],
-              const SizedBox(height: 40),
+              const SizedBox(height: 48),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    //TODO: save the roadmap, goal and task
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Coming soon!'),
+                        content: Text('Goal started!'),
                       ),
                     );
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
