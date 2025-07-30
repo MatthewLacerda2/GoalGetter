@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'roadmap_questions.dart';
 
 const followUpQuestions = [
-    "What do you know how to do?",
-    "How good do you want to be?",
-    "What you think would be really cool to be able to do?",
-    "Did you try anything so far?"
+    "Why you decided to learn it?",
+    "Why that instrument?",
+    "What songs you wanna play?",
+    "What do you wanna play it for?"
+    "Do you know other instrument?",
 ];
 
 class RoadmapPromptScreen extends StatefulWidget {
@@ -67,7 +68,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
               // Main question
               //Text('State your problem. State your purpose. State your level.',
               Text(
-                'Tell what your goal is, what is the purpose, and how far are you',
+                'Tell what your goal is, what can you do so far, and what is the purpose',
                 style: const TextStyle(
                   fontSize: 20,
                 ),
@@ -77,6 +78,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
                 controller: _promptController,
                 focusNode: _promptFocusNode,
                 decoration: InputDecoration(
+                  hintText: 'I want to learn guitar, i can play most basic chords like G, D, E, and i wanna play some songs i like, like "Hey Jude"',
                   border: const OutlineInputBorder(),
                 ),
                 maxLength: 500,
