@@ -85,65 +85,88 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
       appBar: AppBar(title: const Text('Roadmap')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            ...List.generate(widget.steps.length, (i) {
-              return SlideTransition(
-                position: _animations[i],
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: RoadStepWidget(roadStep: widget.steps[i]),
-                ),
-              );
-            }),
-            if (widget.beforehands.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              const Text(
-                'Before you start:',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ...List.generate(widget.beforehands.length, (i) {
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...List.generate(widget.steps.length, (i) {
                 return SlideTransition(
-                  position: _beforehandAnimations[i],
+                  position: _animations[i],
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey.shade400,
-                          width: 2.0, // Medium thickness
-                        ),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Text(
-                        widget.beforehands[i],
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: RoadStepWidget(roadStep: widget.steps[i]),
                   ),
                 );
               }),
-            ],
-            const Spacer(),
-            const Text(
-              "Let's get started!",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
+              if (widget.beforehands.isNotEmpty) ...[
+                const SizedBox(height: 32),
+                const Text(
+                  'Before you start:',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ...List.generate(widget.beforehands.length, (i) {
+                  return SlideTransition(
+                    position: _beforehandAnimations[i],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey.shade400,
+                            width: 2.0, // Medium thickness
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Text(
+                          widget.beforehands[i],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+              const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Coming soon!'),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text(
+                    'LET\'S GO!',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
