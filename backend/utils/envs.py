@@ -1,0 +1,2 @@
+MIN_NOTES = 1
+MAX_NOTES = 6

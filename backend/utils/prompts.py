@@ -60,6 +60,8 @@ Your steps must:
 Do not ask the user to show off to others unless it is necessary for the goal.
 
 At the end, you will include a list of notes, with things to know and common mistakes to avoid.
-These notes are brief. Not less than 1 and not more than 6. And they can't be long.
+These notes are brief. Not less than {MIN_NOTES} and not more than {MAX_NOTES}. And they can't be long.
 With them, the user will go already knowing some of the things they'll find/experience.
 """
+
+#TODO: create the functions that deliver the proper prompts with the proper variables
