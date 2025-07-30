@@ -200,7 +200,7 @@
     "@reserved": {
         "description": "Rótulo do campo reservado"
     },
-    "goalNeedsTime": "{goalTitle} precisa de {minutesMissing}min/semana",
+    "goalNeedsTime": "{goalTitle} precisa de +{minutesMissing}min/semana",
     "@goalNeedsTime": {
         "description": "Mensagem para meta que precisa de tempo",
         "placeholders": {

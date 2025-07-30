@@ -200,7 +200,7 @@
     "@reserved": {
         "description": "Label for reserved field"
     },
-    "goalNeedsTime": "{goalTitle} needs {minutesMissing}min/w",
+    "goalNeedsTime": "{goalTitle} needs +{minutesMissing}min/w",
     "@goalNeedsTime": {
         "description": "Message for goal needs time",
         "placeholders": {
