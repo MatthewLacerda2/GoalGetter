@@ -409,5 +409,13 @@
     "letSGo": "BORA LÁ!",
     "@letSGo": {
         "description": "Label para botão vamos lá"
+    },
+    "yourAnswer": "Sua resposta...",
+    "@yourAnswer": {
+        "description": "Label para campo de resposta"
+    },
+    "pleaseAnswerThisQuestion": "Por favor, responda esta pergunta",
+    "@pleaseAnswerThisQuestion": {
+        "description": "Mensagem de validação para resposta vazia"
     }
 }

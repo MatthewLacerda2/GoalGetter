@@ -640,6 +640,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'LET\'S GO!'**
   String get letSGo;
+
+  /// Label for your answer
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer...'**
+  String get yourAnswer;
+
+  /// Validation message for empty answer
+  ///
+  /// In en, this message translates to:
+  /// **'Please answer this question'**
+  String get pleaseAnswerThisQuestion;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

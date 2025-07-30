@@ -409,5 +409,13 @@
     "letSGo": "LET'S GO!",
     "@letSGo": {
         "description": "Label for let's go button"
+    },
+    "yourAnswer": "Your answer...",
+    "@yourAnswer": {
+        "description": "Label for your answer"
+    },
+    "pleaseAnswerThisQuestion": "Please answer this question",
+    "@pleaseAnswerThisQuestion": {
+        "description": "Validation message for empty answer"
     }
 }

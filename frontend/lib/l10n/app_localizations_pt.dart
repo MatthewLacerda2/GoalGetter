@@ -294,4 +294,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get letSGo => 'BORA LÁ!';
+
+  @override
+  String get yourAnswer => 'Sua resposta...';
+
+  @override
+  String get pleaseAnswerThisQuestion => 'Por favor, responda esta pergunta';
 }
