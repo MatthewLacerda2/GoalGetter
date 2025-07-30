@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'roadmap_questions.dart';
+import '../../../l10n/app_localizations.dart';
 
 const followUpQuestions = [
     "Why you decided to learn it?",
@@ -48,9 +49,11 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Be detailed of your goal!',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500))
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.beDetailedOfYourGoal,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
+          )
         ),
       );
     }
@@ -60,7 +63,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Roadmap'),
+        title: Text(AppLocalizations.of(context)!.createRoadmap),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         elevation: 0,
       ),
@@ -75,7 +78,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
               // Main question
               //Text('State your problem. State your purpose. State your level.',
               Text(
-                'Tell what your goal is, what can you do so far, and what is the purpose',
+                AppLocalizations.of(context)!.tellWhatYourGoalIs,
                 style: const TextStyle(
                   fontSize: 20,
                 ),
@@ -85,7 +88,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
                 controller: _promptController,
                 focusNode: _promptFocusNode,
                 decoration: InputDecoration(
-                  hintText: 'I want to learn guitar, i can play most basic chords like G, D, E, and i wanna play some songs i like, like "Hey Jude"',
+                  hintText: AppLocalizations.of(context)!.goalDescriptionHintText,
                   border: const OutlineInputBorder(),
                 ),
                 maxLength: 500,
@@ -112,9 +115,9 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
               disabledBackgroundColor: Colors.grey.shade300,
               disabledForegroundColor: Colors.grey.shade600,
             ),
-            child: const Text(
-              'Enter',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.enter,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),

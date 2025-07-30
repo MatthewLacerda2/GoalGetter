@@ -202,7 +202,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                   ),
                 ),
                 child: Text(
-                  'Create Roadmap',
+                  AppLocalizations.of(context)!.createRoadmap,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

@@ -150,7 +150,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String goalNeedsTime(String goalTitle, int minutesMissing) {
-    return '$goalTitle needs ${minutesMissing}min/w';
+    return '$goalTitle needs +${minutesMissing}min/w';
   }
 
   @override
@@ -261,4 +261,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get getStarted => 'Get Started';
+
+  @override
+  String get createRoadmap => 'Create Roadmap';
+
+  @override
+  String get beDetailedOfYourGoal => 'Be detailed of your goal!';
+
+  @override
+  String get tellWhatYourGoalIs => 'Tell what your goal is, what can you do so far, and what is the purpose';
+
+  @override
+  String get goalDescriptionHintText => 'I want to learn guitar, i can play most basic chords like G, D, E, and i wanna play some songs i like, like \"Hey Jude\"';
+
+  @override
+  String get enter => 'Enter';
+
+  @override
+  String get questions => 'Questions';
+
+  @override
+  String get send => 'Send';
 }

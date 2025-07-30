@@ -39,7 +39,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get setUpYourGoals => 'Configure suas Metas';
 
   @override
-  String get createFirstGoalMessage => 'Crie sua primeira meta para começar!';
+  String get createFirstGoalMessage => 'Crie uma primeira meta!';
 
   @override
   String goalDeleted(String goalTitle) {
@@ -48,7 +48,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String taskDeleted(String taskTitle) {
-    return 'Tarefa \"$taskTitle\" excluída';
+    return 'Atividade \"$taskTitle\" excluída';
   }
 
   @override
@@ -58,13 +58,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createNewGoal => 'Criar Nova Meta';
 
   @override
-  String get goalTitle => 'Título da Meta';
+  String get goalTitle => 'Nome da Meta';
 
   @override
   String get goalTitleHint => 'ex: Ler um livro';
 
   @override
-  String get pleaseEnterGoalTitle => 'Por favor, insira um título para a meta';
+  String get pleaseEnterGoalTitle => 'Por favor, insira um nome para a meta';
 
   @override
   String get description => 'Descrição (Opcional)';
@@ -76,27 +76,27 @@ class AppLocalizationsPt extends AppLocalizations {
   String get descriptionHint => 'Descreva sua meta em detalhes...';
 
   @override
-  String get weeklyTimeCommitment => 'Compromisso Semanal de Tempo';
+  String get weeklyTimeCommitment => 'Tempo por Semana';
 
   @override
-  String get pleaseEnterWeeklyTime => 'Por favor, insira o compromisso semanal de tempo';
+  String get pleaseEnterWeeklyTime => 'Por favor, insira o tempo por semana';
 
   @override
-  String get weeklyTimeMustBeGreater => 'O tempo semanal deve ser maior que 0';
+  String get weeklyTimeMustBeGreater => 'O tempo por semana deve ser maior que 0';
 
   @override
   String weeklyTimeCannotExceed(int maxHours) {
-    return 'O tempo semanal não pode exceder $maxHours horas';
+    return 'O tempo por semana não pode exceder $maxHours horas';
   }
 
   @override
-  String get youCanCreateTasksLater => 'Você pode criar tarefas para esta meta depois';
+  String get youCanCreateTasksLater => 'Você pode criar atividades para esta meta depois.';
 
   @override
   String get create => 'Criar';
 
   @override
-  String get goalCreatedSuccessfully => 'Meta criada com sucesso!';
+  String get goalCreatedSuccessfully => 'Meta criada!';
 
   @override
   String get thisFieldIsRequired => 'Este campo é obrigatório';
@@ -105,7 +105,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pleaseEnterValidNumber => 'Por favor, insira um número válido';
 
   @override
-  String get valueMustBeNonNegative => 'O valor deve ser não negativo';
+  String get valueMustBeNonNegative => 'O valor deve ser maior que 0';
 
   @override
   String get hours => 'Horas';
@@ -120,7 +120,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get save => 'Salvar';
 
   @override
-  String get goalUpdatedSuccessfully => 'Meta atualizada com sucesso!';
+  String get goalUpdatedSuccessfully => 'Meta atualizada!';
 
   @override
   String get goalUpdated => 'Meta atualizada';
@@ -133,7 +133,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String areYouSureYouWantToDeleteGoal(String goalTitle) {
-    return 'Tem certeza que deseja excluir a meta \"$goalTitle\"? Esta ação não pode ser desfeita.';
+    return 'Tem certeza que deseja excluir a meta \"$goalTitle\"?';
   }
 
   @override
@@ -150,7 +150,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String goalNeedsTime(String goalTitle, int minutesMissing) {
-    return '$goalTitle precisa de ${minutesMissing}min/semana';
+    return '$goalTitle precisa de +${minutesMissing}min/semana';
   }
 
   @override
@@ -163,10 +163,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get title => 'Título';
 
   @override
-  String get createTask => 'Criar Tarefa';
+  String get createTask => 'Criar Atividade';
 
   @override
-  String get ifTheTaskHasASpecificGoal => 'Se a tarefa tem uma meta específica, você pode selecioná-la aqui.';
+  String get ifTheTaskHasASpecificGoal => 'Se a atividade tem uma meta específica, você pode selecioná-la aqui.';
 
   @override
   String get hour => 'Hora';
@@ -178,7 +178,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get duration => 'Duração';
 
   @override
-  String get editTask => 'Editar Tarefa';
+  String get editTask => 'Editar Atividade';
 
   @override
   String get sunday => 'DOM';
@@ -216,39 +216,39 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get deleteTask => 'Excluir Tarefa';
+  String get deleteTask => 'Excluir Atividade';
 
   @override
   String areYouSureYouWantToDeleteTask(String taskTitle) {
-    return 'Tem certeza que deseja excluir a tarefa \"$taskTitle\"? Esta ação não pode ser desfeita.';
+    return 'Tem certeza que deseja excluir a atividade \"$taskTitle\"?';
   }
 
   @override
-  String get createYourGoal => 'Crie sua meta';
+  String get createYourGoal => 'Crie suas metas';
 
   @override
-  String get writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly => 'Escreva o que você quer fazer e quanto tempo você vai dedicar a ele semanalmente';
+  String get writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly => 'Diga o que quer fazer e quanto tempo vai dedicar semanalmente';
 
   @override
-  String get createYourTask => 'Crie sua tarefa';
+  String get createYourTask => 'Crie suas atividades';
 
   @override
-  String get writeDownHowYouWillUseYourTimeForTheDay => 'Escreva como você vai usar seu tempo para o dia';
+  String get writeDownHowYouWillUseYourTimeForTheDay => 'Anote como vai usar seu tempo para o dia';
 
   @override
-  String get taskToGoal => 'Tarefa para meta';
+  String get taskToGoal => 'Atividade para alcançar meta';
 
   @override
-  String get youCanMarkATaskAsBeingPartOfAchievingAGoal => 'Você pode marcar uma tarefa como sendo parte de uma meta';
+  String get youCanMarkATaskAsBeingPartOfAchievingAGoal => 'Você pode marcar uma atividade como sendo parte de uma meta';
 
   @override
-  String get freeTasks => 'Tarefas livres';
+  String get freeTasks => 'Atividades livres';
 
   @override
-  String get notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes => 'Não todas as tarefas precisam alcançar uma meta grande. Como fazer as roupas';
+  String get notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes => 'Nem toda atividade precisa ser parte de uma meta. Lavar as roupas, por exemplo';
 
   @override
-  String get readyToAchieve => 'Pronto para alcançar?';
+  String get readyToAchieve => 'Pronto para alcançar suas metas?';
 
   @override
   String get exploreDreamDiscover => 'Explore. Sonhe. Descubra';
@@ -261,4 +261,25 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get getStarted => 'Começar';
+
+  @override
+  String get createRoadmap => 'Criar Roadmap';
+
+  @override
+  String get beDetailedOfYourGoal => 'Seja detalhado sobre sua meta!';
+
+  @override
+  String get tellWhatYourGoalIs => 'Diga qual é a sua meta, o que você já sabe fazer e qual sua motivação';
+
+  @override
+  String get goalDescriptionHintText => 'Quero aprender violão, já sei tocar as notas mais simples, G, D, E e quero tocar umas músicas que gosto, como \"Hey Jude\"';
+
+  @override
+  String get enter => 'Enter';
+
+  @override
+  String get questions => 'Perguntas';
+
+  @override
+  String get send => 'Send';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../widgets/screens/goals/roadmap/follow_up_questions.dart';
 import 'roadmap_lay_out_screen.dart';
 import '../../../../utils/road_step_data.dart';
+import '../../../l10n/app_localizations.dart';
 
 const List<RoadStepData> steps = [
   RoadStepData(
@@ -87,7 +88,7 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Questions'),
+        title: Text(AppLocalizations.of(context)!.questions),
         centerTitle: true,
       ),
       body: Column(
@@ -114,9 +115,9 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> {
                   disabledBackgroundColor: Colors.grey.shade300,
                   disabledForegroundColor: Colors.grey.shade600,
                 ),
-                child: const Text(
-                  'Send',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.send,
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
