@@ -4,7 +4,7 @@ import '../../utils/goal_storage.dart';
 import '../agenda/create_task_screen.dart';
 import '../../widgets/duration_handler.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/screens/goals/roadmap/roadmap_prompt.dart';
+import 'roadmap/roadmap_prompt_screen.dart';
 
 class CreateGoalScreen extends StatefulWidget {
   const CreateGoalScreen({super.key});
