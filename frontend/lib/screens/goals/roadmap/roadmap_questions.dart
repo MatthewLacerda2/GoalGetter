@@ -63,8 +63,23 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _onSendPressed,
-                child: const Text('Send'),
-              ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  disabledForegroundColor: Colors.grey.shade600,
+                ),
+                child: const Text(
+                  'Send',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),            
             ),
           ),
         ],

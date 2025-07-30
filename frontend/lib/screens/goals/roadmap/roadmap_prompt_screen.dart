@@ -5,7 +5,7 @@ const followUpQuestions = [
     "Why you decided to learn it?",
     "Why that instrument?",
     "What songs you wanna play?",
-    "What do you wanna play it for?"
+    "What do you wanna play it for?",
     "Do you know other instrument?",
 ];
 
@@ -37,13 +37,20 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
   }
 
   void _onEnterPressed() {
-    if (_promptController.text.isNotEmpty) {
+    if (_promptController.text.length >= 16) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => RoadmapQuestionsScreen(
             questions: followUpQuestions,
           ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Be detailed of your goal!',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500))
         ),
       );
     }
