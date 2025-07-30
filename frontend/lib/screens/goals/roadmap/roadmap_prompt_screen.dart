@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'roadmap_questions.dart';
+
+const followUpQuestions = [
+    "What do you know how to do?",
+    "How good do you want to be?",
+    "What you think would be really cool to be able to do?",
+    "Did you try anything so far?"
+];
 
 class RoadmapPromptScreen extends StatefulWidget {
   const RoadmapPromptScreen({super.key});
@@ -29,11 +37,12 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
 
   void _onEnterPressed() {
     if (_promptController.text.isNotEmpty) {
-      // TODO: Navigate to follow-up questions screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Follow-up questions coming soon!'),
-          backgroundColor: Colors.blue,
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RoadmapQuestionsScreen(
+            questions: followUpQuestions,
+          ),
         ),
       );
     }
