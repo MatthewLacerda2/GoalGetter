@@ -1,15 +1,12 @@
 # GoalGetter
 
-An app to setup a weekly-routine with long term goals
+An app to help plan a weekly-routine with long term goals
+It also helps planning a roadmap for achieving a goal
 
 # How it works
 
 - Goals: define what you want to do
-    It can be something endless, like bodybuilding,
-    Or an endgoal, like building a robot
-    You can look at the goal's history
-    Edit it as your plan evolves
-- Agenda: create your weekly schedule
+- Agenda: setup your weekly schedule
     Look what you have for the day of the week
     Keep consistent in your goals
 - Xp: get reminded and rewarded for progress (a lá Duolingo)
@@ -18,8 +15,16 @@ An app to setup a weekly-routine with long term goals
 - Profile: user settings
     Get personal
 
-# Workflow
+# Infra
 
-This project is a 'monorepo' but for now it only has a Flutter project
-
-The goal is to have a mobile app but for now just a free url from Google Cloud will do
+Flutter:
+    - Webapp and Android
+FastApi:
+    - Api. Users can login, use the AI and save their goals
+Pytest:
+    - Tests for the api
+Client_SDK:
+    - OpenAPI generated client_sdk for the frontend
+    - Dart sees it as a dart package that must have it's own folder outside of the frontend's
+Terraform:
+    - Infra-as-code

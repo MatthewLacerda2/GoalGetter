@@ -362,7 +362,7 @@ abstract class AppLocalizations {
   /// Message for goal needs time
   ///
   /// In en, this message translates to:
-  /// **'{goalTitle} needs {minutesMissing}min/w'**
+  /// **'{goalTitle} needs +{minutesMissing}min/w'**
   String goalNeedsTime(String goalTitle, int minutesMissing);
 
   /// Label for dismiss button
@@ -574,6 +574,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Started'**
   String get getStarted;
+
+  /// Label for create roadmap button
+  ///
+  /// In en, this message translates to:
+  /// **'Create Roadmap'**
+  String get createRoadmap;
+
+  /// Label for be detailed of your goal
+  ///
+  /// In en, this message translates to:
+  /// **'Be detailed of your goal!'**
+  String get beDetailedOfYourGoal;
+
+  /// Label for tell what your goal is
+  ///
+  /// In en, this message translates to:
+  /// **'Tell what your goal is, what can you do so far, and what is the purpose'**
+  String get tellWhatYourGoalIs;
+
+  /// Hint text for goal description
+  ///
+  /// In en, this message translates to:
+  /// **'I want to learn guitar, i can play most basic chords like G, D, E, and i wanna play some songs i like, like \"Hey Jude\"'**
+  String get goalDescriptionHintText;
+
+  /// Label for enter button
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get enter;
+
+  /// Label for questions screen
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get questions;
+
+  /// Label for send button
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// Label for roadmap screen
+  ///
+  /// In en, this message translates to:
+  /// **'Roadmap'**
+  String get roadmap;
+
+  /// Label for before you start
+  ///
+  /// In en, this message translates to:
+  /// **'Just so you know...'**
+  String get beforeYouStart;
+
+  /// Label for goal started
+  ///
+  /// In en, this message translates to:
+  /// **'Goal started!'**
+  String get goalStarted;
+
+  /// Label for let's go button
+  ///
+  /// In en, this message translates to:
+  /// **'LET\'S GO!'**
+  String get letSGo;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

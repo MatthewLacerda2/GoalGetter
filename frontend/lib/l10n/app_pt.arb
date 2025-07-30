@@ -200,7 +200,7 @@
     "@reserved": {
         "description": "Rótulo do campo reservado"
     },
-    "goalNeedsTime": "{goalTitle} precisa de {minutesMissing}min/semana",
+    "goalNeedsTime": "{goalTitle} precisa de +{minutesMissing}min/semana",
     "@goalNeedsTime": {
         "description": "Mensagem para meta que precisa de tempo",
         "placeholders": {
@@ -365,5 +365,49 @@
     "getStarted": "Começar",
     "@getStarted": {
         "description": "Rótulo para botão começar"
+    },
+    "createRoadmap": "Criar Roadmap",
+    "@createRoadmap": {
+        "description": "Label para botão criar roadmap"
+    },
+    "beDetailedOfYourGoal": "Seja detalhado sobre sua meta!",
+    "@beDetailedOfYourGoal": {
+        "description": "Label para ser detalhado sobre sua meta"
+    },
+    "tellWhatYourGoalIs": "Diga qual é a sua meta, o que você já sabe fazer e qual sua motivação",
+    "@tellWhatYourGoalIs": {
+        "description": "Label para dizer o que é sua meta"
+    },
+    "goalDescriptionHintText": "Quero aprender violão, já sei tocar as notas mais simples, G, D, E e quero tocar umas músicas que gosto, como \"Hey Jude\"",
+    "@goalDescriptionHintText": {
+        "description": "Texto de dica para descrição da meta"
+    },
+    "enter": "Enter",
+    "@enter": {
+        "description": "Label para botão entrar"
+    },
+    "questions": "Perguntas",
+    "@questions": {
+        "description": "Label para tela de perguntas"
+    },
+    "send": "Send",
+    "@send": {
+        "description": "Label para botão enviar"
+    },
+    "roadmap": "Roadmap",
+    "@roadmap": {
+        "description": "Label para tela de roadmap"
+    },
+    "beforeYouStart": "Ah, e já vou avisando...",
+    "@beforeYouStart": {
+        "description": "Label para antes de começar"
+    },
+    "goalStarted": "Estrada iniciada!",
+    "@goalStarted": {
+        "description": "Label para meta iniciada"
+    },
+    "letSGo": "BORA LÁ!",
+    "@letSGo": {
+        "description": "Label para botão vamos lá"
     }
 }

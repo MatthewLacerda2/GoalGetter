@@ -200,7 +200,7 @@
     "@reserved": {
         "description": "Label for reserved field"
     },
-    "goalNeedsTime": "{goalTitle} needs {minutesMissing}min/w",
+    "goalNeedsTime": "{goalTitle} needs +{minutesMissing}min/w",
     "@goalNeedsTime": {
         "description": "Message for goal needs time",
         "placeholders": {
@@ -365,5 +365,49 @@
     "getStarted": "Get Started",
     "@getStarted": {
         "description": "Label for get started button"
+    },
+    "createRoadmap": "Create Roadmap",
+    "@createRoadmap": {
+        "description": "Label for create roadmap button"
+    },
+    "beDetailedOfYourGoal": "Be detailed of your goal!",
+    "@beDetailedOfYourGoal": {
+        "description": "Label for be detailed of your goal"
+    },
+    "tellWhatYourGoalIs": "Tell what your goal is, what can you do so far, and what is the purpose",
+    "@tellWhatYourGoalIs": {
+        "description": "Label for tell what your goal is"
+    },
+    "goalDescriptionHintText": "I want to learn guitar, i can play most basic chords like G, D, E, and i wanna play some songs i like, like \"Hey Jude\"",
+    "@goalDescriptionHintText": {
+        "description": "Hint text for goal description"
+    },
+    "enter": "Enter",
+    "@enter": {
+        "description": "Label for enter button"
+    },
+    "questions": "Questions",
+    "@questions": {
+        "description": "Label for questions screen"
+    },
+    "send": "Send",
+    "@send": {
+        "description": "Label for send button"
+    },
+    "roadmap": "Roadmap",
+    "@roadmap": {
+        "description": "Label for roadmap screen"
+    },
+    "beforeYouStart": "Just so you know...",
+    "@beforeYouStart": {
+        "description": "Label for before you start"
+    },
+    "goalStarted": "Goal started!",
+    "@goalStarted": {
+        "description": "Label for goal started"
+    },
+    "letSGo": "LET'S GO!",
+    "@letSGo": {
+        "description": "Label for let's go button"
     }
 }
