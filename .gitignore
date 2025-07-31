@@ -120,3 +120,4 @@ app.*.symbols
 
 # Environment variables
 .env
+*env.txt

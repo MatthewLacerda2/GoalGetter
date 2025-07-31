@@ -1,3 +1,6 @@
+from backend.schemas.roadmap import RoadmapInitiationRequest, RoadmapCreationRequest, FollowUpQuestionsAndAnswers
+from backend.utils.envs import MIN_NOTES, MAX_NOTES
+
 roadmap_initiation_prompt = """
 You're an AI-mentor who will act as an experienced and successful veteran in a field.
 The user messaged you for advice on how to achieve a goal.
@@ -24,17 +27,16 @@ Your questions must help get the information necessary for a roadmap specific fo
 The questions must be in the same language as the user's answer.
 """
 
+def get_initiation_prompt(roadmap_initiation_request: RoadmapInitiationRequest) -> str:
+    return roadmap_initiation_prompt.format(prompt_hint=roadmap_initiation_request.prompt_hint, prompt=roadmap_initiation_request.prompt)
 
 
 roadmap_creation_prompt = """
 You're an AI-mentor who acts as an experienced and successful veteran in a field. The user approached you for advice on how to achieve a goal.
 
 
-The user's was asked: {prompt_hint}
-The user's answer was: {prompt}
-
-
-The user provided the following answers to these follow-up questions:
+The user's prompt was: {prompt}
+Here is a series of follow-up questions and answers to help you understand the user's goal:
 {questions_answers}
 
 
@@ -64,4 +66,8 @@ These notes are brief. Not less than {MIN_NOTES} and not more than {MAX_NOTES}. 
 With them, the user will go already knowing some of the things they'll find/experience.
 """
 
-#TODO: create the functions that deliver the proper prompts with the proper variables
+def questions_answers_to_string(questions_answers: list[FollowUpQuestionsAndAnswers]) -> str:
+    return "\n".join([f"- {question.question}\n    {question.answer}" for question in questions_answers])
+
+def get_creation_prompt(roadmap_creation_request: RoadmapCreationRequest) -> str:
+    return roadmap_creation_prompt.format(prompt=roadmap_creation_request.prompt, questions_answers=roadmap_creation_request.questions_answers)

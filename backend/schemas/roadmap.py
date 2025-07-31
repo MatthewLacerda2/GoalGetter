@@ -16,7 +16,7 @@ class FollowUpQuestionsAndAnswers(BaseModel):
     answer: str = Field(..., min_length=5, max_length=1024, description="The user's answer to the question")
 
 class RoadmapCreationRequest(BaseModel):
-    initiation_response: RoadmapInitiationResponse
+    prompt: str = Field(..., min_length=16, max_length=1024, description="The user's declaration of their goal")
     questions_answers: list[FollowUpQuestionsAndAnswers] = Field(..., min_length=1, max_length=max_questions, description="The questions and answers to understand the user's goal")
 
 class Step(BaseModel):
