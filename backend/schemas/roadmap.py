@@ -4,7 +4,7 @@ from backend.utils.envs import MIN_NOTES, MAX_NOTES
 max_questions: int = 12
 
 class RoadmapInitiationRequest(BaseModel):
-    prompt_hint: str = Field(..., min_length=8, max_length=63, description="A hint for the user to properly describe the goal")
+    prompt_hint: str = Field(..., min_length=8, max_length=500, description="A hint for the user to properly describe the goal")
     prompt: str = Field(..., min_length=16, max_length=1024, description="The user's declaration of their goal")
 
 class RoadmapInitiationResponse(BaseModel):

@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "GoalGetter"
     
-    GEMINI_API_KEY: str = "AIzaSyCkiKhi2VQSh_Dq8nvADd6qZR2BpDt3bn0"
+    GEMINI_API_KEY: str  # No default value - must be set in .env
     
     model_config = ConfigDict(
         case_sensitive=True, 

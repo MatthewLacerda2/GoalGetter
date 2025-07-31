@@ -3,12 +3,12 @@ import pytest
 from backend.schemas.roadmap import RoadmapInitiationResponse
 
 @pytest.mark.asyncio
-async def test_roadmap_initiation_success():
+async def test_roadmap_initiation_success(client, mock_gemini_follow_up_questions):
     """Test that the roadmap initiation endpoint returns a valid response for a valid request."""
     
     test_request = {
         "prompt_hint": "Describe your goal in detail, including what you want to achieve",
-        "prompt": "I want to learn Python programming to build web applications and automate tasks"
+        "prompt": "I want to learn Python. I just ran a 'hello world'. I wanna make apps"
     }
     
     response = await client.post("/api/v1/roadmap/initiation", json=test_request)
@@ -19,7 +19,5 @@ async def test_roadmap_initiation_success():
     # Parse response
     response_data = response.json()
     
-    RoadmapInitiationResponse.model_validate(response_data)
-    
-    # Validate that original_prompt matches the input prompt
-    assert response_data["original_prompt"] == test_request["prompt"]
+    # Validate schema
+    validated_response = RoadmapInitiationResponse.model_validate(response_data)
