@@ -62,7 +62,7 @@ Your steps must:
 Do not ask the user to show off to others unless it is necessary for the goal.
 
 At the end, you will include a list of notes, with things to know and common mistakes to avoid.
-These notes are brief. Not more than 256 characters.
+These notes are brief. Not more than 200 characters each.
 Not less than {MIN_NOTES} notes and not more than {MAX_NOTES} notes.
 With them, the user will go already knowing some of the things they'll find/experience.
 """
