@@ -21,8 +21,10 @@ class RoadmapCreationRequest(BaseModel):
 
 class Step(BaseModel):
     title: str = Field(..., min_length=2, max_length=100, description="A title for the step")
-    description: str = Field(..., min_length=0, max_length=128, description="A description of the step")
+    description: str = Field(..., min_length=0, max_length=256, description="A description of the step")
 
 class RoadmapCreationResponse(BaseModel):
     steps: list[Step] = Field(..., min_length=3, max_length=16, description="The steps to achieve the goal")
     notes: list[str] = Field(..., min_length=MIN_NOTES, max_length=MAX_NOTES, description="The notes to help the user achieve the goal")
+    
+#TODO: gemini is not obeying the character limit strictly

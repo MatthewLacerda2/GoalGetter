@@ -27,7 +27,7 @@ Your questions must help get the information necessary for a roadmap specific fo
 The questions must be in the same language as the user's answer.
 """
 
-def get_initiation_prompt(roadmap_initiation_request: RoadmapInitiationRequest) -> str:
+def get_roadmap_initiation_prompt(roadmap_initiation_request: RoadmapInitiationRequest) -> str:
     return roadmap_initiation_prompt.format(prompt_hint=roadmap_initiation_request.prompt_hint, prompt=roadmap_initiation_request.prompt)
 
 
@@ -69,5 +69,5 @@ With them, the user will go already knowing some of the things they'll find/expe
 def questions_answers_to_string(questions_answers: list[FollowUpQuestionsAndAnswers]) -> str:
     return "\n".join([f"- {question.question}\n    {question.answer}" for question in questions_answers])
 
-def get_creation_prompt(roadmap_creation_request: RoadmapCreationRequest) -> str:
-    return roadmap_creation_prompt.format(prompt=roadmap_creation_request.prompt, questions_answers=roadmap_creation_request.questions_answers)
+def get_roadmap_creation_prompt(roadmap_creation_request: RoadmapCreationRequest) -> str:
+    return roadmap_creation_prompt.format(prompt=roadmap_creation_request.prompt, questions_answers=roadmap_creation_request.questions_answers, MIN_NOTES=MIN_NOTES, MAX_NOTES=MAX_NOTES)
