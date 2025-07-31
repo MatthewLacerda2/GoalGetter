@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class FollowUpQuestions extends StatefulWidget {
   final List<String> questions;
@@ -120,7 +121,7 @@ class _FollowUpQuestionsState extends State<FollowUpQuestions>
                         controller: _controllers[index],
                         onChanged: (value) => _onAnswerChanged(index, value),
                         decoration: InputDecoration(
-                          hintText: 'Your answer...',
+                          hintText: AppLocalizations.of(context)!.yourAnswer,
                           border: UnderlineInputBorder(),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface,
@@ -129,7 +130,7 @@ class _FollowUpQuestionsState extends State<FollowUpQuestions>
                             vertical: 12,
                           ),
                           // NEW: error styling
-                          errorText: widget.showErrors && isEmpty ? 'Please answer this question' : null,
+                          errorText: widget.showErrors && isEmpty ? AppLocalizations.of(context)!.pleaseAnswerThisQuestion : null,
                         ),
                         maxLines: 5,
                         minLines: 1,

@@ -294,4 +294,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get letSGo => 'LET\'S GO!';
+
+  @override
+  String get yourAnswer => 'Your answer...';
+
+  @override
+  String get pleaseAnswerThisQuestion => 'Please answer this question';
 }
