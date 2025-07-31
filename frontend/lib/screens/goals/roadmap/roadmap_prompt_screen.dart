@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'roadmap_questions_screen.dart';
 import '../../../l10n/app_localizations.dart';
+import 'package:openapi/api.dart';
+
+//TODO: give visual feedback when the user hits 'send'
+//TODO: snackbar for errors
 
 const followUpQuestions = [
     "Why you decided to learn it?",
@@ -37,16 +41,29 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
     super.dispose();
   }
 
-  void _onEnterPressed() {
+  Future<List<String>?> _fetchRoadmapQuestions(String prompt) async {
+    final roadmapApi = RoadmapApi(ApiClient(basePath: 'http://127.0.0.1:8000'));
+    final request = RoadmapInitiationRequest(
+      promptHint: AppLocalizations.of(context)!.tellWhatYourGoalIs, 
+      prompt: prompt
+    );
+    final response = await roadmapApi.initiateRoadmapApiV1RoadmapInitiationPost(request);
+    return response?.questions;
+  }
+
+  void _onEnterPressed() async {
     if (_promptController.text.length >= 16) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RoadmapQuestionsScreen(
-            questions: followUpQuestions,
+      final questions = await _fetchRoadmapQuestions(_promptController.text);
+      if (questions != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RoadmapQuestionsScreen(
+              questions: questions,
+            ),
           ),
-        ),
-      );
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
