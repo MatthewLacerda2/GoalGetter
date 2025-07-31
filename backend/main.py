@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from backend.api.v1.endpoints import roadmap
 from backend.api.v1.endpoints import router as api_v1_router
 from fastapi.middleware.cors import CORSMiddleware
-from core.logging_middleware import LoggingMiddleware
+from backend.core.logging_middleware import LoggingMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
