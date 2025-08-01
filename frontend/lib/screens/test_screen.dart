@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 class TestScreen extends StatefulWidget {
+  
   const TestScreen({super.key});
 
   @override
@@ -13,10 +14,10 @@ class TestScreen extends StatefulWidget {
 class _TestScreenState extends State<TestScreen> {
   final TextEditingController _routeController = TextEditingController();
   final TextEditingController _payloadController = TextEditingController();
-  // Remove _response, add fields for id, datetime, text
+  // Update fields for id, datetime, and texts array
   String _id = '';
   String _datetime = '';
-  String _text = '';
+  List<String> _texts = ['', '', '']; // Array of 3 texts
   String _rawResponse = '';
   bool _isLoading = false;
   StreamSubscription? _subscription;
@@ -44,7 +45,7 @@ class _TestScreenState extends State<TestScreen> {
       _isLoading = true;
       _id = '';
       _datetime = '';
-      _text = '';
+      _texts = ['', '', '']; // Reset texts array
       _rawResponse = '';
     });
 
@@ -88,7 +89,19 @@ class _TestScreenState extends State<TestScreen> {
                     final json = jsonDecode(jsonPart);
                     _id = json['id']?.toString() ?? '';
                     _datetime = json['datetime']?.toString() ?? '';
-                    _text = json['text']?.toString() ?? '';
+                    
+                    // Handle texts array
+                    if (json['texts'] != null && json['texts'] is List) {
+                      List<dynamic> textsList = json['texts'];
+                      _texts = textsList.map((text) => text?.toString() ?? '').toList();
+                      // Ensure we have exactly 3 texts
+                      while (_texts.length < 3) {
+                        _texts.add('');
+                      }
+                      if (_texts.length > 3) {
+                        _texts = _texts.take(3).toList();
+                      }
+                    }
                   }
                 }
               } catch (e) {
@@ -104,14 +117,14 @@ class _TestScreenState extends State<TestScreen> {
         },
         onError: (error) {
           setState(() {
-            _text += '\nError: $error';
+            _texts[0] += '\nError: $error';
             _isLoading = false;
           });
         },
       );
     } catch (e) {
       setState(() {
-        _text = 'Error: $e';
+        _texts[0] = 'Error: $e';
         _isLoading = false;
       });
     }
@@ -174,7 +187,8 @@ class _TestScreenState extends State<TestScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            // Replace response display with three text fields
+            
+            // ID Field
             TextField(
               readOnly: true,
               decoration: const InputDecoration(
@@ -184,6 +198,8 @@ class _TestScreenState extends State<TestScreen> {
               controller: TextEditingController(text: _id),
             ),
             const SizedBox(height: 8),
+            
+            // Datetime Field
             TextField(
               readOnly: true,
               decoration: const InputDecoration(
@@ -193,16 +209,39 @@ class _TestScreenState extends State<TestScreen> {
               controller: TextEditingController(text: _datetime),
             ),
             const SizedBox(height: 8),
+            
+            // Three Text Fields for the texts array
             TextField(
               readOnly: true,
               decoration: const InputDecoration(
-                labelText: 'Text',
+                labelText: 'Text 1',
                 border: OutlineInputBorder(),
               ),
-              controller: TextEditingController(text: _text),
+              controller: TextEditingController(text: _texts.isNotEmpty ? _texts[0] : ''),
               maxLines: 3,
             ),
-            // ... remove the old Expanded response display ...
+            const SizedBox(height: 8),
+            
+            TextField(
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: 'Text 2',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: _texts.length > 1 ? _texts[1] : ''),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 8),
+            
+            TextField(
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: 'Text 3',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: _texts.length > 2 ? _texts[2] : ''),
+              maxLines: 3,
+            ),
           ],
         ),
       ),

@@ -16,24 +16,23 @@ router = APIRouter()
 async def test():
     # Sample texts for streaming
     sample_texts = [
-        "Hello world! This is a test message that will be streamed character by character.",
-        "Welcome to our streaming API test. This text will be sent in chunks.",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet.",
-        "Programming is the art of telling another human being what one wants the computer to do.",
-        "In software development, the only constant is change. Embrace it and adapt quickly.",
-        "Clean code is not about perfection. It is about honesty. You leave when you know you are far from being done.",
+        "This is a test message that will be streamed character by character.",
+        "Welcome to our streaming API test",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "The quick brown fox jumps over the lazy dog.",
+        "In software development, the only constant is change.",
+        "Clean code is not about perfection. It is about honesty.",
         "The best error message is the one that never shows up.",
     ]
     
-    # Select a random text
-    selected_text = random.choice(sample_texts)
+    # Select 3 random texts
+    selected_texts = random.sample(sample_texts, 3)
     
     # Generate response data
     response_data = {
         "id": str(uuid.uuid4()),
         "datetime": datetime.now().isoformat(),
-        "text": selected_text
+        "texts": selected_texts
     }
     
     async def generate_stream():
@@ -41,34 +40,36 @@ async def test():
         initial_data = {
             "id": response_data["id"],
             "datetime": response_data["datetime"],
-            "text": ""
+            "texts": ["", "", ""]
         }
         yield json.dumps(initial_data, ensure_ascii=False) + "\n"
         
-        # Stream the text character by character in chunks
-        text = response_data["text"]
-        position = 0
-        accumulated_text = ""
+        # Initialize accumulated texts array
+        accumulated_texts = ["", "", ""]
         
-        while position < len(text):
-            # Random chunk size between 4 and 8 characters
-            chunk_size = random.randint(4, 8)
-            chunk_size = min(chunk_size, len(text) - position)
+        # Stream each text character by character in chunks
+        for text_index, text in enumerate(response_data["texts"]):
+            position = 0
             
-            chunk = text[position:position + chunk_size]
-            position += chunk_size
-            accumulated_text += chunk
-            
-            # Send a complete JSON object with updated text
-            update_data = {
-                "id": response_data["id"],
-                "datetime": response_data["datetime"],
-                "text": accumulated_text
-            }
-            yield json.dumps(update_data, ensure_ascii=False) + "\n"
-            
-            # Wait 0.5 seconds before next chunk
-            await asyncio.sleep(0.5)
+            while position < len(text):
+                # Random chunk size between 4 and 8 characters
+                chunk_size = random.randint(4, 8)
+                chunk_size = min(chunk_size, len(text) - position)
+                
+                chunk = text[position:position + chunk_size]
+                position += chunk_size
+                accumulated_texts[text_index] += chunk
+                
+                # Send a complete JSON object with updated texts
+                update_data = {
+                    "id": response_data["id"],
+                    "datetime": response_data["datetime"],
+                    "texts": accumulated_texts
+                }
+                yield json.dumps(update_data, ensure_ascii=False) + "\n"
+                
+                # Wait 0.5 seconds before next chunk
+                await asyncio.sleep(0.5)
     
     return StreamingResponse(
         generate_stream(),
