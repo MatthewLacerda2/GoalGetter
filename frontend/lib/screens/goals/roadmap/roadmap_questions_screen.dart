@@ -21,6 +21,7 @@ class RoadmapQuestionsScreen extends StatefulWidget {
 class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> {
   List<String> _answers = [];
   bool _showErrors = false;
+  bool _isLoading = false;
 
   void _onAnswersChanged(List<String> answers) {
     setState(() {
@@ -51,15 +52,42 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> {
 
   void _onSendPressed() async {
     if (_allAnswered) {
-      final results = await _fetchRoadmapSteps(widget.prompt);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RoadmapLayOutScreen(
-            roadmapCreationResponse: results!,
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        final results = await _fetchRoadmapSteps(widget.prompt);
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RoadmapLayOutScreen(
+              roadmapCreationResponse: results!,
+            ),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.grey.shade200,
+            content: Text(
+              'Error: $e',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     } else {
       setState(() {
         _showErrors = true;
@@ -88,9 +116,9 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _onSendPressed,
+                onPressed: _isLoading ? null : _onSendPressed,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: _isLoading ? Colors.grey.shade300 : Colors.green,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -98,13 +126,21 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> {
                   disabledBackgroundColor: Colors.grey.shade300,
                   disabledForegroundColor: Colors.grey.shade600,
                 ),
-                child: Text(
-                  AppLocalizations.of(context)!.send,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        AppLocalizations.of(context)!.send,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ),

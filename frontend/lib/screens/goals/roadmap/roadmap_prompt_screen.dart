@@ -161,7 +161,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
           child: ElevatedButton(
             onPressed: _onEnterPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: _isLoading ? Colors.grey.shade300 : Colors.blue,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
