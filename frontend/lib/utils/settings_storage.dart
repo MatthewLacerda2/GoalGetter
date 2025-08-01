@@ -1,4 +1,3 @@
-// settings_storage.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsStorage {

@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'roadmap_questions_screen.dart';
 import '../../../l10n/app_localizations.dart';
-
-const followUpQuestions = [
-    "Why you decided to learn it?",
-    "Why that instrument?",
-    "What songs you wanna play?",
-    "What do you wanna play it for?",
-    "Do you know other instrument?",
-];
+import 'package:openapi/api.dart';
 
 class RoadmapPromptScreen extends StatefulWidget {
   const RoadmapPromptScreen({super.key});
@@ -24,6 +17,9 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
   // Focus nodes to track when fields are focused
   final _promptFocusNode = FocusNode();
 
+  // State to control button and spinner
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,16 +33,74 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
     super.dispose();
   }
 
-  void _onEnterPressed() {
+  Future<List<String>?> _fetchRoadmapQuestions(String prompt) async {
+    final roadmapApi = RoadmapApi(ApiClient(basePath: 'http://127.0.0.1:8000'));//TODO: read from env
+    final request = RoadmapInitiationRequest(
+      promptHint: AppLocalizations.of(context)!.tellWhatYourGoalIs, 
+      prompt: prompt
+    );
+    final response = await roadmapApi.initiateRoadmapApiV1RoadmapInitiationPost(request);
+    return response?.questions;
+  }
+
+  void _onEnterPressed() async {
     if (_promptController.text.length >= 16) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RoadmapQuestionsScreen(
-            questions: followUpQuestions,
-          ),
-        ),
-      );
+      setState(() {
+        _isLoading = true;
+      });
+      
+      try {
+        final questions = await _fetchRoadmapQuestions(_promptController.text);
+        if (mounted) {
+          if (questions != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RoadmapQuestionsScreen(
+                  prompt: _promptController.text,
+                  questions: questions,
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Colors.grey.shade200,
+                content: Text(
+                  'Error: No questions received',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.grey.shade200,
+              content: Text(
+                'Error: $e',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -107,7 +161,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
           child: ElevatedButton(
             onPressed: _onEnterPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: _isLoading ? Colors.grey.shade300 : Colors.blue,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -115,13 +169,17 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
               disabledBackgroundColor: Colors.grey.shade300,
               disabledForegroundColor: Colors.grey.shade600,
             ),
-            child: Text(
-              AppLocalizations.of(context)!.enter,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: _isLoading
+              ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              : Text(
+                  AppLocalizations.of(context)!.enter,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
           ),
         ),
       ),
