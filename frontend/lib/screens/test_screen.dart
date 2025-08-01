@@ -13,10 +13,12 @@ class TestScreen extends StatefulWidget {
 class _TestScreenState extends State<TestScreen> {
   final TextEditingController _routeController = TextEditingController();
   final TextEditingController _payloadController = TextEditingController();
-  String _response = '';
+  // Remove _response, add fields for id, datetime, text
+  String _id = '';
+  String _datetime = '';
+  String _text = '';
   String _rawResponse = '';
   bool _isLoading = false;
-  bool _isComplete = false;
   StreamSubscription? _subscription;
 
   @override
@@ -40,8 +42,9 @@ class _TestScreenState extends State<TestScreen> {
 
     setState(() {
       _isLoading = true;
-      _isComplete = false;
-      _response = '';
+      _id = '';
+      _datetime = '';
+      _text = '';
       _rawResponse = '';
     });
 
@@ -59,38 +62,58 @@ class _TestScreenState extends State<TestScreen> {
           if (chunk.trim().isNotEmpty) {
             setState(() {
               _rawResponse += chunk;
-              _response = _rawResponse; // Show raw during streaming
+              
+              // Try to parse the latest complete JSON object
+              try {
+                // Find the last complete JSON object in the response
+                int lastBraceIndex = _rawResponse.lastIndexOf('}');
+                if (lastBraceIndex != -1) {
+                  // Find the matching opening brace
+                  int braceCount = 0;
+                  int startIndex = -1;
+                  for (int i = lastBraceIndex; i >= 0; i--) {
+                    if (_rawResponse[i] == '}') {
+                      braceCount++;
+                    } else if (_rawResponse[i] == '{') {
+                      braceCount--;
+                      if (braceCount == 0) {
+                        startIndex = i;
+                        break;
+                      }
+                    }
+                  }
+                  
+                  if (startIndex != -1) {
+                    String jsonPart = _rawResponse.substring(startIndex, lastBraceIndex + 1);
+                    final json = jsonDecode(jsonPart);
+                    _id = json['id']?.toString() ?? '';
+                    _datetime = json['datetime']?.toString() ?? '';
+                    _text = json['text']?.toString() ?? '';
+                  }
+                }
+              } catch (e) {
+                // If JSON parsing fails, don't clear existing fields
+              }
             });
           }
         },
         onDone: () {
           setState(() {
             _isLoading = false;
-            _isComplete = true;
-            _response = _formatJson(_rawResponse); // Format when complete
           });
         },
         onError: (error) {
           setState(() {
-            _response += '\nError: $error';
+            _text += '\nError: $error';
             _isLoading = false;
           });
         },
       );
     } catch (e) {
       setState(() {
-        _response = 'Error: $e';
+        _text = 'Error: $e';
         _isLoading = false;
       });
-    }
-  }
-
-  String _formatJson(String jsonString) {
-    try {
-      final json = jsonDecode(jsonString);
-      return const JsonEncoder.withIndent('  ').convert(json);
-    } catch (e) {
-      return jsonString; // Return raw if not valid JSON
     }
   }
 
@@ -151,27 +174,35 @@ class _TestScreenState extends State<TestScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            
-            // Response Display
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: SingleChildScrollView(
-                  child: Text(
-                    _response.isEmpty ? 'No response yet' : _response,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
+            // Replace response display with three text fields
+            TextField(
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: 'ID',
+                border: OutlineInputBorder(),
               ),
+              controller: TextEditingController(text: _id),
             ),
+            const SizedBox(height: 8),
+            TextField(
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: 'Datetime',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: _datetime),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: 'Text',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: _text),
+              maxLines: 3,
+            ),
+            // ... remove the old Expanded response display ...
           ],
         ),
       ),

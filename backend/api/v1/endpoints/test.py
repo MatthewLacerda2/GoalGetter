@@ -10,7 +10,7 @@ import random
 router = APIRouter()
 
 @router.post(
-    "/test",
+    "/",
     status_code=200,
     description="Whatever tests you want to do")
 async def test():
@@ -37,28 +37,35 @@ async def test():
     }
     
     async def generate_stream():
-        # Send the initial JSON structure without the text content
+        # Send the initial JSON structure
         initial_data = {
             "id": response_data["id"],
             "datetime": response_data["datetime"],
             "text": ""
         }
-        yield json.dumps(initial_data, ensure_ascii=False)
+        yield json.dumps(initial_data, ensure_ascii=False) + "\n"
         
         # Stream the text character by character in chunks
         text = response_data["text"]
         position = 0
+        accumulated_text = ""
         
         while position < len(text):
             # Random chunk size between 4 and 8 characters
             chunk_size = random.randint(4, 8)
-            chunk_size = min(chunk_size, len(text) - position)  # Don't exceed text length
+            chunk_size = min(chunk_size, len(text) - position)
             
             chunk = text[position:position + chunk_size]
             position += chunk_size
+            accumulated_text += chunk
             
-            # Send the chunk
-            yield chunk
+            # Send a complete JSON object with updated text
+            update_data = {
+                "id": response_data["id"],
+                "datetime": response_data["datetime"],
+                "text": accumulated_text
+            }
+            yield json.dumps(update_data, ensure_ascii=False) + "\n"
             
             # Wait 0.5 seconds before next chunk
             await asyncio.sleep(0.5)
