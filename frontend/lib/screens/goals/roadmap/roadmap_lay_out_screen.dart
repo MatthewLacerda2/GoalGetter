@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../../utils/road_step_data.dart';
+import 'package:openapi/api.dart';
 import '../../../widgets/screens/goals/roadmap/road_step_widget.dart';
 import '../../../l10n/app_localizations.dart';
 
 class RoadmapLayOutScreen extends StatefulWidget {
-  final List<RoadStepData> steps;
-  final List<String> beforehands;
+  final RoadmapCreationResponse roadmapCreationResponse;
 
   const RoadmapLayOutScreen({
     super.key,
-    required this.steps,
-    this.beforehands = const [],
+    required this.roadmapCreationResponse,
   });
 
   @override
@@ -27,7 +25,7 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
   void initState() {
     super.initState();
     // Initialize animations for steps
-    for (int i = 0; i < widget.steps.length; i++) {
+    for (int i = 0; i < widget.roadmapCreationResponse.steps.length; i++) {
       final controller = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 500),
@@ -48,7 +46,7 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
     }
 
     // Initialize animations for beforehands
-    for (int i = 0; i < widget.beforehands.length; i++) {
+    for (int i = 0; i < widget.roadmapCreationResponse.notes.length; i++) {
       final controller = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 500),
@@ -63,7 +61,7 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
       _beforehandAnimations.add(animation);
 
       // Stagger the animations after steps
-      Future.delayed(Duration(milliseconds: 200 * (widget.steps.length + i)), () {
+      Future.delayed(Duration(milliseconds: 200 * (widget.roadmapCreationResponse.steps.length + i)), () {
         if (mounted) controller.forward();
       });
     }
@@ -90,16 +88,16 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ...List.generate(widget.steps.length, (i) {
+              ...List.generate(widget.roadmapCreationResponse.steps.length, (i) {
                 return SlideTransition(
                   position: _animations[i],
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    child: RoadStepWidget(roadStep: widget.steps[i]),
+                    child: RoadStepWidget(step: widget.roadmapCreationResponse.steps[i]),
                   ),
                 );
               }),
-              if (widget.beforehands.isNotEmpty) ...[
+              if (widget.roadmapCreationResponse.notes.isNotEmpty) ...[
                 const SizedBox(height: 36),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -113,7 +111,7 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                   ),
                 ),
                 const SizedBox(height: 32),
-                ...List.generate(widget.beforehands.length, (i) {
+                ...List.generate(widget.roadmapCreationResponse.notes.length, (i) {
                   return SlideTransition(
                     position: _beforehandAnimations[i],
                     child: Padding(
@@ -130,7 +128,7 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                           color: Colors.green.shade200,
                         ),
                         child: Text(
-                          widget.beforehands[i],
+                          widget.roadmapCreationResponse.notes[i],
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.black87,

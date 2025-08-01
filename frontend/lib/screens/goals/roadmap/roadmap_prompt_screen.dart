@@ -57,6 +57,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => RoadmapQuestionsScreen(
+                  prompt: _promptController.text,
                   questions: questions,
                 ),
               ),

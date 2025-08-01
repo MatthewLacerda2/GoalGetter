@@ -1,13 +1,14 @@
 // roadmap steps
-import 'package:flutter/material.dart';
-import '../../../../utils/road_step_data.dart';
+import 'package:flutter/material.dart' hide Step;
+import 'package:openapi/api.dart';
+
 
 class RoadStepWidget extends StatelessWidget {
-  final RoadStepData roadStep;
+  final Step step;
 
   const RoadStepWidget({
     super.key,
-    required this.roadStep,
+    required this.step,
   });
 
   @override
@@ -27,7 +28,7 @@ class RoadStepWidget extends StatelessWidget {
             ),
           ),
           child: Text(
-            roadStep.title,
+            step.title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -46,7 +47,7 @@ class RoadStepWidget extends StatelessWidget {
             ),
           ),
           child: Text(
-            roadStep.description,
+            step.description,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
