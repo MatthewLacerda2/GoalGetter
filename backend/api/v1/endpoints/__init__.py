@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.api.v1.endpoints import roadmap
+from backend.api.v1.endpoints import roadmap, test
 from backend.core.rate_limiter import limiter
 
 router = APIRouter()
@@ -9,3 +9,4 @@ router.dependency_overrides = {
 }
 
 router.include_router(roadmap.router, prefix="/roadmap", tags=["roadmap"])
+router.include_router(test.router, prefix="/test", tags=["test"])   

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'introduction_screen.dart';
+import 'test_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -44,6 +45,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.profile),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TestScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
