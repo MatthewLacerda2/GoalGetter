@@ -1,17 +1,21 @@
 # GoalGetter
 
 An app to help plan a weekly-routine with long term goals
-It also helps planning a roadmap for achieving a goal
 
 # How it works
 
-- Goals: define what you want to do
 - Agenda: setup your weekly schedule
     Look what you have for the day of the week
-    Keep consistent in your goals
-- Xp: get reminded and rewarded for progress (a lá Duolingo)
-    Look how consistent you've been
-    Get encouraged to continue
+- Tasks: how you spent your weekly time
+    Check out what you have for the day
+    Create tasks for your goals
+- Goals: to your road
+    Easily have a thought-out roadmap
+    Look your list of tasks
+    Get warned when you didn't assign enough time
+- Motivation: pushy!
+    We make sure you keep motivated
+    Let us handle the thinking plan
 - Profile: user settings
     Get personal
 
@@ -28,3 +32,12 @@ Client_SDK:
     - Dart sees it as a dart package that must have it's own folder outside of the frontend's
 Terraform:
     - Infra-as-code
+
+We use Google Gemini as our AI
+
+# How to run
+
+- Frontend: flutter run -d chrome --web-host <your-ip> --port 8080
+- Backend: uvicorn backend.main:app --webhost <your-ip> --reload
+
+The .env needs: google_gemini_api_key, backend_url

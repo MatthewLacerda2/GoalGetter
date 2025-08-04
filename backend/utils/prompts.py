@@ -51,6 +51,12 @@ We focus on:
 - Keeping the user motivated.
 
 
+The tasks MUST be:
+- Clear.
+- Specific.
+- The description should clear "THIS is what you should do" type of thing.
+- NOT be vague, broad, generic, or abstract.
+
 Task guidelines:
 - Prioritize practice over theory.
 - Guarantee the user self-corrects if needed.
