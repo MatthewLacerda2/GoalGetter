@@ -149,18 +149,6 @@ abstract class AppLocalizations {
   /// **'Time'**
   String get time;
 
-  /// Label for commited field
-  ///
-  /// In en, this message translates to:
-  /// **'Commited'**
-  String get commited;
-
-  /// Label for reserved field
-  ///
-  /// In en, this message translates to:
-  /// **'Reserved'**
-  String get reserved;
-
   /// Empty state title when no goals exist
   ///
   /// In en, this message translates to:
@@ -358,6 +346,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
+
+  /// Label for commited field
+  ///
+  /// In en, this message translates to:
+  /// **'Commited'**
+  String get commited;
+
+  /// Label for reserved field
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get reserved;
 
   /// Message for goal needs time
   ///

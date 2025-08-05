@@ -53,6 +53,7 @@ class TaskStorage {
   }
 
   // Get total duration of tasks for a specific goal
+  //TODO: now that we have the totalTaskedHours in the goal, we can remove this function
   static Future<int> getTotalDurationForGoal(String goalId) async {
     final tasks = await loadAll();
     int total = 0;

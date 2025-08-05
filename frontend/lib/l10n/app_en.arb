@@ -36,14 +36,6 @@
     "@time": {
         "description": "Time sort button label"
     },
-    "commited": "Commited",
-    "@commited": {
-        "description": "Commited sort button label"
-    },
-    "reserved": "Reserved",
-    "@reserved": {
-        "description": "Reserved sort button label"
-    },
     "setUpYourGoals": "Set up your Goals",
     "@setUpYourGoals": {
         "description": "Empty state title when no goals exist"

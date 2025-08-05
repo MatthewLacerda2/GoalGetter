@@ -192,9 +192,9 @@
     "@delete": {
         "description": "Rótulo do botão excluir"
     },
-    "commited": "Comprometido",
+    "commited": "Compromisso",
     "@commited": {
-        "description": "Rótulo do campo comprometido"
+        "description": "Rótulo do campo compromisso"
     },
     "reserved": "Reservado",
     "@reserved": {

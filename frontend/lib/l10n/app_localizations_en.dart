@@ -36,12 +36,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get time => 'Time';
 
   @override
-  String get commited => 'Commited';
-
-  @override
-  String get reserved => 'Reserved';
-
-  @override
   String get setUpYourGoals => 'Set up your Goals';
 
   @override
@@ -147,6 +141,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get commited => 'Commited';
+
+  @override
+  String get reserved => 'Reserved';
 
   @override
   String goalNeedsTime(String goalTitle, int minutesMissing) {
