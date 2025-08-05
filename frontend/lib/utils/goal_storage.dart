@@ -12,7 +12,23 @@ class GoalStorage {
     final goalsJson = prefs.getString(_goalsKey);
     if (goalsJson == null) return [];
     final List<dynamic> decoded = json.decode(goalsJson);
-    return decoded.map((e) => Goal.fromMap(e)).toList();
+    final goals = decoded.map((e) => Goal.fromMap(e)).toList();
+    
+    // Calculate total tasked hours for each goal
+    final updatedGoals = <Goal>[];
+    for (final goal in goals) {
+      final totalMinutes = await TaskStorage.getTotalDurationForGoal(goal.id);
+      final totalHours = totalMinutes / 60.0;
+      updatedGoals.add(Goal(
+        id: goal.id,
+        title: goal.title,
+        description: goal.description,
+        weeklyHours: goal.weeklyHours,
+        totalTaskedHours: totalHours,
+      ));
+    }
+    
+    return updatedGoals;
   }
 
   static Future<Goal?> loadById(String id) async {

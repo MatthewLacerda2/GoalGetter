@@ -99,9 +99,9 @@ class GoalCard extends StatelessWidget {
                         children: [
                           Text(
                             goal.title,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
-                          Text(goal.description ?? ''),
+                          Text(goal.description ?? '', style: const TextStyle(fontSize: 12)),
                         ],
                       ),
                     ),
@@ -131,7 +131,7 @@ class GoalCard extends StatelessWidget {
                             return Text(
                               '${AppLocalizations.of(context)!.reserved}: ${totalHours}h',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 color: isOvercommitted ? Colors.lightBlueAccent : Colors.grey.shade600,
                                 fontWeight: isOvercommitted ? FontWeight.bold : FontWeight.normal,
                               ),

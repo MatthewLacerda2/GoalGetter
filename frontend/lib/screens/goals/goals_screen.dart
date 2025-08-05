@@ -41,9 +41,15 @@ class _GoalsScreenState extends State<GoalsScreen> {
           return isAscending ? comparison : -comparison;
         });
         break;
-      case 'week':
+      case 'commited':
         goals.sort((a, b) {
           final comparison = a.weeklyHours.compareTo(b.weeklyHours);
+          return isAscending ? comparison : -comparison;
+        });
+        break;
+      case 'reserved':
+        goals.sort((a, b) {
+          final comparison = a.totalTaskedHours.compareTo(b.totalTaskedHours);
           return isAscending ? comparison : -comparison;
         });
         break;
@@ -90,11 +96,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
                           isAscending ? Icons.arrow_upward : Icons.arrow_downward,
                           size: 20,
                           color: Colors.grey.shade600,
+                          weight: 20,
                         )
                       : Icon(
                           Icons.arrow_downward,
                           size: 20,
                           color: Colors.grey.shade400,
+                          weight: 20,
                         ),
                 ),
                 const SizedBox(width: 4),
@@ -104,11 +112,18 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     child: _buildSortButton('name', AppLocalizations.of(context)!.name),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _buildSortButton('week', AppLocalizations.of(context)!.time),
+                    child: _buildSortButton('commited', AppLocalizations.of(context)!.commited),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: _buildSortButton('reserved', AppLocalizations.of(context)!.reserved),
                   ),
                 ),
               ],
@@ -162,7 +177,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     itemBuilder: (context, index) {
                       final goal = goals[index];
                       return GoalCard(
-                        key: Key(goal.id), // Add this line
+                        key: Key(goal.id),
                         goal: goal,
                         index: index,
                         onDelete: () async {
