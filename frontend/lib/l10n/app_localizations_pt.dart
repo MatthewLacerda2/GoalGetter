@@ -269,10 +269,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get beDetailedOfYourGoal => 'Seja detalhado sobre sua meta!';
 
   @override
-  String get tellWhatYourGoalIs => 'Diga qual é a sua meta, o que você já sabe fazer e qual sua motivação';
+  String get tellWhatYourGoalIs => 'Diga sua meta, o que você sabe fazer e qual sua motivação';
 
   @override
-  String get goalDescriptionHintText => 'Quero aprender violão, já sei tocar as notas mais simples, G, D, E e quero tocar umas músicas que gosto, como \"Hey Jude\"';
+  String get goalDescriptionHintText => 'Quero aprender violão, sei tocar notas básicas';
 
   @override
   String get enter => 'Enter';

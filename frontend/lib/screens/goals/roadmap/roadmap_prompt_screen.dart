@@ -134,7 +134,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
               Text(
                 AppLocalizations.of(context)!.tellWhatYourGoalIs,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(height: 16),
@@ -146,40 +146,47 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
                   border: const OutlineInputBorder(),
                 ),
                 maxLength: 500,
-                maxLines: 10,
+                maxLines: 8,
                 onChanged: (value) => setState(() {}),
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        child: SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: _onEnterPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _isLoading ? Colors.grey.shade300 : Colors.blue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              disabledBackgroundColor: Colors.grey.shade300,
-              disabledForegroundColor: Colors.grey.shade600,
-            ),
-            child: _isLoading
-              ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                )
-              : Text(
-                  AppLocalizations.of(context)!.enter,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _onEnterPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isLoading ? Colors.grey.shade300 : Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                disabledBackgroundColor: Colors.grey.shade300,
+                disabledForegroundColor: Colors.grey.shade600,
+              ),
+              child: _isLoading
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    AppLocalizations.of(context)!.enter,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            ),
           ),
         ),
       ),
