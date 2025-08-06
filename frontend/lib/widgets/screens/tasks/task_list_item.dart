@@ -50,7 +50,7 @@ class TaskListItem extends StatelessWidget {
         child: Container(
           color: Colors.grey.shade100,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -60,14 +60,13 @@ class TaskListItem extends StatelessWidget {
                     children: [
                       Text(
                         task.title, 
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
                       ),
-                      const SizedBox(height: 4),
                       Text(
                         goalTitle != null ? AppLocalizations.of(context)!.goal(goalTitle!) : ' ',
                         style: TextStyle(
-                          fontSize: 14, 
-                          color: goalTitle != null ? Colors.orange : Colors.transparent,
+                          fontSize: 14,
+                          color: goalTitle != null ? Colors.green : Colors.transparent,
                           fontWeight: goalTitle != null ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -81,8 +80,8 @@ class TaskListItem extends StatelessWidget {
                     Text(
                       _formatTimeRange(task.startTime, endTime),
                       style: const TextStyle(
-                        fontSize: 24, 
-                        color: Colors.blue, 
+                        fontSize: 24,
+                        color: Colors.green,
                         fontWeight: FontWeight.bold
                       ),
                     ),
@@ -133,7 +132,7 @@ class TaskListItem extends StatelessWidget {
             label: AppLocalizations.of(context)!.undo,
             onPressed: () async {
               await TaskStorage.saveNew(task);
-              onTaskDeleted(); // Refresh the list
+              onTaskDeleted();
             },
           ),
         ),

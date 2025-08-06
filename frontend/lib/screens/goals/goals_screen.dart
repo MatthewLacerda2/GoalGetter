@@ -77,7 +77,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         children: [
           // Sorting buttons
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               border: Border(
@@ -89,7 +89,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 // Arrow indicator
                 Container(
                   width: 20,
-                  height: 16,
+                  height: 20,
                   alignment: Alignment.center,
                   child: currentSortBy != null
                       ? Icon(
@@ -101,28 +101,25 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       : Icon(
                           Icons.arrow_downward,
                           size: 20,
-                          color: Colors.grey.shade400,
+                          color: Colors.grey.shade600,
                           weight: 20,
                         ),
                 ),
-                const SizedBox(width: 4),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: _buildSortButton('name', AppLocalizations.of(context)!.name),
                   ),
                 ),
-                const SizedBox(width: 4),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: _buildSortButton('commited', AppLocalizations.of(context)!.commited),
                   ),
                 ),
-                const SizedBox(width: 4),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: _buildSortButton('reserved', AppLocalizations.of(context)!.reserved),
                   ),
                 ),
