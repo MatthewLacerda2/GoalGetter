@@ -94,17 +94,20 @@ class _MyHomePageState extends State<MyHomePage> {
         type: BottomNavigationBarType.fixed,
         showSelectedLabels: false,
         showUnselectedLabels: false,
+        selectedFontSize: 0,
+        unselectedFontSize: 0,
+        iconSize: 28,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.flag),
+            icon: const Icon(Icons.flag, color: Colors.green),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.event_note),
+            icon: const Icon(Icons.event_note, color: Colors.blueAccent),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person, color: Colors.grey),
             label: '',
           ),
         ],

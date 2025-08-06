@@ -40,4 +40,6 @@ We use Google Gemini as our AI
 - Frontend: flutter run -d chrome --web-host <your-ip> --port 8080
 - Backend: uvicorn backend.main:app --webhost <your-ip> --reload
 
-The .env needs: google_gemini_api_key, backend_url
+The .env needs: GEMINI_API_KEY
+
+To generate the client_sdk: openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk

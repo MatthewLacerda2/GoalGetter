@@ -4,7 +4,6 @@ from google.genai.types import GenerateContentConfig
 import logging
 from backend.core.config import settings
 from backend.schemas.roadmap import RoadmapInitiationResponse, RoadmapInitiationRequest, RoadmapCreationResponse, RoadmapCreationRequest
-from backend.utils.envs import FLAGSHIP_MODEL
 from backend.utils.prompts import get_roadmap_initiation_prompt, get_roadmap_creation_prompt
 
 logger = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ def get_gemini_follow_up_questions(initiation_request: RoadmapInitiationRequest)
     full_prompt = get_roadmap_initiation_prompt(initiation_request)
     
     response = client.models.generate_content(
-        model=FLAGSHIP_MODEL, contents=full_prompt, config=GenerateContentConfig(
+        model="gemini-2.5-flash-lite", contents=full_prompt, config=GenerateContentConfig(
         response_mime_type='application/json',
         response_schema=RoadmapInitiationResponse.model_json_schema(),
         automatic_function_calling={"disable": True}
@@ -50,7 +49,7 @@ def get_gemini_roadmap_creation(creation_request: RoadmapCreationRequest) -> Roa
     full_prompt = get_roadmap_creation_prompt(creation_request)
     
     response = client.models.generate_content(
-        model=FLAGSHIP_MODEL, contents=full_prompt, config=GenerateContentConfig(
+        model="gemini-2.5-flash", contents=full_prompt, config=GenerateContentConfig(
         response_mime_type='application/json',
         response_schema=RoadmapCreationResponse.model_json_schema(),
         automatic_function_calling={"disable": True}

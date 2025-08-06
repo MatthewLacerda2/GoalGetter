@@ -1,5 +1,4 @@
 from backend.schemas.roadmap import RoadmapInitiationRequest, RoadmapCreationRequest, FollowUpQuestionsAndAnswers
-from backend.utils.envs import MIN_NOTES, MAX_NOTES
 
 roadmap_initiation_prompt = """
 The user has reached out for guidance on how to achieve a goal.
@@ -34,7 +33,6 @@ def get_roadmap_initiation_prompt(roadmap_initiation_request: RoadmapInitiationR
 roadmap_creation_prompt = """
 You are an experienced expert guiding a user to achieve a specific goal.
 
-- The user was prompted with: {prompt_hint}
 - The user's stated goal is: {prompt}
 - The user has answered the following follow-up questions:
 {questions_answers}
@@ -54,8 +52,9 @@ We focus on:
 The tasks MUST be:
 - Clear.
 - Specific.
-- The description should clear "THIS is what you should do" type of thing.
 - NOT be vague, broad, generic, or abstract.
+- The description should clear "THIS is what you should do" type of thing.
+- The description should be between 15 and 200 characters.
 
 Task guidelines:
 - Prioritize practice over theory.
@@ -66,7 +65,7 @@ Task guidelines:
 
 Also provide a list of notes, focusing on things to know and common mistakes related to the first few tasks.
 - Between 2 and 10 notes.
-- Each note should be between 10 and 200 characters.
+- Each note should be between 10 and 120 characters.
 - At least one note should be about stuff the user will eventually encounter, or mistakes the user will probably make.
 - At least one milestone should be declared.
 
@@ -78,4 +77,4 @@ def questions_answers_to_string(questions_answers: list[FollowUpQuestionsAndAnsw
     return "\n".join([f"- {question.question}\n    {question.answer}" for question in questions_answers])
 
 def get_roadmap_creation_prompt(roadmap_creation_request: RoadmapCreationRequest) -> str:
-    return roadmap_creation_prompt.format(prompt=roadmap_creation_request.prompt, questions_answers=roadmap_creation_request.questions_answers, MIN_NOTES=MIN_NOTES, MAX_NOTES=MAX_NOTES)
+    return roadmap_creation_prompt.format(prompt=roadmap_creation_request.prompt, questions_answers=roadmap_creation_request.questions_answers)
