@@ -121,3 +121,5 @@ app.*.symbols
 # Environment variables
 .env
 *env.txt
+
+auxpy.py

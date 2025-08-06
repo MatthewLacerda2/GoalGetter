@@ -44,7 +44,7 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
               }
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected ? Colors.blue : Colors.lightBlue[200],
                 border: Border(

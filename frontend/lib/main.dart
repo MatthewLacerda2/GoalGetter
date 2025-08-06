@@ -92,18 +92,20 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.flag),
-            label: AppLocalizations.of(context)!.goals,
+            label: '',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.event_note),
-            label: AppLocalizations.of(context)!.agenda,
+            label: '',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person),
-            label: AppLocalizations.of(context)!.profile,
+            label: '',
           ),
         ],
         currentIndex: _selectedIndex,

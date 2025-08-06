@@ -76,7 +76,7 @@ class GoalCard extends StatelessWidget {
                 borderRadius: BorderRadius.zero,
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -99,9 +99,9 @@ class GoalCard extends StatelessWidget {
                         children: [
                           Text(
                             goal.title,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
-                          Text(goal.description ?? ''),
+                          Text(goal.description ?? '', style: const TextStyle(fontSize: 12)),
                         ],
                       ),
                     ),
@@ -117,7 +117,7 @@ class GoalCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade700,
+                                color: Colors.grey.shade800,
                               ),
                             ),
                           ],
@@ -131,9 +131,9 @@ class GoalCard extends StatelessWidget {
                             return Text(
                               '${AppLocalizations.of(context)!.reserved}: ${totalHours}h',
                               style: TextStyle(
-                                fontSize: 12,
-                                color: isOvercommitted ? Colors.lightBlueAccent : Colors.grey.shade600,
-                                fontWeight: isOvercommitted ? FontWeight.bold : FontWeight.normal,
+                                fontSize: 14,
+                                color: isOvercommitted ? Colors.grey.shade600 : Colors.orange,
+                                fontWeight: isOvercommitted ? FontWeight.normal : FontWeight.bold,
                               ),
                             );
                           },
