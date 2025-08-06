@@ -652,6 +652,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please answer this question'**
   String get pleaseAnswerThisQuestion;
+
+  /// Label to create a full plan
+  ///
+  /// In en, this message translates to:
+  /// **'You can create a full:'**
+  String get orYouCanCreateAFullPlan;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

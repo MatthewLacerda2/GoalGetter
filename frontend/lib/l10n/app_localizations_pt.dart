@@ -300,4 +300,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get pleaseAnswerThisQuestion => 'Por favor, responda esta pergunta';
+
+  @override
+  String get orYouCanCreateAFullPlan => 'Quer criar um plano completo?';
 }

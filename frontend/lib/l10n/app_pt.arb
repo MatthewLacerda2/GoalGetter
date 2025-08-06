@@ -417,5 +417,9 @@
     "pleaseAnswerThisQuestion": "Por favor, responda esta pergunta",
     "@pleaseAnswerThisQuestion": {
         "description": "Mensagem de validação para resposta vazia"
+    },
+    "orYouCanCreateAFullPlan": "Quer criar um plano completo?",
+    "@orYouCanCreateAFullPlan": {
+        "description": "Label para criar um plano completo"
     }
 }

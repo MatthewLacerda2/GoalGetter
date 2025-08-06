@@ -417,5 +417,9 @@
     "pleaseAnswerThisQuestion": "Please answer this question",
     "@pleaseAnswerThisQuestion": {
         "description": "Validation message for empty answer"
+    },
+    "orYouCanCreateAFullPlan": "You can create a full:",
+    "@orYouCanCreateAFullPlan": {
+        "description": "Label to create a full plan"
     }
 }

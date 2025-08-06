@@ -300,4 +300,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseAnswerThisQuestion => 'Please answer this question';
+
+  @override
+  String get orYouCanCreateAFullPlan => 'You can create a full:';
 }
