@@ -74,6 +74,11 @@ class GoalStorage {
       }
     }
   }
+
+  static Future<void> deleteAllGoals() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_goalsKey);
+  }
 }
 
 extension GoalCopyWith on Goal {

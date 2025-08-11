@@ -3,6 +3,7 @@ import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'introduction_screen.dart';
 import 'test_screen.dart';
+import 'delete_all_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -51,7 +52,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Language Section
             Text(
               '${AppLocalizations.of(context)!.language}:',
               style: const TextStyle(
@@ -60,8 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
-            // Language Selection Buttons
             Row(
               children: [
                 Expanded(
@@ -98,7 +96,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
             
-            // Test Screen Button - Comment this section in/out as needed
             const SizedBox(height: 16),
             _buildSectionTile(
               'Test Screen',
@@ -108,6 +105,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const TestScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+            _buildSectionTile(
+              'Delete All Data',
+              Icons.delete_forever,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DeleteAllScreen(),
                   ),
                 );
               },

@@ -64,4 +64,9 @@ class TaskStorage {
     }
     return total;
   }
+
+  static Future<void> deleteAllTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tasksKey);
+  }
 }
