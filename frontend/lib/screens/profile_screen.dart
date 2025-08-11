@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'introduction_screen.dart';
+import 'test_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -92,6 +93,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const IntroductionScreenWidget(),
+                  ),
+                );
+              },
+            ),
+            
+            // Test Screen Button - Comment this section in/out as needed
+            const SizedBox(height: 16),
+            _buildSectionTile(
+              'Test Screen',
+              Icons.science,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TestScreen(),
                   ),
                 );
               },

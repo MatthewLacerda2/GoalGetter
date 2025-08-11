@@ -41,9 +41,15 @@ class _GoalsScreenState extends State<GoalsScreen> {
           return isAscending ? comparison : -comparison;
         });
         break;
-      case 'week':
+      case 'commited':
         goals.sort((a, b) {
           final comparison = a.weeklyHours.compareTo(b.weeklyHours);
+          return isAscending ? comparison : -comparison;
+        });
+        break;
+      case 'reserved':
+        goals.sort((a, b) {
+          final comparison = a.totalTaskedHours.compareTo(b.totalTaskedHours);
           return isAscending ? comparison : -comparison;
         });
         break;
@@ -71,7 +77,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         children: [
           // Sorting buttons
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               border: Border(
@@ -83,32 +89,38 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 // Arrow indicator
                 Container(
                   width: 20,
-                  height: 16,
+                  height: 20,
                   alignment: Alignment.center,
                   child: currentSortBy != null
                       ? Icon(
                           isAscending ? Icons.arrow_upward : Icons.arrow_downward,
                           size: 20,
                           color: Colors.grey.shade600,
+                          weight: 20,
                         )
                       : Icon(
                           Icons.arrow_downward,
                           size: 20,
-                          color: Colors.grey.shade400,
+                          color: Colors.grey.shade600,
+                          weight: 20,
                         ),
                 ),
-                const SizedBox(width: 4),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: _buildSortButton('name', AppLocalizations.of(context)!.name),
                   ),
                 ),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _buildSortButton('week', AppLocalizations.of(context)!.time),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: _buildSortButton('commited', AppLocalizations.of(context)!.commited),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: _buildSortButton('reserved', AppLocalizations.of(context)!.reserved),
                   ),
                 ),
               ],
@@ -162,7 +174,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     itemBuilder: (context, index) {
                       final goal = goals[index];
                       return GoalCard(
-                        key: Key(goal.id), // Add this line
+                        key: Key(goal.id),
                         goal: goal,
                         index: index,
                         onDelete: () async {

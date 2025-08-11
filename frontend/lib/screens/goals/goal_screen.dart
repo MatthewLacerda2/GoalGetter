@@ -123,9 +123,6 @@ class _GoalScreenState extends State<GoalScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 12),
-
-              // Description Field
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(

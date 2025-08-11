@@ -92,18 +92,23 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        selectedFontSize: 0,
+        unselectedFontSize: 0,
+        iconSize: 28,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.flag),
-            label: AppLocalizations.of(context)!.goals,
+            icon: const Icon(Icons.flag, color: Colors.green),
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.event_note),
-            label: AppLocalizations.of(context)!.agenda,
+            icon: const Icon(Icons.event_note, color: Colors.blueAccent),
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: AppLocalizations.of(context)!.profile,
+            icon: const Icon(Icons.person, color: Colors.grey),
+            label: '',
           ),
         ],
         currentIndex: _selectedIndex,

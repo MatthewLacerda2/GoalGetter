@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
-import '../../../widgets/screens/goals/roadmap/road_step_widget.dart';
+import '../../../widgets/info_card.dart';
 import '../../../l10n/app_localizations.dart';
 
 class RoadmapLayOutScreen extends StatefulWidget {
@@ -93,7 +93,10 @@ class _RoadmapLayOutScreenState extends State<RoadmapLayOutScreen> with TickerPr
                   position: _animations[i],
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    child: RoadStepWidget(step: widget.roadmapCreationResponse.steps[i]),
+                    child: InfoCard(
+                      title: widget.roadmapCreationResponse.steps[i].title,
+                      description: widget.roadmapCreationResponse.steps[i].description,
+                    ),
                   ),
                 );
               }),

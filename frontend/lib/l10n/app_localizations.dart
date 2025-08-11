@@ -563,6 +563,12 @@ abstract class AppLocalizations {
   /// **'Skip'**
   String get skip;
 
+  /// Label for Previous button
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
+
   /// Label for next button
   ///
   /// In en, this message translates to:
@@ -590,13 +596,13 @@ abstract class AppLocalizations {
   /// Label for tell what your goal is
   ///
   /// In en, this message translates to:
-  /// **'Tell what your goal is, what can you do so far, and what is the purpose'**
+  /// **'Tell your goal is, what can you do so far, and what is the purpose'**
   String get tellWhatYourGoalIs;
 
   /// Hint text for goal description
   ///
   /// In en, this message translates to:
-  /// **'I want to learn guitar, i can play most basic chords like G, D, E, and i wanna play some songs i like, like \"Hey Jude\"'**
+  /// **'I wanna learn guitar, i can play most basic chords'**
   String get goalDescriptionHintText;
 
   /// Label for enter button
@@ -652,6 +658,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please answer this question'**
   String get pleaseAnswerThisQuestion;
+
+  /// Label to create a full plan
+  ///
+  /// In en, this message translates to:
+  /// **'You can create a full:'**
+  String get orYouCanCreateAFullPlan;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

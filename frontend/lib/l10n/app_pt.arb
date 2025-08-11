@@ -192,9 +192,9 @@
     "@delete": {
         "description": "Rótulo do botão excluir"
     },
-    "commited": "Comprometido",
+    "commited": "Compromisso",
     "@commited": {
-        "description": "Rótulo do campo comprometido"
+        "description": "Rótulo do campo compromisso"
     },
     "reserved": "Reservado",
     "@reserved": {
@@ -358,6 +358,10 @@
     "@skip": {
         "description": "Rótulo para botão pular"
     },
+    "previous": "Anterior",
+    "@previous": {
+        "description": "Rótulo para botão Anterior"
+    },
     "next": "Próximo",
     "@next": {
         "description": "Rótulo para botão próximo"
@@ -374,11 +378,11 @@
     "@beDetailedOfYourGoal": {
         "description": "Label para ser detalhado sobre sua meta"
     },
-    "tellWhatYourGoalIs": "Diga qual é a sua meta, o que você já sabe fazer e qual sua motivação",
+    "tellWhatYourGoalIs": "Diga sua meta, o que você sabe fazer e qual sua motivação",
     "@tellWhatYourGoalIs": {
         "description": "Label para dizer o que é sua meta"
     },
-    "goalDescriptionHintText": "Quero aprender violão, já sei tocar as notas mais simples, G, D, E e quero tocar umas músicas que gosto, como \"Hey Jude\"",
+    "goalDescriptionHintText": "Quero aprender violão, sei tocar notas básicas",
     "@goalDescriptionHintText": {
         "description": "Texto de dica para descrição da meta"
     },
@@ -417,5 +421,9 @@
     "pleaseAnswerThisQuestion": "Por favor, responda esta pergunta",
     "@pleaseAnswerThisQuestion": {
         "description": "Mensagem de validação para resposta vazia"
+    },
+    "orYouCanCreateAFullPlan": "Quer criar um plano completo?",
+    "@orYouCanCreateAFullPlan": {
+        "description": "Label para criar um plano completo"
     }
 }
