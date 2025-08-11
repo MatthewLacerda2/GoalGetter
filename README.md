@@ -37,7 +37,7 @@ We use Google Gemini as our AI
 
 # How to run
 
-- Frontend: flutter run -d chrome --web-host <your-ip> --port 8080
+- Frontend: flutter run -d chrome --web-host=<your-ip> --web-port=8080
 - Backend: uvicorn backend.main:app --webhost <your-ip> --reload
 
 The .env needs: GEMINI_API_KEY

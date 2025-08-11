@@ -257,6 +257,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skip => 'Skip';
 
   @override
+  String get previous => 'Previous';
+
+  @override
   String get next => 'Next';
 
   @override

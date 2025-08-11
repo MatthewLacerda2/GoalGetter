@@ -358,6 +358,10 @@
     "@skip": {
         "description": "Label for skip button"
     },
+    "previous": "Previous",
+    "@previous": {
+        "description": "Label for Previous button"
+    },
     "next": "Next",
     "@next": {
         "description": "Label for next button"

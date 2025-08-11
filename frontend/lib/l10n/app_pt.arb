@@ -358,6 +358,10 @@
     "@skip": {
         "description": "Rótulo para botão pular"
     },
+    "previous": "Anterior",
+    "@previous": {
+        "description": "Rótulo para botão Anterior"
+    },
     "next": "Próximo",
     "@next": {
         "description": "Rótulo para botão próximo"

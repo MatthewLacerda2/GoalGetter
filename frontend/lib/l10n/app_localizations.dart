@@ -563,6 +563,12 @@ abstract class AppLocalizations {
   /// **'Skip'**
   String get skip;
 
+  /// Label for Previous button
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
+
   /// Label for next button
   ///
   /// In en, this message translates to:

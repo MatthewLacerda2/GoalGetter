@@ -257,6 +257,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get skip => 'Pular';
 
   @override
+  String get previous => 'Anterior';
+
+  @override
   String get next => 'Próximo';
 
   @override
