@@ -32,46 +32,6 @@
     "@title": {
         "description": "Rótulo para campo de título"
     },
-    "createYourGoal": "Crie suas metas",
-    "@createYourGoal": {
-        "description": "Rótulo para tela de criação de meta"
-    },
-    "writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": "Diga o que quer fazer e quanto tempo vai dedicar semanalmente",
-    "@writeWhatYouWantToDoAndHowMuchYouWillDedicateToItWeekly": {
-        "description": "Texto de ajuda para criação de meta"
-    },
-    "createYourTask": "Crie suas atividades",
-    "@createYourTask": {
-        "description": "Rótulo para tela de criação de atividade"
-    },
-    "writeDownHowYouWillUseYourTimeForTheDay": "Anote como vai usar seu tempo para o dia",
-    "@writeDownHowYouWillUseYourTimeForTheDay": {
-        "description": "Texto de ajuda para criação de atividade"
-    },
-    "taskToGoal": "Atividade para alcançar meta",
-    "@taskToGoal": {
-        "description": "Rótulo para tela de atividade para alcançar meta"
-    },
-    "youCanMarkATaskAsBeingPartOfAchievingAGoal": "Você pode marcar uma atividade como sendo parte de uma meta",
-    "@youCanMarkATaskAsBeingPartOfAchievingAGoal": {
-        "description": "Texto de ajuda para marcar uma atividade como sendo parte de uma meta"
-    },
-    "freeTasks": "Atividades livres",
-    "@freeTasks": {
-        "description": "Rótulo para tela de atividades livres"
-    },
-    "notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": "Nem toda atividade precisa ser parte de uma meta. Lavar as roupas, por exemplo",
-    "@notEveryTaskNeedsToAchieveABigGoalLikeDoingTheDishes": {
-        "description": "Texto de ajuda para atividades livres"
-    },
-    "readyToAchieve": "Pronto para alcançar suas metas?",
-    "@readyToAchieve": {
-        "description": "Rótulo para tela de pronto para alcançar metas"
-    },
-    "exploreDreamDiscover": "Explore. Sonhe. Descubra",
-    "@exploreDreamDiscover": {
-        "description": "Texto de ajuda para pronto para alcançar metas"
-    },
     "skip": "Pular",
     "@skip": {
         "description": "Rótulo para botão pular"
@@ -79,10 +39,6 @@
     "next": "Próximo",
     "@next": {
         "description": "Rótulo para botão próximo"
-    },
-    "getStarted": "Começar",
-    "@getStarted": {
-        "description": "Rótulo para botão começar"
     },
     "createRoadmap": "Criar Roadmap",
     "@createRoadmap": {
