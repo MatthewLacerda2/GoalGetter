@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'screens/daily_screen.dart';
+import 'screens/leaderboard_screen.dart';
+import 'screens/resources_screen.dart';
+import 'screens/roadmap_screen.dart';
+import 'screens/tutor_screen.dart';
 import 'screens/profile_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'utils/settings_storage.dart';
@@ -70,8 +75,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
   List<Widget> get _tabPages => <Widget>[
-    const GoalsScreen(),
-    const AgendaScreen(),
+    const RoadmapScreen(),
+    const ResourcesScreen(),
+    const TutorScreen(),
+    const LeaderBoardScreen(),
+    const DailyScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
 

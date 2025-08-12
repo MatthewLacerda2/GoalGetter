@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
-import '../../../widgets/screens/goals/roadmap/goal_questions.dart';
+import '../../../widgets/screens/goal/roadmap_creation/goal_questions.dart';
 import 'roadmap_lay_out_screen.dart';
 import '../../../l10n/app_localizations.dart';
 
