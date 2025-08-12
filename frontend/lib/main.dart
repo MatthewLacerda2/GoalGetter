@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'screens/goals/goals_screen.dart';
-import 'screens/agenda/agenda_screen.dart';
 import 'screens/profile_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'utils/settings_storage.dart';
