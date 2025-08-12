@@ -14,12 +14,6 @@ class TaskStorage {
     await prefs.setString(_tasksKey, jsonEncode(tasksJson));
   }
 
-  // Load all tasks for a given weekday (0=Sunday, ..., 6=Saturday)
-  static Future<List<Task>> loadByDay(int weekday) async {
-    final tasks = await loadAll();
-    return tasks.where((task) => task.weekdays.contains(weekday)).toList();
-  }
-
   // Delete a task by its ID
   static Future<void> deleteTask(String taskId) async {
     final prefs = await SharedPreferences.getInstance();

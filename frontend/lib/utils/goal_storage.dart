@@ -23,8 +23,6 @@ class GoalStorage {
         id: goal.id,
         title: goal.title,
         description: goal.description,
-        weeklyHours: goal.weeklyHours,
-        totalTaskedHours: totalHours,
       ));
     }
     
@@ -93,8 +91,6 @@ extension GoalCopyWith on Goal {
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
-      weeklyHours: weeklyHours ?? this.weeklyHours,
-      totalTaskedHours: totalTaskedHours ?? this.totalTaskedHours,
     );
   }
 }

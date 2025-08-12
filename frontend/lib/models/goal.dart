@@ -4,15 +4,11 @@ class Goal {
   final String id;
   final String title;
   final String? description;
-  final double weeklyHours;
-  final double totalTaskedHours;
 
   Goal({
     required this.id,
     required this.title,
     this.description,
-    required this.weeklyHours,
-    this.totalTaskedHours = 0.0,
   });
 
   factory Goal.fromMap(Map<String, dynamic> map) {
@@ -20,8 +16,6 @@ class Goal {
       id: map['id'],
       title: map['title'],
       description: map['description'],
-      weeklyHours: map['weeklyHours'].toDouble(),
-      totalTaskedHours: (map['totalTaskedHours'] ?? 0.0).toDouble(),
     );
   }
 
@@ -30,8 +24,6 @@ class Goal {
       'id': id,
       'title': title,
       'description': description,
-      'weeklyHours': weeklyHours,
-      'totalTaskedHours': totalTaskedHours,
     };
   }
 
