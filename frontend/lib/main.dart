@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'screens/daily_screen.dart';
 import 'screens/leaderboard_screen.dart';
 import 'screens/resources_screen.dart';
-import 'screens/roadmap_screen.dart';
 import 'screens/tutor_screen.dart';
 import 'screens/profile_screen.dart';
 import 'l10n/app_localizations.dart';
@@ -85,7 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> get _tabPages => <Widget>[
     const ResourcesScreen(),
     TutorScreen(messages: fakeChatMessages),
-    const RoadmapScreen(),
     const DailyScreen(),
     const LeaderBoardScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
@@ -120,14 +118,6 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icons.graphic_eq,
               color: Colors.purple,
               isSelected: _selectedIndex == 1,
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: MainScreenIcon(
-              icon: Icons.flag,
-              color: Colors.green,
-              isSelected: _selectedIndex == 2,
             ),
             label: '',
           ),

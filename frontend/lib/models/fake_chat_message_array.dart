@@ -1,4 +1,3 @@
-// Fake chat message array
 import 'chat_message.dart';
 
 List<ChatMessage> fakeChatMessages = [

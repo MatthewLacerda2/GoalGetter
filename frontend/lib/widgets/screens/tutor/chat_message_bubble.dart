@@ -1,4 +1,3 @@
-// Chat message bubble widget
 import 'package:flutter/material.dart';
 import '../../../models/chat_message.dart';
 

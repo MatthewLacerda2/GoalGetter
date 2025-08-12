@@ -1,4 +1,3 @@
-// Roadmap screen
 import 'package:flutter/material.dart';
 import '../widgets/screens/tutor/chat_message_bubble.dart';
 import '../models/chat_message.dart';
@@ -80,6 +79,7 @@ class _TutorScreenState extends State<TutorScreen> {
                         vertical: 12,
                       ),
                     ),
+                    minLines: 1,
                     maxLines: 4,
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _sendMessage(),

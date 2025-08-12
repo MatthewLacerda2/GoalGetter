@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import 'introduction_screen.dart';
 import 'test_screen.dart';
 import 'delete_all_screen.dart';
+import 'goal/roadmap_creation/roadmap_prompt_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -81,6 +82,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             
             const SizedBox(height: 32),
+            
+            // Create Roadmap Section
+            _buildSectionTile(
+              'Create Roadmap',
+              Icons.map,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RoadmapPromptScreen(),
+                  ),
+                );
+              },
+            ),
+            
+            const SizedBox(height: 16),
             
             // How to Use Section
             _buildSectionTile(
