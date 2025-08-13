@@ -1,5 +1,6 @@
 // Roadmap screen
 import 'package:flutter/material.dart';
+import '../widgets/infos_card.dart';
 
 class LeaderBoardScreen extends StatelessWidget {
   const LeaderBoardScreen({super.key});
@@ -7,17 +8,16 @@ class LeaderBoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Leaderboard'),
-      ),
-      body: const Center(
-        child: Text(
-          'Coming Soon',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey,
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: InfosCard(
+          texts: [
+            'Personal Records',
+            'Awards',
+            'Achievements',
+            'My Division',
+            'Overall Progress Towards the Goal',
+          ],
         ),
       ),
     );

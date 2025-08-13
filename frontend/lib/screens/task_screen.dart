@@ -31,8 +31,8 @@ class TaskScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 TaskTestButton(
-                  title: "Test Title",
-                  buttonText: "Click to Test",
+                  title: "Learn session",
+                  buttonText: "Get some knowledge",
                   onPressed: () {
                     // TODO: Implement button action
                   },
@@ -44,10 +44,6 @@ class TaskScreen extends StatelessWidget {
                     "Second text item", 
                     "Third text item",
                   ],
-                ),
-                SizedBox(height: 16),
-                InfoCard(
-                  title: "Pray for the Lord's guidance",
                 ),
                 SizedBox(height: 16),
                 InfoCard(
