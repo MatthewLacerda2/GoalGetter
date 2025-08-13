@@ -82,10 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> get _tabPages => <Widget>[
-    const ResourcesScreen(),
+    ResourcesScreen(),
     TutorScreen(messages: fakeChatMessages),
-    const DailyScreen(),
-    const LeaderBoardScreen(),
+    DailyScreen(),
+    LeaderBoardScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
 
