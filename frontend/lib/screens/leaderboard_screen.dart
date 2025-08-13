@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/infos_card.dart';
 import '../widgets/screens/task/badge.dart' as task_badge;
+import 'package:fl_chart/fl_chart.dart';
 
 class LeaderBoardScreen extends StatelessWidget {
   const LeaderBoardScreen({super.key});
