@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
-import 'test_screen.dart';
-import 'delete_all_screen.dart';
 import 'goal/roadmap_creation/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
 
@@ -85,34 +83,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const RoadmapPromptScreen(),
-                  ),
-                );
-              },
-            ),
-            
-            const SizedBox(height: 16),
-            _buildSectionTile(
-              'Test Screen',
-              Icons.science,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TestScreen(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 16),
-            _buildSectionTile(
-              'Delete All Data',
-              Icons.delete_forever,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DeleteAllScreen(),
                   ),
                 );
               },

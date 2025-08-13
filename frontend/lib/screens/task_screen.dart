@@ -47,21 +47,12 @@ class TaskScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 InfoCard(
-                  title: "Make your bed",
-                ),
-                SizedBox(height: 16),
-                InfoCard(
                   title: "Pray for the Lord's guidance",
                 ),
                 SizedBox(height: 16),
                 InfoCard(
                   title: "Focus Blocks",
                   description: "Work in 25-minute focused sessions with 5-minute breaks to maintain high productivity throughout the day.",
-                ),
-                SizedBox(height: 16),
-                InfoCard(
-                  title: "Evening Review",
-                  description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your task progress.",
                 ),
                 SizedBox(height: 16),
                 InfoCard(
