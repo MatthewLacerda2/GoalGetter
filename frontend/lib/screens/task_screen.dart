@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/screens/task/task_tab.dart';
 import '../widgets/info_card.dart';
+import '../widgets/progress_bar.dart';
 
 class TaskScreen extends StatelessWidget {
   const TaskScreen({super.key});
@@ -17,8 +18,16 @@ class TaskScreen extends StatelessWidget {
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               children: const [
+                ProgressBar(
+                  title: "Make your bed",
+                  icon: Icons.task_alt,
+                  progress: 35,
+                  end: 100,
+                  color: Colors.green,
+                ),
+                SizedBox(height: 16),
                 InfoCard(
                   title: "Make your bed",
                 ),
