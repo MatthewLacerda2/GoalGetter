@@ -73,7 +73,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
   
   void _onTabTapped(int index) {
     setState(() {
@@ -125,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: MainScreenIcon(
               icon: Icons.event_note,
               color: Colors.blue,
-              isSelected: _selectedIndex == 3,
+              isSelected: _selectedIndex == 2,
             ),
             label: '',
           ),
@@ -133,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: MainScreenIcon(
               icon: Icons.workspace_premium_outlined,
               color: Colors.amber,
-              isSelected: _selectedIndex == 4,
+              isSelected: _selectedIndex == 3,
             ),
             label: '',
           ),
@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: MainScreenIcon(
               icon: Icons.person,
               color: Colors.blueGrey,
-              isSelected: _selectedIndex == 5,
+              isSelected: _selectedIndex == 4,
             ),
             label: '',
           ),
