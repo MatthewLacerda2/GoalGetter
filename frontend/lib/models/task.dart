@@ -5,8 +5,8 @@ class Task {
   final String title;
   final TimeOfDay startTime;
   final int durationMinutes;
-  final String? goalId; // optional
-  final List<int> weekdays; // 0=Sunday, 1=Monday, ..., 6=Saturday
+  final String? goalId;
+  final List<int> weekdays;
 
   Task({
     required this.id,

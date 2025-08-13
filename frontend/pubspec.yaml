@@ -44,6 +44,7 @@ dependencies:
     path: ../client_sdk
   flutter_localizations:
     sdk: flutter
+  country_flags: ^3.3.0
 
 dev_dependencies:
   flutter_test:

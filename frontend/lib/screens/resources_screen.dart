@@ -21,7 +21,7 @@ class _ResourcesScreenState extends State<ResourcesScreen>
   ];
 
   final List<Map<String, String>> youtube = [
-    {'title': 'Productivity Tips', 'description': 'Daily productivity advice'},
+    {'title': 'Productivity Tips', 'description': 'Task productivity advice'},
     {'title': 'Goal Setting Guide', 'description': 'How to set and achieve goals'},
     {'title': 'Time Management', 'description': 'Master your time effectively'},
   ];

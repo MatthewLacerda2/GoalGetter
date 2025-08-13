@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
-import '../widgets/screens/daily/daily_tab.dart';
+import '../widgets/screens/task/task_tab.dart';
 import '../widgets/info_card.dart';
 
-class DailyScreen extends StatelessWidget {
-  const DailyScreen({super.key});
+class TaskScreen extends StatelessWidget {
+  const TaskScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          // Header with goal and streak buttons
-          const DailyTabHeader(
-            goalTitle: "Complete 5 tasks today",
-            streakCounter: 7,
+          const TaskTabHeader(
+            goalTitle: "Learn rook checkmates",
+            streakCounter: 365,
+            xpLevel: 2000,
           ),
-          
-          // Scrollable info cards
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16.0),
@@ -36,17 +34,17 @@ class DailyScreen extends StatelessWidget {
                 SizedBox(height: 16),
                 InfoCard(
                   title: "Evening Review",
-                  description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your daily progress.",
+                  description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your task progress.",
                 ),
                 SizedBox(height: 16),
                 InfoCard(
                   title: "Evening Review",
-                  description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your daily progress.",
+                  description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your task progress.",
                 ),
                 SizedBox(height: 16),
                 InfoCard(
                   title: "Evening Review",
-                  description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your daily progress.",
+                  description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your task progress.",
                 ),
               ],
             ),

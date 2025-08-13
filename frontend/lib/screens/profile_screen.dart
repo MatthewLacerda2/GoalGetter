@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import 'test_screen.dart';
 import 'delete_all_screen.dart';
 import 'goal/roadmap_creation/roadmap_prompt_screen.dart';
+import 'package:country_flags/country_flags.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -35,8 +36,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _currentLanguage = language;
     });
-    
-    // Notify the parent widget about the language change
     widget.onLanguageChanged?.call(language);
   }
 
@@ -52,30 +51,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '${AppLocalizations.of(context)!.language}:',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(
-                  child: _buildLanguageButton(
-                    'EN',
-                    SettingsStorage.english,
-                    Icons.language,
+                Text(
+                  '${AppLocalizations.of(context)!.language}:',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildLanguageButton(
-                    'PT',
-                    SettingsStorage.portuguese,
-                    Icons.language,
-                  ),
+                const SizedBox(width: 16),
+                _buildLanguageButton(
+                  'US',
+                  SettingsStorage.english,
+                  Icons.language,
+                ),
+                _buildLanguageButton(
+                  'BR',
+                  SettingsStorage.portuguese,
+                  Icons.language,
                 ),
               ],
             ),
@@ -135,46 +129,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return GestureDetector(
       onTap: () => _changeLanguage(language),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected 
             ? Theme.of(context).colorScheme.primary 
             : Theme.of(context).colorScheme.surface,
-          border: Border.all(
-            color: isSelected 
-              ? Theme.of(context).colorScheme.primary 
-              : Theme.of(context).colorScheme.outline,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(4),
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected 
-                ? Theme.of(context).colorScheme.onPrimary 
-                : Theme.of(context).colorScheme.onSurface,
-              size: 24,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isSelected 
-                  ? Theme.of(context).colorScheme.onPrimary 
-                  : Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ],
+        child: SizedBox(
+          width: 44,
+          height: 32,
+          child: CountryFlag.fromCountryCode(label),
         ),
       ),
     );
   }
 
-  //For now we only use this once, but we will add sections in the future, so might as well leave it here
   Widget _buildSectionTile(String title, IconData icon, VoidCallback onTap) {
     return Container(
       decoration: BoxDecoration(

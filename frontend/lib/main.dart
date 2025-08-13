@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/daily_screen.dart';
+import 'screens/task_screen.dart';
 import 'screens/leaderboard_screen.dart';
 import 'screens/resources_screen.dart';
 import 'screens/tutor_screen.dart';
@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> get _tabPages => <Widget>[
     ResourcesScreen(),
     TutorScreen(messages: fakeChatMessages),
-    DailyScreen(),
+    TaskScreen(),
     LeaderBoardScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
