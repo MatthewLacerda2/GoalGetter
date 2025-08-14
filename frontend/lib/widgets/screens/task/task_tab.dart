@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/screens/calendar_screen.dart';
 
 class TaskTabHeader extends StatelessWidget {
   final String goalTitle;
@@ -116,7 +117,22 @@ class TaskTabHeader extends StatelessWidget {
             icon: Icons.local_fire_department,
             text: '$streakCounter',
             onPressed: () {
-              // TODO: Implement streak functionality
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CalendarScreen(
+                    streakCount: streakCounter,
+                    sunday: false,
+                    monday: true,
+                    tuesday: true,
+                    wednesday: true,
+                    thursday: true,
+                    friday: true,
+                    saturday: false,
+                    descriptionText: 'Yeah, keep the pressure on!!!',
+                  ),
+                ),
+              );
             },
           ),
         ],
