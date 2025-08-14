@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/infos_card.dart';
 import '../widgets/screens/task/badge.dart' as task_badge;
-import 'package:fl_chart/fl_chart.dart';
-
+// trofeu com o rank
+// linechart de evolucao
 class LeaderBoardScreen extends StatelessWidget {
   const LeaderBoardScreen({super.key});
 
@@ -13,19 +12,9 @@ class LeaderBoardScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            Icon(Icons.emoji_events, size: 60, color: Colors.grey),
             Text(
-              'Division',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            InfosCard(
-              texts: [
-                'Lendacerda',
-                'PesteNegra',
-              ],
+              "Rank: Prata Elite Master",
             ),
             const SizedBox(height: 16),
             Text(
