@@ -20,6 +20,7 @@ RUN flutter doctor
 
 WORKDIR /app
 COPY frontend/ .
+COPY client_sdk/ ./client_sdk/
 
 RUN flutter pub get
 RUN flutter build web --release

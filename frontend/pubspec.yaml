@@ -44,6 +44,9 @@ dependencies:
     path: ../client_sdk
   flutter_localizations:
     sdk: flutter
+  country_flags: ^3.3.0
+  calendar_date_picker2: ^2.0.1
+  
 
 dev_dependencies:
   flutter_test:

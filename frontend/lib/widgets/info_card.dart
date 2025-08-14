@@ -2,59 +2,55 @@ import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
   final String title;
-  final String description;
+  final String? description;
 
   const InfoCard({
     super.key,
     required this.title,
-    required this.description,
+    this.description,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final backgroundColor = theme.colorScheme.surface;
-    final borderColor = Colors.grey;
-    final textColor = Colors.grey[800];
-
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: borderColor,
-          width: 2.2,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
-          Container(
-            height: 2.6,
-            color: borderColor,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              description,
-              style: TextStyle(
+          if (description != null) ...[
+            const SizedBox(height: 8),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
+            Text(
+              description!,
+              style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: textColor,
+                color: Colors.black54,
+                height: 1.4,
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

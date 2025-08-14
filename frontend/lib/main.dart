@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'screens/goals/goals_screen.dart';
-import 'screens/agenda/agenda_screen.dart';
+import 'screens/task_screen.dart';
+import 'screens/leaderboard_screen.dart';
+import 'screens/resources_screen.dart';
+import 'screens/tutor_screen.dart';
 import 'screens/profile_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'utils/settings_storage.dart';
+import 'widgets/main_screen_icon.dart';
+import 'models/fake_chat_message_array.dart';
 
 void main() {
   runApp(const MyApp());
@@ -69,19 +73,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
-
-  List<Widget> get _tabPages => <Widget>[
-    const GoalsScreen(),
-    const AgendaScreen(),
-    ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
-  ];
-
+  int _selectedIndex = 2;
+  
   void _onTabTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
+
+  List<Widget> get _tabPages => <Widget>[
+    ResourcesScreen(),
+    TutorScreen(messages: fakeChatMessages),
+    TaskScreen(),
+    LeaderBoardScreen(),
+    ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -97,17 +103,46 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedFontSize: 0,
         unselectedFontSize: 0,
         iconSize: 28,
+        backgroundColor: Colors.grey[800],
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.flag, color: Colors.green),
+            icon: MainScreenIcon(
+              icon: Icons.school,
+              color: Colors.deepOrange,
+              isSelected: _selectedIndex == 0,
+            ),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.event_note, color: Colors.blueAccent),
+            icon: MainScreenIcon(
+              icon: Icons.graphic_eq,
+              color: Colors.purple,
+              isSelected: _selectedIndex == 1,
+            ),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person, color: Colors.grey),
+            icon: MainScreenIcon(
+              icon: Icons.event_note,
+              color: Colors.blue,
+              isSelected: _selectedIndex == 2,
+            ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: MainScreenIcon(
+              icon: Icons.workspace_premium_outlined,
+              color: Colors.amber,
+              isSelected: _selectedIndex == 3,
+            ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: MainScreenIcon(
+              icon: Icons.person,
+              color: Colors.blueGrey,
+              isSelected: _selectedIndex == 4,
+            ),
             label: '',
           ),
         ],
