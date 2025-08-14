@@ -35,92 +35,85 @@ class CalendarScreen extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.local_fire_department,
-                            color: Colors.orange,
-                            size: 80,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.local_fire_department,
+                          color: Colors.orange,
+                          size: 80,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          '$streakCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 64,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 10),
-                          Text(
-                            '$streakCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 64,
-                              fontWeight: FontWeight.bold,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'day streak!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    Card(
+                      color: Colors.grey[800],
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: const [
+                                Text('Su', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Mo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Tu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('We', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Th', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Fr', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text('Sa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'day streak!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildProgressIndicator(sunday),
+                                _buildProgressIndicator(monday),
+                                _buildProgressIndicator(tuesday),
+                                _buildProgressIndicator(wednesday),
+                                _buildProgressIndicator(thursday),
+                                _buildProgressIndicator(friday),
+                                _buildProgressIndicator(saturday),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            const Divider(color: Colors.grey, thickness: 1),
+                            const SizedBox(height: 20),
+                            Text(
+                              descriptionText,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Card(
-                color: Colors.grey[800],
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Days header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: const [
-                          Text('Su', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text('Mo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text('Tu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text('We', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text('Th', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text('Fr', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          Text('Sa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      // Progress indicators
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildProgressIndicator(sunday),
-                          _buildProgressIndicator(monday),
-                          _buildProgressIndicator(tuesday),
-                          _buildProgressIndicator(wednesday),
-                          _buildProgressIndicator(thursday),
-                          _buildProgressIndicator(friday),
-                          _buildProgressIndicator(saturday),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      const Divider(
-                        color: Colors.grey,
-                        thickness: 1,
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        descriptionText,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
