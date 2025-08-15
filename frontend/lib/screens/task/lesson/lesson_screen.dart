@@ -1,8 +1,7 @@
-// lesson screen
 import 'package:flutter/material.dart';
-import '../../../../widgets/tutor/chat_message_bubble.dart';
-import '../../../../models/chat_message.dart';
-import '../../../../widgets/tutor/chat_input.dart';
+import '../../../models/chat_message.dart';
+import '../../../widgets/tutor/chat_message_bubble.dart';
+import '../../../widgets/tutor/chat_input.dart';
 
 class LessonScreen extends StatefulWidget {
   final List<ChatMessage> messages;
@@ -19,12 +18,27 @@ class LessonScreen extends StatefulWidget {
 class _LessonScreenState extends State<LessonScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<ChatMessage> _messages = [];
+  final ScrollController _scrollController = ScrollController();
   int _messageId = 0;
 
   @override
   void initState() {
     super.initState();
     _messages.addAll(widget.messages);
+    // Scroll to bottom after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   void _sendMessage() {
@@ -37,6 +51,7 @@ class _LessonScreenState extends State<LessonScreen> {
         ));
       });
       _textController.clear();
+      _scrollToBottom();
     }
   }
 
@@ -47,7 +62,8 @@ class _LessonScreenState extends State<LessonScreen> {
         children: [
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 16),
+              controller: _scrollController,
+              padding: const EdgeInsets.only(bottom: 8),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
@@ -67,6 +83,7 @@ class _LessonScreenState extends State<LessonScreen> {
   @override
   void dispose() {
     _textController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class TaskTestButton extends StatelessWidget {
+class LessonButton extends StatelessWidget {
   final String title;
   final String buttonText;
   final VoidCallback? onPressed;
 
-  const TaskTestButton({
+  const LessonButton({
     super.key,
     required this.title,
     required this.buttonText, 

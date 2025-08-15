@@ -31,7 +31,7 @@ class TaskScreen extends StatelessWidget {
                   color: Colors.green,
                 ),
                 SizedBox(height: 20),
-                TaskTestButton(
+                LessonButton(
                   title: "Learn session",
                   buttonText: "Show me what you got",
                   onPressed: () {
