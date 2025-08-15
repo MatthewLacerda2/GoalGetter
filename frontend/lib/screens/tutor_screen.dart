@@ -51,7 +51,6 @@ class _TutorScreenState extends State<TutorScreen> {
         ));
       });
       _textController.clear();
-      // Scroll to bottom after adding message
       _scrollToBottom();
     }
   }
@@ -64,7 +63,7 @@ class _TutorScreenState extends State<TutorScreen> {
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(bottom: 8),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];

@@ -13,7 +13,8 @@ class ChatInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
+      color: Colors.transparent,
       child: Row(
         children: [
           Expanded(
@@ -21,6 +22,8 @@ class ChatInput extends StatelessWidget {
               controller: controller,
               decoration: InputDecoration(
                 hintText: 'Type your message...',
+                filled: false,
+                fillColor: Colors.transparent,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -34,7 +37,7 @@ class ChatInput extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.blue),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
+                  horizontal: 12,
                   vertical: 12,
                 ),
               ),
@@ -44,12 +47,10 @@ class ChatInput extends StatelessWidget {
               onSubmitted: (_) => onSendMessage(),
             ),
           ),
-          const SizedBox(width: 8),
           IconButton(
             onPressed: onSendMessage,
             icon: const Icon(Icons.send),
             color: Colors.blue,
-            padding: const EdgeInsets.all(8),
           ),
         ],
       ),
