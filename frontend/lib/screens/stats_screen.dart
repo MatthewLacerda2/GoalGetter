@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/screens/task/badge.dart' as task_badge;
-// trofeu com o rank
-// linechart de evolucao
-class LeaderBoardScreen extends StatelessWidget {
-  const LeaderBoardScreen({super.key});
+
+class StatsScreen extends StatelessWidget {
+  const StatsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

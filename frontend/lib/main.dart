@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/task_screen.dart';
-import 'screens/leaderboard_screen.dart';
+import 'screens/stats_screen.dart';
 import 'screens/resources_screen.dart';
 import 'screens/tutor_screen.dart';
 import 'screens/profile_screen.dart';
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ResourcesScreen(),
     TutorScreen(messages: fakeChatMessages),
     TaskScreen(),
-    LeaderBoardScreen(),
+    StatsScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
 
