@@ -31,7 +31,7 @@ class CalendarScreen extends StatelessWidget {
       backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               Expanded(
@@ -57,7 +57,6 @@ class CalendarScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
                     const Text(
                       'day streak!',
                       style: TextStyle(
@@ -100,12 +99,13 @@ class CalendarScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 20),
                             const Divider(color: Colors.grey, thickness: 1),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 16),
                             Text(
                               descriptionText,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
@@ -122,7 +122,7 @@ class CalendarScreen extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -137,6 +137,7 @@ class CalendarScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
             ],
           ),
         ),

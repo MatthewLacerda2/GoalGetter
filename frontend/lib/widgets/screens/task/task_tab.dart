@@ -33,7 +33,7 @@ class TaskTabHeader extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -68,29 +68,28 @@ class TaskTabHeader extends StatelessWidget {
           ),
         ),
       ),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildActionButton(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.grey[100]!,
+            backgroundColor: const Color.fromARGB(255, 158, 158, 158),
+            foregroundColor: Colors.white,
             icon: Icons.emoji_events,
             text: '$xpLevel',
             onPressed: () {
-              // TODO: Implement xp functionality
+              // Nothing, really
             },
           ),
-          const SizedBox(width: 12),
           Flexible(
             child: SizedBox(
               height: buttonsHeight,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Implement goal functionality
+                  // Nothing for now
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: const Color.fromARGB(255, 158, 158, 158),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   shape: RoundedRectangleBorder(
@@ -110,7 +109,6 @@ class TaskTabHeader extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
           _buildActionButton(
             backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
@@ -129,7 +127,7 @@ class TaskTabHeader extends StatelessWidget {
                     thursday: true,
                     friday: true,
                     saturday: false,
-                    descriptionText: 'Yeah, keep the pressure on!!!',
+                    descriptionText: 'Yeah, keep the pressure on !!!',
                   ),
                 ),
               );
