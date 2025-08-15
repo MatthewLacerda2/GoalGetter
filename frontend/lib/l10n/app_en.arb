@@ -4,37 +4,9 @@
     "@language": {
         "description": "The current language"
     },
-    "goals": "Goals",
-    "@goals": {
-        "description": "Goals tab label"
-    },
     "profile": "Profile",
     "@profile": {
         "description": "Profile tab label"
-    },
-    "howToUse": "How to use",
-    "@howToUse": {
-        "description": "How to use section title"
-    },
-    "description": "Description (Optional)",
-    "@description": {
-        "description": "Label for description field"
-    },
-    "create": "Create",
-    "@create": {
-        "description": "Create button label"
-    },
-    "delete": "Delete",
-    "@delete": {
-        "description": "Label for delete button"
-    },
-    "title": "Title",
-    "@title": {
-        "description": "Label for title field"
-    },
-    "skip": "Skip",
-    "@skip": {
-        "description": "Label for skip button"
     },
     "next": "Next",
     "@next": {

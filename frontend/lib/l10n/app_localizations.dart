@@ -101,53 +101,11 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
-  /// Goals tab label
-  ///
-  /// In en, this message translates to:
-  /// **'Goals'**
-  String get goals;
-
   /// Profile tab label
   ///
   /// In en, this message translates to:
   /// **'Profile'**
   String get profile;
-
-  /// How to use section title
-  ///
-  /// In en, this message translates to:
-  /// **'How to use'**
-  String get howToUse;
-
-  /// Label for description field
-  ///
-  /// In en, this message translates to:
-  /// **'Description (Optional)'**
-  String get description;
-
-  /// Create button label
-  ///
-  /// In en, this message translates to:
-  /// **'Create'**
-  String get create;
-
-  /// Label for delete button
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get delete;
-
-  /// Label for title field
-  ///
-  /// In en, this message translates to:
-  /// **'Title'**
-  String get title;
-
-  /// Label for skip button
-  ///
-  /// In en, this message translates to:
-  /// **'Skip'**
-  String get skip;
 
   /// Label for next button
   ///

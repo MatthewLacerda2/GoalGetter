@@ -12,28 +12,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get language => 'Idioma';
 
   @override
-  String get goals => 'Metas';
-
-  @override
   String get profile => 'Perfil';
-
-  @override
-  String get howToUse => 'Como usar';
-
-  @override
-  String get description => 'Descrição (Opcional)';
-
-  @override
-  String get create => 'Criar';
-
-  @override
-  String get delete => 'Excluir';
-
-  @override
-  String get title => 'Título';
-
-  @override
-  String get skip => 'Pular';
 
   @override
   String get next => 'Próximo';

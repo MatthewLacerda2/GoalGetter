@@ -4,37 +4,9 @@
     "@language": {
         "description": "O idioma atual"
     },
-    "goals": "Metas",
-    "@goals": {
-        "description": "Rótulo da aba de metas"
-    },
     "profile": "Perfil",
     "@profile": {
         "description": "Rótulo da aba de perfil"
-    },
-    "howToUse": "Como usar",
-    "@howToUse": {
-        "description": "Título da seção como usar"
-    },
-    "description": "Descrição (Opcional)",
-    "@description": {
-        "description": "Rótulo do campo descrição"
-    },
-    "create": "Criar",
-    "@create": {
-        "description": "Rótulo do botão criar"
-    },
-    "delete": "Excluir",
-    "@delete": {
-        "description": "Rótulo do botão excluir"
-    },
-    "title": "Título",
-    "@title": {
-        "description": "Rótulo para campo de título"
-    },
-    "skip": "Pular",
-    "@skip": {
-        "description": "Rótulo para botão pular"
     },
     "next": "Próximo",
     "@next": {

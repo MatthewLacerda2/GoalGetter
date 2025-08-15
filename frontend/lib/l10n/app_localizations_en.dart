@@ -12,28 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
-  String get goals => 'Goals';
-
-  @override
   String get profile => 'Profile';
-
-  @override
-  String get howToUse => 'How to use';
-
-  @override
-  String get description => 'Description (Optional)';
-
-  @override
-  String get create => 'Create';
-
-  @override
-  String get delete => 'Delete';
-
-  @override
-  String get title => 'Title';
-
-  @override
-  String get skip => 'Skip';
 
   @override
   String get next => 'Next';
