@@ -121,4 +121,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get notes => 'Notas';
+
+  @override
+  String get progress => 'Progresso';
+
+  @override
+  String get achievements => 'Conquistas';
+
+  @override
+  String get awards => 'Prêmios';
 }

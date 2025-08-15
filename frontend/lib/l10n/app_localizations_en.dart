@@ -121,4 +121,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notes => 'Notes';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get awards => 'Awards';
 }

@@ -4,6 +4,7 @@ import '../widgets/line_chart_table.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../widgets/screens/task/leaderboarder.dart';
 import '../models/leaderboard_example.dart';
+import '../l10n/app_localizations.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -44,9 +45,9 @@ class StatsScreen extends StatelessWidget {
                 username: LeaderboardData.getCurrentUsername(),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Progress',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.progress,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -57,7 +58,7 @@ class StatsScreen extends StatelessWidget {
               LineChartTable(spots: spots),
               const SizedBox(height: 16),
               Text(
-                'Achievements',
+                AppLocalizations.of(context)!.achievements,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -104,8 +105,8 @@ class StatsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 40),
-              const Text(
-                'Awards',
+              Text(
+                AppLocalizations.of(context)!.awards,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

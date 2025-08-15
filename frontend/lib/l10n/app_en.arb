@@ -151,5 +151,17 @@
     "notes": "Notes",
     "@notes": {
         "description": "Label for notes"
+    },
+    "progress": "Progress",
+    "@progress": {
+        "description": "Label for progress"
+    },
+    "achievements": "Achievements",
+    "@achievements": {
+        "description": "Label for achievements"
+    },
+    "awards": "Awards",
+    "@awards": {
+        "description": "Label for awards"
     }
 }
