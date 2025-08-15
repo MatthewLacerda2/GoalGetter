@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/screens/task/badge.dart' as task_badge;
+import 'line_chart_sample6.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -11,7 +12,7 @@ class StatsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const SizedBox(height: 20),
+          const SizedBox(height: 20),
             Icon(Icons.emoji_events, size: 100, color: Colors.grey),
             const SizedBox(height: 8),
             Text(
@@ -23,8 +24,10 @@ class StatsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            LineChartSample6(),
+            const SizedBox(height: 20),
             Text(
-              'Awards',
+              'Achievements',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -72,7 +75,7 @@ class StatsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             const Text(
-              'Achievements',
+              'Awards',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
