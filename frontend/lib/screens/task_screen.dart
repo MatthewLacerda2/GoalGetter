@@ -22,6 +22,7 @@ class TaskScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                SizedBox(height: 4),
                 ProgressBar(
                   title: "Make your bed",
                   icon: Icons.task_alt,
@@ -29,7 +30,7 @@ class TaskScreen extends StatelessWidget {
                   end: 100,
                   color: Colors.green,
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 TaskTestButton(
                   title: "Learn session",
                   buttonText: "Show me what you got",
@@ -37,7 +38,7 @@ class TaskScreen extends StatelessWidget {
                     // TODO: Implement button action
                   },
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 InfosCard(
                   texts: [
                     "First text item",
@@ -45,17 +46,17 @@ class TaskScreen extends StatelessWidget {
                     "Third text item",
                   ],
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 InfoCard(
                   title: "Focus Blocks",
                   description: "Work in 25-minute focused sessions with 5-minute breaks to maintain high productivity throughout the day.",
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 InfoCard(
                   title: "Evening Review",
                   description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your task progress.",
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 InfoCard(
                   title: "Evening Review",
                   description: "Reflect on your accomplishments, plan tomorrow's priorities, and celebrate your task progress.",

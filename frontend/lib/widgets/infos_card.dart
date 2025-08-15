@@ -19,7 +19,7 @@ class InfosCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300, width: 4),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: Colors.grey,
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -30,27 +30,26 @@ class InfosCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (int i = 0; i < texts.length; i++) ...[
-            Container(
+            SizedBox(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
               child: Text(
                 texts[i],
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black54,
+                  color: Color.fromARGB(255, 75, 75, 75),
                   height: 1.6,
                 ),
               ),
             ),
             if (i < texts.length - 1) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Container(
                 height: 2,
-                color: Colors.grey.shade300,
+                color: Colors.grey[800],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
             ],
           ],
         ],
