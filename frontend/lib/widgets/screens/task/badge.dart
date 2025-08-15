@@ -45,6 +45,8 @@ class Badge extends StatelessWidget {
           Text(
             text,
             textAlign: TextAlign.center,
+            softWrap: true,
+            overflow: TextOverflow.visible,
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.w500,

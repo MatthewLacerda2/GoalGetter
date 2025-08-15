@@ -8,20 +8,20 @@ class LeaderboardExample {
 class LeaderboardData {
   static List<Map<String, dynamic>> getSampleData() {
     return [
-      {'name': 'ELEN', 'xpAmount': 400},
-      {'name': 'Jasmine', 'xpAmount': 300},
-      {'name': 'Ana Larissa', 'xpAmount': 260},
-      {'name': 'Maria', 'xpAmount': 220},
-      {'name': 'Carlos', 'xpAmount': 180},
+      {'name': 'Washington', 'xpAmount': 400},
+      {'name': 'Lendacerda', 'xpAmount': 300},
+      {'name': 'David Quilan', 'xpAmount': 260},
+      {'name': 'Ana Paula', 'xpAmount': 220},
+      {'name': 'Fernandinho', 'xpAmount': 180},
     ];
   }
 
   static String getCurrentUsername() {
-    return 'Jasmine'; // This will be highlighted in the leaderboard
+    return 'Lendacerda'; // This will be highlighted in the leaderboard
   }
 
   static int getStartingPosition() {
-    return 19; // Starting position for the leaderboard
+    return 7; // Starting position for the leaderboard
   }
 }
 
