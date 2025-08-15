@@ -59,7 +59,7 @@ class ResourceTab extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             resource['description'] ?? '',
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(color: Colors.grey[400]),
                           ),
                         ],
                       ),

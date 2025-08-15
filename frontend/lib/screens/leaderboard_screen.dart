@@ -12,17 +12,26 @@ class LeaderBoardScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Icon(Icons.emoji_events, size: 60, color: Colors.grey),
+            const SizedBox(height: 20),
+            Icon(Icons.emoji_events, size: 100, color: Colors.grey),
+            const SizedBox(height: 8),
             Text(
-              "Rank: Prata Elite Master",
+              "Prata Elite Master",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
               'Awards',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
+              textAlign: TextAlign.left,
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -32,39 +41,45 @@ class LeaderBoardScreen extends StatelessWidget {
                 children: [
                   task_badge.Badge(
                     icon: Icons.emoji_events,
+                    iconColor: Colors.green,
                     text: 'First Place',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.star,
+                    iconColor: Colors.yellow,
                     text: 'Perfect Week',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.trending_up,
+                    iconColor: Colors.blue,
                     text: 'Streak Master',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.fitness_center,
+                    iconColor: Colors.red,
                     text: 'Goal Crusher',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.psychology,
+                    iconColor: Colors.white,
                     text: 'Smart Learner',
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             const Text(
               'Achievements',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Colors.white,
               ),
+              textAlign: TextAlign.left,
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -74,26 +89,31 @@ class LeaderBoardScreen extends StatelessWidget {
                 children: [
                   task_badge.Badge(
                     icon: Icons.rocket_launch,
+                    iconColor: Colors.blue,
                     text: 'Speed Demon',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.lightbulb,
+                    iconColor: Colors.red,
                     text: 'Innovator',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.group,
+                    iconColor: Colors.green,
                     text: 'Team Player',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.schedule,
+                    iconColor: Colors.yellow,
                     text: 'Time Master',
                   ),
                   SizedBox(width: 16),
                   task_badge.Badge(
                     icon: Icons.auto_awesome,
+                    iconColor: Colors.white,
                     text: 'Excellence',
                   ),
                 ],

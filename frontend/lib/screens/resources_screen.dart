@@ -50,8 +50,8 @@ class _ResourcesScreenState extends State<ResourcesScreen>
           toolbarHeight: 0,
           bottom: TabBar(
             controller: _tabController,
-            labelColor: Colors.grey[900],
-            unselectedLabelColor: Colors.grey[700],
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.grey[600],
             dividerHeight: 4,
             tabs: const [
               Tab(icon: Icon(Icons.book, size: 24), text: 'Book'),
