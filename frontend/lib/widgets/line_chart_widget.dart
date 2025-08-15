@@ -5,14 +5,8 @@ import 'package:flutter/material.dart';
 class LineChartWidget extends StatelessWidget {
   LineChartWidget({
     super.key,
-    Color? line1Color1,
-    Color? line1Color2,
-    Color? line2Color1,
-    Color? line2Color2,
-  })  : line1Color1 = line1Color1 ?? Colors.orange,
-        line1Color2 = line1Color2 ?? Colors.orange.shade700,
-        line2Color1 = line2Color1 ?? Colors.blue,
-        line2Color2 = line2Color2 ?? Colors.blue.shade700 {
+    Color? lineColor,
+  }) : lineColor = lineColor ?? Colors.blue {
     minSpotX = spots.first.x;
     maxSpotX = spots.first.x;
     minSpotY = spots.first.y;
@@ -37,10 +31,7 @@ class LineChartWidget extends StatelessWidget {
     }
   }
 
-  final Color line1Color1;
-  final Color line1Color2;
-  final Color line2Color1;
-  final Color line2Color2;
+  final Color lineColor;
 
   final spots = const [
     FlSpot(0, 3.5),
@@ -59,30 +50,7 @@ class LineChartWidget extends StatelessWidget {
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     final style = TextStyle(
-      color: line2Color1, // Change from line1Color1 (orange) to line2Color1 (blue)
-      fontWeight: FontWeight.bold,
-      fontSize: 18,
-    );
-
-    final intValue = reverseY(value, minSpotY, maxSpotY).toInt();
-
-    if (intValue == (maxSpotY + minSpotY)) {
-      return Text('', style: style);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(right: 6),
-      child: Text(
-        intValue.toString(),
-        style: style,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget rightTitleWidgets(double value, TitleMeta meta) {
-    final style = TextStyle(
-      color: line2Color2,
+      color: lineColor,
       fontWeight: FontWeight.bold,
       fontSize: 18,
     );
@@ -95,21 +63,6 @@ class LineChartWidget extends StatelessWidget {
     return Text(intValue.toString(), style: style, textAlign: TextAlign.right);
   }
 
-  Widget topTitleWidgets(double value, TitleMeta meta) {
-    if (value % 1 != 0) {
-      return Container();
-    }
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
-    );
-    return SideTitleWidget(
-      meta: meta,
-      child: Text(value.toInt().toString(), style: style),
-    );
-  }
-
-  // Add bottom title widget function
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     if (value % 1 != 0) {
       return Container();
@@ -169,8 +122,8 @@ class LineChartWidget extends StatelessWidget {
               LineChartBarData(
                 gradient: LinearGradient(
                   colors: [
-                    line2Color1,
-                    line2Color2,
+                    lineColor,
+                    lineColor.withOpacity(0.7),
                   ],
                 ),
                 spots: reverseSpots(spots, minSpotY, maxSpotY),
@@ -185,18 +138,13 @@ class LineChartWidget extends StatelessWidget {
                   getDotPainter: (spot, percent, barData, index) {
                     return FlDotCirclePainter(
                       radius: 8,
-                      color: Color.lerp(
-                        line2Color1,
-                        line2Color2,
-                        percent / 100,
-                      )!,
+                      color: lineColor,
                       strokeColor: Colors.white,
                       strokeWidth: 1,
                     );
                   },
                 ),
               ),
-              // Remove the second LineChartBarData (orange line)
             ],
             minY: 0,
             maxY: maxSpotY + minSpotY,
@@ -209,7 +157,7 @@ class LineChartWidget extends StatelessWidget {
                 ),
               ),
               rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false), // Hide right titles
+                sideTitles: SideTitles(showTitles: false),
               ),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
