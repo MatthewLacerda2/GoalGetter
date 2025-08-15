@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/widgets/screens/task/task_test_button.dart';
-import '../widgets/screens/task/task_tab.dart';
+import '../widgets/screens/task/task_tab_header.dart';
 import '../widgets/info_card.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/infos_card.dart';
@@ -13,7 +13,7 @@ class TaskScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          const TaskTabHeader(
+          TaskTabHeader(
             goalTitle: "Learn rook checkmates",
             streakCounter: 365,
             xpLevel: 2000,

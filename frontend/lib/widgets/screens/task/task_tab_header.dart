@@ -6,7 +6,7 @@ class TaskTabHeader extends StatelessWidget {
   final String goalTitle;
   final int streakCounter;
 
-  final double buttonsHeight = 44;
+  static const double buttonsHeight = 44;
 
   const TaskTabHeader({
     super.key,
@@ -36,14 +36,14 @@ class TaskTabHeader extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.emoji_events, size: 20, color: Colors.white),
+                Icon(Icons.emoji_events, size: 20, color: Colors.blue),
                 const SizedBox(width: 4),
                 Text(
                   '$xpLevel',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.blue,
                   ),
                 ),
               ],
