@@ -23,48 +23,53 @@ class ResourceTab extends StatelessWidget {
           elevation: 2,
           shadowColor: Colors.grey[400],
           child: hasImage 
-            ? Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        resource['image']!,
-                        width: 68,
-                        height: 68,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 68,
-                            height: 68,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(8),
+            ? InkWell(
+                onTap: () {
+                  launchUrl(Uri.parse(resource['link'] ?? ''));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          resource['image']!,
+                          width: 68,
+                          height: 68,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 68,
+                              height: 68,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              resource['title'] ?? '',
+                              style: const TextStyle(fontWeight: FontWeight.w600),
                             ),
-                            child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                          );
-                        },
+                            const SizedBox(height: 4),
+                            Text(
+                              resource['description'] ?? '',
+                              style: TextStyle(color: Colors.grey[400]),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            resource['title'] ?? '',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            resource['description'] ?? '',
-                            style: TextStyle(color: Colors.grey[400]),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               )
             : ListTile(
@@ -74,7 +79,7 @@ class ResourceTab extends StatelessWidget {
                 ),
                 subtitle: Text(resource['description'] ?? ''),
                 onTap: () {
-                  launchUrl(Uri.parse('https://www.youtube.com/veritasium'));
+                  launchUrl(Uri.parse(resource['link'] ?? ''));
                 },
               ),
         );
