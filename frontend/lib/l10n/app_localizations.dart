@@ -304,6 +304,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sites'**
   String get sites;
+
+  /// Label for lesson session
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Session'**
+  String get lessonSession;
+
+  /// Label for show me what you got
+  ///
+  /// In en, this message translates to:
+  /// **'Show me what you got'**
+  String get showMeWhatYouGot;
+
+  /// Label for notes
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notes;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

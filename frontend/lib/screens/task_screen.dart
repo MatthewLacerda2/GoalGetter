@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:goal_getter/widgets/screens/task/task_test_button.dart';
 import '../widgets/screens/task/task_tab_header.dart';
 import '../widgets/info_card.dart';
@@ -31,16 +32,16 @@ class TaskScreen extends StatelessWidget {
                   color: Colors.green,
                 ),
                 SizedBox(height: 28),
-                LessonButton(
-                  title: "Learn session",
-                  buttonText: "Show me what you got",
+                LessonButton( //INFO: the idea later is to have these customized
+                  title: AppLocalizations.of(context)!.lessonSession,
+                  buttonText: AppLocalizations.of(context)!.showMeWhatYouGot,
                   onPressed: () {
                     // TODO: Implement button action
                   },
                 ),
                 SizedBox(height: 20),
                 Text(
-                  "Notes:",
+                  '${AppLocalizations.of(context)!.notes}:',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

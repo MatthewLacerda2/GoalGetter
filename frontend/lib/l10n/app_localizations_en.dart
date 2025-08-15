@@ -112,4 +112,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sites => 'Sites';
+
+  @override
+  String get lessonSession => 'Lesson Session';
+
+  @override
+  String get showMeWhatYouGot => 'Show me what you got';
+
+  @override
+  String get notes => 'Notes';
 }

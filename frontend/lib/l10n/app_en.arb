@@ -139,5 +139,17 @@
     "sites": "Sites",
     "@sites": {
         "description": "Label for sites"
+    },
+    "lessonSession": "Lesson Session",
+    "@lessonSession": {
+        "description": "Label for lesson session"
+    },
+    "showMeWhatYouGot": "Show me what you got",
+    "@showMeWhatYouGot": {
+        "description": "Label for show me what you got"
+    },
+    "notes": "Notes",
+    "@notes": {
+        "description": "Label for notes"
     }
 }

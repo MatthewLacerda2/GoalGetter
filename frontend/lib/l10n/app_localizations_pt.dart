@@ -112,4 +112,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get sites => 'Sites';
+
+  @override
+  String get lessonSession => 'Partida de Aula';
+
+  @override
+  String get showMeWhatYouGot => 'Mostre-me o que sabe!';
+
+  @override
+  String get notes => 'Notas';
 }
