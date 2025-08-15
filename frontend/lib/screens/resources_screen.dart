@@ -13,7 +13,6 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Sample data - replace with actual data later
   final List<Map<String, String>> books = [
     {'title': 'Atomic Habits', 'description': 'Build good habits and break bad ones'},
     {'title': 'Deep Work', 'description': 'Focus in a distracted world'},
@@ -21,9 +20,9 @@ class _ResourcesScreenState extends State<ResourcesScreen>
   ];
 
   final List<Map<String, String>> youtube = [
-    {'title': 'Productivity Tips', 'description': 'Task productivity advice'},
-    {'title': 'Goal Setting Guide', 'description': 'How to set and achieve goals'},
-    {'title': 'Time Management', 'description': 'Master your time effectively'},
+    {'title': 'Agadmator', 'description': 'Game being told with a lot of tactic analysis, but also a lot of story behind them', 'image': 'https://yt3.googleusercontent.com/7vCbvtCqtjQ3YLgsJt7Y952MQV1sBvhllSCSxHP8_sVZdcPCBrITfhkN2RdyCuwPnsByq-1GoA=s160-c-k-c0x00ffffff-no-rj'},
+    {'title': 'Gothan Chess', 'description': 'Chess analysis in general but with a good didatic approach'},
+    {'title': 'Anna Hudolph', 'description': 'Game analysis made fun, as chess should be'},
   ];
 
   final List<Map<String, String>> sites = [
@@ -48,13 +47,16 @@ class _ResourcesScreenState extends State<ResourcesScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          toolbarHeight: 16, // Reduced height to eliminate blank space
+          toolbarHeight: 0,
           bottom: TabBar(
             controller: _tabController,
+            labelColor: Colors.grey[900],
+            unselectedLabelColor: Colors.grey[700],
+            dividerHeight: 4,
             tabs: const [
-              Tab(icon: Icon(Icons.book, size: 32)),
-              Tab(icon: Icon(Icons.play_circle, size: 32)),
-              Tab(icon: Icon(Icons.language, size: 32)),
+              Tab(icon: Icon(Icons.book, size: 24), text: 'Book'),
+              Tab(icon: Icon(Icons.play_circle, size: 28), text: 'Youtube'),
+              Tab(icon: Icon(Icons.language, size: 28), text: 'Sites'),
             ],
           ),
         ),
