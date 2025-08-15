@@ -55,4 +55,52 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get pleaseAnswerThisQuestion => 'Por favor, responda esta pergunta';
+
+  @override
+  String get dayStreak => 'dias de streak!';
+
+  @override
+  String get continuate => 'Continuar';
+
+  @override
+  String get sunday => 'Domingo';
+
+  @override
+  String get monday => 'Segunda';
+
+  @override
+  String get tuesday => 'Terça';
+
+  @override
+  String get wednesday => 'Quarta';
+
+  @override
+  String get thursday => 'Quinta';
+
+  @override
+  String get friday => 'Sexta';
+
+  @override
+  String get saturday => 'Sábado';
+
+  @override
+  String get sundayShort => 'Dom';
+
+  @override
+  String get mondayShort => 'Seg';
+
+  @override
+  String get tuesdayShort => 'Ter';
+
+  @override
+  String get wednesdayShort => 'Qua';
+
+  @override
+  String get thursdayShort => 'Qui';
+
+  @override
+  String get fridayShort => 'Sex';
+
+  @override
+  String get saturdayShort => 'Sáb';
 }

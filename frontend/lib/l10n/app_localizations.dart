@@ -190,6 +190,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please answer this question'**
   String get pleaseAnswerThisQuestion;
+
+  /// Label para dias de streak
+  ///
+  /// In en, this message translates to:
+  /// **'dias de streak!'**
+  String get dayStreak;
+
+  /// Label para botão continuar
+  ///
+  /// In en, this message translates to:
+  /// **'Continuar'**
+  String get continuate;
+
+  /// Label for sunday
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// Label for monday
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// Label for tuesday
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// Label for wednesday
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// Label for thursday
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// Label for friday
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// Label for saturday
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// Label for sunday short
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get sundayShort;
+
+  /// Label for monday short
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get mondayShort;
+
+  /// Label for tuesday short
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get tuesdayShort;
+
+  /// Label for wednesday short
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get wednesdayShort;
+
+  /// Label for thursday short
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get thursdayShort;
+
+  /// Label for friday short
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get fridayShort;
+
+  /// Label for saturday short
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get saturdayShort;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
