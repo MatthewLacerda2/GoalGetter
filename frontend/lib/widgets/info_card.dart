@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class InfoCard extends StatelessWidget {
   final String title;
   final String? description;
+  final Color? mainColor;
+  final Color? descriptionColor;
 
   const InfoCard({
     super.key,
     required this.title,
     this.description,
+    this.mainColor,
+    this.descriptionColor,
   });
 
   @override
@@ -16,37 +20,31 @@ class InfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: mainColor ?? Colors.grey[800],
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.3),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: mainColor ?? Colors.white, width: 2),
+
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: mainColor ?? Colors.white,
             ),
           ),
           if (description != null) ...[
             const SizedBox(height: 10),
-            const Divider(height: 1),
+            Divider(height: 1, color: mainColor ?? Colors.white),
             const SizedBox(height: 10),
             Text(
               description!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.black54,
+                color: descriptionColor ?? Colors.grey,
                 height: 1.4,
               ),
             ),
