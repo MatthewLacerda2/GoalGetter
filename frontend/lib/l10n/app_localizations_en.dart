@@ -103,4 +103,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saturdayShort => 'Sat';
+
+  @override
+  String get book => 'Book';
+
+  @override
+  String get youtube => 'Youtube';
+
+  @override
+  String get sites => 'Sites';
 }

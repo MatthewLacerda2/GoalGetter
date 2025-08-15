@@ -1,6 +1,7 @@
 // Resources screen
 import 'package:flutter/material.dart';
 import '../widgets/screens/resource/resource_tab.dart';
+import '../l10n/app_localizations.dart';
 
 class ResourcesScreen extends StatefulWidget {
   const ResourcesScreen({super.key});
@@ -53,10 +54,10 @@ class _ResourcesScreenState extends State<ResourcesScreen>
             labelColor: Colors.white,
             unselectedLabelColor: Colors.grey[600],
             dividerHeight: 4,
-            tabs: const [
-              Tab(icon: Icon(Icons.book, size: 24), text: 'Book'),
-              Tab(icon: Icon(Icons.play_circle, size: 28), text: 'Youtube'),
-              Tab(icon: Icon(Icons.language, size: 28), text: 'Sites'),
+            tabs: [
+              Tab(icon: Icon(Icons.book, size: 24), text: AppLocalizations.of(context)!.book),
+              Tab(icon: Icon(Icons.play_circle, size: 28), text: AppLocalizations.of(context)!.youtube),
+              Tab(icon: Icon(Icons.language, size: 28), text: AppLocalizations.of(context)!.sites),
             ],
           ),
         ),

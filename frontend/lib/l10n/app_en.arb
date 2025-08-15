@@ -127,5 +127,17 @@
     "saturdayShort": "Sat",
     "@saturdayShort": {
         "description": "Label for saturday short"
+    },
+    "book": "Book",
+    "@book": {
+        "description": "Label for book"
+    },
+    "youtube": "Youtube",
+    "@youtube": {
+        "description": "Label for youtube"
+    },
+    "sites": "Sites",
+    "@sites": {
+        "description": "Label for sites"
     }
 }

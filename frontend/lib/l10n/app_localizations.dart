@@ -286,6 +286,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sat'**
   String get saturdayShort;
+
+  /// Label for book
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get book;
+
+  /// Label for youtube
+  ///
+  /// In en, this message translates to:
+  /// **'Youtube'**
+  String get youtube;
+
+  /// Label for sites
+  ///
+  /// In en, this message translates to:
+  /// **'Sites'**
+  String get sites;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
