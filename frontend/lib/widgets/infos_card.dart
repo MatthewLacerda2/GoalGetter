@@ -33,7 +33,7 @@ class InfosCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: descriptionColor ?? Colors.white,
                   height: 1.6,
                 ),

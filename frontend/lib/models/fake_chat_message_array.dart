@@ -3,67 +3,72 @@ import 'chat_message.dart';
 List<ChatMessage> fakeChatMessages = [
   ChatMessage(
     id: '1',
-    message: 'Bishop or knight?',
+    message: 'E aí, como tá indo?',
     sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '2',
-    message: 'Depends if you are religious or not.',
+    message: 'Bem, obrigado',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '3',
-    message: 'Bishops value is simply higher, since in many more cases, it was more useful piece',
+    message: 'Quais notas você já aprendeu?',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '4',
-    message: 'Bishop covers more squares at once, thus its more valuable.',
+    message: 'Sol Dó Ré Mi Sol Lá',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '5',
-    message: 'Same reason why Queen is worth than both combined, it covers even more squares',
+    message: 'Consegue trocar rápido entre elas?',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '6',
-    message: 'Do i have to activate all my minor pieces before activating my queen?',
+    message: 'Não',
     sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '7',
-    message: 'Yes, as a general rule',
+    message: 'Então não aprende todas de uma vez né',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '8',
-    message: 'If she is attacked, she has to move away because she is so valuable. So she cannot attack alone',
+    message: 'Escolhe só duas e pratica, depois você aprende as outras',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '9',
-    message: 'Its a general rule, so best to follow, but there are exceptions',
+    message: 'Eu tinha aprendido mas quando comecei novas eu meio que esqueci',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '10',
-    message: 'Why castling the king? It keeps him constrained',
+    message: 'Isso quer dizer que você não aprendeu',
     sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '11',
-    message: 'Repeat after me: KING SAFETY IS YOUR #1 PRIORITY',
+    message: 'Toda vez que for praticar, começa pelas que você já sabe',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '12',
-    message: 'Mayhem happens in the center, hell be all vulnerable there',
+    message: 'Saquei',
     sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '13',
-    message: 'If you castle, and your opponent didnt, *open up the center*',
+    message: 'As vezes eu paro pq meu dedo dói muito',
+    sender: ChatMessageSender.tutor,
+  ),
+  ChatMessage(
+    id: '14',
+    message: 'Continua até cair a mão',
     sender: ChatMessageSender.tutor,
   ),
 ];

@@ -43,8 +43,8 @@ class InfoCard extends StatelessWidget {
             Text(
               description!,
               style: TextStyle(
-                fontSize: 14,
-                color: descriptionColor ?? Colors.grey,
+                fontSize: 16,
+                color: descriptionColor ?? Colors.grey[300],
                 height: 1.4,
               ),
             ),
