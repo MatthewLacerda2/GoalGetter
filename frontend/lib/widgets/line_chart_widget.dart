@@ -2,8 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class LineChartSample6 extends StatelessWidget {
-  LineChartSample6({
+class LineChartWidget extends StatelessWidget {
+  LineChartWidget({
     super.key,
     Color? line1Color1,
     Color? line1Color2,
