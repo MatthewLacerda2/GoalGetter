@@ -34,7 +34,7 @@ class ChatMessageBubble extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white,
-                  height: 1.4,
+                  height: 1.5,
                 ),
               ),
             ),
