@@ -14,15 +14,15 @@ class TaskScreen extends StatelessWidget {
       body: Column(
         children: [
           TaskTabHeader(
+            xpLevel: 2000,
             goalTitle: "Learn rook checkmates",
             streakCounter: 365,
-            xpLevel: 2000,
           ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                SizedBox(height: 4),
+                SizedBox(height: 10),
                 ProgressBar(
                   title: "Make your bed",
                   icon: Icons.task_alt,
@@ -30,7 +30,7 @@ class TaskScreen extends StatelessWidget {
                   end: 100,
                   color: Colors.green,
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 28),
                 LessonButton(
                   title: "Learn session",
                   buttonText: "Show me what you got",
@@ -39,6 +39,15 @@ class TaskScreen extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: 20),
+                Text(
+                  "Notes:",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 14),
                 InfosCard(
                   texts: [
                     "First text item",

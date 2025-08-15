@@ -41,7 +41,7 @@ class TaskTabHeader extends StatelessWidget {
                 Text(
                   '$xpLevel',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
                   ),
@@ -56,7 +56,7 @@ class TaskTabHeader extends StatelessWidget {
                 child: Text(
                   goalTitle,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 20,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                   ),
