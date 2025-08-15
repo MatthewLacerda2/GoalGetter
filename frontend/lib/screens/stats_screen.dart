@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import '../widgets/screens/task/badge.dart' as task_badge;
 import '../widgets/line_chart_table.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
+
+  final spots = const [
+    FlSpot(0, 600),
+    FlSpot(1, 650),
+    FlSpot(2, 620),
+    FlSpot(3, 550),
+    FlSpot(4, 650),
+    FlSpot(5, 700),
+    FlSpot(6, 660),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +35,7 @@ class StatsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            LineChartTable(),
+            LineChartTable(spots: spots),
             const SizedBox(height: 20),
             Text(
               'Achievements',
