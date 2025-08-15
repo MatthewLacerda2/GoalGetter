@@ -2,59 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/screens/task/calendar_screen.dart';
 
 class TaskTabHeader extends StatelessWidget {
+  final int xpLevel;
   final String goalTitle;
   final int streakCounter;
-  final int xpLevel;
 
-  final double buttonsHeight = 52;
+  final double buttonsHeight = 44;
 
   const TaskTabHeader({
     super.key,
+    required this.xpLevel,
     required this.goalTitle,
     required this.streakCounter,
-    required this.xpLevel,
   });
-
-  Widget _buildActionButton({
-    required Color backgroundColor,
-    required Color foregroundColor,
-    required IconData icon,
-    required String text,
-    required VoidCallback? onPressed,
-    double? width,
-  }) {
-    return SizedBox(
-      height: buttonsHeight,
-      width: width,
-      child: ElevatedButton(
-        onPressed: onPressed ?? () {
-          // Placeholder function
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 4),
-            Text(
-              text,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,39 +27,38 @@ class TaskTabHeader extends StatelessWidget {
           ),
         ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildActionButton(
-            backgroundColor: const Color.fromARGB(255, 158, 158, 158),
-            foregroundColor: Colors.white,
-            icon: Icons.emoji_events,
-            text: '$xpLevel',
-            onPressed: () {
-              // Nothing, really
-            },
+          SizedBox(
+            height: buttonsHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.emoji_events, size: 20, color: Colors.white),
+                const SizedBox(width: 4),
+                Text(
+                  '$xpLevel',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
           Flexible(
             child: SizedBox(
               height: buttonsHeight,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Nothing for now
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 158, 158, 158),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+              child: Center(
                 child: Text(
                   goalTitle,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,
@@ -109,29 +67,50 @@ class TaskTabHeader extends StatelessWidget {
               ),
             ),
           ),
-          _buildActionButton(
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.white,
-            icon: Icons.local_fire_department,
-            text: '$streakCounter',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CalendarScreen(
-                    streakCount: streakCounter,
-                    sunday: false,
-                    monday: true,
-                    tuesday: true,
-                    wednesday: true,
-                    thursday: true,
-                    friday: true,
-                    saturday: false,
-                    descriptionText: 'Yeah, keep the pressure on !!!',
+          SizedBox(
+            height: buttonsHeight,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CalendarScreen(
+                      streakCount: streakCounter,
+                      sunday: false,
+                      monday: true,
+                      tuesday: true,
+                      wednesday: true,
+                      thursday: true,
+                      friday: true,
+                      saturday: false,
+                      descriptionText: 'Yeah, keep the pressure on !!!',
+                    ),
                   ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              );
-            },
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.local_fire_department, size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$streakCounter',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
