@@ -18,12 +18,27 @@ class TutorScreen extends StatefulWidget {
 class _TutorScreenState extends State<TutorScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<ChatMessage> _messages = [];
+  final ScrollController _scrollController = ScrollController();
   int _messageId = 0;
 
   @override
   void initState() {
     super.initState();
     _messages.addAll(widget.messages);
+    // Scroll to bottom after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   void _sendMessage() {
@@ -36,6 +51,8 @@ class _TutorScreenState extends State<TutorScreen> {
         ));
       });
       _textController.clear();
+      // Scroll to bottom after adding message
+      _scrollToBottom();
     }
   }
 
@@ -46,6 +63,7 @@ class _TutorScreenState extends State<TutorScreen> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.only(bottom: 16),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
@@ -66,6 +84,7 @@ class _TutorScreenState extends State<TutorScreen> {
   @override
   void dispose() {
     _textController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }
