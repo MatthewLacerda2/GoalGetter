@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/screens/tutor/chat_message_bubble.dart';
+import '../widgets/tutor/chat_message_bubble.dart';
 import '../models/chat_message.dart';
+import '../widgets/tutor/chat_input.dart';
 
 class TutorScreen extends StatefulWidget {
   final List<ChatMessage> messages;
@@ -53,47 +54,9 @@ class _TutorScreenState extends State<TutorScreen> {
               },
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: InputDecoration(
-                      hintText: 'Type your message...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    minLines: 1,
-                    maxLines: 4,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _sendMessage,
-                  icon: const Icon(Icons.send),
-                  color: Colors.blue,
-                  padding: const EdgeInsets.all(8),
-                ),
-              ],
-            ),
+          ChatInput(
+            controller: _textController,
+            onSendMessage: _sendMessage,
           ),
         ],
       ),

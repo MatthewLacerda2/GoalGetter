@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/screens/calendar_screen.dart';
+import 'package:goal_getter/screens/task/calendar_screen.dart';
 
 class TaskTabHeader extends StatelessWidget {
   final String goalTitle;
