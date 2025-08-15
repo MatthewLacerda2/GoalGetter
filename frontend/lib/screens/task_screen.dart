@@ -16,7 +16,7 @@ class TaskScreen extends StatelessWidget {
         children: [
           TaskTabHeader(
             xpLevel: 2000,
-            goalTitle: "Learn rook checkmates",
+            goalTitle: "Aprenda todas as notas básicas",
             streakCounter: 365,
           ),
           Expanded(
@@ -25,10 +25,10 @@ class TaskScreen extends StatelessWidget {
               children: [
                 SizedBox(height: 10),
                 ProgressBar(
-                  title: "Make your bed",
+                  title: "Aprenda todas as notas básicas",
                   icon: Icons.task_alt,
-                  progress: 35,
-                  end: 100,
+                  progress: 2,
+                  end: 8,
                   color: Colors.green,
                 ),
                 SizedBox(height: 28),
