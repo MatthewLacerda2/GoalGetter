@@ -16,7 +16,7 @@ class TaskScreen extends StatelessWidget {
         children: [
           TaskTabHeader(
             xpLevel: 2000,
-            goalTitle: "Aprenda todas as notas básicas",
+            goalTitle: "Aprender violão",
             streakCounter: 365,
           ),
           Expanded(
@@ -26,7 +26,7 @@ class TaskScreen extends StatelessWidget {
                 SizedBox(height: 10),
                 ProgressBar(
                   title: "Aprenda todas as notas básicas",
-                  icon: Icons.task_alt,
+                  icon: Icons.music_note,
                   progress: 2,
                   end: 8,
                   color: Colors.green,
