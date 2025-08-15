@@ -3,50 +3,48 @@ import 'package:flutter/material.dart';
 class InfoCard extends StatelessWidget {
   final String title;
   final String? description;
+  final Color? mainColor;
+  final Color? descriptionColor;
 
   const InfoCard({
     super.key,
     required this.title,
     this.description,
+    this.mainColor,
+    this.descriptionColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: mainColor ?? Colors.grey[800],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: mainColor ?? Colors.white, width: 2),
+
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: mainColor ?? Colors.white,
             ),
           ),
           if (description != null) ...[
-            const SizedBox(height: 8),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
+            Divider(height: 1, color: mainColor ?? Colors.white),
+            const SizedBox(height: 10),
             Text(
               description!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
+              style: TextStyle(
+                fontSize: 16,
+                color: descriptionColor ?? Colors.grey[300],
                 height: 1.4,
               ),
             ),

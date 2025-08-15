@@ -4,37 +4,9 @@
     "@language": {
         "description": "The current language"
     },
-    "goals": "Goals",
-    "@goals": {
-        "description": "Goals tab label"
-    },
     "profile": "Profile",
     "@profile": {
         "description": "Profile tab label"
-    },
-    "howToUse": "How to use",
-    "@howToUse": {
-        "description": "How to use section title"
-    },
-    "description": "Description (Optional)",
-    "@description": {
-        "description": "Label for description field"
-    },
-    "create": "Create",
-    "@create": {
-        "description": "Create button label"
-    },
-    "delete": "Delete",
-    "@delete": {
-        "description": "Label for delete button"
-    },
-    "title": "Title",
-    "@title": {
-        "description": "Label for title field"
-    },
-    "skip": "Skip",
-    "@skip": {
-        "description": "Label for skip button"
     },
     "next": "Next",
     "@next": {
@@ -91,5 +63,105 @@
     "pleaseAnswerThisQuestion": "Please answer this question",
     "@pleaseAnswerThisQuestion": {
         "description": "Validation message for empty answer"
+    },
+    "dayStreak": "dias de streak!",
+    "@dayStreak": {
+        "description": "Label para dias de streak"
+    },
+    "continuate": "Continuar",
+    "@continuate": {
+        "description": "Label para botão continuar"
+    },
+    "sunday": "Sunday",
+    "@sunday": {
+        "description": "Label for sunday"
+    },
+    "monday": "Monday",
+    "@monday": {
+        "description": "Label for monday"
+    },
+    "tuesday": "Tuesday",
+    "@tuesday": {
+        "description": "Label for tuesday"
+    },
+    "wednesday": "Wednesday",
+    "@wednesday": {
+        "description": "Label for wednesday"
+    },
+    "thursday": "Thursday",
+    "@thursday": {
+        "description": "Label for thursday"
+    },
+    "friday": "Friday",
+    "@friday": {
+        "description": "Label for friday"
+    },
+    "saturday": "Saturday",
+    "@saturday": {
+        "description": "Label for saturday"
+    },
+    "sundayShort": "Sun",
+    "@sundayShort": {
+        "description": "Label for sunday short"
+    },
+    "mondayShort": "Mon",
+    "@mondayShort": {
+        "description": "Label for monday short"
+    },    
+    "tuesdayShort": "Tue",
+    "@tuesdayShort": {
+        "description": "Label for tuesday short"
+    },
+    "wednesdayShort": "Wed",
+    "@wednesdayShort": {
+        "description": "Label for wednesday short"
+    },    
+    "thursdayShort": "Thu",
+    "@thursdayShort": {
+        "description": "Label for thursday short"
+    },
+    "fridayShort": "Fri",
+    "@fridayShort": {
+        "description": "Label for friday short"
+    },    
+    "saturdayShort": "Sat",
+    "@saturdayShort": {
+        "description": "Label for saturday short"
+    },
+    "book": "Book",
+    "@book": {
+        "description": "Label for book"
+    },
+    "youtube": "Youtube",
+    "@youtube": {
+        "description": "Label for youtube"
+    },
+    "sites": "Sites",
+    "@sites": {
+        "description": "Label for sites"
+    },
+    "lessonSession": "Lesson Session",
+    "@lessonSession": {
+        "description": "Label for lesson session"
+    },
+    "showMeWhatYouGot": "Show me what you got",
+    "@showMeWhatYouGot": {
+        "description": "Label for show me what you got"
+    },
+    "notes": "Notes",
+    "@notes": {
+        "description": "Label for notes"
+    },
+    "progress": "Progress",
+    "@progress": {
+        "description": "Label for progress"
+    },
+    "achievements": "Achievements",
+    "@achievements": {
+        "description": "Label for achievements"
+    },
+    "awards": "Awards",
+    "@awards": {
+        "description": "Label for awards"
     }
 }

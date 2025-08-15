@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/task_screen.dart';
-import 'screens/leaderboard_screen.dart';
+import 'screens/stats_screen.dart';
 import 'screens/resources_screen.dart';
 import 'screens/tutor_screen.dart';
 import 'screens/profile_screen.dart';
@@ -47,8 +47,12 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'GoalGetter',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
+        scaffoldBackgroundColor: Colors.transparent,
       ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -85,16 +89,24 @@ class _MyHomePageState extends State<MyHomePage> {
     ResourcesScreen(),
     TutorScreen(messages: fakeChatMessages),
     TaskScreen(),
-    LeaderBoardScreen(),
+    StatsScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Removed the AppBar here
-      body: SafeArea(
-        child: _tabPages[_selectedIndex],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.black, Color.fromARGB(255, 43, 43, 43)],
+          ),
+        ),
+        child: SafeArea(
+          child: _tabPages[_selectedIndex],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -103,7 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedFontSize: 0,
         unselectedFontSize: 0,
         iconSize: 28,
-        backgroundColor: Colors.grey[800],
+        backgroundColor: const Color.fromARGB(255, 49, 49, 49),
+        enableFeedback: false,
         items: [
           BottomNavigationBarItem(
             icon: MainScreenIcon(

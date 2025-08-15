@@ -12,28 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
-  String get goals => 'Goals';
-
-  @override
   String get profile => 'Profile';
-
-  @override
-  String get howToUse => 'How to use';
-
-  @override
-  String get description => 'Description (Optional)';
-
-  @override
-  String get create => 'Create';
-
-  @override
-  String get delete => 'Delete';
-
-  @override
-  String get title => 'Title';
-
-  @override
-  String get skip => 'Skip';
 
   @override
   String get next => 'Next';
@@ -76,4 +55,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseAnswerThisQuestion => 'Please answer this question';
+
+  @override
+  String get dayStreak => 'dias de streak!';
+
+  @override
+  String get continuate => 'Continuar';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get sundayShort => 'Sun';
+
+  @override
+  String get mondayShort => 'Mon';
+
+  @override
+  String get tuesdayShort => 'Tue';
+
+  @override
+  String get wednesdayShort => 'Wed';
+
+  @override
+  String get thursdayShort => 'Thu';
+
+  @override
+  String get fridayShort => 'Fri';
+
+  @override
+  String get saturdayShort => 'Sat';
+
+  @override
+  String get book => 'Book';
+
+  @override
+  String get youtube => 'Youtube';
+
+  @override
+  String get sites => 'Sites';
+
+  @override
+  String get lessonSession => 'Lesson Session';
+
+  @override
+  String get showMeWhatYouGot => 'Show me what you got';
+
+  @override
+  String get notes => 'Notes';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get awards => 'Awards';
 }

@@ -1,5 +1,6 @@
 // calendar screen
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class CalendarScreen extends StatelessWidget {
   final int streakCount;
@@ -31,7 +32,7 @@ class CalendarScreen extends StatelessWidget {
       backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               Expanded(
@@ -57,9 +58,8 @@ class CalendarScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'day streak!',
+                    Text(
+                      AppLocalizations.of(context)!.dayStreak,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -75,14 +75,14 @@ class CalendarScreen extends StatelessWidget {
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: const [
-                                Text('Su', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text('Mo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text('Tu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text('We', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text('Th', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text('Fr', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text('Sa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              children: [
+                                Text(AppLocalizations.of(context)!.sundayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.mondayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.tuesdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.wednesdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.thursdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.fridayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.saturdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -100,12 +100,13 @@ class CalendarScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 20),
                             const Divider(color: Colors.grey, thickness: 1),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 16),
                             Text(
                               descriptionText,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
@@ -122,13 +123,13 @@ class CalendarScreen extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
+                  child: Text(
+                    AppLocalizations.of(context)!.continuate,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -137,6 +138,7 @@ class CalendarScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
             ],
           ),
         ),

@@ -6,8 +6,16 @@ RUN apt-get update && apt-get install -y \
     unzip \
     xz-utils \
     zip \
-    libglu1-mesa \
+    libgtk-3-dev \
+    liblzma-dev \
+    chromium \
+    clang \
+    cmake \
+    ninja-build \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
+
+ENV CHROME_EXECUTABLE=/usr/bin/chromium
 
 ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
@@ -20,7 +28,6 @@ RUN flutter doctor
 
 WORKDIR /app
 COPY frontend/ .
-COPY client_sdk/ ./client_sdk/
 
 RUN flutter pub get
 RUN flutter build web --release

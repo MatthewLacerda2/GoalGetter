@@ -21,9 +21,9 @@ class Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.black,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300, width: 2),
+        border: Border.all(color: Color.fromARGB(80, 200, 200, 200), width: 2.6),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withValues(alpha: 0.1),
@@ -45,10 +45,12 @@ class Badge extends StatelessWidget {
           Text(
             text,
             textAlign: TextAlign.center,
+            softWrap: true,
+            overflow: TextOverflow.visible,
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.w500,
-              color: textColor ?? Colors.black87,
+              color: textColor ?? Colors.white,
             ),
           ),
         ],

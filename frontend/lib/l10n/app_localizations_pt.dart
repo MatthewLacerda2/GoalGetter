@@ -12,28 +12,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get language => 'Idioma';
 
   @override
-  String get goals => 'Metas';
-
-  @override
   String get profile => 'Perfil';
-
-  @override
-  String get howToUse => 'Como usar';
-
-  @override
-  String get description => 'Descrição (Opcional)';
-
-  @override
-  String get create => 'Criar';
-
-  @override
-  String get delete => 'Excluir';
-
-  @override
-  String get title => 'Título';
-
-  @override
-  String get skip => 'Pular';
 
   @override
   String get next => 'Próximo';
@@ -76,4 +55,79 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get pleaseAnswerThisQuestion => 'Por favor, responda esta pergunta';
+
+  @override
+  String get dayStreak => 'dias de streak!';
+
+  @override
+  String get continuate => 'Continuar';
+
+  @override
+  String get sunday => 'Domingo';
+
+  @override
+  String get monday => 'Segunda';
+
+  @override
+  String get tuesday => 'Terça';
+
+  @override
+  String get wednesday => 'Quarta';
+
+  @override
+  String get thursday => 'Quinta';
+
+  @override
+  String get friday => 'Sexta';
+
+  @override
+  String get saturday => 'Sábado';
+
+  @override
+  String get sundayShort => 'Dom';
+
+  @override
+  String get mondayShort => 'Seg';
+
+  @override
+  String get tuesdayShort => 'Ter';
+
+  @override
+  String get wednesdayShort => 'Qua';
+
+  @override
+  String get thursdayShort => 'Qui';
+
+  @override
+  String get fridayShort => 'Sex';
+
+  @override
+  String get saturdayShort => 'Sáb';
+
+  @override
+  String get book => 'Livro';
+
+  @override
+  String get youtube => 'Youtube';
+
+  @override
+  String get sites => 'Sites';
+
+  @override
+  String get lessonSession => 'Partida de Aula';
+
+  @override
+  String get showMeWhatYouGot => 'Mostre-me o que sabe!';
+
+  @override
+  String get notes => 'Notas';
+
+  @override
+  String get progress => 'Progresso';
+
+  @override
+  String get achievements => 'Conquistas';
+
+  @override
+  String get awards => 'Prêmios';
 }

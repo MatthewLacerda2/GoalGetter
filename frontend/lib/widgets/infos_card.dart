@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 
 class InfosCard extends StatelessWidget {
   final List<String> texts;
+  final Color? mainColor;
+  final Color? descriptionColor;
 
   const InfosCard({
     super.key,
     required this.texts,
+    this.mainColor,
+    this.descriptionColor,
   });
 
   @override
@@ -14,32 +18,23 @@ class InfosCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: mainColor ?? Colors.grey[800],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300, width: 4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.grey, width: 4),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (int i = 0; i < texts.length; i++) ...[
-            Container(
+            SizedBox(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
               child: Text(
                 texts[i],
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                  color: descriptionColor ?? Colors.white,
                   height: 1.6,
                 ),
               ),
@@ -48,7 +43,7 @@ class InfosCard extends StatelessWidget {
               const SizedBox(height: 8),
               Container(
                 height: 2,
-                color: Colors.grey.shade300,
+                color: descriptionColor ?? Colors.white,
               ),
               const SizedBox(height: 8),
             ],

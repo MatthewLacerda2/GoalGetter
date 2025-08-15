@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import '../widgets/tutor/chat_message_bubble.dart';
-import '../models/chat_message.dart';
-import '../widgets/tutor/chat_input.dart';
+import '../../../models/chat_message.dart';
+import '../../../widgets/tutor/chat_message_bubble.dart';
+import '../../../widgets/tutor/chat_input.dart';
 
-class TutorScreen extends StatefulWidget {
+class LessonScreen extends StatefulWidget {
   final List<ChatMessage> messages;
   
-  const TutorScreen({
+  const LessonScreen({
     super.key,
     required this.messages,
   });
 
   @override
-  State<TutorScreen> createState() => _TutorScreenState();
+  State<LessonScreen> createState() => _LessonScreenState();
 }
 
-class _TutorScreenState extends State<TutorScreen> {
+class _LessonScreenState extends State<LessonScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
