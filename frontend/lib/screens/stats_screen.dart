@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/screens/task/badge.dart' as task_badge;
-import '../widgets/line_chart_widget.dart';
+import '../widgets/line_chart_table.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -24,7 +24,7 @@ class StatsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            LineChartWidget(),
+            LineChartTable(),
             const SizedBox(height: 20),
             Text(
               'Achievements',
