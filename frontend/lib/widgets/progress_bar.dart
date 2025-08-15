@@ -22,7 +22,7 @@ class ProgressBar extends StatelessWidget {
     
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12.0),
@@ -35,37 +35,39 @@ class ProgressBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          if (icon != null) ...[
+            Icon(
+              icon,
               color: Colors.white,
+              size: 60,
             ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 24,
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: LinearProgressIndicator(
+                const SizedBox(height: 10),
+                LinearProgressIndicator(
                   value: percentage.clamp(0.0, 1.0),
-                  backgroundColor: Colors.white.withValues(alpha: 0.3),
+                  backgroundColor: Colors.white.withValues(alpha: 0.33),
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   minHeight: 16,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

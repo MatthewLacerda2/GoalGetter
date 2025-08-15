@@ -32,7 +32,7 @@ class TaskScreen extends StatelessWidget {
                 SizedBox(height: 16),
                 TaskTestButton(
                   title: "Learn session",
-                  buttonText: "Get some knowledge",
+                  buttonText: "Show me what you got",
                   onPressed: () {
                     // TODO: Implement button action
                   },

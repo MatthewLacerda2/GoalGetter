@@ -14,13 +14,13 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -39,9 +39,9 @@ class InfoCard extends StatelessWidget {
             ),
           ),
           if (description != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             const Divider(height: 1),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               description!,
               style: const TextStyle(
