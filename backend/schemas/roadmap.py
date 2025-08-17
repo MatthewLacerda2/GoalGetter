@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+#TODO: gemini is not obeying the character limit strictly
 class RoadmapInitiationRequest(BaseModel):
     prompt_hint: str = Field(..., description="A hint for the user to properly describe the goal")
     prompt: str = Field(..., description="The user's declaration of their goal")
@@ -23,5 +24,3 @@ class Step(BaseModel):
 class RoadmapCreationResponse(BaseModel):
     steps: list[Step] = Field(..., description="The steps to achieve the goal")
     notes: list[str] = Field(..., description="The notes to help the user achieve the goal")
-
-#TODO: gemini is not obeying the character limit strictly

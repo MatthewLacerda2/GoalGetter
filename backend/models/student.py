@@ -4,6 +4,7 @@ from sqlalchemy import Column, String, DateTime, Integer
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 
+from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
 
 class Student(Base):
@@ -16,7 +17,7 @@ class Student(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     last_login = Column(DateTime, nullable=False, default=datetime.now())
     latest_report = Column(String, nullable=False)
-    latest_report_embedding = Column(Vector(3072), nullable=True)
+    latest_report_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     current_streak = Column(Integer, nullable=False, default=0)
     longest_streak = Column(Integer, nullable=False, default=0)
     week_xp = Column(Integer, nullable=False, default=0)

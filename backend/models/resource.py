@@ -2,8 +2,10 @@ import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Enum
 from sqlalchemy.orm import relationship
+from pgvector.sqlalchemy import Vector
 
 from backend.models.base import Base
+from backend.utils.envs import NUM_DIMENSIONS
 
 class StudyResourceType(Enum):
     ebook = "ebook"
@@ -18,6 +20,7 @@ class Resource(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
+    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=False)
     link = Column(String, nullable=False, unique=True)
     image_url = Column(String, nullable=True)
     goal_id = Column(String(36), nullable=False)
