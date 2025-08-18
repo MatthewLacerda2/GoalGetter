@@ -14,7 +14,7 @@ class TaskNote(Base):
     task_id = Column(String(36), nullable=False)
     title = Column(String, nullable=True)
     notes = Column(String, nullable=False)
-    notes_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
+    notes_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
 
     task = relationship("Task", back_populates="notes")

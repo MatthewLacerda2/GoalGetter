@@ -13,9 +13,9 @@ class StudentContext(Base):
     student_id = Column(String(36), nullable=False)
     goal_id = Column(String(36), nullable=False)
     context = Column(String, nullable=False)
-    context_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
-    is_still_valid = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
+    is_still_valid = Column(Boolean, nullable=False, default=True)
+    context_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="student_contexts")
     goal = relationship("Goal", back_populates="student_contexts")

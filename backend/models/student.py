@@ -20,7 +20,6 @@ class Student(Base):
     latest_report_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     current_streak = Column(Integer, nullable=False, default=0)
     longest_streak = Column(Integer, nullable=False, default=0)
-    week_xp = Column(Integer, nullable=False, default=0)
     overall_xp = Column(Integer, nullable=False, default=0)
     
     goals = relationship("Goal", back_populates="student")

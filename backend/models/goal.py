@@ -13,9 +13,9 @@ class Goal(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     student_id = Column(String(36), nullable=False)
+    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="goals")
     resources = relationship("Resource", back_populates="goal")

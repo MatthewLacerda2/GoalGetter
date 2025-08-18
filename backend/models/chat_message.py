@@ -14,13 +14,13 @@ class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    array_id = Column(String(36), nullable=False, unique=False)
-    message = Column(String, nullable=False)
-    message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
-    num_tokens = Column(Integer, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.now())
     student_id = Column(String(36), nullable=False)
     sender_id = Column(String(36), nullable=False)
+    array_id = Column(String(36), nullable=False, unique=False)
+    message = Column(String, nullable=False)
+    num_tokens = Column(Integer, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
     is_liked = Column(Boolean, nullable=False, default=False)
+    message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="chat_messages")

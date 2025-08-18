@@ -16,8 +16,8 @@ class Objective(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     percentage_completed = Column(Float, nullable=False, default=0)
+    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="objectives")
     goal = relationship("Goal", back_populates="objectives")
