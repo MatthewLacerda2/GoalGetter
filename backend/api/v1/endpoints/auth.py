@@ -8,6 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from backend.core.errors import USER_ALREADY_EXISTS
+from backend.core.logging_middleware import LoggingMiddleware
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -39,13 +43,19 @@ async def signup(
             latest_report="",
         )
         
+        logger.info(f"\nUSER INFO ZXC: {user_info}")
+        
         access_token = create_access_token(
             data={"sub": str(user.id)},
         )
         
+        logger.info(f"\nACCESS TOKEN: {access_token}")
+        
         db.add(user)
         await db.commit()
         await db.refresh(user)
+        
+        logger.info(f"\nWRITTEN TO DB: {user}")
         
         return TokenResponse(
             access_token=access_token,
@@ -66,7 +76,7 @@ async def signup(
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Google token at signup"
+            detail=f"Invalid Google token at signup {e}"
         )
 
 @router.post("/login", response_model=TokenResponse)

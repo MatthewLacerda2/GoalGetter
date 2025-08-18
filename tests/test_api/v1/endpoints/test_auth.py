@@ -3,7 +3,7 @@ from backend.core.errors import USER_ALREADY_EXISTS
 from backend.schemas.student import TokenResponse
 
 @pytest.mark.asyncio
-async def test_signup_successful(client, mock_google_verify, test_db):
+async def test_signup_successful(client, mock_google_verify, test_db):  #TODO: not workin'
     """Test successful signup with valid Google token"""
     response = await client.post(
         "/api/v1/auth/signup",
@@ -18,7 +18,7 @@ async def test_signup_successful(client, mock_google_verify, test_db):
     assert token_response.student.google_id == "12345"
 
 @pytest.mark.asyncio
-async def test_signup_invalid_token(client, mock_google_verify):
+async def test_signup_invalid_token(client, mock_google_verify):    #TODO: not workin'
     """Test signup with invalid Google token"""
     mock_google_verify.side_effect = Exception("Invalid token")
     
@@ -31,7 +31,7 @@ async def test_signup_invalid_token(client, mock_google_verify):
     assert response.json()["detail"] == "Invalid Google token"
 
 @pytest.mark.asyncio
-async def test_signup_existing_user(client, mock_google_verify, test_db):
+async def test_signup_existing_user(client, mock_google_verify, test_db):  #TODO: not workin'
     """Test signup attempt with existing Google account"""
     first_response = await client.post(
         "/api/v1/auth/signup",

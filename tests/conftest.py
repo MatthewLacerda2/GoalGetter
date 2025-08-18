@@ -54,7 +54,7 @@ def mock_google_verify():
     from google.oauth2 import id_token
     
     def mock_verify_oauth2_token(token, request, client_id):
-        if token == "valid_google_token":
+        if token == "valid_google_token" or token == "valid_google_token_1":
             return {
                 "iss": "accounts.google.com",
                 "sub": "12345",
