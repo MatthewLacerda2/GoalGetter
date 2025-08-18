@@ -4,6 +4,25 @@ from httpx import AsyncClient, ASGITransport
 from backend.main import app
 from backend.schemas.roadmap import RoadmapInitiationResponse, RoadmapCreationResponse, Step
 from unittest.mock import patch
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from backend.models.base import Base
+
+SQLALCHEMY_TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+test_engine = create_async_engine(
+    SQLALCHEMY_TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False}  # Needed for SQLite
+)
+
+# Create test session factory
+TestingSessionLocal = sessionmaker(
+    test_engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False,
+)
 
 @pytest_asyncio.fixture
 async def client():
@@ -11,6 +30,52 @@ async def client():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.clear()
+    
+@pytest_asyncio.fixture
+async def test_db():
+    """SQLite in-memory test database fixture"""
+    # Create all tables
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    
+    # Create a test database session
+    async with TestingSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+            # Clean up after test
+            async with test_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.drop_all)
+    
+@pytest.fixture
+def mock_google_verify():
+    """Fixture to mock Google token verification"""
+    from google.oauth2 import id_token
+    
+    def mock_verify_oauth2_token(token, request, client_id):
+        if token == "valid_google_token":
+            return {
+                "iss": "accounts.google.com",
+                "sub": "12345",
+                "email": "test1@example.com",
+                "email_verified": True,
+                "name": "Test User 1",
+                "aud": client_id
+            }
+        elif token == "valid_google_token_2":
+            return {
+                "iss": "accounts.google.com",
+                "sub": "67890",
+                "email": "test2@example.com",
+                "email_verified": True,
+                "name": "Test User 2",
+                "aud": client_id
+            }
+        raise ValueError("Invalid token")
+
+    with patch('google.oauth2.id_token.verify_oauth2_token', side_effect=mock_verify_oauth2_token) as mock:
+        yield mock
     
 @pytest.fixture
 def mock_gemini_follow_up_questions():

@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "GoalGetter"
     
+    DATABASE_URL: str = "postgresql+asyncpg://localhost/goalgetter" #TODO: read from .env
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback" #TODO: read from .env
+    
     GEMINI_API_KEY: str = "AIzaSyCkiKhi2VQSh_Dq8nvADd6qZR2BpDt3bn0"
     
     model_config = ConfigDict(
