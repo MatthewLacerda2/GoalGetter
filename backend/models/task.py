@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
-#TODO: figure this out
+
 class Objective(Base):
     __tablename__ = "objectives"
 

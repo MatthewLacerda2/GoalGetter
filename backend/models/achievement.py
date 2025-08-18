@@ -1,7 +1,9 @@
 import uuid
 from sqlalchemy import Column, String
+from pgvector.sqlalchemy import Vector
 from backend.models.base import Base
 from sqlalchemy.orm import relationship
+from backend.utils.envs import NUM_DIMENSIONS
 
 class Achievement(Base):
     __tablename__ = "achievements"
@@ -9,6 +11,7 @@ class Achievement(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
+    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     image_url = Column(String, nullable=False)
     
     players = relationship("PlayerAchievement", back_populates="achievement")
