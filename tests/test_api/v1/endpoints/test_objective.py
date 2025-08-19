@@ -7,7 +7,7 @@ from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_get_objective(client, mock_google_verify, test_db, test_user):
+async def test_get_objective_successful(client, mock_google_verify, test_db, test_user):
     """Test getting an objective"""
     
     objective = Objective(

@@ -8,9 +8,9 @@ from backend.models.base import Base
 from backend.utils.envs import NUM_DIMENSIONS
 
 class StudyResourceType(Enum):
-    ebook = "ebook"
-    youtuber = "youtuber"
-    website = "website"
+    pdf = "pdf"
+    youtube = "youtube"
+    webpage = "webpage"
 
 class Resource(Base):
     __tablename__ = "resources"
