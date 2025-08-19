@@ -9,9 +9,10 @@ async def test_signup_successful(client, mock_google_verify, test_db):
         json={"access_token": "valid_google_token"}
     )
     
-    assert response.status_code == 201
     token_response = TokenResponse.model_validate(response.json())
     
+    assert response.status_code == 201
+    assert isinstance(token_response, TokenResponse)
     assert token_response.student.email == "test1@example.com"
     assert token_response.student.name == "Test User 1"
     assert token_response.student.google_id == "12345"
@@ -64,9 +65,10 @@ async def test_login_successful(client, mock_google_verify, test_db, test_user):
         json={"access_token": "fixture_user_token"}  # Use a token the mock recognizes
     )
     
-    assert response.status_code == 200
     token_response = TokenResponse.model_validate(response.json())
     
+    assert response.status_code == 200
+    assert isinstance(token_response, TokenResponse)
     assert token_response.token_type == "bearer"
     assert token_response.student.email == test_user.email
     assert token_response.student.name == test_user.name

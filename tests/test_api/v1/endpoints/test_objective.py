@@ -40,6 +40,8 @@ async def test_get_objective(client, mock_google_verify, test_db, test_user):
         headers={"Authorization": f"Bearer {access_token}"}
     )
     
+    objective_response = ObjectiveResponse.model_validate(response.json())
+    
     assert response.status_code == 200
-    objective_response = ObjectiveResponse.model_validate(response.json())    
+    assert isinstance(objective_response, ObjectiveResponse)
     assert len(objective_response.notes) == 1
