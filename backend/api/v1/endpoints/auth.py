@@ -4,10 +4,10 @@ from backend.core.security import create_access_token, verify_google_token, get_
 from backend.core.database import get_db
 from backend.schemas.student import OAuth2Request, TokenResponse
 from backend.models.student import Student
+from backend.models.goal import Goal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
-from backend.core.logging_middleware import LoggingMiddleware
 import logging
 
 logger = logging.getLogger(__name__)
@@ -101,6 +101,18 @@ async def login(
             data={"sub": str(user.id)},
         )
         
+        goal_id = user.goal_id
+        stmt = select(Goal).where(Goal.id == goal_id)
+        result = await db.execute(stmt)
+        goal = result.scalar_one_or_none()
+        
+        if not goal:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Goal not found"
+            )        
+        
+        user.goal = goal        
         return TokenResponse(
             access_token=access_token,
             student=user
