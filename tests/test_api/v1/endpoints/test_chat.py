@@ -1,12 +1,23 @@
 import pytest
-from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem
+from backend.schemas.chat_message import ChatMessageResponse
 from backend.models.chat_message import ChatMessage
 from datetime import datetime
-from unittest.mock import patch
 
 @pytest.mark.asyncio
 async def test_get_chat_messages_with_parameters(client, mock_google_verify, test_db, test_user):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
+    
+    mock_google_verify.return_value = {
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
+    }
+    
+    login_response = await client.post(
+        "/api/v1/auth/login",
+        json={"access_token": "fixture_user_token"}
+    )
+    access_token = login_response.json()["access_token"]
     
     chat_messages = [
         ChatMessage(
@@ -35,15 +46,11 @@ async def test_get_chat_messages_with_parameters(client, mock_google_verify, tes
         test_db.add(msg)
     await test_db.commit()
     
-    # Mock the get_current_user dependency to bypass JWT validation
-    with patch('backend.api.v1.endpoints.chat.get_current_user') as mock_get_user:
-        mock_get_user.return_value = test_user
-        
-        response = await client.get(
-            "/api/v1/chat",
-            headers={"Authorization": "Bearer any_token"},
-            params={"message_id": "msg1", "limit": 10}
-        )
+    response = await client.get(
+        "/api/v1/chat",
+        headers={"Authorization": f"Bearer {access_token}"},
+        params={"message_id": "msg1", "limit": 10}
+    )
     
     chat_response = ChatMessageResponse.model_validate(response.json())
     
@@ -54,6 +61,18 @@ async def test_get_chat_messages_with_parameters(client, mock_google_verify, tes
 @pytest.mark.asyncio
 async def test_get_chat_messages_no_parameters(client, mock_google_verify, test_db, test_user):
     """Test that the chat messages endpoint works with no optional parameters."""
+    
+    mock_google_verify.return_value = {
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
+    }
+    
+    login_response = await client.post(
+        "/api/v1/auth/login",
+        json={"access_token": "fixture_user_token"}
+    )
+    access_token = login_response.json()["access_token"]
     
     for i in range(15):
         msg = ChatMessage(
@@ -71,7 +90,7 @@ async def test_get_chat_messages_no_parameters(client, mock_google_verify, test_
     
     response = await client.get(
         "/api/v1/chat",
-        headers={"Authorization": "Bearer fixture_user_token"}
+        headers={"Authorization": f"Bearer {access_token}"}
     )
     
     chat_response = ChatMessageResponse.model_validate(response.json())
