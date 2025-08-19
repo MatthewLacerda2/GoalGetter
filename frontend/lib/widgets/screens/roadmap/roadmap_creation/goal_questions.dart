@@ -90,7 +90,7 @@ class _GoalQuestionsState extends State<GoalQuestions> {
               filled: true,
               fillColor: widget.isActive 
                   ? Theme.of(context).colorScheme.surface
-                  : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                  : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,

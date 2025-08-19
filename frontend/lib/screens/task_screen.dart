@@ -32,7 +32,7 @@ class TaskScreen extends StatelessWidget {
                   color: Colors.green,
                 ),
                 SizedBox(height: 28),
-                LessonButton( //INFO: the idea later is to have these customized
+                LessonButton(
                   title: AppLocalizations.of(context)!.lessonSession,
                   buttonText: AppLocalizations.of(context)!.showMeWhatYouGot,
                   onPressed: () {

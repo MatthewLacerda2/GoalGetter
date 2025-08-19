@@ -14,6 +14,7 @@ class Student(Base):
     email = Column(String, nullable=False, unique=True)
     google_id = Column(String, nullable=False, unique=True)
     goal_id = Column(String(36), ForeignKey("goals.id"), nullable=False)
+    goal_name = Column(String, nullable=True)
     name = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     last_login = Column(DateTime, nullable=False, default=datetime.now())

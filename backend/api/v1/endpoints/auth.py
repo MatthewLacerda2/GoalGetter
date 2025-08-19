@@ -42,6 +42,16 @@ async def signup(
             latest_report="",
         )
         
+        goal = Goal(    #TODO: Create the actual goal
+            name="Default Goal",
+            description="Your initial learning goal"
+        )        
+        db.add(goal)
+        await db.flush()
+        
+        user.goal_id = goal.id
+        user.goal_name = goal.name  # Set the goal_name on the model
+        
         access_token = create_access_token(
             data={"sub": str(user.id)},
         )
@@ -50,10 +60,14 @@ async def signup(
         await db.commit()
         await db.refresh(user)
         
-        return TokenResponse(
+        token_response = TokenResponse(
             access_token=access_token,
             student=user
         )
+        # Remove this line since goal_name is now on the model
+        # token_response.student.goal_name = goal.name
+        
+        return token_response
         
     except IntegrityError as e:
         print(f"\nINTEGRITY ERROR IN SIGNUP: {type(e).__name__}: {str(e)}")

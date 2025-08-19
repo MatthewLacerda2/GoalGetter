@@ -7,7 +7,7 @@ class StudentResponse(BaseModel):
     id: str
     email: str
     google_id: str
-    goal: str
+    goal_name: str
     name: str
     latest_report: str
     current_streak: int
