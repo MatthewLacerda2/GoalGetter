@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Enum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 
@@ -16,7 +16,7 @@ class Resource(Base):
     __tablename__ = "resources"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    goal_id = Column(String(36), nullable=False)
+    goal_id = Column(String(36), ForeignKey("goals.id"), nullable=False)
     resource_type = Column(StudyResourceType, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
@@ -26,4 +26,3 @@ class Resource(Base):
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=False)
     
     goal = relationship("Goal", back_populates="resources")
-    student = relationship("Student", back_populates="resources")

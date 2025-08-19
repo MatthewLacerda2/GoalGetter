@@ -1,4 +1,5 @@
 NUM_DIMENSIONS = 3072
+#TODO: all values below are made-up
 JWT_ISSUER = "https://api.goalgetter.com"
 JWT_AUDIENCE = "https://api.goalgetter.com"
 

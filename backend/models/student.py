@@ -22,8 +22,8 @@ class Student(Base):
     longest_streak = Column(Integer, nullable=False, default=0)
     overall_xp = Column(Integer, nullable=False, default=0)
     
-    goals = relationship("Goal", back_populates="student")
-    streaks = relationship("Streak", back_populates="student")
+    goal = relationship("Goal", back_populates="student", uselist=False)
+    streaks = relationship("Streak", back_populates="student", uselist=False)
     chat_messages = relationship("ChatMessage", back_populates="student")
     achievements = relationship("PlayerAchievement", back_populates="student")
     student_contexts = relationship("StudentContext", back_populates="student")
