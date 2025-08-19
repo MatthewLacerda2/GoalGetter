@@ -1,6 +1,5 @@
 import logging
 from fastapi import FastAPI, Request
-from backend.api.v1.endpoints import roadmap
 from backend.api.v1.endpoints import router as api_v1_router
 from fastapi.middleware.cors import CORSMiddleware
 from backend.core.logging_middleware import LoggingMiddleware

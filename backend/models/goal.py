@@ -17,7 +17,7 @@ class Goal(Base):
     student_id = Column(String(36), nullable=False)
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
-    student = relationship("Student", back_populates="goals")
+    student = relationship("Student", back_populates="goal")
     resources = relationship("Resource", back_populates="goal")
     objectives = relationship("Objective", back_populates="goal")
     student_contexts = relationship("StudentContext", back_populates="goal")

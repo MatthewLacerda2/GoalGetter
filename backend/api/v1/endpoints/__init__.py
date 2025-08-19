@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.api.v1.endpoints import roadmap, achievements, auth, chat, resources, task, streak
+from backend.api.v1.endpoints import objective, roadmap, achievements, auth, chat, resources, streak
 from backend.core.rate_limiter import limiter
 
 router = APIRouter()
@@ -14,4 +14,4 @@ router.include_router(achievements.router, prefix="/achievements", tags=["achiev
 router.include_router(chat.router, prefix="/chat", tags=["chat"])
 router.include_router(resources.router, prefix="/resources", tags=["resources"])
 router.include_router(streak.router, prefix="/streak", tags=["streak"])
-router.include_router(task.router, prefix="/task", tags=["task"])
+router.include_router(objective.router, prefix="/objective", tags=["objective"])
