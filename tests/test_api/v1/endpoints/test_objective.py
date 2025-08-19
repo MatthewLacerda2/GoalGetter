@@ -1,7 +1,47 @@
 import pytest
 from backend.schemas.objective import ObjectiveResponse
+import logging
+
+logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_get_objectives(client, mock_google_verify, test_db):
-    """Test successful login with valid Google token for existing user"""
-    #TODO: Implement this test
+async def test_get_objective(client, mock_google_verify, test_db, test_user):
+    """Test getting an objective"""
+    from backend.models.objective import Objective
+    from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
+    
+    objective = Objective(
+        goal_id=test_user.goal_id,
+        name="Test Objective",
+        description="A test objective for testing purposes",
+        percentage_completed=0.5,
+    )
+    test_db.add(objective)
+    await test_db.flush()
+    
+    note = ObjectiveNoteModel(
+        objective_id=objective.id,
+        title="Test Note 1",
+        description="First test note",
+    )
+    test_db.add(note)
+    await test_db.flush()    
+    await test_db.commit()
+    await test_db.refresh(objective)
+    
+    login_response = await client.post(
+        "/api/v1/auth/login",
+        json={"access_token": "fixture_user_token"}
+    )
+    access_token = login_response.json()["access_token"]
+    
+    response = await client.get(
+        "/api/v1/objective",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    assert response.status_code == 200
+    
+    objective_response = ObjectiveResponse.model_validate(response.json())
+    
+    assert len(objective_response.notes) == 1
