@@ -94,7 +94,7 @@ def verify_token(token: str) -> dict:
     except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"JWTError, Invalid token at verify_token: {e}"
+            detail=f"Invalid token"
         )
 
 security = HTTPBearer()
@@ -114,7 +114,7 @@ async def get_current_user(
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Invalid token payload at get_current_user: {e}"
+                detail=f"Invalid token payload"
             )
             
         stmt = select(Student).where(Student.id == user_id)
@@ -124,7 +124,7 @@ async def get_current_user(
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User not found at get_current_user: {e}"
+                detail=f"User not found"
             )
             
         return user
@@ -132,12 +132,12 @@ async def get_current_user(
     except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"JWTError, Invalid token at get_current_user: {e}"
+            detail=f"Invalid token"
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Exception, Could not validate credentials at get_current_user: {e}"
+            detail=f"Could not validate credentials"
         )
 
 api_key_header = APIKeyHeader(name="X-API-Key")
@@ -156,7 +156,7 @@ async def get_user_by_api_key(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid API key at get_user_by_api_key: {api_key}"
+            detail=f"Invalid API key"
         )
         
     return user

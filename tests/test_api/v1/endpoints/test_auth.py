@@ -2,7 +2,7 @@ import pytest
 from backend.schemas.student import TokenResponse
 
 @pytest.mark.asyncio
-async def test_signup_successful(client, mock_google_verify, test_db):  #TODO: not workin'
+async def test_signup_successful(client, mock_google_verify, test_db):
     """Test successful signup with valid Google token"""
     response = await client.post(
         "/api/v1/auth/signup",
@@ -17,7 +17,7 @@ async def test_signup_successful(client, mock_google_verify, test_db):  #TODO: n
     assert token_response.student.google_id == "12345"
 
 @pytest.mark.asyncio
-async def test_signup_invalid_token(client, mock_google_verify):    #TODO: not workin'
+async def test_signup_invalid_token(client, mock_google_verify):
     """Test signup with invalid Google token"""
     mock_google_verify.side_effect = Exception("Invalid token")
     
@@ -30,7 +30,7 @@ async def test_signup_invalid_token(client, mock_google_verify):    #TODO: not w
     assert response.json()["detail"] == "Invalid Google token"
 
 @pytest.mark.asyncio
-async def test_signup_existing_user(client, mock_google_verify, test_db):  #TODO: not workin'
+async def test_signup_existing_user(client, mock_google_verify, test_db):
     """Test signup attempt with existing Google account"""
     first_response = await client.post(
         "/api/v1/auth/signup",
@@ -140,8 +140,6 @@ async def test_delete_account_successful(client, mock_google_verify, test_db):
         json={"access_token": "valid_google_token"}
     )
     assert login_response.status_code == 404
-    
-
 
 @pytest.mark.asyncio
 async def test_delete_account_invalid_token(client):
