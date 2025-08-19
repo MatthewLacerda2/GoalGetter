@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class ObjectiveNote(BaseModel):
@@ -6,6 +6,8 @@ class ObjectiveNote(BaseModel):
     title: str
     description: str
     created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class ObjectiveResponse(BaseModel):
     id: str
@@ -16,3 +18,5 @@ class ObjectiveResponse(BaseModel):
     last_updated_at: datetime
     
     notes: list[ObjectiveNote]
+    
+    model_config = ConfigDict(from_attributes=True)

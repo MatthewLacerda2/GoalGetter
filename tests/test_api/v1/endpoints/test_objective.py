@@ -1,14 +1,14 @@
 import pytest
 from backend.schemas.objective import ObjectiveResponse
 import logging
+from backend.models.objective import Objective
+from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
 
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
 async def test_get_objective(client, mock_google_verify, test_db, test_user):
     """Test getting an objective"""
-    from backend.models.objective import Objective
-    from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
     
     objective = Objective(
         goal_id=test_user.goal_id,
@@ -41,7 +41,5 @@ async def test_get_objective(client, mock_google_verify, test_db, test_user):
     )
     
     assert response.status_code == 200
-    
-    objective_response = ObjectiveResponse.model_validate(response.json())
-    
+    objective_response = ObjectiveResponse.model_validate(response.json())    
     assert len(objective_response.notes) == 1

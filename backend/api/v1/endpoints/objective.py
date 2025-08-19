@@ -10,6 +10,8 @@ from fastapi import Depends, status
 from sqlalchemy import select
 from fastapi import HTTPException
 import logging
+from pydantic import BaseModel, ConfigDict
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -34,16 +36,6 @@ async def get_objective(
     result = await db.execute(stmt)
     notes = result.scalars().all()
     
-    from backend.schemas.objective import ObjectiveNote as ObjectiveNoteSchema
-    note_schemas = [
-        ObjectiveNoteSchema(
-            id=note.id,
-            title=note.title,
-            description=note.description,
-            created_at=note.created_at
-        ) for note in notes
-    ]
-    
     return ObjectiveResponse(
         id=objective.id,
         name=objective.name,
@@ -51,5 +43,5 @@ async def get_objective(
         percentage_completed=objective.percentage_completed,
         created_at=objective.created_at,
         last_updated_at=objective.last_updated_at,
-        notes=note_schemas
+        notes=notes
     )
