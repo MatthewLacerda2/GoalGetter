@@ -25,7 +25,7 @@ class Student(Base):
     overall_xp = Column(Integer, nullable=False, default=0)
     
     goal = relationship("Goal", back_populates="student", uselist=False)
-    streaks = relationship("Streak", back_populates="student", uselist=False)
+    streak_days = relationship("StreakDay", back_populates="student", uselist=False)
     chat_messages = relationship("ChatMessage", back_populates="student")
     achievements = relationship("PlayerAchievement", back_populates="student")
     student_contexts = relationship("StudentContext", back_populates="student")
