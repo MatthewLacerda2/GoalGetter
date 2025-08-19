@@ -7,7 +7,6 @@ from backend.models.student import Student
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
-from backend.core.errors import USER_ALREADY_EXISTS
 from backend.core.logging_middleware import LoggingMiddleware
 import logging
 
@@ -30,10 +29,13 @@ async def signup(
         result = await db.execute(stmt)
         existing_user = result.scalar_one_or_none()
         
+        logger.info(f"\nAUTH LOG EXISTING USER: {existing_user}")
+        print("AUTH LOG SOMETHING")
+        
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=USER_ALREADY_EXISTS
+                detail="User already exists"
             )
         
         user = Student(
@@ -43,19 +45,19 @@ async def signup(
             latest_report="",
         )
         
-        logger.info(f"\nUSER INFO ZXC: {user_info}")
+        logger.info(f"\nAUTH LOG USER INFO ZXC: {user_info}")
         
         access_token = create_access_token(
             data={"sub": str(user.id)},
         )
         
-        logger.info(f"\nACCESS TOKEN: {access_token}")
+        logger.info(f"\nAUTH LOG ACCESS TOKEN: {access_token}")
         
         db.add(user)
         await db.commit()
         await db.refresh(user)
         
-        logger.info(f"\nWRITTEN TO DB: {user}")
+        logger.info(f"\nAUTH LOG WRITTEN TO DB: {user}")
         
         return TokenResponse(
             access_token=access_token,

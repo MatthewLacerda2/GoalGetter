@@ -1,5 +1,4 @@
 import pytest
-from backend.core.errors import USER_ALREADY_EXISTS
 from backend.schemas.student import TokenResponse
 
 @pytest.mark.asyncio
@@ -44,7 +43,7 @@ async def test_signup_existing_user(client, mock_google_verify, test_db):  #TODO
     )
     
     assert second_response.status_code == 409
-    assert second_response.json()["detail"] == USER_ALREADY_EXISTS
+    assert second_response.json()["detail"] == "User already exists"
 
 @pytest.mark.asyncio
 async def test_signup_missing_token(client):

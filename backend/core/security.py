@@ -64,12 +64,12 @@ def verify_google_token(token: str) -> dict:
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid Google token at verify_google_token value error: {str(e)}"
+            detail=f"ValueError, Invalid Google token at verify_google_token value error: {str(e)}"
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid Google token at verify_google_token exception: {str(e)}"
+            detail=f"Exception, Invalid Google token at verify_google_token exception: {str(e)}"
         )
 
 def verify_token(token: str) -> dict:
@@ -94,11 +94,11 @@ def verify_token(token: str) -> dict:
             audience=JWT_AUDIENCE
         )
         return payload
-    except JWTError:
-        logger.error("Invalid token", exc_info=True)
+    except JWTError as e:
+        logger.error(f"JWTError, Invalid token at verify_token: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
+            detail=f"JWTError, Invalid token at verify_token: {e}"
         )
 
 security = HTTPBearer()
@@ -118,7 +118,7 @@ async def get_current_user(
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token payload"
+                detail=f"Invalid token payload at get_current_user: {e}"
             )
             
         stmt = select(Student).where(Student.id == user_id)
@@ -128,22 +128,22 @@ async def get_current_user(
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
+                detail=f"User not found at get_current_user: {e}"
             )
             
         return user
         
-    except JWTError:
-        logger.error("Invalid token", exc_info=True)
+    except JWTError as e:
+        logger.error(f"JWTError, Invalid token at get_current_user: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
+            detail=f"JWTError, Invalid token at get_current_user: {e}"
         )
     except Exception as e:
-        logger.error("Could not validate credentials", exc_info=True)
+        logger.error(f"Exception, Could not validate credentials at get_current_user: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials"
+            detail=f"Exception, Could not validate credentials at get_current_user: {e}"
         )
 
 api_key_header = APIKeyHeader(name="X-API-Key")
@@ -162,7 +162,7 @@ async def get_user_by_api_key(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key"
+            detail=f"Invalid API key at get_user_by_api_key: {api_key}"
         )
         
     return user
