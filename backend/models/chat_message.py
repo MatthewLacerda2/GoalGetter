@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Boolean, Integer
+from sqlalchemy import Column, String, DateTime, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 
@@ -14,7 +14,7 @@ class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    student_id = Column(String(36), nullable=False)
+    student_id = Column(String(36), ForeignKey("students.id"), nullable=False)
     sender_id = Column(String(36), nullable=False)
     array_id = Column(String(36), nullable=False, unique=False)
     message = Column(String, nullable=False)

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, ForeignKey
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
 
@@ -11,7 +11,7 @@ class ObjectiveNote(Base):
     __tablename__ = "objective_notes"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    objective_id = Column(String(36), nullable=False)
+    objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     title = Column(String, nullable=True)
     notes = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())

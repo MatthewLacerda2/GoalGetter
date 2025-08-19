@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 
@@ -14,7 +14,7 @@ class Goal(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
-    student_id = Column(String(36), nullable=False)
+    student_id = Column(String(36), ForeignKey("students.id"), nullable=False)
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="goal")

@@ -17,7 +17,6 @@ class Resource(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     goal_id = Column(String(36), nullable=False)
-    student_id = Column(String(36), nullable=False)
     resource_type = Column(StudyResourceType, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
