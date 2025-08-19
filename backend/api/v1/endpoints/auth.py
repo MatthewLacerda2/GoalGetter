@@ -22,16 +22,13 @@ async def signup(
     """
     Sign up a new user using Google OAuth2 token.
     """
-    try:
+    try:        
         user_info = verify_google_token(oauth_data.access_token)
         
         stmt = select(Student).where(Student.google_id == user_info["sub"])
         result = await db.execute(stmt)
         existing_user = result.scalar_one_or_none()
-        
-        logger.info(f"\nAUTH LOG EXISTING USER: {existing_user}")
-        print("AUTH LOG SOMETHING")
-        
+                
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -45,19 +42,13 @@ async def signup(
             latest_report="",
         )
         
-        logger.info(f"\nAUTH LOG USER INFO ZXC: {user_info}")
-        
         access_token = create_access_token(
             data={"sub": str(user.id)},
         )
         
-        logger.info(f"\nAUTH LOG ACCESS TOKEN: {access_token}")
-        
         db.add(user)
         await db.commit()
         await db.refresh(user)
-        
-        logger.info(f"\nAUTH LOG WRITTEN TO DB: {user}")
         
         return TokenResponse(
             access_token=access_token,

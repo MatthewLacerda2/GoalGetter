@@ -48,11 +48,9 @@ def verify_google_token(token: str) -> dict:
             requests.Request(),
             GOOGLE_CLIENT_ID
         )
-        
         # Check if the token was issued to our client
         if idinfo['aud'] != GOOGLE_CLIENT_ID:
             raise ValueError("Token was not issued for this client")
-            
         return {
             "sub": idinfo["sub"],  # Google's unique user ID
             "email": idinfo["email"],
@@ -60,7 +58,6 @@ def verify_google_token(token: str) -> dict:
             "picture": idinfo.get("picture"),
             "email_verified": idinfo.get("email_verified", False)
         }
-        
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -95,7 +92,6 @@ def verify_token(token: str) -> dict:
         )
         return payload
     except JWTError as e:
-        logger.error(f"JWTError, Invalid token at verify_token: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"JWTError, Invalid token at verify_token: {e}"
@@ -134,13 +130,11 @@ async def get_current_user(
         return user
         
     except JWTError as e:
-        logger.error(f"JWTError, Invalid token at get_current_user: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"JWTError, Invalid token at get_current_user: {e}"
         )
     except Exception as e:
-        logger.error(f"Exception, Could not validate credentials at get_current_user: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Exception, Could not validate credentials at get_current_user: {e}"

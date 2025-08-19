@@ -7,6 +7,7 @@ from unittest.mock import patch
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from backend.models.base import Base
+from backend.core.database import get_db
 
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -24,9 +25,17 @@ TestingSessionLocal = sessionmaker(
     autoflush=False,
 )
 
+async def override_get_db():
+    async with TestingSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+            
 @pytest_asyncio.fixture
 async def client():
     """Async test client fixture"""
+    app.dependency_overrides[get_db] = override_get_db
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.clear()

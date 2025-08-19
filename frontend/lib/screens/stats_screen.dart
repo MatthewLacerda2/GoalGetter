@@ -58,7 +58,7 @@ class StatsScreen extends StatelessWidget {
               LineChartTable(spots: spots),
               const SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context)!.achievements,
+                AppLocalizations.of(context)!.awards,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -100,54 +100,6 @@ class StatsScreen extends StatelessWidget {
                       icon: Icons.psychology,
                       iconColor: Colors.white,
                       text: 'Trocou entre três notas consecutivas',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-              Text(
-                AppLocalizations.of(context)!.awards,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.left,
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 120,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    task_badge.Badge(
-                      icon: Icons.rocket_launch,
-                      iconColor: Colors.blue,
-                      text: 'Agora sabe uma música gospel!',
-                    ),
-                    SizedBox(width: 12),
-                    task_badge.Badge(
-                      icon: Icons.lightbulb,
-                      iconColor: Colors.red,
-                      text: 'Samba!',
-                    ),
-                    SizedBox(width: 12),
-                    task_badge.Badge(
-                      icon: Icons.group,
-                      iconColor: Colors.green,
-                      text: 'You Rock!',
-                    ),
-                    SizedBox(width: 12),
-                    task_badge.Badge(
-                      icon: Icons.schedule,
-                      iconColor: Colors.yellow,
-                      text: 'Smoke on the water!',
-                    ),
-                    SizedBox(width: 12),
-                    task_badge.Badge(
-                      icon: Icons.auto_awesome,
-                      iconColor: Colors.white,
-                      text: 'Ritmo rápido!',
                     ),
                   ],
                 ),
