@@ -50,7 +50,7 @@ async def signup(
         await db.flush()
         
         user.goal_id = goal.id
-        user.goal_name = goal.name  # Set the goal_name on the model
+        user.goal_name = goal.name
         
         access_token = create_access_token(
             data={"sub": str(user.id)},
@@ -64,11 +64,9 @@ async def signup(
             access_token=access_token,
             student=user
         )
-        # Remove this line since goal_name is now on the model
-        # token_response.student.goal_name = goal.name
-        
+                
         return token_response
-        
+    
     except IntegrityError as e:
         print(f"\nINTEGRITY ERROR IN SIGNUP: {type(e).__name__}: {str(e)}")
         await db.rollback()
@@ -85,7 +83,7 @@ async def signup(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid Google token"
         )
-
+        
 @router.post("/login", response_model=TokenResponse)
 async def login(
     oauth_data: OAuth2Request,
@@ -101,32 +99,20 @@ async def login(
         result = await db.execute(stmt)
         user = result.scalar_one_or_none()
         
-        user.last_login = datetime.now()
-        await db.commit()
-        await db.refresh(user)
-        
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
         
+        user.last_login = datetime.now()
+        await db.commit()
+        await db.refresh(user)
+        
         access_token = create_access_token(
             data={"sub": str(user.id)},
         )
         
-        goal_id = user.goal_id
-        stmt = select(Goal).where(Goal.id == goal_id)
-        result = await db.execute(stmt)
-        goal = result.scalar_one_or_none()
-        
-        if not goal:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Goal not found"
-            )        
-        
-        user.goal = goal        
         return TokenResponse(
             access_token=access_token,
             student=user
