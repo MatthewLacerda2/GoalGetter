@@ -52,11 +52,13 @@ async def signup(
         user.goal_id = goal.id
         user.goal_name = goal.name
         
+        db.add(user)
+        await db.flush()
+        
         access_token = create_access_token(
             data={"sub": str(user.id)},
         )
         
-        db.add(user)
         await db.commit()
         await db.refresh(user)
         
@@ -132,7 +134,7 @@ async def delete_account(
     current_user: Student = Depends(get_current_user)
 ):
     """
-    Delete user account and all associated data (alert prompts)
+    Delete user account and all associated data
     """
     try:
         await db.delete(current_user)
