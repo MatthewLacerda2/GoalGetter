@@ -101,13 +101,13 @@ async def test_get_chat_messages_no_parameters(client, mock_google_verify, test_
 
 @pytest.mark.asyncio
 async def test_get_chat_messages_unauthorized(client):
-    """Test that the chat messages endpoint returns 401 without token."""
+    """Test that the chat messages endpoint returns 403 without token."""
     response = await client.get(
         "/api/v1/chat",
         params={"message_id": "msg1", "limit": 10}
     )
     
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 @pytest.mark.asyncio
 async def test_get_chat_messages_invalid_token(client, mock_google_verify):
