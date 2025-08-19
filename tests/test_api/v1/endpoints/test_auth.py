@@ -59,17 +59,9 @@ async def test_signup_missing_token(client):
 async def test_login_successful(client, mock_google_verify, test_db, test_user):
     """Test successful login with valid Google token for existing user"""
     
-    # No need to create user via signup - test_user fixture already provides one
-    # But we need to mock the google_verify to return the same data as our fixture
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
     response = await client.post(
         "/api/v1/auth/login",
-        json={"access_token": "valid_google_token"}
+        json={"access_token": "fixture_user_token"}  # Use a token the mock recognizes
     )
     
     assert response.status_code == 200
@@ -135,7 +127,7 @@ async def test_delete_account_successful(client, mock_google_verify, test_db, te
     # Get access token by logging in with our fixture user
     login_response = await client.post(
         "/api/v1/auth/login",
-        json={"access_token": "valid_google_token"}
+        json={"access_token": "fixture_user_token"}
     )
     access_token = login_response.json()["access_token"]
     
@@ -149,7 +141,7 @@ async def test_delete_account_successful(client, mock_google_verify, test_db, te
     # Verify user is deleted by trying to login again
     login_response = await client.post(
         "/api/v1/auth/login",
-        json={"access_token": "valid_google_token"}
+        json={"access_token": "fixture_user_token"}
     )
     assert login_response.status_code == 404
 

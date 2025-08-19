@@ -63,7 +63,7 @@ def mock_google_verify():
     from google.oauth2 import id_token
     
     def mock_verify_oauth2_token(token, request, client_id):
-        if token == "valid_google_token" or token == "valid_google_token_1":
+        if token == "valid_google_token":
             return {
                 "iss": "accounts.google.com",
                 "sub": "12345",
@@ -72,13 +72,13 @@ def mock_google_verify():
                 "name": "Test User 1",
                 "aud": client_id
             }
-        elif token == "valid_google_token_2":
+        elif token == "fixture_user_token":
             return {
                 "iss": "accounts.google.com",
-                "sub": "67890",
-                "email": "test2@example.com",
+                "sub": "test_google_id_123",
+                "email": "test@example.com",
                 "email_verified": True,
-                "name": "Test User 2",
+                "name": "Test User",
                 "aud": client_id
             }
         raise ValueError("Invalid token")
@@ -143,9 +143,6 @@ async def test_user(test_db):
         goal_id=goal.id,
         goal_name=goal.name,
         latest_report="",
-        current_streak=0,
-        longest_streak=0,
-        overall_xp=0
     )
     test_db.add(student)
     await test_db.flush()

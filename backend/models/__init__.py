@@ -4,7 +4,7 @@ from backend.models.chat_message import ChatMessage
 from backend.models.goal import Goal
 from backend.models.player_achievement import PlayerAchievement
 from backend.models.resource import Resource
-from backend.models.streak_day import Streak
+from backend.models.streak_day import StreakDay
 from backend.models.student_context import StudentContext
 from backend.models.student import Student
 from backend.models.objective import Objective
