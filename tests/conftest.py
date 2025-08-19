@@ -122,3 +122,36 @@ def mock_gemini_roadmap_creation():
     #TODO: the fixture should be for the api call from the gemini client, not for the function itself
     with patch('backend.api.v1.endpoints.roadmap.get_gemini_roadmap_creation', side_effect=mock_get_gemini_roadmap_creation) as mock:
         yield mock
+
+@pytest_asyncio.fixture
+async def test_user(test_db):
+    """Fixture to create a test user with goal for testing"""
+    from backend.models.student import Student
+    from backend.models.goal import Goal
+    
+    goal = Goal(
+        name="Test Goal",
+        description="A test goal for testing purposes"
+    )
+    test_db.add(goal)
+    await test_db.flush()
+    
+    student = Student(
+        email="test@example.com",
+        google_id="test_google_id_123",
+        name="Test User",
+        goal_id=goal.id,
+        goal_name=goal.name,
+        latest_report="",
+        current_streak=0,
+        longest_streak=0,
+        overall_xp=0
+    )
+    test_db.add(student)
+    await test_db.flush()
+    
+    await test_db.commit()
+    await test_db.refresh(student)
+    await test_db.refresh(goal)
+    
+    yield student

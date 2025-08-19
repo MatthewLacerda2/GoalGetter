@@ -56,13 +56,16 @@ async def test_signup_missing_token(client):
     assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_login_successful(client, mock_google_verify, test_db):
+async def test_login_successful(client, mock_google_verify, test_db, test_user):
     """Test successful login with valid Google token for existing user"""
     
-    await client.post(
-        "/api/v1/auth/signup",
-        json={"access_token": "valid_google_token"}
-    )    
+    # No need to create user via signup - test_user fixture already provides one
+    # But we need to mock the google_verify to return the same data as our fixture
+    mock_google_verify.return_value = {
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
+    }
     
     response = await client.post(
         "/api/v1/auth/login",
@@ -73,9 +76,9 @@ async def test_login_successful(client, mock_google_verify, test_db):
     token_response = TokenResponse.model_validate(response.json())
     
     assert token_response.token_type == "bearer"
-    assert token_response.student.email == "test1@example.com"
-    assert token_response.student.name == "Test User 1"
-    assert token_response.student.google_id == "12345"
+    assert token_response.student.email == test_user.email
+    assert token_response.student.name == test_user.name
+    assert token_response.student.google_id == test_user.google_id
 
 @pytest.mark.asyncio
 async def test_login_nonexistent_user(client, mock_google_verify, test_db):
@@ -119,16 +122,22 @@ async def test_login_missing_token(client):
     assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_delete_account_successful(client, mock_google_verify, test_db):
+async def test_delete_account_successful(client, mock_google_verify, test_db, test_user):
     """Test successful account deletion with valid token"""
     
-    signup_response = await client.post(
-        "/api/v1/auth/signup",
+    # Mock google_verify to return our fixture user data
+    mock_google_verify.return_value = {
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
+    }
+    
+    # Get access token by logging in with our fixture user
+    login_response = await client.post(
+        "/api/v1/auth/login",
         json={"access_token": "valid_google_token"}
     )
-    access_token = signup_response.json()["access_token"]
-    print(f"Signup response: {signup_response.json()}")
-    print(f"Access token: {access_token}")
+    access_token = login_response.json()["access_token"]
     
     response = await client.delete(
         "/api/v1/auth/account",
@@ -137,6 +146,7 @@ async def test_delete_account_successful(client, mock_google_verify, test_db):
     
     assert response.status_code == 204
     
+    # Verify user is deleted by trying to login again
     login_response = await client.post(
         "/api/v1/auth/login",
         json={"access_token": "valid_google_token"}
