@@ -7,9 +7,8 @@ from pgvector.sqlalchemy import Vector
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
 
-#Messages are generated in an array of messages and sent separately
-#Hence the array_id
-#This makes the messages seem more natural
+#Messages are generated in List[str] and displayed separately
+#This makes them seem more natural
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
@@ -20,7 +19,7 @@ class ChatMessage(Base):
     message = Column(String, nullable=False)
     num_tokens = Column(Integer, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
-    is_liked = Column(Boolean, nullable=False, default=False)
+    is_modern = Column(Boolean, nullable=False, default=False)
     message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="chat_messages")

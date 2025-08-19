@@ -139,24 +139,3 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Could not validate credentials"
         )
-
-api_key_header = APIKeyHeader(name="X-API-Key")
-
-async def get_user_by_api_key(
-    api_key: str = Security(api_key_header),
-    db: AsyncSession = Depends(get_db)
-) -> Student:
-    """
-    Get the current user based on their API key from the X-API-Key header.
-    """
-    stmt = select(Student).where(Student.api_key == api_key)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid API key"
-        )
-        
-    return user

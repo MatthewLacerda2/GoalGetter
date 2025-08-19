@@ -10,8 +10,6 @@ from fastapi import Depends, status
 from sqlalchemy import select
 from fastapi import HTTPException
 import logging
-from pydantic import BaseModel, ConfigDict
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
