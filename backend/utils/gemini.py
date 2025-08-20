@@ -6,27 +6,12 @@ from backend.core.config import settings
 from backend.schemas.roadmap import RoadmapInitiationResponse, RoadmapInitiationRequest
 from backend.utils.prompts import get_roadmap_initiation_prompt
 
+gemini_temperature = 0.0
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-def get_client():
-    #credentials = Credentials(
-        #token=None,  # Token is automatically fetched using refresh token
-        #refresh_token=settings.GOOGLE_REFRESH_TOKEN,
-        #client_id=settings.GOOGLE_CLIENT_ID,
-        #client_secret=settings.GOOGLE_CLIENT_SECRET,
-        #token_uri='https://oauth2.googleapis.com/token',  # This is the standard Google OAuth2 token endpoint
-    #)
-    
-    return Client(
-        api_key=settings.GEMINI_API_KEY,
-        #vertexai=True,
-        #project=GOOGLE_PROJECT_ID,
-        #location="global",
-        #credentials=credentials    #TODO: uncomment this when you figure the values out. They were fine until they weren't
-    )
-
-gemini_temperature = 0.0
+def get_client():    
+    return Client(api_key=settings.GEMINI_API_KEY)
 
 def get_gemini_follow_up_questions(initiation_request: RoadmapInitiationRequest) -> RoadmapInitiationResponse:
     

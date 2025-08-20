@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 from typing import Optional
-from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageRequest, CreateMessageResponse
+from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageRequest, CreateMessageResponse, EditMessageRequest
 from backend.models.chat_message import ChatMessage
 from backend.models.student import Student
 from backend.core.security import get_current_user
@@ -97,7 +97,7 @@ async def get_chat_messages(
     
     return ChatMessageResponse(messages=messages)
 
-@router.patch("", response_model=ChatMessageItem)
+@router.patch("/likes", response_model=ChatMessageItem)
 async def like_message(
     payload: LikeMessageRequest,
     current_user: Student = Depends(get_current_user),
@@ -113,6 +113,27 @@ async def like_message(
         raise HTTPException(status_code=404, detail="Message not found")
     
     message.is_liked = payload.like
+    await db.commit()
+    
+    return ChatMessageItem.model_validate(message)
+
+@router.patch("/edit", response_model=ChatMessageItem)
+async def edit_message(
+    payload: EditMessageRequest,
+    current_user: Student = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Edit a message for the authenticated user."""
+    
+    query = select(ChatMessage).where(ChatMessage.id == payload.message_id, ChatMessage.student_id == current_user.id)
+    result = await db.execute(query)
+    message = result.scalars().first()
+    
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    message.message = payload.message
+    #TODO: update the num_tokens
     await db.commit()
     
     return ChatMessageItem.model_validate(message)

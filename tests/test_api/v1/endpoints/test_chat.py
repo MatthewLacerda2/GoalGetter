@@ -1,6 +1,6 @@
 import pytest
 from sqlalchemy import select
-from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageResponse, CreateMessageRequest
+from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageResponse, CreateMessageRequest, EditMessageRequest
 from backend.models.chat_message import ChatMessage
 from datetime import datetime
 
@@ -117,7 +117,7 @@ async def test_get_chat_messages_invalid_token(client, mock_google_verify):
 async def test_like_message_unauthorized(client):
     """Test that the chat messages endpoint returns 403 without token."""
     response = await client.patch(
-        "/api/v1/chat",
+        "/api/v1/chat/likes",
         json={"message_id": "msg1", "like": True}
     )
 
@@ -142,7 +142,7 @@ async def test_like_message_not_found(client, mock_google_verify, test_db, test_
     payload = LikeMessageRequest(message_id="non_existent_id", like=True)
     
     response = await client.patch(
-        "/api/v1/chat",
+        "/api/v1/chat/likes",
         json=payload.model_dump(),
         headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -175,7 +175,7 @@ async def test_like_message(client, mock_google_verify, test_db, test_user):
     payload = LikeMessageRequest(message_id=chat_messages[0].id, like=True)
     
     response = await client.patch(
-        "/api/v1/chat",
+        "/api/v1/chat/likes",
         json=payload.model_dump(),
         headers={"Authorization": f"Bearer {access_token}"}
     )
@@ -189,6 +189,84 @@ async def test_like_message(client, mock_google_verify, test_db, test_user):
     assert chat_response.sender_id == chat_messages[0].sender_id
     assert chat_response.message == chat_messages[0].message
     assert chat_response.created_at == chat_messages[0].created_at
+    
+@pytest.mark.asyncio
+async def test_edit_message(client, mock_google_verify, test_db, test_user):
+    """Test that the chat messages endpoint returns a valid response for a valid request."""
+    
+    mock_google_verify.return_value = {
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
+    }
+    
+    login_response = await client.post(
+        "/api/v1/auth/login",
+        json={"access_token": "fixture_user_token"}
+    )
+    access_token = login_response.json()["access_token"]
+    
+    chat_messages = create_chat_messages(test_user.id)
+    
+    for msg in chat_messages:
+        test_db.add(msg)
+    await test_db.commit()
+    
+    payload = EditMessageRequest(message_id=chat_messages[0].id, message="Edited message")
+    
+    response = await client.patch(
+        "/api/v1/chat/edit",
+        json=payload.model_dump(),
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    chat_response = ChatMessageItem.model_validate(response.json())
+    
+    assert response.status_code == 200
+    assert isinstance(chat_response, ChatMessageItem)
+    assert chat_response.is_liked == chat_messages[0].is_liked
+    assert chat_response.id == chat_messages[0].id
+    assert chat_response.sender_id == chat_messages[0].sender_id
+    assert chat_response.message == payload.message
+    assert chat_response.created_at == chat_messages[0].created_at
+
+@pytest.mark.asyncio
+async def test_edit_message_unauthorized(client):
+    """Test that the chat messages endpoint returns 403 without token."""
+    response = await client.patch(
+        "/api/v1/chat/edit",
+        json={"message_id": "msg1", "message": "Edited message"}
+    )
+
+    assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_edit_message_not_found(client, mock_google_verify, test_db, test_user):
+
+    """Test that the chat messages endpoint returns 404 if the message is not found."""
+    
+    mock_google_verify.return_value = {
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
+    }
+
+    login_response = await client.post(
+        "/api/v1/auth/login",
+        json={"access_token": "fixture_user_token"}
+    )
+    access_token = login_response.json()["access_token"]
+    
+    payload = EditMessageRequest(message_id="non_existent_id", message="Edited message")
+    
+    response = await client.patch(
+        "/api/v1/chat/edit",
+        json=payload.model_dump(),
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
 async def test_delete_message(client, mock_google_verify, test_db, test_user):

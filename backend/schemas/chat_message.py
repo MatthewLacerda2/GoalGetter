@@ -20,6 +20,14 @@ class LikeMessageRequest(BaseModel):
     message_id: str
     like: bool
     
+    model_config = ConfigDict(from_attributes=True)
+    
+class EditMessageRequest(BaseModel):
+    message_id: str
+    message: str
+    
+    model_config = ConfigDict(from_attributes=True)
+    
 class CreateMessageRequest(BaseModel):
     message: str
     
