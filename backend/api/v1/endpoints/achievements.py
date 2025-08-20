@@ -41,5 +41,7 @@ async def get_achievements(
             image_url=achievement.image_url,
             achieved_at=player_achievement.achieved_at
         ))
-    
+
+    achievements.sort(key=lambda x: x.achieved_at, reverse=True)
+
     return PlayerAchievementResponse(achievements=achievements)

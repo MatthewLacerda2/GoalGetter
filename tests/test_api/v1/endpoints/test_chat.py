@@ -3,6 +3,24 @@ from backend.schemas.chat_message import ChatMessageResponse
 from backend.models.chat_message import ChatMessage
 from datetime import datetime
 
+def create_chat_messages(user_id: str):
+    """Create a predefined array of chat messages for testing"""
+    
+    messages = []
+    for i in range(15):
+        msg = ChatMessage(
+            id=f"msg{i}",
+            message=f"Message {i}",
+            sender_id=user_id,
+            array_id="array1",
+            num_tokens=3,
+            created_at=datetime.now(),
+            is_modern=False,
+            student_id=user_id
+        )
+        messages.append(msg)
+    return messages
+
 @pytest.mark.asyncio
 async def test_get_chat_messages_with_parameters(client, mock_google_verify, test_db, test_user):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
@@ -19,44 +37,25 @@ async def test_get_chat_messages_with_parameters(client, mock_google_verify, tes
     )
     access_token = login_response.json()["access_token"]
     
-    chat_messages = [
-        ChatMessage(
-            id="msg1",
-            message="Hello, how are you?",
-            sender_id="user",
-            array_id="array1",
-            num_tokens=4,
-            created_at=datetime.now(),
-            is_modern=False,
-            student_id=test_user.id
-        ),
-        ChatMessage(
-            id="msg2", 
-            message="Waddaya doin'?",
-            sender_id="user",
-            array_id="array2",
-            num_tokens=5,
-            created_at=datetime.now(),
-            is_modern=True,
-            student_id=test_user.id
-        )
-    ]
+    chat_messages = create_chat_messages(test_user.id)
     
     for msg in chat_messages:
         test_db.add(msg)
     await test_db.commit()
     
+    limit = 10
+    
     response = await client.get(
         "/api/v1/chat",
         headers={"Authorization": f"Bearer {access_token}"},
-        params={"message_id": "msg1", "limit": 10}
+        params={"message_id": "msg1", "limit": limit}
     )
     
     chat_response = ChatMessageResponse.model_validate(response.json())
     
     assert response.status_code == 200
     assert isinstance(chat_response, ChatMessageResponse)
-    assert len(chat_response.messages) == 2
+    assert len(chat_response.messages) == limit
 
 @pytest.mark.asyncio
 async def test_get_chat_messages_no_parameters(client, mock_google_verify, test_db, test_user):
@@ -74,17 +73,9 @@ async def test_get_chat_messages_no_parameters(client, mock_google_verify, test_
     )
     access_token = login_response.json()["access_token"]
     
-    for i in range(15):
-        msg = ChatMessage(
-            id=f"msg{i}",
-            message=f"Message {i}",
-            sender_id="user",
-            array_id="array1",
-            num_tokens=3,
-            created_at=datetime.now(),
-            is_modern=False,
-            student_id=test_user.id
-        )
+    chat_messages = create_chat_messages(test_user.id)
+    
+    for msg in chat_messages:
         test_db.add(msg)
     await test_db.commit()
     
