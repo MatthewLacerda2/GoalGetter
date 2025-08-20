@@ -14,6 +14,12 @@ from datetime import datetime
 
 router = APIRouter()
 
+#TODO: make the AI get context from:
+# - the student's chat history
+# - the student_context
+# - the student's resources
+# - the student's objective, notes and goal
+
 @router.post("", response_model=CreateMessageResponse, status_code=201)
 async def create_message(
     payload: CreateMessageRequest,
