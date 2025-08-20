@@ -15,11 +15,10 @@ class ChatMessage(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     student_id = Column(String(36), ForeignKey("students.id"), nullable=False)
     sender_id = Column(String(36), nullable=False)
-    array_id = Column(String(36), nullable=False, unique=False)
+    array_id = Column(String(36), nullable=True, unique=False)
     message = Column(String, nullable=False)
-    num_tokens = Column(Integer, nullable=False)
+    num_tokens = Column(Integer, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
-    is_modern = Column(Boolean, nullable=False, default=False)
     is_liked = Column(Boolean, nullable=False, default=False)
     message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     

@@ -20,6 +20,7 @@ class Resource(Base):
     resource_type = Column(StudyResourceType, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
+    language = Column(String, nullable=False)
     link = Column(String, nullable=False, unique=True)
     image_url = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())

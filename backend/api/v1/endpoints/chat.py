@@ -1,14 +1,72 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 from typing import Optional
-from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest
+from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageRequest, CreateMessageResponse
 from backend.models.chat_message import ChatMessage
 from backend.models.student import Student
 from backend.core.security import get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from sqlalchemy import select, desc
+from typing import List
+import re
+import uuid
+from datetime import datetime
 
 router = APIRouter()
+
+@router.post("", response_model=CreateMessageResponse, status_code=201)
+async def create_message(
+    payload: CreateMessageRequest,
+    current_user: Student = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Create a new chat message for the authenticated user."""
+    
+    message = ChatMessage(
+        student_id=current_user.id,
+        sender_id=current_user.id,
+        message=payload.message,
+        created_at=datetime.now()
+    )
+    
+    db.add(message)
+    await db.commit()
+    
+    mocked_responses: List[str] = ["First message", "Second message", "Third message"]
+    array_id = str(uuid.uuid4())
+    items: List[ChatMessageItem] = []
+    
+    for i in range(len(mocked_responses)):
+        message = ChatMessageItem(
+            id=str(uuid.uuid4()),
+            sender_id=current_user.id,
+            message=mocked_responses[i],
+            created_at=datetime.now(),
+            is_liked=False
+        )
+        items.append(message)
+    
+    mocked_messages: List[ChatMessage] = []
+    for i in range(len(mocked_responses)):
+        aux_message = ChatMessage(
+            student_id=current_user.id,
+            sender_id="gemini-2.5-flash",
+            array_id=array_id,
+            message=mocked_responses[i],
+            num_tokens=len([w for w in re.split(r"[ \n.,?]", mocked_responses[i]) if w]),
+            is_liked=False
+        )
+        
+        mocked_messages.append(aux_message)
+        
+    db.add_all(mocked_messages)
+    await db.commit()
+        
+    response = CreateMessageResponse(
+        messages=items
+    )
+    
+    return response
 
 @router.get("", response_model=ChatMessageResponse)
 async def get_chat_messages(

@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from backend.main import app
-from backend.schemas.roadmap import RoadmapInitiationResponse, RoadmapCreationResponse, Step
+from backend.schemas.roadmap import RoadmapInitiationResponse
 from unittest.mock import patch
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -99,28 +99,6 @@ def mock_gemini_follow_up_questions():
     # Patch where the function is imported and used, not where it's defined
     #TODO: the fixture should be for the api call from the gemini client, not for the function itself
     with patch('backend.api.v1.endpoints.roadmap.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
-        yield mock
-        
-@pytest.fixture
-def mock_gemini_roadmap_creation():
-    """Fixture to mock Gemini roadmap creation responses"""
-    
-    def mock_get_gemini_roadmap_creation(*args, **kwargs):
-        
-        steps = [
-            Step(title="Learn Python", description="Learn the basics of Python"),
-            Step(title="Learn Flask", description="Learn Flask"),
-            Step(title="Create a Minecraft server", description="Create a Minecraft server"),
-        ]
-        
-        return RoadmapCreationResponse(
-            steps=steps,
-            notes=["Use the Python documentation", "Use the Minecraft server documentation"]
-        )
-    
-    # Patch where the function is imported and used, not where it's defined
-    #TODO: the fixture should be for the api call from the gemini client, not for the function itself
-    with patch('backend.api.v1.endpoints.roadmap.get_gemini_roadmap_creation', side_effect=mock_get_gemini_roadmap_creation) as mock:
         yield mock
 
 @pytest_asyncio.fixture
