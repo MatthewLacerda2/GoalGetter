@@ -20,6 +20,18 @@ router = APIRouter()
 # - the student's resources
 # - the student's objective, notes and goal
 
+#We must also:
+
+# - generate context as chat goes on
+# - generate the lessons
+    # - Those must have and generate context (metacognition)
+    # - When done, it must:
+        # - generate new context
+        # - generate new objective
+        # - update the student's streak and give XP
+        # - give an award, if applicable
+
+
 @router.post("", response_model=CreateMessageResponse, status_code=201)
 async def create_message(
     payload: CreateMessageRequest,
