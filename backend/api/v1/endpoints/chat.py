@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Response
 from typing import Optional
 from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest
 from backend.models.chat_message import ChatMessage
@@ -58,3 +58,23 @@ async def like_message(
     await db.commit()
     
     return ChatMessageItem.model_validate(message)
+
+@router.delete("/{message_id}", status_code=204)
+async def delete_message(
+    message_id: str,
+    current_user: Student = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Delete a message for the authenticated user."""
+    
+    query = select(ChatMessage).where(ChatMessage.id == message_id, ChatMessage.student_id == current_user.id)
+    result = await db.execute(query)
+    message = result.scalars().first()
+    
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    await db.delete(message)
+    await db.commit()
+    
+    return Response(status_code=204)
