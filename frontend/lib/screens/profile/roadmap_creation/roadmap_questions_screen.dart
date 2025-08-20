@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 import '../../../widgets/screens/roadmap/roadmap_creation/goal_questions.dart';
-import 'roadmap_lay_out_screen.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../main.dart'; // Added import for MyHomePage
 
 class RoadmapQuestionsScreen extends StatefulWidget {
   final List<String> questions;
@@ -123,13 +123,17 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
       try {
         final results = await _fetchRoadmapSteps(widget.prompt);
         if (!mounted) return;
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => RoadmapLayOutScreen(
-              roadmapCreationResponse: results!,
+            builder: (context) => MyHomePage(
+              title: 'GoalGetter',
+              onLanguageChanged: (language) {
+                // Handle language change if needed
+              },
             ),
           ),
+          (route) => false, // This removes all previous routes
         );
       } catch (e) {
         if (!mounted) return;
