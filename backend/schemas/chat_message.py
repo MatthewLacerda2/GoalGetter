@@ -20,3 +20,24 @@ class ChatMessageResponse(BaseModel):
 class LikeMessageRequest(BaseModel):
     message_id: str
     like: bool
+    
+class CreateMessageRequest(BaseModel):
+    message: str
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+class ChatMessageItem(BaseModel):
+    id: str
+    sender_id: str
+    array_id: str
+    message: str
+    created_at: datetime
+    is_modern: bool
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+class CreateMessageResponse(BaseModel):
+    message: List[ChatMessageItem]
+    
+    model_config = ConfigDict(from_attributes=True)
