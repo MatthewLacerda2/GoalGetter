@@ -20,6 +20,7 @@ class ChatMessage(Base):
     num_tokens = Column(Integer, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     is_modern = Column(Boolean, nullable=False, default=False)
+    is_liked = Column(Boolean, nullable=False, default=False)
     message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="chat_messages")
