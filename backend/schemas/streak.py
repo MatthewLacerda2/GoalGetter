@@ -8,6 +8,6 @@ class StreakDay(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
-class WeekStreak(BaseModel):
+class TimePeriodStreak(BaseModel):
     current_streak: int
     streak_days: List[StreakDay]
