@@ -1,9 +1,7 @@
 import uuid
 from sqlalchemy import Column, String
-from pgvector.sqlalchemy import Vector
 from backend.models.base import Base
 from sqlalchemy.orm import relationship
-from backend.utils.envs import NUM_DIMENSIONS
 
 class Achievement(Base):
     __tablename__ = "achievements"
