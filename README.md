@@ -1,25 +1,22 @@
 # GoalGetter
 
-An app to help plan a weekly-routine with long term goals
+An educational app with an AI-mentor
 
 # How it works
 
-- Agenda: setup your weekly schedule
-    Look what you have for the day of the week
-- Tasks: how you spent your weekly time
-    Check out what you have for the day
-    Create tasks for your goals
-- Goals: to your road
-    Easily have a thought-out roadmap
-    Look your list of tasks
-    Get warned when you didn't assign enough time
-- Motivation: pushy!
-    We make sure you keep motivated
-    Let us handle the thinking plan
-- Profile: user settings
-    Get personal
+- Goal
+- Lessons
+- Progress
+- Mentoring
 
-# Infra
+# Philosophy
+
+- Goal
+- Small steps
+- Focus
+- Gamification
+
+# Tech Stack
 
 Flutter:
     - Webapp and Android

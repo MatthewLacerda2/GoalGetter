@@ -37,7 +37,5 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 log_data["response_body"] = json.loads(response_body[0].decode())
             except Exception as e:
                 log_data["response_body"] = response_body[0].decode()
-
-        logger.info(log_data)
         
         return response

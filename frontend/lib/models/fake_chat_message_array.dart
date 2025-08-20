@@ -4,12 +4,12 @@ List<ChatMessage> fakeChatMessages = [
   ChatMessage(
     id: '1',
     message: 'E aí, como tá indo?',
-    sender: ChatMessageSender.user,
+    sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '2',
     message: 'Bem, obrigado',
-    sender: ChatMessageSender.tutor,
+    sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '3',
@@ -19,7 +19,7 @@ List<ChatMessage> fakeChatMessages = [
   ChatMessage(
     id: '4',
     message: 'Sol Dó Ré Mi Sol Lá',
-    sender: ChatMessageSender.tutor,
+    sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '5',
@@ -44,12 +44,12 @@ List<ChatMessage> fakeChatMessages = [
   ChatMessage(
     id: '9',
     message: 'Eu tinha aprendido mas quando comecei novas eu meio que esqueci',
-    sender: ChatMessageSender.tutor,
+    sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '10',
     message: 'Isso quer dizer que você não aprendeu',
-    sender: ChatMessageSender.user,
+    sender: ChatMessageSender.tutor,
   ),
   ChatMessage(
     id: '11',
@@ -59,12 +59,12 @@ List<ChatMessage> fakeChatMessages = [
   ChatMessage(
     id: '12',
     message: 'Saquei',
-    sender: ChatMessageSender.tutor,
+    sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '13',
     message: 'As vezes eu paro pq meu dedo dói muito',
-    sender: ChatMessageSender.tutor,
+    sender: ChatMessageSender.user,
   ),
   ChatMessage(
     id: '14',

@@ -77,7 +77,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
   
   void _onTabTapped(int index) {
     setState(() {
@@ -86,10 +86,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> get _tabPages => <Widget>[
-    ResourcesScreen(),
-    TutorScreen(messages: fakeChatMessages),
     TaskScreen(),
+    TutorScreen(messages: fakeChatMessages),
     StatsScreen(),
+    ResourcesScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
   ];
 
@@ -120,8 +120,8 @@ class _MyHomePageState extends State<MyHomePage> {
         items: [
           BottomNavigationBarItem(
             icon: MainScreenIcon(
-              icon: Icons.school,
-              color: Colors.deepOrange,
+              icon: Icons.event_note,
+              color: Colors.blue,
               isSelected: _selectedIndex == 0,
             ),
             label: '',
@@ -136,16 +136,16 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
-              icon: Icons.event_note,
-              color: Colors.blue,
+              icon: Icons.workspace_premium_outlined,
+              color: Colors.amber,
               isSelected: _selectedIndex == 2,
             ),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
-              icon: Icons.workspace_premium_outlined,
-              color: Colors.amber,
+              icon: Icons.school,
+              color: Colors.deepOrange,
               isSelected: _selectedIndex == 3,
             ),
             label: '',

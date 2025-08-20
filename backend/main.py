@@ -1,6 +1,5 @@
 import logging
 from fastapi import FastAPI, Request
-from backend.api.v1.endpoints import roadmap
 from backend.api.v1.endpoints import router as api_v1_router
 from fastapi.middleware.cors import CORSMiddleware
 from backend.core.logging_middleware import LoggingMiddleware
@@ -27,7 +26,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Authorization", "Content-Type", "X-API-Key"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 limiter = Limiter(key_func=get_remote_address)
