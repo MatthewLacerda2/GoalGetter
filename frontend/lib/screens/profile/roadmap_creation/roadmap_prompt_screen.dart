@@ -14,10 +14,8 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
   final _formKey = GlobalKey<FormState>();
   final _promptController = TextEditingController();
   
-  // Focus nodes to track when fields are focused
   final _promptFocusNode = FocusNode();
 
-  // State to control button and spinner
   bool _isLoading = false;
 
   @override
@@ -65,11 +63,9 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                backgroundColor: Colors.grey.shade200,
                 content: Text(
                   'Error: No questions received',
                   style: TextStyle(
-                    color: Colors.red,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -82,11 +78,9 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.grey.shade200,
               content: Text(
                 'Error: $e',
                 style: TextStyle(
-                  color: Colors.red,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
@@ -116,10 +110,12 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.createRoadmap),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.grey[800],
         elevation: 0,
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -129,12 +125,11 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 2),
-              // Main question
-              //Text('State your problem. State your purpose. State your level.',
               Text(
                 AppLocalizations.of(context)!.tellWhatYourGoalIs,
                 style: const TextStyle(
                   fontSize: 18,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 16),
@@ -144,9 +139,13 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context)!.goalDescriptionHintText,
                   border: const OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  hintStyle: TextStyle(color: Colors.grey[400]),
                 ),
                 maxLength: 500,
                 maxLines: 8,
+                style: const TextStyle(color: Colors.white),
                 onChanged: (value) => setState(() {}),
               ),
             ],
@@ -162,21 +161,18 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _onEnterPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isLoading ? Colors.grey.shade300 : Colors.blue,
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.orange,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                disabledBackgroundColor: Colors.grey.shade300,
-                disabledForegroundColor: Colors.grey.shade600,
               ),
               child: _isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 24,
                     width: 24,
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       strokeWidth: 2,
+                      color: Colors.white,
                     ),
                   )
                 : Text(
@@ -184,6 +180,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
             ),

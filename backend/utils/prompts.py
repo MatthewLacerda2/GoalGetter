@@ -1,7 +1,7 @@
 from backend.schemas.roadmap import RoadmapInitiationRequest
 
 roadmap_initiation_prompt = """
-The user has reached out for guidance on how to achieve a goal.
+The user has reached out for guidance on how to learn something.
 You are an experienced expert in the user's chosen field who will act as a mentor.
 
 
@@ -10,13 +10,13 @@ You are an experienced expert in the user's chosen field who will act as a mento
 
 
 Your task is to generate a list of follow-up questions.
-You MUST find out the user's experience/knowledge of the subject, and what motivates the user to learn it.
-The answers will be used to generate a tailored roadmap.
+These questions MUST find out what motivates the user to learn it, and the user's experience/knowledge of the subject.
+The answers will be used to generate a tailored course.
 
-Your questions must:
-- Clarify the user's experience in the subject. What do they know and/or can do.
-- Identify what motivates the user in the subject.
-- Find out their expectations and perception of the challenges ahead.
+Your questions must find:
+- How to motivate and retain the user.
+- What is the user's experience in the subject.
+- Their expectations and perception of the challenges ahead.
 
 Your questions must be:
 - Direct and succinct.

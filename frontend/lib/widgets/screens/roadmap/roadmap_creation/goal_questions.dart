@@ -64,60 +64,72 @@ class _GoalQuestionsState extends State<GoalQuestions> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Question text
-          Text(
-            widget.question,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12),
-          
-          // Answer input field
-          TextField(
-            controller: _textController,
-            enabled: widget.isActive,
-            onSubmitted: _handleSubmitted,
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.yourAnswer,
-              border: const UnderlineInputBorder(),
-              filled: true,
-              fillColor: widget.isActive 
-                  ? Theme.of(context).colorScheme.surface
-                  : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Color.fromARGB(255, 43, 43, 43)],
+        ),
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Question text
+            Text(
+              widget.question,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
               ),
-              errorText: (widget.showError || _hasError) && _textController.text.trim().isEmpty
-                  ? AppLocalizations.of(context)!.pleaseAnswerThisQuestion
-                  : null,
-              suffixIcon: widget.isActive
-                  ? IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: () => _handleSubmitted(_textController.text),
-                      tooltip: 'Submit',
-                    )
-                  : null,
             ),
-            maxLines: 5,
-            minLines: 3,
-            textInputAction: TextInputAction.send,
-            onChanged: (value) {
-              if (_hasError && value.trim().isNotEmpty) {
-                setState(() {
-                  _hasError = false;
-                });
-              }
-            },
-          ),
-        ],
+            const SizedBox(height: 12),
+            
+            // Answer input field
+            TextField(
+              controller: _textController,
+              enabled: widget.isActive,
+              onSubmitted: _handleSubmitted,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.yourAnswer,
+                border: const OutlineInputBorder(),
+                filled: true,
+                fillColor: widget.isActive 
+                    ? Colors.grey[800]
+                    : Colors.grey[700],
+                hintStyle: TextStyle(color: Colors.grey[400]),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                errorText: (widget.showError || _hasError) && _textController.text.trim().isEmpty
+                    ? AppLocalizations.of(context)!.pleaseAnswerThisQuestion
+                    : null,
+                suffixIcon: widget.isActive
+                    ? IconButton(
+                        icon: const Icon(Icons.send, color: Colors.white),
+                        onPressed: () => _handleSubmitted(_textController.text),
+                        tooltip: 'Submit',
+                      )
+                    : null,
+              ),
+              maxLines: 5,
+              minLines: 3,
+              textInputAction: TextInputAction.send,
+              onChanged: (value) {
+                if (_hasError && value.trim().isNotEmpty) {
+                  setState(() {
+                    _hasError = false;
+                  });
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
