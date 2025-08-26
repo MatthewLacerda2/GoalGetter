@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
-import 'package:goal_getter/widgets/screens/task/task_test_button.dart';
-import '../widgets/screens/task/task_tab_header.dart';
 import '../widgets/info_card.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/infos_card.dart';
+import '../widgets/screens/objective/objective_tab_header.dart';
 
-class TaskScreen extends StatelessWidget {
-  const TaskScreen({super.key});
+class ObjectiveScreen extends StatelessWidget {
+  const ObjectiveScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          TaskTabHeader(
+          ObjectiveTabHeader(
             xpLevel: 2000,
             goalTitle: "Aprender violão",
             streakCounter: 365,
@@ -31,14 +30,10 @@ class TaskScreen extends StatelessWidget {
                   end: 8,
                   color: Colors.green,
                 ),
+                SizedBox(height: 20),
+                //TODO: place lesson button
                 SizedBox(height: 28),
-                LessonButton(
-                  title: AppLocalizations.of(context)!.lessonSession,
-                  buttonText: AppLocalizations.of(context)!.showMeWhatYouGot,
-                  onPressed: () {
-                    // TODO: Implement button action
-                  },
-                ),
+                //TODO: place objective test button
                 SizedBox(height: 20),
                 Text(
                   '${AppLocalizations.of(context)!.notes}:',

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/screens/task/badge.dart' as task_badge;
+import '../widgets/screens/objective/player_badge.dart';
 import '../widgets/line_chart_table.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../widgets/screens/task/leaderboarder.dart';
+import '../widgets/screens/objective/leaderboarder.dart';
 import '../models/leaderboard_example.dart';
 import '../l10n/app_localizations.dart';
 
@@ -72,31 +72,31 @@ class StatsScreen extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.emoji_events,
                       iconColor: Colors.green,
                       text: 'Aprendeu todas as notas básicas',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.star,
                       iconColor: Colors.yellow,
                       text: 'Tocou violão até a mão não mexer mais',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.trending_up,
                       iconColor: Colors.blue,
                       text: 'Tocou violão por 1 hora',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.fitness_center,
                       iconColor: Colors.red,
                       text: 'Finalizou sua primeira música',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.psychology,
                       iconColor: Colors.white,
                       text: 'Trocou entre três notas consecutivas',

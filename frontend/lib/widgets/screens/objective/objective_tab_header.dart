@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/screens/task/calendar_screen.dart';
+import 'package:goal_getter/screens/objective/calendar_screen.dart';
 
-class TaskTabHeader extends StatelessWidget {
+class ObjectiveTabHeader extends StatelessWidget {
   final int xpLevel;
   final String goalTitle;
   final int streakCounter;
 
   static const double buttonsHeight = 44;
 
-  const TaskTabHeader({
+  const ObjectiveTabHeader({
     super.key,
     required this.xpLevel,
     required this.goalTitle,

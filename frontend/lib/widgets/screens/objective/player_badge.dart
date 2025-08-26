@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Badge extends StatelessWidget {
+class PlayerBadge extends StatelessWidget {
   final IconData icon;
   final String text;
   final double fontSize;
   final Color? iconColor;
   final Color? textColor;
 
-  const Badge({
+  const PlayerBadge({
     super.key,
     required this.icon,
     required this.text,
