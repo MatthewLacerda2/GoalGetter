@@ -45,17 +45,51 @@ class StatsScreen extends StatelessWidget {
                 username: LeaderboardData.getCurrentUsername(),
               ),
               const SizedBox(height: 20),
-              Text(
-                AppLocalizations.of(context)!.progress,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 2,
+                  ),
                 ),
-                textAlign: TextAlign.left,
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 50, 50, 50),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.progress,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 50, 50, 50),
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: LineChartTable(spots: spots),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              LineChartTable(spots: spots),
               const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.awards,
