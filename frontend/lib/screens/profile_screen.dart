@@ -3,6 +3,7 @@ import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'profile/roadmap_creation/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
+import 'intermediate/info_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -83,6 +84,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const RoadmapPromptScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 32),
+
+            _buildSectionTile(
+              'Info screen',
+              Icons.info,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InfoScreen(
+                      icon: Icons.info,
+                      descriptionText: 'Info screen',
+                      buttonText: 'Continue',
+                      onButtonPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
                 );
               },
