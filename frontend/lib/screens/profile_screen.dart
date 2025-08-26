@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import 'profile/roadmap_creation/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
 import 'intermediate/info_screen.dart';
+import 'tutorial_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -38,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     widget.onLanguageChanged?.call(language);
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -106,6 +107,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.pop(context);
                       },
                     ),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 32),
+
+            _buildSectionTile(
+              'Preloader screen',
+              Icons.hourglass_empty,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TutorialScreen(),
                   ),
                 );
               },
