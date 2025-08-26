@@ -1,6 +1,7 @@
 // calendar screen
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/screens/objective/weekday_column.dart';
 
 class CalendarScreen extends StatelessWidget {
   final int streakCount;
@@ -52,7 +53,7 @@ class CalendarScreen extends StatelessWidget {
                           '$streakCount',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 64,
+                            fontSize: 80,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -62,40 +63,48 @@ class CalendarScreen extends StatelessWidget {
                       AppLocalizations.of(context)!.dayStreak,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: 28,
                       ),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 36),
                     Card(
                       color: Colors.grey[800],
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Text(AppLocalizations.of(context)!.sundayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(AppLocalizations.of(context)!.mondayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(AppLocalizations.of(context)!.tuesdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(AppLocalizations.of(context)!.wednesdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(AppLocalizations.of(context)!.thursdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(AppLocalizations.of(context)!.fridayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(AppLocalizations.of(context)!.saturdayShort, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                _buildProgressIndicator(sunday),
-                                _buildProgressIndicator(monday),
-                                _buildProgressIndicator(tuesday),
-                                _buildProgressIndicator(wednesday),
-                                _buildProgressIndicator(thursday),
-                                _buildProgressIndicator(friday),
-                                _buildProgressIndicator(saturday),
+                                WeekdayColumn(
+                                  dayLabel: AppLocalizations.of(context)!.sundayShort,
+                                  isCompleted: sunday,
+                                ),
+                                WeekdayColumn(
+                                  dayLabel: AppLocalizations.of(context)!.mondayShort,
+                                  isCompleted: monday,
+                                ),
+                                WeekdayColumn(
+                                  dayLabel: AppLocalizations.of(context)!.tuesdayShort,
+                                  isCompleted: tuesday,
+                                ),
+                                WeekdayColumn(
+                                  dayLabel: AppLocalizations.of(context)!.wednesdayShort,
+                                  isCompleted: wednesday,
+                                ),
+                                WeekdayColumn(
+                                  dayLabel: AppLocalizations.of(context)!.thursdayShort,
+                                  isCompleted: thursday,
+                                ),
+                                WeekdayColumn(
+                                  dayLabel: AppLocalizations.of(context)!.fridayShort,
+                                  isCompleted: friday,
+                                ),
+                                WeekdayColumn(
+                                  dayLabel: AppLocalizations.of(context)!.saturdayShort,
+                                  isCompleted: saturday,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -142,22 +151,6 @@ class CalendarScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildProgressIndicator(bool isCompleted) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isCompleted ? Colors.green : Colors.red,
-      ),
-      child: Icon(
-        isCompleted ? Icons.check : Icons.close,
-        color: Colors.white,
-        size: 24,
       ),
     );
   }
