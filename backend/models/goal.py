@@ -20,3 +20,4 @@ class Goal(Base):
     resources = relationship("Resource", back_populates="goal")
     objectives = relationship("Objective", back_populates="goal")
     student_contexts = relationship("StudentContext", back_populates="goal")
+    achievements = relationship("Achievement", back_populates="goal")

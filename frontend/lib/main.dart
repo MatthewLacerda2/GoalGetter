@@ -133,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: MainScreenIcon(
               icon: Icons.event_note,
-              color: Colors.blue,
+              color: Colors.green,
               isSelected: _selectedIndex == 0,
             ),
             label: '',
