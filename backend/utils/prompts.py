@@ -2,7 +2,7 @@ from backend.schemas.roadmap import RoadmapInitiationRequest
 
 roadmap_initiation_prompt = """
 The user has reached out for guidance on how to learn something.
-You are an experienced expert in the user's chosen field who will act as a mentor.
+You are an experienced expert in the user's chosen field who will act as a tutor.
 
 
 - The user was hinted with: {prompt_hint}
