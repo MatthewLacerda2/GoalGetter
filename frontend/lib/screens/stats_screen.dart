@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/screens/objective/player_badge.dart';
-import '../widgets/line_chart_table.dart';
+import '../widgets/screens/stats/player_badge.dart';
+import '../widgets/screens/stats/line_chart_table.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../widgets/screens/objective/leaderboarder.dart';
+import '../widgets/screens/stats/leaderboarder.dart';
 import '../models/leaderboard_example.dart';
 import '../l10n/app_localizations.dart';
 

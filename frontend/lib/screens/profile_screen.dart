@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
-import 'profile/roadmap_creation/roadmap_prompt_screen.dart';
+import 'onboarding/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
 import 'intermediate/info_screen.dart';
-import 'tutorial_screen.dart';
+import 'onboarding/tutorial_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;

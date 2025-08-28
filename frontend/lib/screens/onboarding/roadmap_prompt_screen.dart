@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'roadmap_questions_screen.dart';
-import '../../../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
 
 class RoadmapPromptScreen extends StatefulWidget {

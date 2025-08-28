@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../widgets/screens/roadmap/roadmap_creation/goal_questions.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../main.dart';
+import '../../widgets/screens/onboarding/goal_questions.dart';
+import '../../l10n/app_localizations.dart';
+import '../../main.dart';
 
 class RoadmapQuestionsScreen extends StatefulWidget {
   final List<String> questions;

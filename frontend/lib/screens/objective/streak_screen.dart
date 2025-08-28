@@ -1,9 +1,9 @@
 // calendar screen
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/screens/objective/weekday_column.dart';
+import '../../widgets/screens/objective/streak/weekday_column.dart';
 
-class CalendarScreen extends StatelessWidget {
+class StreakScreen extends StatelessWidget {
   final int streakCount;
   final bool sunday;
   final bool monday;
@@ -14,7 +14,7 @@ class CalendarScreen extends StatelessWidget {
   final bool saturday;
   final String descriptionText;
 
-  const CalendarScreen({
+  const StreakScreen({
     super.key,
     required this.streakCount,
     required this.sunday,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/screens/objective/calendar_screen.dart';
+import 'package:goal_getter/screens/objective/streak_screen.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class ObjectiveTabHeader extends StatelessWidget {
@@ -75,7 +75,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CalendarScreen(
+                    builder: (context) => StreakScreen(
                       streakCount: streakCounter,
                       sunday: false,
                       monday: true,
