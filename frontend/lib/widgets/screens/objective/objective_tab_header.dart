@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/screens/objective/calendar_screen.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ObjectiveTabHeader extends StatelessWidget {
   final int xpLevel;
@@ -83,7 +84,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                       thursday: true,
                       friday: true,
                       saturday: false,
-                      descriptionText: 'Yeah, keep the pressure on !!!',
+                      descriptionText: AppLocalizations.of(context)!.keepThePressureOn,
                     ),
                   ),
                 );

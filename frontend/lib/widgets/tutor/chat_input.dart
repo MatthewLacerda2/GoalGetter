@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
@@ -21,7 +22,7 @@ class ChatInput extends StatelessWidget {
             child: TextField(
               controller: controller,
               decoration: InputDecoration(
-                hintText: 'Type your message...',
+                hintText: AppLocalizations.of(context)!.typeYourMessage,
                 filled: false,
                 fillColor: Colors.transparent,
                 border: OutlineInputBorder(

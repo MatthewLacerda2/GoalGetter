@@ -130,4 +130,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get awards => 'Prêmios';
+
+  @override
+  String get typeYourMessage => 'Mensagem...';
+
+  @override
+  String get keepThePressureOn => 'Continue sendo um orgulho!';
 }

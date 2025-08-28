@@ -340,6 +340,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Awards'**
   String get awards;
+
+  /// Label for type your message
+  ///
+  /// In en, this message translates to:
+  /// **'Type your message...'**
+  String get typeYourMessage;
+
+  /// Label for keep the pressure on
+  ///
+  /// In en, this message translates to:
+  /// **'Yeah, keep the pressure on !!!'**
+  String get keepThePressureOn;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

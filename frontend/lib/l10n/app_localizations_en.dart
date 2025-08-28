@@ -130,4 +130,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get awards => 'Awards';
+
+  @override
+  String get typeYourMessage => 'Type your message...';
+
+  @override
+  String get keepThePressureOn => 'Yeah, keep the pressure on !!!';
 }

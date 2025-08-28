@@ -163,5 +163,13 @@
     "awards": "Prêmios",
     "@awards": {
         "description": "Label for awards"
+    },
+    "typeYourMessage": "Mensagem...",
+    "@typeYourMessage": {
+        "description": "Label for type your message"
+    },
+    "keepThePressureOn": "Continue sendo um orgulho!",
+    "@keepThePressureOn": {
+        "description": "Label for keep the pressure on"
     }
 }
