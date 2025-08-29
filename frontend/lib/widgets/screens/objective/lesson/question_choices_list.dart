@@ -36,15 +36,7 @@ class _QuestionChoicesListState extends State<QuestionChoicesList> {
                     ? Colors.green 
                     : (selectedIndex == i ? Colors.red : Colors.grey))
                 : (selectedIndex == i ? Colors.blue : Colors.grey),
-            backgroundColor: widget.isAnswered
-                ? (i == widget.correctAnswerIndex 
-                    ? const Color.fromARGB(255, 240, 255, 240) // Light green
-                    : (selectedIndex == i 
-                        ? const Color.fromARGB(255, 255, 240, 240) // Light red
-                        : Colors.transparent))
-                : (selectedIndex == i 
-                    ? const Color.fromARGB(255, 240, 240, 240) // Light white/blue
-                    : Colors.transparent),
+            backgroundColor: Colors.transparent, // Always transparent
             onTap: () {
               if (!widget.isAnswered) {
                 setState(() {
@@ -54,7 +46,7 @@ class _QuestionChoicesListState extends State<QuestionChoicesList> {
               }
             },
           ),
-          if (i < widget.choices.length - 1) const SizedBox(height: 12),
+          if (i < widget.choices.length - 1) const SizedBox(height: 16),
         ],
       ],
     );

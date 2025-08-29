@@ -171,5 +171,13 @@
     "keepThePressureOn": "Continue sendo um orgulho!",
     "@keepThePressureOn": {
         "description": "Label for keep the pressure on"
+    },
+    "wellDone": "Boa resposta!",
+    "@wellDone": {
+        "description": "Label for well done"
+    },
+    "opsNotQuite": "Ops! Não é isso...",
+    "@opsNotQuite": {
+        "description": "Label for ops not quite"
     }
 }

@@ -352,6 +352,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yeah, keep the pressure on !!!'**
   String get keepThePressureOn;
+
+  /// Label for well done
+  ///
+  /// In en, this message translates to:
+  /// **'Well done!'**
+  String get wellDone;
+
+  /// Label for ops not quite
+  ///
+  /// In en, this message translates to:
+  /// **'Ops! Not quite...'**
+  String get opsNotQuite;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

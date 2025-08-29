@@ -136,4 +136,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get keepThePressureOn => 'Continue sendo um orgulho!';
+
+  @override
+  String get wellDone => 'Boa resposta!';
+
+  @override
+  String get opsNotQuite => 'Ops! Não é isso...';
 }

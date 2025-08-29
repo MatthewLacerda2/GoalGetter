@@ -20,21 +20,21 @@ class QuestionChoice extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: backgroundColor,
+          color: backgroundColor, // Use the passed backgroundColor instead of hardcoded transparent
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: borderColor,
-            width: 2,
+            width: 3,
           ),
         ),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+          style: TextStyle(
+            color: borderColor,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

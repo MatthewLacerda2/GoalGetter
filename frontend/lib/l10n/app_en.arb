@@ -171,5 +171,13 @@
     "keepThePressureOn": "Yeah, keep the pressure on !!!",
     "@keepThePressureOn": {
         "description": "Label for keep the pressure on"
+    },
+    "wellDone": "Well done!",
+    "@wellDone": {
+        "description": "Label for well done"
+    },
+    "opsNotQuite": "Ops! Not quite...",
+    "@opsNotQuite": {
+        "description": "Label for ops not quite"
     }
 }

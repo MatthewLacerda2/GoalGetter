@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/l10n/app_localizations.dart';
 import '../../../../models/question_data.dart';
 import 'question_choices_list.dart';
 
@@ -32,7 +33,6 @@ class _LessonQuestionState extends State<LessonQuestion> {
           : QuestionStatus.incorrect;
     });
     
-    // Call the callback after a short delay to show the result
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         widget.onQuestionAnswered();
@@ -45,18 +45,17 @@ class _LessonQuestionState extends State<LessonQuestion> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Question text
+        const SizedBox(height: 20),
         Text(
           widget.questionData.question,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),
         
         const SizedBox(height: 24),
         
-        // Question choices
         QuestionChoicesList(
           choices: widget.questionData.choices,
           correctAnswerIndex: widget.questionData.correctAnswerIndex,
@@ -73,7 +72,7 @@ class _LessonQuestionState extends State<LessonQuestion> {
         
         // Enter button
         Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: 16),
           child: SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -90,10 +89,10 @@ class _LessonQuestionState extends State<LessonQuestion> {
               ),
               child: Text(
                 isAnswered
-                    ? (isCorrect ? 'Right' : 'Wrong')
-                    : 'Enter',
+                    ? (isCorrect ? AppLocalizations.of(context)!.wellDone : AppLocalizations.of(context)!.opsNotQuite)
+                    : AppLocalizations.of(context)!.enter,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: FontWeight.w600,
                 ),
               ),
