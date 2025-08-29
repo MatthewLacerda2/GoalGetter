@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import '../widgets/info_card.dart';
 import '../widgets/progress_bar.dart';
-import '../widgets/infos_card.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
 import '../models/fake_questions.dart';
 import '../models/question_data.dart';
@@ -61,15 +60,6 @@ class ObjectiveScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
-                ),
-                SizedBox(height: 14),
-                InfosCard(
-                  texts: [
-                    "Escolha duas notas básicas",
-                    "Posicione os dedos corretamente",
-                    "Toque a nota no ritmo \u2193 \u2191 \u2193 \u2191 \u2193 \u2193 \u2193",
-                    "Troque de nota e repita DE-VA-GAR"
-                  ],
                 ),
                 SizedBox(height: 24),
                 InfoCard(
