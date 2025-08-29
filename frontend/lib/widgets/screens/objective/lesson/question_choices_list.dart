@@ -36,7 +36,15 @@ class _QuestionChoicesListState extends State<QuestionChoicesList> {
                     ? Colors.green 
                     : (selectedIndex == i ? Colors.red : Colors.grey))
                 : (selectedIndex == i ? Colors.blue : Colors.grey),
-            backgroundColor: Colors.transparent, // Always transparent
+            backgroundColor: widget.isAnswered
+                ? (i == widget.correctAnswerIndex 
+                    ? Colors.green.withValues(alpha: 0.2) 
+                    : (selectedIndex == i 
+                        ? Colors.red.withValues(alpha: 0.2) 
+                        : Colors.transparent)) 
+                : (selectedIndex == i 
+                    ? Colors.white.withValues(alpha: 0.2) 
+                    : Colors.transparent), 
             onTap: () {
               if (!widget.isAnswered) {
                 setState(() {

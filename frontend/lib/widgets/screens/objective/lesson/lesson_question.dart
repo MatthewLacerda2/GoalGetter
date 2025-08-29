@@ -33,11 +33,11 @@ class _LessonQuestionState extends State<LessonQuestion> {
           : QuestionStatus.incorrect;
     });
     
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        widget.onQuestionAnswered();
-      }
-    });
+    // Remove the automatic delay - let user click again to continue
+  }
+
+  void _continueToNext() {
+    widget.onQuestionAnswered();
   }
 
   @override
@@ -76,10 +76,14 @@ class _LessonQuestionState extends State<LessonQuestion> {
           child: SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: selectedIndex == null || isAnswered ? null : _checkAnswer,
+              onPressed: selectedIndex == null 
+                  ? null 
+                  : isAnswered 
+                      ? _continueToNext  // New function to continue
+                      : _checkAnswer,     // Original function to check answer
               style: ElevatedButton.styleFrom(
                 backgroundColor: isAnswered
-                    ? (isCorrect ? Colors.green : Colors.red)
+                    ? (isCorrect ? Colors.green : Colors.red.withValues(alpha: 0.8))
                     : const Color(0xFF2E7D32), // Dark green
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
