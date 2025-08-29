@@ -109,13 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.black, Color.fromARGB(255, 43, 43, 43)],
-          ),
-        ),
+        color: const Color.fromARGB(255, 43, 43, 43),
         child: SafeArea(
           child: _tabPages[_selectedIndex],
         ),
@@ -165,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: MainScreenIcon(
               icon: Icons.person,
-              color: Colors.blueGrey,
+              color: Colors.white,
               isSelected: _selectedIndex == 4,
             ),
             label: '',

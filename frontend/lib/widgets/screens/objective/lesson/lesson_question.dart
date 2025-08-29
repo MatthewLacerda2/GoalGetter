@@ -32,8 +32,6 @@ class _LessonQuestionState extends State<LessonQuestion> {
           ? QuestionStatus.correct 
           : QuestionStatus.incorrect;
     });
-    
-    // Remove the automatic delay - let user click again to continue
   }
 
   void _continueToNext() {
@@ -70,7 +68,6 @@ class _LessonQuestionState extends State<LessonQuestion> {
         
         const Spacer(),
         
-        // Enter button
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: SizedBox(
@@ -79,12 +76,12 @@ class _LessonQuestionState extends State<LessonQuestion> {
               onPressed: selectedIndex == null 
                   ? null 
                   : isAnswered 
-                      ? _continueToNext  // New function to continue
-                      : _checkAnswer,     // Original function to check answer
+                      ? _continueToNext
+                      : _checkAnswer,
               style: ElevatedButton.styleFrom(
                 backgroundColor: isAnswered
                     ? (isCorrect ? Colors.green : Colors.red.withValues(alpha: 0.8))
-                    : const Color(0xFF2E7D32), // Dark green
+                    : const Color(0xFF2E7D32),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(

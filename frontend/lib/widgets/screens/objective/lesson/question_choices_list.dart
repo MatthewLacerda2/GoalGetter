@@ -38,7 +38,7 @@ class _QuestionChoicesListState extends State<QuestionChoicesList> {
                 : (selectedIndex == i ? Colors.blue : Colors.grey),
             backgroundColor: widget.isAnswered
                 ? (i == widget.correctAnswerIndex 
-                    ? Colors.green.withValues(alpha: 0.2) 
+                    ? Colors.green.withValues(alpha: 0.2)
                     : (selectedIndex == i 
                         ? Colors.red.withValues(alpha: 0.2) 
                         : Colors.transparent)) 

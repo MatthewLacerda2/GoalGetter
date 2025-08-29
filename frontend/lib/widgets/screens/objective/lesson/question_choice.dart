@@ -22,7 +22,7 @@ class QuestionChoice extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: backgroundColor, // Use the passed backgroundColor instead of hardcoded transparent
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: borderColor,

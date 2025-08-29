@@ -44,7 +44,7 @@ class ObjectiveScreen extends StatelessWidget {
                     
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => LessonScreen(questions: questions),
+                        builder: (context) => LessonScreen(title: "Notas básicas", questions: questions),
                       ),
                     );
                   },

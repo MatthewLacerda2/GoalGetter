@@ -18,7 +18,7 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: mainColor ?? Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
@@ -37,7 +37,7 @@ class InfoCard extends StatelessWidget {
           ),
           if (description != null) ...[
             const SizedBox(height: 10),
-            Divider(height: 1, color: mainColor ?? Colors.white),
+            Divider(height: 1, color: Colors.white),
             const SizedBox(height: 10),
             Text(
               description!,

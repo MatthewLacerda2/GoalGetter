@@ -64,13 +64,7 @@ class _GoalQuestionsState extends State<GoalQuestions> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.black, Color.fromARGB(255, 43, 43, 43)],
-        ),
-      ),
+      color: const Color.fromARGB(255, 43, 43, 43),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

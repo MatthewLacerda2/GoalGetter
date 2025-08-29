@@ -5,9 +5,11 @@ import '../intermediate/finish_lesson_screen.dart';
 //TODO: put the header with information notes
 class LessonScreen extends StatefulWidget {
   final List<QuestionData> questions;
+  final String title;
 
   const LessonScreen({
     super.key,
+    required this.title,
     required this.questions,
   });
 
@@ -96,16 +98,12 @@ class _LessonScreenState extends State<LessonScreen>
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
+        automaticallyImplyLeading: false, // Add this line
+        title: Text(widget.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
         //TODO: put a bar that shows how many you got right on the first try
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.black, Color.fromARGB(255, 43, 43, 43)],
-          ),
-        ),
+        color: const Color.fromARGB(255, 43, 43, 43),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -116,7 +114,7 @@ class _LessonScreenState extends State<LessonScreen>
                   child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: LessonQuestion(
-                      key: ValueKey(_currentQuestionIndex), // Add this line
+                      key: ValueKey(_currentQuestionIndex),
                       questionData: widget.questions[_currentQuestionIndex],
                       onQuestionAnswered: _onQuestionAnswered,
                     ),

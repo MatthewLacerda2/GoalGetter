@@ -15,7 +15,6 @@ class FinishLessonScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Progress bar at the top
               ProgressBar(
                 title: "Aprenda todas as notas básicas",
                 icon: Icons.music_note,
@@ -26,7 +25,6 @@ class FinishLessonScreen extends StatelessWidget {
               
               const SizedBox(height: 24),
               
-              // Three InfoCard widgets
               InfoCard(
                 title: "Parabéns!",
                 description: "Você completou esta lição com sucesso. Continue praticando para melhorar suas habilidades.",
@@ -51,7 +49,6 @@ class FinishLessonScreen extends StatelessWidget {
               
               const Spacer(),
               
-              // Continue button styled like lesson question button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -62,7 +59,6 @@ class FinishLessonScreen extends StatelessWidget {
                         builder: (context) => MyHomePage(
                           title: 'GoalGetter',
                           onLanguageChanged: (language) {
-                            // Handle language change if needed
                           },
                         ),
                       ),
@@ -70,7 +66,7 @@ class FinishLessonScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32), // Dark green like lesson question
+                    backgroundColor: const Color(0xFF2E7D32),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
