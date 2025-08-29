@@ -4,10 +4,12 @@ import 'question_choices_list.dart';
 
 class LessonQuestion extends StatefulWidget {
   final QuestionData questionData;
+  final VoidCallback onQuestionAnswered;
 
   const LessonQuestion({
     super.key,
     required this.questionData,
+    required this.onQuestionAnswered,
   });
 
   @override
@@ -28,6 +30,13 @@ class _LessonQuestionState extends State<LessonQuestion> {
       widget.questionData.status = isCorrect 
           ? QuestionStatus.correct 
           : QuestionStatus.incorrect;
+    });
+    
+    // Call the callback after a short delay to show the result
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        widget.onQuestionAnswered();
+      }
     });
   }
 

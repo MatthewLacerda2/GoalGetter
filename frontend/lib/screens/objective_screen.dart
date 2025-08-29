@@ -4,6 +4,9 @@ import '../widgets/info_card.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/infos_card.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
+import '../models/fake_questions.dart';
+import '../models/question_data.dart';
+import '../screens/objective/lesson_screen.dart';
 
 class ObjectiveScreen extends StatelessWidget {
   const ObjectiveScreen({super.key});
@@ -31,7 +34,23 @@ class ObjectiveScreen extends StatelessWidget {
                   color: Colors.green,
                 ),
                 SizedBox(height: 20),
-                //TODO: place lesson button
+                ElevatedButton(
+                  onPressed: () {
+                    // Convert fake questions to QuestionData objects
+                    final questions = fakeAcousticGuitarQuestions.map((q) => QuestionData(
+                      question: q['question'] as String,
+                      choices: List<String>.from(q['choices']),
+                      correctAnswerIndex: q['correctAnswerIndex'] as int,
+                    )).toList();
+                    
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => LessonScreen(questions: questions),
+                      ),
+                    );
+                  },
+                  child: Text('Ir para a lição'),
+                ),
                 SizedBox(height: 28),
                 //TODO: place objective test button
                 SizedBox(height: 20),
