@@ -20,20 +20,19 @@ class InfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: mainColor ?? Colors.grey[800],
+        color: mainColor ?? Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: mainColor ?? Colors.white, width: 2),
-
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: mainColor ?? Colors.white,
+              color: Colors.white,
             ),
           ),
           if (description != null) ...[
@@ -42,9 +41,9 @@ class InfoCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               description!,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
-                color: descriptionColor ?? Colors.grey[300],
+                color: Colors.white,
                 height: 1.4,
               ),
             ),

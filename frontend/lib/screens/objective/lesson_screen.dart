@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/question_data.dart';
 import '../../widgets/screens/objective/lesson/lesson_question.dart';
-import '../../main.dart';
+import '../intermediate/finish_lesson_screen.dart';
 //TODO: put the header with information notes
 class LessonScreen extends StatefulWidget {
   final List<QuestionData> questions;
@@ -81,11 +81,7 @@ class _LessonScreenState extends State<LessonScreen>
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => MyHomePage(
-          title: 'GoalGetter',
-          onLanguageChanged: (language) {
-          },
-        ),
+        builder: (context) => FinishLessonScreen(),
       ),
       (route) => false,
     );
