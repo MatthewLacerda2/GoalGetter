@@ -72,27 +72,30 @@ class _LessonQuestionState extends State<LessonQuestion> {
         const Spacer(),
         
         // Enter button
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: selectedIndex == null || isAnswered ? null : _checkAnswer,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isAnswered
-                  ? (isCorrect ? Colors.green : Colors.red)
-                  : const Color(0xFF2E7D32), // Dark green
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: selectedIndex == null || isAnswered ? null : _checkAnswer,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isAnswered
+                    ? (isCorrect ? Colors.green : Colors.red)
+                    : const Color(0xFF2E7D32), // Dark green
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-            ),
-            child: Text(
-              isAnswered
-                  ? (isCorrect ? 'Right' : 'Wrong')
-                  : 'Enter',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              child: Text(
+                isAnswered
+                    ? (isCorrect ? 'Right' : 'Wrong')
+                    : 'Enter',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

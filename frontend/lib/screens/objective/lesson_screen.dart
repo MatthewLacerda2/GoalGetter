@@ -96,37 +96,57 @@ class _LessonScreenState extends State<LessonScreen>
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('Lesson'),
         centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Text(
                 '${_currentQuestionIndex + 1}/${widget.questions.length}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
             ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: LessonQuestion(
-                  questionData: widget.questions[_currentQuestionIndex],
-                  onQuestionAnswered: _onQuestionAnswered,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.black, Color.fromARGB(255, 43, 43, 43)],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              Expanded(
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: LessonQuestion(
+                      questionData: widget.questions[_currentQuestionIndex],
+                      onQuestionAnswered: _onQuestionAnswered,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
