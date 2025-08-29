@@ -120,6 +120,7 @@ class _LessonScreenState extends State<LessonScreen>
                   child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: LessonQuestion(
+                      key: ValueKey(_currentQuestionIndex), // Add this line
                       questionData: widget.questions[_currentQuestionIndex],
                       onQuestionAnswered: _onQuestionAnswered,
                     ),
