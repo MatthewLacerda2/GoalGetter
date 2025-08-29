@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: const Color.fromARGB(255, 43, 43, 43),
+        color: const Color.fromARGB(255, 33, 33, 33),
         child: SafeArea(
           child: _tabPages[_selectedIndex],
         ),
@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedFontSize: 0,
         unselectedFontSize: 0,
         iconSize: 28,
-        backgroundColor: const Color.fromARGB(255, 49, 49, 49),
+        backgroundColor: const Color.fromARGB(255, 11, 11, 11),
         enableFeedback: false,
         items: [
           BottomNavigationBarItem(

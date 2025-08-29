@@ -31,7 +31,7 @@ class Leaderboarder extends StatelessWidget {
               decoration: BoxDecoration(
                 color: people[i]['name'] == username 
                     ? const Color.fromARGB(255, 80, 80, 80)
-                    : const Color.fromARGB(255, 51, 51, 51),
+                    : const Color.fromARGB(255, 53, 53, 53),
                 borderRadius: i == 0 
                     ? const BorderRadius.only(
                         topLeft: Radius.circular(10),
