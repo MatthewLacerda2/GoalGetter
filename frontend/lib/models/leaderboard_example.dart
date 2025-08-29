@@ -1,3 +1,4 @@
+//INFO: this is just a placeholder model. Once we get the client_sdk, this'll be deleted
 class LeaderboardExample {
   final String name;
   final int score;

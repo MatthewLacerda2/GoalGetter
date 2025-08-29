@@ -1,3 +1,4 @@
+//INFO: this is just a placeholder model. Once we get the client_sdk, this'll be deleted
 import 'chat_message.dart';
 
 List<ChatMessage> fakeChatMessages = [
