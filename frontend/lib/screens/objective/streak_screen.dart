@@ -63,7 +63,7 @@ class StreakScreen extends StatelessWidget {
                       AppLocalizations.of(context)!.dayStreak,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 28,
+                        fontSize: 26,
                       ),
                     ),
                     const SizedBox(height: 36),
@@ -109,14 +109,14 @@ class StreakScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 20),
                             const Divider(color: Colors.grey, thickness: 1),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 14),
                             Text(
                               descriptionText,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 18,
                               ),
                             ),
                           ],

@@ -9,7 +9,7 @@ class WeekdayColumn extends StatelessWidget {
     super.key,
     required this.dayLabel,
     required this.isCompleted,
-    this.width = 40,
+    this.width = 42,
   });
 
   @override
@@ -24,12 +24,13 @@ class WeekdayColumn extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Container(
-            width: 40,
-            height: 40,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isCompleted ? Colors.green : Colors.red,
@@ -37,7 +38,7 @@ class WeekdayColumn extends StatelessWidget {
             child: Icon(
               isCompleted ? Icons.check : Icons.close,
               color: Colors.white,
-              size: 24,
+              size: 20,
             ),
           ),
         ],
