@@ -30,7 +30,7 @@ class _LessonScreenState extends State<LessonScreen>
     super.initState();
     
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 425),
       vsync: this,
     );
     
@@ -99,13 +99,13 @@ class _LessonScreenState extends State<LessonScreen>
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
         automaticallyImplyLeading: false, // Add this line
-        title: Text(widget.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+        title: Text(widget.title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
         //TODO: put a bar that shows how many you got right on the first try
       ),
       body: Container(
         color: const Color.fromARGB(255, 43, 43, 43),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Column(
             children: [
               Expanded(

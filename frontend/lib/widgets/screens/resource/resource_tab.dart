@@ -21,7 +21,11 @@ class ResourceTab extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 2,
-          shadowColor: Colors.grey[400],
+          color: Colors.grey[400]!.withValues(alpha: 0.12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 1),
+          ),
           child: hasImage 
             ? InkWell(
                 onTap: () {
@@ -75,9 +79,10 @@ class ResourceTab extends StatelessWidget {
             : ListTile(
                 title: Text(
                   resource['title'] ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
                 ),
-                subtitle: Text(resource['description'] ?? ''),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+                subtitle: Text(resource['description'] ?? '', style: const TextStyle(color: Colors.white)),
                 onTap: () {
                   launchUrl(Uri.parse(resource['link'] ?? ''));
                 },

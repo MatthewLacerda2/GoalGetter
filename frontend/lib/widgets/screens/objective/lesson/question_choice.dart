@@ -26,14 +26,14 @@ class QuestionChoice extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: borderColor,
-            width: 3,
+            width: 2.4,
           ),
         ),
         child: Text(
           text,
           style: TextStyle(
             color: borderColor,
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),

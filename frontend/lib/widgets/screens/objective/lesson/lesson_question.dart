@@ -84,7 +84,7 @@ class _LessonQuestionState extends State<LessonQuestion> {
                       ? (isCorrect ? Colors.green : Colors.red.withValues(alpha: 0.8))
                       : const Color(0xFF2E7D32),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

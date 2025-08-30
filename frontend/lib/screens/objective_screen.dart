@@ -22,7 +22,7 @@ class ObjectiveScreen extends StatelessWidget {
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               children: [
                 ProgressBar(
                   title: "Aprenda todas as notas básicas",

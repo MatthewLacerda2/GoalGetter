@@ -47,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -60,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 _buildLanguageButton(
                   'US',
                   SettingsStorage.english,
@@ -74,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             
             // Create Roadmap Section
             _buildSectionTile(
@@ -90,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
             _buildSectionTile(
               'Tutorial screen',
@@ -105,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
             _buildSectionTile(
               'Finish lesson screen',
