@@ -116,10 +116,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedFontSize: 0,
-        unselectedFontSize: 0,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedFontSize: 10,
+        unselectedFontSize: 10,
         iconSize: 28,
         backgroundColor: const Color.fromARGB(255, 11, 11, 11),
         enableFeedback: false,
@@ -130,23 +130,23 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.green,
               isSelected: _selectedIndex == 0,
             ),
-            label: '',
+            label: 'Objective',
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
               icon: Icons.graphic_eq,
-              color: Colors.purple,
+              color: Colors.purpleAccent,
               isSelected: _selectedIndex == 1,
             ),
-            label: '',
+            label: 'Tutor',
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
-              icon: Icons.workspace_premium_outlined,
-              color: Colors.amber,
+              icon: Icons.emoji_events,
+              color: Colors.blue,
               isSelected: _selectedIndex == 2,
             ),
-            label: '',
+            label: 'Awards',
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -154,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.deepOrange,
               isSelected: _selectedIndex == 3,
             ),
-            label: '',
+            label: 'Resources',
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -162,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.white,
               isSelected: _selectedIndex == 4,
             ),
-            label: '',
+            label: 'Profile',
           ),
         ],
         currentIndex: _selectedIndex,

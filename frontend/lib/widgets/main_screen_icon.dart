@@ -15,13 +15,13 @@ class MainScreenIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         border: Border.all(
           color: isSelected ? color : Colors.transparent,
           width: 2,
         ),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Icon(icon, color: color),
     );
