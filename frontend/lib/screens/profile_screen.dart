@@ -93,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 32),
 
             _buildSectionTile(
-              'Preloader screen',
+              'Tutorial screen',
               Icons.hourglass_empty,
               () {
                 Navigator.push(

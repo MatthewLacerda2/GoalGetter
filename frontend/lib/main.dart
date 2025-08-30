@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: MainScreenIcon(
               icon: Icons.person,
-              color: Colors.white,
+              color: Colors.blueGrey,
               isSelected: _selectedIndex == 4,
             ),
             label: 'Profile',
