@@ -5,7 +5,8 @@ import '../widgets/progress_bar.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
 import '../models/fake_questions.dart';
 import '../models/question_data.dart';
-import '../screens/objective/lesson_screen.dart';
+import '../widgets/screens/objective/lesson_button.dart';
+import '../widgets/screens/objective/assessment_button.dart';
 
 class ObjectiveScreen extends StatelessWidget {
   const ObjectiveScreen({super.key});
@@ -23,34 +24,30 @@ class ObjectiveScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                SizedBox(height: 10),
                 ProgressBar(
                   title: "Aprenda todas as notas básicas",
                   progress: 3,
                   end: 10,
                   color: Colors.green,
                 ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Convert fake questions to QuestionData objects
-                    final questions = fakeAcousticGuitarQuestions.map((q) => QuestionData(
-                      question: q['question'] as String,
-                      choices: List<String>.from(q['choices']),
-                      correctAnswerIndex: q['correctAnswerIndex'] as int,
-                    )).toList();
-                    
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => LessonScreen(title: "Notas básicas", questions: questions),
-                      ),
-                    );
-                  },
-                  child: Text('Ir para a lição'),
+                SizedBox(height: 26),
+                LessonButton(
+                  title: "Aprenda todas as notas básicas",
+                  description: "Ir para a lição",
+                  questions: fakeAcousticGuitarQuestions.map((q) => QuestionData(
+                    question: q['question'] as String,
+                    choices: List<String>.from(q['choices']),
+                    correctAnswerIndex: q['correctAnswerIndex'] as int,
+                  )).toList(),
+                  mainColor: Colors.blue,
                 ),
-                SizedBox(height: 28),
-                //TODO: place objective test button
-                SizedBox(height: 20),
+                SizedBox(height: 26),
+                AssessmentButton(
+                  title: "Teste sua aprendizagem",
+                  description: "Ir para o teste",
+                  mainColor: Colors.orange,
+                ),
+                SizedBox(height: 16),
                 Text(
                   '${AppLocalizations.of(context)!.notes}:',
                   style: TextStyle(

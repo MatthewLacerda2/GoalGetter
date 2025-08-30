@@ -39,7 +39,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                   goalTitle,
                   style: const TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                   textAlign: TextAlign.left,

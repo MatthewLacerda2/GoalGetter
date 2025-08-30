@@ -20,7 +20,7 @@ class ProgressBar extends StatelessWidget {
     
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
@@ -31,7 +31,7 @@ class ProgressBar extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -40,8 +40,8 @@ class ProgressBar extends StatelessWidget {
           LinearProgressIndicator(
             value: percentage.clamp(0.0, 1.0),
             backgroundColor: Colors.white.withValues(alpha: 0.33),
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            minHeight: 14,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.yellowAccent),
+            minHeight: 12,
             borderRadius: BorderRadius.circular(12),
           ),
           const SizedBox(height: 6),
