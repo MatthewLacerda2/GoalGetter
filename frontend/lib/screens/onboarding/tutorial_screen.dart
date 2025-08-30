@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:flutter/material.dart';
 import '../../main.dart';
@@ -38,30 +39,32 @@ class _TutorialScreenState extends State<TutorialScreen> {
         pages: [
           _buildPageViewModel(    
             'Goal Getter!',
-            'A trailway to your goal',
+            AppLocalizations.of(context)!.trailwayToYourGoal,
             Icons.flag,
           ),
           _buildPageViewModel(
-            'Objective',
-            'Your next target. Take the materials and exercises we got for you',
+            AppLocalizations.of(context)!.objective,
+            AppLocalizations.of(context)!.yourNextTarget,
             Icons.event_note,
           ),
           _buildPageViewModel(
-            'Evaluation',
-            'You can check your progress and get your next objective when you\'re ready',
+            AppLocalizations.of(context)!.evaluation,
+            AppLocalizations.of(context)!.evaluationDescription,
             CupertinoIcons.pencil_circle,
           ),
           _buildPageViewModel(
-            'Tutor',
-            'We got someone to give you advice, answer questions and guide you through',
+            AppLocalizations.of(context)!.tutor,
+            AppLocalizations.of(context)!.tutorDescription,
             Icons.graphic_eq,
           ),
           _buildPageViewModel(
-            'Awards', 'Your milestones and progress listed! Make it your gallery!', Icons.emoji_events,
+            AppLocalizations.of(context)!.awards,
+            AppLocalizations.of(context)!.awardsDescription,
+            Icons.emoji_events,
           ),
           _buildPageViewModel(
-            'Go get \'em, tiger!',
-            'Explore. Dream. Discover.',
+            AppLocalizations.of(context)!.goGetEmTiger,
+            AppLocalizations.of(context)!.goGetEmTigerDescription,
             Icons.workspace_premium_outlined,
           ),
         ],

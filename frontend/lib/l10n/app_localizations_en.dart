@@ -12,9 +12,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
-  String get profile => 'Profile';
-
-  @override
   String get next => 'Next';
 
   @override
@@ -57,7 +54,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseAnswerThisQuestion => 'Please answer this question';
 
   @override
-  String get dayStreak => 'dias de streak!';
+  String get dayStreak => 'streak days!';
 
   @override
   String get continuate => 'Continuar';
@@ -129,9 +126,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achievements => 'Achievements';
 
   @override
-  String get awards => 'Awards';
-
-  @override
   String get typeYourMessage => 'Type your message...';
 
   @override
@@ -142,4 +136,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get opsNotQuite => 'Ops! Not quite...';
+
+  @override
+  String get objective => 'Objective';
+
+  @override
+  String get tutor => 'Tutor';
+
+  @override
+  String get awards => 'Awards';
+
+  @override
+  String get resources => 'Resources';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get startLesson => 'Start Lesson';
+
+  @override
+  String get startAssessment => 'Start Assessment';
+
+  @override
+  String get trailwayToYourGoal => 'A trailway to your goal';
+
+  @override
+  String get yourNextTarget => 'Your next target. Take the materials and exercises we got for you';
+
+  @override
+  String get evaluation => 'Evaluation';
+
+  @override
+  String get evaluationDescription => 'You can check your progress and get your next objective when you\'re ready';
+
+  @override
+  String get tutorDescription => 'We got someone to give you advice, answer questions and guide you through';
+
+  @override
+  String get awardsDescription => 'Your milestones and progress listed! Make it your gallery!';
+
+  @override
+  String get goGetEmTiger => 'Go get \'em, tiger!';
+
+  @override
+  String get goGetEmTigerDescription => 'Explore. Dream. Discover.';
 }

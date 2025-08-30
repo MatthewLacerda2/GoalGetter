@@ -4,10 +4,6 @@
     "@language": {
         "description": "O idioma atual"
     },
-    "profile": "Perfil",
-    "@profile": {
-        "description": "Rótulo da aba de perfil"
-    },
     "next": "Próximo",
     "@next": {
         "description": "Rótulo para botão próximo"
@@ -160,10 +156,6 @@
     "@achievements": {
         "description": "Label for achievements"
     },
-    "awards": "Prêmios",
-    "@awards": {
-        "description": "Label for awards"
-    },
     "typeYourMessage": "Mensagem...",
     "@typeYourMessage": {
         "description": "Label for type your message"
@@ -179,5 +171,65 @@
     "opsNotQuite": "Ops! Não é isso...",
     "@opsNotQuite": {
         "description": "Label for ops not quite"
+    },
+    "objective": "Objetivo",
+    "@objective": {
+        "description": "Label for objective"
+    },
+    "tutor": "Tutor",
+    "@tutor": {
+        "description": "Label for tutor"
+    },
+    "awards": "Prêmios",
+    "@awards": {
+        "description": "Label for awards"
+    },
+    "resources": "Recursos",
+    "@resources": {
+        "description": "Label for resources"
+    },
+    "profile": "Perfil",
+    "@profile": {
+        "description": "Label for profile"
+    },
+    "startLesson": "Iniciar Lição",
+    "@startLesson": {
+        "description": "Label for start lesson"
+    },
+    "startAssessment": "Iniciar Avaliação",
+    "@startAssessment": {
+        "description": "Label for start assessment"
+    },
+    "trailwayToYourGoal": "Uma estrada para sua meta",
+    "@trailwayToYourGoal": {
+        "description": "Label for trailway to your goal"
+    },
+    "yourNextTarget": "Seu próximo objetivo. Pegue os materiais e exercícios que temos para você",
+    "@yourNextTarget": {
+        "description": "Label for your next target"
+    },
+    "evaluation": "Avaliação",
+    "@evaluation": {
+        "description": "Label for evaluation"
+    },
+    "evaluationDescription": "Você pode verificar seu progresso e obter seu próximo objetivo quando estiver pronto",
+    "@evaluationDescription": {
+        "description": "Label for evaluation description"
+    },
+    "tutorDescription": "Temos alguém para dar-lhe conselhos, responder perguntas e guiá-lo através",
+    "@tutorDescription": {
+        "description": "Label for tutor description"
+    },
+    "awardsDescription": "Seus marcos e progresso listados! Faça deles sua galeria!",
+    "@awardsDescription": {
+        "description": "Label for awards description"
+    },
+    "goGetEmTiger": "Vá conseguir, tigre!",
+    "@goGetEmTiger": {
+        "description": "Label for go get em tiger"
+    },
+    "goGetEmTigerDescription": "Explore. Sonhe. Descubra.",
+    "@goGetEmTigerDescription": {
+        "description": "Label for go get em tiger description"
     }
 }

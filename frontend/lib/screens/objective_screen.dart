@@ -33,7 +33,7 @@ class ObjectiveScreen extends StatelessWidget {
                 SizedBox(height: 26),
                 LessonButton(
                   title: "Aprenda todas as notas básicas",
-                  description: "Ir para a lição",
+                  description: AppLocalizations.of(context)!.startLesson,
                   questions: fakeAcousticGuitarQuestions.map((q) => QuestionData(
                     question: q['question'] as String,
                     choices: List<String>.from(q['choices']),
@@ -44,7 +44,7 @@ class ObjectiveScreen extends StatelessWidget {
                 SizedBox(height: 26),
                 AssessmentButton(
                   title: "Teste sua aprendizagem",
-                  description: "Ir para o teste",
+                  description: AppLocalizations.of(context)!.startAssessment,
                   mainColor: Colors.orange,
                 ),
                 SizedBox(height: 16),

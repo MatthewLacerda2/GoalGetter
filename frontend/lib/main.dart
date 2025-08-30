@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.green,
               isSelected: _selectedIndex == 0,
             ),
-            label: 'Objective',
+            label: AppLocalizations.of(context)!.objective,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -138,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.purpleAccent,
               isSelected: _selectedIndex == 1,
             ),
-            label: 'Tutor',
+            label: AppLocalizations.of(context)!.tutor,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.blue,
               isSelected: _selectedIndex == 2,
             ),
-            label: 'Awards',
+            label: AppLocalizations.of(context)!.awards,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -154,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.deepOrange,
               isSelected: _selectedIndex == 3,
             ),
-            label: 'Resources',
+            label: AppLocalizations.of(context)!.resources,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -162,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.blueGrey,
               isSelected: _selectedIndex == 4,
             ),
-            label: 'Profile',
+            label: AppLocalizations.of(context)!.profile,
           ),
         ],
         currentIndex: _selectedIndex,
