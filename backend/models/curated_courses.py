@@ -16,3 +16,5 @@ class CuratedCourse(Base):
     theoretical_score = Column(Float, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    
+    goal = relationship("Goal", back_populates="curated_course")
