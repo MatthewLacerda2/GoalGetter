@@ -43,10 +43,10 @@ class ResourceTab extends StatelessWidget {
                               width: 68,
                               height: 68,
                               decoration: BoxDecoration(
-                                color: Colors.grey[300],
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                              child: const Icon(Icons.image_not_supported, color: Colors.white),
                             );
                           },
                         ),
@@ -58,12 +58,12 @@ class ResourceTab extends StatelessWidget {
                           children: [
                             Text(
                               resource['title'] ?? '',
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               resource['description'] ?? '',
-                              style: TextStyle(color: Colors.grey[400]),
+                              style: TextStyle(color: Colors.white),
                             ),
                           ],
                         ),

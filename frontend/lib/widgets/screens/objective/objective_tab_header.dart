@@ -3,7 +3,7 @@ import 'package:goal_getter/screens/objective/streak_screen.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class ObjectiveTabHeader extends StatelessWidget {
-  final int xpLevel;
+  
   final String goalTitle;
   final int streakCounter;
 
@@ -11,7 +11,6 @@ class ObjectiveTabHeader extends StatelessWidget {
 
   const ObjectiveTabHeader({
     super.key,
-    required this.xpLevel,
     required this.goalTitle,
     required this.streakCounter,
   });
@@ -28,28 +27,10 @@ class ObjectiveTabHeader extends StatelessWidget {
           ),
         ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            height: buttonsHeight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.emoji_events, size: 20, color: Colors.blue),
-                const SizedBox(width: 4),
-                Text(
-                  '$xpLevel',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
-              ],
-            ),
-          ),
           Flexible(
             child: SizedBox(
               height: buttonsHeight,
@@ -61,7 +42,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                   ),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -100,12 +81,12 @@ class ObjectiveTabHeader extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.local_fire_department, size: 20),
+                  Icon(Icons.local_fire_department, size: 22),
                   const SizedBox(width: 4),
                   Text(
                     '$streakCounter',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

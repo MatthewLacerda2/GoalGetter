@@ -23,15 +23,7 @@ class PlayerBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color.fromARGB(80, 200, 200, 200), width: 2.6),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Color.fromARGB(80, 200, 200, 200), width: 2.8),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

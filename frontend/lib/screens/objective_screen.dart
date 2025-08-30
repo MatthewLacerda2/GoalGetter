@@ -16,7 +16,6 @@ class ObjectiveScreen extends StatelessWidget {
       body: Column(
         children: [
           ObjectiveTabHeader(
-            xpLevel: 2000,
             goalTitle: "Aprender violão",
             streakCounter: 365,
           ),
@@ -27,9 +26,8 @@ class ObjectiveScreen extends StatelessWidget {
                 SizedBox(height: 10),
                 ProgressBar(
                   title: "Aprenda todas as notas básicas",
-                  icon: Icons.music_note,
-                  progress: 2,
-                  end: 8,
+                  progress: 3,
+                  end: 10,
                   color: Colors.green,
                 ),
                 SizedBox(height: 20),

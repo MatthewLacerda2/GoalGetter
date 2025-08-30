@@ -3,7 +3,6 @@ import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'onboarding/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
-import 'intermediate/info_screen.dart';
 import 'onboarding/tutorial_screen.dart';
 import 'intermediate/finish_lesson_screen.dart';
 
@@ -86,28 +85,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const RoadmapPromptScreen(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 32),
-
-            _buildSectionTile(
-              'Info screen',
-              Icons.info,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InfoScreen(
-                      icon: Icons.info,
-                      descriptionText: 'Info screen',
-                      buttonText: 'Continue',
-                      onButtonPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
                   ),
                 );
               },

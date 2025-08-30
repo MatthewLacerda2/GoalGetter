@@ -52,7 +52,7 @@ class _ResourcesScreenState extends State<ResourcesScreen>
           bottom: TabBar(
             controller: _tabController,
             labelColor: Colors.white,
-            unselectedLabelColor: Colors.grey[600],
+            unselectedLabelColor: Colors.grey[800],
             dividerHeight: 4,
             tabs: [
               Tab(icon: Icon(Icons.book, size: 24), text: AppLocalizations.of(context)!.book),

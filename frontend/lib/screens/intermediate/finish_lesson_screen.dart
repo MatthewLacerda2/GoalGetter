@@ -17,9 +17,8 @@ class FinishLessonScreen extends StatelessWidget {
             children: [
               ProgressBar(
                 title: "Aprenda todas as notas básicas",
-                icon: Icons.music_note,
-                progress: 8,
-                end: 8,
+                progress: 4,
+                end: 10,
                 color: Colors.green,
               ),
               

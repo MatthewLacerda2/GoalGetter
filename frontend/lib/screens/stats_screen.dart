@@ -27,7 +27,7 @@ class StatsScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Icon(Icons.emoji_events, size: 100, color: Colors.grey[400]),
               const SizedBox(height: 8),
               Text(
@@ -38,13 +38,13 @@ class StatsScreen extends StatelessWidget {
                   color: Colors.grey[400],
                 ),
               ),
-              const SizedBox(height: 20),              
+              const SizedBox(height: 20),
               Leaderboarder(
                 people: LeaderboardData.getSampleData(),
                 startingPosition: LeaderboardData.getStartingPosition(),
                 username: LeaderboardData.getCurrentUsername(),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
