@@ -28,7 +28,7 @@ class ObjectiveScreen extends StatelessWidget {
                   title: "Aprenda todas as notas básicas",
                   progress: 3,
                   end: 10,
-                  color: Colors.green,
+                  color: Colors.grey.withValues(alpha: 0.1),
                 ),
                 SizedBox(height: 26),
                 LessonButton(

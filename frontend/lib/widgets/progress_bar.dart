@@ -24,6 +24,7 @@ class ProgressBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
