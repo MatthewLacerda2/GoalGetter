@@ -6,7 +6,6 @@ import '../widgets/screens/objective/objective_tab_header.dart';
 import '../models/fake_questions.dart';
 import '../models/question_data.dart';
 import '../widgets/screens/objective/lesson_button.dart';
-import '../widgets/screens/objective/assessment_button.dart';
 
 class ObjectiveScreen extends StatelessWidget {
   const ObjectiveScreen({super.key});
@@ -40,12 +39,6 @@ class ObjectiveScreen extends StatelessWidget {
                     correctAnswerIndex: q['correctAnswerIndex'] as int,
                   )).toList(),
                   mainColor: Colors.blue,
-                ),
-                SizedBox(height: 26),
-                AssessmentButton(
-                  title: "Teste sua aprendizagem",
-                  description: AppLocalizations.of(context)!.startAssessment,
-                  mainColor: Colors.orange,
                 ),
                 SizedBox(height: 16),
                 Text(
