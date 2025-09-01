@@ -81,7 +81,7 @@ class ObjectiveTabHeader extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.local_fire_department, size: 22),
+                  Icon(Icons.local_fire_department, size: 20),
                   const SizedBox(width: 4),
                   Text(
                     '$streakCounter',

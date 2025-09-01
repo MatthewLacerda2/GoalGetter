@@ -24,7 +24,7 @@ class LessonButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: mainColor ?? Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.8), width: 2),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

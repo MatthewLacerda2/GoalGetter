@@ -23,13 +23,14 @@ class ObjectiveScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(12),
               children: [
+                SizedBox(height: 12),
                 ProgressBar(
                   title: "Aprenda todas as notas básicas",
                   progress: 3,
                   end: 10,
                   color: Colors.grey.withValues(alpha: 0.1),
                 ),
-                SizedBox(height: 26),
+                SizedBox(height: 16),
                 LessonButton(
                   title: "Aprenda todas as notas básicas",
                   description: AppLocalizations.of(context)!.startLesson,
@@ -40,7 +41,7 @@ class ObjectiveScreen extends StatelessWidget {
                   )).toList(),
                   mainColor: Colors.blue,
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 12),
                 Text(
                   '${AppLocalizations.of(context)!.notes}:',
                   style: TextStyle(
@@ -49,31 +50,31 @@ class ObjectiveScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 InfoCard(
                   title: "Foque na precisão",
                   description: "Não faça as notas rápido. Faça-a devagar, acerte ela, toca um pouco, aí troca",
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 InfoCard(
                   title: "Foque em duas notas de cada vez",
                   description: "Só aprenda uma nota nova quando você decorou uma perfeitamente. Só varie um pouco, pra não ficar na mesmice",
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 InfoCard(
                   title: "Sério, precisão",
                   description: "Posicione os dedos perfeitamente, a nota tem que sair perfeita! Só depois, você toca no ritmo, e então troca",
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 InfoCard(
                   title: "NÃO toque ritmo rápido",
                   description: "A troca entre as notas tem que ser lenta, mas o ritmo que você toca as notas também!",
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 InfoCard(
                   title: "Já falei que é pra ser preciso?",
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 28),
               ],
             ),
           ),
