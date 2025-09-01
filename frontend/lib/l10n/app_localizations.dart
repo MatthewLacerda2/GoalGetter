@@ -101,11 +101,23 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
+  /// Label for skip button
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
   /// Label for next button
   ///
   /// In en, this message translates to:
   /// **'Next'**
   String get next;
+
+  /// Label for done button
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 
   /// Label for create roadmap button
   ///
@@ -398,7 +410,7 @@ abstract class AppLocalizations {
   /// Label for trailway to your goal
   ///
   /// In en, this message translates to:
-  /// **'A trailway to your goal'**
+  /// **'A given pathway to your goal'**
   String get trailwayToYourGoal;
 
   /// Label for your next target
@@ -416,7 +428,7 @@ abstract class AppLocalizations {
   /// Label for evaluation description
   ///
   /// In en, this message translates to:
-  /// **'You can check your progress and get your next objective when you\'re ready'**
+  /// **'Some exercises for you to learn and show you\'ve learned'**
   String get evaluationDescription;
 
   /// Label for tutor description

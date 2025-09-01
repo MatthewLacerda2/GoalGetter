@@ -4,9 +4,17 @@
     "@language": {
         "description": "The current language"
     },
+    "skip": "Skip",
+    "@skip": {
+        "description": "Label for skip button"
+    },
     "next": "Next",
     "@next": {
         "description": "Label for next button"
+    },
+    "done": "Done",
+    "@done": {
+        "description": "Label for done button"
     },
     "createRoadmap": "Create Roadmap",
     "@createRoadmap": {
@@ -200,7 +208,7 @@
     "@startAssessment": {
         "description": "Label for start assessment"
     },
-    "trailwayToYourGoal": "A trailway to your goal",
+    "trailwayToYourGoal": "A given pathway to your goal",
     "@trailwayToYourGoal": {
         "description": "Label for trailway to your goal"
     },
@@ -212,7 +220,7 @@
     "@evaluation": {
         "description": "Label for evaluation"
     },
-    "evaluationDescription": "You can check your progress and get your next objective when you're ready",
+    "evaluationDescription": "Some exercises for you to learn and show you've learned",
     "@evaluationDescription": {
         "description": "Label for evaluation description"
     },

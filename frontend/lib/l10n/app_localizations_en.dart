@@ -12,7 +12,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
+  String get skip => 'Skip';
+
+  @override
   String get next => 'Next';
+
+  @override
+  String get done => 'Done';
 
   @override
   String get createRoadmap => 'Create Roadmap';
@@ -159,7 +165,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startAssessment => 'Start Assessment';
 
   @override
-  String get trailwayToYourGoal => 'A trailway to your goal';
+  String get trailwayToYourGoal => 'A given pathway to your goal';
 
   @override
   String get yourNextTarget => 'Your next target. Take the materials and exercises we got for you';
@@ -168,7 +174,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get evaluation => 'Evaluation';
 
   @override
-  String get evaluationDescription => 'You can check your progress and get your next objective when you\'re ready';
+  String get evaluationDescription => 'Some exercises for you to learn and show you\'ve learned';
 
   @override
   String get tutorDescription => 'We got someone to give you advice, answer questions and guide you through';

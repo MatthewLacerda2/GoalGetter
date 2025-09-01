@@ -12,7 +12,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get language => 'Idioma';
 
   @override
+  String get skip => 'Pular';
+
+  @override
   String get next => 'Próximo';
+
+  @override
+  String get done => 'Pronto';
 
   @override
   String get createRoadmap => 'Criar Roadmap';
@@ -144,7 +150,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tutor => 'Tutor';
 
   @override
-  String get awards => 'Prêmios';
+  String get awards => 'Conquistas';
 
   @override
   String get resources => 'Recursos';
@@ -159,25 +165,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String get startAssessment => 'Iniciar Avaliação';
 
   @override
-  String get trailwayToYourGoal => 'Uma estrada para sua meta';
+  String get trailwayToYourGoal => 'Um plano de estudo pronto para você';
 
   @override
-  String get yourNextTarget => 'Seu próximo objetivo. Pegue os materiais e exercícios que temos para você';
+  String get yourNextTarget => 'Seu próximo objetivo. Aqui tem uns materiais e exercícios pra você';
 
   @override
   String get evaluation => 'Avaliação';
 
   @override
-  String get evaluationDescription => 'Você pode verificar seu progresso e obter seu próximo objetivo quando estiver pronto';
+  String get evaluationDescription => 'Exercícios para você aprender e mostrar que aprendeu';
 
   @override
-  String get tutorDescription => 'Temos alguém para dar-lhe conselhos, responder perguntas e guiá-lo através';
+  String get tutorDescription => 'Alguém para lhe dar conselhos, responder perguntas e guiá-lo';
 
   @override
-  String get awardsDescription => 'Seus marcos e progresso listados! Faça deles sua galeria!';
+  String get awardsDescription => 'Seus marcos! Faça uma galeria só deles!';
 
   @override
-  String get goGetEmTiger => 'Vá conseguir, tigre!';
+  String get goGetEmTiger => 'Parte pra cima!';
 
   @override
   String get goGetEmTigerDescription => 'Explore. Sonhe. Descubra.';

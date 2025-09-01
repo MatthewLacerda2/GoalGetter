@@ -4,9 +4,17 @@
     "@language": {
         "description": "O idioma atual"
     },
+    "skip": "Pular",
+    "@skip": {
+        "description": "Label for skip button"
+    },
     "next": "Próximo",
     "@next": {
         "description": "Rótulo para botão próximo"
+    },
+    "done": "Pronto",
+    "@done": {
+        "description": "Label for done button"
     },
     "createRoadmap": "Criar Roadmap",
     "@createRoadmap": {
@@ -180,7 +188,7 @@
     "@tutor": {
         "description": "Label for tutor"
     },
-    "awards": "Prêmios",
+    "awards": "Conquistas",
     "@awards": {
         "description": "Label for awards"
     },
@@ -200,11 +208,11 @@
     "@startAssessment": {
         "description": "Label for start assessment"
     },
-    "trailwayToYourGoal": "Uma estrada para sua meta",
+    "trailwayToYourGoal": "Um plano de estudo pronto para você",
     "@trailwayToYourGoal": {
         "description": "Label for trailway to your goal"
     },
-    "yourNextTarget": "Seu próximo objetivo. Pegue os materiais e exercícios que temos para você",
+    "yourNextTarget": "Seu próximo objetivo. Aqui tem uns materiais e exercícios pra você",
     "@yourNextTarget": {
         "description": "Label for your next target"
     },
@@ -212,19 +220,19 @@
     "@evaluation": {
         "description": "Label for evaluation"
     },
-    "evaluationDescription": "Você pode verificar seu progresso e obter seu próximo objetivo quando estiver pronto",
+    "evaluationDescription": "Exercícios para você aprender e mostrar que aprendeu",
     "@evaluationDescription": {
         "description": "Label for evaluation description"
     },
-    "tutorDescription": "Temos alguém para dar-lhe conselhos, responder perguntas e guiá-lo através",
+    "tutorDescription": "Alguém para lhe dar conselhos, responder perguntas e guiá-lo",
     "@tutorDescription": {
         "description": "Label for tutor description"
     },
-    "awardsDescription": "Seus marcos e progresso listados! Faça deles sua galeria!",
+    "awardsDescription": "Seus marcos! Faça uma galeria só deles!",
     "@awardsDescription": {
         "description": "Label for awards description"
     },
-    "goGetEmTiger": "Vá conseguir, tigre!",
+    "goGetEmTiger": "Parte pra cima!",
     "@goGetEmTiger": {
         "description": "Label for go get em tiger"
     },
