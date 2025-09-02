@@ -33,7 +33,7 @@ class PlayerBadge extends StatelessWidget {
             size: 48,
             color: iconColor ?? Colors.blue,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           Text(
             text,
             textAlign: TextAlign.center,

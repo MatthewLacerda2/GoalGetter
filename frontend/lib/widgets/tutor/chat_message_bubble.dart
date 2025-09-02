@@ -14,7 +14,7 @@ class ChatMessageBubble extends StatelessWidget {
     final isTutor = message.sender == ChatMessageSender.tutor;
     
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: isTutor ? MainAxisAlignment.start : MainAxisAlignment.end,
@@ -24,7 +24,7 @@ class ChatMessageBubble extends StatelessWidget {
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.7,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: isTutor ? Colors.grey[800] : Colors.grey[700],
                 borderRadius: BorderRadius.circular(16),

@@ -109,7 +109,7 @@ class StreakScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 20),
                             const Divider(color: Colors.grey, thickness: 1),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 12),
                             Text(
                               descriptionText,
                               textAlign: TextAlign.center,
