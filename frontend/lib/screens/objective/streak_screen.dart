@@ -5,25 +5,25 @@ import '../../widgets/screens/objective/streak/weekday_column.dart';
 
 class StreakScreen extends StatelessWidget {
   final int streakCount;
-  final bool sunday;
-  final bool monday;
-  final bool tuesday;
-  final bool wednesday;
-  final bool thursday;
-  final bool friday;
-  final bool saturday;
+  final bool? sunday;
+  final bool? monday;
+  final bool? tuesday;
+  final bool? wednesday;
+  final bool? thursday;
+  final bool? friday;
+  final bool? saturday;
   final String descriptionText;
 
   const StreakScreen({
     super.key,
     required this.streakCount,
-    required this.sunday,
-    required this.monday,
-    required this.tuesday,
-    required this.wednesday,
-    required this.thursday,
-    required this.friday,
-    required this.saturday,
+    this.sunday,
+    this.monday,
+    this.tuesday,
+    this.wednesday,
+    this.thursday,
+    this.friday,
+    this.saturday,
     required this.descriptionText,
   });
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class WeekdayColumn extends StatelessWidget {
   final String dayLabel;
-  final bool isCompleted;
+  final bool? isCompleted;
   final double width;
 
   const WeekdayColumn({
@@ -33,10 +33,18 @@ class WeekdayColumn extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isCompleted ? Colors.green : Colors.red,
+              color: isCompleted == null 
+                  ? Colors.grey 
+                  : isCompleted == true
+                      ? Colors.green 
+                      : Colors.red,
             ),
             child: Icon(
-              isCompleted ? Icons.check : Icons.close,
+              isCompleted == null 
+                  ? Icons.remove 
+                  : isCompleted == true
+                      ? Icons.check 
+                      : Icons.close,
               color: Colors.white,
               size: 20,
             ),

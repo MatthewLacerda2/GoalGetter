@@ -63,8 +63,6 @@ class ObjectiveTabHeader extends StatelessWidget {
                       tuesday: true,
                       wednesday: true,
                       thursday: true,
-                      friday: true,
-                      saturday: false,
                       descriptionText: AppLocalizations.of(context)!.keepThePressureOn,
                     ),
                   ),
