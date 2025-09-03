@@ -35,9 +35,9 @@ class ObjectiveScreen extends StatelessWidget {
                   title: "Aprenda todas as notas básicas",
                   description: AppLocalizations.of(context)!.startLesson,
                   questions: fakeAcousticGuitarQuestions.map((q) => QuestionData(
-                    question: q['question'] as String,
-                    choices: List<String>.from(q['choices']),
-                    correctAnswerIndex: q['correctAnswerIndex'] as int,
+                    question: q.question,
+                    choices: List<String>.from(q.choices),
+                    correctAnswer: q.correctAnswer,
                   )).toList(),
                   mainColor: Colors.blue,
                 ),

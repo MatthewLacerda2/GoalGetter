@@ -5,11 +5,13 @@ import 'question_choice_list.dart';
 class Question extends StatefulWidget {
   final QuestionData questionData;
   final Function(int)? onChoiceSelected;
+  final VoidCallback? onAnswerRevealed;
 
   const Question({
     super.key,
     required this.questionData,
     this.onChoiceSelected,
+    this.onAnswerRevealed,
   });
 
   @override
@@ -22,12 +24,15 @@ class _QuestionState extends State<Question> {
   bool? isCorrect;
 
   void _handleEnter() {
-    if (selectedChoiceIndex == null) return;
+    if (selectedChoiceIndex == null || hasAnswered) return;
     
     setState(() {
       hasAnswered = true;
       isCorrect = widget.questionData.choices[selectedChoiceIndex!] == widget.questionData.correctAnswer;
     });
+    
+    // Notify parent that answer is revealed
+    widget.onAnswerRevealed?.call();
   }
 
   Color _getButtonColor() {
@@ -48,7 +53,7 @@ class _QuestionState extends State<Question> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 16),
@@ -70,7 +75,7 @@ class _QuestionState extends State<Question> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: selectedChoiceIndex != null ? _handleEnter : null,
+            onPressed: selectedChoiceIndex != null && !hasAnswered ? _handleEnter : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: _getButtonColor(),
               foregroundColor: Colors.white,

@@ -5,7 +5,7 @@ import 'question_data.dart';
 List<QuestionData> fakeAcousticGuitarQuestions = [
   QuestionData(
     question: 'What is the standard tuning for acoustic guitar?',
-    choices: ['EADGBE', 'DADGAD', 'CGCFAD', 'EADGBE'],
+    choices: ['EADGBE', 'DADGAD', 'CGCFAD', 'EADGBF'],
     correctAnswer: 'EADGBE',
   ),
   QuestionData(

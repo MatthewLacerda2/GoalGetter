@@ -45,7 +45,6 @@ class LessonButton extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => LessonScreen(
-                    title: title,
                     questions: questions,
                   ),
                 ),
