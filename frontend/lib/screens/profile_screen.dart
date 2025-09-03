@@ -4,7 +4,7 @@ import '../l10n/app_localizations.dart';
 import 'onboarding/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
 import 'onboarding/tutorial_screen.dart';
-import 'intermediate/finish_lesson_screen.dart';
+import 'objective/finish_lesson_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
