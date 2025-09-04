@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/l10n/app_localizations.dart';
 import '../../models/question_data.dart';
 import '../intermediate/info_screen.dart';
 import 'finish_lesson_screen.dart';
@@ -69,8 +70,8 @@ class _LessonScreenState extends State<LessonScreen> {
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => InfoScreen(
               icon: Icons.quiz,
-              descriptionText: "Now let's correct your mistakes",
-              buttonText: "Continue",
+              descriptionText: AppLocalizations.of(context)!.nowLetSCorrectYourMistakes,
+              buttonText: AppLocalizations.of(context)!.continuate,
               onButtonPressed: () {
                 Navigator.of(context).pop();
                 startReviewMode(incorrectQuestions);
@@ -132,6 +133,20 @@ class _LessonScreenState extends State<LessonScreen> {
       } else {
         return Colors.grey;
       }
+    }
+  }
+
+  Color getButtonColor() {
+    if (selectedChoiceIndex == null) {
+      return Colors.grey[600]!;
+    }
+    
+    if (!isAnswerRevealed) {
+      return Colors.blue;
+    } else {
+      final currentQuestion = questionsToReview[currentQuestionIndex];
+      final isCorrect = currentQuestion.choices[selectedChoiceIndex!] == currentQuestion.correctAnswer;
+      return isCorrect ? Colors.green : Colors.red;
     }
   }
 
@@ -236,14 +251,14 @@ class _LessonScreenState extends State<LessonScreen> {
                   onPressed: selectedChoiceIndex != null ? 
                     (isAnswerRevealed ? nextQuestion : submitAnswer) : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: selectedChoiceIndex != null ? Colors.blue : Colors.grey[600],
+                    backgroundColor: getButtonColor(),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
-                    isAnswerRevealed ? 'Continue' : 'Enter',
+                    isAnswerRevealed ? AppLocalizations.of(context)!.continuate : AppLocalizations.of(context)!.enter,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,

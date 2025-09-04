@@ -206,7 +206,7 @@ abstract class AppLocalizations {
   /// Label para botão continuar
   ///
   /// In en, this message translates to:
-  /// **'Continuar'**
+  /// **'Continue!'**
   String get continuate;
 
   /// Label for sunday
@@ -454,6 +454,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Explore. Dream. Discover.'**
   String get goGetEmTigerDescription;
+
+  /// Label for now let's correct your mistakes
+  ///
+  /// In en, this message translates to:
+  /// **'Now let\'s correct your mistakes'**
+  String get nowLetSCorrectYourMistakes;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

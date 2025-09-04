@@ -72,7 +72,7 @@
     "@dayStreak": {
         "description": "Label para dias de streak"
     },
-    "continuate": "Continuar",
+    "continuate": "Continue!",
     "@continuate": {
         "description": "Label para botão continuar"
     },
@@ -239,5 +239,9 @@
     "goGetEmTigerDescription": "Explore. Sonhe. Descubra.",
     "@goGetEmTigerDescription": {
         "description": "Label for go get em tiger description"
+    },
+    "nowLetSCorrectYourMistakes": "Agora vamos corrigir seus erros",
+    "@nowLetSCorrectYourMistakes": {
+        "description": "Label for now let's correct your mistakes"
     }
 }

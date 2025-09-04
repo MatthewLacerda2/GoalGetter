@@ -63,7 +63,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dayStreak => 'dias de streak!';
 
   @override
-  String get continuate => 'Continuar';
+  String get continuate => 'Continue!';
 
   @override
   String get sunday => 'Domingo';
@@ -187,4 +187,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get goGetEmTigerDescription => 'Explore. Sonhe. Descubra.';
+
+  @override
+  String get nowLetSCorrectYourMistakes => 'Agora vamos corrigir seus erros';
 }
