@@ -5,6 +5,7 @@ from backend.core.database import get_db
 from backend.schemas.student import OAuth2Request, TokenResponse
 from backend.models.student import Student
 from backend.models.goal import Goal
+from backend.models.student_context import StudentContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
@@ -39,7 +40,6 @@ async def signup(
             email=user_info["email"],
             google_id=user_info["sub"],
             name=user_info.get("name"),
-            latest_report="",
         )
         
         goal = Goal(    #TODO: Create the actual goal
@@ -106,6 +106,10 @@ async def login(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
+    
+        latest_student_context = select(StudentContext).where(StudentContext.student_id == user.id).order_by(StudentContext.created_at.desc())
+        result = await db.execute(latest_student_context)
+        latest_student_context = result.scalar_one_or_none()
         
         user.last_login = datetime.now()
         await db.commit()
@@ -117,7 +121,8 @@ async def login(
         
         return TokenResponse(
             access_token=access_token,
-            student=user
+            student=user,
+            latest_student_context=latest_student_context
         )
         
     except HTTPException:

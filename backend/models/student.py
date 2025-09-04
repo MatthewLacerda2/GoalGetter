@@ -18,8 +18,6 @@ class Student(Base):
     name = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     last_login = Column(DateTime, nullable=False, default=datetime.now())
-    latest_report = Column(String, nullable=False)
-    latest_report_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True, default=None)
     current_streak = Column(Integer, nullable=False, default=0)
     longest_streak = Column(Integer, nullable=False, default=0)
     overall_xp = Column(Integer, nullable=False, default=0)

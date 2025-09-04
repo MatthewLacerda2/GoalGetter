@@ -28,7 +28,18 @@ class _LessonScreenState extends State<LessonScreen> {
   }
 
   void _handleQuestionAnswered(int selectedIndex) {
-    final currentQuestion = questions[currentQuestionIndex];
+    QuestionData currentQuestion;
+    
+    if (isShowingCorrection) {
+      // In correction mode, find the question in the main list
+      final incorrectQuestions = _getIncorrectQuestions();
+      final currentIncorrectQuestion = incorrectQuestions[currentQuestionIndex];
+      currentQuestion = questions.firstWhere((q) => q.question == currentIncorrectQuestion.question);
+    } else {
+      // In normal mode, use the current index
+      currentQuestion = questions[currentQuestionIndex];
+    }
+    
     final isCorrect = currentQuestion.choices[selectedIndex] == currentQuestion.correctAnswer;
     
     setState(() {

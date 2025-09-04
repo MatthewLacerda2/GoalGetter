@@ -9,16 +9,23 @@ class StudentResponse(BaseModel):
     google_id: str
     goal_name: str
     name: str
-    latest_report: str
     current_streak: int
     overall_xp: int
 
+    model_config = ConfigDict(from_attributes=True)
+    
+class StudentContextResponse(BaseModel):
+    state: str
+    metacognition: str
+    
     model_config = ConfigDict(from_attributes=True)
 
 class TokenResponse(BaseModel):
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field(default="bearer", description="Type of token")
     student: StudentResponse
+    latest_student_context: StudentContextResponse
+    
     
     @field_validator('token_type')
     @classmethod
