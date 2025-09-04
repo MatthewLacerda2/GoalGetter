@@ -169,7 +169,7 @@ class _LessonScreenState extends State<LessonScreen> {
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -188,9 +188,9 @@ class _LessonScreenState extends State<LessonScreen> {
               // Question text
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey[800],
+                  color: Colors.grey[800]!.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey[600]!),
                 ),
@@ -201,11 +201,11 @@ class _LessonScreenState extends State<LessonScreen> {
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                   ),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
                 ),
               ),
               
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
               
               // Choices
               Expanded(
@@ -213,14 +213,14 @@ class _LessonScreenState extends State<LessonScreen> {
                   itemCount: currentQuestion.choices.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: 20),
                       child: InkWell(
                         onTap: () => selectChoice(index),
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.grey[800],
+                            color: Colors.grey[800]!.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: getChoiceBorderColor(index),
@@ -233,7 +233,7 @@ class _LessonScreenState extends State<LessonScreen> {
                               color: Colors.white,
                               fontSize: 18,
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.left,
                           ),
                         ),
                       ),
