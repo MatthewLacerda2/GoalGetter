@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/question_data.dart';
-import '../../widgets/screens/objective/lesson/question.dart';
 import '../intermediate/info_screen.dart';
-import '../objective/finish_lesson_screen.dart';
+import 'finish_lesson_screen.dart';
 
 class LessonScreen extends StatefulWidget {
   final List<QuestionData> questions;
@@ -18,129 +17,128 @@ class LessonScreen extends StatefulWidget {
 
 class _LessonScreenState extends State<LessonScreen> {
   int currentQuestionIndex = 0;
-  List<QuestionData> questions = [];
-  bool isShowingCorrection = false;
+  int? selectedChoiceIndex;
+  bool isAnswerRevealed = false;
+  List<QuestionData> questionsToReview = [];
+  bool isReviewMode = false;
 
   @override
   void initState() {
     super.initState();
-    questions = List.from(widget.questions);
+    questionsToReview = List.from(widget.questions);
   }
 
-  void _handleQuestionAnswered(int selectedIndex) {
-    QuestionData currentQuestion;
-    
-    if (isShowingCorrection) {
-      // In correction mode, find the question in the main list
-      final incorrectQuestions = _getIncorrectQuestions();
-      final currentIncorrectQuestion = incorrectQuestions[currentQuestionIndex];
-      currentQuestion = questions.firstWhere((q) => q.question == currentIncorrectQuestion.question);
-    } else {
-      // In normal mode, use the current index
-      currentQuestion = questions[currentQuestionIndex];
+  void selectChoice(int index) {
+    if (!isAnswerRevealed) {
+      setState(() {
+        selectedChoiceIndex = index;
+      });
     }
-    
-    final isCorrect = currentQuestion.choices[selectedIndex] == currentQuestion.correctAnswer;
-    
+  }
+
+  void submitAnswer() {
+    if (selectedChoiceIndex == null) return;
+
     setState(() {
+      isAnswerRevealed = true;
+      final currentQuestion = questionsToReview[currentQuestionIndex];
+      final isCorrect = currentQuestion.choices[selectedChoiceIndex!] == currentQuestion.correctAnswer;
+      
       if (isCorrect) {
-        currentQuestion.status = currentQuestion.status == QuestionStatus.notAnswered 
-            ? QuestionStatus.correct 
-            : QuestionStatus.correctAfterRetry;
+        currentQuestion.status = QuestionStatus.correct;
       } else {
         currentQuestion.status = QuestionStatus.incorrect;
       }
     });
   }
 
-  void _handleAnswerRevealed() {
-    // Wait 2 seconds to show the answer feedback, then proceed
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        _proceedToNext();
+  void nextQuestion() {
+    if (currentQuestionIndex < questionsToReview.length - 1) {
+      setState(() {
+        currentQuestionIndex++;
+        selectedChoiceIndex = null;
+        isAnswerRevealed = false;
+      });
+    } else {
+      // Check if there are any incorrect answers
+      final incorrectQuestions = questionsToReview.where((q) => q.status == QuestionStatus.incorrect).toList();
+      
+      if (incorrectQuestions.isNotEmpty) {
+        // Show InfoScreen for mistakes
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => InfoScreen(
+              icon: Icons.quiz,
+              descriptionText: "Now let's correct your mistakes",
+              buttonText: "Continue",
+              onButtonPressed: () {
+                Navigator.of(context).pop();
+                startReviewMode(incorrectQuestions);
+              },
+            ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: animation.drive(
+                  Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                      .chain(CurveTween(curve: Curves.easeInOut)),
+                ),
+                child: child,
+              );
+            },
+          ),
+        );
+      } else {
+        // All questions correct, go to finish screen
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const FinishLessonScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: animation.drive(
+                  Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                      .chain(CurveTween(curve: Curves.easeInOut)),
+                ),
+                child: child,
+              );
+            },
+          ),
+        );
       }
-    });
+    }
   }
 
-  void _proceedToNext() {
+  void startReviewMode(List<QuestionData> incorrectQuestions) {
     setState(() {
-      currentQuestionIndex++;
-    });
-  }
-
-  void _startCorrection() {
-    setState(() {
-      isShowingCorrection = true;
+      questionsToReview = incorrectQuestions;
       currentQuestionIndex = 0;
+      selectedChoiceIndex = null;
+      isAnswerRevealed = false;
+      isReviewMode = true;
     });
   }
 
-  void _finishLesson() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const FinishLessonScreen(),
-      ),
-    );
-  }
-
-  bool _hasIncorrectQuestions() {
-    return questions.any((q) => q.status == QuestionStatus.incorrect);
-  }
-
-  bool _allQuestionsCompleted() {
-    return questions.every((q) => 
-        q.status == QuestionStatus.correct || 
-        q.status == QuestionStatus.correctAfterRetry);
-  }
-
-  List<QuestionData> _getIncorrectQuestions() {
-    return questions.where((q) => q.status == QuestionStatus.incorrect).toList();
+  Color getChoiceBorderColor(int index) {
+    if (!isAnswerRevealed) {
+      return selectedChoiceIndex == index ? Colors.blue : Colors.grey;
+    } else {
+      final currentQuestion = questionsToReview[currentQuestionIndex];
+      final isCorrectAnswer = currentQuestion.choices[index] == currentQuestion.correctAnswer;
+      final isSelectedAnswer = selectedChoiceIndex == index;
+      
+      if (isCorrectAnswer) {
+        return Colors.green;
+      } else if (isSelectedAnswer && !isCorrectAnswer) {
+        return Colors.red;
+      } else {
+        return Colors.grey;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Check if we should show correction screen
-    if (isShowingCorrection && _getIncorrectQuestions().isEmpty) {
-      _finishLesson();
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    // Show correction info screen
-    if (isShowingCorrection && currentQuestionIndex == 0) {
-      return InfoScreen(
-        icon: Icons.school,
-        descriptionText: "Now let's correct your mistakes",
-        buttonText: "Continue",
-        onButtonPressed: _proceedToNext,
-      );
-    }
-
-    // Show finish screen if all questions are completed
-    if (!isShowingCorrection && _allQuestionsCompleted()) {
-      _finishLesson();
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    // Show correction info screen after first pass
-    if (!isShowingCorrection && currentQuestionIndex >= questions.length && _hasIncorrectQuestions()) {
-      return InfoScreen(
-        icon: Icons.school,
-        descriptionText: "Now let's correct your mistakes",
-        buttonText: "Continue",
-        onButtonPressed: _startCorrection,
-      );
-    }
-
-    // Get current question (either from main list or incorrect questions)
-    QuestionData currentQuestion;
-    if (isShowingCorrection) {
-      final incorrectQuestions = _getIncorrectQuestions();
-      currentQuestion = incorrectQuestions[currentQuestionIndex];
-    } else {
-      currentQuestion = questions[currentQuestionIndex];
-    }
-
+    final currentQuestion = questionsToReview[currentQuestionIndex];
+    
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body: SafeArea(
@@ -152,45 +150,110 @@ class _LessonScreenState extends State<LessonScreen> {
               Row(
                 children: [
                   Text(
-                    'Question ${currentQuestionIndex + 1} of ${isShowingCorrection ? _getIncorrectQuestions().length : questions.length}',
+                    '${currentQuestionIndex + 1} / ${questionsToReview.length}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: (currentQuestionIndex + 1) / questionsToReview.length,
+                      backgroundColor: Colors.grey[700],
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Question text
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[600]!),
+                ),
+                child: Text(
+                  currentQuestion.question,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Choices
+              Expanded(
+                child: ListView.builder(
+                  itemCount: currentQuestion.choices.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: InkWell(
+                        onTap: () => selectChoice(index),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: getChoiceBorderColor(index),
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            currentQuestion.choices[index],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Submit/Next button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: selectedChoiceIndex != null ? 
+                    (isAnswerRevealed ? nextQuestion : submitAnswer) : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: selectedChoiceIndex != null ? Colors.blue : Colors.grey[600],
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    isAnswerRevealed ? 'Continue' : 'Enter',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const Spacer(),
-                  if (isShowingCorrection)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Correction',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Question widget
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Question(
-                    key: ValueKey('${currentQuestion.question}_${currentQuestionIndex}'),
-                    questionData: currentQuestion,
-                    onChoiceSelected: _handleQuestionAnswered,
-                    onAnswerRevealed: _handleAnswerRevealed,
-                  ),
                 ),
               ),
+              
+              const SizedBox(height: 8),
             ],
           ),
         ),
