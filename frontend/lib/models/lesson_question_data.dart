@@ -1,6 +1,6 @@
 //INFO: this is just a placeholder model. Once we get the client_sdk, this'll be deleted
 
-enum QuestionStatus{
+enum LessonQuestionStatus{
   correct,
   incorrect,
   notAnswered,
@@ -8,15 +8,15 @@ enum QuestionStatus{
 }
 
 
-class QuestionData {
+class LessonQuestionData {
   final String question;
   final List<String> choices;
   final String correctAnswer;
-  QuestionStatus status;
+  LessonQuestionStatus status;
 
-  QuestionData({
+  LessonQuestionData({
     required this.question,
     required this.choices,
     required this.correctAnswer,
-  }) : status = QuestionStatus.notAnswered;
+  }) : status = LessonQuestionStatus.notAnswered;
 }

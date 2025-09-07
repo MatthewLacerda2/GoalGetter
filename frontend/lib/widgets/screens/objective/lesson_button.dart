@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../models/question_data.dart';
+import '../../../models/lesson_question_data.dart';
 import '../../../screens/objective/lesson_screen.dart';
 
 class LessonButton extends StatelessWidget {
   final String title;
   final String description;
-  final List<QuestionData> questions;
+  final List<LessonQuestionData> questions;
   final Color? mainColor;
 
   const LessonButton({

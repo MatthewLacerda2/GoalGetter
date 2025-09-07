@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
-import '../../models/question_data.dart';
+import '../../models/lesson_question_data.dart';
 import '../intermediate/info_screen.dart';
 import 'finish_lesson_screen.dart';
 
 class LessonScreen extends StatefulWidget {
-  final List<QuestionData> questions;
+  final List<LessonQuestionData> questions;
 
   const LessonScreen({
     super.key,
@@ -20,7 +20,7 @@ class _LessonScreenState extends State<LessonScreen> {
   int currentQuestionIndex = 0;
   int? selectedChoiceIndex;
   bool isAnswerRevealed = false;
-  List<QuestionData> questionsToReview = [];
+  List<LessonQuestionData> questionsToReview = [];
   bool isReviewMode = false;
 
   @override
@@ -46,9 +46,9 @@ class _LessonScreenState extends State<LessonScreen> {
       final isCorrect = currentQuestion.choices[selectedChoiceIndex!] == currentQuestion.correctAnswer;
       
       if (isCorrect) {
-        currentQuestion.status = QuestionStatus.correct;
+        currentQuestion.status = LessonQuestionStatus.correct;
       } else {
-        currentQuestion.status = QuestionStatus.incorrect;
+        currentQuestion.status = LessonQuestionStatus.incorrect;
       }
     });
   }
@@ -62,7 +62,7 @@ class _LessonScreenState extends State<LessonScreen> {
       });
     } else {
       // Check if there are any incorrect answers
-      final incorrectQuestions = questionsToReview.where((q) => q.status == QuestionStatus.incorrect).toList();
+      final incorrectQuestions = questionsToReview.where((q) => q.status == LessonQuestionStatus.incorrect).toList();
       
       if (incorrectQuestions.isNotEmpty) {
         // Show InfoScreen for mistakes
@@ -108,7 +108,7 @@ class _LessonScreenState extends State<LessonScreen> {
     }
   }
 
-  void startReviewMode(List<QuestionData> incorrectQuestions) {
+  void startReviewMode(List<LessonQuestionData> incorrectQuestions) {
     setState(() {
       questionsToReview = incorrectQuestions;
       currentQuestionIndex = 0;
@@ -121,19 +121,19 @@ class _LessonScreenState extends State<LessonScreen> {
   Color getChoiceBorderColor(int index) {
     if (!isAnswerRevealed) {
       return selectedChoiceIndex == index ? Colors.blue : Colors.grey;
-    } else {
-      final currentQuestion = questionsToReview[currentQuestionIndex];
-      final isCorrectAnswer = currentQuestion.choices[index] == currentQuestion.correctAnswer;
-      final isSelectedAnswer = selectedChoiceIndex == index;
-      
-      if (isCorrectAnswer) {
-        return Colors.green;
-      } else if (isSelectedAnswer && !isCorrectAnswer) {
-        return Colors.red;
-      } else {
-        return Colors.grey;
-      }
     }
+    
+    final currentQuestion = questionsToReview[currentQuestionIndex];
+    final isCorrectAnswer = currentQuestion.choices[index] == currentQuestion.correctAnswer;
+    final isSelectedAnswer = selectedChoiceIndex == index;
+    
+    if (isCorrectAnswer) {
+      return Colors.green;
+    } else if (isSelectedAnswer && !isCorrectAnswer) {
+      return Colors.red;
+    } else {
+      return Colors.grey;
+    }    
   }
 
   Color getButtonColor() {

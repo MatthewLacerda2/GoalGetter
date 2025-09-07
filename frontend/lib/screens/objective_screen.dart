@@ -4,7 +4,7 @@ import '../widgets/info_card.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
 import '../models/fake_questions.dart';
-import '../models/question_data.dart';
+import '../models/lesson_question_data.dart';
 import '../widgets/screens/objective/lesson_button.dart';
 
 class ObjectiveScreen extends StatelessWidget {
@@ -34,7 +34,7 @@ class ObjectiveScreen extends StatelessWidget {
                 LessonButton(
                   title: "Aprenda todas as notas básicas",
                   description: AppLocalizations.of(context)!.startLesson,
-                  questions: fakeAcousticGuitarQuestions.map((q) => QuestionData(
+                  questions: fakeAcousticGuitarQuestions.map((q) => LessonQuestionData(
                     question: q.question,
                     choices: List<String>.from(q.choices),
                     correctAnswer: q.correctAnswer,
