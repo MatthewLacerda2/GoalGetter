@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/fake_evaluation_questions.dart';
 import '../../l10n/app_localizations.dart';
-import 'finish_lesson_screen.dart';
+import 'finish_evaluation_screen.dart';
 
 class EvaluationScreen extends StatefulWidget {
   const EvaluationScreen({super.key});
@@ -86,7 +86,7 @@ class _EvaluationScreenState extends State<EvaluationScreen>
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => const FinishLessonScreen(),
+        builder: (context) => const FinishEvaluationScreen(),
       ),
     );
   }
@@ -98,9 +98,9 @@ class _EvaluationScreenState extends State<EvaluationScreen>
     final currentQuestion = fakeEvaluationAnswers[_currentQuestionIndex];
     
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color.fromARGB(255, 43, 43, 43),
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.questions),
+        title: Text(AppLocalizations.of(context)!.evaluation),
         centerTitle: true,
         actions: [
           Center(
@@ -158,7 +158,7 @@ class _EvaluationScreenState extends State<EvaluationScreen>
                       ? AppLocalizations.of(context)!.next
                       : AppLocalizations.of(context)!.done,
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -249,14 +249,14 @@ class _EvaluationQuestionState extends State<_EvaluationQuestion> {
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             
             // Answer input field
             TextField(
               controller: _textController,
               enabled: !widget.showEvaluation,
               onSubmitted: widget.showEvaluation ? null : _handleSubmitted,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontSize: 18),
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.yourAnswer,
                 border: const OutlineInputBorder(),
@@ -266,7 +266,7 @@ class _EvaluationQuestionState extends State<_EvaluationQuestion> {
                     : Colors.grey[700],
                 hintStyle: TextStyle(color: Colors.grey[400]),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
+                  horizontal: 8,
                   vertical: 12,
                 ),
                 errorText: (widget.showError || _hasError) && _textController.text.trim().isEmpty
@@ -280,9 +280,8 @@ class _EvaluationQuestionState extends State<_EvaluationQuestion> {
                       )
                     : null,
               ),
-              maxLines: 5,
-              minLines: 3,
-              textInputAction: TextInputAction.send,
+              minLines: 5,              textInputAction: TextInputAction.send,
+              maxLines: 10,
               onChanged: (value) {
                 if (_hasError && value.trim().isNotEmpty) {
                   setState(() {
@@ -296,76 +295,13 @@ class _EvaluationQuestionState extends State<_EvaluationQuestion> {
             if (widget.showEvaluation) ...[
               const SizedBox(height: 16),
               
-              // Student answer display
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: widget.isCorrect ? Colors.green : Colors.red,
-                    width: 2,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Your Answer:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.studentAnswer,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 12),
-              
               // LLM evaluation display
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: widget.isCorrect ? Colors.green[900] : Colors.red[900],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: widget.isCorrect ? Colors.green : Colors.red,
-                    width: 2,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Evaluation:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[300],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.llmEvaluation,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: widget.isCorrect ? Colors.green[100] : Colors.red[100],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              Text(
+                widget.llmEvaluation,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: widget.isCorrect ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

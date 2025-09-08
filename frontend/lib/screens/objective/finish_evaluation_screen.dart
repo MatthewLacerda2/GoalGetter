@@ -3,8 +3,8 @@ import '../../widgets/progress_bar.dart';
 import '../../widgets/info_card.dart';
 import '../../main.dart';
 
-class FinishLessonScreen extends StatelessWidget {
-  const FinishLessonScreen({super.key});
+class FinishEvaluationScreen extends StatelessWidget {
+  const FinishEvaluationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

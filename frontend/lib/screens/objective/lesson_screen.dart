@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import '../../models/lesson_question_data.dart';
 import '../intermediate/info_screen.dart';
-import 'finish_lesson_screen.dart';
+import 'finish_evaluation_screen.dart';
 
 class LessonScreen extends StatefulWidget {
   final List<LessonQuestionData> questions;
@@ -85,14 +85,14 @@ class _LessonScreenState extends State<LessonScreen> {
                 ),
                 child: child,
               );
-            },
+            },  
           ),
         );
       } else {
         // All questions correct, go to finish screen
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const FinishLessonScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) => const FinishEvaluationScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: animation.drive(
