@@ -5,6 +5,7 @@ import 'onboarding/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
 import 'onboarding/tutorial_screen.dart';
 import 'objective/finish_lesson_screen.dart';
+import 'objective/evaluation_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -115,6 +116,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => FinishLessonScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Evaluation screen',
+              Icons.assessment,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EvaluationScreen(),
                   ),
                 );
               },

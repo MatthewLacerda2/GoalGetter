@@ -1,5 +1,5 @@
 from backend.models.base import Base
-from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, JSON, Integer, Float
+from sqlalchemy import Column, String, DateTime, ForeignKey, JSON, Integer, Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -9,10 +9,11 @@ class Lesson(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     student_context_id = Column(String(36), ForeignKey("student_contexts.id"), nullable=False)
-    is_evaluation = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.now())
+    objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
+    content = Column(JSON, nullable=False)
     seconds_spent = Column(Integer, nullable=True, default=None)
     student_accuracy = Column(Float, nullable=True, default=None)
-    content = Column(JSON, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
 
     student_context = relationship("StudentContext", back_populates="lessons", uselist=False)
+    objective = relationship("Objective", back_populates="lessons", uselist=False)
