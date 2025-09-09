@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'roadmap_questions_screen.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
-//TODO: change 'roadmap' to 'objective'. use mock again for now
+//TODO: change 'roadmap' to 'objective'. use mock for now
 class RoadmapPromptScreen extends StatefulWidget {
   const RoadmapPromptScreen({super.key});
 
