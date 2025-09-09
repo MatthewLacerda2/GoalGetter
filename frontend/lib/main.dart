@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/task_screen.dart';
+import 'package:goal_getter/models/fake_chat_message_array.dart';
+import 'screens/objective_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/resources_screen.dart';
 import 'screens/tutor_screen.dart';
@@ -7,7 +8,6 @@ import 'screens/profile_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'utils/settings_storage.dart';
 import 'widgets/main_screen_icon.dart';
-import 'models/fake_chat_message_array.dart';
 
 void main() {
   runApp(const MyApp());
@@ -67,18 +67,30 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.onLanguageChanged});
+  const MyHomePage({
+    super.key, 
+    required this.title, 
+    required this.onLanguageChanged,
+    this.selectedIndex = 0,
+  });
 
   final String title;
   final Function(String) onLanguageChanged;
+  final int selectedIndex;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
   
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+  }
+
   void _onTabTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -86,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> get _tabPages => <Widget>[
-    TaskScreen(),
+    ObjectiveScreen(),
     TutorScreen(messages: fakeChatMessages),
     StatsScreen(),
     ResourcesScreen(),
@@ -97,50 +109,44 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.black, Color.fromARGB(255, 43, 43, 43)],
-          ),
-        ),
+        color: const Color.fromARGB(255, 33, 33, 33),
         child: SafeArea(
           child: _tabPages[_selectedIndex],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedFontSize: 0,
-        unselectedFontSize: 0,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedFontSize: 10,
+        unselectedFontSize: 10,
         iconSize: 28,
-        backgroundColor: const Color.fromARGB(255, 49, 49, 49),
+        backgroundColor: const Color.fromARGB(255, 11, 11, 11),
         enableFeedback: false,
         items: [
           BottomNavigationBarItem(
             icon: MainScreenIcon(
               icon: Icons.event_note,
-              color: Colors.blue,
+              color: Colors.green,
               isSelected: _selectedIndex == 0,
             ),
-            label: '',
+            label: AppLocalizations.of(context)!.objective,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
               icon: Icons.graphic_eq,
-              color: Colors.purple,
+              color: Colors.purpleAccent,
               isSelected: _selectedIndex == 1,
             ),
-            label: '',
+            label: AppLocalizations.of(context)!.tutor,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
-              icon: Icons.workspace_premium_outlined,
-              color: Colors.amber,
+              icon: Icons.emoji_events,
+              color: Colors.blue,
               isSelected: _selectedIndex == 2,
             ),
-            label: '',
+            label: AppLocalizations.of(context)!.awards,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -148,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.deepOrange,
               isSelected: _selectedIndex == 3,
             ),
-            label: '',
+            label: AppLocalizations.of(context)!.resources,
           ),
           BottomNavigationBarItem(
             icon: MainScreenIcon(
@@ -156,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.blueGrey,
               isSelected: _selectedIndex == 4,
             ),
-            label: '',
+            label: AppLocalizations.of(context)!.profile,
           ),
         ],
         currentIndex: _selectedIndex,

@@ -1,11 +1,12 @@
-class LeaderboardExample {
+//INFO: this is just a placeholder model. Once we get the client_sdk, this'll be deleted
+class FakeLeaderboardExample {
   final String name;
   final int score;
 
-  LeaderboardExample({required this.name, required this.score});
+  FakeLeaderboardExample({required this.name, required this.score});
 }
 
-class LeaderboardData {
+class FakeLeaderboardData {
   static List<Map<String, dynamic>> getSampleData() {
     return [
       {'name': 'Washington', 'xpAmount': 400},

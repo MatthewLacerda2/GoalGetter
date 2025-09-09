@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:openapi/api.dart';
-import '../../../widgets/screens/roadmap/roadmap_creation/goal_questions.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../main.dart'; // Added import for MyHomePage
+import '../../widgets/screens/onboarding/goal_questions.dart';
+import '../../l10n/app_localizations.dart';
+import '../../main.dart';
 
 class RoadmapQuestionsScreen extends StatefulWidget {
   final List<String> questions;
@@ -25,7 +24,6 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
   bool _isLoading = false;
   int _currentQuestionIndex = 0;
   
-  // Animation controllers for sliding
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -35,15 +33,14 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
     super.initState();
     _answers = List.filled(widget.questions.length, '');
     
-    // Initialize animation controllers
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(1.0, 0.0), // Start from right
-      end: Offset.zero, // End at center
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _slideController,
       curve: Curves.easeInOut,
@@ -57,7 +54,6 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
       curve: Curves.easeInOut,
     ));
     
-    // Start with first question visible
     _slideController.forward();
   }
 
@@ -73,22 +69,18 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
       _showErrors = false;
     });
 
-    // Move to next question or complete
     if (_currentQuestionIndex < widget.questions.length - 1) {
       _showNextQuestion();
     } else {
-      // All questions answered, proceed to API call
       _onSendPressed();
     }
   }
 
   void _showNextQuestion() {
-    // Slide current question out to the left
     _slideController.reverse().then((_) {
       setState(() {
         _currentQuestionIndex++;
       });
-      // Slide new question in from the right
       _slideController.forward();
     });
   }
@@ -97,31 +89,12 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
       _answers.length == widget.questions.length &&
       _answers.every((a) => a.trim().isNotEmpty);
 
-  Future<RoadmapCreationResponse?> _fetchRoadmapSteps(String prompt) async {
-    List<FollowUpQuestionsAndAnswers> questionsAnswers = [];
-    for (int i = 0; i < _answers.length; i++) {
-      questionsAnswers.add(FollowUpQuestionsAndAnswers(
-        question: widget.questions[i], 
-        answer: _answers[i]
-      ));
-    }
-
-    final roadmapApi = RoadmapApi(ApiClient(basePath: 'http://127.0.0.1:8000')); //TODO: read from env
-    final request = RoadmapCreationRequest(
-      prompt: prompt,
-      questionsAnswers: questionsAnswers,
-    );
-    final response = await roadmapApi.createRoadmapApiV1RoadmapCreationPost(request);
-    return response;
-  }
-
   void _onSendPressed() async {
     if (_allAnswered) {
       setState(() {
         _isLoading = true;
       });
       try {
-        final results = await _fetchRoadmapSteps(widget.prompt);
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
@@ -129,17 +102,15 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
             builder: (context) => MyHomePage(
               title: 'GoalGetter',
               onLanguageChanged: (language) {
-                // Handle language change if needed
               },
             ),
           ),
-          (route) => false, // This removes all previous routes
+          (route) => false,
         );
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.grey.shade200,
             content: Text(
               'Error: $e',
               style: TextStyle(
@@ -167,11 +138,11 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.questions),
         centerTitle: true,
         actions: [
-          // Show progress indicator
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
@@ -205,26 +176,26 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
             ),
           ),
           
-          // Bottom navigation area - only next/complete button
           Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: double.infinity,
+              height: 52,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _onSendPressed,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isLoading ? Colors.grey.shade300 : Colors.green,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 24,
                         width: 24,
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
                       )
                     : Text(
@@ -234,6 +205,7 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
               ),

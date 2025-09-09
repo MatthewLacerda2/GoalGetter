@@ -4,13 +4,17 @@
     "@language": {
         "description": "O idioma atual"
     },
-    "profile": "Perfil",
-    "@profile": {
-        "description": "Rótulo da aba de perfil"
+    "skip": "Pular",
+    "@skip": {
+        "description": "Label for skip button"
     },
     "next": "Próximo",
     "@next": {
         "description": "Rótulo para botão próximo"
+    },
+    "done": "Pronto",
+    "@done": {
+        "description": "Label for done button"
     },
     "createRoadmap": "Criar Roadmap",
     "@createRoadmap": {
@@ -68,7 +72,7 @@
     "@dayStreak": {
         "description": "Label para dias de streak"
     },
-    "continuate": "Continuar",
+    "continuate": "Continue!",
     "@continuate": {
         "description": "Label para botão continuar"
     },
@@ -160,8 +164,84 @@
     "@achievements": {
         "description": "Label for achievements"
     },
-    "awards": "Prêmios",
+    "typeYourMessage": "Mensagem...",
+    "@typeYourMessage": {
+        "description": "Label for type your message"
+    },
+    "keepThePressureOn": "Continue sendo um orgulho!",
+    "@keepThePressureOn": {
+        "description": "Label for keep the pressure on"
+    },
+    "wellDone": "Boa resposta!",
+    "@wellDone": {
+        "description": "Label for well done"
+    },
+    "opsNotQuite": "Ops! Não é isso...",
+    "@opsNotQuite": {
+        "description": "Label for ops not quite"
+    },
+    "objective": "Objetivo",
+    "@objective": {
+        "description": "Label for objective"
+    },
+    "tutor": "Tutor",
+    "@tutor": {
+        "description": "Label for tutor"
+    },
+    "awards": "Conquistas",
     "@awards": {
         "description": "Label for awards"
+    },
+    "resources": "Recursos",
+    "@resources": {
+        "description": "Label for resources"
+    },
+    "profile": "Perfil",
+    "@profile": {
+        "description": "Label for profile"
+    },
+    "startLesson": "Iniciar Lição",
+    "@startLesson": {
+        "description": "Label for start lesson"
+    },
+    "startAssessment": "Iniciar Avaliação",
+    "@startAssessment": {
+        "description": "Label for start assessment"
+    },
+    "trailwayToYourGoal": "Um plano de estudo pronto para você",
+    "@trailwayToYourGoal": {
+        "description": "Label for trailway to your goal"
+    },
+    "yourNextTarget": "Seu próximo objetivo. Aqui tem uns materiais e exercícios pra você",
+    "@yourNextTarget": {
+        "description": "Label for your next target"
+    },
+    "evaluation": "Avaliação",
+    "@evaluation": {
+        "description": "Label for evaluation"
+    },
+    "evaluationDescription": "Exercícios para você aprender e mostrar que aprendeu",
+    "@evaluationDescription": {
+        "description": "Label for evaluation description"
+    },
+    "tutorDescription": "Alguém para lhe dar conselhos, responder perguntas e guiá-lo",
+    "@tutorDescription": {
+        "description": "Label for tutor description"
+    },
+    "awardsDescription": "Seus marcos! Faça uma galeria só deles!",
+    "@awardsDescription": {
+        "description": "Label for awards description"
+    },
+    "goGetEmTiger": "Parte pra cima!",
+    "@goGetEmTiger": {
+        "description": "Label for go get em tiger"
+    },
+    "goGetEmTigerDescription": "Explore. Sonhe. Descubra.",
+    "@goGetEmTigerDescription": {
+        "description": "Label for go get em tiger description"
+    },
+    "nowLetSCorrectYourMistakes": "Agora vamos corrigir seus erros",
+    "@nowLetSCorrectYourMistakes": {
+        "description": "Label for now let's correct your mistakes"
     }
 }

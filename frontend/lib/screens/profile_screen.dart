@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/screens/intermediate/info_screen.dart';
+import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
+import 'package:goal_getter/widgets/screens/objective/lesson/lesson_stat.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
-import 'profile/roadmap_creation/roadmap_prompt_screen.dart';
+import 'onboarding/roadmap_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
+import 'onboarding/tutorial_screen.dart';
+import 'objective/finish_evaluation_screen.dart';
+import 'objective/evaluation_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -37,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     widget.onLanguageChanged?.call(language);
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -45,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -58,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 _buildLanguageButton(
                   'US',
                   SettingsStorage.english,
@@ -72,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             
             // Create Roadmap Section
             _buildSectionTile(
@@ -83,6 +89,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const RoadmapPromptScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Tutorial screen',
+              Icons.hourglass_empty,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TutorialScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Finish evaluation screen',
+              Icons.check_circle,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FinishEvaluationScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Evaluation screen',
+              Icons.assessment,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EvaluationScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Info screen',
+              Icons.person,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InfoScreen(
+                      icon: Icons.info, 
+                      title: "Info screen",
+                      descriptionText: "Description", 
+                      buttonText: "Button", 
+                      onButtonPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Finish lesson screen',
+              Icons.check_circle,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FinishLessonScreen(
+                      title: "Finish lesson screen",
+                      icon: Icons.check_circle,
+                      timeSpent: lessonStatTime,
+                      accuracy: lessonStatAccuracy,
+                      combo: lessonStatCombo
+                    ),
                   ),
                 );
               },

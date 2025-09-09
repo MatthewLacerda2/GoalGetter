@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/screens/task/badge.dart' as task_badge;
-import '../widgets/line_chart_table.dart';
+import '../widgets/screens/stats/player_badge.dart';
+import '../widgets/screens/stats/line_chart_table.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../widgets/screens/task/leaderboarder.dart';
-import '../models/leaderboard_example.dart';
+import '../widgets/screens/stats/leaderboarder.dart';
+import '../models/fake_leaderboard_example.dart';
 import '../l10n/app_localizations.dart';
 
 class StatsScreen extends StatelessWidget {
@@ -23,11 +23,11 @@ class StatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Icon(Icons.emoji_events, size: 100, color: Colors.grey[400]),
               const SizedBox(height: 8),
               Text(
@@ -38,24 +38,58 @@ class StatsScreen extends StatelessWidget {
                   color: Colors.grey[400],
                 ),
               ),
-              const SizedBox(height: 20),              
-              Leaderboarder(
-                people: LeaderboardData.getSampleData(),
-                startingPosition: LeaderboardData.getStartingPosition(),
-                username: LeaderboardData.getCurrentUsername(),
-              ),
               const SizedBox(height: 20),
-              Text(
-                AppLocalizations.of(context)!.progress,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.left,
+              Leaderboarder(
+                people: FakeLeaderboardData.getSampleData(),
+                startingPosition: FakeLeaderboardData.getStartingPosition(),
+                username: FakeLeaderboardData.getCurrentUsername(),
               ),
-              const SizedBox(height: 16),
-              LineChartTable(spots: spots),
+              const SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 50, 50, 50),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.progress,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 50, 50, 50),
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: LineChartTable(spots: spots),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.awards,
@@ -72,31 +106,31 @@ class StatsScreen extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.emoji_events,
                       iconColor: Colors.green,
                       text: 'Aprendeu todas as notas básicas',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.star,
                       iconColor: Colors.yellow,
                       text: 'Tocou violão até a mão não mexer mais',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.trending_up,
                       iconColor: Colors.blue,
                       text: 'Tocou violão por 1 hora',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.fitness_center,
                       iconColor: Colors.red,
                       text: 'Finalizou sua primeira música',
                     ),
                     SizedBox(width: 12),
-                    task_badge.Badge(
+                    PlayerBadge(
                       icon: Icons.psychology,
                       iconColor: Colors.white,
                       text: 'Trocou entre três notas consecutivas',

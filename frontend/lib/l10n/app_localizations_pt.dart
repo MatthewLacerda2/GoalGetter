@@ -12,10 +12,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get language => 'Idioma';
 
   @override
-  String get profile => 'Perfil';
+  String get skip => 'Pular';
 
   @override
   String get next => 'Próximo';
+
+  @override
+  String get done => 'Pronto';
 
   @override
   String get createRoadmap => 'Criar Roadmap';
@@ -60,7 +63,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dayStreak => 'dias de streak!';
 
   @override
-  String get continuate => 'Continuar';
+  String get continuate => 'Continue!';
 
   @override
   String get sunday => 'Domingo';
@@ -129,5 +132,62 @@ class AppLocalizationsPt extends AppLocalizations {
   String get achievements => 'Conquistas';
 
   @override
-  String get awards => 'Prêmios';
+  String get typeYourMessage => 'Mensagem...';
+
+  @override
+  String get keepThePressureOn => 'Continue sendo um orgulho!';
+
+  @override
+  String get wellDone => 'Boa resposta!';
+
+  @override
+  String get opsNotQuite => 'Ops! Não é isso...';
+
+  @override
+  String get objective => 'Objetivo';
+
+  @override
+  String get tutor => 'Tutor';
+
+  @override
+  String get awards => 'Conquistas';
+
+  @override
+  String get resources => 'Recursos';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get startLesson => 'Iniciar Lição';
+
+  @override
+  String get startAssessment => 'Iniciar Avaliação';
+
+  @override
+  String get trailwayToYourGoal => 'Um plano de estudo pronto para você';
+
+  @override
+  String get yourNextTarget => 'Seu próximo objetivo. Aqui tem uns materiais e exercícios pra você';
+
+  @override
+  String get evaluation => 'Avaliação';
+
+  @override
+  String get evaluationDescription => 'Exercícios para você aprender e mostrar que aprendeu';
+
+  @override
+  String get tutorDescription => 'Alguém para lhe dar conselhos, responder perguntas e guiá-lo';
+
+  @override
+  String get awardsDescription => 'Seus marcos! Faça uma galeria só deles!';
+
+  @override
+  String get goGetEmTiger => 'Parte pra cima!';
+
+  @override
+  String get goGetEmTigerDescription => 'Explore. Sonhe. Descubra.';
+
+  @override
+  String get nowLetSCorrectYourMistakes => 'Agora vamos corrigir seus erros';
 }

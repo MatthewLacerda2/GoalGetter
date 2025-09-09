@@ -12,10 +12,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
-  String get profile => 'Profile';
+  String get skip => 'Skip';
 
   @override
   String get next => 'Next';
+
+  @override
+  String get done => 'Done';
 
   @override
   String get createRoadmap => 'Create Roadmap';
@@ -57,10 +60,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseAnswerThisQuestion => 'Please answer this question';
 
   @override
-  String get dayStreak => 'dias de streak!';
+  String get dayStreak => 'streak days!';
 
   @override
-  String get continuate => 'Continuar';
+  String get continuate => 'Continue!';
 
   @override
   String get sunday => 'Sunday';
@@ -129,5 +132,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achievements => 'Achievements';
 
   @override
+  String get typeYourMessage => 'Type your message...';
+
+  @override
+  String get keepThePressureOn => 'Yeah, keep the pressure on !!!';
+
+  @override
+  String get wellDone => 'Well done!';
+
+  @override
+  String get opsNotQuite => 'Ops! Not quite...';
+
+  @override
+  String get objective => 'Objective';
+
+  @override
+  String get tutor => 'Tutor';
+
+  @override
   String get awards => 'Awards';
+
+  @override
+  String get resources => 'Resources';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get startLesson => 'Start Lesson';
+
+  @override
+  String get startAssessment => 'Start Assessment';
+
+  @override
+  String get trailwayToYourGoal => 'A given pathway to your goal';
+
+  @override
+  String get yourNextTarget => 'Your next target. Take the materials and exercises we got for you';
+
+  @override
+  String get evaluation => 'Evaluation';
+
+  @override
+  String get evaluationDescription => 'Some exercises for you to learn and show you\'ve learned';
+
+  @override
+  String get tutorDescription => 'We got someone to give you advice, answer questions and guide you through';
+
+  @override
+  String get awardsDescription => 'Your milestones and progress listed! Make it your gallery!';
+
+  @override
+  String get goGetEmTiger => 'Go get \'em, tiger!';
+
+  @override
+  String get goGetEmTigerDescription => 'Explore. Dream. Discover.';
+
+  @override
+  String get nowLetSCorrectYourMistakes => 'Now let\'s correct your mistakes';
 }

@@ -11,6 +11,7 @@ class Goal(Base):
     __tablename__ = "goals"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    curated_course_id = Column(String(36), ForeignKey("curated_courses.id"), nullable=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
@@ -20,3 +21,5 @@ class Goal(Base):
     resources = relationship("Resource", back_populates="goal")
     objectives = relationship("Objective", back_populates="goal")
     student_contexts = relationship("StudentContext", back_populates="goal")
+    achievements = relationship("Achievement", back_populates="goal")
+    curated_course = relationship("CuratedCourse", back_populates="goal")

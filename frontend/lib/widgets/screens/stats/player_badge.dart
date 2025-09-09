@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Badge extends StatelessWidget {
+class PlayerBadge extends StatelessWidget {
   final IconData icon;
   final String text;
   final double fontSize;
   final Color? iconColor;
   final Color? textColor;
 
-  const Badge({
+  const PlayerBadge({
     super.key,
     required this.icon,
     required this.text,
@@ -23,15 +23,7 @@ class Badge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color.fromARGB(80, 200, 200, 200), width: 2.6),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Color.fromARGB(80, 200, 200, 200), width: 2.8),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -41,7 +33,7 @@ class Badge extends StatelessWidget {
             size: 48,
             color: iconColor ?? Colors.blue,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           Text(
             text,
             textAlign: TextAlign.center,

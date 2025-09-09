@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/screens/task/calendar_screen.dart';
+import 'package:goal_getter/screens/objective/streak_screen.dart';
+import '../../../../l10n/app_localizations.dart';
 
-class TaskTabHeader extends StatelessWidget {
-  final int xpLevel;
+class ObjectiveTabHeader extends StatelessWidget {
+  
   final String goalTitle;
   final int streakCounter;
 
   static const double buttonsHeight = 44;
 
-  const TaskTabHeader({
+  const ObjectiveTabHeader({
     super.key,
-    required this.xpLevel,
     required this.goalTitle,
     required this.streakCounter,
   });
@@ -27,28 +27,10 @@ class TaskTabHeader extends StatelessWidget {
           ),
         ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            height: buttonsHeight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.emoji_events, size: 20, color: Colors.blue),
-                const SizedBox(width: 4),
-                Text(
-                  '$xpLevel',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
-              ],
-            ),
-          ),
           Flexible(
             child: SizedBox(
               height: buttonsHeight,
@@ -57,10 +39,10 @@ class TaskTabHeader extends StatelessWidget {
                   goalTitle,
                   style: const TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -74,22 +56,20 @@ class TaskTabHeader extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CalendarScreen(
+                    builder: (context) => StreakScreen(
                       streakCount: streakCounter,
                       sunday: false,
                       monday: true,
                       tuesday: true,
                       wednesday: true,
                       thursday: true,
-                      friday: true,
-                      saturday: false,
-                      descriptionText: 'Yeah, keep the pressure on !!!',
+                      descriptionText: AppLocalizations.of(context)!.keepThePressureOn,
                     ),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: Colors.orange, //TODO: make this go cyanGrey if the user didnt finish a lesson today
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                 shape: RoundedRectangleBorder(
@@ -104,7 +84,7 @@ class TaskTabHeader extends StatelessWidget {
                   Text(
                     '$streakCounter',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

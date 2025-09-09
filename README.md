@@ -1,13 +1,13 @@
 # GoalGetter
 
-An educational app with an AI-mentor
+An educational app with an AI-Tutor
 
 # How it works
 
 - Goal
 - Lessons
 - Progress
-- Mentoring
+- Tutoring
 
 # Philosophy
 

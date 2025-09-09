@@ -101,17 +101,23 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
-  /// Profile tab label
+  /// Label for skip button
   ///
   /// In en, this message translates to:
-  /// **'Profile'**
-  String get profile;
+  /// **'Skip'**
+  String get skip;
 
   /// Label for next button
   ///
   /// In en, this message translates to:
   /// **'Next'**
   String get next;
+
+  /// Label for done button
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 
   /// Label for create roadmap button
   ///
@@ -194,13 +200,13 @@ abstract class AppLocalizations {
   /// Label para dias de streak
   ///
   /// In en, this message translates to:
-  /// **'dias de streak!'**
+  /// **'streak days!'**
   String get dayStreak;
 
   /// Label para botão continuar
   ///
   /// In en, this message translates to:
-  /// **'Continuar'**
+  /// **'Continue!'**
   String get continuate;
 
   /// Label for sunday
@@ -335,11 +341,125 @@ abstract class AppLocalizations {
   /// **'Achievements'**
   String get achievements;
 
-  /// Label for awards
+  /// Label for type your message
+  ///
+  /// In en, this message translates to:
+  /// **'Type your message...'**
+  String get typeYourMessage;
+
+  /// Label for keep the pressure on
+  ///
+  /// In en, this message translates to:
+  /// **'Yeah, keep the pressure on !!!'**
+  String get keepThePressureOn;
+
+  /// Label for well done
+  ///
+  /// In en, this message translates to:
+  /// **'Well done!'**
+  String get wellDone;
+
+  /// Label for ops not quite
+  ///
+  /// In en, this message translates to:
+  /// **'Ops! Not quite...'**
+  String get opsNotQuite;
+
+  /// Label for objective
+  ///
+  /// In en, this message translates to:
+  /// **'Objective'**
+  String get objective;
+
+  /// Label for tutor
+  ///
+  /// In en, this message translates to:
+  /// **'Tutor'**
+  String get tutor;
+
+  /// Label for resources
   ///
   /// In en, this message translates to:
   /// **'Awards'**
   String get awards;
+
+  /// Label for resources
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get resources;
+
+  /// Label for profile
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// Label for start lesson
+  ///
+  /// In en, this message translates to:
+  /// **'Start Lesson'**
+  String get startLesson;
+
+  /// Label for start assessment
+  ///
+  /// In en, this message translates to:
+  /// **'Start Assessment'**
+  String get startAssessment;
+
+  /// Label for trailway to your goal
+  ///
+  /// In en, this message translates to:
+  /// **'A given pathway to your goal'**
+  String get trailwayToYourGoal;
+
+  /// Label for your next target
+  ///
+  /// In en, this message translates to:
+  /// **'Your next target. Take the materials and exercises we got for you'**
+  String get yourNextTarget;
+
+  /// Label for evaluation
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation'**
+  String get evaluation;
+
+  /// Label for evaluation description
+  ///
+  /// In en, this message translates to:
+  /// **'Some exercises for you to learn and show you\'ve learned'**
+  String get evaluationDescription;
+
+  /// Label for tutor description
+  ///
+  /// In en, this message translates to:
+  /// **'We got someone to give you advice, answer questions and guide you through'**
+  String get tutorDescription;
+
+  /// Label for awards description
+  ///
+  /// In en, this message translates to:
+  /// **'Your milestones and progress listed! Make it your gallery!'**
+  String get awardsDescription;
+
+  /// Label for go get em tiger
+  ///
+  /// In en, this message translates to:
+  /// **'Go get \'em, tiger!'**
+  String get goGetEmTiger;
+
+  /// Label for go get em tiger description
+  ///
+  /// In en, this message translates to:
+  /// **'Explore. Dream. Discover.'**
+  String get goGetEmTigerDescription;
+
+  /// Label for now let's correct your mistakes
+  ///
+  /// In en, this message translates to:
+  /// **'Now let\'s correct your mistakes'**
+  String get nowLetSCorrectYourMistakes;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

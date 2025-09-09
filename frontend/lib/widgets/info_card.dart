@@ -3,49 +3,48 @@ import 'package:flutter/material.dart';
 class InfoCard extends StatelessWidget {
   final String title;
   final String? description;
-  final Color? mainColor;
-  final Color? descriptionColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
 
   const InfoCard({
     super.key,
     required this.title,
     this.description,
-    this.mainColor,
-    this.descriptionColor,
+    this.backgroundColor,
+    this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: mainColor ?? Colors.grey[800],
+        color: backgroundColor ?? Colors.white.withValues(alpha:0.16),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: mainColor ?? Colors.white, width: 2),
-
+        border: Border.all(color: borderColor ?? Colors.white.withValues(alpha: 0.24), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: mainColor ?? Colors.white,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
             ),
           ),
           if (description != null) ...[
             const SizedBox(height: 10),
-            Divider(height: 1, color: mainColor ?? Colors.white),
+            Divider(height: 1, color: Colors.white),
             const SizedBox(height: 10),
             Text(
               description!,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
-                color: descriptionColor ?? Colors.grey[300],
-                height: 1.4,
+                color: Colors.white,
+                height: 1.6,
               ),
             ),
           ],
