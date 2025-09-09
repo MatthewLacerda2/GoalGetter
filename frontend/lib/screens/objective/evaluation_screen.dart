@@ -97,76 +97,78 @@ class _EvaluationScreenState extends State<EvaluationScreen>
   Widget build(BuildContext context) {
     final currentQuestion = fakeEvaluationAnswers[_currentQuestionIndex];
     
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 43, 43, 43),
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.evaluation),
-        centerTitle: true,
-        actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Text(
-                '${_currentQuestionIndex + 1}/${fakeEvaluationAnswers.length}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: _EvaluationQuestion(
-                  question: currentQuestion.question,
-                  studentAnswer: _answers[_currentQuestionIndex],
-                  llmEvaluation: currentQuestion.llmEvaluation,
-                  isCorrect: currentQuestion.isCorrect,
-                  showEvaluation: _showEvaluation,
-                  onAnswerSubmitted: _onAnswerSubmitted,
-                  showError: _showErrors,
-                ),
-              ),
-            ),
-          ),
-          
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: _currentAnswerSubmitted ? _onNextPressed : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _currentAnswerSubmitted
-                      ? (fakeEvaluationAnswers[_currentQuestionIndex].isCorrect 
-                          ? Colors.green 
-                          : Colors.red)
-                      : Colors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 43, 43, 43),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.evaluation),
+          centerTitle: true,
+          actions: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
                 child: Text(
-                  _currentQuestionIndex < fakeEvaluationAnswers.length - 1
-                      ? AppLocalizations.of(context)!.next
-                      : AppLocalizations.of(context)!.done,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  '${_currentQuestionIndex + 1}/${fakeEvaluationAnswers.length}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: _EvaluationQuestion(
+                    question: currentQuestion.question,
+                    studentAnswer: _answers[_currentQuestionIndex],
+                    llmEvaluation: currentQuestion.llmEvaluation,
+                    isCorrect: currentQuestion.isCorrect,
+                    showEvaluation: _showEvaluation,
+                    onAnswerSubmitted: _onAnswerSubmitted,
+                    showError: _showErrors,
+                  ),
+                ),
+              ),
+            ),
+            
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: _currentAnswerSubmitted ? _onNextPressed : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _currentAnswerSubmitted
+                        ? (fakeEvaluationAnswers[_currentQuestionIndex].isCorrect 
+                            ? Colors.green 
+                            : Colors.red)
+                        : Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    _currentQuestionIndex < fakeEvaluationAnswers.length - 1
+                        ? AppLocalizations.of(context)!.next
+                        : AppLocalizations.of(context)!.done,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

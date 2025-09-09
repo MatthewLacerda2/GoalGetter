@@ -148,6 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   MaterialPageRoute(
                     builder: (context) => InfoScreen(
                       icon: Icons.info, 
+                      title: "Info screen",
                       descriptionText: "Description", 
                       buttonText: "Button", 
                       onButtonPressed: () {

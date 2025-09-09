@@ -5,6 +5,7 @@ class InfoScreen extends StatelessWidget {
   final String descriptionText;
   final String buttonText;
   final VoidCallback onButtonPressed;
+  final String? title;
 
   const InfoScreen({
     super.key,
@@ -12,6 +13,7 @@ class InfoScreen extends StatelessWidget {
     required this.descriptionText,
     required this.buttonText,
     required this.onButtonPressed,
+    this.title,
   });
 
   @override
@@ -27,23 +29,35 @@ class InfoScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    if (title != null) ...[
+                      Text(
+                        title!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 32,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                     Icon(
                       icon,
                       color: Colors.orange,
-                      size: 120,
+                      size: 140,
                     ),
                     const SizedBox(height: 48),
                     Card(
-                      color: Colors.grey[700],
+                      color: Colors.grey.withValues(alpha: 0.4),
                       child: Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         child: Text(
                           descriptionText,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
                           ),
                         ),
                       ),
@@ -57,7 +71,7 @@ class InfoScreen extends StatelessWidget {
                   onPressed: onButtonPressed,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
