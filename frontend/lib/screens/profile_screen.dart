@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/screens/intermediate/info_screen.dart';
 import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
-import 'package:goal_getter/widgets/screens/objective/lesson/lesson_stat.dart';
+import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'onboarding/roadmap_prompt_screen.dart';
@@ -174,9 +174,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     builder: (context) => FinishLessonScreen(
                       title: "Finish lesson screen",
                       icon: Icons.check_circle,
-                      timeSpent: lessonStatTime,
-                      accuracy: lessonStatAccuracy,
-                      combo: lessonStatCombo
+                      timeSpent: StatData(
+                        title: "Time", 
+                        icon: Icons.timer, 
+                        text: "1:39", 
+                        color: Colors.blue
+                      ),
+                      accuracy: StatData(
+                        title: "Accuracy", 
+                        icon: Icons.check_circle, 
+                        text: "90%", 
+                        color: Colors.green
+                      ),
+                      combo: StatData(
+                        title: "Combo", 
+                        icon: Icons.star, 
+                        text: "3", 
+                        color: Colors.yellow
+                      )
                     ),
                   ),
                 );
