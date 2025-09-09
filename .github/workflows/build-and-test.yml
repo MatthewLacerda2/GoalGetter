@@ -18,6 +18,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install Python dependencies
+      run: |
+        pip install -r requirements.txt
+        
+    - name: Run pytest
+      run: |
+        pytest tests/ -v
+        
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
@@ -31,32 +44,3 @@ jobs:
         flutter analyze
         flutter build apk --debug
         flutter build web
-        
-    - name: Revert PR to draft on failure
-      if: failure()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const { data: pullRequest } = await github.rest.pulls.get({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number
-          });
-          
-          if (pullRequest.draft === false) {
-            await github.rest.pulls.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              draft: true
-            });
-            
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: '🚨 **Build failed!** This PR has been automatically reverted to draft status. Please fix the build issues and mark it as ready for review again.'
-            });
-          }
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
