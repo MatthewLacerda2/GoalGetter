@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../main.dart';
+import 'package:goal_getter/l10n/app_localizations.dart';
+import 'package:goal_getter/screens/objective/streak_screen.dart';
 import '../../widgets/screens/objective/lesson/stat.dart';
 import '../../widgets/screens/objective/lesson/stat_data.dart';
 
@@ -74,13 +75,18 @@ class FinishLessonScreen extends StatelessWidget {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MyHomePage(
-                          title: 'GoalGetter',
-                          onLanguageChanged: (language) {},
+                        builder: (context) => StreakScreen(
+                          streakCount: 365,
+                          sunday: false,
+                          monday: true,
+                          tuesday: true,
+                          wednesday: true,
+                          thursday: true,
+                          descriptionText: AppLocalizations.of(context)!.keepThePressureOn,
                         ),
                       ),
                       (route) => false,
-                    );
+                  );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
+import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
 import '../../models/lesson_question_data.dart';
 import '../intermediate/info_screen.dart';
-import '../../widgets/screens/objective/lesson/lesson_stat.dart';
+import 'dart:async';
 
 class LessonScreen extends StatefulWidget {
   final List<LessonQuestionData> questions;
@@ -23,11 +24,55 @@ class _LessonScreenState extends State<LessonScreen> {
   bool isAnswerRevealed = false;
   List<LessonQuestionData> questionsToReview = [];
   bool isReviewMode = false;
+  
+  // Time tracking variables
+  late DateTime _startTime;
+  Duration _totalTimeSpent = Duration.zero;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     questionsToReview = List.from(widget.questions);
+    _startTime = DateTime.now();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _totalTimeSpent = DateTime.now().difference(_startTime);
+      });
+    });
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  int _calculateLongestStreak() {
+    int longestStreak = 0;
+    int currentStreak = 0;
+    
+    for (var question in questionsToReview) {
+      if (question.status == LessonQuestionStatus.correct) {
+        currentStreak++;
+        longestStreak = currentStreak > longestStreak ? currentStreak : longestStreak;
+      } else {
+        currentStreak = 0;
+      }
+    }
+    
+    return longestStreak;
   }
 
   void selectChoice(int index) {
@@ -91,14 +136,30 @@ class _LessonScreenState extends State<LessonScreen> {
         );
       } else {
         // All questions correct, go to finish screen
+        _timer?.cancel(); // Stop the timer
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => FinishLessonScreen(
               title: "Finish lesson screen",
               icon: Icons.check_circle,
-              timeSpent: lessonStatTime,
-              accuracy: lessonStatAccuracy,
-              combo: lessonStatCombo
+              timeSpent: StatData(
+                title: "Time", 
+                icon: Icons.timer, 
+                text: _formatDuration(_totalTimeSpent), 
+                color: Colors.blue
+              ),
+              accuracy: StatData(
+                title: "Accuracy", 
+                icon: Icons.check_circle, 
+                text: "${(questionsToReview.where((q) => q.status == LessonQuestionStatus.correct).length / questionsToReview.length * 100).toStringAsFixed(2)}%", 
+                color: Colors.green
+              ),
+              combo: StatData(
+                title: "Combo", 
+                icon: Icons.star, 
+                text: "${_calculateLongestStreak()}", 
+                color: Colors.yellow
+              )
             ),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(

@@ -69,7 +69,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: Colors.orange, //TODO: make this go cyanGrey if the user didnt finish a lesson today
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                 shape: RoundedRectangleBorder(
