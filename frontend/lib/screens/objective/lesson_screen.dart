@@ -94,7 +94,12 @@ class _LessonScreenState extends State<LessonScreen> {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => FinishLessonScreen(
-              icon: Icons.check_circle, timeSpent: lessonStatTime, accuracy: lessonStatAccuracy, combo: lessonStatCombo),
+              title: "Finish lesson screen",
+              icon: Icons.check_circle,
+              timeSpent: lessonStatTime,
+              accuracy: lessonStatAccuracy,
+              combo: lessonStatCombo
+            ),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: animation.drive(

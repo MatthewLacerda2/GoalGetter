@@ -171,7 +171,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FinishLessonScreen(icon: Icons.check_circle, timeSpent: lessonStatTime, accuracy: lessonStatAccuracy, combo: lessonStatCombo),
+                    builder: (context) => FinishLessonScreen(
+                      title: "Finish lesson screen",
+                      icon: Icons.check_circle,
+                      timeSpent: lessonStatTime,
+                      accuracy: lessonStatAccuracy,
+                      combo: lessonStatCombo
+                    ),
                   ),
                 );
               },

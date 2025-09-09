@@ -4,6 +4,7 @@ import '../../widgets/screens/objective/lesson/stat.dart';
 import '../../widgets/screens/objective/lesson/stat_data.dart';
 
 class FinishLessonScreen extends StatelessWidget {
+  final String title;
   final IconData icon;
   final StatData timeSpent;
   final StatData accuracy;
@@ -11,6 +12,7 @@ class FinishLessonScreen extends StatelessWidget {
 
   const FinishLessonScreen({
     super.key,
+    required this.title,
     required this.icon,
     required this.timeSpent,
     required this.accuracy,
@@ -30,12 +32,22 @@ class FinishLessonScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 32,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     Icon(
                       icon,
                       color: Colors.orange,
                       size: 140,
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 60),
                     // Three stat widgets
                     Row(
                       children: [
