@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/screens/intermediate/info_screen.dart';
+import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
+import 'package:goal_getter/widgets/screens/objective/lesson/lesson_stat.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'onboarding/roadmap_prompt_screen.dart';
@@ -155,6 +157,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.of(context).pop();
                       },
                     ),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Finish lesson screen',
+              Icons.check_circle,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FinishLessonScreen(icon: Icons.check_circle, timeSpent: lessonStatTime, accuracy: lessonStatAccuracy, combo: lessonStatCombo),
                   ),
                 );
               },

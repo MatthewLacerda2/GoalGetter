@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
+import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
 import '../../models/lesson_question_data.dart';
 import '../intermediate/info_screen.dart';
-import 'finish_evaluation_screen.dart';
+import '../../widgets/screens/objective/lesson/lesson_stat.dart';
 
 class LessonScreen extends StatefulWidget {
   final List<LessonQuestionData> questions;
@@ -92,7 +93,8 @@ class _LessonScreenState extends State<LessonScreen> {
         // All questions correct, go to finish screen
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const FinishEvaluationScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) => FinishLessonScreen(
+              icon: Icons.check_circle, timeSpent: lessonStatTime, accuracy: lessonStatAccuracy, combo: lessonStatCombo),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: animation.drive(
