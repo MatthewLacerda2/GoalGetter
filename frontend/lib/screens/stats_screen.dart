@@ -3,7 +3,7 @@ import '../widgets/screens/stats/player_badge.dart';
 import '../widgets/screens/stats/line_chart_table.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../widgets/screens/stats/leaderboarder.dart';
-import '../models/leaderboard_example.dart';
+import '../models/fake_leaderboard_example.dart';
 import '../l10n/app_localizations.dart';
 
 class StatsScreen extends StatelessWidget {
@@ -40,9 +40,9 @@ class StatsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Leaderboarder(
-                people: LeaderboardData.getSampleData(),
-                startingPosition: LeaderboardData.getStartingPosition(),
-                username: LeaderboardData.getCurrentUsername(),
+                people: FakeLeaderboardData.getSampleData(),
+                startingPosition: FakeLeaderboardData.getStartingPosition(),
+                username: FakeLeaderboardData.getCurrentUsername(),
               ),
               const SizedBox(height: 24),
               Container(
