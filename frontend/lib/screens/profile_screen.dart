@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/screens/intermediate/info_screen.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
 import 'onboarding/roadmap_prompt_screen.dart';
@@ -131,6 +132,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => EvaluationScreen(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile(
+              'Info screen',
+              Icons.person,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InfoScreen(
+                      icon: Icons.info, 
+                      descriptionText: "Description", 
+                      buttonText: "Button", 
+                      onButtonPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
                   ),
                 );
               },

@@ -15,6 +15,8 @@ class FinishEvaluationScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              const SizedBox(height: 16),
+
               ProgressBar(
                 title: "Aprenda todas as notas básicas",
                 progress: 4,
@@ -27,24 +29,26 @@ class FinishEvaluationScreen extends StatelessWidget {
               InfoCard(
                 title: "Parabéns!",
                 description: "Você completou esta lição com sucesso. Continue praticando para melhorar suas habilidades.",
-                mainColor: Colors.green,
+                backgroundColor: Colors.transparent,
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               
               InfoCard(
                 title: "Dica importante",
                 description: "Lembre-se de praticar regularmente. A consistência é a chave para o progresso.",
-                mainColor: Colors.blue,
+                backgroundColor: Colors.transparent,
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               
               InfoCard(
                 title: "Próximos passos",
                 description: "Explore outras lições e continue sua jornada de aprendizado.",
-                mainColor: Colors.orange,
+                backgroundColor: Colors.transparent,
               ),
+              
+              const SizedBox(height: 20),
               
               const Spacer(),
               

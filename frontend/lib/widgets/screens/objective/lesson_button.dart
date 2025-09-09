@@ -65,7 +65,7 @@ class LessonButton extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 18,
                   color: Colors.white,
-                  height: 1.4,
+                  height: 1.6,
                 ),
                 textAlign: TextAlign.center,
               ),
