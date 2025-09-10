@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from backend.main import app
-from backend.schemas.roadmap import RoadmapInitiationResponse
+from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse
 from unittest.mock import patch
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -91,7 +91,7 @@ def mock_gemini_follow_up_questions():
     """Fixture to mock Gemini follow-up questions responses"""
     
     def mock_get_gemini_follow_up_questions(*args, **kwargs):
-        return RoadmapInitiationResponse(
+        return GoalCreationFollowUpQuestionsResponse(
             original_prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps",
             questions=["What is your current skill level in this area?", "How much time can you dedicate to this goal?", "What is your preferred learning style?", "Do you have any specific constraints or preferences?"]
         )

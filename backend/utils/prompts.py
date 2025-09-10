@@ -1,4 +1,4 @@
-from backend.schemas.roadmap import GoalCreationFollowUpQuestionsRequest
+from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest
 
 goal_follow_up_questions_prompt = """
 The user has reached out for guidance on how to learn something.
