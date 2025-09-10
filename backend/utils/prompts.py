@@ -27,7 +27,7 @@ Your questions MUST:
 - Be distinct from one another.
 - Each focus at one or two aspects at a time.
 - Match the user's language.
-- NOT expect the user to write a very long answer.
+- NOT expect long and thoughtful answers.
 
 Don't ask more than 8 questions
 """
