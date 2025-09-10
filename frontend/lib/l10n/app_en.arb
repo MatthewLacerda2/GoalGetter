@@ -24,7 +24,7 @@
     "@beDetailedOfYourGoal": {
         "description": "Label for be detailed of your goal"
     },
-    "tellWhatYourGoalIs": "Tell your goal is, what can you do so far, and what is the purpose",
+    "tellWhatYourGoalIs": "Tell your goal, what can you do so far, and what is the purpose",
     "@tellWhatYourGoalIs": {
         "description": "Label for tell what your goal is"
     },
