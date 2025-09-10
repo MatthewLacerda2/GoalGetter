@@ -120,7 +120,6 @@ async def test_user(test_db):
         name="Test User",
         goal_id=goal.id,
         goal_name=goal.name,
-        latest_report="",
     )
     test_db.add(student)
     await test_db.flush()
