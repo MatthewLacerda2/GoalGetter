@@ -4,7 +4,7 @@ import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
 import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
-import 'onboarding/roadmap_prompt_screen.dart';
+import 'onboarding/goal_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
 import 'onboarding/tutorial_screen.dart';
 import 'objective/finish_evaluation_screen.dart';
@@ -80,15 +80,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             
             const SizedBox(height: 16),
             
-            // Create Roadmap Section
             _buildSectionTile(
-              'Create Roadmap',
+              'Onboarding',
               Icons.map,
               () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const RoadmapPromptScreen(),
+                    builder: (context) => const GoalPromptScreen(),
                   ),
                 );
               },

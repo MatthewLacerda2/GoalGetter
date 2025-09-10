@@ -16,9 +16,9 @@
     "@done": {
         "description": "Label for done button"
     },
-    "createRoadmap": "Create Roadmap",
-    "@createRoadmap": {
-        "description": "Label for create roadmap button"
+    "createGoal": "Create Goal",
+    "@createGoal": {
+        "description": "Label for create goal button"
     },
     "beDetailedOfYourGoal": "Be detailed of your goal!",
     "@beDetailedOfYourGoal": {
@@ -43,10 +43,6 @@
     "send": "Send",
     "@send": {
         "description": "Label for send button"
-    },
-    "roadmap": "Roadmap",
-    "@roadmap": {
-        "description": "Label for roadmap screen"
     },
     "beforeYouStart": "Before you start...",
     "@beforeYouStart": {

@@ -3,21 +3,21 @@ import '../../widgets/screens/onboarding/goal_questions.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 
-class RoadmapQuestionsScreen extends StatefulWidget {
+class GoalQuestionsScreen extends StatefulWidget {
   final List<String> questions;
   final String prompt;
 
-  const RoadmapQuestionsScreen({
+  const GoalQuestionsScreen({
     super.key,
     required this.prompt,
     required this.questions,
   });
 
   @override
-  State<RoadmapQuestionsScreen> createState() => _RoadmapQuestionsScreenState();
+  State<GoalQuestionsScreen> createState() => _GoalQuestionsScreenState();
 }
 
-class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> 
+class _GoalQuestionsScreenState extends State<GoalQuestionsScreen> 
     with TickerProviderStateMixin {
   List<String> _answers = [];
   bool _showErrors = false;

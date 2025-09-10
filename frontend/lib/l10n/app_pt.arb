@@ -16,9 +16,9 @@
     "@done": {
         "description": "Label for done button"
     },
-    "createRoadmap": "Criar Roadmap",
-    "@createRoadmap": {
-        "description": "Label para botão criar roadmap"
+    "createGoal": "Criar Meta",
+    "@createGoal": {
+        "description": "Label para botão criar meta"
     },
     "beDetailedOfYourGoal": "Seja detalhado sobre sua meta!",
     "@beDetailedOfYourGoal": {
@@ -35,10 +35,6 @@
     "enter": "Enter",
     "@enter": {
         "description": "Label para botão entrar"
-    },    
-    "roadmap": "Roadmap",
-    "@roadmap": {
-        "description": "Label for roadmap screen"
     },
     "questions": "Perguntas",
     "@questions": {

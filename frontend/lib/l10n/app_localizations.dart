@@ -119,11 +119,11 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get done;
 
-  /// Label for create roadmap button
+  /// Label for create goal button
   ///
   /// In en, this message translates to:
-  /// **'Create Roadmap'**
-  String get createRoadmap;
+  /// **'Create Goal'**
+  String get createGoal;
 
   /// Label for be detailed of your goal
   ///
@@ -160,12 +160,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send'**
   String get send;
-
-  /// Label for roadmap screen
-  ///
-  /// In en, this message translates to:
-  /// **'Roadmap'**
-  String get roadmap;
 
   /// Label for before you start
   ///

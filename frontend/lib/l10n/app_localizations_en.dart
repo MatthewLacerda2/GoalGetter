@@ -21,7 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
-  String get createRoadmap => 'Create Roadmap';
+  String get createGoal => 'Create Goal';
 
   @override
   String get beDetailedOfYourGoal => 'Be detailed of your goal!';
@@ -40,9 +40,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get send => 'Send';
-
-  @override
-  String get roadmap => 'Roadmap';
 
   @override
   String get beforeYouStart => 'Before you start...';
