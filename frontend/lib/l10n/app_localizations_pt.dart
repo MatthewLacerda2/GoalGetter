@@ -21,7 +21,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get done => 'Pronto';
 
   @override
-  String get createRoadmap => 'Criar Roadmap';
+  String get createGoal => 'Criar Meta';
 
   @override
   String get beDetailedOfYourGoal => 'Seja detalhado sobre sua meta!';
@@ -40,9 +40,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get send => 'Enviar';
-
-  @override
-  String get roadmap => 'Roadmap';
 
   @override
   String get beforeYouStart => 'Ah, e já vou avisando...';

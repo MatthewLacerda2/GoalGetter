@@ -13,19 +13,11 @@ class StudentResponse(BaseModel):
     overall_xp: int
 
     model_config = ConfigDict(from_attributes=True)
-    
-class StudentContextResponse(BaseModel):
-    state: str
-    metacognition: str
-    
-    model_config = ConfigDict(from_attributes=True)
 
 class TokenResponse(BaseModel):
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field(default="bearer", description="Type of token")
-    student: StudentResponse
-    latest_student_context: StudentContextResponse
-    
+    student: StudentResponse    
     
     @field_validator('token_type')
     @classmethod

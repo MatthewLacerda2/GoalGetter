@@ -1,182 +1,182 @@
 {
-    "@@locale": "pt",
-    "language": "Idioma",
+    "@@locale": "de",
+    "language": "Sprache",
     "@language": {
-        "description": "O idioma atual"
+        "description": "The current language"
     },
-    "skip": "Pular",
+    "skip": "Überspringen",
     "@skip": {
         "description": "Label for skip button"
     },
-    "next": "Próximo",
+    "next": "Weiter",
     "@next": {
-        "description": "Rótulo para botão próximo"
+        "description": "Label for next button"
     },
-    "done": "Pronto",
+    "done": "Fertig",
     "@done": {
         "description": "Label for done button"
     },
-    "createGoal": "Criar Meta",
+    "createGoal": "Ziel erstellen",
     "@createGoal": {
-        "description": "Label para botão criar meta"
+        "description": "Label for create goal button"
     },
-    "beDetailedOfYourGoal": "Seja detalhado sobre sua meta!",
+    "beDetailedOfYourGoal": "Sei detailliert bei deinem Ziel!",
     "@beDetailedOfYourGoal": {
-        "description": "Label para ser detalhado sobre sua meta"
+        "description": "Label for be detailed of your goal"
     },
-    "tellWhatYourGoalIs": "Diga sua meta, o que você sabe fazer e qual sua motivação",
+    "tellWhatYourGoalIs": "Erzähle dein Ziel, was du bereits kannst und was der Zweck ist",
     "@tellWhatYourGoalIs": {
-        "description": "Label para dizer o que é sua meta"
+        "description": "Label for tell what your goal is"
     },
-    "goalDescriptionHintText": "Quero aprender violão, sei tocar notas básicas",
+    "goalDescriptionHintText": "Ich möchte Gitarre lernen, ich kann die meisten Grundakkorde spielen",
     "@goalDescriptionHintText": {
-        "description": "Texto de dica para descrição da meta"
+        "description": "Hint text for goal description"
     },
-    "enter": "Enter",
+    "enter": "Eingeben",
     "@enter": {
-        "description": "Label para botão entrar"
-    },
-    "questions": "Perguntas",
-    "@questions": {
-        "description": "Label para tela de perguntas"
+        "description": "Label for enter button"
     },    
-    "send": "Enviar",
+    "questions": "Fragen",
+    "@questions": {
+        "description": "Label for questions screen"
+    },    
+    "send": "Senden",
     "@send": {
-        "description": "Label para botão enviar"
+        "description": "Label for send button"
     },
-    "beforeYouStart": "Ah, e já vou avisando...",
+    "beforeYouStart": "Bevor du anfängst...",
     "@beforeYouStart": {
-        "description": "Label para antes de começar"
+        "description": "Label for before you start"
     },
-    "goalStarted": "Estrada iniciada!",
+    "goalStarted": "Ziel gestartet!",
     "@goalStarted": {
-        "description": "Label para meta iniciada"
+        "description": "Label for goal started"
     },
-    "letSGo": "BORA LÁ!",
+    "letSGo": "LOS GEHT'S!",
     "@letSGo": {
-        "description": "Label para botão vamos lá"
+        "description": "Label for let's go button"
     },
-    "yourAnswer": "Sua resposta...",
+    "yourAnswer": "Deine Antwort...",
     "@yourAnswer": {
-        "description": "Label para campo de resposta"
+        "description": "Label for your answer"
     },
-    "pleaseAnswerThisQuestion": "Por favor, responda esta pergunta",
+    "pleaseAnswerThisQuestion": "Bitte beantworte diese Frage",
     "@pleaseAnswerThisQuestion": {
-        "description": "Mensagem de validação para resposta vazia"
+        "description": "Validation message for empty answer"
     },
-    "dayStreak": "dias de streak!",
+    "dayStreak": "Streak-Tage!",
     "@dayStreak": {
         "description": "Label para dias de streak"
     },
-    "continuate": "Continue!",
+    "continuate": "Weiter!",
     "@continuate": {
         "description": "Label para botão continuar"
     },
-    "sunday": "Domingo",
+    "sunday": "Sonntag",
     "@sunday": {
         "description": "Label for sunday"
     },
-    "monday": "Segunda",
+    "monday": "Montag",
     "@monday": {
         "description": "Label for monday"
     },
-    "tuesday": "Terça",
+    "tuesday": "Dienstag",
     "@tuesday": {
         "description": "Label for tuesday"
     },
-    "wednesday": "Quarta",
+    "wednesday": "Mittwoch",
     "@wednesday": {
         "description": "Label for wednesday"
     },
-    "thursday": "Quinta",
+    "thursday": "Donnerstag",
     "@thursday": {
         "description": "Label for thursday"
     },
-    "friday": "Sexta",
+    "friday": "Freitag",
     "@friday": {
         "description": "Label for friday"
     },
-    "saturday": "Sábado",
+    "saturday": "Samstag",
     "@saturday": {
         "description": "Label for saturday"
     },
-    "sundayShort": "Dom",
+    "sundayShort": "So",
     "@sundayShort": {
         "description": "Label for sunday short"
     },
-    "mondayShort": "Seg",
+    "mondayShort": "Mo",
     "@mondayShort": {
         "description": "Label for monday short"
-    },
-    "tuesdayShort": "Ter",  
+    },    
+    "tuesdayShort": "Di",
     "@tuesdayShort": {
         "description": "Label for tuesday short"
     },
-    "wednesdayShort": "Qua",
+    "wednesdayShort": "Mi",
     "@wednesdayShort": {
         "description": "Label for wednesday short"
-    },
-    "thursdayShort": "Qui",
+    },    
+    "thursdayShort": "Do",
     "@thursdayShort": {
         "description": "Label for thursday short"
     },
-    "fridayShort": "Sex",
+    "fridayShort": "Fr",
     "@fridayShort": {
         "description": "Label for friday short"
-    },
-    "saturdayShort": "Sáb",
+    },    
+    "saturdayShort": "Sa",
     "@saturdayShort": {
         "description": "Label for saturday short"
     },
-    "book": "Livro",
+    "book": "Buch",
     "@book": {
         "description": "Label for book"
     },
-    "youtube": "Youtube",
+    "youtube": "YouTube",
     "@youtube": {
         "description": "Label for youtube"
     },
-    "sites": "Sites",
+    "sites": "Websites",
     "@sites": {
         "description": "Label for sites"
     },
-    "lessonSession": "Partida de Aula",
+    "lessonSession": "Lerneinheit",
     "@lessonSession": {
         "description": "Label for lesson session"
     },
-    "showMeWhatYouGot": "Mostre-me o que sabe!",
+    "showMeWhatYouGot": "Zeig mir, was du draufhast",
     "@showMeWhatYouGot": {
         "description": "Label for show me what you got"
     },
-    "notes": "Notas",
+    "notes": "Notizen",
     "@notes": {
         "description": "Label for notes"
     },
-    "progress": "Progresso",
+    "progress": "Fortschritt",
     "@progress": {
         "description": "Label for progress"
     },
-    "achievements": "Conquistas",
+    "achievements": "Erfolge",
     "@achievements": {
         "description": "Label for achievements"
     },
-    "typeYourMessage": "Mensagem...",
+    "typeYourMessage": "Tippe deine Nachricht...",
     "@typeYourMessage": {
         "description": "Label for type your message"
     },
-    "keepThePressureOn": "Continue sendo um orgulho!",
+    "keepThePressureOn": "Ja, bleib dran!!!",
     "@keepThePressureOn": {
         "description": "Label for keep the pressure on"
     },
-    "wellDone": "Boa resposta!",
+    "wellDone": "Gut gemacht!",
     "@wellDone": {
         "description": "Label for well done"
     },
-    "opsNotQuite": "Ops! Não é isso...",
+    "opsNotQuite": "Ups! Nicht ganz...",
     "@opsNotQuite": {
         "description": "Label for ops not quite"
     },
-    "objective": "Objetivo",
+    "objective": "Ziel",
     "@objective": {
         "description": "Label for objective"
     },
@@ -184,59 +184,59 @@
     "@tutor": {
         "description": "Label for tutor"
     },
-    "awards": "Conquistas",
+    "awards": "Auszeichnungen",
     "@awards": {
-        "description": "Label for awards"
+        "description": "Label for resources"
     },
-    "resources": "Recursos",
+    "resources": "Ressourcen",
     "@resources": {
         "description": "Label for resources"
     },
-    "profile": "Perfil",
+    "profile": "Profil",
     "@profile": {
         "description": "Label for profile"
     },
-    "startLesson": "Iniciar Lição",
+    "startLesson": "Lektion starten",
     "@startLesson": {
         "description": "Label for start lesson"
     },
-    "startAssessment": "Iniciar Avaliação",
+    "startAssessment": "Bewertung starten",
     "@startAssessment": {
         "description": "Label for start assessment"
     },
-    "trailwayToYourGoal": "Um plano de estudo pronto para você",
+    "trailwayToYourGoal": "Ein vorgegebener Weg zu deinem Ziel",
     "@trailwayToYourGoal": {
         "description": "Label for trailway to your goal"
     },
-    "yourNextTarget": "Seu próximo objetivo. Aqui tem uns materiais e exercícios pra você",
+    "yourNextTarget": "Dein nächstes Ziel. Nimm die Materialien und Übungen, die wir für dich haben",
     "@yourNextTarget": {
         "description": "Label for your next target"
     },
-    "evaluation": "Avaliação",
+    "evaluation": "Bewertung",
     "@evaluation": {
         "description": "Label for evaluation"
     },
-    "evaluationDescription": "Exercícios para você aprender e mostrar que aprendeu",
+    "evaluationDescription": "Einige Übungen für dich zum Lernen und um zu zeigen, was du gelernt hast",
     "@evaluationDescription": {
         "description": "Label for evaluation description"
     },
-    "tutorDescription": "Alguém para lhe dar conselhos, responder perguntas e guiá-lo",
+    "tutorDescription": "Wir haben jemanden, der dir Ratschläge gibt, Fragen beantwortet und dich begleitet",
     "@tutorDescription": {
         "description": "Label for tutor description"
     },
-    "awardsDescription": "Seus marcos! Faça uma galeria só deles!",
+    "awardsDescription": "Deine Meilensteine und Fortschritte aufgelistet! Mach es zu deiner Galerie!",
     "@awardsDescription": {
         "description": "Label for awards description"
     },
-    "goGetEmTiger": "Parte pra cima!",
+    "goGetEmTiger": "Los geht's!",
     "@goGetEmTiger": {
         "description": "Label for go get em tiger"
     },
-    "goGetEmTigerDescription": "Explore. Sonhe. Descubra.",
+    "goGetEmTigerDescription": "Erkunde. Träume. Entdecke.",
     "@goGetEmTigerDescription": {
         "description": "Label for go get em tiger description"
     },
-    "nowLetSCorrectYourMistakes": "Agora vamos corrigir seus erros",
+    "nowLetSCorrectYourMistakes": "Jetzt lass uns deine Fehler korrigieren",
     "@nowLetSCorrectYourMistakes": {
         "description": "Label for now let's correct your mistakes"
     }

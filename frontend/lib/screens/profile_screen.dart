@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/screens/intermediate/info_screen.dart';
 import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
-import 'package:goal_getter/widgets/screens/objective/lesson/lesson_stat.dart';
+import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
 import '../utils/settings_storage.dart';
 import '../l10n/app_localizations.dart';
-import 'onboarding/roadmap_prompt_screen.dart';
+import 'onboarding/goal_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
 import 'onboarding/tutorial_screen.dart';
 import 'objective/finish_evaluation_screen.dart';
 import 'objective/evaluation_screen.dart';
+
+//TODO: Create a 'previous objectives screen' and a 'future objectives screen'
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -75,20 +77,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SettingsStorage.portuguese,
                   Icons.language,
                 ),
+                _buildLanguageButton(
+                  'FR',
+                  SettingsStorage.french,
+                  Icons.language,
+                ),
+                _buildLanguageButton(
+                  'ES',
+                  SettingsStorage.spanish,
+                  Icons.language,
+                ),
+                _buildLanguageButton(
+                  'DE',
+                  SettingsStorage.german,
+                  Icons.language,
+                ),
               ],
             ),
             
             const SizedBox(height: 16),
             
-            // Create Roadmap Section
             _buildSectionTile(
-              'Create Roadmap',
+              'Onboarding',
               Icons.map,
               () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const RoadmapPromptScreen(),
+                    builder: (context) => const GoalPromptScreen(),
                   ),
                 );
               },
@@ -174,9 +190,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     builder: (context) => FinishLessonScreen(
                       title: "Finish lesson screen",
                       icon: Icons.check_circle,
-                      timeSpent: lessonStatTime,
-                      accuracy: lessonStatAccuracy,
-                      combo: lessonStatCombo
+                      timeSpent: StatData(
+                        title: "Time", 
+                        icon: Icons.timer, 
+                        text: "1:39", 
+                        color: Colors.blue
+                      ),
+                      accuracy: StatData(
+                        title: "Accuracy", 
+                        icon: Icons.check_circle, 
+                        text: "90%", 
+                        color: Colors.green
+                      ),
+                      combo: StatData(
+                        title: "Combo", 
+                        icon: Icons.star, 
+                        text: "3", 
+                        color: Colors.yellow
+                      )
                     ),
                   ),
                 );

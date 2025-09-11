@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/screens/onboarding/tutorial_screen.dart';
 import '../../widgets/screens/onboarding/goal_questions.dart';
 import '../../l10n/app_localizations.dart';
-import '../../main.dart';
 
-class RoadmapQuestionsScreen extends StatefulWidget {
+class GoalQuestionsScreen extends StatefulWidget {
   final List<String> questions;
   final String prompt;
 
-  const RoadmapQuestionsScreen({
+  const GoalQuestionsScreen({
     super.key,
     required this.prompt,
     required this.questions,
   });
 
   @override
-  State<RoadmapQuestionsScreen> createState() => _RoadmapQuestionsScreenState();
+  State<GoalQuestionsScreen> createState() => _GoalQuestionsScreenState();
 }
 
-class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen> 
+class _GoalQuestionsScreenState extends State<GoalQuestionsScreen> 
     with TickerProviderStateMixin {
   List<String> _answers = [];
   bool _showErrors = false;
@@ -96,14 +96,10 @@ class _RoadmapQuestionsScreenState extends State<RoadmapQuestionsScreen>
       });
       try {
         if (!mounted) return;
-        Navigator.pushAndRemoveUntil(
+        Navigator.pushAndRemoveUntil( //TODO: make sure, after the tutorial screen, we got the content for the user ready!
           context,
           MaterialPageRoute(
-            builder: (context) => MyHomePage(
-              title: 'GoalGetter',
-              onLanguageChanged: (language) {
-              },
-            ),
+            builder: (context) => TutorialScreen()
           ),
           (route) => false,
         );

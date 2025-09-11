@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';
+import '../../main.dart';
 
 class StreakScreen extends StatelessWidget {
   final int streakCount;
@@ -129,7 +130,19 @@ class StreakScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyHomePage(
+                          title: 'GoalGetter',
+                          onLanguageChanged: (language) {
+                          },
+                        ),
+                      ),
+                      (route) => false,
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     padding: const EdgeInsets.symmetric(vertical: 10),

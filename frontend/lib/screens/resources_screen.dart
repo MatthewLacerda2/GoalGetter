@@ -1,4 +1,3 @@
-// Resources screen
 import 'package:flutter/material.dart';
 import '../widgets/screens/resource/resource_tab.dart';
 import '../l10n/app_localizations.dart';
@@ -9,6 +8,8 @@ class ResourcesScreen extends StatefulWidget {
   @override
   State<ResourcesScreen> createState() => _ResourcesScreenState();
 }
+
+//TODO: put in a filter for resources that no longer fit the objective
 
 class _ResourcesScreenState extends State<ResourcesScreen>
     with SingleTickerProviderStateMixin {

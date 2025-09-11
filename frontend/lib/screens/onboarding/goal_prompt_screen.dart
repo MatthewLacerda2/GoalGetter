@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'roadmap_questions_screen.dart';
+import 'goal_questions_screen.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
-//TODO: change 'roadmap' to 'objective'. use mock for now
-class RoadmapPromptScreen extends StatefulWidget {
-  const RoadmapPromptScreen({super.key});
+
+class GoalPromptScreen extends StatefulWidget {
+  const GoalPromptScreen({super.key});
 
   @override
-  State<RoadmapPromptScreen> createState() => _RoadmapPromptScreenState();
+  State<GoalPromptScreen> createState() => _GoalPromptScreenState();
 }
 
-class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
+class _GoalPromptScreenState extends State<GoalPromptScreen> {
   final _formKey = GlobalKey<FormState>();
   final _promptController = TextEditingController();
   
@@ -31,13 +31,13 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
     super.dispose();
   }
 
-  Future<List<String>?> _fetchRoadmapQuestions(String prompt) async {
-    final roadmapApi = RoadmapApi(ApiClient(basePath: 'http://127.0.0.1:8000'));//TODO: read from env
+  Future<List<String>?> _fetchObjectiveQuestions(String prompt) async {
+    final goalApi = RoadmapApi(ApiClient(basePath: 'http://127.0.0.1:8000'));//TODO: read from env
     final request = RoadmapInitiationRequest(
       promptHint: AppLocalizations.of(context)!.tellWhatYourGoalIs, 
       prompt: prompt
     );
-    final response = await roadmapApi.initiateRoadmapApiV1RoadmapInitiationPost(request);
+    final response = await goalApi.initiateRoadmapApiV1RoadmapInitiationPost(request);
     return response?.questions;
   }
 
@@ -48,13 +48,13 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
       });
       
       try {
-        final questions = await _fetchRoadmapQuestions(_promptController.text);
+        final questions = await _fetchObjectiveQuestions(_promptController.text);
         if (mounted) {
           if (questions != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => RoadmapQuestionsScreen(
+                builder: (context) => GoalQuestionsScreen(
                   prompt: _promptController.text,
                   questions: questions,
                 ),
@@ -112,7 +112,7 @@ class _RoadmapPromptScreenState extends State<RoadmapPromptScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.createRoadmap),
+        title: Text(AppLocalizations.of(context)!.createGoal),
         backgroundColor: Colors.grey[800],
         elevation: 0,
         foregroundColor: Colors.white,

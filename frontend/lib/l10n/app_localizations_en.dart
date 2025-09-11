@@ -21,13 +21,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
-  String get createRoadmap => 'Create Roadmap';
+  String get createGoal => 'Create Goal';
 
   @override
   String get beDetailedOfYourGoal => 'Be detailed of your goal!';
 
   @override
-  String get tellWhatYourGoalIs => 'Tell your goal is, what can you do so far, and what is the purpose';
+  String get tellWhatYourGoalIs => 'Tell your goal, what can you do so far, and what is the purpose';
 
   @override
   String get goalDescriptionHintText => 'I wanna learn guitar, i can play most basic chords';
@@ -40,9 +40,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get send => 'Send';
-
-  @override
-  String get roadmap => 'Roadmap';
 
   @override
   String get beforeYouStart => 'Before you start...';

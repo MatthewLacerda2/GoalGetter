@@ -1,11 +1,11 @@
 import pytest
-from backend.schemas.roadmap import RoadmapInitiationResponse, RoadmapInitiationRequest
+from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse
 
 @pytest.mark.asyncio
 async def test_roadmap_initiation_success(client, mock_gemini_follow_up_questions):
     """Test that the roadmap initiation endpoint returns a valid response for a valid request."""
     
-    test_request = RoadmapInitiationRequest(
+    test_request = GoalCreationFollowUpQuestionsRequest(
         prompt_hint="Describe your goal in detail, including what you want to achieve",
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps"
     )
@@ -15,6 +15,6 @@ async def test_roadmap_initiation_success(client, mock_gemini_follow_up_question
     assert response.status_code == 200
 
     response_data = response.json()
-    validated_response = RoadmapInitiationResponse.model_validate(response_data)
+    validated_response = GoalCreationFollowUpQuestionsResponse.model_validate(response_data)
     
-    assert isinstance(validated_response, RoadmapInitiationResponse)
+    assert isinstance(validated_response, GoalCreationFollowUpQuestionsResponse)
