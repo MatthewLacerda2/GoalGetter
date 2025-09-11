@@ -5,6 +5,9 @@ class SettingsStorage {
   
   static const String english = 'en';
   static const String portuguese = 'pt';
+  static const String french = 'fr';
+  static const String spanish = 'es';
+  static const String german = 'de';
   
   static const String defaultLanguage = english;
   
@@ -24,6 +27,6 @@ class SettingsStorage {
   }
   
   static bool isSupportedLanguage(String language) {
-    return language == english || language == portuguese;
+    return language == english || language == portuguese || language == french || language == spanish || language == german;
   }
 }

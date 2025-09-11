@@ -1,0 +1,243 @@
+{
+    "@@locale": "fr",
+    "language": "Langue",
+    "@language": {
+        "description": "The current language"
+    },
+    "skip": "Passer",
+    "@skip": {
+        "description": "Label for skip button"
+    },
+    "next": "Suivant",
+    "@next": {
+        "description": "Label for next button"
+    },
+    "done": "Terminé",
+    "@done": {
+        "description": "Label for done button"
+    },
+    "createGoal": "Créer un objectif",
+    "@createGoal": {
+        "description": "Label for create goal button"
+    },
+    "beDetailedOfYourGoal": "Soyez détaillé dans votre objectif !",
+    "@beDetailedOfYourGoal": {
+        "description": "Label for be detailed of your goal"
+    },
+    "tellWhatYourGoalIs": "Dites votre objectif, ce que vous pouvez faire déjà, et quel est le but",
+    "@tellWhatYourGoalIs": {
+        "description": "Label for tell what your goal is"
+    },
+    "goalDescriptionHintText": "Je veux apprendre la guitare, je connais les accords de base déjà",
+    "@goalDescriptionHintText": {
+        "description": "Hint text for goal description"
+    },
+    "enter": "Entrer",
+    "@enter": {
+        "description": "Label for enter button"
+    },    
+    "questions": "Questions",
+    "@questions": {
+        "description": "Label for questions screen"
+    },    
+    "send": "Envoyer",
+    "@send": {
+        "description": "Label for send button"
+    },
+    "beforeYouStart": "Avant de commencer...",
+    "@beforeYouStart": {
+        "description": "Label for before you start"
+    },
+    "goalStarted": "Objectif commencé !",
+    "@goalStarted": {
+        "description": "Label for goal started"
+    },
+    "letSGo": "C'EST PARTI !",
+    "@letSGo": {
+        "description": "Label for let's go button"
+    },
+    "yourAnswer": "Votre réponse...",
+    "@yourAnswer": {
+        "description": "Label for your answer"
+    },
+    "pleaseAnswerThisQuestion": "Veuillez répondre à cette question",
+    "@pleaseAnswerThisQuestion": {
+        "description": "Validation message for empty answer"
+    },
+    "dayStreak": "jours de série !",
+    "@dayStreak": {
+        "description": "Label para dias de streak"
+    },
+    "continuate": "Continuez !",
+    "@continuate": {
+        "description": "Label para botão continuar"
+    },
+    "sunday": "Dimanche",
+    "@sunday": {
+        "description": "Label for sunday"
+    },
+    "monday": "Lundi",
+    "@monday": {
+        "description": "Label for monday"
+    },
+    "tuesday": "Mardi",
+    "@tuesday": {
+        "description": "Label for tuesday"
+    },
+    "wednesday": "Mercredi",
+    "@wednesday": {
+        "description": "Label for wednesday"
+    },
+    "thursday": "Jeudi",
+    "@thursday": {
+        "description": "Label for thursday"
+    },
+    "friday": "Vendredi",
+    "@friday": {
+        "description": "Label for friday"
+    },
+    "saturday": "Samedi",
+    "@saturday": {
+        "description": "Label for saturday"
+    },
+    "sundayShort": "Dim",
+    "@sundayShort": {
+        "description": "Label for sunday short"
+    },
+    "mondayShort": "Lun",
+    "@mondayShort": {
+        "description": "Label for monday short"
+    },    
+    "tuesdayShort": "Mar",
+    "@tuesdayShort": {
+        "description": "Label for tuesday short"
+    },
+    "wednesdayShort": "Mer",
+    "@wednesdayShort": {
+        "description": "Label for wednesday short"
+    },    
+    "thursdayShort": "Jeu",
+    "@thursdayShort": {
+        "description": "Label for thursday short"
+    },
+    "fridayShort": "Ven",
+    "@fridayShort": {
+        "description": "Label for friday short"
+    },    
+    "saturdayShort": "Sam",
+    "@saturdayShort": {
+        "description": "Label for saturday short"
+    },
+    "book": "Livre",
+    "@book": {
+        "description": "Label for book"
+    },
+    "youtube": "Youtube",
+    "@youtube": {
+        "description": "Label for youtube"
+    },
+    "sites": "Sites",
+    "@sites": {
+        "description": "Label for sites"
+    },
+    "lessonSession": "Session de cours",
+    "@lessonSession": {
+        "description": "Label for lesson session"
+    },
+    "showMeWhatYouGot": "Montrez-moi ce que vous avez",
+    "@showMeWhatYouGot": {
+        "description": "Label for show me what you got"
+    },
+    "notes": "Notes",
+    "@notes": {
+        "description": "Label for notes"
+    },
+    "progress": "Progrès",
+    "@progress": {
+        "description": "Label for progress"
+    },
+    "achievements": "Réalisations",
+    "@achievements": {
+        "description": "Label for achievements"
+    },
+    "typeYourMessage": "Tapez votre message...",
+    "@typeYourMessage": {
+        "description": "Label for type your message"
+    },
+    "keepThePressureOn": "Oui, continuez la pression !!!",
+    "@keepThePressureOn": {
+        "description": "Label for keep the pressure on"
+    },
+    "wellDone": "Bien joué !",
+    "@wellDone": {
+        "description": "Label for well done"
+    },
+    "opsNotQuite": "Oups ! Pas tout à fait...",
+    "@opsNotQuite": {
+        "description": "Label for ops not quite"
+    },
+    "objective": "Objectif",
+    "@objective": {
+        "description": "Label for objective"
+    },
+    "tutor": "Tuteur",
+    "@tutor": {
+        "description": "Label for tutor"
+    },
+    "awards": "Récompenses",
+    "@awards": {
+        "description": "Label for resources"
+    },
+    "resources": "Ressources",
+    "@resources": {
+        "description": "Label for resources"
+    },
+    "profile": "Profil",
+    "@profile": {
+        "description": "Label for profile"
+    },
+    "startLesson": "Commencer la leçon",
+    "@startLesson": {
+        "description": "Label for start lesson"
+    },
+    "startAssessment": "Commencer l'évaluation",
+    "@startAssessment": {
+        "description": "Label for start assessment"
+    },
+    "trailwayToYourGoal": "Un chemin donné vers votre objectif",
+    "@trailwayToYourGoal": {
+        "description": "Label for trailway to your goal"
+    },
+    "yourNextTarget": "Votre prochaine cible. Prenez les matériaux et exercices que nous avons pour vous",
+    "@yourNextTarget": {
+        "description": "Label for your next target"
+    },
+    "evaluation": "Évaluation",
+    "@evaluation": {
+        "description": "Label for evaluation"
+    },
+    "evaluationDescription": "Quelques exercices pour vous apprendre et montrer que vous avez appris",
+    "@evaluationDescription": {
+        "description": "Label for evaluation description"
+    },
+    "tutorDescription": "Nous avons quelqu'un pour vous donner des conseils, répondre aux questions et vous guider",
+    "@tutorDescription": {
+        "description": "Label for tutor description"
+    },
+    "awardsDescription": "Vos étapes et progrès listés ! Faites-en votre galerie !",
+    "@awardsDescription": {
+        "description": "Label for awards description"
+    },
+    "goGetEmTiger": "C'est parti !",
+    "@goGetEmTiger": {
+        "description": "Label for go get em tiger"
+    },
+    "goGetEmTigerDescription": "Explorez. Rêvez. Découvrez.",
+    "@goGetEmTigerDescription": {
+        "description": "Label for go get em tiger description"
+    },
+    "nowLetSCorrectYourMistakes": "Maintenant, corrigeons vos erreurs",
+    "@nowLetSCorrectYourMistakes": {
+        "description": "Label for now let's correct your mistakes"
+    }
+}

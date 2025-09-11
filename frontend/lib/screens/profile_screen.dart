@@ -10,6 +10,8 @@ import 'onboarding/tutorial_screen.dart';
 import 'objective/finish_evaluation_screen.dart';
 import 'objective/evaluation_screen.dart';
 
+//TODO: Create a 'previous objectives screen' and a 'future objectives screen'
+
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
   
@@ -73,6 +75,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildLanguageButton(
                   'BR',
                   SettingsStorage.portuguese,
+                  Icons.language,
+                ),
+                _buildLanguageButton(
+                  'FR',
+                  SettingsStorage.french,
+                  Icons.language,
+                ),
+                _buildLanguageButton(
+                  'ES',
+                  SettingsStorage.spanish,
+                  Icons.language,
+                ),
+                _buildLanguageButton(
+                  'DE',
+                  SettingsStorage.german,
                   Icons.language,
                 ),
               ],
