@@ -9,8 +9,8 @@ from backend.utils.envs import NUM_DIMENSIONS
 
 class StudyResourceType(Enum):
     pdf = "pdf"
-    youtube = "youtube"
     webpage = "webpage"
+    youtube = "youtube"
 
 class Resource(Base):
     __tablename__ = "resources"

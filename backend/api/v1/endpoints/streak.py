@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, date
 from backend.core.database import get_db
 from backend.models.student import Student
 from backend.models.streak_day import StreakDay
-from backend.schemas.streak import TimePeriodStreak, StreakDay as StreakDaySchema
+from backend.schemas.streak import TimePeriodStreak, StreakDayResponse
 
 router = APIRouter()
 
@@ -40,7 +40,7 @@ async def get_week_streak(
     
     streak_days = result.scalars().all()    
     streak_day_schemas = [
-        StreakDaySchema(
+        StreakDayResponse(
             id=day.id,
             date_time=day.date_time
         ) for day in streak_days
@@ -84,7 +84,7 @@ async def get_month_streak(
     
     streak_days = result.scalars().all()    
     streak_day_schemas = [
-        StreakDaySchema(
+        StreakDayResponse(
             id=day.id,
             date_time=day.date_time
         ) for day in streak_days

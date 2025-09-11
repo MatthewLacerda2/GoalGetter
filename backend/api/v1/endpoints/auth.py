@@ -1,15 +1,15 @@
-from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Response
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
+from datetime import datetime
+import logging
 from backend.core.security import create_access_token, verify_google_token, get_current_user
 from backend.core.database import get_db
 from backend.schemas.student import OAuth2Request, TokenResponse
 from backend.models.student import Student
 from backend.models.goal import Goal
 from backend.models.student_context import StudentContext
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +43,8 @@ async def signup(
         )
         
         goal = Goal(
-            name="NOT DEFINED",
-            description="NOT DEFINED"
+            name="UNDEFINED",
+            description="UNDEFINED"
         )        
         db.add(goal)
         await db.flush()
@@ -107,7 +107,11 @@ async def login(
                 detail="User not found"
             )
     
-        latest_student_context = select(StudentContext).where(StudentContext.student_id == user.id).order_by(StudentContext.created_at.desc())
+        latest_student_context = (
+            select(StudentContext)
+            .where(StudentContext.student_id == user.id, StudentContext.is_still_valid == True)
+            .order_by(StudentContext.created_at.desc())
+        )
         result = await db.execute(latest_student_context)
         latest_student_context = result.scalar_one_or_none()
         

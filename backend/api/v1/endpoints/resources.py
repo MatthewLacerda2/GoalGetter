@@ -16,7 +16,7 @@ async def get_resources(
     """
     Get all resources for a specific goal
     """
-    stmt = select(Resource).where(Resource.goal_id == goal_id)
+    stmt = select(Resource).where(Resource.goal_id == goal_id).order_by(Resource.resource_type, Resource.name)
     result = await db.execute(stmt)
     resources = result.scalars().all()
     
