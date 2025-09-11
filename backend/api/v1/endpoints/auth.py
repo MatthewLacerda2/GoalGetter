@@ -42,9 +42,9 @@ async def signup(
             name=user_info.get("name"),
         )
         
-        goal = Goal(    #TODO: Create the actual goal
-            name="Default Goal",
-            description="Your initial learning goal"
+        goal = Goal(
+            name="NOT DEFINED",
+            description="NOT DEFINED"
         )        
         db.add(goal)
         await db.flush()

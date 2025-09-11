@@ -98,7 +98,7 @@ def mock_gemini_follow_up_questions():
 
     # Patch where the function is imported and used, not where it's defined
     #TODO: the fixture should be for the api call from the gemini client, not for the function itself
-    with patch('backend.api.v1.endpoints.roadmap.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
+    with patch('backend.api.v1.endpoints.onboarding.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
         yield mock
 
 @pytest_asyncio.fixture

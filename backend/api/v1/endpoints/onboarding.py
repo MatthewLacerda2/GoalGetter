@@ -5,9 +5,9 @@ from backend.utils.gemini import get_gemini_follow_up_questions
 router = APIRouter()
 
 @router.post(
-    "/initiation",
+    "",
     status_code=200,
     response_model=GoalCreationFollowUpQuestionsResponse,
-    description="Initiate the roadmap creation process by analyzing the user's goal prompt and generating follow-up questions.")
-async def initiate_roadmap(request: GoalCreationFollowUpQuestionsRequest):
+    description="Initiate the onboarding process by analyzing the user's goal prompt and generating follow-up questions.")
+async def onboarding_questions(request: GoalCreationFollowUpQuestionsRequest):
     return get_gemini_follow_up_questions(request)

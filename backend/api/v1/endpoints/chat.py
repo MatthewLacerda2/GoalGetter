@@ -151,7 +151,7 @@ async def edit_message(
         raise HTTPException(status_code=404, detail="Message not found")
     
     message.message = payload.message
-    #TODO: update the num_tokens
+    
     await db.commit()
     
     return ChatMessageItem.model_validate(message)
