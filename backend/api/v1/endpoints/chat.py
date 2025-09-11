@@ -34,7 +34,7 @@ router = APIRouter()
 
 @router.post("", response_model=CreateMessageResponse, status_code=201)
 async def create_message(
-    payload: CreateMessageRequest,
+    request: CreateMessageRequest,
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -43,7 +43,7 @@ async def create_message(
     message = ChatMessage(
         student_id=current_user.id,
         sender_id=current_user.id,
-        message=payload.message,
+        message=request.message,
         created_at=datetime.now()
     )
     
@@ -117,40 +117,40 @@ async def get_chat_messages(
 
 @router.patch("/likes", response_model=ChatMessageItem)
 async def like_message(
-    payload: LikeMessageRequest,
+    request: LikeMessageRequest,
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Like or remove like of a message for the authenticated user."""
     
-    query = select(ChatMessage).where(ChatMessage.id == payload.message_id, ChatMessage.student_id == current_user.id)
+    query = select(ChatMessage).where(ChatMessage.id == request.message_id, ChatMessage.student_id == current_user.id)
     result = await db.execute(query)
     message = result.scalars().first()
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    message.is_liked = payload.like
+    message.is_liked = request.like
     await db.commit()
     
     return ChatMessageItem.model_validate(message)
 
 @router.patch("/edit", response_model=ChatMessageItem)
 async def edit_message(
-    payload: EditMessageRequest,
+    request: EditMessageRequest,
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Edit a message for the authenticated user."""
     
-    query = select(ChatMessage).where(ChatMessage.id == payload.message_id, ChatMessage.student_id == current_user.id)
+    query = select(ChatMessage).where(ChatMessage.id == request.message_id, ChatMessage.student_id == current_user.id)
     result = await db.execute(query)
     message = result.scalars().first()
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    message.message = payload.message
+    message.message = request.message
     
     await db.commit()
     
