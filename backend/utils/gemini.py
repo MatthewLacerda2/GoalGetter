@@ -6,7 +6,6 @@ from backend.core.config import settings
 from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalCreationFollowUpQuestionsRequest
 from backend.utils.prompts import get_goal_follow_up_questions_prompt
 
-gemini_temperature = 0.0
 logger = logging.getLogger(__name__)
 load_dotenv()
 

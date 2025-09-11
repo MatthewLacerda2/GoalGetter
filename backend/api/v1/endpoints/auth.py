@@ -43,14 +43,14 @@ async def signup(
         )
         
         goal = Goal(
-            name="UNDEFINED",
-            description="UNDEFINED"
+            name=None,
+            description=None
         )        
         db.add(goal)
         await db.flush()
         
         user.goal_id = goal.id
-        user.goal_name = goal.name
+        user.goal_name = None
         
         db.add(user)
         await db.flush()
