@@ -10,6 +10,8 @@ from backend.schemas.player_achievements import PlayerAchievementItem
 
 router = APIRouter()
 
+#TODO: missing progress and leaderboard
+
 @router.get("/{student_id}", response_model=PlayerAchievementResponse)
 async def get_achievements(
     student_id: str,
