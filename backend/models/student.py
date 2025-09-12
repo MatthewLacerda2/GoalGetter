@@ -13,7 +13,7 @@ class Student(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String, nullable=False, unique=True)
     google_id = Column(String, nullable=False, unique=True)
-    goal_id = Column(String(36), ForeignKey("goals.id"), nullable=False)
+    goal_id = Column(String(36), ForeignKey("goals.id"), nullable=True)
     goal_name = Column(String, nullable=True)
     name = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())

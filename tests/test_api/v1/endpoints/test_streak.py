@@ -32,7 +32,7 @@ async def test_get_month_streak_with_student(client, test_db, test_user):
     assert isinstance(response_data, TimePeriodStreak)
 
 @pytest.mark.asyncio
-async def test_get_month_streak_with_no_student(client, test_db, test_user):
+async def test_get_month_streak_with_no_student(client, test_db):
     """Test getting month streak for non-existent student returns 404"""
     
     response = await client.get(f"/api/v1/streak/non-existent-id/month?target_date=2024-01-01")

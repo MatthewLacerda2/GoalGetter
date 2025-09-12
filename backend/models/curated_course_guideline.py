@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, ARRAY, Integer
+from sqlalchemy import Column, String, DateTime, Integer, JSON
 from datetime import datetime
 from backend.models.base import Base
 import uuid
@@ -12,7 +12,7 @@ class CuratedCourseGuideline(Base):
     course_name = Column(String, nullable=False)
     course_description = Column(String, nullable=False)
     course_description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
-    guideline = Column(ARRAY(String), nullable=False)
+    guideline = Column(JSON, nullable=False)
     guideline_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     min_student_percentile = Column(Integer, nullable=False) #The student level, from 0 to 100, where this guideline is appliable
     max_student_percentile = Column(Integer, nullable=False)

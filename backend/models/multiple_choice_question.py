@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, ForeignKey, Integer, ARRAY
+from sqlalchemy import Column, String, ForeignKey, Integer, JSON
 import uuid
 from backend.models.base import Base
 
@@ -11,7 +11,7 @@ class MultipleChoiceQuestion(Base):
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     activity_id = Column(String(36), nullable=False)
     question = Column(String, nullable=False)
-    choices = Column(ARRAY(String), nullable=False)
+    choices = Column(JSON, nullable=False)
     correct_answer_index = Column(Integer, nullable=False)
     student_answer_index = Column(Integer, nullable=True, default=None)
     seconds_spent = Column(Integer, nullable=True, default=None)

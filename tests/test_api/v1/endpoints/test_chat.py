@@ -241,7 +241,7 @@ async def test_edit_message_unauthorized(client):
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_edit_message_not_found(client, mock_google_verify, test_db, test_user):
+async def test_edit_message_not_found(client, mock_google_verify, test_user):
 
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
@@ -315,7 +315,7 @@ async def test_delete_message_unauthorized(client):
     assert response.status_code == 403
     
 @pytest.mark.asyncio
-async def test_delete_message_not_found(client, mock_google_verify, test_db, test_user):
+async def test_delete_message_not_found(client, mock_google_verify, test_user):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
     mock_google_verify.return_value = {
@@ -339,7 +339,7 @@ async def test_delete_message_not_found(client, mock_google_verify, test_db, tes
     assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
-async def test_create_message(client, mock_google_verify, test_db, test_user):
+async def test_create_message(client, mock_google_verify, test_user):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
     mock_google_verify.return_value = {

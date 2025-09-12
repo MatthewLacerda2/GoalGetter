@@ -1,6 +1,6 @@
 import pytest
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse
-
+#TODO: endpoint is now authorized, but tests are not updated
 @pytest.mark.asyncio
 async def test_onboarding_initiation_success(client, mock_gemini_follow_up_questions):
     """Test that the onboarding initiation endpoint returns a valid response for a valid request."""

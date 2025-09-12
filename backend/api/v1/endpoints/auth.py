@@ -42,16 +42,6 @@ async def signup(
             name=user_info.get("name"),
         )
         
-        goal = Goal(
-            name=None,
-            description=None
-        )        
-        db.add(goal)
-        await db.flush()
-        
-        user.goal_id = goal.id
-        user.goal_name = None
-        
         db.add(user)
         await db.flush()
         
@@ -86,7 +76,7 @@ async def signup(
             detail=f"Invalid Google token"
         )
         
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def login(
     oauth_data: OAuth2Request,
     db: AsyncSession = Depends(get_db)
@@ -125,8 +115,7 @@ async def login(
         
         return TokenResponse(
             access_token=access_token,
-            student=user,
-            latest_student_context=latest_student_context
+            student=user
         )
         
     except HTTPException:

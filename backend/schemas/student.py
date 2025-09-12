@@ -7,7 +7,7 @@ class StudentResponse(BaseModel):
     id: str
     email: str
     google_id: str
-    goal_name: str
+    goal_name: str | None
     name: str
     current_streak: int
     overall_xp: int
