@@ -22,3 +22,5 @@ class Objective(Base):
     goal = relationship("Goal", back_populates="objectives")
     student_contexts = relationship("StudentContext", back_populates="objective")
     notes = relationship("ObjectiveNote", back_populates="objective")
+    multiple_choice_questions = relationship("MultipleChoiceQuestion", back_populates="objective")
+    subjective_questions = relationship("SubjectiveQuestion", back_populates="objective")
