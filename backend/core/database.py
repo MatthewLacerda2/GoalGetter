@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use the DATABASE_URL directly since it's already in the correct format
 engine = create_async_engine(
     settings.DATABASE_URL,  # Already has postgresql+asyncpg://
     pool_size=10,

@@ -24,9 +24,9 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         }
 
         if response.status_code >= 400:
-            # Get a copy of the original response
+            
             response_body = [chunk async for chunk in response.body_iterator]
-            # Reconstruct the response since we consumed the iterator
+            
             response = Response(
                 content=b''.join(response_body),
                 status_code=response.status_code,

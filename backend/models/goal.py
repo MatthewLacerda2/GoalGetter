@@ -14,6 +14,7 @@ class Goal(Base):
     description = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    #TODO: latest objective id
     
     student = relationship("Student", back_populates="goal", uselist=False)
     resources = relationship("Resource", back_populates="goal")

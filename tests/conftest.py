@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from backend.models.base import Base
 from backend.core.database import get_db
+from backend.models.student import Student
 
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -16,7 +17,6 @@ test_engine = create_async_engine(
     connect_args={"check_same_thread": False}  # Needed for SQLite
 )
 
-# Create test session factory
 TestingSessionLocal = sessionmaker(
     test_engine,
     class_=AsyncSession,
@@ -104,28 +104,16 @@ def mock_gemini_follow_up_questions():
 @pytest_asyncio.fixture
 async def test_user(test_db):
     """Fixture to create a test user with goal for testing"""
-    from backend.models.student import Student
-    from backend.models.goal import Goal
-    
-    goal = Goal(
-        name="Test Goal",
-        description="A test goal for testing purposes"
-    )
-    test_db.add(goal)
-    await test_db.flush()
     
     student = Student(
         email="test@example.com",
         google_id="test_google_id_123",
         name="Test User",
-        goal_id=goal.id,
-        goal_name=goal.name,
     )
     test_db.add(student)
     await test_db.flush()
     
     await test_db.commit()
     await test_db.refresh(student)
-    await test_db.refresh(goal)
     
     yield student
