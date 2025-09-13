@@ -66,4 +66,4 @@ async def test_get_activities_no_goal(client, mock_google_verify, test_user):
     )
     
     assert response.status_code == 400
-    assert "goal" in response.json()["detail"].lower()
+    assert response.json()["detail"] == "User did not finish the onboarding and does not have an objective."
