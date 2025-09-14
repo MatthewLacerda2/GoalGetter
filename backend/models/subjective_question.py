@@ -9,7 +9,6 @@ class SubjectiveQuestion(Base):
     __tablename__ = "subjective_questions"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    student_context_id = Column(String(36), ForeignKey("student_contexts.id"), nullable=False)
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     assessment_id = Column(String(36), nullable=False)
     question = Column(String, nullable=False)
@@ -20,5 +19,4 @@ class SubjectiveQuestion(Base):
     llm_metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_approval = Column(Boolean, nullable=False)
     
-    student_context = relationship("StudentContext", back_populates="subjective_questions")
     objective = relationship("Objective", back_populates="subjective_questions")

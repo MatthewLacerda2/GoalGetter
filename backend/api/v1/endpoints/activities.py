@@ -10,6 +10,8 @@ from backend.models.objective import Objective
 from backend.core.security import get_current_user
 from backend.schemas.activity import MultipleChoiceActivityResponse
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
+import uuid
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -34,13 +36,29 @@ async def take_multiple_choice_activity(
     
     stmt = select(MultipleChoiceQuestion).where(MultipleChoiceQuestion.objective_id == objective.id, MultipleChoiceQuestion.student_answer_index == None)
     result = await db.execute(stmt)
-    multiple_choice_question = result.scalar_one_or_none()
+    multiple_choice_question_results = result.scalars().all()
     
-    if not multiple_choice_question:
+    if multiple_choice_question_results:
+        return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
+    else:
         #TODO: have the AI create more questions
-        pass
+        #The right thing to do is to create a service that creates the questions, and then use it here
+                        
+        mcq = MultipleChoiceQuestion(
+            objective_id=objective.id,
+            question="What is the capital of France?",
+            choices=["Paris", "London", "Berlin", "Madrid"],
+            correct_answer_index=0,
+            student_answer_index=None,
+            seconds_spent=None,
+            created_at=datetime.now(),
+            last_updated_at=None
+        )
         
-    return MultipleChoiceActivityResponse(
-        activity_id=multiple_choice_question.activity_id,
-        questions=[multiple_choice_question]
-    )
+        db.add(mcq)
+        await db.flush()
+        await db.commit()
+        await db.refresh(mcq)
+        
+        return MultipleChoiceActivityResponse(questions=[mcq])
+        

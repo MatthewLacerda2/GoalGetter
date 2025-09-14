@@ -7,17 +7,13 @@ from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_get_objective_successful(client, mock_google_verify, test_db, test_user):
+async def test_get_objective_successful(client, mock_google_verify, test_db, test_user_with_objective):
     """Test getting an objective"""
     
-    objective = Objective(
-        goal_id=test_user.goal_id,
-        name="Test Objective",
-        description="A test objective for testing purposes",
-        percentage_completed=0.5,
-    )
-    test_db.add(objective)
-    await test_db.flush()
+    from sqlalchemy import select
+    stmt = select(Objective).where(Objective.goal_id == test_user_with_objective.goal_id)
+    result = await test_db.execute(stmt)
+    objective = result.scalar_one()
     
     note = ObjectiveNoteModel(
         objective_id=objective.id,

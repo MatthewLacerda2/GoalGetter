@@ -2,13 +2,13 @@ import pytest
 from backend.schemas.activity import MultipleChoiceActivityResponse
 
 @pytest.mark.asyncio
-async def test_get_activities_success(client, mock_google_verify, test_user):
+async def test_get_activities_success(client, mock_google_verify, test_user_with_objective):
     """Test that the activities endpoint returns a valid response for a user with a goal."""
     
     mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
+        'email': test_user_with_objective.email,
+        'sub': test_user_with_objective.google_id,
+        'name': test_user_with_objective.name
     }
     
     login_response = await client.post(

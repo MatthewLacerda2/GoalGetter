@@ -16,4 +16,4 @@ class CuratedCourseGuideline(Base):
     guideline_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     min_student_percentile = Column(Integer, nullable=False) #The student level, from 0 to 100, where this guideline is appliable
     max_student_percentile = Column(Integer, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.now())   
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
