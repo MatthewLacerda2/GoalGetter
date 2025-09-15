@@ -10,6 +10,7 @@ class MultipleChoiceQuestion(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     question = Column(String, nullable=False)
+    
     choices = Column(JSON, nullable=False)
     correct_answer_index = Column(Integer, nullable=False)
     student_answer_index = Column(Integer, nullable=True, default=None)
