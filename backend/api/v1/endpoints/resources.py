@@ -16,6 +16,9 @@ async def get_resources(
     """
     Get all resources for a specific goal
     """
+    #TODO: update this
+    #We must show resources which match the objective,
+    #and the student context (mostly, whether the resource is fit for a student of this level)
     stmt = select(Resource).where(Resource.goal_id == goal_id).order_by(Resource.resource_type, Resource.name)
     result = await db.execute(stmt)
     resources = result.scalars().all()
