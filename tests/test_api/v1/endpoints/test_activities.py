@@ -26,6 +26,7 @@ async def test_get_activities_success(client, mock_google_verify, test_user_with
     
     activity_response = MultipleChoiceActivityResponse.model_validate(response.json())
     assert isinstance(activity_response, MultipleChoiceActivityResponse)
+    #assert len(activity_response.questions) > 5 #TODO: uncomment this when we have AI creating the questions
 
 @pytest.mark.asyncio
 async def test_get_activities_unauthorized(client):
