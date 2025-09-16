@@ -7,11 +7,13 @@ from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_get_objective_successful(client, mock_google_verify, test_db, test_user_with_objective):
+async def test_get_objective_successful(authenticated_client_with_objective, test_db):
     """Test getting an objective"""
     
+    client, access_token = authenticated_client_with_objective
+    
     from sqlalchemy import select
-    stmt = select(Objective).where(Objective.goal_id == test_user_with_objective.goal_id)
+    stmt = select(Objective)
     result = await test_db.execute(stmt)
     objective = result.scalar_one()
     
@@ -24,12 +26,6 @@ async def test_get_objective_successful(client, mock_google_verify, test_db, tes
     await test_db.flush()    
     await test_db.commit()
     await test_db.refresh(objective)
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
     
     response = await client.get(
         "/api/v1/objective",

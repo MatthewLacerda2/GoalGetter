@@ -2,20 +2,10 @@ import pytest
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse
 
 @pytest.mark.asyncio
-async def test_generate_follow_up_questions_success(client, mock_gemini_follow_up_questions, mock_google_verify, test_user):
+async def test_generate_follow_up_questions_success(authenticated_client, mock_gemini_follow_up_questions):
     """Test that the onboarding initiation endpoint returns a valid response for a valid request."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     test_request = GoalCreationFollowUpQuestionsRequest(
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps"
@@ -35,20 +25,10 @@ async def test_generate_follow_up_questions_success(client, mock_gemini_follow_u
     assert isinstance(validated_response, GoalCreationFollowUpQuestionsResponse)
 
 @pytest.mark.asyncio
-async def test_generate_study_plan_success(client, mock_gemini_study_plan, mock_google_verify, test_user):
+async def test_generate_study_plan_success(authenticated_client, mock_gemini_study_plan):
     """Test that the onboarding generate study plan endpoint returns a valid response for a valid request."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     test_request = GoalStudyPlanRequest(
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps",
@@ -70,20 +50,10 @@ async def test_generate_study_plan_success(client, mock_gemini_study_plan, mock_
 
     
 @pytest.mark.asyncio
-async def test_generate_follow_up_questions_user_already_has_goal(client, mock_google_verify, test_user_with_objective):
+async def test_generate_follow_up_questions_user_already_has_goal(authenticated_client_with_objective):
     """Test that the onboarding initiation endpoint returns a 400 if the user already has a goal."""
     
-    mock_google_verify.return_value = {
-        'email': test_user_with_objective.email,
-        'sub': test_user_with_objective.google_id,
-        'name': test_user_with_objective.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client_with_objective
     
     test_request = GoalCreationFollowUpQuestionsRequest(
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps"
@@ -98,20 +68,10 @@ async def test_generate_follow_up_questions_user_already_has_goal(client, mock_g
     assert response.status_code == 400
 
 @pytest.mark.asyncio
-async def test_generate_study_plan_user_already_has_goal(client, mock_google_verify, test_user_with_objective):
+async def test_generate_study_plan_user_already_has_goal(authenticated_client_with_objective):
     """Test that the onboarding generate study plan endpoint returns a 400 if the user already has a goal."""
     
-    mock_google_verify.return_value = {
-        'email': test_user_with_objective.email,
-        'sub': test_user_with_objective.google_id,
-        'name': test_user_with_objective.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client_with_objective
     
     test_request = GoalStudyPlanRequest(
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps",

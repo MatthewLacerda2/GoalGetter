@@ -2,9 +2,6 @@ import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from pgvector.sqlalchemy import Vector
-
-from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
 
 class Student(Base):

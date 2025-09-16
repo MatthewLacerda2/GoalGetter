@@ -8,7 +8,6 @@ from backend.core.security import create_access_token, verify_google_token, get_
 from backend.core.database import get_db
 from backend.schemas.student import OAuth2Request, TokenResponse
 from backend.models.student import Student
-from backend.models.goal import Goal
 from backend.models.student_context import StudentContext
 
 logger = logging.getLogger(__name__)

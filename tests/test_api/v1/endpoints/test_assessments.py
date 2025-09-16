@@ -2,20 +2,10 @@ import pytest
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
 
 @pytest.mark.asyncio
-async def test_get_assessment_success(client, mock_google_verify, test_user_with_objective):
+async def test_get_assessment_success(authenticated_client_with_objective):
     """Test that the assessment endpoint returns a valid response for a user with a goal."""
     
-    mock_google_verify.return_value = {
-        'email': test_user_with_objective.email,
-        'sub': test_user_with_objective.google_id,
-        'name': test_user_with_objective.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client_with_objective
     
     response = await client.post(
         "/api/v1/assessments",
@@ -45,20 +35,10 @@ async def test_get_assessment_invalid_token(client, mock_google_verify):
     assert response.status_code == 401
 
 @pytest.mark.asyncio
-async def test_get_assessment_no_goal(client, mock_google_verify, test_user):
+async def test_get_assessment_no_goal(authenticated_client):
     """Test that the assessment endpoint returns 400 when student has no goal."""
 
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     response = await client.post(
         "/api/v1/assessments",

@@ -98,7 +98,6 @@ def mock_gemini_follow_up_questions():
             questions=["What is your current skill level in this area?", "How much time can you dedicate to this goal?", "What is your preferred learning style?", "Do you have any specific constraints or preferences?"]
         )
 
-    # Patch where the function is imported and used, not where it's defined
     with patch('backend.api.v1.endpoints.onboarding.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
         yield mock
         
@@ -164,3 +163,39 @@ async def test_user_with_objective(test_user, test_db):
     await test_db.refresh(objective)
     
     yield test_user
+
+@pytest_asyncio.fixture
+async def authenticated_client(client, mock_google_verify, test_user):
+    """Fixture that provides a logged-in client with access token for testing"""
+    
+    mock_google_verify.return_value = {
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
+    }
+    
+    login_response = await client.post(
+        "/api/v1/auth/login",
+        json={"access_token": "fixture_user_token"}
+    )
+    access_token = login_response.json()["access_token"]
+    
+    return client, access_token
+
+@pytest_asyncio.fixture
+async def authenticated_client_with_objective(client, mock_google_verify, test_user_with_objective):
+    """Fixture that provides a logged-in client with access token for testing with user that has objective"""
+    
+    mock_google_verify.return_value = {
+        'email': test_user_with_objective.email,
+        'sub': test_user_with_objective.google_id,
+        'name': test_user_with_objective.name
+    }
+    
+    login_response = await client.post(
+        "/api/v1/auth/login",
+        json={"access_token": "fixture_user_token"}
+    )
+    access_token = login_response.json()["access_token"]
+    
+    return client, access_token

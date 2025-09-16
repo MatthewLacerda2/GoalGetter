@@ -10,7 +10,6 @@ from backend.models.objective import Objective
 from backend.core.security import get_current_user
 from backend.schemas.activity import MultipleChoiceActivityResponse
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
-import uuid
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
