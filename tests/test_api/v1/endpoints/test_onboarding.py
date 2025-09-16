@@ -22,7 +22,7 @@ async def test_generate_follow_up_questions_success(client, mock_gemini_follow_u
     )
     
     response = await client.post(
-        "/api/v1/onboarding/initiation",
+        "/api/v1/onboarding/follow_up_questions",
         headers={"Authorization": f"Bearer {access_token}"},
         json=test_request.model_dump(),
     )
