@@ -1,10 +1,8 @@
-from datetime import datetime, timedelta, UTC
-from typing import Optional
 from jose import jwt, JWTError
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from fastapi import HTTPException, status, Depends, Security
-from fastapi.security import HTTPBearer, APIKeyHeader, HTTPAuthorizationCredentials
+from fastapi import HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.config import settings
 from backend.core.database import get_db

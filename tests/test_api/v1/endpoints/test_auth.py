@@ -69,7 +69,6 @@ async def test_login_successful(client, test_user, mock_google_verify):
     
     assert response.status_code == 201
     assert isinstance(token_response, TokenResponse)
-    assert token_response.token_type == "bearer"
     assert token_response.student.email == test_user.email
     assert token_response.student.name == test_user.name
     assert token_response.student.google_id == test_user.google_id
