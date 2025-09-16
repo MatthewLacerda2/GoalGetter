@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://localhost/goalgetter" #TODO: read from .env
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback" #TODO: read from .env
     
-    GEMINI_API_KEY: str = "AIzaSyCkiKhi2VQSh_Dq8nvADd6qZR2BpDt3bn0"
+    GEMINI_API_KEY: str
     
     SECRET_KEY: str = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
     

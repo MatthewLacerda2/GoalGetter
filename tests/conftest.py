@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from backend.main import app
-from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse
+from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalStudyPlanResponse
 from unittest.mock import patch
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -99,8 +99,22 @@ def mock_gemini_follow_up_questions():
         )
 
     # Patch where the function is imported and used, not where it's defined
-    #TODO: the fixture should be for the api call from the gemini client, not for the function itself
-    with patch('backend.api.v1.endpoints.onboarding.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
+    with patch('backend.utils.gemini.onboarding.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
+        yield mock
+        
+@pytest.fixture
+def mock_gemini_study_plan():
+    """Fixture to mock Gemini study plan responses"""
+    
+    def mock_get_gemini_study_plan(*args, **kwargs):
+        return GoalStudyPlanResponse(
+            goal_name="Build a Python Application",
+            goal_description="Build a Python DataScience app and become Fluent in Python",
+            first_objective_name="Write a simple python script",
+            first_objective_description="Write a simple python script that reads and writes on the terminal",
+            milestones=["Write a simple python script", "Write a full desktop app in Python", "Write a real Python app using pandas and numpy"]
+        )
+    with patch('backend.utils.gemini.onboarding.get_gemini_study_plan', side_effect=mock_get_gemini_study_plan) as mock:
         yield mock
 
 @pytest_asyncio.fixture
