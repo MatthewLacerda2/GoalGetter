@@ -98,7 +98,7 @@ def mock_gemini_follow_up_questions():
             questions=["What is your current skill level in this area?", "How much time can you dedicate to this goal?", "What is your preferred learning style?", "Do you have any specific constraints or preferences?"]
         )
 
-    with patch('backend.api.v1.endpoints.onboarding.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
+    with patch('backend.api.v1.endpoints.onboarding.onboarding.get_gemini_follow_up_questions', side_effect=mock_get_gemini_follow_up_questions) as mock:
         yield mock
         
 @pytest.fixture
@@ -113,7 +113,7 @@ def mock_gemini_study_plan():
             first_objective_description="Write a simple python script that reads and writes on the terminal",
             milestones=["Write a simple python script", "Write a full desktop app in Python", "Write a real Python app using pandas and numpy"]
         )
-    with patch('backend.api.v1.endpoints.onboarding.get_gemini_study_plan', side_effect=mock_get_gemini_study_plan) as mock:
+    with patch('backend.api.v1.endpoints.onboarding.onboarding.get_gemini_study_plan', side_effect=mock_get_gemini_study_plan) as mock:
         yield mock
 
 @pytest_asyncio.fixture
