@@ -23,7 +23,7 @@ async def get_objective(
     """
     Get the latest objective for the current user
     """
-    stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.last_updated_at.desc())
+    stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.created_at.desc())
     result = await db.execute(stmt)
     objective = result.scalar_one_or_none()
     
