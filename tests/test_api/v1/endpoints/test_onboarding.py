@@ -1,5 +1,6 @@
 import pytest
-from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse
+from backend.schemas.student import StudentCurrentStatusResponse
+from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse, GoalFullCreationRequest
 
 @pytest.mark.asyncio
 async def test_generate_follow_up_questions_success(authenticated_client, mock_gemini_follow_up_questions):
@@ -87,6 +88,27 @@ async def test_generate_study_plan_user_already_has_goal(authenticated_client_wi
     assert response.status_code == 400
 
 @pytest.mark.asyncio
+async def test_generate_full_creation_user_already_has_goal(authenticated_client_with_objective):
+    """Test that the onboarding generate full creation endpoint returns a 400 if the user already has a goal."""
+    
+    client, access_token = authenticated_client_with_objective
+    
+    test_request = GoalFullCreationRequest(
+        goal_name="Create a Python Application",
+        goal_description="Create a Python App for Data Science",
+        first_objective_name="Create a Bare Minimum Python Script",
+        first_objective_description="Learn Programming Fundamentals to create a bare minimum Python script"
+    )
+    
+    response = await client.post(
+        "/api/v1/onboarding/full_creation",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=test_request.model_dump()
+    )
+    
+    assert response.status_code == 400
+
+@pytest.mark.asyncio
 async def test_generate_follow_up_questions_unauthorized(client):
     """Test that the onboarding initiation endpoint returns a 403 without token."""
     
@@ -116,3 +138,41 @@ async def test_generate_study_plan_invalid_token(client, mock_google_verify):
     
     response = await client.post("/api/v1/onboarding/study_plan", headers={"Authorization": "Bearer invalid_token"})
     assert response.status_code == 401
+    
+@pytest.mark.asyncio
+async def test_generate_full_creation_unauthorized(client):
+    """Test that the onboarding generate full creation endpoint returns a 403 without token."""
+    response = await client.post("/api/v1/onboarding/full_creation")
+    assert response.status_code == 403
+    
+@pytest.mark.asyncio
+async def test_generate_full_creation_invalid_token(client, mock_google_verify):
+    """Test that the onboarding generate full creation endpoint returns a 401 with invalid token."""
+    mock_google_verify.side_effect = Exception("Invalid token")
+    response = await client.post("/api/v1/onboarding/full_creation", headers={"Authorization": "Bearer invalid_token"})
+    assert response.status_code == 401
+    
+@pytest.mark.asyncio
+async def test_generate_full_creation_success(authenticated_client):
+    """Test that the onboarding generate full creation endpoint returns a valid response for a valid request."""
+    
+    client, access_token = authenticated_client
+    
+    test_request = GoalFullCreationRequest(
+        goal_name="Create a Python Application",
+        goal_description="Create a Python App for Data Science",
+        first_objective_name="Create a Bare Minimum Python Script",
+        first_objective_description="Learn Programming Fundamentals to create a bare minimum Python script"
+    )
+    
+    response = await client.post(
+        "/api/v1/onboarding/full_creation",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=test_request.model_dump()
+    )
+    
+    assert response.status_code == 201
+    
+    response_data = response.json()
+    validated_response = StudentCurrentStatusResponse.model_validate(response_data)
+    assert isinstance(validated_response, StudentCurrentStatusResponse)

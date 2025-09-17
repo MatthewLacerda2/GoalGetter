@@ -20,10 +20,6 @@ async def get_student_current_status(
 ):
     """Get the current status of the student"""
     
-    stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.created_at.desc())
-    result = await db.execute(stmt)
-    objective = result.scalar_one_or_none()
-    
     return StudentCurrentStatusResponse(
         student_id=current_user.id,
         student_name=current_user.name,
