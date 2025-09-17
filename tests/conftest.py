@@ -1,5 +1,6 @@
 import pytest
 import pytest_asyncio
+import numpy as np
 from httpx import AsyncClient, ASGITransport
 from backend.main import app
 from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalStudyPlanResponse
@@ -114,6 +115,16 @@ def mock_gemini_study_plan():
             milestones=["Write a simple python script", "Write a full desktop app in Python", "Write a real Python app using pandas and numpy"]
         )
     with patch('backend.api.v1.endpoints.onboarding.get_gemini_study_plan', side_effect=mock_get_gemini_study_plan) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_embeddings():
+    """Fixture to mock Gemini embeddings responses"""
+    
+    def mock_get_gemini_embeddings(text):
+        return np.zeros(3072, dtype=np.float32)
+
+    with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
         yield mock
 
 @pytest_asyncio.fixture

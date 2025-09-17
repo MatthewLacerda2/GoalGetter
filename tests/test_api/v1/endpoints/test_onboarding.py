@@ -1,6 +1,7 @@
 import pytest
 from backend.schemas.student import StudentCurrentStatusResponse
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse, GoalFullCreationRequest
+from unittest.mock import patch
 
 @pytest.mark.asyncio
 async def test_generate_follow_up_questions_success(authenticated_client, mock_gemini_follow_up_questions):
@@ -153,7 +154,7 @@ async def test_generate_full_creation_invalid_token(client, mock_google_verify):
     assert response.status_code == 401
     
 @pytest.mark.asyncio
-async def test_generate_full_creation_success(authenticated_client):
+async def test_generate_full_creation_success(authenticated_client, mock_gemini_embeddings):
     """Test that the onboarding generate full creation endpoint returns a valid response for a valid request."""
     
     client, access_token = authenticated_client
