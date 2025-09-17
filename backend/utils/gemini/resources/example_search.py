@@ -9,9 +9,6 @@ grounding_tool = types.Tool(
 )
 
 config = types.GenerateContentConfig(
-    thinking_config=types.ThinkingConfig(
-        thinking_budget=0
-    ),
     automatic_function_calling={"disable": True},
     tools=[grounding_tool]
 )

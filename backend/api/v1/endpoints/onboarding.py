@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException
 import asyncio
 from backend.models.goal import Goal
 from backend.core.database import get_db

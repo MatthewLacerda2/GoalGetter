@@ -8,7 +8,6 @@ from backend.core.security import create_access_token, verify_google_token, get_
 from backend.core.database import get_db
 from backend.schemas.student import OAuth2Request, TokenResponse
 from backend.models.student import Student
-from backend.models.student_context import StudentContext
 
 logger = logging.getLogger(__name__)
 
@@ -95,14 +94,6 @@ async def login(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
-    
-        latest_student_context = (
-            select(StudentContext)
-            .where(StudentContext.student_id == user.id, StudentContext.is_still_valid == True)
-            .order_by(StudentContext.created_at.desc())
-        )
-        result = await db.execute(latest_student_context)
-        latest_student_context = result.scalar_one_or_none()
         
         user.last_login = datetime.now()
         await db.commit()
