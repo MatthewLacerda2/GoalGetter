@@ -1,5 +1,6 @@
 from typing import List
 from backend.utils.gemini.resources.schema import ResourceSearchResults, ResourceSearchResultItem
+from backend.utils.gemini.resources.ebooks.search import search_ebooks
 
 def search_resources(
     goal_name: str, goal_description: str, objective_name: str, objective_description: str, student_context: list[str] | None

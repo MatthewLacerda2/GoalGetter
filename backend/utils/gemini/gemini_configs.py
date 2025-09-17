@@ -11,19 +11,17 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 def get_client():
-    return Client(api_key=settings.GEMINI_API_KEY)
+    return Client(api_key="AIzaSyDmrw4L5uRbqb6lrwneZ1CTg78IU7M5iKU")
 
 def get_gemini_config(json_schema: dict[str, Any]) -> GenerateContentConfig:
     return GenerateContentConfig(
         response_mime_type='application/json',
         response_schema=json_schema,
-        automatic_function_calling={"disable": True},
     )
 
 def get_gemini_config_plain_text() -> GenerateContentConfig:
     return GenerateContentConfig(
-        response_mime_type='plain/text',
-        automatic_function_calling={"disable": True}
+        response_mime_type='text/plain',
     )
 
 def get_gemini_embeddings(text: str) -> np.ndarray:
