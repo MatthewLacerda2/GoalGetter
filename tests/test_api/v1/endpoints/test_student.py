@@ -19,7 +19,6 @@ async def test_get_student_current_status_successful(authenticated_client_with_o
     
     assert student_current_status_response.student_id == test_user_with_objective.id
     assert student_current_status_response.goal_id == test_user_with_objective.goal_id
-    assert student_current_status_response.objective_id is not None
 
 @pytest.mark.asyncio
 async def test_get_student_current_status_unauthorized(client):

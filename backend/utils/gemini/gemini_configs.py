@@ -14,9 +14,6 @@ def get_client():
 def get_gemini_flash_config(json_schema: dict[str, Any]) -> GenerateContentConfig:
     return GenerateContentConfig(
         response_mime_type='application/json',
-        thinking_config=ThinkingConfig(
-            thinking_budget=0
-        ),
         automatic_function_calling={"disable": True},
         response_schema=json_schema
     )
