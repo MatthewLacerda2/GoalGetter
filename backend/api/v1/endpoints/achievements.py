@@ -34,7 +34,7 @@ async def get_achievements(
     for player_achievement in player_achievements:
         achievement_query = select(Achievement).where(Achievement.id == player_achievement.achievement_id)
         achievement_result = await db.execute(achievement_query)
-        achievement = achievement_result.scalars().first()        
+        achievement = achievement_result.scalars().first()
     
         achievements.append(PlayerAchievementItem(
             id=player_achievement.id,

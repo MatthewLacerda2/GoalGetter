@@ -19,10 +19,7 @@ class StudentCurrentStatusResponse(BaseModel):
     student_id: str
     student_name: str
     student_email: str
-    current_streak: int
     overall_xp: int
     goal_id: str
     goal_name: str
-    objective_id: str
-    objective_name: str
-    objective_percentage_completed: float
+    current_streak: int

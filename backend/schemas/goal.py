@@ -22,6 +22,7 @@ class GoalStudyPlanResponse(BaseModel):
     first_objective_description: str = Field(..., description="The Description of the First Objective towards the Goal. Defined by the Tutor for the user")
     milestones: list[str] = Field(..., description="The Milestones towards the Goal. Defined by the Tutor for the user")
 
+#TODO: do the endpoint
 class GoalFullCreationRequest(BaseModel):
     goal_name: str = Field(..., description="The Goal defined by the Tutor for the user")
     goal_description: str = Field(..., description="The Description of the Goal defined by the Tutor for the user")

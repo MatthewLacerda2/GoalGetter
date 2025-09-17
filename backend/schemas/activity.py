@@ -16,6 +16,7 @@ class MultipleChoiceQuestionAnswer(BaseModel):
     student_answer_index: int
     seconds_spent: int
 
+#TODO: do the endpoint
 class MultipleChoiceActivityEvaluationRequest(BaseModel):
     answers: List[MultipleChoiceQuestionAnswer]
     total_time_spent: int

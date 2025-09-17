@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi import HTTPException
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -33,7 +32,4 @@ async def get_student_current_status(
         overall_xp=current_user.overall_xp,
         goal_id=current_user.goal_id,
         goal_name=current_user.goal_name,
-        objective_id=objective.id,
-        objective_name=objective.name,
-        objective_percentage_completed=objective.percentage_completed
     )

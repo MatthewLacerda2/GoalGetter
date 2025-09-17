@@ -1,5 +1,5 @@
-from backend.utils.gemini_configs import get_client, get_gemini_flash_config, get_gemini_pro_config
-from backend.utils.gemini.onboarding_prompts import get_goal_follow_up_questions_prompt, get_goal_study_plan_prompt
+from backend.utils.gemini.gemini_configs import get_client, get_gemini_flash_config, get_gemini_pro_config
+from backend.utils.gemini.onboarding.onboarding_prompts import get_goal_follow_up_questions_prompt, get_goal_study_plan_prompt
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse
 
 def get_gemini_follow_up_questions(initiation_request: GoalCreationFollowUpQuestionsRequest) -> GoalCreationFollowUpQuestionsResponse:
