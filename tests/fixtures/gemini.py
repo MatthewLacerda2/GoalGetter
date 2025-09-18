@@ -38,3 +38,26 @@ def mock_gemini_embeddings():
     with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
         yield mock
 
+@pytest.fixture
+def mock_gemini_multiple_choice_questions():
+    """Fixture to mock Gemini multiple choice questions responses"""
+    def mock_generate_multiple_choice_questions(*args, **kwargs):
+        from backend.utils.gemini.activity.schema import GeminiMultipleChoiceQuestionsList, GeminiMultipleChoiceQuestion
+        
+        return GeminiMultipleChoiceQuestionsList(
+            questions=[
+                GeminiMultipleChoiceQuestion(
+                    question=f"Sample question {i+1}: What is the correct way to print 'Hello World' in Python?",
+                    choices=[
+                        "print('Hello World')",
+                        "echo('Hello World')",
+                        "console.log('Hello World')",
+                        "System.out.println('Hello World')"
+                    ],
+                    correct_answer_index=0
+                ) for i in range(10)
+            ]
+        )
+    
+    with patch('backend.api.v1.endpoints.activities.gemini_generate_multiple_choice_questions', side_effect=mock_generate_multiple_choice_questions) as mock:
+        yield mock
