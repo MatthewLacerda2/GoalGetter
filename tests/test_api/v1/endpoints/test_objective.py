@@ -20,7 +20,7 @@ async def test_get_objective_successful(authenticated_client_with_objective, tes
     note = ObjectiveNoteModel(
         objective_id=objective.id,
         title="Test Note 1",
-        description="First test note",
+        info="First test note",
     )
     test_db.add(note)
     await test_db.flush()    

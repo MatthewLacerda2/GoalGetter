@@ -2,7 +2,7 @@ from backend.utils.gemini.objective.schema import GeminiObjective
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 from backend.utils.gemini.objective.prompt import get_define_objective_prompt
 
-def gemini_define_objective_plain(
+def gemini_define_objective(
     goal_name: str, goal_description: str, latest_objective: str, latest_objective_description: str, student_context: list[str]
 ) -> GeminiObjective:
     
@@ -20,7 +20,7 @@ def gemini_define_objective_plain(
     return GeminiObjective.model_validate_json(json_response)
 
 if __name__ == "__main__":
-    print(gemini_define_objective_plain(
+    print(gemini_define_objective(
         goal_name="Create a Python API for data analysis",
         goal_description="Mastery of Python, being able to create a big Python program that analyses large amounts of data throughly, with strong good practices",
         latest_objective="Write a simple Python script",

@@ -13,8 +13,8 @@ class ObjectiveNote(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     title = Column(String, nullable=False)
-    description = Column(String, nullable=False)
+    info = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
-    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    info_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
 
     objective = relationship("Objective", back_populates="notes")
