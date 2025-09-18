@@ -43,7 +43,7 @@ def get_search_ebooks_prompt(gemini_results_plain_text: str) -> str:
     return f"""    
     You are a helpful assistant that formats text into a JSON object.
     
-    I will pass you search results of ebooks with name, description, language, and link.
+    I will pass you a list of ebooks with name, description, language, and link.
     You will format them into a JSON object.
     
     ## Output
