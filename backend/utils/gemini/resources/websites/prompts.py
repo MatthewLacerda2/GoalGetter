@@ -10,7 +10,8 @@ def get_search_websites_prompt_plain_text(goal_name: str, goal_description: str,
     The user has the current objective '{objective_name}', with the description '{objective_description}'.
     The goal is '{goal_name}', with the description {goal_description}.
     
-    {context_list}    
+    {context_list}
+    
     
     ## Instructions
     
@@ -22,7 +23,8 @@ def get_search_websites_prompt_plain_text(goal_name: str, goal_description: str,
     
     You must look for websites as a whole that teach about the goal or objective. Not a single webpage specific for the objective.
     Just look at the title, description, and a bit of the content if available. If it sounds good and reads well, that's gold.    
-        
+
+
     ## Output
     
     You will return a list of ResourceSearchResultItem. Each item contains the fields:

@@ -33,7 +33,8 @@ def get_define_objective_prompt(goal_name: str, goal_description: str, latest_ob
     - name: The name of the objective
     - description: A detailed description of the objective
     
-    The name MUST be simple, and no more than 12 words.
+    The name is just meant to quickly identify the objective.
+    The name MUST be simple, and no more than 10 words.
     
     The description MUST be detailed
     The description MUST describe only the objective, not it's purpose nor the student.

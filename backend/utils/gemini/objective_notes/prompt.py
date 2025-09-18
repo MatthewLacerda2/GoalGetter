@@ -4,12 +4,11 @@ def get_define_objective_notes_prompt(objective_name: str, objective_description
     ## Context
     
     The user has a recent new objective of '{objective_name}', described as: '{objective_description}'    
-    You are an experienced expert in the user's chosen field, who will acts as an AI-Tutor.
+    You are an experienced expert in the user's chosen field and an AI-Tutor.
     
     
     ## Task
     
-    You are an experienced expert in the user's chosen field.
     You must write some 'nice-to-know' notes about the objective. Things good to know in advance.
     
     These can be things good to know beforehand, common pitfails, advice, and small-but-useful information.

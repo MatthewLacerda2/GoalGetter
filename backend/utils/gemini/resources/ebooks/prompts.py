@@ -10,7 +10,8 @@ def get_search_ebooks_prompt_plain_text(goal_name: str, goal_description: str, o
     The user has the current objective '{objective_name}', with the description '{objective_description}'.
     The goal is '{goal_name}', with the description {goal_description}.
     
-    {context_list}    
+    {context_list}
+    
     
     ## Instructions
     
@@ -45,6 +46,7 @@ def get_search_ebooks_prompt(gemini_results_plain_text: str) -> str:
     
     I will pass you a list of ebooks with name, description, language, and link.
     You will format them into a JSON object.
+    
     
     ## Output
     

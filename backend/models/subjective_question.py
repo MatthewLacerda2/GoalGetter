@@ -4,12 +4,14 @@ from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
+from backend.models.multiple_choice_question import QuestionPurpose
 
 class SubjectiveQuestion(Base):
     __tablename__ = "subjective_questions"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
+    purpose = Column(QuestionPurpose, nullable=False)
     question = Column(String, nullable=False)
     
     student_answer = Column(String, nullable=True, default=None)
