@@ -1,7 +1,6 @@
 from typing import List
 from pydantic import BaseModel
 
-
 class GeminiMultipleChoiceQuestion(BaseModel):
     question: str
     choices: List[str]

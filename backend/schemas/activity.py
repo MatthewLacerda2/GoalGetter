@@ -2,6 +2,7 @@ from typing import List
 from pydantic import BaseModel, ConfigDict
 
 class MultipleChoiceQuestionResponse(BaseModel):
+    id: str
     question: str
     choices: List[str]
     correct_answer_index: int
@@ -12,7 +13,7 @@ class MultipleChoiceActivityResponse(BaseModel):
     questions: List[MultipleChoiceQuestionResponse]
 
 class MultipleChoiceQuestionAnswer(BaseModel):
-    question_id: str
+    id: str
     student_answer_index: int
     seconds_spent: int
 

@@ -37,3 +37,4 @@ def mock_gemini_embeddings():
 
     with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
         yield mock
+

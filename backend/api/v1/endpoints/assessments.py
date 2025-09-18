@@ -8,8 +8,8 @@ from backend.core.database import get_db
 from backend.models.student import Student
 from backend.models.objective import Objective
 from backend.core.security import get_current_user
-from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
 from backend.models.subjective_question import SubjectiveQuestion
+from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ async def take_subjective_questions_assessment(
     result = await db.execute(stmt)
     subjective_question_results = result.scalars().all()
     
-    if subjective_question_results:
+    if subjective_question_results and len(subjective_question_results) > 5:
         return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in subjective_question_results])
     else:
         #TODO: have the AI create more questions

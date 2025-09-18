@@ -1,16 +1,19 @@
+import logging
+from typing import List
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
 from backend.core.database import get_db
 from backend.models.student import Student
 from backend.models.objective import Objective
 from backend.core.security import get_current_user
+from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
+from backend.models.student_context import StudentContext
 from backend.schemas.activity import MultipleChoiceActivityResponse
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
-from datetime import datetime
+from backend.utils.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
 
 logger = logging.getLogger(__name__)
 
@@ -37,29 +40,43 @@ async def take_multiple_choice_activity(
     result = await db.execute(stmt)
     multiple_choice_question_results = result.scalars().all()
     
-    if multiple_choice_question_results:
+    if multiple_choice_question_results and len(multiple_choice_question_results) > 5:
         return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
     else:
-        #TODO: have the AI create more questions
-        #The right thing to do is to create a service that creates the questions, and then use it here
-                        
-        mcq = MultipleChoiceQuestion(
-            objective_id=objective.id,
-            question="What is the capital of France?",
-            choices=["Paris", "London", "Berlin", "Madrid"],
-            correct_answer_index=0,
-            student_answer_index=None,
-            seconds_spent=None,
-            created_at=datetime.now(),
-            last_updated_at=None
+        
+        stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.last_updated_at.desc()).limit(4)
+        result = await db.execute(stmt)
+        objectives = result.scalars().all()
+        
+        stmt = select(StudentContext).where(StudentContext.student_id == current_user.id, StudentContext.is_still_valid == True).order_by(StudentContext.created_at.desc()).limit(5)
+        result = await db.execute(stmt)
+        student_contexts = result.scalars().all()
+        
+        contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
+        
+        gemini_mc_questions = gemini_generate_multiple_choice_questions(
+            objective.name, objective.description, [o.name for o in objectives], contexts, NUM_QUESTIONS_PER_LESSON
         )
         
-        db.add(mcq)
+        db_mcqs: List[MultipleChoiceQuestion] = []
+        
+        for question in gemini_mc_questions.questions:
+            mcq = MultipleChoiceQuestion(
+                objective_id=objective.id,
+                question=question.question,
+                choices=question.choices,
+                correct_answer_index=question.correct_answer_index,
+            )
+            db.add(mcq)
+            db_mcqs.append(mcq)
+        
         await db.flush()
         await db.commit()
-        await db.refresh(mcq)
+        for mcq in db_mcqs:
+            await db.refresh(mcq)
         
-        return MultipleChoiceActivityResponse(questions=[mcq])
+        return MultipleChoiceActivityResponse(questions=[mcq for mcq in db_mcqs])
+        
 
 #TODO: this is while we figure multiple-question-type activities. Ain't even gonna bother testing
 @router.get("/should_do_activity", response_model=bool)
