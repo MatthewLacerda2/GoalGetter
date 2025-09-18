@@ -27,7 +27,7 @@ def get_search_websites_prompt_plain_text(goal_name: str, goal_description: str,
     
     You will return a list of ResourceSearchResultItem. Each item contains the fields:
     - name: The name of the website available.
-    - description: A short description of the website.
+    - description: A succinct description of the website, in 20 words or less.
     - language: The language of the website
     - link: The website URL
     
@@ -49,8 +49,8 @@ def get_search_websites_prompt(gemini_results_plain_text: str) -> str:
     You will return a list of ResourceSearchResultItem. Each item contains the fields:
     - name: The name of the website available.
     - description: A short description of the website.
-    - language: The language of the website
-    - link: The website URL
+    - language: The language of the website.
+    - link: The website URL.
     
     You will return a list of ResourceSearchResultItem.
     You can just copy the search results as is.

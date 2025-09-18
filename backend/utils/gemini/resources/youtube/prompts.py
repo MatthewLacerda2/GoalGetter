@@ -49,7 +49,7 @@ def get_search_youtube_channels_prompt(gemini_results_plain_text: str) -> str:
     
     You will return a list of ResourceSearchResultItem. Each item contains the fields:
     - name: The name of the Youtube channel available.
-    - description: A short description of the Youtube channel.
+    - description: A description of the Youtube channel, in 20 words or less.
     - language: The language of the Youtube channel
     - link: The Youtube channel URL
     

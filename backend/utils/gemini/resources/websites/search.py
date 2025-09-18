@@ -3,7 +3,7 @@ from typing import List
 from google.genai import types
 from urllib.parse import urljoin, urlparse
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config, get_gemini_config_plain_text
-from backend.utils.gemini.resources.websites.prompt import get_search_websites_prompt, get_search_websites_prompt_plain_text
+from backend.utils.gemini.resources.websites.prompts import get_search_websites_prompt, get_search_websites_prompt_plain_text
 from backend.utils.gemini.resources.schema import ResourceSearchResults, GeminiResourceSearchResults, ResourceSearchResultItem
 
 def search_websites(

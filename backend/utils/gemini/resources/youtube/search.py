@@ -3,7 +3,7 @@ from typing import List
 from google.genai import types
 from urllib.parse import urljoin, urlparse
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config, get_gemini_config_plain_text
-from backend.utils.gemini.resources.youtube.prompt import get_search_youtube_channels_prompt, get_search_youtube_channels_prompt_plain_text
+from backend.utils.gemini.resources.youtube.prompts import get_search_youtube_channels_prompt, get_search_youtube_channels_prompt_plain_text
 from backend.utils.gemini.resources.schema import ResourceSearchResults, GeminiResourceSearchResults, ResourceSearchResultItem
 
 def search_youtube_channels(
