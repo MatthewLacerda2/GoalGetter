@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from typing import Any
 from google.genai import Client
 from google.genai.types import GenerateContentConfig, EmbedContentConfig
-from backend.core.config import settings
 from backend.utils.envs import NUM_DIMENSIONS
 
 logger = logging.getLogger(__name__)

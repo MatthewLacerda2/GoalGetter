@@ -1,36 +1,23 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, Response
-from sqlalchemy import select, desc
-from datetime import datetime
-from typing import Optional
-from typing import List
-import uuid
 import re
-from sqlalchemy.ext.asyncio import AsyncSession
+import uuid
+from typing import List
+from typing import Optional
+from datetime import datetime
+from sqlalchemy import select, desc
+from fastapi import APIRouter, Depends, Query, HTTPException, Response
 from backend.core.database import get_db
-from backend.core.security import get_current_user
 from backend.models.student import Student
+from sqlalchemy.ext.asyncio import AsyncSession
+from backend.core.security import get_current_user
 from backend.models.chat_message import ChatMessage
+from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageRequest, CreateMessageResponse, EditMessageRequest
 
 router = APIRouter()
 
 #TODO: make the AI get context from:
-# - the student's chat history
-# - the student_context
-# - the student's resources
-# - the student's objective, notes and goal
-
-#We must also:
-
-# - generate context as chat goes on
-# - generate the lessons
-    # - Those must have and generate context (metacognition)
-    # - When done, it must:
-        # - generate new context
-        # - generate new objective
-        # - update the student's streak and give XP
-        # - give an award, if applicable
-
+#- the student_context
+#- the student's objective, notes and goal
 
 @router.post("", response_model=CreateMessageResponse, status_code=201)
 async def create_message(
@@ -115,6 +102,8 @@ async def get_chat_messages(
     
     return ChatMessageResponse(messages=messages)
 
+#We only embed AI-generated messages.
+#We put whole array together (for context) and embed it
 @router.patch("/likes", response_model=ChatMessageItem)
 async def like_message(
     request: LikeMessageRequest,
@@ -123,14 +112,26 @@ async def like_message(
 ):
     """Like or remove like of a message for the authenticated user."""
     
-    query = select(ChatMessage).where(ChatMessage.id == request.message_id, ChatMessage.student_id == current_user.id)
-    result = await db.execute(query)
+    stmt = select(ChatMessage).where(ChatMessage.id == request.message_id, ChatMessage.student_id == current_user.id)
+    result = await db.execute(stmt)
     message = result.scalars().first()
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
     message.is_liked = request.like
+    
+    if message.sender_id != message.student_id:
+        
+        stmt = select(ChatMessage).where(ChatMessage.array_id == message.array_id)
+        result = await db.execute(stmt)
+        array = result.scalars().all()
+        
+        full_text = "\n".join([msg.message for msg in array])
+        full_text_embedding = get_gemini_embeddings(full_text)
+        
+        message.message_embedding = full_text_embedding
+    
     await db.commit()
     
     return ChatMessageItem.model_validate(message)
