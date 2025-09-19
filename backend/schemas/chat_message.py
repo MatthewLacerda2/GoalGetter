@@ -11,6 +11,9 @@ class ChatMessageItem(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
+class ChatMessageItensList(BaseModel):
+    messages: List[ChatMessageItem]
+
 class ChatMessageResponse(BaseModel):
     messages: List[ChatMessageItem]
     

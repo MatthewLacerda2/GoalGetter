@@ -8,8 +8,6 @@ from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
 from backend.services.gemini.schema import ChatMessageWithGemini
 
-#Messages are generated in List[str] and displayed separately
-#This makes them seem more natural
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
