@@ -6,6 +6,7 @@ from pgvector.sqlalchemy import Vector
 
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
+from backend.services.gemini.schema import ChatMessageWithGemini
 
 #Messages are generated in List[str] and displayed separately
 #This makes them seem more natural
@@ -23,3 +24,14 @@ class ChatMessage(Base):
     message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="chat_messages")
+    
+    def to_gemini_message(self) -> ChatMessageWithGemini:
+        """Convert ChatMessage to ChatMessageWithGemini format"""
+        role = "user" if self.student_id == self.sender_id else "assistant"
+        time_str = self.created_at.strftime("%H:%M:%S")
+        
+        return ChatMessageWithGemini(
+            message=self.message,
+            role=role,
+            time=time_str
+        )
