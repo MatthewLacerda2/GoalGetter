@@ -31,15 +31,17 @@ async def create_message(
     full_text = ". ".join([m.message for m in request.message])
     full_text_embedding = get_gemini_embeddings(full_text)
     
-    items: List[ChatMessageItem] = [ChatMessageItem(
-        id=str(uuid.uuid4()),
-        array_id=request_array_id,
-        sender_id=current_user.id,
-        message=m.message,
-        is_liked=False,
-        created_at=datetime.now(),
-        message_embedding=full_text_embedding
-    ) for m in request.message]
+    items: List[ChatMessageItem] = [
+        ChatMessageItem(
+            id=str(uuid.uuid4()),
+            array_id=request_array_id,
+            sender_id=current_user.id,
+            message=m.message,
+            is_liked=False,
+            created_at=datetime.now(),
+            message_embedding=full_text_embedding
+        ) for m in request.message
+    ]
     
     stmt = select(ChatMessage).where(
         ChatMessage.student_id == current_user.id,
@@ -48,17 +50,21 @@ async def create_message(
     result = await db.execute(stmt)
     yesterday_messages = result.scalars().all()
     
-    yesterday2gemini = [ChatMessageWithGemini(
-        message=y.message,
-        role="user" if y.sender_id == y.student_id else "assistant",
-        time=y.created_at.strftime("%H:%M:%S")
-    ) for y in yesterday_messages]
+    yesterday2gemini: List[ChatMessageWithGemini] = [
+        ChatMessageWithGemini(
+            message=y.message,
+            role="user" if y.sender_id == y.student_id else "assistant",
+            time=y.created_at.strftime("%H:%M:%S")
+        ) for y in yesterday_messages
+    ]
     
-    items2gemini = [ChatMessageWithGemini(
-        message=m.message,
-        role="user",
-        time=m.created_at.strftime("%H:%M:%S")
-    ) for m in items]
+    items2gemini: List[ChatMessageWithGemini] = yesterday2gemini + [
+        ChatMessageWithGemini(
+            message=m.message,
+            role="user",
+            time=m.created_at.strftime("%H:%M:%S")
+        ) for m in items
+    ]
     
     stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.created_at.desc()).limit(1)
     result = await db.execute(stmt)
@@ -75,25 +81,29 @@ async def create_message(
     result = await db.execute(stmt)
     student_contexts = result.scalars().all()
     
-    context = [StudentContextToChat(
-        state=sc.state,
-        metacognition=sc.metacognition
-    ) for sc in student_contexts]
+    context = [
+        StudentContextToChat(
+            state=sc.state,
+            metacognition=sc.metacognition
+        ) for sc in student_contexts
+    ]
     
     ai_response = gemini_messages_generator(
         items2gemini, context, objective.name, objective.description, current_user.goal_name
     )
     
     array_id = str(uuid.uuid4())
-    ai_chat_messages: List[ChatMessage] = [ChatMessage(
-        id=str(uuid.uuid4()),
-        student_id=current_user.id,
-        sender_id="gemini-2.5-flash",
-        array_id=array_id,
-        message=message,
-        num_tokens=len([w for w in re.split(r"[ \n.,?]", message) if w]),#TODO: improve this
-        is_liked=False
-    ) for message in ai_response.messages]
+    ai_chat_messages: List[ChatMessage] = [
+        ChatMessage(
+            id=str(uuid.uuid4()),
+            student_id=current_user.id,
+            sender_id="gemini-2.5-flash",
+            array_id=array_id,
+            message=message,
+            num_tokens=len([w for w in re.split(r"[ \n.,?]", message) if w]),#TODO: improve this
+            is_liked=False
+        ) for message in ai_response.messages
+    ]
         
     db.add_all(items)
     db.add_all(ai_chat_messages)
@@ -104,13 +114,15 @@ async def create_message(
     db_ai_chat_messages = result.scalars().all()
         
     response = CreateMessageResponse(
-        messages=[ChatMessageItem(
-            id=message.id,
-            sender_id=message.sender_id,
-            message=message.message,
-            created_at=message.created_at,
-            is_liked=message.is_liked
-        ) for message in db_ai_chat_messages]
+        messages=[
+            ChatMessageItem(
+                id=message.id,
+                sender_id=message.sender_id,
+                message=message.message,
+                created_at=message.created_at,
+                is_liked=message.is_liked
+            ) for message in db_ai_chat_messages
+        ]
     )
     
     return response
