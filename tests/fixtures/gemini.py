@@ -61,3 +61,15 @@ def mock_gemini_multiple_choice_questions():
     
     with patch('backend.api.v1.endpoints.activities.gemini_generate_multiple_choice_questions', side_effect=mock_generate_multiple_choice_questions) as mock:
         yield mock
+
+@pytest.fixture
+def mock_gemini_subjective_questions():
+    """Fixture to mock Gemini subjective questions responses"""
+    def mock_generate_subjective_questions(*args, **kwargs):
+        from backend.utils.gemini.assessment.assessment import GeminiEvaluationQuestionsList
+        
+        return GeminiEvaluationQuestionsList(
+            questions=["What is the capital of Germany?", "What is the capital of the Netherlands?", "What is the capital of Italy?"]
+        )
+    with patch('backend.api.v1.endpoints.assessments.gemini_generate_subjective_questions', side_effect=mock_generate_subjective_questions) as mock:
+        yield mock

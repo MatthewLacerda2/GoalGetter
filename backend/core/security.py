@@ -10,6 +10,7 @@ from backend.models.student import Student
 from sqlalchemy import select
 import logging
 from backend.utils.envs import JWT_ISSUER, JWT_AUDIENCE, GOOGLE_CLIENT_ID
+from sqlalchemy.orm import selectinload
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +116,7 @@ async def get_current_user(
                 detail=f"Invalid token payload"
             )
             
-        stmt = select(Student).where(Student.id == user_id)
+        stmt = select(Student).options(selectinload(Student.goal)).where(Student.id == user_id)
         result = await db.execute(stmt)
         user = result.scalar_one_or_none()
         

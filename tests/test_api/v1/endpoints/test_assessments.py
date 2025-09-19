@@ -1,8 +1,9 @@
 import pytest
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
+from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
 
 @pytest.mark.asyncio
-async def test_take_subjective_questions_assessment_success(authenticated_client_with_objective):
+async def test_take_subjective_questions_assessment_success(authenticated_client_with_objective, mock_gemini_subjective_questions):
     """Test that the assessment endpoint returns a valid response for a user with a goal."""
     
     client, access_token = authenticated_client_with_objective
@@ -16,6 +17,7 @@ async def test_take_subjective_questions_assessment_success(authenticated_client
     
     assessment_response = SubjectiveQuestionsAssessmentResponse.model_validate(response.json())
     assert isinstance(assessment_response, SubjectiveQuestionsAssessmentResponse)
+    assert len(assessment_response.questions) >= NUM_QUESTIONS_PER_EVALUATION
 
 @pytest.mark.asyncio
 async def test_take_subjective_questions_assessment_unauthorized(client):

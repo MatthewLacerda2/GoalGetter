@@ -35,12 +35,23 @@ async def take_subjective_questions_assessment(
     if not objective:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User did not finish the onboarding and does not have an objective.")
     
+    stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id, SubjectiveQuestion.llm_approval == False)
+    result = await db.execute(stmt)
+    not_approved_question_results = result.scalars().all()
+    
+    for question in not_approved_question_results:
+        sq = SubjectiveQuestion(
+            objective_id=objective.id,
+            question=question.question,
+        )
+        db.add(sq)
+    
     stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id, SubjectiveQuestion.student_answer == None)
     result = await db.execute(stmt)
-    subjective_question_results = result.scalars().all()
+    unanswered_question_results = result.scalars().all()
     
-    if subjective_question_results and len(subjective_question_results) > 5:
-        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in subjective_question_results])
+    if unanswered_question_results and len(unanswered_question_results) > 5:
+        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in unanswered_question_results])
     else:
         
         gemini_sq_questions = gemini_generate_subjective_questions(
