@@ -51,7 +51,7 @@ def gemini_search_ebooks_plain_text(
 def gemini_search_ebooks(gemini_results_plain_text: str) -> GeminiResourceSearchResults:
     
     client = get_client()
-    model = "gemini-2.5-pro"
+    model = "gemini-2.5-flash"
     full_prompt = get_search_ebooks_prompt(gemini_results_plain_text)
     config = get_gemini_config(GeminiResourceSearchResults.model_json_schema())
     

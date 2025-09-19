@@ -86,7 +86,7 @@ async def take_multiple_choice_activity(
         return MultipleChoiceActivityResponse(questions=[mcq for mcq in db_mcqs])
         
 
-#TODO: this is while we figure multiple-question-type activities. Ain't even gonna bother testing
+#FIXME: this is while we figure multiple-question-type activities. Ain't even gonna bother testing
 @router.get("/should_do_activity", response_model=bool)
 async def has_multiple_choice_activity(
     db: AsyncSession = Depends(get_db),

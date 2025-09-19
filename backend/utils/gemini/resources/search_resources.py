@@ -3,7 +3,7 @@ from backend.utils.gemini.resources.schema import ResourceSearchResults, Resourc
 from backend.utils.gemini.resources.ebooks.search import search_ebooks
 from backend.utils.gemini.resources.websites.search import search_websites
 from backend.utils.gemini.resources.youtube.search import search_youtube_channels
-
+#TODO: this is not being used
 def search_resources(
     goal_name: str, goal_description: str, objective_name: str, objective_description: str, student_context: list[str] | None
 ) -> ResourceSearchResults:

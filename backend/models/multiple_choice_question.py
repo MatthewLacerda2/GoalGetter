@@ -3,6 +3,13 @@ from sqlalchemy import Column, String, ForeignKey, Integer, JSON, DateTime
 from datetime import datetime
 import uuid
 from backend.models.base import Base
+from enum import Enum
+
+#TODO: use it
+class QuestionPurpose(Enum):
+    TEACH = "teach"
+    EVALUATE = "evaluate"
+    THOUGHT_PROVOKE = "thought_provoke"    
 
 class MultipleChoiceQuestion(Base):
     __tablename__ = "multiple_choice_questions"
