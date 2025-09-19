@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Depends, status
@@ -8,8 +9,10 @@ from backend.core.database import get_db
 from backend.models.student import Student
 from backend.models.objective import Objective
 from backend.core.security import get_current_user
+from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
 from backend.models.subjective_question import SubjectiveQuestion
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
+from backend.utils.gemini.assessment.assessment import gemini_generate_subjective_questions
 
 logger = logging.getLogger(__name__)
 
@@ -39,17 +42,24 @@ async def take_subjective_questions_assessment(
     if subjective_question_results and len(subjective_question_results) > 5:
         return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in subjective_question_results])
     else:
-        #TODO: have the AI create more questions
-        #The right thing to do is to create a service that creates the questions, and then use it here
-                        
-        sq = SubjectiveQuestion(
-            objective_id=objective.id,
-            question="What is the capital of France?",
+        
+        gemini_sq_questions = gemini_generate_subjective_questions(
+            objective.name, objective.description, current_user.goal.name, NUM_QUESTIONS_PER_EVALUATION
         )
         
-        db.add(sq)
+        db_sqs: List[SubjectiveQuestion] = []
+        
+        for question in gemini_sq_questions.questions:
+            sq = SubjectiveQuestion(
+                objective_id=objective.id,
+                question=question,
+            )
+            db.add(sq)
+            db_sqs.append(sq)
+        
         await db.flush()
         await db.commit()
-        await db.refresh(sq)
+        for sq in db_sqs:
+            await db.refresh(sq)
         
-        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question])
+        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in db_sqs])
