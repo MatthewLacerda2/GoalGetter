@@ -18,6 +18,16 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+async def get_unanswered_or_wrong_questions(db: AsyncSession, objective_id: str):
+    unanswered = SubjectiveQuestion.student_answer == None
+    wrong = SubjectiveQuestion.llm_approval == False
+    stmt = select(SubjectiveQuestion).where(
+        SubjectiveQuestion.objective_id == objective_id,
+        unanswered | wrong
+    ).limit(NUM_QUESTIONS_PER_EVALUATION)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
 @router.post("", response_model=SubjectiveQuestionsAssessmentResponse, status_code=status.HTTP_201_CREATED)
 async def take_subjective_questions_assessment(
     db: AsyncSession = Depends(get_db),
@@ -34,31 +44,16 @@ async def take_subjective_questions_assessment(
     
     if not objective:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User did not finish the onboarding and does not have an objective.")
+
+    subjective_question_results = await get_unanswered_or_wrong_questions(db, objective.id)
     
-    stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id, SubjectiveQuestion.llm_approval == False)
-    result = await db.execute(stmt)
-    not_approved_question_results = result.scalars().all()
-    
-    for question in not_approved_question_results:
-        sq = SubjectiveQuestion(
-            objective_id=objective.id,
-            question=question.question,
-        )
-        db.add(sq)
-    
-    stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id, SubjectiveQuestion.student_answer == None)
-    result = await db.execute(stmt)
-    unanswered_question_results = result.scalars().all()
-    
-    if unanswered_question_results and len(unanswered_question_results) > 5:
-        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in unanswered_question_results])
+    if len(subjective_question_results) > 5:
+        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in subjective_question_results])
     else:
         
         gemini_sq_questions = gemini_generate_subjective_questions(
             objective.name, objective.description, current_user.goal.name, NUM_QUESTIONS_PER_EVALUATION
         )
-        
-        db_sqs: List[SubjectiveQuestion] = []
         
         for question in gemini_sq_questions.questions:
             sq = SubjectiveQuestion(
@@ -66,11 +61,12 @@ async def take_subjective_questions_assessment(
                 question=question,
             )
             db.add(sq)
-            db_sqs.append(sq)
         
         await db.flush()
         await db.commit()
-        for sq in db_sqs:
-            await db.refresh(sq)
+        
+        stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id)
+        result = await db.execute(stmt)
+        db_sqs = result.scalars().all()
         
         return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in db_sqs])

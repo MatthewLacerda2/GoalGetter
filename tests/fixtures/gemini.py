@@ -66,10 +66,13 @@ def mock_gemini_multiple_choice_questions():
 def mock_gemini_subjective_questions():
     """Fixture to mock Gemini subjective questions responses"""
     def mock_generate_subjective_questions(*args, **kwargs):
+        from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
         from backend.utils.gemini.assessment.assessment import GeminiEvaluationQuestionsList
         
+        questions = [f"Question {i+1}" for i in range(NUM_QUESTIONS_PER_EVALUATION)]
+        
         return GeminiEvaluationQuestionsList(
-            questions=["What is the capital of Germany?", "What is the capital of the Netherlands?", "What is the capital of Italy?"]
+            questions=questions
         )
     with patch('backend.api.v1.endpoints.assessments.gemini_generate_subjective_questions', side_effect=mock_generate_subjective_questions) as mock:
         yield mock
