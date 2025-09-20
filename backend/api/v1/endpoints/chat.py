@@ -105,15 +105,13 @@ async def create_message(
             is_liked=False,
             message_embedding=full_ai_text_embedding
         ) for message in ai_response.messages
-    ]    
-        
-    # Replace direct db operations with repository methods
+    ]
+
     await chat_repo.create_many(items)
     await chat_repo.create_many(ai_chat_messages)
     
     await db.commit()
     
-    # Replace direct db operations with repository methods
     for message in ai_chat_messages:
         await db.refresh(message)
     

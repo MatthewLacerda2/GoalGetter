@@ -16,7 +16,7 @@ class ChatMessage(Base):
     array_id = Column(String(36), nullable=True, unique=False)
     message = Column(String, nullable=False)
     num_tokens = Column(Integer, nullable=True)
-    is_liked = Column(Boolean, nullable=False, default=False)   #TODO: if an user likes the message, embed it!
+    is_liked = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
