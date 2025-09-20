@@ -15,7 +15,8 @@ from backend.models.student_context import StudentContext
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.services.gemini.messages_generator import gemini_messages_generator
 from backend.services.gemini.schema import ChatMessageWithGemini, StudentContextToChat
-from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageRequest, CreateMessageResponse, EditMessageRequest
+from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, CreateMessageRequest, CreateMessageResponse, ChatMessageResponseItem
+from backend.schemas.chat_message import LikeMessageRequest, EditMessageRequest, ChatMessageResponseItem
 
 router = APIRouter()
 
@@ -28,19 +29,20 @@ async def create_message(
     """Create a new chat message for the authenticated user."""
     
     request_array_id = str(uuid.uuid4())
-    full_text = ". ".join([m.message for m in request.message])
+    full_text = ". ".join([m.message for m in request.messages_list])
     full_text_embedding = get_gemini_embeddings(full_text)
     
-    items: List[ChatMessageItem] = [
-        ChatMessageItem(
+    items: List[ChatMessage] = [
+        ChatMessage(
             id=str(uuid.uuid4()),
-            array_id=request_array_id,
+            student_id=current_user.id,
             sender_id=current_user.id,
+            array_id=request_array_id,
             message=m.message,
             is_liked=False,
-            created_at=datetime.now(),
+            created_at=m.datetime,
             message_embedding=full_text_embedding
-        ) for m in request.message
+        ) for m in request.messages_list
     ]
     
     stmt = select(ChatMessage).where(
@@ -73,10 +75,10 @@ async def create_message(
     stmt = select(StudentContext).where(
         StudentContext.objective_id == objective.id,
         StudentContext.is_still_valid == True,
-        StudentContext.state_embedding.cosine_similarity(full_text_embedding) > 0.8
+        #StudentContext.state_embedding.cosine_distance(full_text_embedding) < 0.2
     ).order_by(
         StudentContext.created_at.desc(),
-        StudentContext.state_embedding.cosine_similarity(full_text_embedding).desc()
+        #StudentContext.state_embedding.cosine_distance(full_text_embedding).desc()
     ).limit(8)
     result = await db.execute(stmt)
     student_contexts = result.scalars().all()
@@ -92,6 +94,9 @@ async def create_message(
         items2gemini, context, objective.name, objective.description, current_user.goal_name
     )
     
+    full_ai_text = ". ".join([m for m in ai_response.messages])
+    full_ai_text_embedding = get_gemini_embeddings(full_ai_text)
+    
     array_id = str(uuid.uuid4())
     ai_chat_messages: List[ChatMessage] = [
         ChatMessage(
@@ -100,28 +105,30 @@ async def create_message(
             sender_id="gemini-2.5-flash",
             array_id=array_id,
             message=message,
-            num_tokens=len([w for w in re.split(r"[ \n.,?]", message) if w]),#TODO: improve this
-            is_liked=False
+            num_tokens=len([w for w in re.split(r"[ \n.,?]", message) if w]),   #TODO: improve this
+            is_liked=False,
+            message_embedding=full_ai_text_embedding
         ) for message in ai_response.messages
-    ]
+    ]    
         
     db.add_all(items)
     db.add_all(ai_chat_messages)
+    await db.flush()
+
+    for message in ai_chat_messages:
+        await db.refresh(message)
+    
     await db.commit()
     
-    stmt = select(ChatMessage).where(ChatMessage.array_id == array_id).order_by(ChatMessage.created_at)
-    result = await db.execute(stmt)
-    db_ai_chat_messages = result.scalars().all()
-        
     response = CreateMessageResponse(
         messages=[
-            ChatMessageItem(
+            ChatMessageResponseItem(
                 id=message.id,
                 sender_id=message.sender_id,
                 message=message.message,
                 created_at=message.created_at,
                 is_liked=message.is_liked
-            ) for message in db_ai_chat_messages
+            ) for message in ai_chat_messages
         ]
     )
     
@@ -174,17 +181,6 @@ async def like_message(
         raise HTTPException(status_code=404, detail="Message not found")
     
     message.is_liked = request.like
-    
-    if message.sender_id != message.student_id:
-        
-        stmt = select(ChatMessage).where(ChatMessage.array_id == message.array_id)
-        result = await db.execute(stmt)
-        array = result.scalars().all()
-        
-        full_text = "\n".join([msg.message for msg in array])
-        full_text_embedding = get_gemini_embeddings(full_text)
-        
-        message.message_embedding = full_text_embedding
     
     await db.commit()
     

@@ -1,9 +1,8 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Boolean, Integer, ForeignKey
-from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
-
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, DateTime, Boolean, Integer, ForeignKey
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
 from backend.services.gemini.schema import ChatMessageWithGemini
