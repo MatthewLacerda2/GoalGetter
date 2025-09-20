@@ -42,7 +42,7 @@ def mock_gemini_embeddings():
 def mock_gemini_multiple_choice_questions():
     """Fixture to mock Gemini multiple choice questions responses"""
     def mock_generate_multiple_choice_questions(*args, **kwargs):
-        from backend.utils.gemini.activity.schema import GeminiMultipleChoiceQuestionsList, GeminiMultipleChoiceQuestion
+        from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsList, GeminiMultipleChoiceQuestion
         
         return GeminiMultipleChoiceQuestionsList(
             questions=[
@@ -67,7 +67,7 @@ def mock_gemini_subjective_questions():
     """Fixture to mock Gemini subjective questions responses"""
     def mock_generate_subjective_questions(*args, **kwargs):
         from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
-        from backend.utils.gemini.assessment.assessment import GeminiEvaluationQuestionsList
+        from backend.services.gemini.assessment.assessment import GeminiEvaluationQuestionsList
         
         questions = [f"Question {i+1}" for i in range(NUM_QUESTIONS_PER_EVALUATION)]
         

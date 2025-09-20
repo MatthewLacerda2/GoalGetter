@@ -75,7 +75,10 @@ Here is the study guide's format:
 - Goal Description: Define and explain the goal succinctly
 - First Objective: The immediate next step for this user towards the goal
 - First Objective Description: Explain what is the objective about
-- Milestones: The milestones of the first objective
+- Milestones: The main milestones to the goal.
+
+The milestones must start with the first objective. 4 to 8 milestones.
+Write what are the milestones. Don't explain them. Be short and concise.
 
 Keep it concise and to the point.
 The study guide must be in the language of the user's request, questions and answers.

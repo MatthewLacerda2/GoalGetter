@@ -1,6 +1,6 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.utils.gemini.objective_notes.schema import GeminiObjectiveNotesList
-from backend.utils.gemini.objective_notes.prompt import get_define_objective_notes_prompt
+from backend.services.gemini.objective_notes.schema import GeminiObjectiveNotesList
+from backend.services.gemini.objective_notes.prompt import get_define_objective_notes_prompt
 
 def gemini_define_objective_notes(
     objective_name: str, objective_description: str

@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.utils.gemini.assessment.prompt import generate_subjective_questions_prompt
+from backend.services.gemini.assessment.prompt import generate_subjective_questions_prompt
 
 class GeminiEvaluationQuestionsList(BaseModel):
     questions: List[str]

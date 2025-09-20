@@ -1,8 +1,8 @@
 from typing import List
-from backend.utils.gemini.resources.schema import ResourceSearchResults, ResourceSearchResultItem
-from backend.utils.gemini.resources.ebooks.search import search_ebooks
-from backend.utils.gemini.resources.websites.search import search_websites
-from backend.utils.gemini.resources.youtube.search import search_youtube_channels
+from backend.services.gemini.resources.ebooks.search import search_ebooks
+from backend.services.gemini.resources.websites.search import search_websites
+from backend.services.gemini.resources.youtube.search import search_youtube_channels
+from backend.services.gemini.resources.schema import ResourceSearchResults, ResourceSearchResultItem
 #TODO: this is not being used
 def search_resources(
     goal_name: str, goal_description: str, objective_name: str, objective_description: str, student_context: list[str] | None

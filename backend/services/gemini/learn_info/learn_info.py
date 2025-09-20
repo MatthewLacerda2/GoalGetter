@@ -1,6 +1,6 @@
-from backend.utils.gemini.learn_info.schema import GeminiLearnInfo
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.utils.gemini.learn_info.prompt import get_generate_learn_info_prompt
+from backend.services.gemini.learn_info.schema import GeminiLearnInfo
+from backend.services.gemini.learn_info.prompt import get_generate_learn_info_prompt
 
 def gemini_define_learn_info(
     objective_name: str, objective_description: str, informations: list[str]

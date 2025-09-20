@@ -7,10 +7,9 @@
 
 ## Investigate
 
-If what he wants is impossible/forbidden, kick him off right away
+If what he wants is impossible/forbidden, kick him to the curb
 
 - Why does the user wanna learn?
-- Assume he doesn't even understand what he/she wants
 
 ## Propose
 
@@ -18,7 +17,7 @@ If what he wants is impossible/forbidden, kick him off right away
 
 If he clicks 'no':
 - Say 'oh no, how sad'
-- Then send him back to the start
+- Restart
 
 If he clicks 'yes':
 - Save the goal, objective, context
@@ -30,23 +29,17 @@ If he clicks 'yes':
 # UX
 
 - User clicks 'lets do lesson'
-    - He does lesson/assessment. We store info as he does it, accordingly
+    - We store info as he does it, accordingly
 
     - At the end of it we:
         - Generate more context and info, accordingly
         - Track progress
-
-    - If that was a lesson, is the user showing mastery of the objective?
-        - If no, generate more lesson
-        - If yes, generate assessment
-    - If that was an assessment, did the user show he indeed mastered the objective?
-        - If no, generate more lesson
-        - If yes, generate new objective
+        
+        By how much the user gets right, and how well, we define their progress
 - - - - -
 
 # How to generate an objective:
+Use the context to:
 
-- Generate name, notes, lesson, info and context
-- Update Resources, given context
-    - Search for new
-    - Disable stale ones
+- Generate name, notes, lessons, info
+- Enable/Disable and search new resources

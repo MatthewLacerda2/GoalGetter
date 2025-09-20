@@ -6,14 +6,14 @@ from fastapi import Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
-from backend.models.student import Student
-from backend.models.objective import Objective
 from backend.core.security import get_current_user
 from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
-from backend.models.student_context import StudentContext
 from backend.schemas.activity import MultipleChoiceActivityResponse
+from backend.models.student import Student
+from backend.models.objective import Objective
+from backend.models.student_context import StudentContext
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
-from backend.utils.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
+from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
 
 logger = logging.getLogger(__name__)
 

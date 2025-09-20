@@ -1,6 +1,6 @@
-from backend.utils.gemini.objective.schema import GeminiObjective
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.utils.gemini.objective.prompt import get_define_objective_prompt
+from backend.services.gemini.objective.schema import GeminiObjective
+from backend.services.gemini.objective.prompt import get_define_objective_prompt
 
 def gemini_define_objective(
     goal_name: str, goal_description: str, latest_objective: str, latest_objective_description: str, student_context: list[str]

@@ -6,13 +6,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from backend.core.database import get_db
-from backend.models.student import Student
-from backend.models.objective import Objective
 from backend.core.security import get_current_user
 from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
+from backend.models.student import Student
+from backend.models.objective import Objective
 from backend.models.subjective_question import SubjectiveQuestion
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
-from backend.utils.gemini.assessment.assessment import gemini_generate_subjective_questions
+from backend.services.gemini.assessment.assessment import gemini_generate_subjective_questions
 
 logger = logging.getLogger(__name__)
 

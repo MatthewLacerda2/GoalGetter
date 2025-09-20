@@ -3,8 +3,8 @@ from typing import List
 from google.genai import types
 from urllib.parse import urljoin, urlparse
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config, get_gemini_config_plain_text
-from backend.utils.gemini.resources.youtube.prompts import get_search_youtube_channels_prompt, get_search_youtube_channels_prompt_plain_text
-from backend.utils.gemini.resources.schema import ResourceSearchResults, GeminiResourceSearchResults, ResourceSearchResultItem
+from backend.services.gemini.resources.schema import ResourceSearchResults, GeminiResourceSearchResults, ResourceSearchResultItem
+from backend.services.gemini.resources.youtube.prompts import get_search_youtube_channels_prompt, get_search_youtube_channels_prompt_plain_text
 
 def search_youtube_channels(
     goal_name: str, goal_description: str, objective_name: str, objective_description: str, student_context: list[str] | None

@@ -1,5 +1,5 @@
-from backend.utils.gemini.resources.youtube.search import search_youtube_channels
-from backend.utils.gemini.resources.schema import ResourceSearchResults
+from backend.services.gemini.resources.schema import ResourceSearchResults
+from backend.services.gemini.resources.youtube.search import search_youtube_channels
 
 #You can call this test with
 #python -m backend.utils.gemini.resources.test_youtube

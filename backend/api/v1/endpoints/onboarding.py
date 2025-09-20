@@ -9,7 +9,7 @@ from backend.core.security import get_current_user
 from backend.schemas.student import StudentCurrentStatusResponse
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
-from backend.utils.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
+from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
 
 router = APIRouter()
 

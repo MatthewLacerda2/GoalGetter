@@ -1,6 +1,6 @@
-from backend.utils.gemini.activity.schema import GeminiMultipleChoiceQuestionsList
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.utils.gemini.activity.prompt import generate_multiple_choice_questions_prompt
+from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsList
+from backend.services.gemini.activity.prompt import generate_multiple_choice_questions_prompt
 
 def gemini_generate_multiple_choice_questions(
     objective_name: str, objective_description: str, previous_objectives: list[str], informations: list[str], num_questions: int
