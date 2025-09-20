@@ -1,16 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from backend.models.student import Student
-from backend.models.player_achievement import PlayerAchievement
-from backend.schemas.player_achievements import PlayerAchievementResponse
+from backend.core.security import get_current_user
 from backend.models.achievement import Achievement
-from backend.schemas.player_achievements import PlayerAchievementItem
+from backend.models.player_achievement import PlayerAchievement
+from backend.schemas.player_achievements import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse
 
 router = APIRouter()
-
-#TODO: missing progress and leaderboard
 
 @router.get("/{student_id}", response_model=PlayerAchievementResponse)
 async def get_achievements(
@@ -47,3 +45,14 @@ async def get_achievements(
     achievements.sort(key=lambda x: x.achieved_at, reverse=True)
 
     return PlayerAchievementResponse(achievements=achievements)
+
+@router.get("/leaderboard", response_model=LeaderboardResponse)
+async def get_leaderboard(
+    db: AsyncSession = Depends(get_db),
+    current_user: Student = Depends(get_current_user)
+):
+    """Get the leaderboard for the week"""
+    
+    pass
+
+#TODO: we'll need the XP for the last 30 days

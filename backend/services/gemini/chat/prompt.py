@@ -1,5 +1,5 @@
 from typing import List
-from backend.services.gemini.schema import StudentContextToChat
+from backend.services.gemini.chat.schema import StudentContextToChat
 
 def chat_system_prompt(objective_name: str, objective_description: str, goal_name: str, contexts: List[StudentContextToChat]) -> str:
     

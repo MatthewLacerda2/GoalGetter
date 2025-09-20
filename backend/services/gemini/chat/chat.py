@@ -1,7 +1,6 @@
-from backend.services.gemini.prompt import chat_system_prompt
-from backend.services.gemini.schema import StudentContextToChat
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.services.gemini.schema import ChatMessageWithGemini, GeminiChatResponse
+from backend.services.gemini.chat.prompt import chat_system_prompt
+from backend.services.gemini.chat.schema import StudentContextToChat, ChatMessageWithGemini, GeminiChatResponse
 
 def gemini_messages_generator(
     messages: list[ChatMessageWithGemini], contexts: list[StudentContextToChat], objective_name: str, objective_description: str, goal_name: str

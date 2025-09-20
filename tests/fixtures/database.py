@@ -1,9 +1,7 @@
-import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from backend.models.base import Base
-from backend.core.database import get_db
 
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
