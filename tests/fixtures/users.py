@@ -43,6 +43,8 @@ async def test_user_with_objective(test_user, test_db):
         description="Learn variables, data types, control structures, and functions in Python",
     )
     test_db.add(objective)
+    test_user.current_objective_id = objective.id
+    test_user.current_objective_name = objective.name
     await test_db.flush()
     
     await test_db.commit()

@@ -43,41 +43,47 @@ class StudentRepository(BaseRepository[Student]):
     async def get_leaderboard_around_user(self, user_id: str, limit: int = 10) -> Tuple[Optional[Student], List[Student]]:
         """
         Get the current user and 10 users above and below their XP level.
+        Only includes users who have completed onboarding (have objectives).
         Returns a tuple of (current_user, leaderboard_users)
         """
-        # First, get the current user with their goal information
+        # First, get the current user with their goal and current_objective information
         current_user_stmt = select(Student).options(
-            selectinload(Student.goal)
+            selectinload(Student.goal),
+            selectinload(Student.current_objective)
         ).where(Student.id == user_id)
         
         current_user_result = await self.db.execute(current_user_stmt)
         current_user = current_user_result.scalar_one_or_none()
         
-        if not current_user:
+        if not current_user or not current_user.current_objective_id:
             return None, []
         
         current_xp = current_user.overall_xp
         
-        # Get users with higher XP (above current user)
+        # Get users with higher XP (above current user) - only those with objectives
         above_stmt = select(Student).options(
-            selectinload(Student.goal)
+            selectinload(Student.goal),
+            selectinload(Student.current_objective)
         ).where(
             and_(
                 Student.overall_xp > current_xp,
-                Student.id != user_id
+                Student.id != user_id,
+                Student.current_objective_id.isnot(None)  # Only users with objectives
             )
         ).order_by(asc(Student.overall_xp)).limit(limit)
         
         above_result = await self.db.execute(above_stmt)
         users_above = above_result.scalars().all()
         
-        # Get users with lower XP (below current user)
+        # Get users with lower XP (below current user) - only those with objectives
         below_stmt = select(Student).options(
-            selectinload(Student.goal)
+            selectinload(Student.goal),
+            selectinload(Student.current_objective)
         ).where(
             and_(
                 Student.overall_xp < current_xp,
-                Student.id != user_id
+                Student.id != user_id,
+                Student.current_objective_id.isnot(None)  # Only users with objectives
             )
         ).order_by(desc(Student.overall_xp)).limit(limit)
         

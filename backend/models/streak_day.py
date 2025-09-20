@@ -1,7 +1,7 @@
 import uuid
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from backend.models.base import Base
-from sqlalchemy.orm import relationship
 
 class StreakDay(Base):
     __tablename__ = "streak_days"

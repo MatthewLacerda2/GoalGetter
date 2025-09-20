@@ -17,9 +17,12 @@ class Student(Base):
     last_login = Column(DateTime, nullable=False, default=datetime.now())
     current_streak = Column(Integer, nullable=False, default=0)
     longest_streak = Column(Integer, nullable=False, default=0)
+    current_objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=True, default=None)
+    current_objective_name = Column(String, nullable=True, default=None)
     overall_xp = Column(Integer, nullable=False, default=0)
     
     goal = relationship("Goal", back_populates="student", uselist=False)
+    current_objective = relationship("Objective", back_populates="student", uselist=False)
     streak_days = relationship("StreakDay", back_populates="student", uselist=False)
     chat_messages = relationship("ChatMessage", back_populates="student")
     achievements = relationship("PlayerAchievement", back_populates="student")

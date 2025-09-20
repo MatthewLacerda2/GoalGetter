@@ -12,6 +12,35 @@ from backend.schemas.player_achievements import PlayerAchievementResponse, Playe
 
 router = APIRouter()
 
+@router.get("/leaderboard", response_model=LeaderboardResponse)
+async def get_leaderboard(
+    db: AsyncSession = Depends(get_db),
+    current_user: Student = Depends(get_current_user)
+):
+    """Get the leaderboard around the current user's XP level"""
+    
+    student_repo = StudentRepository(db)
+    
+    current_user_with_goal, leaderboard_users = await student_repo.get_leaderboard_around_user(
+        current_user.id,
+        limit=10
+    )
+    
+    if not current_user_with_goal:
+        raise HTTPException(status_code=404, detail="User did not finish the onboarding and does not have an objective.")
+    
+    leaderboard_items: List[LeaderboardItem] = []
+    for student in leaderboard_users:
+        # Handle case where student doesn't have an objective yet
+        objective_name = student.current_objective.name
+        leaderboard_items.append(LeaderboardItem(
+            name=student.name,
+            objective=objective_name,
+            xp=student.overall_xp
+        ))
+    
+    return LeaderboardResponse(students=leaderboard_items)
+
 @router.get("/{student_id}", response_model=PlayerAchievementResponse)
 async def get_achievements(
     student_id: str,
@@ -47,34 +76,5 @@ async def get_achievements(
     achievements.sort(key=lambda x: x.achieved_at, reverse=True)
 
     return PlayerAchievementResponse(achievements=achievements)
-
-#TODO: change it to xp 'this week'
-@router.get("/leaderboard", response_model=LeaderboardResponse)
-async def get_leaderboard(
-    db: AsyncSession = Depends(get_db),
-    current_user: Student = Depends(get_current_user)
-):
-    """Get the leaderboard around the current user's XP level"""
-    
-    student_repo = StudentRepository(db)
-    
-    current_user_with_goal, leaderboard_users = await student_repo.get_leaderboard_around_user(
-        current_user.id, 
-        limit=10
-    )
-    
-    if not current_user_with_goal:
-        raise HTTPException(status_code=404, detail="User did not finish the onboarding and does not have an objective.")
-    
-    leaderboard_items: List[LeaderboardItem] = []
-    for student in leaderboard_users:
-        objective_name = student.goal.name  #TODO: query for the user's objective
-        leaderboard_items.append(LeaderboardItem(
-            name=student.name,
-            objective=objective_name,
-            xp=student.overall_xp
-        ))
-    
-    return LeaderboardResponse(students=leaderboard_items)
 
 #TODO: we'll need the XP for the last 30 days

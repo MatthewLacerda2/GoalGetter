@@ -84,26 +84,3 @@ async def take_multiple_choice_activity(
             await db.refresh(mcq)
         
         return MultipleChoiceActivityResponse(questions=[mcq for mcq in db_mcqs])
-        
-
-#FIXME: this is while we figure multiple-question-type activities. Ain't even gonna bother testing
-@router.get("/should_do_activity", response_model=bool)
-async def has_multiple_choice_activity(
-    db: AsyncSession = Depends(get_db),
-    current_user: Student = Depends(get_current_user)
-):
-    """
-    Check if the current user has a multiple choice activity.
-    """
-    stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.last_updated_at.desc()).limit(1)
-    result = await db.execute(stmt)
-    objective = result.scalar_one_or_none()
-    
-    if not objective:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User did not finish the onboarding and does not have an objective.")
-    
-    stmt = select(MultipleChoiceQuestion).where(MultipleChoiceQuestion.objective_id == objective.id, MultipleChoiceQuestion.student_answer_index == None)
-    result = await db.execute(stmt)
-    multiple_choice_question_results = result.scalars().all()
-    
-    return len(multiple_choice_question_results) > 0
