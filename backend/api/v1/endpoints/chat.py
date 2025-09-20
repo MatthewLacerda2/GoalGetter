@@ -28,7 +28,6 @@ async def create_message(
 ):
     """Create a new chat message for the authenticated user."""
     
-    # Initialize repository
     chat_repo = ChatMessageRepository(db)
     
     request_array_id = str(uuid.uuid4())
@@ -48,7 +47,6 @@ async def create_message(
         ) for m in request.messages_list
     ]
     
-    # Replace the direct SQL query with repository method
     yesterday_messages = await chat_repo.get_recent_messages(current_user.id, days=1)
     
     yesterday2gemini: List[ChatMessageWithGemini] = [

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
@@ -6,7 +7,8 @@ from backend.models.student import Student
 from backend.core.security import get_current_user
 from backend.models.achievement import Achievement
 from backend.models.player_achievement import PlayerAchievement
-from backend.schemas.player_achievements import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse
+from backend.repositories.student_repository import StudentRepository
+from backend.schemas.player_achievements import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse, LeaderboardItem
 
 router = APIRouter()
 
@@ -46,13 +48,33 @@ async def get_achievements(
 
     return PlayerAchievementResponse(achievements=achievements)
 
+#TODO: change it to xp 'this week'
 @router.get("/leaderboard", response_model=LeaderboardResponse)
 async def get_leaderboard(
     db: AsyncSession = Depends(get_db),
     current_user: Student = Depends(get_current_user)
 ):
-    """Get the leaderboard for the week"""
+    """Get the leaderboard around the current user's XP level"""
     
-    pass
+    student_repo = StudentRepository(db)
+    
+    current_user_with_goal, leaderboard_users = await student_repo.get_leaderboard_around_user(
+        current_user.id, 
+        limit=10
+    )
+    
+    if not current_user_with_goal:
+        raise HTTPException(status_code=404, detail="User did not finish the onboarding and does not have an objective.")
+    
+    leaderboard_items: List[LeaderboardItem] = []
+    for student in leaderboard_users:
+        objective_name = student.goal.name  #TODO: query for the user's objective
+        leaderboard_items.append(LeaderboardItem(
+            name=student.name,
+            objective=objective_name,
+            xp=student.overall_xp
+        ))
+    
+    return LeaderboardResponse(students=leaderboard_items)
 
 #TODO: we'll need the XP for the last 30 days

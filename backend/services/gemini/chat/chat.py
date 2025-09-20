@@ -1,3 +1,4 @@
+from google.genai.types import GenerateContentResponse
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.chat.prompt import chat_system_prompt
 from backend.services.gemini.chat.schema import StudentContextToChat, ChatMessageWithGemini, GeminiChatResponse
@@ -13,7 +14,6 @@ def gemini_messages_generator(
     full_prompt = chat_system_prompt(objective_name, objective_description, goal_name, contexts)    
     messages.append(ChatMessageWithGemini(message=full_prompt, role="model", time="10:00:29"))
     
-    # Convert ChatMessageWithGemini objects to the format Gemini expects
     gemini_messages = []
     for msg in messages:
         gemini_messages.append({
@@ -21,9 +21,13 @@ def gemini_messages_generator(
             "parts": [{"text": msg.message}]
         })
 
-    response = client.models.generate_content(
+    response: GenerateContentResponse = client.models.generate_content(
         model=model, contents=gemini_messages, config=config
     )
+    
+    #print("Total tokens:", response.usage_metadata.total_token_count)
+    #print("Total tokens:", response.usage_metadata.prompt_token_count)
+    #print("Total tokens:", response.usage_metadata.candidates_token_count)
     
     json_response = response.text
     
