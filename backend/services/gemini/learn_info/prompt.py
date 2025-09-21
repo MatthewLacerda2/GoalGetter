@@ -1,4 +1,3 @@
-#TODO: let the AI know that the text must be informative/experience-transfer/cheat-sheet
 def get_generate_learn_info_prompt(objective_name: str, objective_description: str, informations: list[str]) -> str:
     informations_list = "\n".join([f"- {information}" for information in informations])
     

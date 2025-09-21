@@ -45,18 +45,3 @@ class StreakDayRepository(BaseRepository[StreakDay]):
         
         result = await self.db.execute(stmt)
         return result.scalars().all()
-    
-    async def get_by_student_id_and_date_range(self, student_id: str, start_date: datetime, end_date: datetime) -> List[StreakDay]:
-        """
-        Get streak days for a specific student within a date range
-        """
-        stmt = select(StreakDay).where(
-            and_(
-                StreakDay.student_id == student_id,
-                StreakDay.date_time >= start_date,
-                StreakDay.date_time <= end_date
-            )
-        ).order_by(desc(StreakDay.date_time))
-        
-        result = await self.db.execute(stmt)
-        return result.scalars().all()

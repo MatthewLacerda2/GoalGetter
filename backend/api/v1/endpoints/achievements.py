@@ -51,11 +51,6 @@ async def get_xp_by_days(
 ):
     """Get XP data for the current user over the last X days"""
     
-    student_repo = StudentRepository(db)
-    student = await student_repo.get_by_id(current_user.id)
-    if not student:
-        raise HTTPException(status_code=404, detail="Student not found")
-    
     streak_repo = StreakDayRepository(db)
     streak_days = await streak_repo.get_by_student_id_and_days(current_user.id, days)
     
@@ -70,10 +65,8 @@ async def get_achievements(
 ):
     """Get achievements for a specific student"""
     
-    query = select(Student).where(Student.id == student_id)
-    result = await db.execute(query)
-    student = result.scalars().first()
-    
+    student_repo = StudentRepository(db)
+    student = await student_repo.get_by_id(student_id)
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     

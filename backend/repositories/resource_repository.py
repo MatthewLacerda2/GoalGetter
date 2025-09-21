@@ -29,7 +29,7 @@ class ResourceRepository(BaseRepository[Resource]):
         return False
     
     async def get_by_goal_id(self, goal_id: str) -> List[Resource]:
-        """Get all resources for a specific goal"""
+        """Get all relevant resources for a specific goal"""
         stmt = select(Resource).where(Resource.goal_id == goal_id).order_by(Resource.resource_type, Resource.name)
         result = await self.db.execute(stmt)
         return result.scalars().all()
