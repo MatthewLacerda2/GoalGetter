@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends, status
 from backend.core.database import get_db
 from backend.models.resource import Resource
 from backend.schemas.resource import ResourceResponse
+from backend.repositories.resource_repository import ResourceRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends, status
-from sqlalchemy import select
 
 router = APIRouter()
 
@@ -16,11 +15,7 @@ async def get_resources(
     """
     Get all resources for a specific goal
     """
-    #TODO: update this
-    #We must show resources which match the objective,
-    #and the student context (mostly, whether the resource is fit for a student of this level)
-    stmt = select(Resource).where(Resource.goal_id == goal_id).order_by(Resource.resource_type, Resource.name)
-    result = await db.execute(stmt)
-    resources = result.scalars().all()
+    resource_repo = ResourceRepository(db)
+    resources = await resource_repo.get_by_goal_id(goal_id)
     
     return ResourceResponse(resources=resources)
