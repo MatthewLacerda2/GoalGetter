@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime,  Float, ForeignKey
+from sqlalchemy import Column, String, DateTime, Float, ForeignKey
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
 

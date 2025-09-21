@@ -60,7 +60,7 @@ class StudentRepository(BaseRepository[Student]):
         
         current_xp = current_user.overall_xp
         
-        # Get users with higher XP (above current user) - only those with objectives
+        # Get the users right above in the leaderboard
         above_stmt = select(Student).options(
             selectinload(Student.goal),
             selectinload(Student.current_objective)
@@ -68,14 +68,13 @@ class StudentRepository(BaseRepository[Student]):
             and_(
                 Student.overall_xp > current_xp,
                 Student.id != user_id,
-                Student.current_objective_id.isnot(None)  # Only users with objectives
+                Student.current_objective_id.isnot(None)
             )
-        ).order_by(asc(Student.overall_xp)).limit(limit)
-        
+        ).order_by(asc(Student.overall_xp)).limit(limit)        
         above_result = await self.db.execute(above_stmt)
         users_above = above_result.scalars().all()
         
-        # Get users with lower XP (below current user) - only those with objectives
+        # Get the users right below in the leaderboard
         below_stmt = select(Student).options(
             selectinload(Student.goal),
             selectinload(Student.current_objective)
@@ -83,14 +82,12 @@ class StudentRepository(BaseRepository[Student]):
             and_(
                 Student.overall_xp < current_xp,
                 Student.id != user_id,
-                Student.current_objective_id.isnot(None)  # Only users with objectives
+                Student.current_objective_id.isnot(None)
             )
-        ).order_by(desc(Student.overall_xp)).limit(limit)
-        
+        ).order_by(desc(Student.overall_xp)).limit(limit)        
         below_result = await self.db.execute(below_stmt)
         users_below = below_result.scalars().all()
         
-        # Combine all users: above + current + below
         leaderboard_users = list(users_above) + [current_user] + list(users_below)
         
         return current_user, leaderboard_users

@@ -11,7 +11,7 @@ def get_generate_learn_info_prompt(objective_name: str, objective_description: s
     
     ## Task
     
-    Generate content to teach the student about the objective.
+    Generate microlearning content to teach the student about the objective.
     If there are many principles to the objective, choose one arbitrarily and focus on it.
         
     The text must be written simply and read simply.

@@ -13,8 +13,8 @@ An educational app with an AI-Tutor
 
 - Goal
 - Small steps
-- Focus
 - Gamification
+- 1:1 Tutoring
 
 # Tech Stack
 
@@ -34,9 +34,7 @@ We use Google Gemini as our AI
 
 # How to run
 
-- Frontend: flutter run -d chrome --web-host=<your-ip> --web-port=8080
-- Backend: uvicorn backend.main:app --webhost <your-ip> --reload
-
-The .env needs: GEMINI_API_KEY
-
 To generate the client_sdk: openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk
+
+- Backend: uvicorn backend.main:app --webhost <your-ip> --reload
+- Frontend: flutter run -d chrome --web-host=<your-ip> --web-port=8080

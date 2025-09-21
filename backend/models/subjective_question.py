@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, ForeignKey, Boolean
+from sqlalchemy import Column, String, ForeignKey, Boolean, Integer
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 from backend.utils.envs import NUM_DIMENSIONS
@@ -18,5 +18,6 @@ class SubjectiveQuestion(Base):
     llm_evaluation_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_approval = Column(Boolean, nullable=True, default=None)
+    xp = Column(Integer, nullable=False)
     
     objective = relationship("Objective", back_populates="subjective_questions")

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, ForeignKey, Integer, JSON, DateTime
+from sqlalchemy import Column, String, ForeignKey, Integer, JSON, DateTime, Integer
 from datetime import datetime
 import uuid
 from backend.models.base import Base
@@ -24,5 +24,6 @@ class MultipleChoiceQuestion(Base):
     seconds_spent = Column(Integer, nullable=True, default=None)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     last_updated_at = Column(DateTime, nullable=True, default=None)
+    xp = Column(Integer, nullable=False)
 
     objective = relationship("Objective", back_populates="multiple_choice_questions")

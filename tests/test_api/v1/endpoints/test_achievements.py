@@ -1,4 +1,5 @@
 import pytest
+from backend.schemas.streak import XpByDaysResponse
 from backend.schemas.player_achievements import PlayerAchievementResponse, LeaderboardResponse
 
 @pytest.mark.asyncio
@@ -51,3 +52,16 @@ async def test_get_leaderboard_with_student(authenticated_client_with_objective)
     
     assert response.status_code == 200
     assert isinstance(response_data, LeaderboardResponse)
+
+@pytest.mark.asyncio
+async def test_get_student_daily_xps(authenticated_client_with_objective):
+    """Test getting the student's xp for an N number of days"""
+    
+    client, access_token = authenticated_client_with_objective
+    
+    response = await client.get(f"/api/v1/achievements/xp_by_days", headers={"Authorization": f"Bearer {access_token}"})
+    
+    response_data = XpByDaysResponse.model_validate(response.json())
+    
+    assert response.status_code == 200
+    assert isinstance(response_data, XpByDaysResponse)

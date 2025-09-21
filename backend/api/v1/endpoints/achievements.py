@@ -1,13 +1,16 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
-from backend.models.student import Student
 from backend.core.security import get_current_user
+from backend.schemas.streak import XpDay
+from backend.schemas.streak import XpByDaysResponse
+from backend.models.student import Student
 from backend.models.achievement import Achievement
 from backend.models.player_achievement import PlayerAchievement
 from backend.repositories.student_repository import StudentRepository
+from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.schemas.player_achievements import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse, LeaderboardItem
 
 router = APIRouter()
@@ -31,7 +34,6 @@ async def get_leaderboard(
     
     leaderboard_items: List[LeaderboardItem] = []
     for student in leaderboard_users:
-        # Handle case where student doesn't have an objective yet
         objective_name = student.current_objective.name
         leaderboard_items.append(LeaderboardItem(
             name=student.name,
@@ -40,6 +42,26 @@ async def get_leaderboard(
         ))
     
     return LeaderboardResponse(students=leaderboard_items)
+
+@router.get("/xp_by_days", response_model=XpByDaysResponse)
+async def get_xp_by_days(
+    days: int = Query(30, ge=1, le=365, description="Number of days to look back"),
+    db: AsyncSession = Depends(get_db),
+    current_user: Student = Depends(get_current_user)
+):
+    """Get XP data for the current user over the last X days"""
+    
+    student_repo = StudentRepository(db)
+    student = await student_repo.get_by_id(current_user.id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    streak_repo = StreakDayRepository(db)
+    streak_days = await streak_repo.get_by_student_id_and_days(current_user.id, days)
+    
+    xp_days = [XpDay.model_validate(streak_day) for streak_day in streak_days]
+        
+    return XpByDaysResponse(days=xp_days)
 
 @router.get("/{student_id}", response_model=PlayerAchievementResponse)
 async def get_achievements(
@@ -76,5 +98,3 @@ async def get_achievements(
     achievements.sort(key=lambda x: x.achieved_at, reverse=True)
 
     return PlayerAchievementResponse(achievements=achievements)
-
-#TODO: we'll need the XP for the last 30 days
