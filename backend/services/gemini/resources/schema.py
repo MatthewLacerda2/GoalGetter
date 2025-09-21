@@ -13,9 +13,9 @@ class GeminiResourceSearchResults(BaseModel):
     resources: List[GeminiResourceSearchResultItem]
 
 class ResourceSearchResultItem(BaseModel):
+    language: str
     name: str
     description: str
-    language: str
     link: str
     image_url: Optional[str] = None
 

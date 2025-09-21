@@ -5,7 +5,6 @@ import uuid
 from backend.models.base import Base
 from enum import Enum
 
-#TODO: use it
 class QuestionPurpose(Enum):
     TEACH = "teach"
     EVALUATE = "evaluate"
