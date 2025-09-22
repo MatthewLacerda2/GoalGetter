@@ -15,8 +15,8 @@ class StudentContext(Base):
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=True)
     state = Column(String, nullable=False)
     metacognition = Column(String, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.now())
     is_still_valid = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
     state_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     

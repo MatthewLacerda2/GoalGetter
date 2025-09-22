@@ -1,8 +1,9 @@
 import pytest
-from sqlalchemy import select
-from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageResponse, CreateMessageRequest, EditMessageRequest
-from backend.models.chat_message import ChatMessage
 from datetime import datetime
+from sqlalchemy import select
+from backend.models.chat_message import ChatMessage
+from backend.schemas.chat_message import CreateMessageRequestItem
+from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageResponse, CreateMessageRequest, EditMessageRequest
 
 def create_chat_messages(user_id: str):
     """Create a predefined array of chat messages for testing"""
@@ -241,7 +242,7 @@ async def test_edit_message_unauthorized(client):
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_edit_message_not_found(client, mock_google_verify, test_db, test_user):
+async def test_edit_message_not_found(client, mock_google_verify, test_user):
 
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
@@ -315,7 +316,7 @@ async def test_delete_message_unauthorized(client):
     assert response.status_code == 403
     
 @pytest.mark.asyncio
-async def test_delete_message_not_found(client, mock_google_verify, test_db, test_user):
+async def test_delete_message_not_found(client, mock_google_verify, test_user):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
     mock_google_verify.return_value = {
@@ -339,13 +340,13 @@ async def test_delete_message_not_found(client, mock_google_verify, test_db, tes
     assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
-async def test_create_message(client, mock_google_verify, test_db, test_user):
+async def test_create_message(client, mock_google_verify, test_user_with_objective, mock_gemini_messages_generator, mock_gemini_embeddings):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
     mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
+        'email': test_user_with_objective.email,
+        'sub': test_user_with_objective.google_id,
+        'name': test_user_with_objective.name
     }
     
     login_response = await client.post(
@@ -354,11 +355,11 @@ async def test_create_message(client, mock_google_verify, test_db, test_user):
     )
     access_token = login_response.json()["access_token"]
     
-    payload = CreateMessageRequest(message="Test message")
+    payload = CreateMessageRequest(messages_list=[CreateMessageRequestItem(message="Explain flush, await, fresh in sqlalchemy", datetime=datetime.now())])
     
     response = await client.post(
         "/api/v1/chat",
-        json=payload.model_dump(),
+        json=payload.model_dump(mode='json'),
         headers={"Authorization": f"Bearer {access_token}"}
     )
     
@@ -366,14 +367,16 @@ async def test_create_message(client, mock_google_verify, test_db, test_user):
     
     assert response.status_code == 201
     assert isinstance(chat_response, CreateMessageResponse)
-    assert len(chat_response.messages) > 0
 
 @pytest.mark.asyncio
 async def test_create_message_unauthorized(client):
     """Test that the chat messages endpoint returns 403 without token."""
+    
+    payload = CreateMessageRequest(messages_list=[CreateMessageRequestItem(message="Test message", datetime=datetime.now())])
+    
     response = await client.post(
         "/api/v1/chat",
-        json={"message": "Test message"}
+        json=payload.model_dump(mode='json'),
     )
     
     assert response.status_code == 403

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Optional
 from backend.models.resource import StudyResourceType
 
 class ResourceItem(BaseModel):
@@ -8,7 +8,7 @@ class ResourceItem(BaseModel):
     name: str
     description: str
     link: str
-    image_url: str
+    image_url: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 

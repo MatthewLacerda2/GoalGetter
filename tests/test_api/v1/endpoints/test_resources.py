@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_get_resources_successful(client, mock_google_verify, test_db, test_user):
+async def test_get_resources_successful(client, test_db):
     """Test that the resources endpoint returns a valid response for a valid request."""
     
     response = await client.get("/api/v1/resources?goal_id=test-goal-id")
@@ -14,3 +14,4 @@ async def test_get_resources_successful(client, mock_google_verify, test_db, tes
     
     assert response.status_code == 200
     assert isinstance(resource_response, ResourceResponse)
+    

@@ -1,15 +1,13 @@
-from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Response
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from datetime import datetime
+import logging
 from backend.core.security import create_access_token, verify_google_token, get_current_user
 from backend.core.database import get_db
 from backend.schemas.student import OAuth2Request, TokenResponse
 from backend.models.student import Student
-from backend.models.goal import Goal
-from backend.models.student_context import StudentContext
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
-import logging
+from backend.repositories.student_repository import StudentRepository
 
 logger = logging.getLogger(__name__)
 
@@ -26,45 +24,32 @@ async def signup(
     try:        
         user_info = verify_google_token(oauth_data.access_token)
         
-        stmt = select(Student).where(Student.google_id == user_info["sub"])
-        result = await db.execute(stmt)
-        existing_user = result.scalar_one_or_none()
+        student_repo = StudentRepository(db)
+        existing_user = await student_repo.get_by_google_id(user_info["sub"])
                 
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="User already exists"
             )
-        
+            
         user = Student(
             email=user_info["email"],
             google_id=user_info["sub"],
             name=user_info.get("name"),
         )
         
-        goal = Goal(    #TODO: Create the actual goal
-            name="Default Goal",
-            description="Your initial learning goal"
-        )        
-        db.add(goal)
-        await db.flush()
-        
-        user.goal_id = goal.id
-        user.goal_name = goal.name
-        
-        db.add(user)
-        await db.flush()
+        created_user = await student_repo.create(user)
         
         access_token = create_access_token(
-            data={"sub": str(user.id)},
+            data={"sub": created_user.google_id},  # Use google_id instead of str(created_user.id)
         )
         
         await db.commit()
-        await db.refresh(user)
         
         token_response = TokenResponse(
             access_token=access_token,
-            student=user
+            student=created_user
         )
                 
         return token_response
@@ -86,7 +71,7 @@ async def signup(
             detail=f"Invalid Google token"
         )
         
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def login(
     oauth_data: OAuth2Request,
     db: AsyncSession = Depends(get_db)
@@ -97,37 +82,32 @@ async def login(
     try:
         user_info = verify_google_token(oauth_data.access_token)
         
-        stmt = select(Student).where(Student.google_id == user_info["sub"])
-        result = await db.execute(stmt)
-        user = result.scalar_one_or_none()
+        student_repo = StudentRepository(db)
+        user = await student_repo.get_by_google_id(user_info["sub"])
         
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
-    
-        latest_student_context = select(StudentContext).where(StudentContext.student_id == user.id).order_by(StudentContext.created_at.desc())
-        result = await db.execute(latest_student_context)
-        latest_student_context = result.scalar_one_or_none()
         
         user.last_login = datetime.now()
+        updated_user = await student_repo.update(user)
         await db.commit()
-        await db.refresh(user)
         
         access_token = create_access_token(
-            data={"sub": str(user.id)},
+            data={"sub": updated_user.google_id},  # Use google_id instead of str(updated_user.id)
         )
         
         return TokenResponse(
             access_token=access_token,
-            student=user,
-            latest_student_context=latest_student_context
+            student=updated_user
         )
         
     except HTTPException:
         raise
     except Exception as e:
+        await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error"
@@ -142,11 +122,20 @@ async def delete_account(
     Delete user account and all associated data
     """
     try:
-        await db.delete(current_user)
-        await db.commit()
+        student_repo = StudentRepository(db)
+        success = await student_repo.delete(current_user.id)
         
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        await db.commit()
         return Response(status_code=status.HTTP_204_NO_CONTENT)
         
+    except HTTPException:
+        raise
     except Exception as e:
         await db.rollback()
         raise HTTPException(

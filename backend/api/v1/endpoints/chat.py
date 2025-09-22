@@ -1,160 +1,182 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, Response
-from typing import Optional
-from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageRequest, CreateMessageResponse, EditMessageRequest
-from backend.models.chat_message import ChatMessage
-from backend.models.student import Student
-from backend.core.security import get_current_user
-from sqlalchemy.ext.asyncio import AsyncSession
-from backend.core.database import get_db
-from sqlalchemy import select, desc
-from typing import List
 import re
 import uuid
-from datetime import datetime
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
+from typing import Optional
+from fastapi import APIRouter, Depends, Query, HTTPException, Response
+from backend.core.database import get_db
+from backend.core.security import get_current_user
+from backend.models.student import Student
+from backend.models.chat_message import ChatMessage
+from backend.repositories.student_context_repository import StudentContextRepository
+from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+from backend.repositories.objective_repository import ObjectiveRepository
+from backend.repositories.chat_message_repository import ChatMessageRepository
+from backend.services.gemini.chat.chat import gemini_messages_generator
+from backend.schemas.chat_message import LikeMessageRequest, EditMessageRequest
+from backend.services.gemini.chat.schema import ChatMessageWithGemini, StudentContextToChat
+from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, CreateMessageRequest, CreateMessageResponse, ChatMessageResponseItem
 
 router = APIRouter()
 
-#TODO: make the AI get context from:
-# - the student's chat history
-# - the student_context
-# - the student's resources
-# - the student's objective, notes and goal
-
-#We must also:
-
-# - generate context as chat goes on
-# - generate the lessons
-    # - Those must have and generate context (metacognition)
-    # - When done, it must:
-        # - generate new context
-        # - generate new objective
-        # - update the student's streak and give XP
-        # - give an award, if applicable
-
-
 @router.post("", response_model=CreateMessageResponse, status_code=201)
 async def create_message(
-    payload: CreateMessageRequest,
+    request: CreateMessageRequest,
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Create a new chat message for the authenticated user."""
     
-    message = ChatMessage(
-        student_id=current_user.id,
-        sender_id=current_user.id,
-        message=payload.message,
-        created_at=datetime.now()
+    chat_repo = ChatMessageRepository(db)
+    
+    request_array_id = str(uuid.uuid4())
+    full_text = ". ".join([m.message for m in request.messages_list])
+    full_text_embedding = get_gemini_embeddings(full_text)
+    
+    items: List[ChatMessage] = [
+        ChatMessage(
+            id=str(uuid.uuid4()),
+            student_id=current_user.id,
+            sender_id=current_user.id,
+            array_id=request_array_id,
+            message=m.message,
+            is_liked=False,
+            created_at=m.datetime,
+            message_embedding=full_text_embedding
+        ) for m in request.messages_list
+    ]
+    
+    yesterday_messages = await chat_repo.get_recent_messages(current_user.id, days=1)
+    
+    yesterday2gemini: List[ChatMessageWithGemini] = [
+        ChatMessageWithGemini(
+            message=y.message,
+            role="user" if y.sender_id == y.student_id else "assistant",
+            time=y.created_at.strftime("%H:%M:%S")
+        ) for y in yesterday_messages
+    ]
+    
+    items2gemini: List[ChatMessageWithGemini] = yesterday2gemini + [
+        ChatMessageWithGemini(
+            message=m.message,
+            role="user",
+            time=m.created_at.strftime("%H:%M:%S")
+        ) for m in items
+    ]
+    
+    objective_repo = ObjectiveRepository(db)
+    objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
+    
+    student_context_repo = StudentContextRepository(db)
+    student_contexts = await student_context_repo.get_by_student_and_objective(current_user.id, objective.id, 8)
+    
+    context = [
+        StudentContextToChat(
+            state=sc.state,
+            metacognition=sc.metacognition
+        ) for sc in student_contexts
+    ]
+    
+    ai_response = gemini_messages_generator(
+        items2gemini, context, objective.name, objective.description, current_user.goal_name
     )
     
-    db.add(message)
-    await db.commit()
+    full_ai_text = ". ".join([m for m in ai_response.messages])
+    full_ai_text_embedding = get_gemini_embeddings(full_ai_text)
     
-    mocked_responses: List[str] = ["First message", "Second message", "Third message"]
     array_id = str(uuid.uuid4())
-    items: List[ChatMessageItem] = []
-    
-    for i in range(len(mocked_responses)):
-        message = ChatMessageItem(
+    ai_chat_messages: List[ChatMessage] = [
+        ChatMessage(
             id=str(uuid.uuid4()),
-            sender_id=current_user.id,
-            message=mocked_responses[i],
-            created_at=datetime.now(),
-            is_liked=False
-        )
-        items.append(message)
-    
-    mocked_messages: List[ChatMessage] = []
-    for i in range(len(mocked_responses)):
-        aux_message = ChatMessage(
             student_id=current_user.id,
             sender_id="gemini-2.5-flash",
             array_id=array_id,
-            message=mocked_responses[i],
-            num_tokens=len([w for w in re.split(r"[ \n.,?]", mocked_responses[i]) if w]),
-            is_liked=False
-        )
-        
-        mocked_messages.append(aux_message)
-        
-    db.add_all(mocked_messages)
+            message=message,
+            num_tokens=len([w for w in re.split(r"[ \n.,?]", message) if w]),   #TODO: improve this
+            is_liked=False,
+            message_embedding=full_ai_text_embedding
+        ) for message in ai_response.messages
+    ]
+
+    await chat_repo.create_many(items)
+    await chat_repo.create_many(ai_chat_messages)
+    
     await db.commit()
-        
+    
+    for message in ai_chat_messages:
+        await db.refresh(message)
+    
+    await db.commit()
+    
     response = CreateMessageResponse(
-        messages=items
+        messages=[
+            ChatMessageResponseItem(
+                id=message.id,
+                sender_id=message.sender_id,
+                message=message.message,
+                created_at=message.created_at,
+                is_liked=message.is_liked
+            ) for message in ai_chat_messages
+        ]
     )
     
     return response
 
 @router.get("", response_model=ChatMessageResponse)
 async def get_chat_messages(
-    message_id: Optional[str] = Query(None, description="Optional message ID to start from"),
-    limit: Optional[int] = Query(None, description="Optional limit on number of messages to return"),
+    message_id: Optional[str] = Query(None),
+    limit: Optional[int] = Query(None),
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Get chat messages for the authenticated user.
-    
-    - If message_id is provided, returns messages from that point
-    - If limit is provided, returns up to that many messages
-    - If neither is provided, returns default number of latest messages
-    """
     if limit is None:
         limit = 20
     
-    query = select(ChatMessage).where(ChatMessage.student_id == current_user.id)
-    
-    if message_id:
-        query = query.where(ChatMessage.id >= message_id)
-    
-    query = query.order_by(desc(ChatMessage.created_at)).limit(limit)
-    
-    result = await db.execute(query)
-    messages = result.scalars().all()
+    chat_repo = ChatMessageRepository(db)
+    messages = await chat_repo.get_by_student_id(current_user.id, limit, message_id)
     
     return ChatMessageResponse(messages=messages)
 
+#We only embed AI-generated messages.
+#We put whole array together (for context) and embed it
 @router.patch("/likes", response_model=ChatMessageItem)
 async def like_message(
-    payload: LikeMessageRequest,
+    request: LikeMessageRequest,
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Like or remove like of a message for the authenticated user."""
-    
-    query = select(ChatMessage).where(ChatMessage.id == payload.message_id, ChatMessage.student_id == current_user.id)
-    result = await db.execute(query)
-    message = result.scalars().first()
+    chat_repo = ChatMessageRepository(db)
+    message = await chat_repo.get_by_student_and_message_id(current_user.id, request.message_id)
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    message.is_liked = payload.like
+    message.is_liked = request.like
+    await chat_repo.update(message)
     await db.commit()
     
     return ChatMessageItem.model_validate(message)
 
 @router.patch("/edit", response_model=ChatMessageItem)
 async def edit_message(
-    payload: EditMessageRequest,
+    request: EditMessageRequest,
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Edit a message for the authenticated user."""
     
-    query = select(ChatMessage).where(ChatMessage.id == payload.message_id, ChatMessage.student_id == current_user.id)
-    result = await db.execute(query)
-    message = result.scalars().first()
+    chat_repo = ChatMessageRepository(db)
+    message = await chat_repo.get_by_student_and_message_id(current_user.id, request.message_id)
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    message.message = payload.message
-    #TODO: update the num_tokens
+    message.message = request.message
+    updated_message = await chat_repo.update(message)
     await db.commit()
     
-    return ChatMessageItem.model_validate(message)
+    return ChatMessageItem.model_validate(updated_message)
 
 @router.delete("/{message_id}", status_code=204)
 async def delete_message(
@@ -164,14 +186,13 @@ async def delete_message(
 ):
     """Delete a message for the authenticated user."""
     
-    query = select(ChatMessage).where(ChatMessage.id == message_id, ChatMessage.student_id == current_user.id)
-    result = await db.execute(query)
-    message = result.scalars().first()
+    chat_repo = ChatMessageRepository(db)
+    message = await chat_repo.get_by_student_and_message_id(current_user.id, message_id)
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    await db.delete(message)
+    success = await chat_repo.delete(message_id)
     await db.commit()
     
     return Response(status_code=204)

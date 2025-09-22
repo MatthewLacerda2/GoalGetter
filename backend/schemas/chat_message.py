@@ -11,6 +11,9 @@ class ChatMessageItem(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
+class ChatMessageItensList(BaseModel):
+    messages: List[ChatMessageItem]
+
 class ChatMessageResponse(BaseModel):
     messages: List[ChatMessageItem]
     
@@ -27,13 +30,17 @@ class EditMessageRequest(BaseModel):
     message: str
     
     model_config = ConfigDict(from_attributes=True)
-    
-class CreateMessageRequest(BaseModel):
+
+class CreateMessageRequestItem(BaseModel):
     message: str
+    datetime: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+class CreateMessageRequest(BaseModel):
+    messages_list: List[CreateMessageRequestItem]
     
-class ChatMessageItem(BaseModel):
+class ChatMessageResponseItem(BaseModel):
     id: str
     sender_id: str
     message: str
@@ -43,6 +50,6 @@ class ChatMessageItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
 class CreateMessageResponse(BaseModel):
-    messages: List[ChatMessageItem]
+    messages: List[ChatMessageResponseItem]
     
     model_config = ConfigDict(from_attributes=True)

@@ -15,3 +15,11 @@ class PlayerAchievementResponse(BaseModel):
     achievements: List[PlayerAchievementItem]
     
     model_config = ConfigDict(from_attributes=True)
+
+class LeaderboardItem(BaseModel):
+    name: str
+    objective: str
+    xp: int
+
+class LeaderboardResponse(BaseModel):
+    students: List[LeaderboardItem]

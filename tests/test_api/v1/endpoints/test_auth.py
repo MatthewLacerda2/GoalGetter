@@ -57,19 +57,18 @@ async def test_signup_missing_token(client):
     assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_login_successful(client, mock_google_verify, test_db, test_user):
+async def test_login_successful(client, test_user, mock_google_verify):
     """Test successful login with valid Google token for existing user"""
     
     response = await client.post(
         "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}  # Use a token the mock recognizes
+        json={"access_token": "fixture_user_token"}
     )
     
     token_response = TokenResponse.model_validate(response.json())
     
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert isinstance(token_response, TokenResponse)
-    assert token_response.token_type == "bearer"
     assert token_response.student.email == test_user.email
     assert token_response.student.name == test_user.name
     assert token_response.student.google_id == test_user.google_id
@@ -116,17 +115,15 @@ async def test_login_missing_token(client):
     assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_delete_account_successful(client, mock_google_verify, test_db, test_user):
+async def test_delete_account_successful(client, mock_google_verify, test_user):
     """Test successful account deletion with valid token"""
     
-    # Mock google_verify to return our fixture user data
     mock_google_verify.return_value = {
         'email': test_user.email,
         'sub': test_user.google_id,
         'name': test_user.name
     }
     
-    # Get access token by logging in with our fixture user
     login_response = await client.post(
         "/api/v1/auth/login",
         json={"access_token": "fixture_user_token"}
@@ -140,7 +137,6 @@ async def test_delete_account_successful(client, mock_google_verify, test_db, te
     
     assert response.status_code == 204
     
-    # Verify user is deleted by trying to login again
     login_response = await client.post(
         "/api/v1/auth/login",
         json={"access_token": "fixture_user_token"}

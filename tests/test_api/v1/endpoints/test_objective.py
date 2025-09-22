@@ -7,33 +7,25 @@ from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_get_objective_successful(client, mock_google_verify, test_db, test_user):
+async def test_get_objective_successful(authenticated_client_with_objective, test_db):
     """Test getting an objective"""
     
-    objective = Objective(
-        goal_id=test_user.goal_id,
-        name="Test Objective",
-        description="A test objective for testing purposes",
-        percentage_completed=0.5,
-    )
-    test_db.add(objective)
-    await test_db.flush()
+    client, access_token = authenticated_client_with_objective
+    
+    from sqlalchemy import select
+    stmt = select(Objective)
+    result = await test_db.execute(stmt)
+    objective = result.scalar_one()
     
     note = ObjectiveNoteModel(
         objective_id=objective.id,
         title="Test Note 1",
-        description="First test note",
+        info="First test note",
     )
     test_db.add(note)
     await test_db.flush()    
     await test_db.commit()
     await test_db.refresh(objective)
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
     
     response = await client.get(
         "/api/v1/objective",

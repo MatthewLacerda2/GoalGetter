@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import List
 
-class StreakDay(BaseModel):
+class StreakDayResponse(BaseModel):
     id: str
     date_time: datetime
     
@@ -10,4 +10,14 @@ class StreakDay(BaseModel):
 
 class TimePeriodStreak(BaseModel):
     current_streak: int
-    streak_days: List[StreakDay]
+    streak_days: List[StreakDayResponse]
+
+class XpDay(BaseModel):
+    id: str
+    xp: int
+    date_time: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class XpByDaysResponse(BaseModel):
+    days: List[XpDay]
