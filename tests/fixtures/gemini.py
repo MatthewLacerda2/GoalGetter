@@ -54,7 +54,8 @@ def mock_gemini_multiple_choice_questions():
                         "console.log('Hello World')",
                         "System.out.println('Hello World')"
                     ],
-                    correct_answer_index=0
+                    correct_answer_index=0,
+                    xp = 10
                 ) for i in range(10)
             ]
         )

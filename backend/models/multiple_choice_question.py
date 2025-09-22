@@ -23,6 +23,6 @@ class MultipleChoiceQuestion(Base):
     seconds_spent = Column(Integer, nullable=True, default=None)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     last_updated_at = Column(DateTime, nullable=True, default=None)
-    xp = Column(Integer, nullable=False)
+    xp = Column(Integer, nullable=True)
 
     objective = relationship("Objective", back_populates="multiple_choice_questions")

@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Depends, status

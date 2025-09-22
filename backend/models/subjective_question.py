@@ -18,6 +18,6 @@ class SubjectiveQuestion(Base):
     llm_evaluation_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_approval = Column(Boolean, nullable=True, default=None)
-    xp = Column(Integer, nullable=False)
+    xp = Column(Integer, nullable=True)
     
     objective = relationship("Objective", back_populates="subjective_questions")
