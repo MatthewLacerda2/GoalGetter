@@ -7,13 +7,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from backend.core.security import get_current_user
-from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
-from backend.schemas.activity import MultipleChoiceActivityResponse
 from backend.models.student import Student
-from backend.models.objective import Objective
 from backend.models.student_context import StudentContext
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
+from backend.repositories.objective_repository import ObjectiveRepository
+from backend.schemas.activity import MultipleChoiceActivityResponse
 from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
+from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +39,8 @@ async def take_multiple_choice_activity(
 
     It takes one from the DB or creates a new activity for the user if none exists.
     """
-    stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.last_updated_at.desc()).limit(1)
-    result = await db.execute(stmt)
-    objective = result.scalar_one_or_none()
+    objective_repo = ObjectiveRepository(db)
+    objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
     
     if not objective:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User did not finish the onboarding and does not have an objective.")
@@ -52,9 +51,8 @@ async def take_multiple_choice_activity(
         return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
     else:
         
-        stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.last_updated_at.desc()).limit(4)
-        result = await db.execute(stmt)
-        objectives = result.scalars().all()
+        objective_repo = ObjectiveRepository(db)
+        objectives = await objective_repo.get_recent_by_goal_id(current_user.goal_id, limit = 4)
         
         stmt = select(StudentContext).where(StudentContext.student_id == current_user.id, StudentContext.is_still_valid == True).order_by(StudentContext.created_at.desc()).limit(5)
         result = await db.execute(stmt)

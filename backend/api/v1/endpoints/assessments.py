@@ -6,12 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from backend.core.database import get_db
 from backend.core.security import get_current_user
-from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
 from backend.models.student import Student
-from backend.models.objective import Objective
 from backend.models.subjective_question import SubjectiveQuestion
+from backend.repositories.objective_repository import ObjectiveRepository
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
 from backend.services.gemini.assessment.assessment import gemini_generate_subjective_questions
+from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +37,8 @@ async def take_subjective_questions_assessment(
 
     It takes one from the DB or creates a new assessment for the user if none exists.
     """
-    stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.last_updated_at.desc()).limit(1)
-    result = await db.execute(stmt)
-    objective = result.scalar_one_or_none()
+    objective_repo = ObjectiveRepository(db)
+    objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
     
     if not objective:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User did not finish the onboarding and does not have an objective.")

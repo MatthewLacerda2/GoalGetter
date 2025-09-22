@@ -6,17 +6,17 @@ from typing import List
 from typing import Optional
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 from backend.core.database import get_db
-from backend.models.student import Student
-from backend.models.objective import Objective
 from backend.core.security import get_current_user
+from backend.models.student import Student
 from backend.models.chat_message import ChatMessage
 from backend.models.student_context import StudentContext
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+from backend.repositories.objective_repository import ObjectiveRepository
+from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.services.gemini.chat.chat import gemini_messages_generator
+from backend.schemas.chat_message import LikeMessageRequest, EditMessageRequest
 from backend.services.gemini.chat.schema import ChatMessageWithGemini, StudentContextToChat
 from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, CreateMessageRequest, CreateMessageResponse, ChatMessageResponseItem
-from backend.schemas.chat_message import LikeMessageRequest, EditMessageRequest
-from backend.repositories.chat_message_repository import ChatMessageRepository
 
 router = APIRouter()
 
@@ -65,9 +65,8 @@ async def create_message(
         ) for m in items
     ]
     
-    stmt = select(Objective).where(Objective.goal_id == current_user.goal_id).order_by(Objective.created_at.desc()).limit(1)
-    result = await db.execute(stmt)
-    objective = result.scalar_one_or_none()
+    objective_repo = ObjectiveRepository(db)
+    objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
     
     stmt = select(StudentContext).where(
         StudentContext.objective_id == objective.id,
