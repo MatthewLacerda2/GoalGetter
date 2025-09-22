@@ -1,9 +1,7 @@
 from typing import List, Optional, Tuple
-from sqlalchemy import select, and_, or_, func, desc, asc
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy import select, and_, desc, asc
 from backend.models.student import Student
-from backend.models.goal import Goal
 from backend.repositories.base import BaseRepository
 
 class StudentRepository(BaseRepository[Student]):

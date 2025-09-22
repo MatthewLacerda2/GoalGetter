@@ -1,7 +1,6 @@
+from sqlalchemy import select
 from typing import List, Optional
-from sqlalchemy import select, and_, or_, desc, asc
-from sqlalchemy.ext.asyncio import AsyncSession
-from backend.models.resource import Resource, StudyResourceType
+from backend.models.resource import Resource
 from backend.repositories.base import BaseRepository
 
 class ResourceRepository(BaseRepository[Resource]):

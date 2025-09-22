@@ -1,7 +1,6 @@
 from typing import List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy import select, desc
-from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.chat_message import ChatMessage
 from backend.repositories.base import BaseRepository
 

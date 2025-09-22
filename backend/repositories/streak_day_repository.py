@@ -1,6 +1,5 @@
 from typing import List, Optional
 from sqlalchemy import select, and_, desc
-from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 from backend.models.streak_day import StreakDay
 from backend.repositories.base import BaseRepository

@@ -1,15 +1,14 @@
+import logging
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
 from backend.core.database import get_db
 from backend.core.security import get_current_user
 from backend.schemas.objective import ObjectiveResponse
 from backend.models.student import Student
 from backend.repositories.objective_repository import ObjectiveRepository
-from sqlalchemy import select
-from backend.models.objective_note import ObjectiveNote
+from backend.repositories.objective_note_repository import ObjectiveNoteRepository
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +28,8 @@ async def get_objective(
     if not objective:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Objective not found")
     
-    # Load notes separately since we're not using the with_notes method
-    stmt = select(ObjectiveNote).where(ObjectiveNote.objective_id == objective.id)
-    result = await db.execute(stmt)
-    notes = result.scalars().all()
+    objective_note_repo = ObjectiveNoteRepository(db)
+    notes = await objective_note_repo.get_by_objective_id(objective.id)
     
     return ObjectiveResponse(
         id=objective.id,

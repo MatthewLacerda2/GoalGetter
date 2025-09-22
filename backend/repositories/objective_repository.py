@@ -1,9 +1,7 @@
 from typing import List, Optional
-from sqlalchemy import select, desc, asc
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
 from backend.models.objective import Objective
-from backend.models.objective_note import ObjectiveNote
 from backend.repositories.base import BaseRepository
 
 class ObjectiveRepository(BaseRepository[Objective]):
