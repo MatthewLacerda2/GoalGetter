@@ -174,18 +174,17 @@ async def edit_message(
 ):
     """Edit a message for the authenticated user."""
     
-    query = select(ChatMessage).where(ChatMessage.id == request.message_id, ChatMessage.student_id == current_user.id)
-    result = await db.execute(query)
-    message = result.scalars().first()
+    chat_repo = ChatMessageRepository(db)
+    message = await chat_repo.get_by_student_and_message_id(current_user.id, request.message_id)
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
     message.message = request.message
-    
+    updated_message = await chat_repo.update(message)
     await db.commit()
     
-    return ChatMessageItem.model_validate(message)
+    return ChatMessageItem.model_validate(updated_message)
 
 @router.delete("/{message_id}", status_code=204)
 async def delete_message(
@@ -195,14 +194,13 @@ async def delete_message(
 ):
     """Delete a message for the authenticated user."""
     
-    query = select(ChatMessage).where(ChatMessage.id == message_id, ChatMessage.student_id == current_user.id)
-    result = await db.execute(query)
-    message = result.scalars().first()
+    chat_repo = ChatMessageRepository(db)
+    message = await chat_repo.get_by_student_and_message_id(current_user.id, message_id)
     
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    await db.delete(message)
+    success = await chat_repo.delete(message_id)
     await db.commit()
     
     return Response(status_code=204)
