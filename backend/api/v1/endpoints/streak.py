@@ -1,12 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
 from datetime import datetime, timedelta, date
 from backend.core.database import get_db
-from backend.models.student import Student
-from backend.models.streak_day import StreakDay
-from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.repositories.student_repository import StudentRepository
+from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.schemas.streak import TimePeriodStreak, StreakDayResponse
 
 router = APIRouter()
@@ -52,9 +49,8 @@ async def get_month_streak(
 ):
     """Get streak days for a specific month for a specific student"""
     
-    query = select(Student).where(Student.id == student_id)
-    result = await db.execute(query)
-    student = result.scalars().first()
+    student_repo = StudentRepository(db)
+    student = await student_repo.get_by_id(student_id)
     
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
@@ -65,17 +61,9 @@ async def get_month_streak(
     else:
         end_of_month = date(target_date.year, target_date.month + 1, 1) - timedelta(microseconds=1)
     
-    query = select(StreakDay).where(
-        and_(
-            StreakDay.student_id == student_id,
-            StreakDay.date_time >= start_of_month,
-            StreakDay.date_time <= end_of_month
-        )
-    )
+    streak_day_repo = StreakDayRepository(db)
+    streak_days = await streak_day_repo.get_by_student_id_and_date_range(student_id, start_of_month, end_of_month)
     
-    result = await db.execute(query)
-    
-    streak_days = result.scalars().all()    
     streak_day_schemas = [
         StreakDayResponse(
             id=day.id,

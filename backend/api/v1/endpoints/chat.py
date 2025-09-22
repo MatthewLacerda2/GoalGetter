@@ -9,7 +9,7 @@ from backend.core.database import get_db
 from backend.core.security import get_current_user
 from backend.models.student import Student
 from backend.models.chat_message import ChatMessage
-from backend.models.student_context import StudentContext
+from backend.repositories.student_context_repository import StudentContextRepository
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.chat_message_repository import ChatMessageRepository
@@ -68,15 +68,8 @@ async def create_message(
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
     
-    stmt = select(StudentContext).where(
-        StudentContext.objective_id == objective.id,
-        StudentContext.is_still_valid == True,
-        #StudentContext.state_embedding.cosine_distance(full_text_embedding) < 0.2  #TODO: fix this
-    ).order_by(
-        StudentContext.created_at.desc(),
-    ).limit(8)
-    result = await db.execute(stmt)
-    student_contexts = result.scalars().all()
+    student_context_repo = StudentContextRepository(db)
+    student_contexts = await student_context_repo.get_by_student_and_objective(current_user.id, objective.id, 8)
     
     context = [
         StudentContextToChat(

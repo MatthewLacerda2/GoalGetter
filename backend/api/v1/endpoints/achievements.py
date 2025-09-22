@@ -1,17 +1,17 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, HTTPException, Depends, Query
 from backend.core.database import get_db
 from backend.core.security import get_current_user
+from backend.repositories.player_achievement_repository import PlayerAchievementRepository
 from backend.schemas.streak import XpDay
 from backend.schemas.streak import XpByDaysResponse
 from backend.models.student import Student
 from backend.models.achievement import Achievement
-from backend.models.player_achievement import PlayerAchievement
 from backend.repositories.student_repository import StudentRepository
 from backend.repositories.streak_day_repository import StreakDayRepository
-from backend.schemas.player_achievements import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse, LeaderboardItem
+from backend.schemas.player_achievement import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse, LeaderboardItem
 
 router = APIRouter()
 
@@ -23,12 +23,8 @@ async def get_leaderboard(
     """Get the leaderboard around the current user's XP level"""
     
     student_repo = StudentRepository(db)
-    
-    current_user_with_goal, leaderboard_users = await student_repo.get_leaderboard_around_user(
-        current_user.id,
-        limit=10
-    )
-    
+    current_user_with_goal, leaderboard_users = await student_repo.get_leaderboard_around_user(current_user.id, limit=10)
+        
     if not current_user_with_goal:
         raise HTTPException(status_code=404, detail="User did not finish the onboarding and does not have an objective.")
     
@@ -61,6 +57,7 @@ async def get_xp_by_days(
 @router.get("/{student_id}", response_model=PlayerAchievementResponse)
 async def get_achievements(
     student_id: str,
+    limit: int = Query(None, ge=1, description="Limit number of achievements returned"),
     db: AsyncSession = Depends(get_db)
 ):
     """Get achievements for a specific student"""
@@ -70,9 +67,8 @@ async def get_achievements(
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     
-    query = select(PlayerAchievement).where(PlayerAchievement.student_id == student_id)
-    result = await db.execute(query)
-    player_achievements = result.scalars().all()
+    player_achievements_repo = PlayerAchievementRepository(db)
+    player_achievements = await player_achievements_repo.get_by_student_id(student_id, limit)
     
     achievements = []
     for player_achievement in player_achievements:

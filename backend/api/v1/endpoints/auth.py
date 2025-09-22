@@ -32,7 +32,7 @@ async def signup(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="User already exists"
             )
-        
+            
         user = Student(
             email=user_info["email"],
             google_id=user_info["sub"],
@@ -42,7 +42,7 @@ async def signup(
         created_user = await student_repo.create(user)
         
         access_token = create_access_token(
-            data={"sub": str(created_user.id)},
+            data={"sub": created_user.google_id},  # Use google_id instead of str(created_user.id)
         )
         
         await db.commit()
@@ -96,7 +96,7 @@ async def login(
         await db.commit()
         
         access_token = create_access_token(
-            data={"sub": str(updated_user.id)},
+            data={"sub": updated_user.google_id},  # Use google_id instead of str(updated_user.id)
         )
         
         return TokenResponse(

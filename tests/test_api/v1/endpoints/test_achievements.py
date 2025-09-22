@@ -1,6 +1,6 @@
 import pytest
 from backend.schemas.streak import XpByDaysResponse
-from backend.schemas.player_achievements import PlayerAchievementResponse, LeaderboardResponse
+from backend.schemas.player_achievement import PlayerAchievementResponse, LeaderboardResponse
 
 @pytest.mark.asyncio
 async def test_get_achievements_with_student(client, test_user):

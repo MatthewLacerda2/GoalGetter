@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from backend.core.security import get_current_user
 from backend.models.student import Student
-from backend.models.student_context import StudentContext
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
 from backend.repositories.objective_repository import ObjectiveRepository
+from backend.repositories.student_context_repository import StudentContextRepository
 from backend.schemas.activity import MultipleChoiceActivityResponse
 from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
 from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
@@ -54,9 +54,8 @@ async def take_multiple_choice_activity(
         objective_repo = ObjectiveRepository(db)
         objectives = await objective_repo.get_recent_by_goal_id(current_user.goal_id, limit = 4)
         
-        stmt = select(StudentContext).where(StudentContext.student_id == current_user.id, StudentContext.is_still_valid == True).order_by(StudentContext.created_at.desc()).limit(5)
-        result = await db.execute(stmt)
-        student_contexts = result.scalars().all()
+        student_context_repo = StudentContextRepository(db)
+        student_contexts = await student_context_repo.get_by_student_id(current_user.id, 5)
         
         contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
         

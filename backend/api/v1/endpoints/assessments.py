@@ -50,7 +50,7 @@ async def take_subjective_questions_assessment(
     else:
         
         gemini_sq_questions = gemini_generate_subjective_questions(
-            objective.name, objective.description, current_user.goal.name, NUM_QUESTIONS_PER_EVALUATION
+            objective.name, objective.description, current_user.goal_name, NUM_QUESTIONS_PER_EVALUATION
         )
         
         for question in gemini_sq_questions.questions:

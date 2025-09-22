@@ -1,3 +1,4 @@
+import logging
 from jose import jwt, JWTError
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -7,10 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.config import settings
 from backend.core.database import get_db
 from backend.models.student import Student
-from sqlalchemy import select
-import logging
+from backend.repositories.student_repository import StudentRepository
 from backend.utils.envs import JWT_ISSUER, JWT_AUDIENCE, GOOGLE_CLIENT_ID
-from sqlalchemy.orm import selectinload
 
 logger = logging.getLogger(__name__)
 
@@ -115,10 +114,9 @@ async def get_current_user(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=f"Invalid token payload"
             )
-            
-        stmt = select(Student).options(selectinload(Student.goal)).where(Student.id == user_id)
-        result = await db.execute(stmt)
-        user = result.scalar_one_or_none()
+        
+        student_repo = StudentRepository(db)
+        user = await student_repo.get_by_google_id(user_id)
         
         if not user:
             raise HTTPException(

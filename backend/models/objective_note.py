@@ -1,9 +1,8 @@
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from pgvector.sqlalchemy import Vector
-from sqlalchemy.orm import relationship
-
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
 
