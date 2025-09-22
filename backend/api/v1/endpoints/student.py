@@ -1,13 +1,11 @@
+import logging
 from fastapi import APIRouter
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-import logging
-from backend.schemas.student import StudentCurrentStatusResponse
-from backend.models.student import Student
-from backend.core.security import get_current_user
 from backend.core.database import get_db
-from backend.models.objective import Objective
+from backend.core.security import get_current_user
+from backend.models.student import Student
+from backend.schemas.student import StudentCurrentStatusResponse
 
 logger = logging.getLogger(__name__)
 
