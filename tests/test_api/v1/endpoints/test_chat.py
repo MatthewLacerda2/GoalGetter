@@ -340,7 +340,7 @@ async def test_delete_message_not_found(client, mock_google_verify, test_user):
     assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
-async def test_create_message(client, mock_google_verify, test_user_with_objective, mock_gemini_messages_generator):
+async def test_create_message(client, mock_google_verify, test_user_with_objective, mock_gemini_messages_generator, mock_gemini_embeddings):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
     mock_google_verify.return_value = {
