@@ -35,8 +35,9 @@ def mock_gemini_embeddings():
     def mock_get_gemini_embeddings(text):
         return np.zeros(3072, dtype=np.float32)
 
-    with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
-        yield mock
+    with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock1, \
+         patch('backend.api.v1.endpoints.chat.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock2:
+        yield mock1, mock2
 
 @pytest.fixture
 def mock_gemini_multiple_choice_questions():
@@ -76,4 +77,22 @@ def mock_gemini_subjective_questions():
             questions=questions
         )
     with patch('backend.api.v1.endpoints.assessments.gemini_generate_subjective_questions', side_effect=mock_generate_subjective_questions) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_messages_generator():
+    """Fixture to mock Gemini chat messages generator responses"""
+    def mock_gemini_messages_generator(*args, **kwargs):
+        from backend.services.gemini.chat.schema import GeminiChatResponse
+        
+        return GeminiChatResponse(
+            messages=[
+                "I can help you understand those SQLAlchemy concepts!",
+                "Flush forces pending changes to be sent to the database immediately.",
+                "Await is used for async operations - it waits for the operation to complete.",
+                "Fresh reloads an object from the database, discarding any local changes."
+            ]
+        )
+    
+    with patch('backend.api.v1.endpoints.chat.gemini_messages_generator', side_effect=mock_gemini_messages_generator) as mock:
         yield mock
