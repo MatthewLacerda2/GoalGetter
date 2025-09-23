@@ -1,9 +1,9 @@
+import uuid
+from enum import Enum
+from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, ForeignKey, Integer, JSON, DateTime, Integer
-from datetime import datetime
-import uuid
 from backend.models.base import Base
-from enum import Enum
 
 class QuestionPurpose(Enum):
     TEACH = "teach"
@@ -20,6 +20,7 @@ class MultipleChoiceQuestion(Base):
     choices = Column(JSON, nullable=False)
     correct_answer_index = Column(Integer, nullable=False)
     student_answer_index = Column(Integer, nullable=True, default=None)
+    
     seconds_spent = Column(Integer, nullable=True, default=None)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     last_updated_at = Column(DateTime, nullable=True, default=None)
