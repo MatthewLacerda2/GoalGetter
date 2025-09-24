@@ -4,7 +4,7 @@ from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreat
 from backend.schemas.goal import GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse, GoalFullCreationRequest
 
 @pytest.mark.asyncio
-async def test_generate_follow_up_questions_success(authenticated_client, mock_gemini_follow_up_questions):
+async def test_generate_follow_up_questions_success(authenticated_client, mock_gemini_follow_up_questions, mock_gemini_prompt_validation):
     """Test that the onboarding initiation endpoint returns a valid response for a valid request."""
     
     client, access_token = authenticated_client
@@ -27,7 +27,7 @@ async def test_generate_follow_up_questions_success(authenticated_client, mock_g
     assert isinstance(validated_response, GoalCreationFollowUpQuestionsResponse)
 
 @pytest.mark.asyncio
-async def test_generate_study_plan_success(authenticated_client, mock_gemini_study_plan):
+async def test_generate_study_plan_success(authenticated_client, mock_gemini_study_plan, mock_gemini_follow_up_validation):
     """Test that the onboarding generate study plan endpoint returns a valid response for a valid request."""
     
     client, access_token = authenticated_client

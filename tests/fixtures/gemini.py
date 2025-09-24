@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from unittest.mock import patch
 from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalStudyPlanResponse
+from backend.services.gemini.onboarding.schema import GoalValidation, FollowUpValidation
 
 @pytest.fixture
 def mock_gemini_follow_up_questions():
@@ -95,4 +96,39 @@ def mock_gemini_messages_generator():
         )
     
     with patch('backend.api.v1.endpoints.chat.gemini_messages_generator', side_effect=mock_gemini_messages_generator) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_prompt_validation():
+    """Fixture to mock Gemini prompt validation response"""
+    def mock_get_prompt_validation(*args, **kwargs):
+        return GoalValidation(
+            makes_sense=True,
+            is_harmless=True,
+            is_achievable=True,
+            reasoning="Mocked reasoning for validation",
+        )
+
+    with patch(
+        'backend.api.v1.endpoints.onboarding.get_prompt_validation',
+        side_effect=mock_get_prompt_validation,
+    ) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_follow_up_validation():
+    """Fixture to mock Gemini follow up validation response"""
+    def mock_get_follow_up_validation(*args, **kwargs):
+        return FollowUpValidation(
+            has_enough_information=True,
+            makes_sense=True,
+            is_harmless=True,
+            is_achievable=True,
+            reasoning="mocked reasoning for validation",
+        )
+
+    with patch(
+        'backend.api.v1.endpoints.onboarding.get_follow_up_validation',
+        side_effect=mock_get_follow_up_validation,
+    ) as mock:
         yield mock

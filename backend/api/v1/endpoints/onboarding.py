@@ -10,6 +10,8 @@ from backend.schemas.student import StudentCurrentStatusResponse
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
+from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, get_follow_up_validation, isGoalValidated, isFollowUpValidated
+from backend.services.gemini.onboarding.schema import GoalValidation, FollowUpValidation
 
 router = APIRouter()
 
@@ -23,6 +25,12 @@ async def generate_follow_up_questions(request: GoalCreationFollowUpQuestionsReq
     if user.goal_name is not None:
         raise HTTPException(status_code=400, detail="User already has a goal")
     
+    validation: GoalValidation = get_prompt_validation(request)
+    is_validated: bool = isGoalValidated(validation)
+    
+    if not is_validated:
+        raise HTTPException(status_code=400, detail=validation.reasoning)
+    
     return get_gemini_follow_up_questions(request)
 
 @router.post(
@@ -34,6 +42,12 @@ async def generate_study_plan(request: GoalStudyPlanRequest, user: Student = Dep
     
     if user.goal_name is not None:
         raise HTTPException(status_code=400, detail="User already has a goal")
+    
+    validation: FollowUpValidation = get_follow_up_validation(request)
+    is_validated: bool = isFollowUpValidated(validation)
+    
+    if not is_validated:
+        raise HTTPException(status_code=400, detail=validation.reasoning)
     
     return get_gemini_study_plan(request)
 
