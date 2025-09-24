@@ -138,8 +138,6 @@ async def get_chat_messages(
     
     return ChatMessageResponse(messages=messages)
 
-#We only embed AI-generated messages.
-#We put whole array together (for context) and embed it
 @router.patch("/likes", response_model=ChatMessageItem)
 async def like_message(
     request: LikeMessageRequest,

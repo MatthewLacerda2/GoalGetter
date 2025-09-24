@@ -13,9 +13,9 @@ class SubjectiveQuestionEvaluationResponse(BaseModel):
     question_id: str
     question: str
     student_answer: str
-    llm_approval: bool
     llm_evaluation: str
     llm_metacognition: str
+    llm_approval: bool
     
 class SubjectiveQuestionsAssessmentEvaluationRequest(BaseModel):
     questions_ids: List[str]
@@ -28,3 +28,12 @@ class SubjectiveQuestionsAssessmentEvaluationResponse(BaseModel):
     llm_metacognition: str
     is_approved: bool
     grade: float
+
+class SubjectiveThinkLessonEvaluationRequest(BaseModel):
+    questions_ids: List[str]
+
+class SubjectiveThinkLessonEvaluationResponse(BaseModel):
+    llm_evaluation: str
+    llm_metacognition: str
+    is_progressing: bool
+    prowess_scale: int

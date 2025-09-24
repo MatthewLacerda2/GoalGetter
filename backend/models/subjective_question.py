@@ -1,6 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, ForeignKey, Boolean, Integer
+from datetime import datetime
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey, Boolean, Integer, DateTime
 from pgvector.sqlalchemy import Vector
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
@@ -18,6 +19,10 @@ class SubjectiveQuestion(Base):
     llm_evaluation_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_approval = Column(Boolean, nullable=True, default=None)
+    
+    seconds_spent = Column(Integer, nullable=True, default=None)
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
+    last_updated_at = Column(DateTime, nullable=True, default=None)
     xp = Column(Integer, nullable=True)
     
     objective = relationship("Objective", back_populates="subjective_questions")

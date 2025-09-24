@@ -8,7 +8,7 @@ from enum import Enum
 class QuestionPurpose(Enum):
     TEACH = "teach"
     EVALUATE = "evaluate"
-    THOUGHT_PROVOKE = "thought_provoke"    
+    THINK = "think"    
 
 class MultipleChoiceQuestion(Base):
     __tablename__ = "multiple_choice_questions"
