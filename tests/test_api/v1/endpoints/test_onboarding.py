@@ -1,7 +1,7 @@
 import pytest
 from backend.schemas.student import StudentCurrentStatusResponse
-from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse, GoalFullCreationRequest
-from unittest.mock import patch
+from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest
+from backend.schemas.goal import GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse, GoalFullCreationRequest
 
 @pytest.mark.asyncio
 async def test_generate_follow_up_questions_success(authenticated_client, mock_gemini_follow_up_questions):
