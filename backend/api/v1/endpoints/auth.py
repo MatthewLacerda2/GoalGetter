@@ -13,64 +13,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def signup(
-    oauth_data: OAuth2Request,
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    Sign up a new user using Google OAuth2 token.
-    """
-    try:        
-        user_info = verify_google_token(oauth_data.access_token)
-        
-        student_repo = StudentRepository(db)
-        existing_user = await student_repo.get_by_google_id(user_info["sub"])
-                
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="User already exists"
-            )
-            
-        user = Student(
-            email=user_info["email"],
-            google_id=user_info["sub"],
-            name=user_info.get("name"),
-        )
-        
-        created_user = await student_repo.create(user)
-        
-        access_token = create_access_token(
-            data={"sub": created_user.google_id},  # Use google_id instead of str(created_user.id)
-        )
-        
-        await db.commit()
-        
-        token_response = TokenResponse(
-            access_token=access_token,
-            student=created_user
-        )
-                
-        return token_response
-    
-    except IntegrityError as e:
-        print(f"\nINTEGRITY ERROR IN SIGNUP: {type(e).__name__}: {str(e)}")
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User already exists"
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"\nEXCEPTION CAUGHT IN SIGNUP: {type(e).__name__}: {str(e)}")
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid Google token"
-        )
-        
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def login(
     oauth_data: OAuth2Request,
