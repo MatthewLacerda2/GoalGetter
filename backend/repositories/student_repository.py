@@ -53,9 +53,6 @@ class StudentRepository(BaseRepository[Student]):
         current_user_result = await self.db.execute(current_user_stmt)
         current_user = current_user_result.scalar_one_or_none()
         
-        if not current_user or not current_user.current_objective_id:
-            return None, []
-        
         current_xp = current_user.overall_xp
         
         # Get the users right above in the leaderboard
@@ -88,7 +85,7 @@ class StudentRepository(BaseRepository[Student]):
         
         leaderboard_users = list(users_above) + [current_user] + list(users_below)
         
-        return current_user, leaderboard_users
+        return leaderboard_users
     
     async def get_user_with_goal(self, user_id: str) -> Optional[Student]:
         """Get a user with their goal information loaded"""

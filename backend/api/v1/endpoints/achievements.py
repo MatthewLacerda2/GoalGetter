@@ -4,13 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, HTTPException, Depends, Query
 from backend.core.database import get_db
 from backend.core.security import get_current_user
-from backend.repositories.player_achievement_repository import PlayerAchievementRepository
-from backend.schemas.streak import XpDay
-from backend.schemas.streak import XpByDaysResponse
+from backend.schemas.streak import XpDay, XpByDaysResponse
 from backend.models.student import Student
 from backend.models.achievement import Achievement
 from backend.repositories.student_repository import StudentRepository
 from backend.repositories.streak_day_repository import StreakDayRepository
+from backend.repositories.player_achievement_repository import PlayerAchievementRepository
 from backend.schemas.player_achievement import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse, LeaderboardItem
 
 router = APIRouter()
@@ -23,10 +22,7 @@ async def get_leaderboard(
     """Get the leaderboard around the current user's XP level"""
     
     student_repo = StudentRepository(db)
-    current_user_with_goal, leaderboard_users = await student_repo.get_leaderboard_around_user(current_user.id, limit=10)
-        
-    if not current_user_with_goal:
-        raise HTTPException(status_code=404, detail="User did not finish the onboarding and does not have an objective.")
+    leaderboard_users = await student_repo.get_leaderboard_around_user(current_user.id, limit=10)
     
     leaderboard_items: List[LeaderboardItem] = []
     for student in leaderboard_users:
