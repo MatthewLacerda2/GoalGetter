@@ -1,6 +1,5 @@
 import re
 import uuid
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from typing import Optional
@@ -9,14 +8,14 @@ from backend.core.database import get_db
 from backend.core.security import get_current_user
 from backend.models.student import Student
 from backend.models.chat_message import ChatMessage
-from backend.repositories.student_context_repository import StudentContextRepository
-from backend.utils.gemini.gemini_configs import get_gemini_embeddings
-from backend.repositories.objective_repository import ObjectiveRepository
-from backend.repositories.chat_message_repository import ChatMessageRepository
-from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.schemas.chat_message import LikeMessageRequest, EditMessageRequest
+from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.services.gemini.chat.schema import ChatMessageWithGemini, StudentContextToChat
 from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, CreateMessageRequest, CreateMessageResponse, ChatMessageResponseItem
+from backend.repositories.objective_repository import ObjectiveRepository
+from backend.repositories.chat_message_repository import ChatMessageRepository
+from backend.repositories.student_context_repository import StudentContextRepository
+from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 
 router = APIRouter()
 
@@ -34,36 +33,39 @@ async def create_message(
     full_text = ". ".join([m.message for m in request.messages_list])
     full_text_embedding = get_gemini_embeddings(full_text)
     
-    items: List[ChatMessage] = [
+    request_chat_messages: List[ChatMessage] = [
         ChatMessage(
             id=str(uuid.uuid4()),
             student_id=current_user.id,
             sender_id=current_user.id,
             array_id=request_array_id,
-            message=m.message,
-            is_liked=False,
             created_at=m.datetime,
-            message_embedding=full_text_embedding
+            message=m.message,
+            message_embedding=full_text_embedding,
+            num_tokens=len([w for w in re.split(r"[ \n.,?]", m.message) if w]),   #TODO: improve this
+            is_liked=False,
         ) for m in request.messages_list
     ]
     
-    yesterday_messages = await chat_repo.get_recent_messages(current_user.id, days=1)
+    yesterday_chat_messages = await chat_repo.get_recent_messages(current_user.id, days=1)
     
-    yesterday2gemini: List[ChatMessageWithGemini] = [
+    yesterday_4_gemini: List[ChatMessageWithGemini] = [
         ChatMessageWithGemini(
             message=y.message,
+            time=y.created_at.strftime("%H:%M:%S"),
             role="user" if y.sender_id == y.student_id else "assistant",
-            time=y.created_at.strftime("%H:%M:%S")
-        ) for y in yesterday_messages
+        ) for y in yesterday_chat_messages
     ]
     
-    items2gemini: List[ChatMessageWithGemini] = yesterday2gemini + [
+    request_to_gemini: List[ChatMessageWithGemini] = [
         ChatMessageWithGemini(
             message=m.message,
             role="user",
             time=m.created_at.strftime("%H:%M:%S")
-        ) for m in items
+        ) for m in request_chat_messages
     ]
+    
+    total_chat_to_gemini = yesterday_4_gemini + request_to_gemini
     
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
@@ -79,7 +81,7 @@ async def create_message(
     ]
     
     ai_response = gemini_messages_generator(
-        items2gemini, context, objective.name, objective.description, current_user.goal_name
+        total_chat_to_gemini, context, objective.name, objective.description, current_user.goal_name
     )
     
     full_ai_text = ". ".join([m for m in ai_response.messages])
@@ -99,7 +101,7 @@ async def create_message(
         ) for message in ai_response.messages
     ]
 
-    await chat_repo.create_many(items)
+    await chat_repo.create_many(request_chat_messages)
     await chat_repo.create_many(ai_chat_messages)
     
     await db.commit()

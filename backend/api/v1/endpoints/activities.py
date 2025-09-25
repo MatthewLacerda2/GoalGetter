@@ -41,10 +41,7 @@ async def take_multiple_choice_activity(
     """
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
-    
-    if not objective:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User did not finish the onboarding and does not have an objective.")
-    
+        
     multiple_choice_question_results = await get_unanswered_or_wrong_questions(db, objective.id)
     
     if len(multiple_choice_question_results) > 5:

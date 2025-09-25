@@ -3,17 +3,16 @@ from fastapi import APIRouter, Depends, HTTPException
 import asyncio
 from backend.models.goal import Goal
 from backend.core.database import get_db
+from backend.core.security import verify_google_token_header, create_access_token
 from backend.models.student import Student
 from backend.models.objective import Objective
-from backend.core.security import get_current_user, verify_google_token_header, create_access_token
-from backend.schemas.student import StudentCurrentStatusResponse, TokenResponse
-from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+from backend.repositories.student_repository import StudentRepository
+from backend.schemas.student import TokenResponse
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
+from backend.services.gemini.onboarding.schema import GoalValidation, FollowUpValidation
 from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, get_follow_up_validation, isGoalValidated, isFollowUpValidated
-from backend.services.gemini.onboarding.schema import GoalValidation, FollowUpValidation
-from backend.repositories.student_repository import StudentRepository
-from sqlalchemy.exc import IntegrityError
+from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 
 router = APIRouter()
 
@@ -71,7 +70,6 @@ async def generate_full_creation(
         if existing_user:
             raise HTTPException(status_code=409,detail="User already exists")
         
-        # Create goal first
         goal = Goal(
             name=request.goal_name,
             description=request.goal_description,
@@ -81,7 +79,6 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(goal)
         
-        # Create objective
         objective = Objective(
             goal_id=goal.id,
             name=request.first_objective_name,
@@ -92,7 +89,6 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(objective)
         
-        # Create user with all required fields
         user = Student(
             email=user_info["email"],
             google_id=user_info["sub"],
@@ -117,12 +113,6 @@ async def generate_full_creation(
             student=created_user
         )
         
-    except IntegrityError as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="User already exists"
-        )
     except HTTPException:
         raise
     except Exception as e:

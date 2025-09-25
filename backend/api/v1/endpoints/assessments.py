@@ -39,9 +39,6 @@ async def take_subjective_questions_assessment(
     """
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
-    
-    if not objective:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User did not finish the onboarding and does not have an objective.")
 
     subjective_question_results = await get_unanswered_or_wrong_questions(db, objective.id)
     

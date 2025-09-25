@@ -25,7 +25,7 @@ async def login(
     user = await student_repo.get_by_google_id(user_info["sub"])
     
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
     user.last_login = datetime.now()
     updated_user = await student_repo.update(user)
