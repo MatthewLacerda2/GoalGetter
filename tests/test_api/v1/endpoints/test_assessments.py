@@ -4,7 +4,7 @@ from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
 
 @pytest.mark.asyncio
 async def test_take_subjective_questions_assessment_success(authenticated_client_with_objective, mock_gemini_subjective_questions):
-    """Test that the assessment endpoint returns a valid response for a user with a goal."""
+    """Test that the assessment endpoint returns a valid response."""
     
     client, access_token = authenticated_client_with_objective
     

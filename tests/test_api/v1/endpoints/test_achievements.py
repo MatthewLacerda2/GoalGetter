@@ -39,7 +39,6 @@ async def test_get_leaderboard_invalid_token(client, mock_google_verify):
     )
     assert response.status_code == 401
 
-#FIXME: this ain't workin'. it will once every user MUST have a goal and objective
 @pytest.mark.asyncio
 async def test_get_leaderboard_with_student(authenticated_client_with_objective):
     """Test getting the leaderboard with a student"""

@@ -53,3 +53,7 @@ We use Google Gemini 2.5
 - flutter run -d chrome --web-host=<your-ip> --web-port=8080
 
 Chrome is just for development purposes. The app is meant to be used on mobile only
+
+## Conventions
+
+All Schemas sent to Gemini have 'Gemini' as prefix and do not have pydantic's Field annotator
