@@ -1,15 +1,14 @@
-from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
 from backend.models.student import Student
 from backend.models.goal import Goal
 from backend.models.objective import Objective
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
+from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
 import pytest_asyncio
 
 @pytest_asyncio.fixture
 async def test_user(test_db):
     """Fixture to create a test user with goal and objective for testing"""
     
-    # Create goal first
     goal = Goal(
         name="Learn Python Programming",
         description="Master Python programming fundamentals and build applications"
@@ -17,7 +16,6 @@ async def test_user(test_db):
     test_db.add(goal)
     await test_db.flush()
     
-    # Create objective
     objective = Objective(
         goal_id=goal.id,
         name="Complete Python Basics",
@@ -26,7 +24,6 @@ async def test_user(test_db):
     test_db.add(objective)
     await test_db.flush()
     
-    # Create student with goal and objective
     student = Student(
         email="test@example.com",
         google_id="test_google_id_123",

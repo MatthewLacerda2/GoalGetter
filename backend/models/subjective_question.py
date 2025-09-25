@@ -14,11 +14,11 @@ class SubjectiveQuestion(Base):
     question = Column(String, nullable=False)
     
     student_answer = Column(String, nullable=True, default=None)
-    llm_evaluation = Column(String, nullable=True, default=None)
-    llm_metacognition = Column(String, nullable=True, default=None)
-    llm_evaluation_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
-    llm_metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     llm_approval = Column(Boolean, nullable=True, default=None)
+    llm_evaluation = Column(String, nullable=True, default=None)
+    llm_evaluation_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    llm_metacognition = Column(String, nullable=True, default=None)
+    llm_metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     seconds_spent = Column(Integer, nullable=True, default=None)
     created_at = Column(DateTime, nullable=False, default=datetime.now())

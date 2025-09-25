@@ -1,6 +1,13 @@
 import pytest
-from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse
 from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
+from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse, SubjectiveQuestionEvaluationRequest, SubjectiveQuestionEvaluationResponse
+
+test_single_question = SubjectiveQuestionEvaluationRequest(
+    question_id="a1b2-c3d4",
+    question="A Question",
+    student_answer="Theres your answer",
+    seconds_spent= 10
+)
 
 @pytest.mark.asyncio
 async def test_take_subjective_questions_assessment_success(authenticated_client_with_objective, mock_gemini_subjective_questions):
@@ -29,3 +36,37 @@ async def test_take_subjective_questions_assessment_invalid_token(client, mock_g
     
     response = await client.post("/api/v1/assessments", headers={"Authorization": "Bearer invalid_token"})
     assert response.status_code == 401
+
+@pytest.mark.asyncio
+async def test_subjective_question_evaluation_unauthorized(client):
+    """Test that the single question evaluation endpoint returns 403 without token."""
+    response = await client.post("/api/v1/assessments/evaluate/single_question")
+    assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_subjective_question_evaluation_invalid_token(client, mock_google_verify):
+    """Test that the single question evaluation endpoint returns 401 with invalid token."""
+    mock_google_verify.side_effect = Exception("Invalid token")
+    
+    response = await client.post("/api/v1/assessments/evaluate/single_question", headers={"Authorization": "Bearer invalid_token"})
+    assert response.status_code == 401
+
+@pytest.mark.asyncio
+async def test_subjective_question_evaluation_success(authenticated_client_with_objective):
+    """Test that the single question evaluation endpoint returns a valid response."""
+    
+    client, access_token = authenticated_client_with_objective
+    
+    response = await client.post(
+        "/api/v1/assessments/evaluate/single_question",
+        headers={"Authorization": f"Bearer {access_token}"},
+        payload=test_single_question
+    )
+    
+    assert response.status_code == 201
+    
+    assessment_response = SubjectiveQuestionEvaluationResponse.model_validate(response.json())
+    assert isinstance(assessment_response, SubjectiveQuestionEvaluationResponse)
+    assessment_response.question_id = test_single_question.question_id
+    assessment_response.question = test_single_question.question
+    assessment_response.student_answer = test_single_question.student_answer

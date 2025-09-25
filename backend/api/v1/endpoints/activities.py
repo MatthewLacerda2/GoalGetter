@@ -46,9 +46,7 @@ async def take_multiple_choice_activity(
         
     multiple_choice_question_results = await get_unanswered_or_wrong_questions(db, objective.id)
     
-    amount_questions_in_db = len(multiple_choice_question_results)
-    
-    if amount_questions_in_db >= NUM_QUESTIONS_PER_LESSON:
+    if len(multiple_choice_question_results) >= NUM_QUESTIONS_PER_LESSON:
         return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
     
     objective_repo = ObjectiveRepository(db)

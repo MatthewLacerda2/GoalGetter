@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlalchemy import select
-from backend.models.multiple_choice_question import MultipleChoiceQuestion
 from backend.repositories.base import BaseRepository
+from backend.models.multiple_choice_question import MultipleChoiceQuestion
 
 class MultipleChoiceQuestionRepository(BaseRepository[MultipleChoiceQuestion]):
     
