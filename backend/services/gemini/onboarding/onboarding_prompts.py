@@ -22,10 +22,11 @@ def get_goal_follow_up_questions_prompt(prompt: str) -> str:
     Your questions MUST:
     - Find out what is the user's knowledge/experience in the subject.
     - Build a knowledge profile of the user within that field.
-    - Find out what motivates the user.
     - Find out if the user is afraid or intimidated by any part of the challenges ahead.
+    - Find out what motivates the user.
 
     Look to find if the user fits an archetype of student in that field, as quick as possible.
+    Always assume the user doesn't know what he doesn't know.
 
 
     ## Format
@@ -61,12 +62,12 @@ def get_goal_study_plan_prompt(goal_study_plan_request: GoalStudyPlanRequest) ->
     Your task is to generate a basic study guide for the user.
     You will generate a goal, an objective and a list of milestones.
 
-    The goal must be specific and challenging. Something an expert could do.
-    The objective is the most immediate next step towards the goal, right above the user's current knowledge level.
+    The goal must be ambitious and challenging.
+    The objective is the most basic thing just above the student's current level.
     The milestones are just the general milestones that a person with that goal will generally achieve.
 
-    The goal and objective are specific for the user, whereas the milestones are general.
     Only the objective takes the user's current knowledge level into account.
+    The milestones don't need to be specific, it's just a general idea.
 
 
     ## Format
@@ -79,9 +80,8 @@ def get_goal_study_plan_prompt(goal_study_plan_request: GoalStudyPlanRequest) ->
     - Milestones: The main milestones to the goal.
 
     The milestones must start with the first objective. 4 to 8 milestones.
-    Write what are the milestones. Don't explain them. Be short and concise.
+    We want the milestones definition, not an explanation. Be succinct.
 
     Keep it concise and to the point.
     The study guide must be in the language of the user's request, questions and answers.
-    Your study guide must be under 200 words.
     """
