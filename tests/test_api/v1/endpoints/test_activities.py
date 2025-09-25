@@ -58,7 +58,7 @@ async def test_evaluate_multiple_choice_activity_unauthorized(client, mock_googl
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_evaluate_multiple_choice_activity_success(authenticated_client_with_objective):
+async def test_evaluate_multiple_choice_activity_success(authenticated_client_with_objective, test_multiple_choice_questions):
     """Test that the evaluate activities endpoint returns a valid response."""
     
     client, access_token = authenticated_client_with_objective

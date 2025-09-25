@@ -1,8 +1,9 @@
-import pytest
-import pytest_asyncio
+from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
 from backend.models.student import Student
 from backend.models.goal import Goal
 from backend.models.objective import Objective
+from backend.models.multiple_choice_question import MultipleChoiceQuestion
+import pytest_asyncio
 
 @pytest_asyncio.fixture
 async def test_user(test_db):
@@ -44,3 +45,25 @@ async def test_user(test_db):
     await test_db.refresh(objective)
     
     yield student
+
+@pytest_asyncio.fixture
+async def test_multiple_choice_questions(test_db, test_user):
+    """Fixture to create multiple choice questions for testing"""
+    
+    questions = [MultipleChoiceQuestion(
+        id=f"id_{i}",
+        objective_id=test_user.current_objective_id,
+        question=f"Question {i}",
+        choices=["A","B","C","D"],
+        correct_answer_index=0,
+        xp=1
+    ) for i in range (NUM_QUESTIONS_PER_LESSON)]
+    test_db.add_all(questions)
+    
+    await test_db.flush()
+    await test_db.commit()
+    
+    for question in questions:
+        await test_db.refresh(question)
+    
+    yield questions
