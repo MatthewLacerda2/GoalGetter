@@ -69,10 +69,7 @@ async def generate_full_creation(
         existing_user = await student_repo.get_by_google_id(user_info["sub"])
         
         if existing_user:
-            raise HTTPException(
-                status_code=409,
-                detail="User already exists"
-            )
+            raise HTTPException(status_code=409,detail="User already exists")
         
         user = Student(
             email=user_info["email"],
@@ -110,9 +107,7 @@ async def generate_full_creation(
             save_description_embeddings_async(goal, objective, db)
         )
         
-        access_token = create_access_token(
-            data={"sub": created_user.google_id}
-        )
+        access_token = create_access_token(data={"sub": created_user.google_id})
         
         await db.commit()
         

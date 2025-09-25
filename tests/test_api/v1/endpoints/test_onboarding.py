@@ -1,9 +1,9 @@
 import pytest
 from backend.schemas.student import TokenResponse
-from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest
 from backend.schemas.goal import GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse, GoalFullCreationRequest
+from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest
 
-test_request = GoalFullCreationRequest(
+full_creation_request = GoalFullCreationRequest(
     goal_name="Create a Python Application",
     goal_description="Create a Python App for Data Science",
     first_objective_name="Create a Bare Minimum Python Script",
@@ -14,14 +14,14 @@ test_request = GoalFullCreationRequest(
 async def test_generate_follow_up_questions_success(client, mock_google_verify, mock_gemini_follow_up_questions, mock_gemini_prompt_validation):
     """Test that the onboarding initiation endpoint returns a valid response for a valid request."""
     
-    test_request = GoalCreationFollowUpQuestionsRequest(
+    follow_up_questions_request = GoalCreationFollowUpQuestionsRequest(
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps"
     )
     
     response = await client.post(
         "/api/v1/onboarding/follow_up_questions",
         headers={"Authorization": "Bearer valid_google_token"},
-        json=test_request.model_dump(),
+        json=follow_up_questions_request.model_dump(),
     )
 
     assert response.status_code == 201
@@ -33,7 +33,7 @@ async def test_generate_follow_up_questions_success(client, mock_google_verify, 
 async def test_generate_study_plan_success(client, mock_google_verify, mock_gemini_study_plan, mock_gemini_follow_up_validation):
     """Test that the onboarding generate study plan endpoint returns a valid response for a valid request."""
     
-    test_request = GoalStudyPlanRequest(
+    study_plan_request = GoalStudyPlanRequest(
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps",
         questions_answers=[GoalFollowUpQuestionAndAnswer(question="What is your current skill level in this area?", answer="I know the basics of Python")]
     )
@@ -41,7 +41,7 @@ async def test_generate_study_plan_success(client, mock_google_verify, mock_gemi
     response = await client.post(
         "/api/v1/onboarding/study_plan",
         headers={"Authorization": "Bearer valid_google_token"},
-        json=test_request.model_dump()
+        json=study_plan_request.model_dump()
     )
     
     assert response.status_code == 201
@@ -52,18 +52,11 @@ async def test_generate_study_plan_success(client, mock_google_verify, mock_gemi
 @pytest.mark.asyncio
 async def test_generate_full_creation_success(client, mock_google_verify, mock_gemini_embeddings, test_db):
     """Test that the onboarding generate full creation endpoint returns a valid response for a valid request."""
-    
-    test_request = GoalFullCreationRequest(
-        goal_name="Create a Python Application",
-        goal_description="Create a Python App for Data Science",
-        first_objective_name="Create a Bare Minimum Python Script",
-        first_objective_description="Learn Programming Fundamentals to create a bare minimum Python script"
-    )
-    
+        
     response = await client.post(
         "/api/v1/onboarding/full_creation",
         headers={"Authorization": "Bearer valid_google_token"},
-        json=test_request.model_dump()
+        json=full_creation_request.model_dump()
     )
     
     assert response.status_code == 201
@@ -82,7 +75,7 @@ async def test_generate_full_creation_invalid_token(client, mock_google_verify):
     response = await client.post(
         "/api/v1/onboarding/full_creation",
         headers={"Authorization": "Bearer invalid_token"},
-        json=test_request.model_dump()
+        json=full_creation_request.model_dump()
     )
     
     assert response.status_code == 401
@@ -95,13 +88,13 @@ async def test_generate_full_creation_existing_user(client, mock_google_verify, 
     first_response = await client.post(
         "/api/v1/onboarding/full_creation",
         headers={"Authorization": "Bearer valid_google_token"},
-        json=test_request.model_dump()
+        json=full_creation_request.model_dump()
     )
     
     second_response = await client.post(
         "/api/v1/onboarding/full_creation",
         headers={"Authorization": "Bearer valid_google_token"},
-        json=test_request.model_dump()
+        json=full_creation_request.model_dump()
     )
     
     assert second_response.status_code == 409
@@ -113,7 +106,7 @@ async def test_generate_full_creation_missing_token(client):
     
     response = await client.post(
         "/api/v1/onboarding/full_creation",
-        json=test_request.model_dump()
+        json=full_creation_request.model_dump()
     )
     
     assert response.status_code == 403
