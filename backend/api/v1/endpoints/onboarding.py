@@ -71,13 +71,7 @@ async def generate_full_creation(
         if existing_user:
             raise HTTPException(status_code=409,detail="User already exists")
         
-        user = Student(
-            email=user_info["email"],
-            google_id=user_info["sub"],
-            name=user_info.get("name"),
-        )
-        created_user = await student_repo.create(user)
-        
+        # Create goal first
         goal = Goal(
             name=request.goal_name,
             description=request.goal_description,
@@ -87,6 +81,7 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(goal)
         
+        # Create objective
         objective = Objective(
             goal_id=goal.id,
             name=request.first_objective_name,
@@ -97,11 +92,17 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(objective)
         
-        created_user.goal_id = goal.id
-        created_user.goal_name = goal.name
-        created_user.current_objective_id = objective.id
-        created_user.current_objective_name = objective.name
-        await student_repo.update(created_user)
+        # Create user with all required fields
+        user = Student(
+            email=user_info["email"],
+            google_id=user_info["sub"],
+            name=user_info.get("name"),
+            goal_id=goal.id,
+            goal_name=goal.name,
+            current_objective_id=objective.id,
+            current_objective_name=objective.name,
+        )
+        created_user = await student_repo.create(user)
         
         asyncio.create_task(
             save_description_embeddings_async(goal, objective, db)
