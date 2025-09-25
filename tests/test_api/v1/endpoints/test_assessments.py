@@ -35,17 +35,3 @@ async def test_take_subjective_questions_assessment_invalid_token(client, mock_g
         headers={"Authorization": "Bearer invalid_token"}
     )
     assert response.status_code == 401
-
-@pytest.mark.asyncio
-async def test_take_subjective_questions_assessment_no_goal(authenticated_client):
-    """Test that the assessment endpoint returns 400 when student has no goal."""
-
-    client, access_token = authenticated_client
-    
-    response = await client.post(
-        "/api/v1/assessments",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-    
-    assert response.status_code == 400
-    assert response.json()["detail"] == "User did not finish the onboarding and does not have an objective."

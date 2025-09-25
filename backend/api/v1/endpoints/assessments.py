@@ -47,24 +47,23 @@ async def take_subjective_questions_assessment(
     
     if len(subjective_question_results) > 5:
         return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in subjective_question_results])
-    else:
-        
-        gemini_sq_questions = gemini_generate_subjective_questions(
-            objective.name, objective.description, current_user.goal_name, NUM_QUESTIONS_PER_EVALUATION
+    
+    gemini_sq_questions = gemini_generate_subjective_questions(
+        objective.name, objective.description, current_user.goal_name, NUM_QUESTIONS_PER_EVALUATION
+    )
+    
+    for question in gemini_sq_questions.questions:
+        sq = SubjectiveQuestion(
+            objective_id=objective.id,
+            question=question,
         )
-        
-        for question in gemini_sq_questions.questions:
-            sq = SubjectiveQuestion(
-                objective_id=objective.id,
-                question=question,
-            )
-            db.add(sq)
-        
-        await db.flush()
-        await db.commit()
-        
-        stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id)
-        result = await db.execute(stmt)
-        db_sqs = result.scalars().all()
-        
-        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in db_sqs])
+        db.add(sq)
+    
+    await db.flush()
+    await db.commit()
+    
+    stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id)
+    result = await db.execute(stmt)
+    db_sqs = result.scalars().all()
+    
+    return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in db_sqs])

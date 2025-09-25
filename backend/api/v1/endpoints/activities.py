@@ -49,35 +49,34 @@ async def take_multiple_choice_activity(
     
     if len(multiple_choice_question_results) > 5:
         return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
-    else:
-        
-        objective_repo = ObjectiveRepository(db)
-        objectives = await objective_repo.get_recent_by_goal_id(current_user.goal_id, limit = 4)
-        
-        student_context_repo = StudentContextRepository(db)
-        student_contexts = await student_context_repo.get_by_student_id(current_user.id, 5)
-        
-        contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
-        
-        gemini_mc_questions = gemini_generate_multiple_choice_questions(
-            objective.name, objective.description, [o.name for o in objectives], contexts, NUM_QUESTIONS_PER_LESSON
+    
+    objective_repo = ObjectiveRepository(db)
+    objectives = await objective_repo.get_recent_by_goal_id(current_user.goal_id, limit = 4)
+    
+    student_context_repo = StudentContextRepository(db)
+    student_contexts = await student_context_repo.get_by_student_id(current_user.id, 5)
+    
+    contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
+    
+    gemini_mc_questions = gemini_generate_multiple_choice_questions(
+        objective.name, objective.description, [o.name for o in objectives], contexts, NUM_QUESTIONS_PER_LESSON
+    )
+    
+    db_mcqs: List[MultipleChoiceQuestion] = []
+    
+    for question in gemini_mc_questions.questions:
+        mcq = MultipleChoiceQuestion(
+            objective_id=objective.id,
+            question=question.question,
+            choices=question.choices,
+            correct_answer_index=question.correct_answer_index,
         )
-        
-        db_mcqs: List[MultipleChoiceQuestion] = []
-        
-        for question in gemini_mc_questions.questions:
-            mcq = MultipleChoiceQuestion(
-                objective_id=objective.id,
-                question=question.question,
-                choices=question.choices,
-                correct_answer_index=question.correct_answer_index,
-            )
-            db.add(mcq)
-            db_mcqs.append(mcq)
-        
-        await db.flush()
-        await db.commit()
-        for mcq in db_mcqs:
-            await db.refresh(mcq)
-        
-        return MultipleChoiceActivityResponse(questions=[mcq for mcq in db_mcqs])
+        db.add(mcq)
+        db_mcqs.append(mcq)
+    
+    await db.flush()
+    await db.commit()
+    for mcq in db_mcqs:
+        await db.refresh(mcq)
+    
+    return MultipleChoiceActivityResponse(questions=[mcq for mcq in db_mcqs])
