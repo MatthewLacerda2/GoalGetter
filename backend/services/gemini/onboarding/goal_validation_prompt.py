@@ -49,7 +49,7 @@ def get_follow_up_validation_prompt(goal_study_plan_request: GoalStudyPlanReques
     - The user requested: {goal_study_plan_request.prompt}
     
     The user then answered a series of follow-up questions.
-    These answers will be used to define an ambitious goal, and define our first objetive.
+    These answers will be used to define an ambitious goal, and define our first objective.
     
     Here are the follow-up questions and their answers:
     {questions_answers}

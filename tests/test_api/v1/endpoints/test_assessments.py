@@ -8,10 +8,7 @@ async def test_take_subjective_questions_assessment_success(authenticated_client
     
     client, access_token = authenticated_client_with_objective
     
-    response = await client.post(
-        "/api/v1/assessments",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
+    response = await client.post("/api/v1/assessments", headers={"Authorization": f"Bearer {access_token}"})
     
     assert response.status_code == 201
     
@@ -30,8 +27,5 @@ async def test_take_subjective_questions_assessment_invalid_token(client, mock_g
     """Test that the assessment endpoint returns 401 with invalid token."""
     mock_google_verify.side_effect = Exception("Invalid token")
     
-    response = await client.post(
-        "/api/v1/assessments",
-        headers={"Authorization": "Bearer invalid_token"}
-    )
+    response = await client.post("/api/v1/assessments", headers={"Authorization": "Bearer invalid_token"})
     assert response.status_code == 401

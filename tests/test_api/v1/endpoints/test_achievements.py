@@ -33,10 +33,7 @@ async def test_get_leaderboard_invalid_token(client, mock_google_verify):
     """Test that the leaderboard endpoint returns 401 with invalid token."""
     mock_google_verify.side_effect = Exception("Invalid token")
     
-    response = await client.post(
-        "/api/v1/activities",
-        headers={"Authorization": "Bearer invalid_token"}
-    )
+    response = await client.post("/api/v1/activities", headers={"Authorization": "Bearer invalid_token"})
     assert response.status_code == 401
 
 @pytest.mark.asyncio

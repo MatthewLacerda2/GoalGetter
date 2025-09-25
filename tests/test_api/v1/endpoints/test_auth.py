@@ -69,10 +69,7 @@ async def test_delete_account_successful(client, mock_google_verify, test_user):
         'name': test_user.name
     }
     
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
+    login_response = await client.post("/api/v1/auth/login", json={"access_token": "fixture_user_token"})
     access_token = login_response.json()["access_token"]
     
     response = await client.delete(

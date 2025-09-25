@@ -1,4 +1,3 @@
-from re import L
 from typing import List
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -19,9 +18,9 @@ class MultipleChoiceQuestionAnswer(BaseModel):
     seconds_spent: int = Field(..., description="something", ge=2, le=3600)
 
 class MultipleChoiceActivityEvaluationRequest(BaseModel):
-    answers: List[MultipleChoiceQuestionAnswer]
+    answers: List[MultipleChoiceQuestionAnswer]# = Field(..., min_length=6)
     
 class MultipleChoiceActivityEvaluationResponse(BaseModel):
-    total_time_spent: int
-    student_accuracy: float
-    xp: int
+    total_seconds_spent: int = Field(..., description="Total amount of time spent in all questions in the lesson", ge=8, le=3600)
+    student_accuracy: float = Field(..., description="Percentage of right answers over amount of questions", ge=0, le=100)
+    xp: int = Field(..., description="Total amount of XP gained by all the questions in the lesson", ge=4)
