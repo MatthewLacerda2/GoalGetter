@@ -10,7 +10,7 @@ from backend.models.student import Student
 from backend.models.chat_message import ChatMessage
 from backend.schemas.chat_message import LikeMessageRequest, EditMessageRequest
 from backend.services.gemini.chat.chat import gemini_messages_generator
-from backend.services.gemini.chat.schema import ChatMessageWithGemini, StudentContextToChat
+from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
 from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, CreateMessageRequest, CreateMessageResponse, ChatMessageResponseItem
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.chat_message_repository import ChatMessageRepository
@@ -49,16 +49,16 @@ async def create_message(
     
     yesterday_chat_messages = await chat_repo.get_recent_messages(current_user.id, days=1)
     
-    yesterday_4_gemini: List[ChatMessageWithGemini] = [
-        ChatMessageWithGemini(
+    yesterday_4_gemini: List[GeminiChatMessage] = [
+        GeminiChatMessage(
             message=y.message,
             time=y.created_at.strftime("%H:%M:%S"),
             role="user" if y.sender_id == y.student_id else "assistant",
         ) for y in yesterday_chat_messages
     ]
     
-    request_to_gemini: List[ChatMessageWithGemini] = [
-        ChatMessageWithGemini(
+    request_to_gemini: List[GeminiChatMessage] = [
+        GeminiChatMessage(
             message=m.message,
             role="user",
             time=m.created_at.strftime("%H:%M:%S")

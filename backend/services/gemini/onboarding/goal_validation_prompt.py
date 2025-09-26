@@ -22,7 +22,7 @@ def get_goal_validation_prompt(prompt: str) -> str:
     
     This is a simple step to filter out any misuse of the app.
     
-    You will output a GoalValidation object with:
+    You will output a GeminiGoalValidation object with:
     - makes_sense: can we infer what the user said or wants?
     - is_harmless: the request is not immoral, is not ill intended and does not cause harm to anyone?
     - is_achievable: is possible to achieve if the user dedicates to it?
@@ -70,7 +70,7 @@ def get_follow_up_validation_prompt(goal_study_plan_request: GoalStudyPlanReques
     
     ## Output
     
-    You will output a FollowUpValidation object with:
+    You will output a GeminiFollowUpValidation object with:
     - has_enough_information: are the answers enough to setup goal and objective?
     - makes_sense: can we infer what the user said or wants?
     - is_harmless: the request is not immoral and can be done without harm to anyone?

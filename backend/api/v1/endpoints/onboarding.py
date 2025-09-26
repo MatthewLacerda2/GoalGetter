@@ -9,7 +9,7 @@ from backend.models.objective import Objective
 from backend.repositories.student_repository import StudentRepository
 from backend.schemas.student import TokenResponse
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
-from backend.services.gemini.onboarding.schema import GoalValidation, FollowUpValidation
+from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, get_follow_up_validation, isGoalValidated, isFollowUpValidated
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
@@ -26,7 +26,7 @@ async def generate_follow_up_questions(
     user_info: dict = Depends(verify_google_token_header)
 ):
         
-    validation: GoalValidation = get_prompt_validation(request)
+    validation: GeminiGoalValidation = get_prompt_validation(request)
     is_validated: bool = isGoalValidated(validation)
     
     if not is_validated:
@@ -44,7 +44,7 @@ async def generate_study_plan(
     user_info: dict = Depends(verify_google_token_header)
 ):
     
-    validation: FollowUpValidation = get_follow_up_validation(request)
+    validation: GeminiFollowUpValidation = get_follow_up_validation(request)
     is_validated: bool = isFollowUpValidated(validation)
     
     if not is_validated:

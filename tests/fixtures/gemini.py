@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from unittest.mock import patch
 from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalStudyPlanResponse
-from backend.services.gemini.onboarding.schema import GoalValidation, FollowUpValidation
+from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 
 @pytest.fixture
 def mock_gemini_follow_up_questions():
@@ -103,7 +103,7 @@ def mock_gemini_messages_generator():
 def mock_gemini_prompt_validation():
     """Fixture to mock Gemini prompt validation response"""
     def mock_get_prompt_validation(*args, **kwargs):
-        return GoalValidation(
+        return GeminiGoalValidation(
             makes_sense=True,
             is_harmless=True,
             is_achievable=True,
@@ -120,7 +120,7 @@ def mock_gemini_prompt_validation():
 def mock_gemini_follow_up_validation():
     """Fixture to mock Gemini follow up validation response"""
     def mock_get_follow_up_validation(*args, **kwargs):
-        return FollowUpValidation(
+        return GeminiFollowUpValidation(
             has_enough_information=True,
             makes_sense=True,
             is_harmless=True,
