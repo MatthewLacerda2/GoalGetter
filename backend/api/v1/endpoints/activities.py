@@ -21,16 +21,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-async def get_unanswered_or_wrong_questions(db: AsyncSession, objective_id: str):
-    unanswered = MultipleChoiceQuestion.student_answer_index == None
-    wrong = MultipleChoiceQuestion.student_answer_index != MultipleChoiceQuestion.correct_answer_index
-    stmt = select(MultipleChoiceQuestion).where(
-        MultipleChoiceQuestion.objective_id == objective_id,
-        unanswered | wrong
-    ).limit(NUM_QUESTIONS_PER_LESSON)
-    result = await db.execute(stmt)
-    return result.scalars().all()
-
 @router.post("", response_model=MultipleChoiceActivityResponse, status_code=status.HTTP_201_CREATED)
 async def take_multiple_choice_activity(
     db: AsyncSession = Depends(get_db),
@@ -44,7 +34,8 @@ async def take_multiple_choice_activity(
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
         
-    multiple_choice_question_results = await get_unanswered_or_wrong_questions(db, objective.id)
+    mcq_repo = MultipleChoiceQuestionRepository(db)
+    multiple_choice_question_results = await mcq_repo.get_unanswered_or_wrong(objective.id, NUM_QUESTIONS_PER_LESSON)
     
     if len(multiple_choice_question_results) >= NUM_QUESTIONS_PER_LESSON:
         return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)

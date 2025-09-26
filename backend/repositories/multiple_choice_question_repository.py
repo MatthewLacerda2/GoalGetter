@@ -16,7 +16,7 @@ class MultipleChoiceQuestionRepository(BaseRepository[MultipleChoiceQuestion]):
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
     
-    async def get_unanswered_or_wrong(self, objective_id: str, limit: int = 5) -> List[MultipleChoiceQuestion]:
+    async def get_unanswered_or_wrong(self, objective_id: str, limit: int) -> List[MultipleChoiceQuestion]:
         """Get unanswered or wrong questions for a specific objective"""
         unanswered = MultipleChoiceQuestion.student_answer_index == None
         wrong = MultipleChoiceQuestion.student_answer_index != MultipleChoiceQuestion.correct_answer_index
