@@ -1,29 +1,61 @@
 import logging
+import asyncio
 from datetime import datetime
 from fastapi import Depends, status
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from backend.core.security import get_current_user
-from backend.models.objective_note import ObjectiveNote
 from backend.models.student import Student
-from backend.models.student_context import StudentContext
 from backend.models.subjective_question import SubjectiveQuestion
-from backend.repositories.objective_note_repository import ObjectiveNoteRepository
+from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.repositories.objective_repository import ObjectiveRepository
-from backend.repositories.student_context_repository import StudentContextRepository
 from backend.repositories.subjective_question_repository import SubjectiveQuestionRepository
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentEvaluationRequest, SubjectiveQuestionsAssessmentEvaluationResponse
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse, SubjectiveQuestionEvaluationRequest, SubjectiveQuestionEvaluationResponse
-from backend.services.gemini.assessment.assessment import gemini_generate_subjective_questions
-from backend.services.gemini.assessment.overall_evaluation.overall_evaluation import gemini_subjective_evaluation_review
-from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
-from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+async def save_evaluation_data(
+    db: AsyncSession,
+    current_user: Student,
+    gemini_response,
+    obj
+):
+    """Background task to save evaluation data to database."""
+    from backend.models.objective_note import ObjectiveNote
+    from backend.models.student_context import StudentContext
+    from backend.repositories.objective_note_repository import ObjectiveNoteRepository
+    from backend.repositories.student_context_repository import StudentContextRepository
+    
+    try:
+        eval_embedding = get_gemini_embeddings(gemini_response.information)
+        meta_embedding = get_gemini_embeddings(gemini_response.information)
+        sd_ctx = StudentContext(
+            student_id=current_user.id,
+            goal_id=current_user.goal_id,
+            objective_id=current_user.current_objective_id,
+            state=gemini_response.evaluation,
+            state_embedding=eval_embedding,
+            metacognition=gemini_response.metacognition,
+            metacognition_embedding=meta_embedding
+        )
+        ctxt_repo = StudentContextRepository(db)
+        ctxt_repo.create(sd_ctx)
+        
+        info_embedding = get_gemini_embeddings(gemini_response.information)
+        info_note = ObjectiveNote(
+            objective_id=obj.id,
+            title=gemini_response.information[:32],
+            info=gemini_response.information,
+            info_embedding=info_embedding
+        )
+        notes_repo = ObjectiveNoteRepository(db)
+        notes_repo.create(info_note)
+    except Exception as e:
+        logger.error(f"Error saving evaluation data: {e}")
 
 @router.post("", response_model=SubjectiveQuestionsAssessmentResponse, status_code=status.HTTP_201_CREATED)
 async def take_subjective_questions_assessment(
@@ -35,6 +67,9 @@ async def take_subjective_questions_assessment(
 
     It takes one from the DB or creates a new assessment for the user if none exists.
     """
+    from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
+    from backend.services.gemini.assessment.assessment import gemini_generate_subjective_questions
+    
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
 
@@ -58,9 +93,8 @@ async def take_subjective_questions_assessment(
     await db.flush()
     await db.commit()
     
-    stmt = select(SubjectiveQuestion).where(SubjectiveQuestion.objective_id == objective.id)
-    result = await db.execute(stmt)
-    db_sqs = result.scalars().all()
+    sq_repo = SubjectiveQuestionRepository(db)
+    db_sqs = sq_repo.get_by_objective_id(objective.id)
     
     return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in db_sqs])
 
@@ -104,6 +138,8 @@ async def subjective_questions_overall_evaluation(
     db: AsyncSession = Depends(get_db),
     current_user: Student = Depends(get_current_user)
 ):
+    from backend.services.gemini.assessment.overall_evaluation.overall_evaluation import gemini_subjective_evaluation_review
+    
     sq_repo = SubjectiveQuestionRepository(db)
     
     db_questions = {}
@@ -125,29 +161,8 @@ async def subjective_questions_overall_evaluation(
         [db_questions[q_id].student_answer for q_id in request.questions_ids]
     )
     
-    eval_embedding = get_gemini_embeddings(gemini_response.information)
-    meta_embedding = get_gemini_embeddings(gemini_response.information)
-    sd_ctx = StudentContext(
-        student_id= current_user.id,
-        goal_id= current_user.goal_id,
-        objective_id= current_user.current_objective_id,
-        state= gemini_response.evaluation,
-        state_embedding= eval_embedding,
-        metacognition= gemini_response.metacognition,
-        metacognition_embedding= meta_embedding
-    )
-    ctxt_repo = StudentContextRepository(db)
-    ctxt_repo.create(sd_ctx)
-    
-    info_embedding = get_gemini_embeddings(gemini_response.information)
-    info_note = ObjectiveNote(
-        objective_id= obj.id,
-        title= gemini_response.information[:32],
-        info= gemini_response.information,
-        info_embedding = get_gemini_embeddings(gemini_response.information)
-    )
-    notes_repo = ObjectiveNoteRepository(db)
-    notes_repo.create(info_note)
+    # Add background task to save data
+    asyncio.create_task(save_evaluation_data(db, current_user, gemini_response, obj))
     
     response = SubjectiveQuestionsAssessmentEvaluationResponse(
         llm_evaluation=gemini_response.evaluation,
