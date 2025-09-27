@@ -1,17 +1,25 @@
-from fastapi import APIRouter, HTTPException
+import logging
+from datetime import datetime
 from fastapi import Depends, status
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
 from backend.core.database import get_db
 from backend.core.security import get_current_user
+from backend.models.objective_note import ObjectiveNote
 from backend.models.student import Student
+from backend.models.student_context import StudentContext
 from backend.models.subjective_question import SubjectiveQuestion
+from backend.repositories.objective_note_repository import ObjectiveNoteRepository
 from backend.repositories.objective_repository import ObjectiveRepository
+from backend.repositories.student_context_repository import StudentContextRepository
 from backend.repositories.subjective_question_repository import SubjectiveQuestionRepository
+from backend.schemas.assessment import SubjectiveQuestionsAssessmentEvaluationRequest, SubjectiveQuestionsAssessmentEvaluationResponse
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse, SubjectiveQuestionEvaluationRequest, SubjectiveQuestionEvaluationResponse
 from backend.services.gemini.assessment.assessment import gemini_generate_subjective_questions
+from backend.services.gemini.assessment.overall_evaluation.overall_evaluation import gemini_subjective_evaluation_review
 from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
+from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 
 logger = logging.getLogger(__name__)
 
@@ -73,9 +81,11 @@ async def subjective_question_evaluation(
     
     review = gemini_generate_question_review(request.question, request.student_answer)
     
+    su_question.seconds_spent = request.seconds_spent
+    su_question.xp = 4
+    su_question.last_updated_at = datetime.now()
     su_question.llm_approval = review.approval
     su_question.llm_evaluation = review.evaluation
-    su_question.seconds_spent = request.seconds_spent
     su_question.llm_metacognition = review.metacognition
     su_question.llm_metacognition_embedding = get_gemini_embeddings(review.metacognition)
     
@@ -83,7 +93,67 @@ async def subjective_question_evaluation(
     
     return SubjectiveQuestionEvaluationResponse(
         question_id=su_question.id,
-        question=su_question.question,  # Fix: use .question instead of .id
+        question=su_question.question,
         llm_evaluation=review.evaluation,
         llm_approval= review.approval
     )
+
+@router.post("/evaluate/overall", response_model=SubjectiveQuestionsAssessmentEvaluationResponse, status_code=status.HTTP_201_CREATED)
+async def subjective_questions_overall_evaluation(
+    request: SubjectiveQuestionsAssessmentEvaluationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: Student = Depends(get_current_user)
+):
+    sq_repo = SubjectiveQuestionRepository(db)
+    
+    db_questions = {}
+    for question_id in request.questions_ids:
+        db_question = await sq_repo.get_by_id(question_id)
+        
+        if db_question is None:
+            raise HTTPException(status_code=404, detail=f"Question not found. Id: {question_id}")
+        
+        db_questions[question_id] = db_question
+    
+    obj_repo = ObjectiveRepository(db)
+    obj = await obj_repo.get_by_id(current_user.current_objective_id)
+    
+    gemini_response = gemini_subjective_evaluation_review(
+        obj.name, 
+        obj.description, 
+        [db_questions[q_id].question for q_id in request.questions_ids], 
+        [db_questions[q_id].student_answer for q_id in request.questions_ids]
+    )
+    
+    eval_embedding = get_gemini_embeddings(gemini_response.information)
+    meta_embedding = get_gemini_embeddings(gemini_response.information)
+    sd_ctx = StudentContext(
+        student_id= current_user.id,
+        goal_id= current_user.goal_id,
+        objective_id= current_user.current_objective_id,
+        state= gemini_response.evaluation,
+        state_embedding= eval_embedding,
+        metacognition= gemini_response.metacognition,
+        metacognition_embedding= meta_embedding
+    )
+    ctxt_repo = StudentContextRepository(db)
+    ctxt_repo.create(sd_ctx)
+    
+    info_embedding = get_gemini_embeddings(gemini_response.information)
+    info_note = ObjectiveNote(
+        objective_id= obj.id,
+        title= gemini_response.information[:32],
+        info= gemini_response.information,
+        info_embedding = get_gemini_embeddings(gemini_response.information)
+    )
+    notes_repo = ObjectiveNoteRepository(db)
+    notes_repo.create(info_note)
+    
+    response = SubjectiveQuestionsAssessmentEvaluationResponse(
+        llm_evaluation=gemini_response.evaluation,
+        llm_information=gemini_response.information,
+        llm_metacognition=gemini_response.metacognition,
+        is_approved=gemini_response.approval,
+    )
+    
+    return response

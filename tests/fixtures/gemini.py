@@ -174,3 +174,22 @@ def mock_subjective_question_repository():
         side_effect=mock_get_by_id,
     ) as mock:
         yield mock
+
+@pytest.fixture
+def mock_gemini_overall_evaluation_review():
+    """Fixture to mock Gemini overall evaluation review responses"""
+    def mock_gemini_subjective_evaluation_review(*args, **kwargs):
+        from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReview
+        
+        return GeminiSubjectiveEvaluationReview(
+            evaluation="The student demonstrates good understanding of the concepts with clear explanations and practical examples.",
+            information="The answers show comprehensive knowledge of the subject matter with accurate technical details.",
+            metacognition="The student appears to have a solid grasp of the material and can apply concepts effectively.",
+            approval=True
+        )
+    
+    with patch(
+        'backend.api.v1.endpoints.assessments.gemini_subjective_evaluation_review',
+        side_effect=mock_gemini_subjective_evaluation_review,
+    ) as mock:
+        yield mock

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from sqlalchemy import select
 from backend.repositories.base import BaseRepository
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
@@ -11,7 +11,7 @@ class MultipleChoiceQuestionRepository(BaseRepository[MultipleChoiceQuestion]):
         await self.db.refresh(entity)
         return entity
     
-    async def get_by_id(self, entity_id: str) -> Optional[MultipleChoiceQuestion]:
+    async def get_by_id(self, entity_id: str) -> MultipleChoiceQuestion | None:
         stmt = select(MultipleChoiceQuestion).where(MultipleChoiceQuestion.id == entity_id)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()

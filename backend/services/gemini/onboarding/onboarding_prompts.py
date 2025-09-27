@@ -36,7 +36,7 @@ def get_goal_follow_up_questions_prompt(prompt: str) -> str:
     - Be distinct from one another.
     - Each focus at one or two aspects at a time.
     - Match the user's language.
-    - NOT expect long and thoughtful answers.
+    - NOT expect long and detailed answers.
 
     Don't ask more than 8 questions
     """

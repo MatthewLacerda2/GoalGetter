@@ -3,7 +3,6 @@ from typing import List
 from datetime import datetime
 from fastapi import APIRouter, HTTPException
 from fastapi import Depends, status
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from backend.core.security import get_current_user
@@ -48,7 +47,7 @@ async def take_multiple_choice_activity(
     
     contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
     
-    #TODO: o certo seria criar so o suficiente pra ter a licao
+    #FIXME: o certo seria criar so o suficiente pra ter a licao
     gemini_mc_questions = gemini_generate_multiple_choice_questions(
         objective.name, objective.description, [o.name for o in objectives], contexts, NUM_QUESTIONS_PER_LESSON
     )
@@ -90,7 +89,7 @@ async def take_multiple_choice_activity(
     
     db_questions = {}
     for question in request.answers:
-        db_question = await mcq_repo.get_by_id(question.id)
+        db_question: MultipleChoiceQuestion | None = await mcq_repo.get_by_id(question.id)
         
         if db_question is None:
             raise HTTPException(status_code=404, detail=f"Question not found. Id: {question.id}")
