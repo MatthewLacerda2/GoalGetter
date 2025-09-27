@@ -2,7 +2,7 @@ import pytest
 from backend.schemas.student import StudentCurrentStatusResponse
 
 @pytest.mark.asyncio
-async def test_get_student_current_status_successful(authenticated_client_with_objective, test_user_with_objective):
+async def test_get_student_current_status_successful(authenticated_client_with_objective, test_user):
     """Test getting the current status of the student"""
     
     client, access_token = authenticated_client_with_objective
@@ -17,8 +17,8 @@ async def test_get_student_current_status_successful(authenticated_client_with_o
     assert response.status_code == 200
     assert isinstance(student_current_status_response, StudentCurrentStatusResponse)
     
-    assert student_current_status_response.student_id == test_user_with_objective.id
-    assert student_current_status_response.goal_id == test_user_with_objective.goal_id
+    assert student_current_status_response.student_id == test_user.id
+    assert student_current_status_response.goal_id == test_user.goal_id
 
 @pytest.mark.asyncio
 async def test_get_student_current_status_unauthorized(client):

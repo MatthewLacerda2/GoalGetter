@@ -136,3 +136,20 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Could not validate credentials"
         )
+
+async def verify_google_token_header(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> dict:
+    """
+    Verify a Google OAuth2 token from the Authorization header.
+    Returns the user info from Google without requiring the user to exist in the database.
+    """
+    try:
+        # Extract the token from "Bearer <token>"
+        google_token = credentials.credentials
+        return verify_google_token(google_token)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google token"
+        )

@@ -27,3 +27,4 @@ class GoalFullCreationRequest(BaseModel):
     goal_description: str = Field(..., description="The Description of the Goal defined by the Tutor for the user")
     first_objective_name: str = Field(..., description="The First Objective towards the Goal. Defined by the Tutor for the user")
     first_objective_description: str = Field(..., description="The Description of the First Objective towards the Goal. Defined by the Tutor for the user")
+    

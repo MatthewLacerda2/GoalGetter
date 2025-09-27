@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field
 
 class ObjectiveNote(BaseModel):
     id: str
@@ -13,7 +13,7 @@ class ObjectiveResponse(BaseModel):
     id: str
     name: str
     description: str
-    percentage_completed: float
+    percentage_completed: float = Field(..., description="How much mastery of the objective does the student have?", ge=0, le=100)
     created_at: datetime
     last_updated_at: datetime
     

@@ -48,7 +48,8 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         stmt = select(StudentContext).where(
             and_(
                 StudentContext.student_id == student_id,
-                StudentContext.objective_id == objective_id
+                StudentContext.objective_id == objective_id,
+                StudentContext.is_still_valid == True
             )
         )
         if limit:

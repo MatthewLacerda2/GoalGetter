@@ -32,13 +32,13 @@ async def authenticated_client(client, mock_google_verify, test_user):
     return client, access_token
 
 @pytest_asyncio.fixture
-async def authenticated_client_with_objective(client, mock_google_verify, test_user_with_objective):
+async def authenticated_client_with_objective(client, mock_google_verify, test_user):
     """Fixture that provides a logged-in client with access token for testing with user that has objective"""
     
     mock_google_verify.return_value = {
-        'email': test_user_with_objective.email,
-        'sub': test_user_with_objective.google_id,
-        'name': test_user_with_objective.name
+        'email': test_user.email,
+        'sub': test_user.google_id,
+        'name': test_user.name
     }
     
     login_response = await client.post(

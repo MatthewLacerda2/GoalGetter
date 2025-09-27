@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, DateTime, Boolean, Integer, ForeignKey
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
-from backend.services.gemini.chat.schema import ChatMessageWithGemini
+from backend.services.gemini.chat.schema import GeminiChatMessage
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
@@ -15,19 +15,18 @@ class ChatMessage(Base):
     sender_id = Column(String(36), nullable=False)
     array_id = Column(String(36), nullable=True, unique=False)
     message = Column(String, nullable=False)
-    num_tokens = Column(Integer, nullable=True)
     is_liked = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="chat_messages")
     
-    def to_gemini_message(self) -> ChatMessageWithGemini:
+    def to_gemini_message(self) -> GeminiChatMessage:
         """Convert ChatMessage to ChatMessageWithGemini format"""
         role = "user" if self.student_id == self.sender_id else "assistant"
         time_str = self.created_at.strftime("%H:%M:%S")
         
-        return ChatMessageWithGemini(
+        return GeminiChatMessage(
             message=self.message,
             role=role,
             time=time_str

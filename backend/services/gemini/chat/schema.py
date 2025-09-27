@@ -3,7 +3,7 @@ from pydantic import BaseModel
 class GeminiChatResponse(BaseModel):
     messages: list[str]
 
-class ChatMessageWithGemini(BaseModel):
+class GeminiChatMessage(BaseModel):
     message: str
     role: str
     time: str

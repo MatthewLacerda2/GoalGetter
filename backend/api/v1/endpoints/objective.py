@@ -24,10 +24,7 @@ async def get_objective(
     """
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
-    
-    if not objective:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Objective not found")
-    
+        
     objective_note_repo = ObjectiveNoteRepository(db)
     notes = await objective_note_repo.get_by_objective_id(objective.id)
     

@@ -46,7 +46,7 @@ def gemini_search_youtube_channels_plain_text(
     )
     
     client = get_client()
-    model = "gemini-2.5-pro"
+    model = "gemini-2.5-flash"
     full_prompt = get_search_youtube_channels_prompt_plain_text(goal_name, goal_description, objective_name, objective_description, student_context)
     config = get_gemini_config_plain_text()
     config.tools = [grounding_tool]

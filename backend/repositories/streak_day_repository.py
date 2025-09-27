@@ -32,9 +32,7 @@ class StreakDayRepository(BaseRepository[StreakDay]):
         """
         Get streak days for a specific student within the last X days
         """
-        # Calculate the start date (X days ago)
-        start_date = datetime.now() - timedelta(days=days)
-        
+        start_date = datetime.now() - timedelta(days=days)        
         stmt = select(StreakDay).where(
             and_(
                 StreakDay.student_id == student_id,
