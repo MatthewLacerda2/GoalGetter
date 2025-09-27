@@ -190,7 +190,7 @@ async def delete_message(
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    success = await chat_repo.delete(message_id)
+    await chat_repo.delete(message_id)
     await db.commit()
     
     return Response(status_code=204)

@@ -43,7 +43,7 @@ async def save_evaluation_data(
             metacognition_embedding=meta_embedding
         )
         ctxt_repo = StudentContextRepository(db)
-        ctxt_repo.create(sd_ctx)
+        await ctxt_repo.create(sd_ctx)
         
         info_embedding = get_gemini_embeddings(gemini_response.information)
         info_note = ObjectiveNote(
@@ -53,7 +53,7 @@ async def save_evaluation_data(
             info_embedding=info_embedding
         )
         notes_repo = ObjectiveNoteRepository(db)
-        notes_repo.create(info_note)
+        await notes_repo.create(info_note)
     except Exception as e:
         logger.error(f"Error saving evaluation data: {e}")
 
@@ -94,7 +94,7 @@ async def take_subjective_questions_assessment(
     await db.commit()
     
     sq_repo = SubjectiveQuestionRepository(db)
-    db_sqs = sq_repo.get_by_objective_id(objective.id)
+    db_sqs = await sq_repo.get_by_objective_id(objective.id)
     
     return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in db_sqs])
 

@@ -87,7 +87,7 @@ async def take_multiple_choice_activity(
     mcq_repo = MultipleChoiceQuestionRepository(db)
     xp_per_right_answer = 1
     
-    db_questions = {}
+    db_questions: List[MultipleChoiceQuestion] = []
     for question in request.answers:
         db_question: MultipleChoiceQuestion | None = await mcq_repo.get_by_id(question.id)
         
