@@ -15,7 +15,6 @@ def create_chat_messages(user_id: str):
             message=f"Message {i}",
             sender_id=user_id,
             array_id="array1",
-            num_tokens=3,
             created_at=datetime.now(),
             student_id=user_id
         )

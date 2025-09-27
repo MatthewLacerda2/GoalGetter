@@ -42,7 +42,6 @@ async def create_message(
             created_at=m.datetime,
             message=m.message,
             message_embedding=full_text_embedding,
-            num_tokens=len([w for w in re.split(r"[ \n.,?]", m.message) if w]),   #TODO: improve this
             is_liked=False,
         ) for m in request.messages_list
     ]
@@ -95,7 +94,6 @@ async def create_message(
             sender_id="gemini-2.5-flash",
             array_id=array_id,
             message=message,
-            num_tokens=len([w for w in re.split(r"[ \n.,?]", message) if w]),   #TODO: improve this
             is_liked=False,
             message_embedding=full_ai_text_embedding
         ) for message in ai_response.messages
