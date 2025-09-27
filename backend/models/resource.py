@@ -1,10 +1,9 @@
 import uuid
-from datetime import datetime
 from enum import Enum
-from sqlalchemy import Column, String, DateTime, ForeignKey, Enum as SQLEnum
+from datetime import datetime
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, DateTime, ForeignKey, Enum as SQLEnum
 from pgvector.sqlalchemy import Vector
-
 from backend.models.base import Base
 from backend.utils.envs import NUM_DIMENSIONS
 
