@@ -35,3 +35,9 @@ class ObjectiveItem(BaseModel):
 
 class ObjectiveListResponse(BaseModel):
     objective_list: List[ObjectiveItem]
+
+class ObjectiveNoteLikeResponse(BaseModel):
+    message_id: str
+    is_favorited: bool
+    
+    model_config = ConfigDict(from_attributes=True)

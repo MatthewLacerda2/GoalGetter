@@ -1,6 +1,5 @@
 import logging
 from fastapi import APIRouter
-from fastapi import HTTPException
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
@@ -8,7 +7,6 @@ from backend.core.security import get_current_user
 from backend.schemas.objective import ObjectiveResponse, ObjectiveListResponse, ObjectiveItem
 from backend.models.student import Student
 from backend.repositories.objective_repository import ObjectiveRepository
-from backend.repositories.objective_note_repository import ObjectiveNoteRepository
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +33,7 @@ async def get_objective(
         notes=objective.notes
     )
 
+#TODO: test this bad boy
 @router.get("/list", response_model=ObjectiveListResponse, status_code=status.HTTP_200_OK)
 async def get_objectives_list(
     db: AsyncSession = Depends(get_db),

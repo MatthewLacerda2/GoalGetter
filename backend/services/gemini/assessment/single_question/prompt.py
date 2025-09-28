@@ -11,13 +11,17 @@ def get_single_question_review_prompt(question:str, answer:str) -> str:
     ## Guidelines
     
     You will assess the student's answer by three aspects:
-    - Approval: is the answer satisfactory, yes or no?
+    - Approval: is the answer sufficient, yes or no?
     - Evaluation: review of the student's answer
     - Metacognition: description the student's reasoning
     
-    The evaluation targets any significant gaps in the correctness of the answer.
-    It adds upon it to form a complete answer.
-    If there is nothing to add or change, leave an empty string.
+    Approval is whether the answer satisfies the question.
+    The answer is not approved if it contains information that is false.
+    
+    The evaluation target the overall correctness and understanding of the answer.
+    The evaluation is not the approval itself, it's a commentary on the answer.
+    It takes the opportunity to add upon the answer.
+    If there is nothing major to add or change, just give a positive evaluation.
     
     The metacognition is a detailed description of the student's reasoning at a higher level
     

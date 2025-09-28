@@ -21,6 +21,6 @@ def gemini_generate_question_review(
 
 if __name__ == "__main__":
     print(gemini_generate_question_review(
-        question="What is a diffusion vision model?",
-        answer="It's an AI that draws a picture by drawing it fully and then improvin in incremental steps",
+        question="Explique o que é Hierarquia das Normas e qual norma ocupa o topo no ordenamento jurídico brasileiro.",
+        answer="É o grau de aplicação de cada norma na esfera, seja federal, estadual e municipal, e quem tá no topo é a constituição",
     ))
