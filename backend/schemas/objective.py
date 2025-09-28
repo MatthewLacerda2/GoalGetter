@@ -1,3 +1,4 @@
+from typing import List
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -20,3 +21,16 @@ class ObjectiveResponse(BaseModel):
     notes: list[ObjectiveNote]
     
     model_config = ConfigDict(from_attributes=True)
+
+class ObjectiveItem(BaseModel):
+    id: str
+    name: str
+    description: str
+    percentage_completed: int
+    created_at: datetime
+    last_updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class ObjectiveListResponse(BaseModel):
+    objective_list: List[ObjectiveItem]
