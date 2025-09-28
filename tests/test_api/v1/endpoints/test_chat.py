@@ -15,7 +15,6 @@ def create_chat_messages(user_id: str):
             message=f"Message {i}",
             sender_id=user_id,
             array_id="array1",
-            num_tokens=3,
             created_at=datetime.now(),
             student_id=user_id
         )
@@ -23,20 +22,10 @@ def create_chat_messages(user_id: str):
     return messages
 
 @pytest.mark.asyncio
-async def test_get_chat_messages_with_parameters(client, mock_google_verify, test_db, test_user):
-    """Test that the chat messages endpoint returns a valid response for a valid request."""
+async def test_get_chat_messages_with_parameters(authenticated_client, test_db, test_user):
+    """Test that get chat messages endpoint returns a valid response."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     chat_messages = create_chat_messages(test_user.id)
     
@@ -59,20 +48,10 @@ async def test_get_chat_messages_with_parameters(client, mock_google_verify, tes
     assert len(chat_response.messages) == limit
 
 @pytest.mark.asyncio
-async def test_get_chat_messages_no_parameters(client, mock_google_verify, test_db, test_user):
+async def test_get_chat_messages_no_parameters(authenticated_client, test_db, test_user):
     """Test that the chat messages endpoint works with no optional parameters."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     chat_messages = create_chat_messages(test_user.id)
     
@@ -125,20 +104,10 @@ async def test_like_message_unauthorized(client):
     assert response.status_code == 403
     
 @pytest.mark.asyncio
-async def test_like_message_not_found(client, mock_google_verify, test_db, test_user):
+async def test_like_message_not_found(authenticated_client, test_db, test_user):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     payload = LikeMessageRequest(message_id="non_existent_id", like=True)
     
@@ -152,20 +121,10 @@ async def test_like_message_not_found(client, mock_google_verify, test_db, test_
     assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
-async def test_like_message(client, mock_google_verify, test_db, test_user):
+async def test_like_message(authenticated_client, test_db, test_user):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     chat_messages = create_chat_messages(test_user.id)
     
@@ -192,20 +151,10 @@ async def test_like_message(client, mock_google_verify, test_db, test_user):
     assert chat_response.created_at == chat_messages[0].created_at
     
 @pytest.mark.asyncio
-async def test_edit_message(client, mock_google_verify, test_db, test_user):
+async def test_edit_message(authenticated_client, test_db, test_user):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     chat_messages = create_chat_messages(test_user.id)
     
@@ -242,21 +191,10 @@ async def test_edit_message_unauthorized(client):
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_edit_message_not_found(client, mock_google_verify, test_user):
-
+async def test_edit_message_not_found(authenticated_client, test_user):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     payload = EditMessageRequest(message_id="non_existent_id", message="Edited message")
     
@@ -270,20 +208,10 @@ async def test_edit_message_not_found(client, mock_google_verify, test_user):
     assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
-async def test_delete_message(client, mock_google_verify, test_db, test_user):
+async def test_delete_message(authenticated_client, test_db, test_user):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post( 
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     chat_messages = create_chat_messages(test_user.id)
     
@@ -316,20 +244,10 @@ async def test_delete_message_unauthorized(client):
     assert response.status_code == 403
     
 @pytest.mark.asyncio
-async def test_delete_message_not_found(client, mock_google_verify, test_user):
+async def test_delete_message_not_found(authenticated_client, test_user):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
-    mock_google_verify.return_value = {
-        'email': test_user.email,
-        'sub': test_user.google_id,
-        'name': test_user.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     response = await client.delete(
         "/api/v1/chat/non_existent_id",
@@ -340,20 +258,10 @@ async def test_delete_message_not_found(client, mock_google_verify, test_user):
     assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
-async def test_create_message(client, mock_google_verify, test_user_with_objective, mock_gemini_messages_generator, mock_gemini_embeddings):
+async def test_create_message(authenticated_client, test_user, mock_gemini_messages_generator, mock_gemini_embeddings):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
-    mock_google_verify.return_value = {
-        'email': test_user_with_objective.email,
-        'sub': test_user_with_objective.google_id,
-        'name': test_user_with_objective.name
-    }
-    
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
-    access_token = login_response.json()["access_token"]
+    client, access_token = authenticated_client
     
     payload = CreateMessageRequest(messages_list=[CreateMessageRequestItem(message="Explain flush, await, fresh in sqlalchemy", datetime=datetime.now())])
     

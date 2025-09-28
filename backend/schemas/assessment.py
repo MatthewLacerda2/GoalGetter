@@ -1,30 +1,30 @@
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+class SubjectiveQuestionSchema(BaseModel):
+    id: str
+    question: str
 
 class SubjectiveQuestionsAssessmentResponse(BaseModel):
-    questions: List[str]
+    questions: List[SubjectiveQuestionSchema]
 
 class SubjectiveQuestionEvaluationRequest(BaseModel):
     question_id: str
     question: str
     student_answer: str
+    seconds_spent: int
     
 class SubjectiveQuestionEvaluationResponse(BaseModel):
     question_id: str
     question: str
-    student_answer: str
-    llm_approval: bool
-    llm_evaluation: str
-    llm_metacognition: str
+    llm_approval: bool = Field(..., description="Was the student's answer satisfactory?")
+    llm_evaluation: str = Field(..., description="The AI's assessment of the student's answer")
     
 class SubjectiveQuestionsAssessmentEvaluationRequest(BaseModel):
-    questions_ids: List[str]
+    questions_ids: List[str] = Field(..., description="The IDs of the questions the student answered")
 
 class SubjectiveQuestionsAssessmentEvaluationResponse(BaseModel):
-    objective_id: str
-    objective_name: str
-    objective_percentage_completed: float
-    llm_evaluation: str
-    llm_metacognition: str
-    is_approved: bool
-    grade: float
+    llm_evaluation: str = Field(..., description="The AI's assessment of the student's overall performance")
+    llm_information: str = Field(..., description="something")
+    llm_metacognition: str = Field(..., description="The AI's assessment of the student's understanding")
+    is_approved: bool = Field(..., description="Was the student's prowess satisfactory?")

@@ -16,8 +16,8 @@ class ObjectiveNoteRepository(BaseRepository[ObjectiveNote]):
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
     
-    async def get_by_objective_id(self, objective_id: str) -> List[ObjectiveNote]:
-        stmt = select(ObjectiveNote).where(ObjectiveNote.objective_id == objective_id).order_by(desc(ObjectiveNote.created_at))
+    async def get_by_objective_id(self, objective_id: str, limit: int) -> List[ObjectiveNote]:
+        stmt = select(ObjectiveNote).where(ObjectiveNote.objective_id == objective_id).order_by(desc(ObjectiveNote.created_at)).limit(limit)
         result = await self.db.execute(stmt)
         return result.scalars().all()
     

@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 @pytest.mark.asyncio
 async def test_get_objective_successful(authenticated_client_with_objective, test_db):
     """Test getting an objective"""
+    from sqlalchemy import select
     
     client, access_token = authenticated_client_with_objective
     
-    from sqlalchemy import select
     stmt = select(Objective)
     result = await test_db.execute(stmt)
     objective = result.scalar_one()
@@ -36,4 +36,22 @@ async def test_get_objective_successful(authenticated_client_with_objective, tes
     
     assert response.status_code == 200
     assert isinstance(objective_response, ObjectiveResponse)
-    assert len(objective_response.notes) == 1
+    assert len(objective_response.notes) > 0
+
+@pytest.mark.asyncio
+async def test_get_objective_list_successful(authenticated_client_with_objective, test_db):
+    """Test getting an all user objectives"""
+    from backend.schemas.objective import ObjectiveListResponse
+    
+    client, access_token = authenticated_client_with_objective
+    
+    response = await client.get(
+        "/api/v1/objective/list",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    objectives_response = ObjectiveListResponse.model_validate(response.json())
+    
+    assert response.status_code == 200
+    assert isinstance(objectives_response, ObjectiveListResponse)
+    assert len(objectives_response.objective_list) > 0

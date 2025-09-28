@@ -1,76 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-from datetime import datetime
 import logging
-from backend.core.security import create_access_token, verify_google_token, get_current_user
+from datetime import datetime
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from backend.core.database import get_db
-from backend.schemas.student import OAuth2Request, TokenResponse
+from backend.core.security import create_access_token, verify_google_token, get_current_user
 from backend.models.student import Student
+from backend.schemas.student import OAuth2Request, TokenResponse
 from backend.repositories.student_repository import StudentRepository
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def signup(
-    oauth_data: OAuth2Request,
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    Sign up a new user using Google OAuth2 token.
-    """
-    try:        
-        user_info = verify_google_token(oauth_data.access_token)
-        
-        student_repo = StudentRepository(db)
-        existing_user = await student_repo.get_by_google_id(user_info["sub"])
-                
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="User already exists"
-            )
-            
-        user = Student(
-            email=user_info["email"],
-            google_id=user_info["sub"],
-            name=user_info.get("name"),
-        )
-        
-        created_user = await student_repo.create(user)
-        
-        access_token = create_access_token(
-            data={"sub": created_user.google_id},  # Use google_id instead of str(created_user.id)
-        )
-        
-        await db.commit()
-        
-        token_response = TokenResponse(
-            access_token=access_token,
-            student=created_user
-        )
-                
-        return token_response
-    
-    except IntegrityError as e:
-        print(f"\nINTEGRITY ERROR IN SIGNUP: {type(e).__name__}: {str(e)}")
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User already exists"
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"\nEXCEPTION CAUGHT IN SIGNUP: {type(e).__name__}: {str(e)}")
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid Google token"
-        )
-        
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def login(
     oauth_data: OAuth2Request,
@@ -79,39 +20,26 @@ async def login(
     """
     Login using Google OAuth2 token.
     """
-    try:
-        user_info = verify_google_token(oauth_data.access_token)
-        
-        student_repo = StudentRepository(db)
-        user = await student_repo.get_by_google_id(user_info["sub"])
-        
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
-        
-        user.last_login = datetime.now()
-        updated_user = await student_repo.update(user)
-        await db.commit()
-        
-        access_token = create_access_token(
-            data={"sub": updated_user.google_id},  # Use google_id instead of str(updated_user.id)
-        )
-        
-        return TokenResponse(
-            access_token=access_token,
-            student=updated_user
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error"
-        )
+    user_info = verify_google_token(oauth_data.access_token)    
+    student_repo = StudentRepository(db)
+    user = await student_repo.get_by_google_id(user_info["sub"])
+    
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    user.last_login = datetime.now()
+    updated_user = await student_repo.update(user)
+    
+    access_token = create_access_token(
+        data={"sub": updated_user.google_id},  # Use google_id instead of str(updated_user.id)
+    )
+    
+    await db.commit()
+    
+    return TokenResponse(
+        access_token=access_token,
+        student=updated_user
+    )
 
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_account(
@@ -126,10 +54,7 @@ async def delete_account(
         success = await student_repo.delete(current_user.id)
         
         if not success:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         
         await db.commit()
         return Response(status_code=status.HTTP_204_NO_CONTENT)

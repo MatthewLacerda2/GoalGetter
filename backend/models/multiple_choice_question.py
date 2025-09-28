@@ -1,14 +1,14 @@
+import uuid
+from enum import Enum
+from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, ForeignKey, Integer, JSON, DateTime, Integer
-from datetime import datetime
-import uuid
 from backend.models.base import Base
-from enum import Enum
 
 class QuestionPurpose(Enum):
     TEACH = "teach"
     EVALUATE = "evaluate"
-    THOUGHT_PROVOKE = "thought_provoke"    
+    THINK = "think"
 
 class MultipleChoiceQuestion(Base):
     __tablename__ = "multiple_choice_questions"

@@ -25,8 +25,8 @@ def gemini_generate_subjective_questions(
 
 if __name__ == "__main__":
     print(gemini_generate_subjective_questions(
-        objective_name="Do your first solo flight",
-        objective_description="The ability to do a small solo Visual-Flight-Rules flight from take-off to landing with a small aircraft",
-        goal_name="Do an international solo flight with a jet aifcraft",
+        objective_name="Aprender Direitos e garantias",
+        objective_description="Saber os direitos e garantias do acusado",
+        goal_name="Aprender Direito Constitucional para concurso",
         num_questions=8
     ))

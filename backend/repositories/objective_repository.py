@@ -1,7 +1,8 @@
 from typing import List, Optional
 from sqlalchemy import select, desc
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from backend.models.objective import Objective
+from backend.models.objective_note import ObjectiveNote
 from backend.repositories.base import BaseRepository
 
 class ObjectiveRepository(BaseRepository[Objective]):
@@ -37,7 +38,12 @@ class ObjectiveRepository(BaseRepository[Objective]):
             selectinload(Objective.notes)
         ).where(Objective.goal_id == goal_id).order_by(desc(Objective.created_at)).limit(1)
         result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
+        objective = result.scalar_one_or_none()
+        
+        if objective and objective.notes:
+            objective.notes.sort(key=lambda note: (-note.is_favorited, -note.created_at.timestamp()))
+        
+        return objective
     
     async def update(self, entity: Objective) -> Objective:
         await self.db.flush()

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy import Boolean, Column, String, DateTime, ForeignKey
 from pgvector.sqlalchemy import Vector
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
@@ -13,6 +13,7 @@ class ObjectiveNote(Base):
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     title = Column(String, nullable=False)
     info = Column(String, nullable=False)
+    is_favorited = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     info_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
 

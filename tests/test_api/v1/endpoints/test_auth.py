@@ -2,61 +2,6 @@ import pytest
 from backend.schemas.student import TokenResponse
 
 @pytest.mark.asyncio
-async def test_signup_successful(client, mock_google_verify, test_db):
-    """Test successful signup with valid Google token"""
-    response = await client.post(
-        "/api/v1/auth/signup",
-        json={"access_token": "valid_google_token"}
-    )
-    
-    token_response = TokenResponse.model_validate(response.json())
-    
-    assert response.status_code == 201
-    assert isinstance(token_response, TokenResponse)
-    assert token_response.student.email == "test1@example.com"
-    assert token_response.student.name == "Test User 1"
-    assert token_response.student.google_id == "12345"
-
-@pytest.mark.asyncio
-async def test_signup_invalid_token(client, mock_google_verify):
-    """Test signup with invalid Google token"""
-    mock_google_verify.side_effect = Exception("Invalid token")
-    
-    response = await client.post(
-        "/api/v1/auth/signup",
-        json={"access_token": "invalid_token"}
-    )
-    
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid Google token"
-
-@pytest.mark.asyncio
-async def test_signup_existing_user(client, mock_google_verify, test_db):
-    """Test signup attempt with existing Google account"""
-    first_response = await client.post(
-        "/api/v1/auth/signup",
-        json={"access_token": "valid_google_token"}
-    )
-    
-    second_response = await client.post(
-        "/api/v1/auth/signup",
-        json={"access_token": "valid_google_token"}
-    )
-    
-    assert second_response.status_code == 409
-    assert second_response.json()["detail"] == "User already exists"
-
-@pytest.mark.asyncio
-async def test_signup_missing_token(client):
-    """Test signup without providing token"""
-    response = await client.post(
-        "/api/v1/auth/signup",
-        json={}
-    )
-    
-    assert response.status_code == 422
-
-@pytest.mark.asyncio
 async def test_login_successful(client, test_user, mock_google_verify):
     """Test successful login with valid Google token for existing user"""
     
@@ -124,10 +69,7 @@ async def test_delete_account_successful(client, mock_google_verify, test_user):
         'name': test_user.name
     }
     
-    login_response = await client.post(
-        "/api/v1/auth/login",
-        json={"access_token": "fixture_user_token"}
-    )
+    login_response = await client.post("/api/v1/auth/login", json={"access_token": "fixture_user_token"})
     access_token = login_response.json()["access_token"]
     
     response = await client.delete(

@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from unittest.mock import patch
 from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalStudyPlanResponse
+from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 
 @pytest.fixture
 def mock_gemini_follow_up_questions():
@@ -36,8 +37,9 @@ def mock_gemini_embeddings():
         return np.zeros(3072, dtype=np.float32)
 
     with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock1, \
-         patch('backend.api.v1.endpoints.chat.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock2:
-        yield mock1, mock2
+         patch('backend.api.v1.endpoints.chat.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock2, \
+         patch('backend.api.v1.endpoints.assessments.subjective_question_evaluation', side_effect=mock_get_gemini_embeddings) as mock3:
+        yield mock1, mock2, mock3
 
 @pytest.fixture
 def mock_gemini_multiple_choice_questions():
@@ -95,4 +97,99 @@ def mock_gemini_messages_generator():
         )
     
     with patch('backend.api.v1.endpoints.chat.gemini_messages_generator', side_effect=mock_gemini_messages_generator) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_prompt_validation():
+    """Fixture to mock Gemini prompt validation response"""
+    def mock_get_prompt_validation(*args, **kwargs):
+        return GeminiGoalValidation(
+            makes_sense=True,
+            is_harmless=True,
+            is_achievable=True,
+            reasoning="Mocked reasoning for validation",
+        )
+
+    with patch(
+        'backend.api.v1.endpoints.onboarding.get_prompt_validation',
+        side_effect=mock_get_prompt_validation,
+    ) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_follow_up_validation():
+    """Fixture to mock Gemini follow up validation response"""
+    def mock_get_follow_up_validation(*args, **kwargs):
+        return GeminiFollowUpValidation(
+            has_enough_information=True,
+            makes_sense=True,
+            is_harmless=True,
+            is_achievable=True,
+            reasoning="mocked reasoning for validation",
+        )
+
+    with patch(
+        'backend.api.v1.endpoints.onboarding.get_follow_up_validation',
+        side_effect=mock_get_follow_up_validation,
+    ) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_single_question_review():
+    """Fixture to mock Gemini single question review responses"""
+    def mock_gemini_generate_question_review(*args, **kwargs):
+        from backend.services.gemini.assessment.single_question.schema import GeminiSingleQuestionReview
+        
+        return GeminiSingleQuestionReview(
+            approval=True,
+            evaluation="The answer demonstrates a good understanding of diffusion models, though it could be more precise about the iterative denoising process.",
+            metacognition="The student shows conceptual understanding but may benefit from more technical detail about the diffusion process."
+        )
+    
+    with patch(
+        'backend.services.gemini.assessment.single_question.single_question.gemini_generate_question_review',
+        side_effect=mock_gemini_generate_question_review,
+    ) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_subjective_question_repository():
+    """Fixture to mock SubjectiveQuestionRepository.get_by_id"""
+    from backend.models.subjective_question import SubjectiveQuestion
+    
+    def mock_get_by_id(question_id: str):
+        # Return a mock question object
+        question = SubjectiveQuestion()
+        question.id = question_id
+        question.question = "A Question"
+        question.llm_approval = None
+        question.llm_evaluation = None
+        question.llm_metacognition = None
+        question.seconds_spent = None
+        question.llm_metacognition_embedding = None
+        return question
+    
+    with patch(
+        'backend.repositories.subjective_question_repository.SubjectiveQuestionRepository.get_by_id',
+        side_effect=mock_get_by_id,
+    ) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_gemini_overall_evaluation_review():
+    """Fixture to mock Gemini overall evaluation review responses"""
+    def mock_gemini_subjective_evaluation_review(*args, **kwargs):
+        from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReview
+        
+        return GeminiSubjectiveEvaluationReview(
+            evaluation="The student demonstrates good understanding of the concepts with clear explanations and practical examples.",
+            information="The answers show comprehensive knowledge of the subject matter with accurate technical details.",
+            metacognition="The student appears to have a solid grasp of the material and can apply concepts effectively.",
+            approval=True
+        )
+    
+    with patch(
+        'backend.api.v1.endpoints.assessments.gemini_subjective_evaluation_review',
+        side_effect=mock_gemini_subjective_evaluation_review,
+    ) as mock:
         yield mock

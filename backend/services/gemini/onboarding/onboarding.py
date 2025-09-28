@@ -6,7 +6,7 @@ def get_gemini_follow_up_questions(initiation_request: GoalCreationFollowUpQuest
     
     client = get_client()
     model = "gemini-2.5-flash"
-    full_prompt = get_goal_follow_up_questions_prompt(initiation_request)
+    full_prompt = get_goal_follow_up_questions_prompt(initiation_request.prompt)
     config = get_gemini_config(GoalCreationFollowUpQuestionsResponse.model_json_schema())
     
     response = client.models.generate_content(

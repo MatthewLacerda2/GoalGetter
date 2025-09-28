@@ -1,6 +1,6 @@
-from pydantic import BaseModel, ConfigDict
-from datetime import datetime
 from typing import List
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field
 
 class PlayerAchievementItem(BaseModel):
     id: str
@@ -19,7 +19,7 @@ class PlayerAchievementResponse(BaseModel):
 class LeaderboardItem(BaseModel):
     name: str
     objective: str
-    xp: int
+    xp: int = Field(..., description="Student's overall XP", ge=0)
 
 class LeaderboardResponse(BaseModel):
     students: List[LeaderboardItem]

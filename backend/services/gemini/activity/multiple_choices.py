@@ -22,9 +22,9 @@ def gemini_generate_multiple_choice_questions(
 
 if __name__ == "__main__":
     print(gemini_generate_multiple_choice_questions(
-        objective_name="Write a simple Python script",
-        objective_description="A simple python script that writes a simple response based on user input",
-        previous_objectives=["Write and run a Hello World", "Learn the main keywords of Python", "Declare and use variables"],
-        informations=["The student seems to only advance after building a strong foundation", "The student is an enthusiastic learner", "The student likes to experiment a lot"],
-        num_questions=8
+        objective_name="Aprender Direitos e garantias",
+        objective_description="Saber os direitos e garantias do acusado",
+        previous_objectives=[],
+        informations=["O estudante está se preparando para um concurso de tecnico judiciário"],
+        num_questions=6
     ))
