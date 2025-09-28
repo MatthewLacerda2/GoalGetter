@@ -6,8 +6,7 @@ class SubjectiveQuestionSchema(BaseModel):
     question: str
 
 class SubjectiveQuestionsAssessmentResponse(BaseModel):
-    #questions: List[SubjectiveQuestionSchema] #TODO: use this
-    questions: List[str]
+    questions: List[SubjectiveQuestionSchema]
 
 class SubjectiveQuestionEvaluationRequest(BaseModel):
     question_id: str

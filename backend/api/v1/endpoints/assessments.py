@@ -68,6 +68,7 @@ async def take_subjective_questions_assessment(
     It takes one from the DB or creates a new assessment for the user if none exists.
     """
     from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
+    from backend.schemas.assessment import SubjectiveQuestionSchema
     from backend.services.gemini.assessment.assessment import gemini_generate_subjective_questions
     
     objective_repo = ObjectiveRepository(db)
@@ -77,7 +78,9 @@ async def take_subjective_questions_assessment(
     subjective_question_results = await sq_repo.get_unanswered_or_wrong(objective.id, NUM_QUESTIONS_PER_EVALUATION)
     
     if len(subjective_question_results) > 5:
-        return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in subjective_question_results])
+        return SubjectiveQuestionsAssessmentResponse(
+            questions=[SubjectiveQuestionSchema(id=sq.id, question=sq.question) for sq in subjective_question_results]
+        )
     
     gemini_sq_questions = gemini_generate_subjective_questions(
         objective.name, objective.description, current_user.goal_name, NUM_QUESTIONS_PER_EVALUATION
@@ -96,7 +99,7 @@ async def take_subjective_questions_assessment(
     sq_repo = SubjectiveQuestionRepository(db)
     db_sqs = await sq_repo.get_by_objective_id(objective.id)
     
-    return SubjectiveQuestionsAssessmentResponse(questions=[sq.question for sq in db_sqs])
+    return SubjectiveQuestionsAssessmentResponse(questions=[SubjectiveQuestionSchema(id= sq.id, question= sq.question) for sq in db_sqs])
 
 @router.post("/evaluate/single_question", response_model=SubjectiveQuestionEvaluationResponse, status_code=status.HTTP_201_CREATED)
 async def subjective_question_evaluation(
