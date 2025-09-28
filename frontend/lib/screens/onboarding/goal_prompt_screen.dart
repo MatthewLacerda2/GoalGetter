@@ -32,12 +32,11 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
   }
 
   Future<List<String>?> _fetchObjectiveQuestions(String prompt) async {
-    final goalApi = RoadmapApi(ApiClient(basePath: 'http://127.0.0.1:8000'));//TODO: read from env
-    final request = RoadmapInitiationRequest(
-      promptHint: AppLocalizations.of(context)!.tellWhatYourGoalIs, 
+    final goalApi = OnboardingApi(ApiClient(basePath: 'http://127.0.0.1:8000'));//TODO: read from env
+    final request = GoalCreationFollowUpQuestionsRequest(
       prompt: prompt
     );
-    final response = await goalApi.initiateRoadmapApiV1RoadmapInitiationPost(request);
+    final response = await goalApi.generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPost(request);
     return response?.questions;
   }
 

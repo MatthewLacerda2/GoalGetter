@@ -10,29 +10,36 @@
 
 part of openapi.api;
 
-class ValidationErrorLocInner {
-  /// Returns a new [ValidationErrorLocInner] instance.
-  ValidationErrorLocInner();
+class ResourceResponse {
+  /// Returns a new [ResourceResponse] instance.
+  ResourceResponse({
+    this.resources = const [],
+  });
+
+  List<ResourceItem> resources;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ValidationErrorLocInner;
+  bool operator ==(Object other) => identical(this, other) || other is ResourceResponse &&
+    _deepEquality.equals(other.resources, resources);
 
   @override
-  int get hashCode => 0;
+  int get hashCode =>
     // ignore: unnecessary_parenthesis
+    (resources.hashCode);
 
   @override
-  String toString() => 'ValidationErrorLocInner[]';
+  String toString() => 'ResourceResponse[resources=$resources]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
+      json[r'resources'] = this.resources;
     return json;
   }
 
-  /// Returns a new [ValidationErrorLocInner] instance and imports its values from
+  /// Returns a new [ResourceResponse] instance and imports its values from
   /// [value] if it's a [Map], null otherwise.
   // ignore: prefer_constructors_over_static_methods
-  static ValidationErrorLocInner? fromJson(dynamic value) {
+  static ResourceResponse? fromJson(dynamic value) {
     if (value is Map) {
       final json = value.cast<String, dynamic>();
 
@@ -41,23 +48,24 @@ class ValidationErrorLocInner {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ValidationErrorLocInner[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ValidationErrorLocInner[$key]" has a null value in JSON.');
+          assert(json.containsKey(key), 'Required key "ResourceResponse[$key]" is missing from JSON.');
+          assert(json[key] != null, 'Required key "ResourceResponse[$key]" has a null value in JSON.');
         });
         return true;
       }());
 
-      return ValidationErrorLocInner(
+      return ResourceResponse(
+        resources: ResourceItem.listFromJson(json[r'resources']),
       );
     }
     return null;
   }
 
-  static List<ValidationErrorLocInner> listFromJson(dynamic json, {bool growable = false,}) {
-    final result = <ValidationErrorLocInner>[];
+  static List<ResourceResponse> listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <ResourceResponse>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
-        final value = ValidationErrorLocInner.fromJson(row);
+        final value = ResourceResponse.fromJson(row);
         if (value != null) {
           result.add(value);
         }
@@ -66,12 +74,12 @@ class ValidationErrorLocInner {
     return result.toList(growable: growable);
   }
 
-  static Map<String, ValidationErrorLocInner> mapFromJson(dynamic json) {
-    final map = <String, ValidationErrorLocInner>{};
+  static Map<String, ResourceResponse> mapFromJson(dynamic json) {
+    final map = <String, ResourceResponse>{};
     if (json is Map && json.isNotEmpty) {
       json = json.cast<String, dynamic>(); // ignore: parameter_assignments
       for (final entry in json.entries) {
-        final value = ValidationErrorLocInner.fromJson(entry.value);
+        final value = ResourceResponse.fromJson(entry.value);
         if (value != null) {
           map[entry.key] = value;
         }
@@ -80,14 +88,14 @@ class ValidationErrorLocInner {
     return map;
   }
 
-  // maps a json object with a list of ValidationErrorLocInner-objects as value to a dart map
-  static Map<String, List<ValidationErrorLocInner>> mapListFromJson(dynamic json, {bool growable = false,}) {
-    final map = <String, List<ValidationErrorLocInner>>{};
+  // maps a json object with a list of ResourceResponse-objects as value to a dart map
+  static Map<String, List<ResourceResponse>> mapListFromJson(dynamic json, {bool growable = false,}) {
+    final map = <String, List<ResourceResponse>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ValidationErrorLocInner.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = ResourceResponse.listFromJson(entry.value, growable: growable,);
       }
     }
     return map;
@@ -95,6 +103,7 @@ class ValidationErrorLocInner {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'resources',
   };
 }
 

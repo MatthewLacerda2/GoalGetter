@@ -182,24 +182,100 @@ class ApiClient {
           return valueString == 'true' || valueString == '1';
         case 'DateTime':
           return value is DateTime ? value : DateTime.tryParse(value);
-        case 'FollowUpQuestionsAndAnswers':
-          return FollowUpQuestionsAndAnswers.fromJson(value);
+        case 'ChatMessageItem':
+          return ChatMessageItem.fromJson(value);
+        case 'ChatMessageResponse':
+          return ChatMessageResponse.fromJson(value);
+        case 'ChatMessageResponseItem':
+          return ChatMessageResponseItem.fromJson(value);
+        case 'CreateMessageRequest':
+          return CreateMessageRequest.fromJson(value);
+        case 'CreateMessageRequestItem':
+          return CreateMessageRequestItem.fromJson(value);
+        case 'CreateMessageResponse':
+          return CreateMessageResponse.fromJson(value);
+        case 'EditMessageRequest':
+          return EditMessageRequest.fromJson(value);
+        case 'GoalCreationFollowUpQuestionsRequest':
+          return GoalCreationFollowUpQuestionsRequest.fromJson(value);
+        case 'GoalCreationFollowUpQuestionsResponse':
+          return GoalCreationFollowUpQuestionsResponse.fromJson(value);
+        case 'GoalFollowUpQuestionAndAnswer':
+          return GoalFollowUpQuestionAndAnswer.fromJson(value);
+        case 'GoalFullCreationRequest':
+          return GoalFullCreationRequest.fromJson(value);
+        case 'GoalStudyPlanRequest':
+          return GoalStudyPlanRequest.fromJson(value);
+        case 'GoalStudyPlanResponse':
+          return GoalStudyPlanResponse.fromJson(value);
         case 'HTTPValidationError':
           return HTTPValidationError.fromJson(value);
-        case 'RoadmapCreationRequest':
-          return RoadmapCreationRequest.fromJson(value);
-        case 'RoadmapCreationResponse':
-          return RoadmapCreationResponse.fromJson(value);
-        case 'RoadmapInitiationRequest':
-          return RoadmapInitiationRequest.fromJson(value);
-        case 'RoadmapInitiationResponse':
-          return RoadmapInitiationResponse.fromJson(value);
-        case 'Step':
-          return Step.fromJson(value);
+        case 'LeaderboardItem':
+          return LeaderboardItem.fromJson(value);
+        case 'LeaderboardResponse':
+          return LeaderboardResponse.fromJson(value);
+        case 'LikeMessageRequest':
+          return LikeMessageRequest.fromJson(value);
+        case 'MultipleChoiceActivityEvaluationRequest':
+          return MultipleChoiceActivityEvaluationRequest.fromJson(value);
+        case 'MultipleChoiceActivityEvaluationResponse':
+          return MultipleChoiceActivityEvaluationResponse.fromJson(value);
+        case 'MultipleChoiceActivityResponse':
+          return MultipleChoiceActivityResponse.fromJson(value);
+        case 'MultipleChoiceQuestionAnswer':
+          return MultipleChoiceQuestionAnswer.fromJson(value);
+        case 'MultipleChoiceQuestionResponse':
+          return MultipleChoiceQuestionResponse.fromJson(value);
+        case 'OAuth2Request':
+          return OAuth2Request.fromJson(value);
+        case 'ObjectiveItem':
+          return ObjectiveItem.fromJson(value);
+        case 'ObjectiveListResponse':
+          return ObjectiveListResponse.fromJson(value);
+        case 'ObjectiveNote':
+          return ObjectiveNote.fromJson(value);
+        case 'ObjectiveResponse':
+          return ObjectiveResponse.fromJson(value);
+        case 'PlayerAchievementItem':
+          return PlayerAchievementItem.fromJson(value);
+        case 'PlayerAchievementResponse':
+          return PlayerAchievementResponse.fromJson(value);
+        case 'ResourceItem':
+          return ResourceItem.fromJson(value);
+        case 'ResourceResponse':
+          return ResourceResponse.fromJson(value);
+        case 'StreakDayResponse':
+          return StreakDayResponse.fromJson(value);
+        case 'StudentCurrentStatusResponse':
+          return StudentCurrentStatusResponse.fromJson(value);
+        case 'StudentResponse':
+          return StudentResponse.fromJson(value);
+        case 'StudyResourceType':
+          return StudyResourceTypeTypeTransformer().decode(value);
+        case 'SubjectiveQuestionEvaluationRequest':
+          return SubjectiveQuestionEvaluationRequest.fromJson(value);
+        case 'SubjectiveQuestionEvaluationResponse':
+          return SubjectiveQuestionEvaluationResponse.fromJson(value);
+        case 'SubjectiveQuestionSchema':
+          return SubjectiveQuestionSchema.fromJson(value);
+        case 'SubjectiveQuestionsAssessmentEvaluationRequest':
+          return SubjectiveQuestionsAssessmentEvaluationRequest.fromJson(value);
+        case 'SubjectiveQuestionsAssessmentEvaluationResponse':
+          return SubjectiveQuestionsAssessmentEvaluationResponse.fromJson(value);
+        case 'SubjectiveQuestionsAssessmentResponse':
+          return SubjectiveQuestionsAssessmentResponse.fromJson(value);
+        case 'TimePeriodStreak':
+          return TimePeriodStreak.fromJson(value);
+        case 'TokenResponse':
+          return TokenResponse.fromJson(value);
         case 'ValidationError':
           return ValidationError.fromJson(value);
         case 'ValidationErrorLocInner':
           return ValidationErrorLocInner.fromJson(value);
+        case 'XpByDaysResponse':
+          return XpByDaysResponse.fromJson(value);
+        case 'XpDay':
+          return XpDay.fromJson(value);
         default:
           dynamic match;
           if (value is List && (match = _regList.firstMatch(targetType)?.group(1)) != null) {
