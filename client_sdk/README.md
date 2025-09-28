@@ -31,7 +31,7 @@ dependencies:
 
 ## Tests
 
-TO DO
+TODO
 
 ## Getting Started
 
@@ -41,13 +41,15 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:openapi/api.dart';
 
 
-final api_instance = DefaultApi();
+final api_instance = AchievementsApi();
+final studentId = studentId_example; // String | 
+final limit = 56; // int | Limit number of achievements returned
 
 try {
-    final result = api_instance.healthCheckHealthGet();
+    final result = api_instance.getAchievementsApiV1AchievementsStudentIdGet(studentId, limit);
     print(result);
 } catch (e) {
-    print('Exception when calling DefaultApi->healthCheckHealthGet: $e\n');
+    print('Exception when calling AchievementsApi->getAchievementsApiV1AchievementsStudentIdGet: $e\n');
 }
 
 ```
@@ -58,28 +60,92 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AchievementsApi* | [**getAchievementsApiV1AchievementsStudentIdGet**](doc//AchievementsApi.md#getachievementsapiv1achievementsstudentidget) | **GET** /api/v1/achievements/{student_id} | Get Achievements
+*AchievementsApi* | [**getLeaderboardApiV1AchievementsLeaderboardGet**](doc//AchievementsApi.md#getleaderboardapiv1achievementsleaderboardget) | **GET** /api/v1/achievements/leaderboard | Get Leaderboard
+*AchievementsApi* | [**getXpByDaysApiV1AchievementsXpByDaysGet**](doc//AchievementsApi.md#getxpbydaysapiv1achievementsxpbydaysget) | **GET** /api/v1/achievements/xp_by_days | Get Xp By Days
+*ActivitiesApi* | [**takeMultipleChoiceActivityApiV1ActivitiesEvaluatePost**](doc//ActivitiesApi.md#takemultiplechoiceactivityapiv1activitiesevaluatepost) | **POST** /api/v1/activities/evaluate | Take Multiple Choice Activity
+*ActivitiesApi* | [**takeMultipleChoiceActivityApiV1ActivitiesPost**](doc//ActivitiesApi.md#takemultiplechoiceactivityapiv1activitiespost) | **POST** /api/v1/activities | Take Multiple Choice Activity
+*AssessmentsApi* | [**subjectiveQuestionEvaluationApiV1AssessmentsEvaluateSingleQuestionPost**](doc//AssessmentsApi.md#subjectivequestionevaluationapiv1assessmentsevaluatesinglequestionpost) | **POST** /api/v1/assessments/evaluate/single_question | Subjective Question Evaluation
+*AssessmentsApi* | [**subjectiveQuestionsOverallEvaluationApiV1AssessmentsEvaluateOverallPost**](doc//AssessmentsApi.md#subjectivequestionsoverallevaluationapiv1assessmentsevaluateoverallpost) | **POST** /api/v1/assessments/evaluate/overall | Subjective Questions Overall Evaluation
+*AssessmentsApi* | [**takeSubjectiveQuestionsAssessmentApiV1AssessmentsPost**](doc//AssessmentsApi.md#takesubjectivequestionsassessmentapiv1assessmentspost) | **POST** /api/v1/assessments | Take Subjective Questions Assessment
+*AuthApi* | [**deleteAccountApiV1AuthAccountDelete**](doc//AuthApi.md#deleteaccountapiv1authaccountdelete) | **DELETE** /api/v1/auth/account | Delete Account
+*AuthApi* | [**loginApiV1AuthLoginPost**](doc//AuthApi.md#loginapiv1authloginpost) | **POST** /api/v1/auth/login | Login
+*ChatApi* | [**createMessageApiV1ChatPost**](doc//ChatApi.md#createmessageapiv1chatpost) | **POST** /api/v1/chat | Create Message
+*ChatApi* | [**deleteMessageApiV1ChatMessageIdDelete**](doc//ChatApi.md#deletemessageapiv1chatmessageiddelete) | **DELETE** /api/v1/chat/{message_id} | Delete Message
+*ChatApi* | [**editMessageApiV1ChatEditPatch**](doc//ChatApi.md#editmessageapiv1chateditpatch) | **PATCH** /api/v1/chat/edit | Edit Message
+*ChatApi* | [**getChatMessagesApiV1ChatGet**](doc//ChatApi.md#getchatmessagesapiv1chatget) | **GET** /api/v1/chat | Get Chat Messages
+*ChatApi* | [**likeMessageApiV1ChatLikesPatch**](doc//ChatApi.md#likemessageapiv1chatlikespatch) | **PATCH** /api/v1/chat/likes | Like Message
 *DefaultApi* | [**healthCheckHealthGet**](doc//DefaultApi.md#healthcheckhealthget) | **GET** /health | Health Check
 *DefaultApi* | [**rootGet**](doc//DefaultApi.md#rootget) | **GET** / | Root
-*RoadmapApi* | [**createRoadmapApiV1RoadmapCreationPost**](doc//RoadmapApi.md#createroadmapapiv1roadmapcreationpost) | **POST** /api/v1/roadmap/creation | Create Roadmap
-*RoadmapApi* | [**initiateRoadmapApiV1RoadmapInitiationPost**](doc//RoadmapApi.md#initiateroadmapapiv1roadmapinitiationpost) | **POST** /api/v1/roadmap/initiation | Initiate Roadmap
+*ObjectiveApi* | [**getObjectiveApiV1ObjectiveGet**](doc//ObjectiveApi.md#getobjectiveapiv1objectiveget) | **GET** /api/v1/objective | Get Objective
+*ObjectiveApi* | [**getObjectivesListApiV1ObjectiveListGet**](doc//ObjectiveApi.md#getobjectiveslistapiv1objectivelistget) | **GET** /api/v1/objective/list | Get Objectives List
+*OnboardingApi* | [**generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPost**](doc//OnboardingApi.md#generatefollowupquestionsapiv1onboardingfollowupquestionspost) | **POST** /api/v1/onboarding/follow_up_questions | Generate Follow Up Questions
+*OnboardingApi* | [**generateFullCreationApiV1OnboardingFullCreationPost**](doc//OnboardingApi.md#generatefullcreationapiv1onboardingfullcreationpost) | **POST** /api/v1/onboarding/full_creation | Generate Full Creation
+*OnboardingApi* | [**generateStudyPlanApiV1OnboardingStudyPlanPost**](doc//OnboardingApi.md#generatestudyplanapiv1onboardingstudyplanpost) | **POST** /api/v1/onboarding/study_plan | Generate Study Plan
+*ResourcesApi* | [**getResourcesApiV1ResourcesGet**](doc//ResourcesApi.md#getresourcesapiv1resourcesget) | **GET** /api/v1/resources | Get Resources
+*StreakApi* | [**getMonthStreakApiV1StreakStudentIdMonthGet**](doc//StreakApi.md#getmonthstreakapiv1streakstudentidmonthget) | **GET** /api/v1/streak/{student_id}/month | Get Month Streak
+*StreakApi* | [**getWeekStreakApiV1StreakStudentIdWeekGet**](doc//StreakApi.md#getweekstreakapiv1streakstudentidweekget) | **GET** /api/v1/streak/{student_id}/week | Get Week Streak
+*StudentApi* | [**getStudentCurrentStatusApiV1StudentGet**](doc//StudentApi.md#getstudentcurrentstatusapiv1studentget) | **GET** /api/v1/student | Get Student Current Status
 
 
 ## Documentation For Models
 
- - [FollowUpQuestionsAndAnswers](doc//FollowUpQuestionsAndAnswers.md)
+ - [ChatMessageItem](doc//ChatMessageItem.md)
+ - [ChatMessageResponse](doc//ChatMessageResponse.md)
+ - [ChatMessageResponseItem](doc//ChatMessageResponseItem.md)
+ - [CreateMessageRequest](doc//CreateMessageRequest.md)
+ - [CreateMessageRequestItem](doc//CreateMessageRequestItem.md)
+ - [CreateMessageResponse](doc//CreateMessageResponse.md)
+ - [EditMessageRequest](doc//EditMessageRequest.md)
+ - [GoalCreationFollowUpQuestionsRequest](doc//GoalCreationFollowUpQuestionsRequest.md)
+ - [GoalCreationFollowUpQuestionsResponse](doc//GoalCreationFollowUpQuestionsResponse.md)
+ - [GoalFollowUpQuestionAndAnswer](doc//GoalFollowUpQuestionAndAnswer.md)
+ - [GoalFullCreationRequest](doc//GoalFullCreationRequest.md)
+ - [GoalStudyPlanRequest](doc//GoalStudyPlanRequest.md)
+ - [GoalStudyPlanResponse](doc//GoalStudyPlanResponse.md)
  - [HTTPValidationError](doc//HTTPValidationError.md)
- - [RoadmapCreationRequest](doc//RoadmapCreationRequest.md)
- - [RoadmapCreationResponse](doc//RoadmapCreationResponse.md)
- - [RoadmapInitiationRequest](doc//RoadmapInitiationRequest.md)
- - [RoadmapInitiationResponse](doc//RoadmapInitiationResponse.md)
- - [Step](doc//Step.md)
+ - [LeaderboardItem](doc//LeaderboardItem.md)
+ - [LeaderboardResponse](doc//LeaderboardResponse.md)
+ - [LikeMessageRequest](doc//LikeMessageRequest.md)
+ - [MultipleChoiceActivityEvaluationRequest](doc//MultipleChoiceActivityEvaluationRequest.md)
+ - [MultipleChoiceActivityEvaluationResponse](doc//MultipleChoiceActivityEvaluationResponse.md)
+ - [MultipleChoiceActivityResponse](doc//MultipleChoiceActivityResponse.md)
+ - [MultipleChoiceQuestionAnswer](doc//MultipleChoiceQuestionAnswer.md)
+ - [MultipleChoiceQuestionResponse](doc//MultipleChoiceQuestionResponse.md)
+ - [OAuth2Request](doc//OAuth2Request.md)
+ - [ObjectiveItem](doc//ObjectiveItem.md)
+ - [ObjectiveListResponse](doc//ObjectiveListResponse.md)
+ - [ObjectiveNote](doc//ObjectiveNote.md)
+ - [ObjectiveResponse](doc//ObjectiveResponse.md)
+ - [PlayerAchievementItem](doc//PlayerAchievementItem.md)
+ - [PlayerAchievementResponse](doc//PlayerAchievementResponse.md)
+ - [ResourceItem](doc//ResourceItem.md)
+ - [ResourceResponse](doc//ResourceResponse.md)
+ - [StreakDayResponse](doc//StreakDayResponse.md)
+ - [StudentCurrentStatusResponse](doc//StudentCurrentStatusResponse.md)
+ - [StudentResponse](doc//StudentResponse.md)
+ - [StudyResourceType](doc//StudyResourceType.md)
+ - [SubjectiveQuestionEvaluationRequest](doc//SubjectiveQuestionEvaluationRequest.md)
+ - [SubjectiveQuestionEvaluationResponse](doc//SubjectiveQuestionEvaluationResponse.md)
+ - [SubjectiveQuestionSchema](doc//SubjectiveQuestionSchema.md)
+ - [SubjectiveQuestionsAssessmentEvaluationRequest](doc//SubjectiveQuestionsAssessmentEvaluationRequest.md)
+ - [SubjectiveQuestionsAssessmentEvaluationResponse](doc//SubjectiveQuestionsAssessmentEvaluationResponse.md)
+ - [SubjectiveQuestionsAssessmentResponse](doc//SubjectiveQuestionsAssessmentResponse.md)
+ - [TimePeriodStreak](doc//TimePeriodStreak.md)
+ - [TokenResponse](doc//TokenResponse.md)
  - [ValidationError](doc//ValidationError.md)
  - [ValidationErrorLocInner](doc//ValidationErrorLocInner.md)
+ - [XpByDaysResponse](doc//XpByDaysResponse.md)
+ - [XpDay](doc//XpDay.md)
 
 
 ## Documentation For Authorization
 
-Endpoints do not require authorization.
+
+Authentication schemes defined for the API:
+### HTTPBearer
+
+- **Type**: HTTP Bearer authentication
 
 
 ## Author

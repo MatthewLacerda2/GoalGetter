@@ -10,29 +10,48 @@
 
 part of openapi.api;
 
-class ValidationErrorLocInner {
-  /// Returns a new [ValidationErrorLocInner] instance.
-  ValidationErrorLocInner();
+class XpDay {
+  /// Returns a new [XpDay] instance.
+  XpDay({
+    required this.id,
+    required this.xp,
+    required this.dateTime,
+  });
+
+  String id;
+
+  int xp;
+
+  DateTime dateTime;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ValidationErrorLocInner;
+  bool operator ==(Object other) => identical(this, other) || other is XpDay &&
+    other.id == id &&
+    other.xp == xp &&
+    other.dateTime == dateTime;
 
   @override
-  int get hashCode => 0;
+  int get hashCode =>
     // ignore: unnecessary_parenthesis
+    (id.hashCode) +
+    (xp.hashCode) +
+    (dateTime.hashCode);
 
   @override
-  String toString() => 'ValidationErrorLocInner[]';
+  String toString() => 'XpDay[id=$id, xp=$xp, dateTime=$dateTime]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
+      json[r'id'] = this.id;
+      json[r'xp'] = this.xp;
+      json[r'date_time'] = this.dateTime.toUtc().toIso8601String();
     return json;
   }
 
-  /// Returns a new [ValidationErrorLocInner] instance and imports its values from
+  /// Returns a new [XpDay] instance and imports its values from
   /// [value] if it's a [Map], null otherwise.
   // ignore: prefer_constructors_over_static_methods
-  static ValidationErrorLocInner? fromJson(dynamic value) {
+  static XpDay? fromJson(dynamic value) {
     if (value is Map) {
       final json = value.cast<String, dynamic>();
 
@@ -41,23 +60,26 @@ class ValidationErrorLocInner {
       // Note 2: this code is stripped in release mode!
       assert(() {
         requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ValidationErrorLocInner[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ValidationErrorLocInner[$key]" has a null value in JSON.');
+          assert(json.containsKey(key), 'Required key "XpDay[$key]" is missing from JSON.');
+          assert(json[key] != null, 'Required key "XpDay[$key]" has a null value in JSON.');
         });
         return true;
       }());
 
-      return ValidationErrorLocInner(
+      return XpDay(
+        id: mapValueOfType<String>(json, r'id')!,
+        xp: mapValueOfType<int>(json, r'xp')!,
+        dateTime: mapDateTime(json, r'date_time', r'')!,
       );
     }
     return null;
   }
 
-  static List<ValidationErrorLocInner> listFromJson(dynamic json, {bool growable = false,}) {
-    final result = <ValidationErrorLocInner>[];
+  static List<XpDay> listFromJson(dynamic json, {bool growable = false,}) {
+    final result = <XpDay>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
-        final value = ValidationErrorLocInner.fromJson(row);
+        final value = XpDay.fromJson(row);
         if (value != null) {
           result.add(value);
         }
@@ -66,12 +88,12 @@ class ValidationErrorLocInner {
     return result.toList(growable: growable);
   }
 
-  static Map<String, ValidationErrorLocInner> mapFromJson(dynamic json) {
-    final map = <String, ValidationErrorLocInner>{};
+  static Map<String, XpDay> mapFromJson(dynamic json) {
+    final map = <String, XpDay>{};
     if (json is Map && json.isNotEmpty) {
       json = json.cast<String, dynamic>(); // ignore: parameter_assignments
       for (final entry in json.entries) {
-        final value = ValidationErrorLocInner.fromJson(entry.value);
+        final value = XpDay.fromJson(entry.value);
         if (value != null) {
           map[entry.key] = value;
         }
@@ -80,14 +102,14 @@ class ValidationErrorLocInner {
     return map;
   }
 
-  // maps a json object with a list of ValidationErrorLocInner-objects as value to a dart map
-  static Map<String, List<ValidationErrorLocInner>> mapListFromJson(dynamic json, {bool growable = false,}) {
-    final map = <String, List<ValidationErrorLocInner>>{};
+  // maps a json object with a list of XpDay-objects as value to a dart map
+  static Map<String, List<XpDay>> mapListFromJson(dynamic json, {bool growable = false,}) {
+    final map = <String, List<XpDay>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = ValidationErrorLocInner.listFromJson(entry.value, growable: growable,);
+        map[entry.key] = XpDay.listFromJson(entry.value, growable: growable,);
       }
     }
     return map;
@@ -95,6 +117,9 @@ class ValidationErrorLocInner {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
+    'id',
+    'xp',
+    'date_time',
   };
 }
 

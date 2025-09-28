@@ -1,0 +1,186 @@
+//
+// AUTO-GENERATED FILE, DO NOT MODIFY!
+//
+// @dart=2.18
+
+// ignore_for_file: unused_element, unused_import
+// ignore_for_file: always_put_required_named_parameters_first
+// ignore_for_file: constant_identifier_names
+// ignore_for_file: lines_longer_than_80_chars
+
+part of openapi.api;
+
+
+class OnboardingApi {
+  OnboardingApi([ApiClient? apiClient]) : apiClient = apiClient ?? defaultApiClient;
+
+  final ApiClient apiClient;
+
+  /// Generate Follow Up Questions
+  ///
+  /// Initiate the onboarding process by analyzing the user's goal prompt and generating follow-up questions.
+  ///
+  /// Note: This method returns the HTTP [Response].
+  ///
+  /// Parameters:
+  ///
+  /// * [GoalCreationFollowUpQuestionsRequest] goalCreationFollowUpQuestionsRequest (required):
+  Future<Response> generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPostWithHttpInfo(GoalCreationFollowUpQuestionsRequest goalCreationFollowUpQuestionsRequest,) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/onboarding/follow_up_questions';
+
+    // ignore: prefer_final_locals
+    Object? postBody = goalCreationFollowUpQuestionsRequest;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>['application/json'];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'POST',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Generate Follow Up Questions
+  ///
+  /// Initiate the onboarding process by analyzing the user's goal prompt and generating follow-up questions.
+  ///
+  /// Parameters:
+  ///
+  /// * [GoalCreationFollowUpQuestionsRequest] goalCreationFollowUpQuestionsRequest (required):
+  Future<GoalCreationFollowUpQuestionsResponse?> generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPost(GoalCreationFollowUpQuestionsRequest goalCreationFollowUpQuestionsRequest,) async {
+    final response = await generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPostWithHttpInfo(goalCreationFollowUpQuestionsRequest,);
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'GoalCreationFollowUpQuestionsResponse',) as GoalCreationFollowUpQuestionsResponse;
+    
+    }
+    return null;
+  }
+
+  /// Generate Full Creation
+  ///
+  /// Create user account and complete onboarding with goal and objective.
+  ///
+  /// Note: This method returns the HTTP [Response].
+  ///
+  /// Parameters:
+  ///
+  /// * [GoalFullCreationRequest] goalFullCreationRequest (required):
+  Future<Response> generateFullCreationApiV1OnboardingFullCreationPostWithHttpInfo(GoalFullCreationRequest goalFullCreationRequest,) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/onboarding/full_creation';
+
+    // ignore: prefer_final_locals
+    Object? postBody = goalFullCreationRequest;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>['application/json'];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'POST',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Generate Full Creation
+  ///
+  /// Create user account and complete onboarding with goal and objective.
+  ///
+  /// Parameters:
+  ///
+  /// * [GoalFullCreationRequest] goalFullCreationRequest (required):
+  Future<TokenResponse?> generateFullCreationApiV1OnboardingFullCreationPost(GoalFullCreationRequest goalFullCreationRequest,) async {
+    final response = await generateFullCreationApiV1OnboardingFullCreationPostWithHttpInfo(goalFullCreationRequest,);
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'TokenResponse',) as TokenResponse;
+    
+    }
+    return null;
+  }
+
+  /// Generate Study Plan
+  ///
+  /// Receive the Study Plan generated by the AI.
+  ///
+  /// Note: This method returns the HTTP [Response].
+  ///
+  /// Parameters:
+  ///
+  /// * [GoalStudyPlanRequest] goalStudyPlanRequest (required):
+  Future<Response> generateStudyPlanApiV1OnboardingStudyPlanPostWithHttpInfo(GoalStudyPlanRequest goalStudyPlanRequest,) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/onboarding/study_plan';
+
+    // ignore: prefer_final_locals
+    Object? postBody = goalStudyPlanRequest;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>['application/json'];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'POST',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Generate Study Plan
+  ///
+  /// Receive the Study Plan generated by the AI.
+  ///
+  /// Parameters:
+  ///
+  /// * [GoalStudyPlanRequest] goalStudyPlanRequest (required):
+  Future<GoalStudyPlanResponse?> generateStudyPlanApiV1OnboardingStudyPlanPost(GoalStudyPlanRequest goalStudyPlanRequest,) async {
+    final response = await generateStudyPlanApiV1OnboardingStudyPlanPostWithHttpInfo(goalStudyPlanRequest,);
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'GoalStudyPlanResponse',) as GoalStudyPlanResponse;
+    
+    }
+    return null;
+  }
+}
