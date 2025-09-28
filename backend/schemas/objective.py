@@ -6,6 +6,7 @@ class ObjectiveNote(BaseModel):
     id: str
     title: str
     info: str
+    is_favorited: bool
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
