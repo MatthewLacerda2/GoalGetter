@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/screens/onboarding/tutorial_screen.dart';
 import '../../widgets/screens/onboarding/goal_questions.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:openapi/api.dart';
+import 'study_plan.dart';
 
 class GoalQuestionsScreen extends StatefulWidget {
   final List<String> questions;
@@ -89,20 +90,52 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
       _answers.length == widget.questions.length &&
       _answers.every((a) => a.trim().isNotEmpty);
 
-  void _onSendPressed() async {
+    void _onSendPressed() async {
     if (_allAnswered) {
       setState(() {
         _isLoading = true;
       });
       try {
-        if (!mounted) return;
-        Navigator.pushAndRemoveUntil( //TODO: make sure, after the tutorial screen, we got the content for the user ready!
-          context,
-          MaterialPageRoute(
-            builder: (context) => TutorialScreen()
-          ),
-          (route) => false,
+        // Build request
+        final api = OnboardingApi(ApiClient(basePath: 'http://127.0.0.1:8000')); // TODO: env
+        final qa = <GoalFollowUpQuestionAndAnswer>[];
+        for (var i = 0; i < widget.questions.length; i++) {
+          qa.add(GoalFollowUpQuestionAndAnswer(
+            question: widget.questions[i],
+            answer: _answers[i],
+          ));
+        }
+        final request = GoalStudyPlanRequest(
+          prompt: widget.prompt,
+          questionsAnswers: qa,
         );
+
+        // Call API
+        final plan = await api.generateStudyPlanApiV1OnboardingStudyPlanPost(request);
+
+        if (!mounted) return;
+        if (plan == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Error: empty study plan response',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          );
+        } else {
+          // Navigate to Study Plan screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StudyPlanScreen(plan: plan),
+            ),
+          );
+        }
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
