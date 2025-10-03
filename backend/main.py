@@ -1,12 +1,12 @@
 import logging
 from fastapi import FastAPI, Request
-from backend.api.v1.endpoints import router as api_v1_router
 from fastapi.middleware.cors import CORSMiddleware
+from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
 
 logging.basicConfig(
     level=logging.INFO,
@@ -44,4 +44,20 @@ async def root(request: Request):
 
 @app.get("/health")
 async def health_check(request: Request):
-    return {"status": "healthy"}
+    health_status = {
+        "status": "healthy",
+        "database": "unknown"
+    }
+    
+    try:
+        # Test database connection
+        from backend.core.database import engine
+        async with engine.begin() as conn:
+            await conn.execute("SELECT 1")
+        health_status["database"] = "connected"
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+        health_status["database"] = "disconnected"
+        health_status["status"] = "unhealthy"
+    
+    return health_status
