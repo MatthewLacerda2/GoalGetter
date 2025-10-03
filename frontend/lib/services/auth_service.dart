@@ -1,17 +1,31 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   static const String _tokenKey = 'access_token';
   static const String _userInfoKey = 'user_info';
   
-  // Use your Google Client ID from backend/utils/envs.py
-  //google clint authorize redirect uri: https://n8n.srv894261.hstgr.cloud/rest/oauth2-credential/callback
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: "1039088402014-9bv0lqhs308ld52fvgqmje260fqf8pbn.apps.googleusercontent.com", // From your backend config
-    scopes: ['email', 'profile'],
-  );
+  // Web-specific configuration
+  static const String _webClientId = "1039088402014-kd6agtr0jsthnamk8vqspisvan6tdtc3.apps.googleusercontent.com";
+  
+  GoogleSignIn get _googleSignIn {
+    if (kIsWeb) {
+      // For web, use the web client ID
+      return GoogleSignIn(
+        clientId: _webClientId,
+        scopes: ['email', 'profile'],
+      );
+    } else {
+      // For mobile (if you add it later), use mobile client ID
+      return GoogleSignIn(
+        clientId: _webClientId, // You'll change this later for mobile
+        scopes: ['email', 'profile'],
+      );
+    }
+  }
 
   // In-memory storage for OAuth data during onboarding
   String? _tempGoogleToken;
@@ -19,19 +33,28 @@ class AuthService {
 
   // Sign in with Google and return the ID token (in memory only)
   Future<Map<String, dynamic>?> signInWithGoogle() async {
+    developer.log("EA SPORTS, its in the game");
     try {
+      developer.log('Starting Google Sign-In...');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       
       if (googleUser == null) {
+        developer.log('User cancelled sign-in');
         return null; // User cancelled the sign-in
       }
 
+      developer.log('Google user: ${googleUser.email}');
       final GoogleSignInAuthentication googleAuth = 
           await googleUser.authentication;
+
+      developer.log('ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}');
+      developer.log('Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}');
+      developer.log('Full auth object: $googleAuth');
 
       final String? idToken = googleAuth.idToken;
       
       if (idToken == null) {
+        developer.log('ID Token is null, throwing exception');
         throw Exception('Failed to get ID token from Google');
       }
 
@@ -45,12 +68,69 @@ class AuthService {
         'picture': googleUser.photoUrl,
       };
 
+      developer.log('Successfully authenticated user: ${googleUser.email}');
       return {
         'token': idToken,
         'user': _tempUserInfo,
       };
     } catch (error) {
-      print('Error signing in with Google: $error');
+      developer.log('Error signing in to your app with Google: $error');
+      rethrow;
+    }
+  }
+
+  // Add this method for web-only authentication
+  Future<Map<String, dynamic>?> signInWithGoogleWeb() async {
+    if (!kIsWeb) {
+      throw Exception('This method is only for web');
+    }
+    
+    try {
+      developer.log('Starting Google Sign-In for web...');
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        developer.log('User cancelled sign-in');
+        return null;
+      }
+
+      developer.log('Google user: ${googleUser.email}');
+      final GoogleSignInAuthentication googleAuth = 
+          await googleUser.authentication;
+
+      developer.log('ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}');
+      developer.log('Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}');
+
+      final String? idToken = googleAuth.idToken;
+      
+      if (idToken == null) {
+        // For web, if ID token is null, try using access token
+        final String? accessToken = googleAuth.accessToken;
+        if (accessToken == null) {
+          throw Exception('Failed to get any token from Google');
+        }
+        
+        // Store access token temporarily
+        _tempGoogleToken = accessToken;
+      } else {
+        // Store ID token
+        _tempGoogleToken = idToken;
+      }
+      
+      _tempUserInfo = {
+        'sub': googleUser.id,
+        'email': googleUser.email,
+        'name': googleUser.displayName,
+        'picture': googleUser.photoUrl,
+      };
+
+      developer.log('Successfully authenticated user: ${googleUser.email}');
+      return {
+        'token': _tempGoogleToken,
+        'user': _tempUserInfo,
+      };
+    } catch (error) {
+      developer.log('Error signing in to your app with Google: $error');
       rethrow;
     }
   }

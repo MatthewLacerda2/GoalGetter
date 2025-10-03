@@ -20,7 +20,7 @@ class _StartScreenState extends State<StartScreen> {
     });
 
     try {
-      final result = await _authService.signInWithGoogle();
+      final result = await _authService.signInWithGoogleWeb();
       
       if (result != null) {
         // Successfully signed in, navigate to goal prompt screen

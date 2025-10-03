@@ -2,10 +2,10 @@ NUM_DIMENSIONS = 3072
 NUM_QUESTIONS_PER_LESSON = 8
 NUM_QUESTIONS_PER_EVALUATION = 10
 EMBEDDING_MODEL = "gemini-embedding-001"
-#TODO: all values below are made-up
-GOOGLE_PROJECT_ID = "driven-actor-461001-j0"
-GOOGLE_CLIENT_ID = "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com"
+GOOGLE_PROJECT_ID = "n8n-artheria"
+GOOGLE_CLIENT_ID = "1039088402014-kd6agtr0jsthnamk8vqspisvan6tdtc3.apps.googleusercontent.com"
 
+#TODO: all values below are made-up
 JWT_ISSUER = "https://api.goalgetter.com"
 JWT_AUDIENCE = "https://api.goalgetter.com"
 
