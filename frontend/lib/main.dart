@@ -5,8 +5,10 @@ import 'screens/stats_screen.dart';
 import 'screens/resources_screen.dart';
 import 'screens/tutor_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/onboarding/start_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'utils/settings_storage.dart';
+import 'services/auth_service.dart';
 import 'widgets/main_screen_icon.dart';
 
 void main() {
@@ -22,6 +24,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en');
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -58,11 +61,71 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       locale: _locale,
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(
+      home: AuthWrapper(
         title: 'Goal Getter',
         onLanguageChanged: _changeLanguage,
+        authService: _authService,
       ),
     );
+  }
+}
+
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({
+    super.key, 
+    required this.title, 
+    required this.onLanguageChanged,
+    required this.authService,
+  });
+
+  final String title;
+  final Function(String) onLanguageChanged;
+  final AuthService authService;
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _isLoading = true;
+  bool _hasCompletedOnboarding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+  }
+
+  Future<void> _checkAuthStatus() async {
+    // Check if user has completed onboarding (has stored access token)
+    final hasCompletedOnboarding = await widget.authService.isSignedIn();
+    setState(() {
+      _hasCompletedOnboarding = hasCompletedOnboarding;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Color.fromARGB(255, 33, 33, 33),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Colors.blue,
+          ),
+        ),
+      );
+    }
+
+    if (_hasCompletedOnboarding) {
+      return MyHomePage(
+        title: widget.title,
+        onLanguageChanged: widget.onLanguageChanged,
+      );
+    } else {
+      return const StartScreen();
+    }
   }
 }
 
