@@ -21,8 +21,8 @@ def generate_subjective_questions_prompt(objective_name: str, objective_descript
     You can ask questions, experiences, or questions that require basic reasoning.
     
     Write simple questions that only need concise answers.    
-    Your question must be 20 words or less.
-    Expect answers of no more than 50 words.
+    Your question must be 30 words or less.
+    Expect answers of no more than 40 words.
     
     
     # Output

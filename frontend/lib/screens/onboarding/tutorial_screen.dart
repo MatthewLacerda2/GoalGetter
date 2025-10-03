@@ -18,6 +18,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
   PageViewModel _buildPageViewModel(String title, String body, IconData icon) {
     return PageViewModel(
+      useScrollView: true,
       titleWidget: Text(title, style: TextStyle(color: Colors.green, fontSize: 28, fontWeight: FontWeight.bold)),
       bodyWidget: Container(
         padding: const EdgeInsets.symmetric(horizontal: 28),

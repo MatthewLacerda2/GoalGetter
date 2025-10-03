@@ -31,7 +31,7 @@ class StudyPlanScreen extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.blue,
               ),
             ),
             const SizedBox(height: 8),
@@ -39,19 +39,28 @@ class StudyPlanScreen extends StatelessWidget {
             Text(
               plan.goalDescription,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: Colors.grey[400], // dark grey-ish
-                height: 1.5,
+                height: 1.6,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            Text('First Objective:',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.white
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
             // First objective
             Text(
               plan.firstObjectiveName,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Colors.blue,
               ),
             ),
             const SizedBox(height: 6),
@@ -64,14 +73,17 @@ class StudyPlanScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            Divider(color: Colors.grey[500]),
+            const SizedBox(height: 16),
             // Milestones
             if (plan.milestones.isNotEmpty) ...[
               Text(
                 'Milestones',
-                style: const TextStyle(
+                textAlign: TextAlign.center,
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: Colors.grey[600],
                 ),
               ),
               const SizedBox(height: 8),
@@ -81,7 +93,7 @@ class StudyPlanScreen extends StatelessWidget {
                   child: InfoCard(
                     title: m,
                     backgroundColor: milestoneBg,
-                    borderColor: Colors.grey[700],
+                    borderColor: Colors.grey[600],
                   ),
                 ),
               ),

@@ -3,8 +3,8 @@ from datetime import datetime
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, ForeignKey, Boolean, Integer, DateTime
-from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
+from backend.utils.envs import NUM_DIMENSIONS
 
 class SubjectiveQuestion(Base):
     __tablename__ = "subjective_questions"
