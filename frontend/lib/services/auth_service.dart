@@ -5,6 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {
+  static final AuthService _instance = AuthService._internal();
+  factory AuthService() => _instance;
+  AuthService._internal();
+
   static const String _tokenKey = 'access_token';
   static const String _userInfoKey = 'user_info';
   
@@ -13,16 +17,16 @@ class AuthService {
   
   GoogleSignIn get _googleSignIn {
     if (kIsWeb) {
-      // For web, use the web client ID
+      // For web, use the web client ID with openid scope to get ID token
       return GoogleSignIn(
         clientId: _webClientId,
-        scopes: ['email', 'profile'],
+        scopes: ['email', 'profile', 'openid'], // Add 'openid' scope
       );
     } else {
       // For mobile (if you add it later), use mobile client ID
       return GoogleSignIn(
         clientId: _webClientId, // You'll change this later for mobile
-        scopes: ['email', 'profile'],
+        scopes: ['email', 'profile', 'openid'], // Add 'openid' scope here too
       );
     }
   }
@@ -103,7 +107,7 @@ class AuthService {
 
       final String? idToken = googleAuth.idToken;
       
-      if (idToken == null) {
+     if (idToken == null) {
         // For web, if ID token is null, try using access token
         final String? accessToken = googleAuth.accessToken;
         if (accessToken == null) {

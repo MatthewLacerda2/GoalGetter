@@ -3,6 +3,7 @@ import '../../widgets/screens/onboarding/goal_questions.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
 import 'study_plan.dart';
+import '../../config/app_config.dart';
 
 class GoalQuestionsScreen extends StatefulWidget {
   final List<String> questions;
@@ -97,7 +98,7 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
       });
       try {
         // Build request
-        final api = OnboardingApi(ApiClient(basePath: 'http://127.0.0.1:8000')); // TODO: env
+        final api = OnboardingApi(ApiClient(basePath: AppConfig.baseUrl));
         final qa = <GoalFollowUpQuestionAndAnswer>[];
         for (var i = 0; i < widget.questions.length; i++) {
           qa.add(GoalFollowUpQuestionAndAnswer(
