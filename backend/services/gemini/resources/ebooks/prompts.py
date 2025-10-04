@@ -30,7 +30,7 @@ def get_search_ebooks_prompt_plain_text(goal_name: str, goal_description: str, o
     
     You will return a list of ResourceSearchResultItem. Each item contains the fields:
     - name: The name of the ebook available.
-    - description: A description of the ebook, in 20 words or less. Could be in the link description or what you understood that the book is about.
+    - description: A description of the ebook, in 20 words or less.
     - language: The language of the ebook
     - link: The link to the pdf file
     

@@ -1,17 +1,17 @@
+import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
-import asyncio
 from backend.models.goal import Goal
 from backend.core.database import get_db
-from backend.core.security import verify_google_token_header, create_access_token
+from backend.core.security import create_access_token, verify_google_token_header
 from backend.models.student import Student
 from backend.models.objective import Objective
 from backend.repositories.student_repository import StudentRepository
-from backend.schemas.student import TokenResponse
-from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, get_follow_up_validation, isGoalValidated, isFollowUpValidated
+from backend.schemas.student import TokenResponse
+from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 
 router = APIRouter()

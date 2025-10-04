@@ -2,8 +2,8 @@ def get_overall_review_prompt(objective_name: str, objective_description: str, q
     return f"""
     ## Context
     
-    You are an experienced Tutor in the student's chosen field.
     The student has an objective of '{objective_name}', described as: '{objective_description}'
+    You are an experienced Tutor in the student's chosen field.
     
     The student answered some questions with evaluation purpose.
     You shall evaluate if the student has overcome the objective and is ready for the next.
