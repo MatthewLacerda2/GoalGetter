@@ -17,7 +17,11 @@ class MultipleChoiceQuestion(Base):
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     question = Column(String, nullable=False)
     
-    choices = Column(JSON, nullable=False)
+    option_a = Column(String, nullable=False)
+    option_b = Column(String, nullable=False)
+    option_c = Column(String, nullable=False)
+    option_d = Column(String, nullable=False)
+    
     correct_answer_index = Column(Integer, nullable=False)
     student_answer_index = Column(Integer, nullable=True, default=None)
     seconds_spent = Column(Integer, nullable=True, default=None)

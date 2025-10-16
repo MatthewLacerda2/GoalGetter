@@ -1,9 +1,10 @@
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
 from starlette.responses import Response
+from starlette.requests import Request
+from datetime import datetime
 import logging
-import time
 import json
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             "client_ip": request.client.host,
             "status_code": response.status_code,
             "process_time_ms": round(process_time * 1000, 2),
+            "datetime": datetime.now()
         }
 
         if response.status_code >= 400:

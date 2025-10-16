@@ -23,7 +23,7 @@ class Student(Base):
     
     goal = relationship("Goal", back_populates="student", uselist=False)
     current_objective = relationship("Objective", back_populates="student", uselist=False)
-    streak_days = relationship("StreakDay", back_populates="student", uselist=False)
+    streak_days = relationship("StreakDay", back_populates="student", uselist=True)
     chat_messages = relationship("ChatMessage", back_populates="student")
     achievements = relationship("PlayerAchievement", back_populates="student")
     student_contexts = relationship("StudentContext", back_populates="student")

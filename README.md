@@ -47,7 +47,7 @@ We use Google Gemini 2.5
 
 ## How to run
 
-- uvicorn backend.main:app --webhost <your-ip> --reload
+- uvicorn backend.main:app --host 192.168.15.6 --port 8000 --reload
 - * Get the openapi.json from swagger-ui *
 - openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk
 - flutter run -d chrome --web-host=<your-ip> --web-port=8080

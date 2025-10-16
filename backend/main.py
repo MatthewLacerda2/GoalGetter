@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.v1.endpoints import router as api_v1_router
@@ -40,24 +41,10 @@ app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/")
 async def root(request: Request):
+    logger.info(f"Root accessed at {datetime.now()}")
     return {"message": "Welcome to GoalGetter API"}
 
-@app.get("/health")
-async def health_check(request: Request):
-    health_status = {
-        "status": "healthy",
-        "database": "unknown"
-    }
-    
-    try:
-        # Test database connection
-        from backend.core.database import engine
-        async with engine.begin() as conn:
-            await conn.execute("SELECT 1")
-        health_status["database"] = "connected"
-    except Exception as e:
-        logger.error(f"Database health check failed: {e}")
-        health_status["database"] = "disconnected"
-        health_status["status"] = "unhealthy"
-    
-    return health_status
+@app.get("/admin")
+async def test(request: Request):
+    logger.info(f"Admin accessed at {datetime.now()}")
+    return {"message": "This isn't the endpoint you are looking for"}
