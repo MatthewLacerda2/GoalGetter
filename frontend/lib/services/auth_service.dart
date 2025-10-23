@@ -13,7 +13,7 @@ class AuthService {
   static const String _userInfoKey = 'user_info';
   
   // Web-specific configuration
-  static const String _webClientId = "1039088402014-kd6agtr0jsthnamk8vqspisvan6tdtc3.apps.googleusercontent.com";
+  static const String _webClientId = "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com";
   
   GoogleSignIn get _googleSignIn {
     if (kIsWeb) {

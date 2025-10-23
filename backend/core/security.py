@@ -19,7 +19,6 @@ def create_access_token(data: dict) -> str:
     """
     to_encode = data.copy()
     
-    
     to_encode.update({
         "iss": JWT_ISSUER,  # Add issuer claim
         "aud": JWT_AUDIENCE  # Add audience claim
