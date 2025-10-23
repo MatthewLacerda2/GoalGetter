@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.v1.endpoints import router as api_v1_router
@@ -21,7 +20,9 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="GoalGetter API",
     description="API for the GoalGetter app",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/api/v1/docs",  # Move docs to /api/v1/docs
+    redoc_url="/api/v1/redoc"  # Move redoc to /api/v1/redoc
 )
 
 app.add_middleware(
@@ -44,7 +45,7 @@ app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(LoggingMiddleware)
 app.include_router(api_v1_router, prefix="/api/v1")
 
-@app.get("/")
+@app.get("/api/v1/check")
 async def root(request: Request):
     return {"message": "Welcome to GoalGetter API"}
 
@@ -88,11 +89,11 @@ async def ban_ip_endpoint(request: Request, ip_to_ban: str):
 
 SECURITY_TXT = "Contact: matheus.l1996@gmail.com\n"
 
-@app.get("/.well-known/security.txt", response_class=PlainTextResponse)
+@app.get("/api/v1/.well-known/security.txt", response_class=PlainTextResponse)
 async def security_txt():
     return SECURITY_TXT
 
 # optional fallback if someone requests /security.txt directly
-@app.get("/security.txt", response_class=PlainTextResponse)
+@app.get("/api/v1/security.txt", response_class=PlainTextResponse)
 async def security_txt_fallback():
     return SECURITY_TXT

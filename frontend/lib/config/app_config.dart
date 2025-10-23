@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 class AppConfig {
   static String get baseUrl {
     if (kDebugMode) {
-      return 'http://127.0.0.1:8000';
+      return 'https://revisit.com.br';
     } else {
-      return 'https://your-cloud-api.com'; //TODO:Your actual cloud URL
+      return 'https://revisit.com.br';//TODO:Your actual cloud URL
     }
   }
 }

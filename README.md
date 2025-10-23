@@ -47,10 +47,15 @@ We use Google Gemini 2.5
 
 ## How to run
 
-- uvicorn backend.main:app --host 192.168.15.6 --port 8000 --reload
+- uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
 - * Get the openapi.json from swagger-ui *
 - openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk
-- flutter run -d chrome --web-host=<your-ip> --web-port=8080
+
+Development:
+- flutter run -d chrome --web-port=8080
+Production:
+- Build it with `flutter build web`
+- From ./frontend/build/web: `python -m http.server`
 
 Chrome is just for development purposes. The app is meant to be used on mobile only
 

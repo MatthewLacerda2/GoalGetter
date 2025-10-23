@@ -22,32 +22,21 @@ class IPBanMiddleware(BaseHTTPMiddleware):
     
     def is_malicious_route(self, path: str) -> bool:
         """Check if the route matches known malicious patterns"""
+        
+        forbidden_strings = ["server.js", "config", ".rsp", "boaform", "admin"]
         path_lower = path.lower()
         
-        if 'server.js' in path_lower:
-            return True
-        
-        # Check for routes ending with .rsp
-        if '.rsp' in path_lower:
-            return True
-            
-        # Check for routes starting with /boaform
-        if 'boaform' in path_lower:
-            return True
-            
-        # Check for routes starting with /admin
-        if 'admin' in path_lower:
-            return True
-            
+        for forbidden in forbidden_strings:
+            if forbidden in path_lower:
+                return True
+                
         return False
     
     async def dispatch(self, request: Request, call_next):
         client_ip = request.client.host
         path = request.url.path
         
-        # Check if IP is already banned
         if client_ip in banned_ips:
-            logger.warning(f"Banned IP {client_ip} attempted to access {path}")
             return Response(
                 content="Access denied",
                 status_code=403,
@@ -58,7 +47,7 @@ class IPBanMiddleware(BaseHTTPMiddleware):
         if self.is_malicious_route(path):
             # Ban the IP immediately
             banned_ips.add(client_ip)
-            logger.warning(f"BANNED IP {client_ip} for attempting to access malicious route: {path}")
+            logger.warning(f"BANNED IP {client_ip} -> route: {path}")
             
             return Response(
                 content="Access denied",
