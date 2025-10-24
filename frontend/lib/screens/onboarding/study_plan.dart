@@ -3,11 +3,66 @@ import 'package:openapi/api.dart';
 import 'goal_prompt_screen.dart';
 import 'tutorial_screen.dart';
 import '../../widgets/info_card.dart';
+import '../../config/app_config.dart';
+import '../../services/auth_service.dart';
 
-class StudyPlanScreen extends StatelessWidget {
+class StudyPlanScreen extends StatefulWidget {
   final GoalStudyPlanResponse plan;
 
   const StudyPlanScreen({super.key, required this.plan});
+
+  @override
+  State<StudyPlanScreen> createState() => _StudyPlanScreenState();
+}
+
+class _StudyPlanScreenState extends State<StudyPlanScreen> {
+  final _authService = AuthService();
+  bool _isLoading = false;
+
+  Future<void> _submitFullCreation() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get the Google token from AuthService
+      final googleToken = _authService.getTempGoogleToken();
+      if (googleToken == null) {
+        throw Exception('No Google token available. Please sign in again.');
+      }
+
+      // Create API client and add the Google token as Authorization header
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+
+      final onboardingApi = OnboardingApi(apiClient);
+      final request = GoalFullCreationRequest(
+        goalName: widget.plan.goalName,
+        goalDescription: widget.plan.goalDescription,
+        firstObjectiveName: widget.plan.firstObjectiveName,
+        firstObjectiveDescription: widget.plan.firstObjectiveDescription,
+      );
+
+      final response = await onboardingApi.generateFullCreationApiV1OnboardingFullCreationPost(request);
+      
+      if (response != null && mounted) {
+        // Success - navigate to tutorial screen
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const TutorialScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +82,7 @@ class StudyPlanScreen extends StatelessWidget {
           children: [
             // Goal title
             Text(
-              plan.goalName,
+              widget.plan.goalName,
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
@@ -37,7 +92,7 @@ class StudyPlanScreen extends StatelessWidget {
             const SizedBox(height: 8),
             // Goal description
             Text(
-              plan.goalDescription,
+              widget.plan.goalDescription,
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[400], // dark grey-ish
@@ -56,7 +111,7 @@ class StudyPlanScreen extends StatelessWidget {
             const SizedBox(height: 16),
             // First objective
             Text(
-              plan.firstObjectiveName,
+              widget.plan.firstObjectiveName,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -65,7 +120,7 @@ class StudyPlanScreen extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              plan.firstObjectiveDescription,
+              widget.plan.firstObjectiveDescription,
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.white,
@@ -76,7 +131,7 @@ class StudyPlanScreen extends StatelessWidget {
             Divider(color: Colors.grey[500]),
             const SizedBox(height: 16),
             // Milestones
-            if (plan.milestones.isNotEmpty) ...[
+            if (widget.plan.milestones.isNotEmpty) ...[
               Text(
                 'Milestones',
                 textAlign: TextAlign.center,
@@ -87,7 +142,7 @@ class StudyPlanScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              ...plan.milestones.map(
+              ...widget.plan.milestones.map(
                 (m) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: InfoCard(
@@ -142,12 +197,7 @@ class StudyPlanScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const TutorialScreen()),
-                        (route) => false,
-                      );
-                    },
+                    onPressed: _isLoading ? null : _submitFullCreation,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -155,14 +205,23 @@ class StudyPlanScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Yes',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Yes',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ],

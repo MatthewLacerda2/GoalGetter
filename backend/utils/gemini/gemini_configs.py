@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 def get_client():
-    return Client(api_key="AIzaSyDmrw4L5uRbqb6lrwneZ1CTg78IU7M5iKU")
+    return Client(api_key="AIzaSyAIHSWjJHGtnMuYiJyFK3YXYtIGkpH9eRc")
 
 def get_gemini_config(json_schema: dict[str, Any]) -> GenerateContentConfig:
     return GenerateContentConfig(

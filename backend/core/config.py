@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "GoalGetter"
     
-    GEMINI_API_KEY: str
+    GEMINI_API_KEY: str = "AIzaSyAIHSWjJHGtnMuYiJyFK3YXYtIGkpH9eRc"
     GOOGLE_REDIRECT_URI: str
     SECRET_KEY: str
     

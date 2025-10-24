@@ -24,7 +24,7 @@ router = APIRouter()
     description="Initiate the onboarding process by analyzing the user's goal prompt and generating follow-up questions.")
 async def generate_follow_up_questions(
     request: GoalCreationFollowUpQuestionsRequest,
-    user_info: dict = Depends(verify_google_token_header)
+    #user_info: dict = Depends(verify_google_token_header)
 ):
         
     validation: GeminiGoalValidation = get_prompt_validation(request)
@@ -69,7 +69,7 @@ async def generate_full_creation(
         existing_user = await student_repo.get_by_google_id(user_info["sub"])
         
         if existing_user:
-            raise HTTPException(status_code=409,detail="User already exists")
+            raise HTTPException(status_code=409, detail="User already exists")
         
         goal = Goal(
             name=request.goal_name,
