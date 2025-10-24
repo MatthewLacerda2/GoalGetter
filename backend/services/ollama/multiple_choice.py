@@ -1,12 +1,12 @@
+import ollama
 from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsList
 from backend.services.gemini.activity.prompt import generate_multiple_choice_questions_prompt
-import ollama
 
 def ollama_generate_multiple_choice_questions(
     objective_name: str, objective_description: str, previous_objectives: list[str], informations: list[str], num_questions: int
 ) -> GeminiMultipleChoiceQuestionsList:
     
-    model: str = "gemma3:4b"
+    model: str = "gpt-oss:120b-cloud"
     full_prompt = generate_multiple_choice_questions_prompt(objective_name, objective_description, previous_objectives, informations, num_questions)
 
     response: ollama.ChatResponse = ollama.chat(

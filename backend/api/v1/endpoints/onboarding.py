@@ -13,6 +13,7 @@ from backend.services.gemini.onboarding.goal_validation import get_prompt_valida
 from backend.schemas.student import TokenResponse
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+from backend.services.account_creation_tasks import account_creation_tasks
 
 router = APIRouter()
 
@@ -100,8 +101,11 @@ async def generate_full_creation(
         )
         created_user = await student_repo.create(user)
         
-        asyncio.create_task(
-            save_description_embeddings_async(goal, objective, db)
+        #TODO: need create context
+        
+        asyncio.gather(
+            save_description_embeddings_async(goal, objective, db),
+            account_creation_tasks_async(objective, db)
         )
         
         access_token = create_access_token(data={"sub": created_user.google_id})
@@ -130,3 +134,6 @@ async def save_description_embeddings_async(goal: Goal, objective: Objective, db
     await db.commit()
     await db.refresh(goal)
     await db.refresh(objective)
+
+async def account_creation_tasks_async(objective: Objective, db: AsyncSession):
+    account_creation_tasks(objective, db)

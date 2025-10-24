@@ -47,7 +47,6 @@ async def take_multiple_choice_activity(
     
     contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
     
-    #FIXME: o certo seria criar so o suficiente pra ter a licao
     gemini_mc_questions = gemini_generate_multiple_choice_questions(
         objective.name, objective.description, [o.name for o in objectives], contexts, NUM_QUESTIONS_PER_LESSON
     )
