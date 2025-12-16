@@ -43,7 +43,7 @@ def get_goal_follow_up_questions_prompt(prompt: str) -> str:
 
 def get_goal_study_plan_prompt(goal_study_plan_request: GoalStudyPlanRequest) -> str:
     
-    questions_answers = "\n".join([f"- {question}: {answer}" for question, answer in goal_study_plan_request.questions_answers])
+    questions_answers = "\n".join([f"- {qa.question}: {qa.answer}" for qa in goal_study_plan_request.questions_answers])
     
     return f"""
     ## Context

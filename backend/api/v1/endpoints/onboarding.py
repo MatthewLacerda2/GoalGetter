@@ -101,16 +101,37 @@ async def generate_full_creation(
         )
         created_user = await student_repo.create(user)
         
-        #TODO: need create context
-        
-        asyncio.gather(
-            save_description_embeddings_async(goal, objective, db),
-            account_creation_tasks_async(objective, db)
-        )
+        # Save description embeddings
+        await save_description_embeddings_async(goal, objective, db)
         
         access_token = create_access_token(data={"sub": created_user.google_id})
         
         await db.commit()
+        
+        # Trigger async account creation tasks (MCQs, notes, resources, student context)
+        # These run in the background with a new database session
+        # Note: onboarding_prompt and questions_answers are None since GoalFullCreationRequest
+        # doesn't include them. This can be enhanced later by adding them to the request schema.
+        async def run_account_creation_tasks():
+            from backend.core.database import AsyncSessionLocal
+            async with AsyncSessionLocal() as new_db:
+                try:
+                    await account_creation_tasks(
+                        student=created_user,
+                        goal=goal,
+                        objective=objective,
+                        db=new_db,
+                        onboarding_prompt=None,
+                        questions_answers=None
+                    )
+                except Exception as e:
+                    # Log error but don't fail the request
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Error in background account creation tasks: {e}", exc_info=True)
+        
+        # Fire and forget - don't await to avoid blocking the response
+        asyncio.create_task(run_account_creation_tasks())
         
         return TokenResponse(
             access_token=access_token,
@@ -134,6 +155,3 @@ async def save_description_embeddings_async(goal: Goal, objective: Objective, db
     await db.commit()
     await db.refresh(goal)
     await db.refresh(objective)
-
-async def account_creation_tasks_async(objective: Objective, db: AsyncSession):
-    account_creation_tasks(objective, db)
