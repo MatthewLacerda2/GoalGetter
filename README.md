@@ -50,6 +50,80 @@ We use Google Gemini 2.5
 
 ## How to run
 
+### Production Deployment (Arch Linux Home Server)
+
+For home deployment on Arch Linux, you'll use:
+
+- Docker Compose for backend and databases
+- Host nginx (systemd service) for reverse proxy with SSL
+
+1. Copy `example.env` to `.env` and fill in your values:
+
+   ```bash
+   cp example.env .env
+   ```
+
+2. Build the frontend:
+
+   ```bash
+   cd frontend
+   flutter build web --release
+   cd ..
+   ```
+
+3. Update `nginx.conf`:
+
+   - Set `root` path to your frontend build: `/path/to/GoalGetter/frontend/build/web`
+   - Set SSL certificate paths: `/etc/nginx/ssl/server.crt` and `/etc/nginx/ssl/server.key`
+
+4. Start Docker services:
+
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+5. Copy nginx config and start nginx service:
+
+   ```bash
+   sudo cp nginx.conf /etc/nginx/nginx.conf
+   sudo systemctl enable nginx
+   sudo systemctl start nginx
+   ```
+
+6. Run tests:
+
+   ```bash
+   docker-compose -f docker-compose.prod.yml exec backend pytest tests/ -v
+   ```
+
+### Development (Docker Compose)
+
+1. Copy `example.env` to `.env` and fill in your values:
+
+   ```bash
+   cp example.env .env
+   ```
+
+2. Start all services:
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   This will start:
+
+   - PostgreSQL (production) on port 5432
+   - PostgreSQL (test) on port 5433
+   - Backend FastAPI on port 8001 (with hot-reload)
+   - Frontend Flutter web on port 80 (via nginx in container)
+
+3. View logs:
+   ```bash
+   docker-compose logs -f
+   ```
+
+### Manual Setup
+
 - uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
 - - Get the openapi.json from swagger-ui \*
 - openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk
@@ -65,9 +139,9 @@ Chrome is just for development purposes. The app is meant to be used on mobile o
 
 ## Conventions
 
-All Schemas sent to Gemini have 'Gemini' as prefix and do not have pydantic's Field annotator
+All Schemas sent to Gemini have 'Gemini' as prefix and do not have pydantic's Field annotators
 
+---
 
-- - - - 
-
-we need to make 
+we need to make the triggers, for when subscribing we generate the user's lessons ASAP
+and the frontend exhibits nothing while we dont have anything

@@ -41,5 +41,8 @@ RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=builder /app/frontend/build/web /usr/share/nginx/html
 
+# Copy nginx configuration for Docker
+COPY nginx.docker.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

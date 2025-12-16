@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     
     DATABASE_URL: str
+    TEST_DATABASE_URL: str | None = None  # Optional, only needed for tests
     
     model_config = ConfigDict(
         case_sensitive=True, 
