@@ -27,3 +27,5 @@ class Student(Base):
     chat_messages = relationship("ChatMessage", back_populates="student")
     achievements = relationship("PlayerAchievement", back_populates="student")
     student_contexts = relationship("StudentContext", back_populates="student")
+    multiple_choice_answers = relationship("MultipleChoiceAnswer", back_populates="student")
+    subjective_answers = relationship("SubjectiveAnswer", back_populates="student")

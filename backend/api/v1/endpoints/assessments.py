@@ -75,7 +75,7 @@ async def take_subjective_questions_assessment(
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
 
     sq_repo = SubjectiveQuestionRepository(db)
-    subjective_question_results = await sq_repo.get_unanswered_or_wrong(objective.id, NUM_QUESTIONS_PER_EVALUATION)
+    subjective_question_results = await sq_repo.get_unanswered_or_wrong(objective.id, current_user.id, NUM_QUESTIONS_PER_EVALUATION)
     
     if len(subjective_question_results) > 5:
         return SubjectiveQuestionsAssessmentResponse(
@@ -109,24 +109,31 @@ async def subjective_question_evaluation(
 ):
     from backend.services.gemini.assessment.single_question.single_question import gemini_generate_question_review
     from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+    from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
+    from backend.models.subjective_question import SubjectiveAnswer
     
     sq_repo = SubjectiveQuestionRepository(db)
+    answer_repo = SubjectiveAnswerRepository(db)
     su_question = await sq_repo.get_by_id(request.question_id)
     
     if su_question is None:
-        HTTPException(status_code=400, detail="Question not found.")
+        raise HTTPException(status_code=400, detail="Question not found.")
     
     review = gemini_generate_question_review(request.question, request.student_answer)
     
-    su_question.seconds_spent = request.seconds_spent
-    su_question.xp = 4
-    su_question.last_updated_at = datetime.now()
-    su_question.llm_approval = review.approval
-    su_question.llm_evaluation = review.evaluation
-    su_question.llm_metacognition = review.metacognition
-    su_question.llm_metacognition_embedding = get_gemini_embeddings(review.metacognition)
-    
-    await sq_repo.update(su_question)
+    # Always create a new answer to track answer history
+    answer = SubjectiveAnswer(
+        question_id=request.question_id,
+        student_id=current_user.id,
+        student_answer=request.student_answer,
+        seconds_spent=request.seconds_spent,
+        llm_approval=review.approval,
+        llm_evaluation=review.evaluation,
+        llm_metacognition=review.metacognition,
+        llm_metacognition_embedding=get_gemini_embeddings(review.metacognition),
+        xp=4 if review.approval else 0
+    )
+    await answer_repo.create(answer)
     
     return SubjectiveQuestionEvaluationResponse(
         question_id=su_question.id,
@@ -142,8 +149,10 @@ async def subjective_questions_overall_evaluation(
     current_user: Student = Depends(get_current_user)
 ):
     from backend.services.gemini.assessment.overall_evaluation.overall_evaluation import gemini_subjective_evaluation_review
+    from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
     
     sq_repo = SubjectiveQuestionRepository(db)
+    answer_repo = SubjectiveAnswerRepository(db)
     
     db_questions = {}
     for question_id in request.questions_ids:
@@ -154,6 +163,16 @@ async def subjective_questions_overall_evaluation(
         
         db_questions[question_id] = db_question
     
+    # Get latest answers for these questions
+    student_answers = []
+    for question_id in request.questions_ids:
+        latest_answer = await answer_repo.get_latest_by_question_and_student(question_id, current_user.id)
+        if latest_answer:
+            student_answers.append(latest_answer.student_answer)
+        else:
+            # If no answer found, use empty string (shouldn't happen in normal flow)
+            student_answers.append("- *No answer* ")
+    
     obj_repo = ObjectiveRepository(db)
     obj = await obj_repo.get_by_id(current_user.current_objective_id)
     
@@ -161,7 +180,7 @@ async def subjective_questions_overall_evaluation(
         obj.name, 
         obj.description, 
         [db_questions[q_id].question for q_id in request.questions_ids], 
-        [db_questions[q_id].student_answer for q_id in request.questions_ids]
+        student_answers
     )
     
     # Add background task to save data

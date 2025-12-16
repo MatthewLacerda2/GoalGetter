@@ -66,3 +66,8 @@ Chrome is just for development purposes. The app is meant to be used on mobile o
 ## Conventions
 
 All Schemas sent to Gemini have 'Gemini' as prefix and do not have pydantic's Field annotator
+
+
+- - - - 
+
+we need to make 
