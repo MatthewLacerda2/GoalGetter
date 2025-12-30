@@ -18,6 +18,7 @@ class Objective(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     last_updated_at = Column(DateTime, nullable=False, default=datetime.now())
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    ai_model = Column(String, nullable=False)
     
     goal = relationship("Goal", back_populates="objectives")
     student = relationship("Student", back_populates="current_objective", uselist=False)

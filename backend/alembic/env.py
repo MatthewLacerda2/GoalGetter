@@ -17,6 +17,8 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 from backend.models.base import Base
+# Import all models so Alembic can discover them
+from backend.models import *
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -37,7 +39,16 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    # Read DATABASE_URL from environment variables
+    from backend.core.config import settings
+    
+    # Use DATABASE_URL from settings (which reads from .env)
+    url = settings.DATABASE_URL
+    
+    # Convert asyncpg URL to psycopg2 URL for Alembic (Alembic needs sync driver)
+    if url.startswith("postgresql+asyncpg://"):
+        url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+    
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -56,6 +67,19 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Read DATABASE_URL from environment variables
+    from backend.core.config import settings
+    
+    # Use DATABASE_URL from settings (which reads from .env)
+    database_url = settings.DATABASE_URL
+    
+    # Convert asyncpg URL to psycopg2 URL for Alembic (Alembic needs sync driver)
+    if database_url.startswith("postgresql+asyncpg://"):
+        database_url = database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+    
+    # Override the config with the environment-based URL
+    config.set_main_option("sqlalchemy.url", database_url)
+    
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

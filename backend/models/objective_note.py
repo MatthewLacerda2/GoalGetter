@@ -16,5 +16,6 @@ class ObjectiveNote(Base):
     is_favorited = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     info_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    ai_model = Column(String, nullable=False)
 
     objective = relationship("Objective", back_populates="notes")

@@ -14,6 +14,7 @@ class SubjectiveQuestion(Base):
     objective_id = Column(String(36), ForeignKey("objectives.id"), nullable=False)
     question = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
+    ai_model = Column(String, nullable=False)
     
     objective = relationship("Objective", back_populates="subjective_questions")
     answers = relationship("SubjectiveAnswer", back_populates="question", cascade="all, delete-orphan")

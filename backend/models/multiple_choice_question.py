@@ -25,6 +25,7 @@ class MultipleChoiceQuestion(Base):
     
     correct_answer_index = Column(Integer, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now())
+    ai_model = Column(String, nullable=False)
 
     objective = relationship("Objective", back_populates="multiple_choice_questions")
     answers = relationship("MultipleChoiceAnswer", back_populates="question", cascade="all, delete-orphan")

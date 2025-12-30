@@ -19,6 +19,7 @@ class StudentContext(Base):
     state_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     metacognition = Column(String, nullable=False)
     metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    ai_model = Column(String, nullable=False)
     
     student = relationship("Student", back_populates="student_contexts")
     goal = relationship("Goal", back_populates="student_contexts")
