@@ -20,10 +20,10 @@ ENV CHROME_EXECUTABLE=/usr/bin/chromium
 ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
 
-RUN git clone https://github.com/flutter/flutter.git $FLUTTER_HOME
+RUN git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_HOME
 WORKDIR $FLUTTER_HOME
-RUN git checkout 3.32.8
 RUN flutter config --enable-web
+RUN flutter precache --web
 RUN flutter doctor
 
 WORKDIR /app

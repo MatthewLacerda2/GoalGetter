@@ -65,6 +65,18 @@ services:
     # Remove --reload flag for production
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8001 --workers 4
 
+  # Frontend Flutter Web Service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: goalgetter_frontend
+    ports:
+      - "127.0.0.1:80:8080" # Map host port 80 to container port 8080
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   postgres_test_data:

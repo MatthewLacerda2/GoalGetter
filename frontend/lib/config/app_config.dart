@@ -3,9 +3,10 @@ import 'package:flutter/foundation.dart';
 class AppConfig {
   static String get baseUrl {
     if (kDebugMode) {
-      return 'https://revisit.com.br';
+      // For local development with Docker Compose
+      return 'http://localhost';
     } else {
-      return 'https://revisit.com.br';//TODO:Your actual cloud URL
+      return 'https://revisit.com.br';
     }
   }
 }
