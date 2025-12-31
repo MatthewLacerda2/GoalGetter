@@ -3,7 +3,7 @@ version: "3.8"
 services:
   # Production PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: goalgetter_postgres
     environment:
       POSTGRES_USER: postgres
@@ -22,7 +22,7 @@ services:
 
   # Test PostgreSQL Database
   postgres_test:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: goalgetter_postgres_test
     environment:
       POSTGRES_USER: postgres
