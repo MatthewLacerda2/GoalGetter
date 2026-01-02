@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: goalgetter
     ports:
-      - "127.0.0.1:5435:5432" # Bind to localhost only for security
+      - "127.0.0.1:5434:5432" # Bind to localhost only for security
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -29,7 +29,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD}
       POSTGRES_DB: goalgetter_test
     ports:
-      - "127.0.0.1:5436:5432" # Bind to localhost only
+      - "127.0.0.1:5435:5432" # Bind to localhost only
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -72,9 +72,7 @@ services:
       dockerfile: Dockerfile
     container_name: goalgetter_frontend
     ports:
-      - "80:8080" # Map host port 80 to container port 8080
-    depends_on:
-      - backend
+      - "127.0.0.1:8080:8080" # Bind to localhost only, Cloudflare Tunnel will connect
     restart: unless-stopped
 
 volumes:

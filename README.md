@@ -54,8 +54,8 @@ We use Google Gemini 2.5
 
 For home deployment on Arch Linux, you'll use:
 
-- Docker Compose for backend and databases
-- Host nginx (systemd service) for reverse proxy with SSL
+- Docker Compose for backend, frontend, and databases
+- Cloudflare Tunnel for reverse proxy and SSL termination
 
 1. Copy `example.env` to `.env` and fill in your values:
 
@@ -63,37 +63,23 @@ For home deployment on Arch Linux, you'll use:
    cp example.env .env
    ```
 
-2. Build the frontend:
+2. Start Docker services:
 
    ```bash
-   cd frontend
-   flutter build web --release
-   cd ..
+   docker-compose up -d
    ```
 
-3. Update `nginx.conf`:
+3. Configure Cloudflare Tunnel:
 
-   - Set `root` path to your frontend build: `/path/to/GoalGetter/frontend/build/web`
-   - Set SSL certificate paths: `/etc/nginx/ssl/server.crt` and `/etc/nginx/ssl/server.key`
+   - Install `cloudflared` on your server
+   - Configure tunnel to route:
+     - `/api/*` → `localhost:8001` (backend)
+     - `/*` → `localhost:8080` (frontend)
 
-4. Start Docker services:
-
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
-
-5. Copy nginx config and start nginx service:
+4. Run tests:
 
    ```bash
-   sudo cp nginx.conf /etc/nginx/nginx.conf
-   sudo systemctl enable nginx
-   sudo systemctl start nginx
-   ```
-
-6. Run tests:
-
-   ```bash
-   docker-compose -f docker-compose.prod.yml exec backend pytest tests/ -v
+   docker-compose exec backend pytest tests/ -v
    ```
 
 ### Development (Docker Compose)
@@ -112,10 +98,10 @@ For home deployment on Arch Linux, you'll use:
 
    This will start:
 
-   - PostgreSQL (production) on port 5432
-   - PostgreSQL (test) on port 5433
+   - PostgreSQL (production) on port 5434
+   - PostgreSQL (test) on port 5435
    - Backend FastAPI on port 8001 (with hot-reload)
-   - Frontend Flutter web on port 80 (via nginx in container)
+   - Frontend Flutter web on port 8080 (simple HTTP server)
 
 3. View logs:
    ```bash
@@ -131,9 +117,10 @@ For home deployment on Arch Linux, you'll use:
 Development:
 
 - flutter run -d chrome --web-port=8080
-  Production:
-- Build it with `flutter build web`
-- From ./frontend/build/web: `python -m http.server`
+
+Production:
+
+- Build it with `flutter build web` (handled automatically by Docker)
 
 Chrome is just for development purposes. The app is meant to be used on mobile only
 

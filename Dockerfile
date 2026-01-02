@@ -35,14 +35,15 @@ WORKDIR /app/frontend
 RUN flutter pub get
 RUN flutter build web --release
 
-FROM nginx:alpine
+FROM python:3.11-slim
 
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
-COPY --from=builder /app/frontend/build/web /usr/share/nginx/html
+# Copy built web files from builder stage
+COPY --from=builder /app/frontend/build/web /app/web
 
-# Copy nginx configuration for Docker
-COPY nginx.docker.conf /etc/nginx/conf.d/default.conf
-
+# Expose port
 EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+
+# Serve static files with Python's built-in HTTP server
+CMD ["python", "-m", "http.server", "8080", "--directory", "/app/web"]
