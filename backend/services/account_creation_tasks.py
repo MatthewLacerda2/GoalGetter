@@ -79,6 +79,7 @@ async def create_mcqs_async(objective: Objective, db: AsyncSession) -> None:
                 option_c=question.choices[2],
                 option_d=question.choices[3],
                 correct_answer_index=question.correct_answer_index,
+                ai_model=gemini_mc_questions.ai_model,
             )
             db.add(mcq)
         

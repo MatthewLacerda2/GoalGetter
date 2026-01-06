@@ -7,9 +7,13 @@ from backend.services.ollama.assessment.prompt import generate_subjective_questi
 class OllamaEvaluationQuestionsList(BaseModel):
     questions: List[str]
 
+class OllamaEvaluationQuestionsResponse(BaseModel):
+    questions: List[str]
+    ai_model: str
+
 def ollama_generate_subjective_questions(
     objective_name: str, objective_description: str, goal_name: str, num_questions: int
-) -> OllamaEvaluationQuestionsList:
+) -> OllamaEvaluationQuestionsResponse:
     
     model = "gpt-oss:120b-cloud"
     full_prompt = generate_subjective_questions_prompt(objective_name, objective_description, goal_name, num_questions)
@@ -29,7 +33,11 @@ def ollama_generate_subjective_questions(
         
         json_response = response.message.content
         
-        return OllamaEvaluationQuestionsList.model_validate_json(json_response)
+        questions_list = OllamaEvaluationQuestionsList.model_validate_json(json_response)
+        return OllamaEvaluationQuestionsResponse(
+            questions=questions_list.questions,
+            ai_model=model
+        )
     except ResponseError as e:
         raise Exception(f"Ollama API error {e.status_code}: {str(e)}")
     except Exception as e:

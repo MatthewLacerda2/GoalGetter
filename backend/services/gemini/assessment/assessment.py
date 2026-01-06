@@ -6,9 +6,13 @@ from backend.services.gemini.assessment.prompt import generate_subjective_questi
 class GeminiEvaluationQuestionsList(BaseModel):
     questions: List[str]
 
+class GeminiEvaluationQuestionsResponse(BaseModel):
+    questions: List[str]
+    ai_model: str
+
 def gemini_generate_subjective_questions(
     objective_name: str, objective_description: str, goal_name: str, num_questions: int
-) -> GeminiEvaluationQuestionsList:
+) -> GeminiEvaluationQuestionsResponse:
     
     client = get_client()
     model = "gemini-2.5-flash"
@@ -21,7 +25,11 @@ def gemini_generate_subjective_questions(
     
     json_response = response.text
     
-    return GeminiEvaluationQuestionsList.model_validate_json(json_response)
+    questions_list = GeminiEvaluationQuestionsList.model_validate_json(json_response)
+    return GeminiEvaluationQuestionsResponse(
+        questions=questions_list.questions,
+        ai_model=model
+    )
 
 if __name__ == "__main__":
     print(gemini_generate_subjective_questions(

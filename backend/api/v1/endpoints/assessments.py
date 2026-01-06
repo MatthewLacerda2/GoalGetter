@@ -90,6 +90,7 @@ async def take_subjective_questions_assessment(
         sq = SubjectiveQuestion(
             objective_id=objective.id,
             question=question,
+            ai_model=gemini_sq_questions.ai_model,
         )
         db.add(sq)
     

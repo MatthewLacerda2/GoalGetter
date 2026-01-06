@@ -1,11 +1,11 @@
 import ollama
 from ollama._types import ResponseError
-from backend.services.ollama.activity.schema import OllamaMultipleChoiceQuestionsList
+from backend.services.ollama.activity.schema import OllamaMultipleChoiceQuestionsList, OllamaMultipleChoiceQuestionsResponse
 from backend.services.ollama.activity.prompt import generate_multiple_choice_questions_prompt
 
 def ollama_generate_multiple_choice_questions(
     objective_name: str, objective_description: str, previous_objectives: list[str], informations: list[str], num_questions: int
-) -> OllamaMultipleChoiceQuestionsList:
+) -> OllamaMultipleChoiceQuestionsResponse:
     
     model: str = "gpt-oss:120b-cloud"
     full_prompt = generate_multiple_choice_questions_prompt(objective_name, objective_description, previous_objectives, informations, num_questions)
@@ -25,7 +25,11 @@ def ollama_generate_multiple_choice_questions(
         
         json_response = response.message.content
         
-        return OllamaMultipleChoiceQuestionsList.model_validate_json(json_response)
+        questions_list = OllamaMultipleChoiceQuestionsList.model_validate_json(json_response)
+        return OllamaMultipleChoiceQuestionsResponse(
+            questions=questions_list.questions,
+            ai_model=model
+        )
     except ResponseError as e:
         raise Exception(f"Ollama API error {e.status_code}: {str(e)}")
     except Exception as e:

@@ -63,6 +63,7 @@ async def take_multiple_choice_activity(
             option_c=question.choices[2],
             option_d=question.choices[3],
             correct_answer_index=question.correct_answer_index,
+            ai_model=gemini_mc_questions.ai_model,
         )
         db.add(mcq)
         db_mcqs.append(mcq)
