@@ -1,16 +1,19 @@
 import logging
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
+from backend.models.streak_day import StreakDay
 from backend.core.security import get_current_user
 from backend.models.student import Student
 from backend.models.multiple_choice_question import MultipleChoiceQuestion, MultipleChoiceAnswer
+from backend.repositories.student_repository import StudentRepository
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.repositories.multiple_choice_question_repository import MultipleChoiceQuestionRepository
+from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.schemas.activity import MultipleChoiceActivityResponse, MultipleChoiceActivityEvaluationResponse
 from backend.schemas.activity import MultipleChoiceActivityEvaluationRequest
 from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
@@ -127,6 +130,29 @@ async def take_multiple_choice_activity(
         total_seconds_spent += question.seconds_spent
 
     accuracy = (total_right_answers / len(request.answers)) * 100
+
+    # Update or create streak day for today
+    streak_repo = StreakDayRepository(db)
+    current_date = datetime.now(timezone.utc)
+    existing_streak_day = await streak_repo.get_by_student_id_and_date(current_user.id, current_date)
+    
+    if existing_streak_day:
+        # Update existing streak day with additional XP
+        existing_streak_day.xp += total_xp
+        await streak_repo.update(existing_streak_day)
+    else:
+        # Create new streak day
+        new_streak_day = StreakDay(
+            student_id=current_user.id,
+            date_time=current_date,
+            xp=total_xp
+        )
+        await streak_repo.create(new_streak_day)
+
+    student_repo = StudentRepository(db)
+    await student_repo.increment_streak_days(current_user.id, total_xp)
+    
+    await db.commit()
 
     return MultipleChoiceActivityEvaluationResponse(
         total_seconds_spent=total_seconds_spent,

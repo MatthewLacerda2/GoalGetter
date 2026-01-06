@@ -99,3 +99,12 @@ class StudentRepository(BaseRepository[Student]):
         
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
+    
+    async def increment_streak_days(self, student_id: str, xp: int) -> None:
+        """Increment the streak days for a student"""
+        student = await self.get_by_id(student_id)
+        if student:
+            student.current_streak += 1
+            if student.current_streak > student.longest_streak:
+                student.longest_streak = student.current_streak
+            await self.update(student)
