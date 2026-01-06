@@ -5,14 +5,14 @@ import '../../../screens/objective/lesson_screen.dart';
 class LessonButton extends StatelessWidget {
   final String title;
   final String description;
-  final List<LessonQuestionData> questions;
+  final List<LessonQuestionData>? questions;
   final Color? mainColor;
 
   const LessonButton({
     super.key,
     required this.title,
     required this.description,
-    required this.questions,
+    this.questions,
     this.mainColor,
   });
 
@@ -45,7 +45,7 @@ class LessonButton extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => LessonScreen(
-                    questions: questions,
+                    questions: questions ?? [],
                   ),
                 ),
               );

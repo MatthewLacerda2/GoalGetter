@@ -1,14 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
+import 'package:openapi/api.dart';
 import '../widgets/info_card.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
-import '../models/fake_questions.dart';
-import '../models/lesson_question_data.dart';
 import '../widgets/screens/objective/lesson_button.dart';
+import '../config/app_config.dart';
+import '../services/auth_service.dart';
 
-class ObjectiveScreen extends StatelessWidget {
+class ObjectiveScreen extends StatefulWidget {
   const ObjectiveScreen({super.key});
+
+  @override
+  State<ObjectiveScreen> createState() => _ObjectiveScreenState();
+}
+
+class _ObjectiveScreenState extends State<ObjectiveScreen> {
+  final _authService = AuthService();
+  bool _isLoading = true;
+  String? _errorMessage;
+  
+  String? _goalTitle;
+  int? _streakCounter;
+  String? _objectiveName;
+  String? _objectiveDescription;
+  double? _percentageCompleted;
+  List<ObjectiveNote>? _notes;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Get the stored access token
+      final accessToken = await _authService.getStoredAccessToken();
+      if (accessToken == null) {
+        throw Exception('No access token available. Please sign in again.');
+      }
+
+      // Create API client and add the access token as Authorization header
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+
+      // Fetch student status and objective in parallel
+      final studentApi = StudentApi(apiClient);
+      final objectiveApi = ObjectiveApi(apiClient);
+
+      final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
+      final objectiveResponse = await objectiveApi.getObjectiveApiV1ObjectiveGet();
+
+      if (studentResponse == null) {
+        throw Exception('Failed to fetch student status');
+      }
+
+      if (objectiveResponse == null) {
+        throw Exception('Failed to fetch objective');
+      }
+
+      if (mounted) {
+        setState(() {
+          _goalTitle = studentResponse.goalName;
+          _streakCounter = studentResponse.currentStreak;
+          _objectiveName = objectiveResponse.name;
+          _objectiveDescription = objectiveResponse.description;
+          _percentageCompleted = objectiveResponse.percentageCompleted.toDouble();
+          _notes = objectiveResponse.notes;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,67 +92,72 @@ class ObjectiveScreen extends StatelessWidget {
       body: Column(
         children: [
           ObjectiveTabHeader(
-            goalTitle: "Aprender violão",
-            streakCounter: 365,
+            goalTitle: _goalTitle ?? '',
+            streakCounter: _streakCounter ?? 0,
           ),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(12),
-              children: [
-                SizedBox(height: 12),
-                ProgressBar(
-                  title: "Aprenda todas as notas básicas",
-                  progress: 3,
-                  end: 10,
-                  color: Colors.grey.withValues(alpha: 0.1),
-                ),
-                SizedBox(height: 16),
-                LessonButton(
-                  title: "Aprenda todas as notas básicas",
-                  description: AppLocalizations.of(context)!.startLesson,
-                  questions: fakeAcousticGuitarQuestions.map((q) => LessonQuestionData(
-                    question: q.question,
-                    choices: List<String>.from(q.choices),
-                    correctAnswer: q.correctAnswer,
-                  )).toList(),
-                  mainColor: Colors.blue,
-                ),
-                SizedBox(height: 12),
-                Text(
-                  '${AppLocalizations.of(context)!.notes}:',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 16),
-                InfoCard(
-                  title: "Foque na precisão",
-                  description: "Não faça as notas rápido. Faça-a devagar, acerte ela, toca um pouco, aí troca",
-                ),
-                SizedBox(height: 16),
-                InfoCard(
-                  title: "Foque em duas notas de cada vez",
-                  description: "Só aprenda uma nota nova quando você decorou uma perfeitamente. Só varie um pouco, pra não ficar na mesmice",
-                ),
-                SizedBox(height: 16),
-                InfoCard(
-                  title: "Sério, precisão",
-                  description: "Posicione os dedos perfeitamente, a nota tem que sair perfeita! Só depois, você toca no ritmo, e então troca",
-                ),
-                SizedBox(height: 16),
-                InfoCard(
-                  title: "NÃO toque ritmo rápido",
-                  description: "A troca entre as notas tem que ser lenta, mas o ritmo que você toca as notas também!",
-                ),
-                SizedBox(height: 16),
-                InfoCard(
-                  title: "Já falei que é pra ser preciso?",
-                ),
-                SizedBox(height: 28),
-              ],
-            ),
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : _errorMessage != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Error: $_errorMessage',
+                              style: const TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _fetchData,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView(
+                        padding: const EdgeInsets.all(12),
+                        children: [
+                          const SizedBox(height: 12),
+                          if (_objectiveName != null && _percentageCompleted != null)
+                            ProgressBar(
+                              title: _objectiveName!,
+                              progress: _percentageCompleted!,
+                              end: 100.0,
+                              color: Colors.grey.withValues(alpha: 0.1),
+                            ),
+                          const SizedBox(height: 16),
+                          if (_objectiveName != null)
+                            LessonButton(
+                              title: _objectiveName!,
+                              description: AppLocalizations.of(context)!.startLesson,
+                              mainColor: Colors.blue,
+                            ),
+                          if (_notes != null && _notes!.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              '${AppLocalizations.of(context)!.notes}:',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ..._notes!.map((note) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: InfoCard(
+                                    title: note.title,
+                                    description: note.info,
+                                  ),
+                                )),
+                          ],
+                          const SizedBox(height: 28),
+                        ],
+                      ),
           ),
         ],
       ),
