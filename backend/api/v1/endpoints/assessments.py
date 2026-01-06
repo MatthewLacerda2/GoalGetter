@@ -40,7 +40,8 @@ async def save_evaluation_data(
             state=gemini_response.evaluation,
             state_embedding=eval_embedding,
             metacognition=gemini_response.metacognition,
-            metacognition_embedding=meta_embedding
+            metacognition_embedding=meta_embedding,
+            ai_model=gemini_response.ai_model
         )
         ctxt_repo = StudentContextRepository(db)
         await ctxt_repo.create(sd_ctx)
@@ -50,7 +51,8 @@ async def save_evaluation_data(
             objective_id=obj.id,
             title=gemini_response.information[:32],
             info=gemini_response.information,
-            info_embedding=info_embedding
+            info_embedding=info_embedding,
+            ai_model=gemini_response.ai_model
         )
         notes_repo = ObjectiveNoteRepository(db)
         await notes_repo.create(info_note)

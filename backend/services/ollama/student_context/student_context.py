@@ -1,6 +1,6 @@
 import ollama
 from ollama._types import ResponseError
-from backend.services.ollama.student_context.schema import OllamaStudentContext
+from backend.services.ollama.student_context.schema import OllamaStudentContext, OllamaStudentContextResponse
 from backend.services.ollama.student_context.prompt import get_student_context_prompt
 
 def ollama_generate_student_context(
@@ -10,7 +10,7 @@ def ollama_generate_student_context(
     objective_description: str,
     onboarding_prompt: str | None = None,
     questions_answers: list[tuple[str, str]] | None = None
-) -> OllamaStudentContext:
+) -> OllamaStudentContextResponse:
     """
     Generate student context using Ollama AI.
     
@@ -23,7 +23,7 @@ def ollama_generate_student_context(
         questions_answers: Optional list of (question, answer) tuples from onboarding
     
     Returns:
-        OllamaStudentContext with state and metacognition
+        OllamaStudentContextResponse with state, metacognition, and ai_model
     """
     model = "gpt-oss:120b-cloud"
     
@@ -51,7 +51,12 @@ def ollama_generate_student_context(
         
         json_response = response.message.content
         
-        return OllamaStudentContext.model_validate_json(json_response)
+        context = OllamaStudentContext.model_validate_json(json_response)
+        return OllamaStudentContextResponse(
+            state=context.state,
+            metacognition=context.metacognition,
+            ai_model=model
+        )
     except ResponseError as e:
         raise Exception(f"Ollama API error {e.status_code}: {str(e)}")
     except Exception as e:

@@ -1,10 +1,10 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.services.gemini.objective_notes.schema import GeminiObjectiveNotesList
+from backend.services.gemini.objective_notes.schema import GeminiObjectiveNotesList, GeminiObjectiveNotesResponse
 from backend.services.gemini.objective_notes.prompt import get_define_objective_notes_prompt
 
 def gemini_define_objective_notes(
     objective_name: str, objective_description: str
-) -> GeminiObjectiveNotesList:
+) -> GeminiObjectiveNotesResponse:
     
     client = get_client()
     model = "gemini-2.5-flash"
@@ -18,7 +18,11 @@ def gemini_define_objective_notes(
     
     json_response = response.text
     
-    return GeminiObjectiveNotesList.model_validate_json(json_response)
+    notes_list = GeminiObjectiveNotesList.model_validate_json(json_response)
+    return GeminiObjectiveNotesResponse(
+        notes=notes_list.notes,
+        ai_model=model
+    )
 
 if __name__ == "__main__":
     print(gemini_define_objective_notes(

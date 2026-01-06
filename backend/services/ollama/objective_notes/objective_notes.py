@@ -1,11 +1,11 @@
 import ollama
 from ollama._types import ResponseError
-from backend.services.ollama.objective_notes.schema import OllamaObjectiveNotesList
+from backend.services.ollama.objective_notes.schema import OllamaObjectiveNotesList, OllamaObjectiveNotesResponse
 from backend.services.ollama.objective_notes.prompt import get_define_objective_notes_prompt
 
 def ollama_define_objective_notes(
     objective_name: str, objective_description: str
-) -> OllamaObjectiveNotesList:
+) -> OllamaObjectiveNotesResponse:
     
     model = "gpt-oss:120b-cloud"
     full_prompt = get_define_objective_notes_prompt(objective_name, objective_description)
@@ -25,7 +25,11 @@ def ollama_define_objective_notes(
         
         json_response = response.message.content
         
-        return OllamaObjectiveNotesList.model_validate_json(json_response)
+        notes_list = OllamaObjectiveNotesList.model_validate_json(json_response)
+        return OllamaObjectiveNotesResponse(
+            notes=notes_list.notes,
+            ai_model=model
+        )
     except ResponseError as e:
         raise Exception(f"Ollama API error {e.status_code}: {str(e)}")
     except Exception as e:

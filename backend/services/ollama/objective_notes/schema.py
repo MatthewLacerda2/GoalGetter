@@ -6,3 +6,7 @@ class OllamaObjectiveNote(BaseModel):
 
 class OllamaObjectiveNotesList(BaseModel):
     notes: list[OllamaObjectiveNote]
+
+class OllamaObjectiveNotesResponse(BaseModel):
+    notes: list[OllamaObjectiveNote]
+    ai_model: str

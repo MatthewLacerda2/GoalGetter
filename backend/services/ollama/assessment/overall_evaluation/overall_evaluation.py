@@ -2,11 +2,11 @@ from typing import List
 import ollama
 from ollama._types import ResponseError
 from backend.services.ollama.assessment.overall_evaluation.prompt import get_overall_review_prompt
-from backend.services.ollama.assessment.overall_evaluation.schema import OllamaSubjectiveEvaluationReview
+from backend.services.ollama.assessment.overall_evaluation.schema import OllamaSubjectiveEvaluationReview, OllamaSubjectiveEvaluationReviewResponse
 
 def ollama_subjective_evaluation_review(
     objective_name: str, objective_description: str, questions: List[str], answers: List[str]
-) -> OllamaSubjectiveEvaluationReview:
+) -> OllamaSubjectiveEvaluationReviewResponse:
     
     q_and_a = get_formatted_q_and_a(questions, answers)
     
@@ -28,7 +28,14 @@ def ollama_subjective_evaluation_review(
         
         json_response = response.message.content
         
-        return OllamaSubjectiveEvaluationReview.model_validate_json(json_response)
+        review = OllamaSubjectiveEvaluationReview.model_validate_json(json_response)
+        return OllamaSubjectiveEvaluationReviewResponse(
+            evaluation=review.evaluation,
+            information=review.information,
+            metacognition=review.metacognition,
+            approval=review.approval,
+            ai_model=model
+        )
     except ResponseError as e:
         raise Exception(f"Ollama API error {e.status_code}: {str(e)}")
     except Exception as e:

@@ -1,5 +1,5 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.services.gemini.student_context.schema import GeminiStudentContext
+from backend.services.gemini.student_context.schema import GeminiStudentContext, GeminiStudentContextResponse
 from backend.services.gemini.student_context.prompt import get_student_context_prompt
 
 def gemini_generate_student_context(
@@ -9,7 +9,7 @@ def gemini_generate_student_context(
     objective_description: str,
     onboarding_prompt: str | None = None,
     questions_answers: list[tuple[str, str]] | None = None
-) -> GeminiStudentContext:
+) -> GeminiStudentContextResponse:
     """
     Generate student context using Gemini AI.
     
@@ -22,7 +22,7 @@ def gemini_generate_student_context(
         questions_answers: Optional list of (question, answer) tuples from onboarding
     
     Returns:
-        GeminiStudentContext with state and metacognition
+        GeminiStudentContextResponse with state, metacognition, and ai_model
     """
     client = get_client()
     model = "gemini-2.5-flash"
@@ -44,4 +44,9 @@ def gemini_generate_student_context(
     
     json_response = response.text
     
-    return GeminiStudentContext.model_validate_json(json_response)
+    context = GeminiStudentContext.model_validate_json(json_response)
+    return GeminiStudentContextResponse(
+        state=context.state,
+        metacognition=context.metacognition,
+        ai_model=model
+    )

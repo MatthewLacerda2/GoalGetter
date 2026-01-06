@@ -98,7 +98,8 @@ async def create_notes_async(obj_name: str, obj_desc: str, obj_id: str, db: Asyn
             objective_note = ObjectiveNote(
                 objective_id=obj_id,
                 title=note.title,
-                info=note.info
+                info=note.info,
+                ai_model=gemini_notes.ai_model
             )
             db.add(objective_note)
         
@@ -180,7 +181,8 @@ async def create_student_context_async(
             state=gemini_context.state,
             state_embedding=state_embedding,
             metacognition=gemini_context.metacognition,
-            metacognition_embedding=metacognition_embedding
+            metacognition_embedding=metacognition_embedding,
+            ai_model=gemini_context.ai_model
         )
         
         context_repo = StudentContextRepository(db)
