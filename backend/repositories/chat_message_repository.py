@@ -28,12 +28,16 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
         self, 
         student_id: str, 
         limit: int = 20, 
-        from_message_id: Optional[str] = None
+        before_message_id: Optional[str] = None
     ) -> List[ChatMessage]:
         query = select(ChatMessage).where(ChatMessage.student_id == student_id)
         
-        if from_message_id:
-            query = query.where(ChatMessage.id >= from_message_id)
+        if before_message_id:
+            # Get the reference message to use its created_at for backward pagination
+            reference_message = await self.get_by_id(before_message_id)
+            if reference_message:
+                # Get messages created before this message (older messages)
+                query = query.where(ChatMessage.created_at < reference_message.created_at)
         
         query = query.order_by(desc(ChatMessage.created_at)).limit(limit)
         result = await self.db.execute(query)

@@ -125,7 +125,7 @@ async def create_message(
 
 @router.get("", response_model=ChatMessageResponse)
 async def get_chat_messages(
-    message_id: Optional[str] = Query(None),
+    message_id: Optional[str] = Query(None, description="Get messages before this message ID (for backward pagination)"),
     limit: Optional[int] = Query(None),
     current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
@@ -134,6 +134,7 @@ async def get_chat_messages(
         limit = 20
     
     chat_repo = ChatMessageRepository(db)
+    # Use message_id as before_message_id for backward pagination
     messages = await chat_repo.get_by_student_id(current_user.id, limit, message_id)
     
     return ChatMessageResponse(messages=messages)

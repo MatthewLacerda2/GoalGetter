@@ -4,11 +4,13 @@ import '../../../../l10n/app_localizations.dart';
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSendMessage;
+  final bool isSending;
 
   const ChatInput({
     super.key,
     required this.controller,
     required this.onSendMessage,
+    this.isSending = false,
   });
 
   @override
@@ -49,8 +51,14 @@ class ChatInput extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: onSendMessage,
-            icon: const Icon(Icons.send),
+            onPressed: isSending ? null : onSendMessage,
+            icon: isSending
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.send),
             color: Colors.blue,
           ),
         ],

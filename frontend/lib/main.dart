@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/models/fake_chat_message_array.dart';
 import 'screens/objective_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/resources_screen.dart';
@@ -162,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<Widget> get _tabPages => <Widget>[
     ObjectiveScreen(),
-    TutorScreen(messages: fakeChatMessages),
+    const TutorScreen(),
     StatsScreen(),
     ResourcesScreen(),
     ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
