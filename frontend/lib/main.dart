@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openapi/api.dart';
 import 'screens/objective_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/resources_screen.dart';
@@ -9,6 +10,7 @@ import 'l10n/app_localizations.dart';
 import 'utils/settings_storage.dart';
 import 'services/auth_service.dart';
 import 'widgets/main_screen_icon.dart';
+import 'config/app_config.dart';
 
 void main() {
   runApp(const MyApp());
@@ -146,11 +148,102 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late int _selectedIndex;
+  bool _showResourcesTab = false;
+  bool _isLoadingResources = true;
+  final AuthService _authService = AuthService();
   
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.selectedIndex;
+    _initializeResourcesTab();
+  }
+
+  Future<void> _initializeResourcesTab() async {
+    // First, check SharedPreferences to see if we should show the tab initially
+    final hasResourcesInPrefs = await SettingsStorage.hasResources();
+    
+    setState(() {
+      _showResourcesTab = hasResourcesInPrefs;
+    });
+
+    // Then fetch from API regardless
+    await _fetchResources();
+  }
+
+  Future<void> _fetchResources() async {
+    try {
+      final accessToken = await _authService.getStoredAccessToken();
+      if (accessToken == null) {
+        setState(() {
+          _isLoadingResources = false;
+          _showResourcesTab = false;
+        });
+        await SettingsStorage.setHasResources(false);
+        return;
+      }
+
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+
+      // Get student status to get goalId
+      final studentApi = StudentApi(apiClient);
+      final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
+
+      if (studentResponse == null) {
+        setState(() {
+          _isLoadingResources = false;
+          _showResourcesTab = false;
+        });
+        await SettingsStorage.setHasResources(false);
+        return;
+      }
+
+      // Fetch resources
+      final resourcesApi = ResourcesApi(apiClient);
+      final resourcesResponse = await resourcesApi.getResourcesApiV1ResourcesGet(studentResponse.goalId);
+
+      final hasResources = resourcesResponse != null && 
+                          resourcesResponse.resources.isNotEmpty;
+
+      if (mounted) {
+        setState(() {
+          final previousShowResources = _showResourcesTab;
+          _showResourcesTab = hasResources;
+          _isLoadingResources = false;
+          
+          // Adjust selected index if resources tab visibility changed
+          if (previousShowResources != hasResources) {
+            // If resources tab was removed and we were on it or profile, adjust
+            if (!hasResources && previousShowResources) {
+              if (_selectedIndex == 3) {
+                // Was on resources, move to stats
+                _selectedIndex = 2;
+              } else if (_selectedIndex == 4) {
+                // Was on profile, keep on profile (now index 3)
+                _selectedIndex = 3;
+              }
+            } else if (hasResources && !previousShowResources) {
+              // If resources tab was added and we were on profile, adjust
+              if (_selectedIndex == 3) {
+                // Was on profile, keep on profile (now index 4)
+                _selectedIndex = 4;
+              }
+            }
+          }
+        });
+        await SettingsStorage.setHasResources(hasResources);
+      }
+    } catch (e) {
+      // On error, hide the tab
+      if (mounted) {
+        setState(() {
+          _showResourcesTab = false;
+          _isLoadingResources = false;
+        });
+        await SettingsStorage.setHasResources(false);
+      }
+    }
   }
 
   void _onTabTapped(int index) {
@@ -159,16 +252,86 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  List<Widget> get _tabPages => <Widget>[
-    ObjectiveScreen(),
-    const TutorScreen(),
-    StatsScreen(),
-    ResourcesScreen(),
-    ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
-  ];
+  List<Widget> get _tabPages {
+    final pages = <Widget>[
+      ObjectiveScreen(),
+      const TutorScreen(),
+      StatsScreen(),
+    ];
+    
+    if (_showResourcesTab) {
+      pages.add(ResourcesScreen());
+    }
+    
+    pages.add(ProfileScreen(onLanguageChanged: widget.onLanguageChanged));
+    
+    return pages;
+  }
+
+  List<BottomNavigationBarItem> get _bottomNavItems {
+    final items = <BottomNavigationBarItem>[
+      BottomNavigationBarItem(
+        icon: MainScreenIcon(
+          icon: Icons.event_note,
+          color: Colors.green,
+          isSelected: _selectedIndex == 0,
+        ),
+        label: AppLocalizations.of(context)!.objective,
+      ),
+      BottomNavigationBarItem(
+        icon: MainScreenIcon(
+          icon: Icons.graphic_eq,
+          color: Colors.purpleAccent,
+          isSelected: _selectedIndex == 1,
+        ),
+        label: AppLocalizations.of(context)!.tutor,
+      ),
+      BottomNavigationBarItem(
+        icon: MainScreenIcon(
+          icon: Icons.emoji_events,
+          color: Colors.blue,
+          isSelected: _selectedIndex == 2,
+        ),
+        label: AppLocalizations.of(context)!.awards,
+      ),
+    ];
+
+    if (_showResourcesTab) {
+      items.add(
+        BottomNavigationBarItem(
+          icon: MainScreenIcon(
+            icon: Icons.school,
+            color: Colors.deepOrange,
+            isSelected: _selectedIndex == 3,
+          ),
+          label: AppLocalizations.of(context)!.resources,
+        ),
+      );
+    }
+
+    // Profile is always last
+    final profileIndex = _showResourcesTab ? 4 : 3;
+    items.add(
+      BottomNavigationBarItem(
+        icon: MainScreenIcon(
+          icon: Icons.person,
+          color: Colors.blueGrey,
+          isSelected: _selectedIndex == profileIndex,
+        ),
+        label: AppLocalizations.of(context)!.profile,
+      ),
+    );
+
+    return items;
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Ensure selected index is valid
+    if (_selectedIndex >= _tabPages.length) {
+      _selectedIndex = 0;
+    }
+
     return Scaffold(
       body: Container(
         color: const Color.fromARGB(255, 33, 33, 33),
@@ -185,48 +348,7 @@ class _MyHomePageState extends State<MyHomePage> {
         iconSize: 28,
         backgroundColor: const Color.fromARGB(255, 11, 11, 11),
         enableFeedback: false,
-        items: [
-          BottomNavigationBarItem(
-            icon: MainScreenIcon(
-              icon: Icons.event_note,
-              color: Colors.green,
-              isSelected: _selectedIndex == 0,
-            ),
-            label: AppLocalizations.of(context)!.objective,
-          ),
-          BottomNavigationBarItem(
-            icon: MainScreenIcon(
-              icon: Icons.graphic_eq,
-              color: Colors.purpleAccent,
-              isSelected: _selectedIndex == 1,
-            ),
-            label: AppLocalizations.of(context)!.tutor,
-          ),
-          BottomNavigationBarItem(
-            icon: MainScreenIcon(
-              icon: Icons.emoji_events,
-              color: Colors.blue,
-              isSelected: _selectedIndex == 2,
-            ),
-            label: AppLocalizations.of(context)!.awards,
-          ),
-          BottomNavigationBarItem(
-            icon: MainScreenIcon(
-              icon: Icons.school,
-              color: Colors.deepOrange,
-              isSelected: _selectedIndex == 3,
-            ),
-            label: AppLocalizations.of(context)!.resources,
-          ),
-          BottomNavigationBarItem(
-            icon: MainScreenIcon(
-              icon: Icons.person,
-              color: Colors.blueGrey,
-              isSelected: _selectedIndex == 4,
-            ),
-            label: AppLocalizations.of(context)!.profile,
-          ),
-        ],
+        items: _bottomNavItems,
         currentIndex: _selectedIndex,
         onTap: _onTabTapped,
       ),
