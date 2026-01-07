@@ -32,8 +32,12 @@ COPY client_sdk/ ./client_sdk/
 
 WORKDIR /app/frontend
 
+# Accept BASE_URL as build argument
+ARG BASE_URL
+ENV BASE_URL=${BASE_URL}
+
 RUN flutter pub get
-RUN flutter build web --release
+RUN flutter build web --release --dart-define=BASE_URL=${BASE_URL}
 
 FROM python:3.11-slim
 

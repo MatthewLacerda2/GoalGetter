@@ -70,6 +70,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        BASE_URL: ${BASE_URL}
     container_name: goalgetter_frontend
     ports:
       - "127.0.0.1:8080:8080" # Bind to localhost only, Cloudflare Tunnel will connect
