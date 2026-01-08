@@ -82,7 +82,7 @@ async def test_generate_full_creation_invalid_token(client, mock_google_verify):
     assert response.json()["detail"] == "Invalid Google token"
 
 @pytest.mark.asyncio
-async def test_generate_full_creation_existing_user(client, mock_google_verify, test_db):
+async def test_generate_full_creation_existing_user(client, mock_google_verify, mock_gemini_embeddings, test_db):
     """Test full creation attempt with existing Google account"""
     
     first_response = await client.post(

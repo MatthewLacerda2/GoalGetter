@@ -36,10 +36,9 @@ def mock_gemini_embeddings():
     def mock_get_gemini_embeddings(text):
         return np.zeros(3072, dtype=np.float32)
 
-    with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock1, \
-         patch('backend.api.v1.endpoints.chat.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock2, \
-         patch('backend.api.v1.endpoints.assessments.subjective_question_evaluation', side_effect=mock_get_gemini_embeddings) as mock3:
-        yield mock1, mock2, mock3
+    with patch('backend.utils.gemini.gemini_configs.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock1, \
+         patch('backend.api.v1.endpoints.assessments.subjective_question_evaluation', side_effect=mock_get_gemini_embeddings) as mock2:
+        yield mock1, mock2
 
 @pytest.fixture
 def mock_gemini_multiple_choice_questions():

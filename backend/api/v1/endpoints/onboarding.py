@@ -83,7 +83,8 @@ async def generate_full_creation(
         objective = Objective(
             goal_id=goal.id,
             name=request.first_objective_name,
-            description=request.first_objective_description
+            description=request.first_objective_description,
+            ai_model="gemini-2.5-flash"
         )
         
         db.add(objective)
@@ -142,6 +143,9 @@ async def generate_full_creation(
         raise
     except Exception as e:
         await db.rollback()
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in generate_full_creation: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail="Internal server error"

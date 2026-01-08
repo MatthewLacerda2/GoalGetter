@@ -147,8 +147,11 @@ async def verify_google_token_header(
         # Extract the token from "Bearer <token>"
         google_token = credentials.credentials
         return verify_google_token(google_token)
+    except HTTPException:
+        # Re-raise HTTPException directly to preserve the original error message
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Verify Google Token Header: Invalid Google token {e}"
+            detail="Invalid Google token"
         )
