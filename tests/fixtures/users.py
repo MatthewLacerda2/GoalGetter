@@ -20,6 +20,7 @@ async def test_user(test_db):
         goal_id=goal.id,
         name="Complete Python Basics",
         description="Learn variables, data types, control structures, and functions in Python",
+        ai_model="test-model",
     )
     test_db.add(objective)
     await test_db.flush()
