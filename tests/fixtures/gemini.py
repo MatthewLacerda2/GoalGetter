@@ -70,14 +70,15 @@ def mock_gemini_subjective_questions():
     """Fixture to mock Gemini subjective questions responses"""
     def mock_generate_subjective_questions(*args, **kwargs):
         from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
-        from backend.services.gemini.assessment.assessment import GeminiEvaluationQuestionsList
+        from backend.services.gemini.assessment.assessment import GeminiEvaluationQuestionsResponse
         
         questions = [f"Question {i+1}" for i in range(NUM_QUESTIONS_PER_EVALUATION)]
         
-        return GeminiEvaluationQuestionsList(
-            questions=questions
+        return GeminiEvaluationQuestionsResponse(
+            questions=questions,
+            ai_model="gemini-2.5-flash"
         )
-    with patch('backend.api.v1.endpoints.assessments.gemini_generate_subjective_questions', side_effect=mock_generate_subjective_questions) as mock:
+    with patch('backend.services.gemini.assessment.assessment.gemini_generate_subjective_questions', side_effect=mock_generate_subjective_questions) as mock:
         yield mock
 
 @pytest.fixture
@@ -178,17 +179,18 @@ def mock_subjective_question_repository():
 def mock_gemini_overall_evaluation_review():
     """Fixture to mock Gemini overall evaluation review responses"""
     def mock_gemini_subjective_evaluation_review(*args, **kwargs):
-        from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReview
+        from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReviewResponse
         
-        return GeminiSubjectiveEvaluationReview(
+        return GeminiSubjectiveEvaluationReviewResponse(
             evaluation="The student demonstrates good understanding of the concepts with clear explanations and practical examples.",
             information="The answers show comprehensive knowledge of the subject matter with accurate technical details.",
             metacognition="The student appears to have a solid grasp of the material and can apply concepts effectively.",
-            approval=True
+            approval=True,
+            ai_model="gemini-2.5-flash"
         )
     
     with patch(
-        'backend.api.v1.endpoints.assessments.gemini_subjective_evaluation_review',
+        'backend.services.gemini.assessment.overall_evaluation.overall_evaluation.gemini_subjective_evaluation_review',
         side_effect=mock_gemini_subjective_evaluation_review,
     ) as mock:
         yield mock

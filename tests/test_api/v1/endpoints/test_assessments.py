@@ -1,9 +1,10 @@
 import pytest
+import uuid
 from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
 from backend.schemas.assessment import SubjectiveQuestionsAssessmentResponse, SubjectiveQuestionEvaluationRequest, SubjectiveQuestionEvaluationResponse
 
 test_single_question = SubjectiveQuestionEvaluationRequest(
-    question_id="a1b2-c3d4",
+    question_id=str(uuid.uuid4()),
     question="A Question",
     student_answer="Theres your answer",
     seconds_spent= 10
@@ -94,7 +95,7 @@ async def test_subjective_questions_overall_evaluation_success(authenticated_cli
     client, access_token = authenticated_client_with_objective
     
     test_questions = SubjectiveQuestionsAssessmentEvaluationRequest(
-        questions_ids=[f"id_{i}" for i in range(10)]
+        questions_ids=[str(uuid.uuid4()) for i in range(10)]
     )
     
     response = await client.post(
