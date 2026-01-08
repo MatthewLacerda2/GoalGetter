@@ -15,9 +15,10 @@ try:
         messages=[
             {
                 "role": "user",
-                "content": "Who are you and whats your game?"
+                "content": "Who are you?"
             }
         ],
+        think=False
     )
     print(response)
 except ResponseError as e:

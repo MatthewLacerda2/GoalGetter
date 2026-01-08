@@ -1,10 +1,10 @@
+import asyncio
 import logging
-from typing import List
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.core.database import get_db
+from backend.core.database import get_db, AsyncSessionLocal
 from backend.models.streak_day import StreakDay
 from backend.core.security import get_current_user
 from backend.models.student import Student
@@ -22,6 +22,55 @@ from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+async def create_lesson_questions_async(
+    student_id: str,
+    goal_id: str,
+    num_questions: int,
+    db: AsyncSession
+) -> None:
+    """
+    Create lesson questions asynchronously.
+    
+    Args:
+        student_id: The ID of the student
+        goal_id: The ID of the goal
+        num_questions: Number of questions to create
+        db: Database session
+    """
+    try:
+        objective_repo = ObjectiveRepository(db)
+        objective = await objective_repo.get_latest_by_goal_id(goal_id)
+        
+        objectives = await objective_repo.get_recent_by_goal_id(goal_id, limit=4)
+        
+        student_context_repo = StudentContextRepository(db)
+        student_contexts = await student_context_repo.get_by_student_id(student_id, 5)
+        
+        contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
+        
+        gemini_mc_questions = gemini_generate_multiple_choice_questions(
+            objective.name, objective.description, [o.name for o in objectives], contexts, num_questions
+        )
+        
+        for question in gemini_mc_questions.questions:
+            mcq = MultipleChoiceQuestion(
+                objective_id=objective.id,
+                question=question.question,
+                option_a=question.choices[0],
+                option_b=question.choices[1],
+                option_c=question.choices[2],
+                option_d=question.choices[3],
+                correct_answer_index=question.correct_answer_index,
+                ai_model=gemini_mc_questions.ai_model,
+            )
+            db.add(mcq)
+        
+        await db.commit()
+    except Exception as e:
+        logger.error(f"Error creating lesson questions: {e}", exc_info=True)
+        await db.rollback()
+        raise
 
 @router.post("", response_model=MultipleChoiceActivityResponse, status_code=status.HTTP_201_CREATED)
 async def take_multiple_choice_activity(
@@ -44,39 +93,20 @@ async def take_multiple_choice_activity(
     if len(multiple_choice_question_results) >= NUM_QUESTIONS_PER_LESSON:
         return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
     
-    objectives = await objective_repo.get_recent_by_goal_id(current_user.goal_id, limit = 4)
-    
-    student_context_repo = StudentContextRepository(db)
-    student_contexts = await student_context_repo.get_by_student_id(current_user.id, 5)
-    
-    contexts = [f"{sc.state}, {sc.metacognition}" for sc in student_contexts]
-    
-    gemini_mc_questions = gemini_generate_multiple_choice_questions(
-        objective.name, objective.description, [o.name for o in objectives], contexts, NUM_QUESTIONS_PER_LESSON
+    # Questions not ready - create them synchronously with 10 questions
+    await create_lesson_questions_async(
+        student_id=current_user.id,
+        goal_id=current_user.goal_id,
+        num_questions=10,
+        db=db
     )
     
-    db_mcqs: List[MultipleChoiceQuestion] = []
+    # Fetch the newly created questions
+    multiple_choice_question_results = await mcq_repo.get_unanswered_or_wrong(
+        objective.id, current_user.id, NUM_QUESTIONS_PER_LESSON
+    )
     
-    for question in gemini_mc_questions.questions:
-        mcq = MultipleChoiceQuestion(
-            objective_id=objective.id,
-            question=question.question,
-            option_a=question.choices[0],
-            option_b=question.choices[1],
-            option_c=question.choices[2],
-            option_d=question.choices[3],
-            correct_answer_index=question.correct_answer_index,
-            ai_model=gemini_mc_questions.ai_model,
-        )
-        db.add(mcq)
-        db_mcqs.append(mcq)
-    
-    await db.flush()
-    await db.commit()
-    for mcq in db_mcqs:
-        await db.refresh(mcq)
-    
-    return MultipleChoiceActivityResponse(questions=[mcq for mcq in db_mcqs])
+    return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
 
 @router.post("/evaluate", response_model=MultipleChoiceActivityEvaluationResponse, status_code=status.HTTP_201_CREATED)
 async def take_multiple_choice_activity(
@@ -153,6 +183,22 @@ async def take_multiple_choice_activity(
     await student_repo.increment_streak_days(current_user.id, total_xp)
     
     await db.commit()
+
+    # Kick off async job to create next lesson (20 questions)
+    async def run_lesson_creation_task():
+        async with AsyncSessionLocal() as new_db:
+            try:
+                await create_lesson_questions_async(
+                    student_id=current_user.id,
+                    goal_id=current_user.goal_id,
+                    num_questions=20,
+                    db=new_db
+                )
+            except Exception as e:
+                logger.error(f"Error in background lesson creation task: {e}", exc_info=True)
+    
+    # Fire and forget - don't await to avoid blocking the response
+    asyncio.create_task(run_lesson_creation_task())
 
     return MultipleChoiceActivityEvaluationResponse(
         total_seconds_spent=total_seconds_spent,
