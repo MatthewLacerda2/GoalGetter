@@ -44,9 +44,13 @@ def mock_gemini_embeddings():
 def mock_gemini_multiple_choice_questions():
     """Fixture to mock Gemini multiple choice questions responses"""
     def mock_generate_multiple_choice_questions(*args, **kwargs):
-        from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsList, GeminiMultipleChoiceQuestion
+        from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsResponse, GeminiMultipleChoiceQuestion
+        from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
         
-        return GeminiMultipleChoiceQuestionsList(
+        # Get num_questions from args (5th argument) or default to NUM_QUESTIONS_PER_LESSON
+        num_questions = args[4] if len(args) > 4 else NUM_QUESTIONS_PER_LESSON
+        
+        return GeminiMultipleChoiceQuestionsResponse(
             questions=[
                 GeminiMultipleChoiceQuestion(
                     question=f"Sample question {i+1}: What is the correct way to print 'Hello World' in Python?",
@@ -56,10 +60,10 @@ def mock_gemini_multiple_choice_questions():
                         "console.log('Hello World')",
                         "System.out.println('Hello World')"
                     ],
-                    correct_answer_index=0,
-                    xp = 10
-                ) for i in range(10)
-            ]
+                    correct_answer_index=0
+                ) for i in range(num_questions)
+            ],
+            ai_model="test-model"
         )
     
     with patch('backend.api.v1.endpoints.activities.gemini_generate_multiple_choice_questions', side_effect=mock_generate_multiple_choice_questions) as mock:

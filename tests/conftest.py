@@ -20,11 +20,18 @@ def mock_account_creation_tasks(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def mock_create_lesson_questions_async(monkeypatch):
-    """Mock create_lesson_questions_async to prevent it from running in background during tests"""
-    async def mock_create_lesson_questions_async(*args, **kwargs):
+    """Mock create_lesson_questions_async - allows direct calls to create fake questions, blocks background tasks"""
+    from backend.api.v1.endpoints.activities import create_lesson_questions_async as original_func
+    from backend.api.v1.endpoints import activities
+    
+    async def mock_create_lesson_questions_async(student_id: str, goal_id: str, num_questions: int, db, **kwargs):
+        # If db is provided (direct call), run the real function with mocked gemini
+        # The gemini mock will provide fake questions that get stored in the database
+        if db is not None:
+            return await original_func(student_id, goal_id, num_questions, db)
+        # Otherwise it's a background task, skip it
         pass
     
-    from backend.api.v1.endpoints import activities
     monkeypatch.setattr(activities, 'create_lesson_questions_async', mock_create_lesson_questions_async)
 
 @pytest.fixture(autouse=True)

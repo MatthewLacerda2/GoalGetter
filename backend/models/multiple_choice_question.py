@@ -34,6 +34,11 @@ class MultipleChoiceQuestion(Base):
 
     objective = relationship("Objective", back_populates="multiple_choice_questions")
     answers = relationship("MultipleChoiceAnswer", back_populates="question", cascade="all, delete-orphan")
+    
+    @property
+    def choices(self) -> list[str]:
+        """Convert option fields to choices list for API responses"""
+        return [self.option_a, self.option_b, self.option_c, self.option_d]
 
 
 class MultipleChoiceAnswer(Base):

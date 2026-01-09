@@ -93,11 +93,11 @@ async def take_multiple_choice_activity(
     if len(multiple_choice_question_results) >= NUM_QUESTIONS_PER_LESSON:
         return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
     
-    # Questions not ready - create them synchronously with 10 questions
+    # Questions not ready - create them synchronously
     await create_lesson_questions_async(
         student_id=current_user.id,
         goal_id=current_user.goal_id,
-        num_questions=10,
+        num_questions=NUM_QUESTIONS_PER_LESSON,
         db=db
     )
     
