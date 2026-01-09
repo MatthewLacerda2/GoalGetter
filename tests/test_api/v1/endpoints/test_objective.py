@@ -21,6 +21,7 @@ async def test_get_objective_successful(authenticated_client_with_objective, tes
         objective_id=objective.id,
         title="Test Note 1",
         info="First test note",
+        ai_model="test-model"
     )
     test_db.add(note)
     await test_db.flush()    
