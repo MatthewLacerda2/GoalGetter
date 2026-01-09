@@ -49,13 +49,15 @@ async def test_multiple_choice_questions(test_db, test_user):
     """Fixture to create multiple choice questions for testing"""
     
     questions = [MultipleChoiceQuestion(
-        id=f"id_{i}",
         objective_id=test_user.current_objective_id,
         question=f"Question {i}",
-        choices=["A","B","C","D"],
+        option_a="A",
+        option_b="B",
+        option_c="C",
+        option_d="D",
         correct_answer_index=0,
-        xp=1
-    ) for i in range (NUM_QUESTIONS_PER_LESSON)]
+        ai_model="test-model"
+    ) for i in range(NUM_QUESTIONS_PER_LESSON)]
     test_db.add_all(questions)
     
     await test_db.flush()
