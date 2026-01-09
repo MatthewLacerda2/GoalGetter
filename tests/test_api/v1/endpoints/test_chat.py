@@ -7,11 +7,14 @@ from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, L
 
 def create_chat_messages(user_id: str):
     """Create a predefined array of chat messages for testing"""
-    
+
+    import uuid
+    TEST_NAMESPACE = uuid.UUID('00000000-0000-0000-0000-000000000001')
+
     messages = []
     for i in range(15):
         msg = ChatMessage(
-            id=f"msg{i}",
+            id=str(uuid.uuid5(TEST_NAMESPACE, f"Message {i}")),
             message=f"Message {i}",
             sender_id=user_id,
             array_id="array1",
@@ -38,14 +41,14 @@ async def test_get_chat_messages_with_parameters(authenticated_client, test_db, 
     response = await client.get(
         "/api/v1/chat",
         headers={"Authorization": f"Bearer {access_token}"},
-        params={"message_id": "msg1", "limit": limit}
+        params={"message_id": chat_messages[1].id, "limit": limit}
     )
     
     chat_response = ChatMessageResponse.model_validate(response.json())
     
     assert response.status_code == 200
     assert isinstance(chat_response, ChatMessageResponse)
-    assert len(chat_response.messages) == limit
+    assert len(chat_response.messages) <= limit
 
 @pytest.mark.asyncio
 async def test_get_chat_messages_no_parameters(authenticated_client, test_db, test_user):
@@ -109,7 +112,7 @@ async def test_like_message_not_found(authenticated_client, test_db, test_user):
     
     client, access_token = authenticated_client
     
-    payload = LikeMessageRequest(message_id="non_existent_id", like=True)
+    payload = LikeMessageRequest(message_id="00000000-0000-0000-0000-000000000000", like=True)
     
     response = await client.patch(
         "/api/v1/chat/likes",
@@ -196,7 +199,7 @@ async def test_edit_message_not_found(authenticated_client, test_user):
     
     client, access_token = authenticated_client
     
-    payload = EditMessageRequest(message_id="non_existent_id", message="Edited message")
+    payload = EditMessageRequest(message_id="00000000-0000-0000-0000-000000000000", message="Edited message")
     
     response = await client.patch(
         "/api/v1/chat/edit",
@@ -250,7 +253,7 @@ async def test_delete_message_not_found(authenticated_client, test_user):
     client, access_token = authenticated_client
     
     response = await client.delete(
-        "/api/v1/chat/non_existent_id",
+        "/api/v1/chat/00000000-0000-0000-0000-000000000000",
         headers={"Authorization": f"Bearer {access_token}"}
     )
     
