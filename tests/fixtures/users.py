@@ -67,3 +67,20 @@ async def test_multiple_choice_questions(test_db, test_user):
         await test_db.refresh(question)
     
     yield questions
+
+@pytest_asyncio.fixture
+async def test_subjective_question(test_db, test_user):
+    """Fixture to create a subjective question for testing"""
+    from backend.models.subjective_question import SubjectiveQuestion
+    
+    question = SubjectiveQuestion(
+        objective_id=test_user.current_objective_id,
+        question="A Question",
+        ai_model="test-model"
+    )
+    test_db.add(question)
+    await test_db.flush()
+    await test_db.commit()
+    await test_db.refresh(question)
+    
+    yield question

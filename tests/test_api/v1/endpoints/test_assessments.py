@@ -53,23 +53,30 @@ async def test_subjective_question_evaluation_invalid_token(client, mock_google_
     assert response.status_code == 401
 
 @pytest.mark.asyncio
-async def test_subjective_question_evaluation_success(authenticated_client_with_objective, mock_gemini_single_question_review, mock_subjective_question_repository, mock_gemini_embeddings):
+async def test_subjective_question_evaluation_success(authenticated_client_with_objective, mock_gemini_single_question_review, mock_gemini_embeddings, test_subjective_question):
     """Test that the single question evaluation endpoint returns a valid response."""
     
     client, access_token = authenticated_client_with_objective
+
+    test_request = SubjectiveQuestionEvaluationRequest(
+        question_id=test_subjective_question.id,
+        question=test_subjective_question.question,
+        student_answer="Theres your answer",
+        seconds_spent=10
+    )
     
     response = await client.post(
         "/api/v1/assessments/evaluate/single_question",
         headers={"Authorization": f"Bearer {access_token}"},
-        json=test_single_question.model_dump()
+        json=test_request.model_dump()
     )
     
     assert response.status_code == 201
     
     assessment_response = SubjectiveQuestionEvaluationResponse.model_validate(response.json())
     assert isinstance(assessment_response, SubjectiveQuestionEvaluationResponse)
-    assert assessment_response.question_id == test_single_question.question_id
-    assert assessment_response.question == test_single_question.question
+    assert assessment_response.question_id == test_request.question_id
+    assert assessment_response.question == test_request.question
     assert assessment_response.llm_evaluation is not None
     assert assessment_response.llm_approval is not None
 

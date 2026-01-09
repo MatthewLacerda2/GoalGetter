@@ -166,6 +166,7 @@ def mock_subjective_question_repository():
         question = SubjectiveQuestion()
         question.id = question_id
         question.question = "A Question"
+        question.ai_model = "test-model"
         question.llm_approval = None
         question.llm_evaluation = None
         question.llm_metacognition = None
