@@ -8,6 +8,7 @@ from apscheduler.triggers.cron import CronTrigger
 from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
 from backend.services.mastery_evaluation_job import run_mastery_evaluation_job
+from backend.llms import get_llms_txt
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -85,3 +86,7 @@ SECURITY_TXT = "Contact: matheus.l1996@gmail.com\n"
 @app.get("/security.txt", response_class=PlainTextResponse)
 async def security_txt_fallback():
     return SECURITY_TXT
+
+@app.get("/llms.txt", response_class=PlainTextResponse)
+async def llms_txt():
+    return get_llms_txt()
