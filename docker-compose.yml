@@ -59,6 +59,12 @@ services:
       postgres_test:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     # Remove volume mount for production (code is baked into image)
     # volumes:
     #   - ./backend:/app/backend

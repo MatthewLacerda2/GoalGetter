@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting APScheduler")
     scheduler.start()
     
-    # Schedule the mastery evaluation job to run daily at 2:00 AM
+    # Schedule the mastery evaluation job to run daily at 5:00 AM
     scheduler.add_job(
         run_mastery_evaluation_job,
         trigger=CronTrigger(hour=2, minute=0),
@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
         replace_existing=True,
         max_instances=1  # Ensure only one instance runs at a time
     )
-    logger.info("Scheduled mastery evaluation job to run daily at 2:00 AM")
+    logger.info("Scheduled mastery evaluation job to run daily at 5:00 AM")
     
     yield
     

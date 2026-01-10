@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 async def run_mastery_evaluation_job():
     """
-    Scheduled job that runs at 2:00 AM daily to evaluate student mastery.
+    Scheduled job that runs at 5:00 AM daily to evaluate student mastery.
     
     For each eligible student:
     1. Check streak day eligibility (yesterday OR 3+ in last 7 days)
