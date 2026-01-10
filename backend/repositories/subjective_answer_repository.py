@@ -1,5 +1,5 @@
-from sqlalchemy import select, and_
-from typing import List, Optional
+from sqlalchemy import select, and_, desc
+from typing import List, Optional, Tuple
 from backend.repositories.base import BaseRepository
 from backend.models.subjective_question import SubjectiveAnswer
 
@@ -52,6 +52,39 @@ class SubjectiveAnswerRepository(BaseRepository[SubjectiveAnswer]):
                 latest_answers[answer.question_id] = answer
         
         return latest_answers
+    
+    async def get_latest_with_accuracy(self, student_id: str, limit: int = 10) -> Tuple[List[SubjectiveAnswer], float]:
+        """
+        Get latest N subjective answers for a student with approval accuracy calculation.
+        
+        Args:
+            student_id: The student's ID
+            limit: Number of latest answers to retrieve (default: 10)
+        
+        Returns:
+            Tuple of (list of answers, approval accuracy percentage)
+        """
+        # Get latest answers ordered by created_at DESC
+        stmt = select(SubjectiveAnswer).where(
+            SubjectiveAnswer.student_id == student_id
+        ).order_by(desc(SubjectiveAnswer.created_at)).limit(limit)
+        
+        result = await self.db.execute(stmt)
+        answers = result.scalars().all()
+        
+        if not answers:
+            return [], 0.0
+        
+        # Filter out None approvals and calculate accuracy
+        valid_answers = [answer for answer in answers if answer.llm_approval is not None]
+        
+        if not valid_answers:
+            return list(answers), 0.0
+        
+        approved_count = sum(1 for answer in valid_answers if answer.llm_approval is True)
+        accuracy = (approved_count / len(valid_answers)) * 100.0 if valid_answers else 0.0
+        
+        return list(answers), accuracy
     
     async def update(self, entity: SubjectiveAnswer) -> SubjectiveAnswer:
         await self.db.flush()

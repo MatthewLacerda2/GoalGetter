@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import selectinload
-from sqlalchemy import select, and_, desc
+from sqlalchemy import select, and_, desc, case
 from backend.models.student_context import StudentContext
 from backend.repositories.base import BaseRepository
 
@@ -84,3 +84,35 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         
         result = await self.db.execute(stmt)
         return result.scalars().all()
+    
+    async def get_latest_for_evaluation(self, student_id: str, current_objective_id: str, limit: int = 8) -> List[StudentContext]:
+        """
+        Get latest valid student contexts for evaluation, ordered by latest objective first then created_at DESC.
+        
+        Args:
+            student_id: The student's ID
+            current_objective_id: The student's current objective ID
+            limit: Maximum number of contexts to return (default: 8)
+        
+        Returns:
+            List of StudentContext ordered by objective_id (current objective first), then created_at DESC
+        """
+        # Order by objective_id (current objective first using CASE), then by created_at DESC
+        # Use CASE to prioritize current objective (0) over others (1)
+        objective_order = case(
+            (StudentContext.objective_id == current_objective_id, 0),
+            else_=1
+        )
+        
+        stmt = select(StudentContext).where(
+            and_(
+                StudentContext.student_id == student_id,
+                StudentContext.is_still_valid == True
+            )
+        ).order_by(
+            objective_order,
+            desc(StudentContext.created_at)
+        ).limit(limit)
+        
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
