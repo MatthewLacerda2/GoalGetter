@@ -6,23 +6,23 @@ An educational app with an AI-Tutor
 
 - Goal
   At the onboarding the user states what he wants to learn, and answers some follow-up questions
+- Objective
+  The next immediate step towards the goal
+  Once the student shows they dominate the objective, we create a new one
 - Lessons
   Multiple Choice questions with didatic purpose
   Subjective questions to stimulate thinking
   Subjective questions aiming at assessing the student's knowledge
-- Objective
-  The next immediate step towards the goal
-  Once the student shows they dominate the objective, we create a new one
 - Tutoring
-  A chatbot
+  A chatbot with knowledge about the user
+- Gamefication
+  Leaderboards
+  Missions
+  Achievments
+- Resources
+  Recommendations of Websites, Youtube Channels and eBooks
 
-We also have a 'Resources' tab with material recommendations (ebooks, websites and youtube)
-
-The lessons are generated when we are low in questions for the user. That includes:
-
-- When the onboarding finishes
-- When a new subject is created
-- Periodically, at a cron job, for users whom we see might need more questions soon
+All content is custom-tailored for the user. It's a 1:1 Tutor App!
 
 ## Philosophy
 
@@ -48,87 +48,56 @@ We'll use Cloudflare Tunnel. Gemini and Ollama will be our content creators and 
 
 We use Google Gemini 2.5
 
-## How to run
+# How to run
 
-### Production Deployment (Arch Linux Home Server)
+Install [Ollama](https://ollama.com/download). I presume you have the GPU drivers.
+If you own and AMD GPU you're in for a bad time.
 
-For home deployment on Arch Linux, you'll use:
+You will need a Gemini API Key. You can get it in a free tier at [Google AI Studio](https://aistudio.google.com/api-keys). GCP account is probably required.
 
-- Docker Compose for backend, frontend, and databases
-- Cloudflare Tunnel for reverse proxy and SSL termination
+Copy example.env into a .env and replace the API key.
 
-1. Copy `example.env` to `.env` and fill in your values:
+`docker-compose up -d`
 
-   ```bash
-   cp example.env .env
-   ```
+You can stop the backend and frontend instances then.
+I trust you'll stop the Cloudflare Tunnel image and not steal my life's work.
 
-2. Start Docker services:
+To start the:
+backend: `uvicorn backend.main:app --reload`
+frontend: `flutter run -d chrome --web-port=8080`
 
-   ```bash
-   docker-compose up -d
-   ```
+Whenever you change the api, you can get the .json specs at [swagger-ui](http://127.0.0.1:8000/openapi.docs)
 
-3. Configure Cloudflare Tunnel:
+Then generate the Client_sdk with:
+`openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk`
 
-   - Install `cloudflared` on your server
-   - Configure tunnel to route:
-     - `/api/*` → `localhost:8001` (backend)
-     - `/*` → `localhost:8080` (frontend)
+_The web version is meant for the MVP. This app is meant as a mobile app only_
 
-4. Run tests:
+# Infra
 
-   ```bash
-   docker-compose exec backend pytest tests/ -v
-   ```
+_This is a rabbit hole_
 
-### Development (Docker Compose)
+Gemini for Onboarding, which isn't done frequently
+Gemini for embedding
+Ollama Cloud for for running cloud models and fallback to local when quota is exceeded
+Re-use other people's content to save on generation
 
-1. Copy `example.env` to `.env` and fill in your values:
+Cloudflare Tunnel to reverse proxy so we can home-deploy
+Cloudflare R2 to backup the SQL
 
-   ```bash
-   cp example.env .env
-   ```
+# Note
 
-2. Start all services:
+Gemini does not support pydantic's Field annotators
 
-   ```bash
-   docker-compose up -d
-   ```
+# Future notes
 
-   This will start:
+We have to make a fallback so, if we exceed the Ollama-Cloud Quota:
+we either
 
-   - PostgreSQL (production) on port 5434
-   - PostgreSQL (test) on port 5435
-   - Backend FastAPI on port 8001 (with hot-reload)
-   - Frontend Flutter web on port 8080 (simple HTTP server)
+- Wait for the next hour
+- Fallback to local
 
-3. View logs:
-   ```bash
-   docker-compose logs -f
-   ```
+Depends on what you're doing:
 
-### Manual Setup
-
-- uvicorn backend.main:app --host 127.0.0.1 --port 8001 --reload
-- - Get the openapi.json from swagger-ui \*
-- openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk
-
-Development:
-
-- flutter run -d chrome --web-port=8080
-
-Production:
-
-- Build it with `flutter build web` (handled automatically by Docker)
-
-Chrome is just for development purposes. The app is meant to be used on mobile only
-
-## Conventions
-
-All Schemas sent to Gemini have 'Gemini' as prefix and do not have pydantic's Field annotators
-
----
-
-we need to make the triggers, for when subscribing we generate the user's lessons ASAP
-and the frontend exhibits nothing while we dont have anything
+- Content generation can wait (lessons, objective notes, achievments, resources)
+- Others can not (Chatbot, Objective)

@@ -73,71 +73,72 @@ def ollama_progress_evaluation(
     except Exception as e:
         raise Exception(f"Unexpected error: {type(e).__name__}: {e}")
 
+
 # You can call this test with
 # python -m backend.services.ollama.assessment.progress_evaluation.progress_evaluation
+if __name__ == "__main__":
+    from datetime import datetime, timezone
 
-from datetime import datetime, timezone
+    # Create mock StudentContext objects
+    class MockStudentContext:
+        def __init__(self, state: str, metacognition: str, objective_id: str = None):
+            self.state = state
+            self.metacognition = metacognition
+            self.objective_id = objective_id
+            self.created_at = datetime.now(timezone.utc)
+            self.is_still_valid = True
 
-# Create mock StudentContext objects
-class MockStudentContext:
-    def __init__(self, state: str, metacognition: str, objective_id: str = None):
-        self.state = state
-        self.metacognition = metacognition
-        self.objective_id = objective_id
-        self.created_at = datetime.now(timezone.utc)
-        self.is_still_valid = True
+    # Create sample student contexts
+    mock_contexts = [
+        MockStudentContext(
+            state="The student demonstrates strong understanding of basic flight controls and has been practicing consistently in Flight Simulator 2020.",
+            metacognition="The student is aware of their progress and actively seeks to improve their landing techniques, recognizing that precision is key.",
+            objective_id="current_objective_id"
+        ),
+        MockStudentContext(
+            state="The student has mastered straight and level flight, but struggles with crosswind landings.",
+            metacognition="The student understands that crosswind landings require more practice and is focusing on maintaining proper aircraft alignment during approach.",
+            objective_id="current_objective_id"
+        ),
+        MockStudentContext(
+            state="The student successfully completed several touch-and-go exercises and is building confidence with takeoff procedures.",
+            metacognition="The student recognizes that repetition is important for muscle memory and continues to practice despite initial challenges.",
+            objective_id="current_objective_id"
+        ),
+        MockStudentContext(
+            state="The student has been studying aviation theory alongside simulator practice, understanding airspeed management during landing.",
+            metacognition="The student is connecting theoretical knowledge with practical application, which shows good learning integration.",
+            objective_id="previous_objective_id"
+        ),
+    ]
 
-# Create sample student contexts
-mock_contexts = [
-    MockStudentContext(
-        state="The student demonstrates strong understanding of basic flight controls and has been practicing consistently in Flight Simulator 2020.",
-        metacognition="The student is aware of their progress and actively seeks to improve their landing techniques, recognizing that precision is key.",
-        objective_id="current_objective_id"
-    ),
-    MockStudentContext(
-        state="The student has mastered straight and level flight, but struggles with crosswind landings.",
-        metacognition="The student understands that crosswind landings require more practice and is focusing on maintaining proper aircraft alignment during approach.",
-        objective_id="current_objective_id"
-    ),
-    MockStudentContext(
-        state="The student successfully completed several touch-and-go exercises and is building confidence with takeoff procedures.",
-        metacognition="The student recognizes that repetition is important for muscle memory and continues to practice despite initial challenges.",
-        objective_id="current_objective_id"
-    ),
-    MockStudentContext(
-        state="The student has been studying aviation theory alongside simulator practice, understanding airspeed management during landing.",
-        metacognition="The student is connecting theoretical knowledge with practical application, which shows good learning integration.",
-        objective_id="previous_objective_id"
-    ),
-]
+    result = ollama_progress_evaluation(
+        goal_name="Become an Airline Pilot",
+        goal_description="The student's ultimate goal is to become a professional airline pilot, requiring comprehensive flight training, certifications, and thousands of flight hours.",
+        objective_name="Master Takeoff and Landing in Flight Simulator 2020",
+        objective_description="Learn and practice proper takeoff and landing procedures in Flight Simulator 2020, including normal takeoffs, landings, crosswind techniques, and emergency procedures.",
+        percentage_completed=70.0,
+        contexts=mock_contexts
+    )
 
-result = ollama_progress_evaluation(
-    goal_name="Become an Airline Pilot",
-    goal_description="The student's ultimate goal is to become a professional airline pilot, requiring comprehensive flight training, certifications, and thousands of flight hours.",
-    objective_name="Master Takeoff and Landing in Flight Simulator 2020",
-    objective_description="Learn and practice proper takeoff and landing procedures in Flight Simulator 2020, including normal takeoffs, landings, crosswind techniques, and emergency procedures.",
-    percentage_completed=70.0,
-    contexts=mock_contexts
-)
+    print("=" * 80)
+    print("PROGRESS EVALUATION RESULT")
+    print("=" * 80)
+    print(f"\nPercentage Completed: {result.percentage_completed}%")
+    print(f"AI Model: {result.ai_model}")
+    print(f"\nNumber of State/Metacognition Pairs: {len(result.state)}")
+    print("\n" + "-" * 80)
 
-print("=" * 80)
-print("PROGRESS EVALUATION RESULT")
-print("=" * 80)
-print(f"\nPercentage Completed: {result.percentage_completed}%")
-print(f"AI Model: {result.ai_model}")
-print(f"\nNumber of State/Metacognition Pairs: {len(result.state)}")
-print("\n" + "-" * 80)
+    for i, (state, metacognition) in enumerate(zip(result.state, result.metacognition), 1):
+        print(f"\nPair {i}:")
+        if state:
+            print(f"  State: {state}")
+        else:
+            print(f"  State: (empty)")
+        
+        if metacognition:
+            print(f"  Metacognition: {metacognition}")
+        else:
+            print(f"  Metacognition: (empty)")
 
-for i, (state, metacognition) in enumerate(zip(result.state, result.metacognition), 1):
-    print(f"\nPair {i}:")
-    if state:
-        print(f"  State: {state}")
-    else:
-        print(f"  State: (empty)")
-    
-    if metacognition:
-        print(f"  Metacognition: {metacognition}")
-    else:
-        print(f"  Metacognition: (empty)")
-
-print("\n" + "=" * 80)
+    print("\n" + "=" * 80)
