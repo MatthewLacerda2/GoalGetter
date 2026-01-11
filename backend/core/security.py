@@ -146,12 +146,20 @@ async def verify_google_token_header(
     try:
         # Extract the token from "Bearer <token>"
         google_token = credentials.credentials
-        return verify_google_token(google_token)
+        if not google_token or not google_token.strip():
+            logger.error("Empty or whitespace-only Google token received")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Google token is empty"
+            )
+        logger.info(f"Verifying Google token (length: {len(google_token.strip())})")
+        return verify_google_token(google_token.strip())
     except HTTPException:
         # Re-raise HTTPException directly to preserve the original error message
         raise
     except Exception as e:
+        logger.error(f"Error verifying Google token: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Google token"
+            detail=f"Invalid Google token: {str(e)}"
         )

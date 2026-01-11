@@ -149,16 +149,25 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
         }
       } catch (e) {
         if (!mounted) return;
+        String errorMessage = 'Error: $e';
+        if (e.toString().contains('403')) {
+          errorMessage =
+              'Authentication failed (403). Please ensure you are signed in with Google. Error: $e';
+        } else if (e.toString().contains('401')) {
+          errorMessage =
+              'Unauthorized (401). Your Google token may have expired. Please sign in again. Error: $e';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Error: $e',
+              errorMessage,
               style: TextStyle(
                 color: Colors.red,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
             ),
+            duration: const Duration(seconds: 5),
           ),
         );
       } finally {
