@@ -56,6 +56,9 @@ RUN flutter build web --release --dart-define=BASE_URL=${BASE_URL}
 
 FROM nginx:alpine
 
+# Install wget for healthchecks
+RUN apk add --no-cache wget
+
 # Copy built web files from builder stage
 COPY --from=builder /app/frontend/build/web /usr/share/nginx/html
 
