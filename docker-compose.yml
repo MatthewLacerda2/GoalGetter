@@ -45,6 +45,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     container_name: goalgetter_backend
+    profiles: ["prod"]
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/goalgetter
       TEST_DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_TEST_PASSWORD}@postgres_test:5432/goalgetter_test
@@ -79,14 +80,38 @@ services:
       args:
         BASE_URL: ${BASE_URL}
     container_name: goalgetter_frontend
+    profiles: ["prod"]
     ports:
       - "127.0.0.1:8080:80" # Bind to localhost only, Cloudflare Tunnel will connect
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:80",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: goalgetter_cloudflared
+    profiles: ["prod"]
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      frontend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
 
 volumes:
   postgres_data:

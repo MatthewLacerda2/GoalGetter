@@ -182,3 +182,9 @@ app.*.symbols
 
 # Project-specific
 auxpy.py
+
+# Terraform
+terraform.tfvars
+*.tfstate
+*.tfstate.backup
+.terraform/
