@@ -54,15 +54,15 @@ ENV BASE_URL=${BASE_URL}
 # Build the app (rebuilds when code changes)
 RUN flutter build web --release --dart-define=BASE_URL=${BASE_URL}
 
-FROM python:3.11-slim
-
-WORKDIR /app
+FROM nginx:alpine
 
 # Copy built web files from builder stage
-COPY --from=builder /app/frontend/build/web /app/web
+COPY --from=builder /app/frontend/build/web /usr/share/nginx/html
 
-# Expose port
-EXPOSE 8080
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Serve static files with Python's built-in HTTP server
-CMD ["python", "-m", "http.server", "8080", "--directory", "/app/web"]
+# Expose port 80
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

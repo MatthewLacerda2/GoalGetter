@@ -52,7 +52,7 @@ services:
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
       SECRET_KEY: ${SECRET_KEY}
     ports:
-      - "8001:8001" # Bind to localhost only, nginx will proxy
+      - "127.0.0.1:8001:8001" # Bind to localhost only for security
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,8 +80,13 @@ services:
         BASE_URL: ${BASE_URL}
     container_name: goalgetter_frontend
     ports:
-      - "127.0.0.1:8080:8080" # Bind to localhost only, Cloudflare Tunnel will connect
+      - "127.0.0.1:8080:80" # Bind to localhost only, Cloudflare Tunnel will connect
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:
