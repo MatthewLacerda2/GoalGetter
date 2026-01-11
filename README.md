@@ -54,7 +54,7 @@ You will need a Gemini API Key. You can get it in a free tier at [Google AI Stud
 Copy example.env into a .env and replace the API key.
 
 `docker-compose up -d`
-These won't spin the back, front and tunnel. That'd be `docker-compose --profile prod up -d`
+These won't spin the backend, frontend and tunnel. That'd be `docker-compose --profile prod up -d`
 I trust you'll stop the Cloudflare Tunnel image and not steal my life's work.
 
 To start the:
