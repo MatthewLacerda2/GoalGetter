@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../widgets/screens/onboarding/goal_questions.dart';
-import '../../l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
-import 'study_plan.dart';
+
 import '../../config/app_config.dart';
+import '../../l10n/app_localizations.dart';
+import '../../services/auth_service.dart';
+import '../../widgets/screens/onboarding/goal_questions.dart';
+import 'study_plan.dart';
 
 class GoalQuestionsScreen extends StatefulWidget {
   final List<String> questions;
@@ -19,43 +21,37 @@ class GoalQuestionsScreen extends StatefulWidget {
   State<GoalQuestionsScreen> createState() => _GoalQuestionsScreenState();
 }
 
-class _GoalQuestionsScreenState extends State<GoalQuestionsScreen> 
+class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
     with TickerProviderStateMixin {
   List<String> _answers = [];
   bool _showErrors = false;
   bool _isLoading = false;
   int _currentQuestionIndex = 0;
-  
+
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
+  final _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
     _answers = List.filled(widget.questions.length, '');
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(1.0, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
+        );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
+    );
+
     _slideController.forward();
   }
 
@@ -91,20 +87,32 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
       _answers.length == widget.questions.length &&
       _answers.every((a) => a.trim().isNotEmpty);
 
-    void _onSendPressed() async {
+  void _onSendPressed() async {
     if (_allAnswered) {
       setState(() {
         _isLoading = true;
       });
       try {
+        // Get the Google token from AuthService
+        final googleToken = _authService.getTempGoogleToken();
+        if (googleToken == null) {
+          throw Exception('No Google token available. Please sign in again.');
+        }
+
+        // Create API client and add the Google token as Authorization header
+        final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+        apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+
         // Build request
-        final api = OnboardingApi(ApiClient(basePath: AppConfig.baseUrl));
+        final api = OnboardingApi(apiClient);
         final qa = <GoalFollowUpQuestionAndAnswer>[];
         for (var i = 0; i < widget.questions.length; i++) {
-          qa.add(GoalFollowUpQuestionAndAnswer(
-            question: widget.questions[i],
-            answer: _answers[i],
-          ));
+          qa.add(
+            GoalFollowUpQuestionAndAnswer(
+              question: widget.questions[i],
+              answer: _answers[i],
+            ),
+          );
         }
         final request = GoalStudyPlanRequest(
           prompt: widget.prompt,
@@ -112,7 +120,9 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
         );
 
         // Call API
-        final plan = await api.generateStudyPlanApiV1OnboardingStudyPlanPost(request);
+        final plan = await api.generateStudyPlanApiV1OnboardingStudyPlanPost(
+          request,
+        );
 
         if (!mounted) return;
         if (plan == null) {
@@ -178,9 +188,9 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
               padding: const EdgeInsets.only(right: 16),
               child: Text(
                 '${_currentQuestionIndex + 1}/${widget.questions.length}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
             ),
           ),
@@ -195,8 +205,8 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
                 opacity: _fadeAnimation,
                 child: GoalQuestions(
                   question: widget.questions[_currentQuestionIndex],
-                  initialAnswer: _answers[_currentQuestionIndex].isNotEmpty 
-                      ? _answers[_currentQuestionIndex] 
+                  initialAnswer: _answers[_currentQuestionIndex].isNotEmpty
+                      ? _answers[_currentQuestionIndex]
                       : null,
                   onAnswerSubmitted: _onAnswerSubmitted,
                   isActive: true,
@@ -205,7 +215,7 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
               ),
             ),
           ),
-          
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(

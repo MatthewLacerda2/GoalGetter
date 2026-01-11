@@ -24,7 +24,7 @@ router = APIRouter()
     description="Initiate the onboarding process by analyzing the user's goal prompt and generating follow-up questions.")
 async def generate_follow_up_questions(
     request: GoalCreationFollowUpQuestionsRequest,
-    #user_info: dict = Depends(verify_google_token_header)
+    user_info: dict = Depends(verify_google_token_header)
 ):
         
     validation: GeminiGoalValidation = get_prompt_validation(request)
