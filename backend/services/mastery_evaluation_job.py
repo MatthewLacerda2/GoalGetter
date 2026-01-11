@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from backend.core.database import AsyncSessionLocal
 from backend.models.student import Student
-from backend.models.objective import Objective
 from backend.models.goal import Goal
 from backend.models.student_context import StudentContext
 from backend.repositories.student_repository import StudentRepository
@@ -13,8 +12,9 @@ from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
 from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.ollama.assessment.progress_evaluation.progress_evaluation import ollama_progress_evaluation
+from backend.services.ollama.progress_evaluation.progress_evaluation import ollama_progress_evaluation
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+from backend.utils.time_period import get_yesterday_date_range
 
 logger = logging.getLogger(__name__)
 
@@ -94,8 +94,7 @@ async def should_evaluate_student(student: Student, db: AsyncSession) -> bool:
     # Check 1: Streak day eligibility
     # Student must have streak day yesterday OR 3+ streak days in last 7 days
     streak_repo = StreakDayRepository(db)
-    yesterday = datetime.now(timezone.utc) - timedelta(days=1)
-    yesterday_start = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+    yesterday_start, _ = get_yesterday_date_range()
     
     yesterday_streak = await streak_repo.get_by_student_id_and_date(student.id, yesterday_start)
     
@@ -211,6 +210,7 @@ async def evaluate_student_progress(student: Student, db: AsyncSession):
             student_id=student.id,
             goal_id=student.goal_id,
             objective_id=student.current_objective_id,
+            source="progress_evaluation",
             state=state,
             metacognition=metacognition,
             state_embedding=state_embedding,

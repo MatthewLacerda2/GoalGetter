@@ -8,6 +8,7 @@ from apscheduler.triggers.cron import CronTrigger
 from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
 from backend.services.mastery_evaluation_job import run_mastery_evaluation_job
+from backend.services.chat_context_job import run_chat_context_job
 from backend.llms import get_llms_txt
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -44,6 +45,17 @@ async def lifespan(app: FastAPI):
         max_instances=1  # Ensure only one instance runs at a time
     )
     logger.info("Scheduled mastery evaluation job to run daily at 5:00 AM")
+    
+    # Schedule the chat context generation job to run daily at 3:00 AM
+    scheduler.add_job(
+        run_chat_context_job,
+        trigger=CronTrigger(hour=3, minute=0),
+        id="chat_context_job",
+        name="Daily Chat Context Generation Job",
+        replace_existing=True,
+        max_instances=1
+    )
+    logger.info("Scheduled chat context generation job to run daily at 3:00 AM")
     
     yield
     

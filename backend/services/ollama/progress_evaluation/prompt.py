@@ -35,28 +35,23 @@ def get_progress_evaluation_prompt(
     return f"""
 ## Context
 
-The student has a goal: '{goal_name}' - {goal_description}
-Current objective: '{objective_name}' - {objective_description}
-Current progress: {percentage_completed}%
-
 You are an experienced Tutor evaluating the student's mastery level.
 
-Recent student contexts:
-{formatted_contexts}
+The student has a goal: '{goal_name}' - {goal_description}
+Current objective: '{objective_name}' - {objective_description}
+Current progress at the objective: {percentage_completed}%
 
 ## Task
 
 Evaluate the student's progress and mastery:
 
-- State: array of strings describing the student's current state/knowledge
-- Metacognition: array of strings describing the student's metacognitive awareness
-- Percentage Completed: float between 0 and 100
+- State: student's current state/knowledge
+- Metacognition: student's cognitive awareness
+- Percentage Completed: student's current progress in the objective
 
-## Important Information About Output
+# Guidelines
 
-The state[] and metacognition[] arrays will be stored in StudentContext records. Each pair at the same index (state[0] with metacognition[0], state[1] with metacognition[1], etc.) will be saved together in the same context record.
-
-## Constraints for State and Metacognition
+The percentage_completed measures the student's mastery of the objective.
 
 - Both arrays must have the same length (same number of elements)
 - You can choose to send a state text but keep its corresponding metacognition empty (empty string), and vice-versa
@@ -65,20 +60,25 @@ The state[] and metacognition[] arrays will be stored in StudentContext records.
 - All state and metacognition texts must be written in third person (e.g., "The student demonstrates..." not "You demonstrate...")
 - Focus on factual, observable insights about the student's learning state and cognitive patterns
 
-## Constraints for Percentage Completed
+Here is some information about the student:
+{formatted_contexts}
 
-- Percentage must be between 0 and 100
-- Must not be less than {percentage_completed}, which is the current percentage completed for the objective.
-- 95% means the student is ready to progress to the next objective
-- Only give 95% if the student shows great mastery of the current objective and will learn more by moving to the next one
-- Increase gradually based on demonstrated understanding and practice
+- Percentage_completed must be between 0-100.
+- Must not be less than the current evaluation of {percentage_completed}.
+- An evaluation of 95% means the student will learn more by moving to the next objective
 
-## Format
+Be direct, blunt and succinct.
+Each state and metacognition must be less than 20 words.
+
+# Format
 
 You will output a JSON object with:
-- state: array of strings (each string less than 100 words, written in third person)
-- metacognition: array of strings (each string less than 100 words, written in third person)
-- percentage_completed: float between 0 and 100
+- state[]: array of strings (each string less than 100 words, written in third person)
+- metacognition[]: array of strings (each string less than 100 words, written in third person)
+- percentage_completed: float between 0-100
+
+The state and metacognition arrays must have the same length (same number of elements).
+Each element in the state has a corresponding element in the metacognition array, of same index.
 
 Write in the language of the student's goal and objective.
 """

@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime, timedelta
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, and_
 from backend.models.chat_message import ChatMessage
 from backend.repositories.base import BaseRepository
 
@@ -70,3 +70,30 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
             await self.db.delete(entity)
             return True
         return False
+    
+    async def get_by_student_and_date_range(
+        self, 
+        student_id: str, 
+        start_date: datetime, 
+        end_date: datetime
+    ) -> List[ChatMessage]:
+        """
+        Get messages for a student within a date range, ordered by created_at ASC.
+        
+        Args:
+            student_id: The student's ID
+            start_date: Start of date range (inclusive)
+            end_date: End of date range (inclusive)
+        
+        Returns:
+            List[ChatMessage] ordered by created_at ASC
+        """
+        stmt = select(ChatMessage).where(
+            and_(
+                ChatMessage.student_id == student_id,
+                ChatMessage.created_at >= start_date,
+                ChatMessage.created_at <= end_date
+            )
+        ).order_by(ChatMessage.created_at)
+        result = await self.db.execute(stmt)
+        return result.scalars().all()

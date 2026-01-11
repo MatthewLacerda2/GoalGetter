@@ -1,8 +1,8 @@
 from typing import List
 import ollama
 from ollama._types import ResponseError
-from backend.services.ollama.assessment.progress_evaluation.prompt import get_progress_evaluation_prompt
-from backend.services.ollama.assessment.progress_evaluation.schema import OllamaProgressEvaluation, OllamaProgressEvaluationResponse
+from backend.services.ollama.progress_evaluation.prompt import get_progress_evaluation_prompt
+from backend.services.ollama.progress_evaluation.schema import OllamaProgressEvaluation, OllamaProgressEvaluationResponse
 from backend.models.student_context import StudentContext
 
 def ollama_progress_evaluation(

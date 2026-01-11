@@ -17,6 +17,7 @@ class SubjectiveQuestion(Base):
     id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
     objective_id = Column(UUID(as_uuid=False), ForeignKey("objectives.id"), nullable=False)
     question = Column(String, nullable=False)
+    #question_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True) #TODO: add vector embedding
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     ai_model = Column(String, nullable=False)
     

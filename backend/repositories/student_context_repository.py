@@ -43,8 +43,8 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         result = await self.db.execute(stmt)
         return result.scalars().all()
     
-    async def get_by_student_and_objective(self, student_id: str, objective_id: str, limit: int = None) -> List[StudentContext]:
-        """Get student contexts for a specific student and objective"""
+    async def get_by_student_and_objective(self, student_id: str, objective_id: str, limit: int) -> List[StudentContext]:
+        """Get student contexts for a specific student and objective, ordered by created_at descending."""
         stmt = select(StudentContext).where(
             and_(
                 StudentContext.student_id == student_id,
@@ -52,10 +52,8 @@ class StudentContextRepository(BaseRepository[StudentContext]):
                 StudentContext.is_still_valid == True
             )
         )
-        if limit:
-            stmt = stmt.limit(limit)
         stmt = stmt.order_by(desc(StudentContext.created_at))
-        
+        stmt = stmt.limit(limit)
         result = await self.db.execute(stmt)
         return result.scalars().all()
     
