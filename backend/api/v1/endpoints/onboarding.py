@@ -69,9 +69,20 @@ async def generate_full_creation(
         existing_user = await student_repo.get_by_google_id(user_info["sub"])
         
         if existing_user:
-            raise HTTPException(status_code=409, detail="User already exists")
+            # Existing user: create new goal and objective, update active goal/objective
+            user = existing_user
+        else:
+            # New user: create student
+            user = Student(
+                email=user_info["email"],
+                google_id=user_info["sub"],
+                name=user_info.get("name"),
+            )
+            user = await student_repo.create(user)
         
+        # Create goal with student_id
         goal = Goal(
+            student_id=user.id,
             name=request.goal_name,
             description=request.goal_description,
         )
@@ -80,6 +91,7 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(goal)
         
+        # Create objective
         objective = Objective(
             goal_id=goal.id,
             name=request.first_objective_name,
@@ -91,21 +103,24 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(objective)
         
-        user = Student(
-            email=user_info["email"],
-            google_id=user_info["sub"],
-            name=user_info.get("name"),
-            goal_id=goal.id,
-            goal_name=goal.name,
-            current_objective_id=objective.id,
-            current_objective_name=objective.name,
-        )
-        created_user = await student_repo.create(user)
+        # Update student's active goal and objective
+        user.goal_id = goal.id
+        user.goal_name = goal.name or ""
+        user.current_objective_id = objective.id
+        user.current_objective_name = objective.name
+        
+        await student_repo.update(user)
         
         # Save description embeddings
         await save_description_embeddings_async(goal, objective, db)
         
-        access_token = create_access_token(data={"sub": created_user.google_id})
+        # Generate or reuse access token
+        if existing_user:
+            # For existing users, we still need to return a token
+            # They might be using Google token, but we'll return a JWT token for consistency
+            access_token = create_access_token(data={"sub": user.google_id})
+        else:
+            access_token = create_access_token(data={"sub": user.google_id})
         
         await db.commit()
         
@@ -118,7 +133,7 @@ async def generate_full_creation(
             async with AsyncSessionLocal() as new_db:
                 try:
                     await account_creation_tasks(
-                        student=created_user,
+                        student=user,
                         goal=goal,
                         objective=objective,
                         db=new_db,
@@ -136,7 +151,7 @@ async def generate_full_creation(
         
         return TokenResponse(
             access_token=access_token,
-            student=created_user
+            student=user
         )
         
     except HTTPException:

@@ -12,8 +12,8 @@ Name | Type | Description | Notes
 **studentName** | **String** |  | 
 **studentEmail** | **String** |  | 
 **overallXp** | **int** |  | 
-**goalId** | **String** |  | 
-**goalName** | **String** |  | 
+**goalId** | **String** |  | [optional] 
+**goalName** | **String** |  | [optional] 
 **currentStreak** | **int** |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

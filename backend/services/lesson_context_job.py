@@ -2,10 +2,12 @@ import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, desc
+from backend.models.subjective_question import SubjectiveQuestion
 from sqlalchemy.orm import joinedload
 from backend.core.database import AsyncSessionLocal
 from backend.models.student import Student
 from backend.models.goal import Goal
+from backend.models.objective import Objective
 from backend.models.student_context import StudentContext
 from backend.models.multiple_choice_question import MultipleChoiceAnswer
 from backend.models.subjective_question import SubjectiveAnswer
@@ -21,8 +23,8 @@ async def run_lesson_context_job():
     """
     Scheduled job that runs at 2:00 AM daily to generate student context from lesson answers.
     
-    For each eligible student (has answers from yesterday):
-    1. Check if student has answers (subjective or multiple-choice) from yesterday
+    For each active objective (latest objective for each goal):
+    1. Check if there are answers (subjective or multiple-choice) from yesterday for that objective
     2. Gather all answers from yesterday
     3. Generate context using AI
     4. Create StudentContext records for state/metacognition pairs
@@ -31,31 +33,50 @@ async def run_lesson_context_job():
     
     async with AsyncSessionLocal() as db:
         try:
-            # Get all students
-            stmt = select(Student)
-            result = await db.execute(stmt)
-            all_students = result.scalars().all()
+            # Get all active objectives (latest objective for each goal)
+            objective_repo = ObjectiveRepository(db)
             
-            logger.info(f"Found {len(all_students)} students to evaluate")
+            # Get all goals
+            goals_stmt = select(Goal)
+            goals_result = await db.execute(goals_stmt)
+            all_goals = goals_result.scalars().all()
+            
+            active_objectives = []
+            for goal in all_goals:
+                latest_objective = await objective_repo.get_latest_by_goal_id(goal.id)
+                if latest_objective:
+                    active_objectives.append((goal, latest_objective))
+            
+            logger.info(f"Found {len(active_objectives)} active objectives to evaluate")
             
             processed_count = 0
             skipped_count = 0
             error_count = 0
             
-            for student in all_students:
+            for goal, objective in active_objectives:
                 try:
-                    # Process each student in their own session to isolate failures
-                    async with AsyncSessionLocal() as student_db:
-                        if await should_generate_context(student, student_db):
-                            await generate_context_from_lesson(student, student_db)
+                    # Get the student for this goal
+                    student_stmt = select(Student).where(Student.id == goal.student_id)
+                    student_result = await db.execute(student_stmt)
+                    student = student_result.scalar_one_or_none()
+                    
+                    if not student:
+                        logger.warning(f"Goal {goal.id} has no associated student")
+                        skipped_count += 1
+                        continue
+                    
+                    # Process each objective in its own session to isolate failures
+                    async with AsyncSessionLocal() as objective_db:
+                        if await should_generate_context_for_objective(student, goal, objective, objective_db):
+                            await generate_context_from_lesson_for_objective(student, goal, objective, objective_db)
                             processed_count += 1
-                            logger.info(f"Successfully generated context for student {student.id}")
+                            logger.info(f"Successfully generated context for objective {objective.id}")
                         else:
                             skipped_count += 1
                 except Exception as e:
                     error_count += 1
-                    logger.error(f"Error generating context for student {student.id}: {e}", exc_info=True)
-                    # Continue with next student
+                    logger.error(f"Error generating context for objective {objective.id}: {e}", exc_info=True)
+                    # Continue with next objective
                     continue
             
             logger.info(
@@ -67,31 +88,30 @@ async def run_lesson_context_job():
             raise
 
 
-async def should_generate_context(student: Student, db: AsyncSession) -> bool:
+async def should_generate_context_for_objective(student: Student, goal: Goal, objective: Objective, db: AsyncSession) -> bool:
     """
-    Check if a student is eligible for context generation based on:
-    - Student has current_objective_id
-    - Student has answers (subjective or multiple-choice) from yesterday
+    Check if an objective is eligible for context generation based on:
+    - Student has answers (subjective or multiple-choice) from yesterday for this objective
     
     Args:
         student: The student to check
+        goal: The goal for this objective
+        objective: The objective to check
         db: Database session
     
     Returns:
-        True if student should have context generated, False otherwise
+        True if objective should have context generated, False otherwise
     """
-    # Check if student has a current objective
-    if not student.current_objective_id:
-        logger.debug(f"Student {student.id} has no current objective")
-        return False
-    
     # Get yesterday's date range (00:00:00 to 23:59:59)
     yesterday_start, yesterday_end = get_yesterday_date_range()
     
-    # Check for subjective answers from yesterday
-    subjective_stmt = select(SubjectiveAnswer).where(
+    # Check for subjective answers from yesterday for this objective
+    subjective_stmt = select(SubjectiveAnswer).join(
+        SubjectiveQuestion, SubjectiveAnswer.question_id == SubjectiveQuestion.id
+    ).where(
         and_(
             SubjectiveAnswer.student_id == student.id,
+            SubjectiveQuestion.objective_id == objective.id,
             SubjectiveAnswer.created_at >= yesterday_start,
             SubjectiveAnswer.created_at <= yesterday_end
         )
@@ -99,10 +119,14 @@ async def should_generate_context(student: Student, db: AsyncSession) -> bool:
     subjective_result = await db.execute(subjective_stmt)
     has_subjective = subjective_result.scalar_one_or_none() is not None
     
-    # Check for multiple-choice answers from yesterday
-    mc_stmt = select(MultipleChoiceAnswer).where(
+    # Check for multiple-choice answers from yesterday for this objective
+    from backend.models.multiple_choice_question import MultipleChoiceQuestion
+    mc_stmt = select(MultipleChoiceAnswer).join(
+        MultipleChoiceQuestion, MultipleChoiceAnswer.question_id == MultipleChoiceQuestion.id
+    ).where(
         and_(
             MultipleChoiceAnswer.student_id == student.id,
+            MultipleChoiceQuestion.objective_id == objective.id,
             MultipleChoiceAnswer.created_at >= yesterday_start,
             MultipleChoiceAnswer.created_at <= yesterday_end
         )
@@ -111,42 +135,36 @@ async def should_generate_context(student: Student, db: AsyncSession) -> bool:
     has_multiple_choice = mc_result.scalar_one_or_none() is not None
     
     if not has_subjective and not has_multiple_choice:
-        logger.debug(f"Student {student.id} has no answers from yesterday")
+        logger.debug(f"Objective {objective.id} has no answers from yesterday")
         return False
     
     return True
 
 
-async def generate_context_from_lesson(student: Student, db: AsyncSession):
+async def generate_context_from_lesson_for_objective(student: Student, goal: Goal, objective: "Objective", db: AsyncSession):
     """
-    Generate context from lesson answers for a student.
+    Generate context from lesson answers for an objective.
     
     Args:
         student: The student to generate context for
+        goal: The goal for this objective
+        objective: The objective to generate context for
         db: Database session
     """
-    objective_repo = ObjectiveRepository(db)
     context_repo = StudentContextRepository(db)
-    
-    # Get goal using select statement
-    goal_stmt = select(Goal).where(Goal.id == student.goal_id)
-    goal_result = await db.execute(goal_stmt)
-    goal = goal_result.scalar_one_or_none()
-    
-    objective = await objective_repo.get_by_id(student.current_objective_id)
-    
-    if not goal or not objective:
-        raise ValueError(f"Student {student.id} missing goal or objective")
     
     # Get yesterday's date range (00:00:00 to 23:59:59)
     yesterday_start, yesterday_end = get_yesterday_date_range()
     
-    # Get all subjective answers from yesterday with questions joined
+    # Get all subjective answers from yesterday for this objective with questions joined
     subjective_stmt = select(SubjectiveAnswer).options(
         joinedload(SubjectiveAnswer.question)
+    ).join(
+        SubjectiveQuestion, SubjectiveAnswer.question_id == SubjectiveQuestion.id
     ).where(
         and_(
             SubjectiveAnswer.student_id == student.id,
+            SubjectiveQuestion.objective_id == objective.id,
             SubjectiveAnswer.created_at >= yesterday_start,
             SubjectiveAnswer.created_at <= yesterday_end
         )
@@ -155,12 +173,16 @@ async def generate_context_from_lesson(student: Student, db: AsyncSession):
     subjective_result = await db.execute(subjective_stmt)
     subjective_answers = list(subjective_result.unique().scalars().all())
     
-    # Get all multiple-choice answers from yesterday with questions joined
+    # Get all multiple-choice answers from yesterday for this objective with questions joined
+    from backend.models.multiple_choice_question import MultipleChoiceQuestion
     mc_stmt = select(MultipleChoiceAnswer).options(
         joinedload(MultipleChoiceAnswer.question)
+    ).join(
+        MultipleChoiceQuestion, MultipleChoiceAnswer.question_id == MultipleChoiceQuestion.id
     ).where(
         and_(
             MultipleChoiceAnswer.student_id == student.id,
+            MultipleChoiceQuestion.objective_id == objective.id,
             MultipleChoiceAnswer.created_at >= yesterday_start,
             MultipleChoiceAnswer.created_at <= yesterday_end
         )
@@ -170,7 +192,7 @@ async def generate_context_from_lesson(student: Student, db: AsyncSession):
     mc_answers = list(mc_result.unique().scalars().all())
     
     if not subjective_answers and not mc_answers:
-        logger.warning(f"Student {student.id} has no answers from yesterday")
+        logger.warning(f"Objective {objective.id} has no answers from yesterday")
         return
     
     # Format answers: prioritize subjective first, then multiple-choice (limit 10 total)
@@ -193,13 +215,13 @@ async def generate_context_from_lesson(student: Student, db: AsyncSession):
                     questions_answers.append((answer.question.question, choice_text))
     
     if not questions_answers:
-        logger.warning(f"Student {student.id} has no valid questions/answers to process")
+        logger.warning(f"Objective {objective.id} has no valid questions/answers to process")
         return
     
-    # Get existing student contexts for the current objective
+    # Get existing student contexts for this objective
     existing_contexts = await context_repo.get_by_student_and_objective(
         student.id,
-        student.current_objective_id,
+        objective.id,
         limit=8
     )
     
@@ -257,8 +279,8 @@ async def generate_context_from_lesson(student: Student, db: AsyncSession):
         # Create StudentContext with source="lesson_context"
         student_context = StudentContext(
             student_id=student.id,
-            goal_id=student.goal_id,
-            objective_id=student.current_objective_id,
+            goal_id=goal.id,
+            objective_id=objective.id,
             source="lesson_context",
             state=state,
             metacognition=metacognition,
@@ -274,6 +296,6 @@ async def generate_context_from_lesson(student: Student, db: AsyncSession):
     await db.commit()
     
     logger.info(
-        f"Generated context for student {student.id}: "
+        f"Generated context for objective {objective.id}: "
         f"created {contexts_created} student contexts from {len(questions_answers)} questions/answers from yesterday"
     )

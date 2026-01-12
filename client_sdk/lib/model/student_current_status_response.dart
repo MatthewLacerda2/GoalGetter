@@ -17,8 +17,8 @@ class StudentCurrentStatusResponse {
     required this.studentName,
     required this.studentEmail,
     required this.overallXp,
-    required this.goalId,
-    required this.goalName,
+    this.goalId,
+    this.goalName,
     required this.currentStreak,
   });
 
@@ -30,9 +30,9 @@ class StudentCurrentStatusResponse {
 
   int overallXp;
 
-  String goalId;
+  String? goalId;
 
-  String goalName;
+  String? goalName;
 
   int currentStreak;
 
@@ -53,8 +53,8 @@ class StudentCurrentStatusResponse {
     (studentName.hashCode) +
     (studentEmail.hashCode) +
     (overallXp.hashCode) +
-    (goalId.hashCode) +
-    (goalName.hashCode) +
+    (goalId == null ? 0 : goalId!.hashCode) +
+    (goalName == null ? 0 : goalName!.hashCode) +
     (currentStreak.hashCode);
 
   @override
@@ -66,8 +66,16 @@ class StudentCurrentStatusResponse {
       json[r'student_name'] = this.studentName;
       json[r'student_email'] = this.studentEmail;
       json[r'overall_xp'] = this.overallXp;
+    if (this.goalId != null) {
       json[r'goal_id'] = this.goalId;
+    } else {
+      json[r'goal_id'] = null;
+    }
+    if (this.goalName != null) {
       json[r'goal_name'] = this.goalName;
+    } else {
+      json[r'goal_name'] = null;
+    }
       json[r'current_streak'] = this.currentStreak;
     return json;
   }
@@ -95,8 +103,8 @@ class StudentCurrentStatusResponse {
         studentName: mapValueOfType<String>(json, r'student_name')!,
         studentEmail: mapValueOfType<String>(json, r'student_email')!,
         overallXp: mapValueOfType<int>(json, r'overall_xp')!,
-        goalId: mapValueOfType<String>(json, r'goal_id')!,
-        goalName: mapValueOfType<String>(json, r'goal_name')!,
+        goalId: mapValueOfType<String>(json, r'goal_id'),
+        goalName: mapValueOfType<String>(json, r'goal_name'),
         currentStreak: mapValueOfType<int>(json, r'current_streak')!,
       );
     }
@@ -149,8 +157,6 @@ class StudentCurrentStatusResponse {
     'student_name',
     'student_email',
     'overall_xp',
-    'goal_id',
-    'goal_name',
     'current_streak',
   };
 }

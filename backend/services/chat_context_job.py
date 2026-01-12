@@ -5,6 +5,7 @@ from sqlalchemy import select
 from backend.core.database import AsyncSessionLocal
 from backend.models.student import Student
 from backend.models.goal import Goal
+from backend.models.objective import Objective
 from backend.models.student_context import StudentContext
 from backend.repositories.student_repository import StudentRepository
 from backend.repositories.objective_repository import ObjectiveRepository
@@ -20,8 +21,8 @@ async def run_chat_context_job():
     """
     Scheduled job that runs at 3:00 AM daily to generate student context from chat messages.
     
-    For each eligible student (sent 3+ messages yesterday):
-    1. Check if student sent at least 3 messages yesterday
+    For each active objective (latest objective for each goal):
+    1. Check if student sent at least 3 messages yesterday for that goal
     2. Gather all messages between the user and chatbot
     3. Generate context using AI
     4. Create StudentContext records for state/metacognition pairs
@@ -30,31 +31,51 @@ async def run_chat_context_job():
     
     async with AsyncSessionLocal() as db:
         try:
-            # Get all students
-            stmt = select(Student)
-            result = await db.execute(stmt)
-            all_students = result.scalars().all()
+            # Get all active objectives (latest objective for each goal, most recent by created_at)
+            # For each goal, get the latest objective
+            objective_repo = ObjectiveRepository(db)
             
-            logger.info(f"Found {len(all_students)} students to evaluate")
+            # Get all goals
+            goals_stmt = select(Goal)
+            goals_result = await db.execute(goals_stmt)
+            all_goals = goals_result.scalars().all()
+            
+            active_objectives = []
+            for goal in all_goals:
+                latest_objective = await objective_repo.get_latest_by_goal_id(goal.id)
+                if latest_objective:
+                    active_objectives.append((goal, latest_objective))
+            
+            logger.info(f"Found {len(active_objectives)} active objectives to evaluate")
             
             processed_count = 0
             skipped_count = 0
             error_count = 0
             
-            for student in all_students:
+            for goal, objective in active_objectives:
                 try:
-                    # Process each student in their own session to isolate failures
-                    async with AsyncSessionLocal() as student_db:
-                        if await should_generate_context(student, student_db):
-                            await generate_context_from_chat(student, student_db)
+                    # Get the student for this goal
+                    student_stmt = select(Student).where(Student.id == goal.student_id)
+                    student_result = await db.execute(student_stmt)
+                    student = student_result.scalar_one_or_none()
+                    
+                    if not student:
+                        logger.warning(f"Goal {goal.id} has no associated student")
+                        skipped_count += 1
+                        continue
+                    
+                    # Process each objective in its own session to isolate failures
+                    async with AsyncSessionLocal() as objective_db:
+                        if await should_generate_context_for_objective(student, goal, objective, objective_db):
+                            await generate_context_from_chat_for_objective(student, goal, objective, objective_db)
                             processed_count += 1
-                            logger.info(f"Successfully generated context for student {student.id}")
+                            logger.info(f"Successfully generated context for objective {objective.id}")
                         else:
                             skipped_count += 1
                 except Exception as e:
                     error_count += 1
-                    logger.error(f"Error generating context for student {student.id}: {e}", exc_info=True)
-                    # Continue with next student
+                    logger.error(f"Error generating context for objective {objective.id}: {e}", exc_info=True)
+                    # Continue with next objective
                     continue
             
             logger.info(
@@ -66,17 +87,19 @@ async def run_chat_context_job():
             raise
 
 
-async def should_generate_context(student: Student, db: AsyncSession) -> bool:
+async def should_generate_context_for_objective(student: Student, goal: Goal, objective: Objective, db: AsyncSession) -> bool:
     """
-    Check if a student is eligible for context generation based on:
+    Check if an objective is eligible for context generation based on:
     - Student must have sent at least 3 messages yesterday (where sender_id == student_id)
     
     Args:
         student: The student to check
+        goal: The goal for this objective
+        objective: The objective to check
         db: Database session
     
     Returns:
-        True if student should have context generated, False otherwise
+        True if objective should have context generated, False otherwise
     """
     chat_repo = ChatMessageRepository(db)
     
@@ -96,42 +119,25 @@ async def should_generate_context(student: Student, db: AsyncSession) -> bool:
     if len(user_messages) < 3:
         logger.debug(
             f"Student {student.id} sent only {len(user_messages)} messages yesterday "
-            f"(required: 3+)"
+            f"(required: 3+) for objective {objective.id}"
         )
-        return False
-    
-    # Check if student has a current objective
-    objective_repo = ObjectiveRepository(db)
-    objective = await objective_repo.get_by_id(student.current_objective_id)
-    
-    if not objective:
-        logger.debug(f"Student {student.id} has no current objective")
         return False
     
     return True
 
 
-async def generate_context_from_chat(student: Student, db: AsyncSession):
+async def generate_context_from_chat_for_objective(student: Student, goal: Goal, objective: "Objective", db: AsyncSession):
     """
-    Generate context from chat messages for a student.
+    Generate context from chat messages for an objective.
     
     Args:
         student: The student to generate context for
+        goal: The goal for this objective
+        objective: The objective to generate context for
         db: Database session
     """
-    objective_repo = ObjectiveRepository(db)
     chat_repo = ChatMessageRepository(db)
     context_repo = StudentContextRepository(db)
-    
-    # Get goal using select statement
-    goal_stmt = select(Goal).where(Goal.id == student.goal_id)
-    goal_result = await db.execute(goal_stmt)
-    goal = goal_result.scalar_one_or_none()
-    
-    objective = await objective_repo.get_by_id(student.current_objective_id)
-    
-    if not goal or not objective:
-        raise ValueError(f"Student {student.id} missing goal or objective")
     
     # Get yesterday's date range (00:00:00 to 23:59:59)
     yesterday_start, yesterday_end = get_yesterday_date_range()
@@ -144,13 +150,13 @@ async def generate_context_from_chat(student: Student, db: AsyncSession):
     )
     
     if not yesterday_messages:
-        logger.warning(f"Student {student.id} has no chat messages from yesterday")
+        logger.warning(f"Student {student.id} has no chat messages from yesterday for objective {objective.id}")
         return
     
-    # Get existing student contexts for the current objective
+    # Get existing student contexts for this objective
     existing_contexts = await context_repo.get_by_student_and_objective(
         student.id,
-        student.current_objective_id,
+        objective.id,
         limit=8
     )
     
@@ -208,8 +214,8 @@ async def generate_context_from_chat(student: Student, db: AsyncSession):
         # Create StudentContext with source="chat_context"
         student_context = StudentContext(
             student_id=student.id,
-            goal_id=student.goal_id,
-            objective_id=student.current_objective_id,
+            goal_id=goal.id,
+            objective_id=objective.id,
             source="chat_context",
             state=state,
             metacognition=metacognition,
@@ -225,6 +231,6 @@ async def generate_context_from_chat(student: Student, db: AsyncSession):
     await db.commit()
     
     logger.info(
-        f"Generated context for student {student.id}: "
+        f"Generated context for objective {objective.id}: "
         f"created {contexts_created} student contexts from {len(yesterday_messages)} chat messages from yesterday"
     )

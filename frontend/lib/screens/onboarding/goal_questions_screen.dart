@@ -93,8 +93,8 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
         _isLoading = true;
       });
       try {
-        // Get the Google token from AuthService
-        final googleToken = _authService.getTempGoogleToken();
+        // Get the Google token from SharedPreferences
+        final googleToken = await _authService.getStoredGoogleToken();
         if (googleToken == null) {
           throw Exception('No Google token available. Please sign in again.');
         }

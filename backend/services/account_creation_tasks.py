@@ -26,7 +26,11 @@ async def account_creation_tasks(
     questions_answers: list[tuple[str, str]] | None = None
 ) -> None:
     """
-    Async function to create all initial data for a new student account.
+    Async function to create all initial data for a new objective.
+    
+    This can be called for:
+    - New student account creation (first goal/objective)
+    - New objective creation (when adding goals to existing students)
     
     This includes:
     - Generating multiple choice questions (4 batches)

@@ -12,13 +12,14 @@ part of openapi.api;
 
 class ValidationErrorLocInner {
   /// Returns a new [ValidationErrorLocInner] instance.
-  ValidationErrorLocInner();
+  ValidationErrorLocInner({
+  });
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ValidationErrorLocInner;
+  bool operator ==(Object other) => identical(this, other) || other is ValidationErrorLocInner &&
 
   @override
-  int get hashCode => 0;
+  int get hashCode =>
     // ignore: unnecessary_parenthesis
 
   @override

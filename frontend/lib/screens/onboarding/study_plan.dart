@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
-import 'goal_prompt_screen.dart';
-import 'tutorial_screen.dart';
-import '../../widgets/info_card.dart';
+
 import '../../config/app_config.dart';
 import '../../services/auth_service.dart';
+import '../../utils/settings_storage.dart';
+import '../../widgets/info_card.dart';
+import 'goal_prompt_screen.dart';
+import 'tutorial_screen.dart';
 
 class StudyPlanScreen extends StatefulWidget {
   final GoalStudyPlanResponse plan;
@@ -25,8 +27,8 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
     });
 
     try {
-      // Get the Google token from AuthService
-      final googleToken = _authService.getTempGoogleToken();
+      // Get the Google token from SharedPreferences
+      final googleToken = await _authService.getStoredGoogleToken();
       if (googleToken == null) {
         throw Exception('No Google token available. Please sign in again.');
       }
@@ -43,9 +45,37 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         firstObjectiveDescription: widget.plan.firstObjectiveDescription,
       );
 
-      final response = await onboardingApi.generateFullCreationApiV1OnboardingFullCreationPost(request);
-      
+      final response = await onboardingApi
+          .generateFullCreationApiV1OnboardingFullCreationPost(request);
+
       if (response != null && mounted) {
+        // Store goal and objective IDs
+        final student = response.student;
+        // Extract goal_id and objective_id from student response
+        // The response should contain goal information
+        // For now, we'll fetch it from the student status endpoint
+        try {
+          final studentApi = StudentApi(apiClient);
+          final studentStatus = await studentApi
+              .getStudentCurrentStatusApiV1StudentGet();
+          if (studentStatus != null &&
+              studentStatus.goalId != null &&
+              studentStatus.goalId!.isNotEmpty) {
+            await SettingsStorage.setCurrentGoalId(studentStatus.goalId!);
+            // Objective ID will be fetched by main screen
+          }
+        } catch (e) {
+          // If we can't get goal ID, continue anyway
+        }
+
+        // Store access token from response
+        await _authService.storeFinalCredentials(response.accessToken, {
+          'id': student.id,
+          'email': student.email,
+          'name': student.name,
+          'google_id': student.googleId,
+        });
+
         // Success - navigate to tutorial screen
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const TutorialScreen()),
@@ -54,9 +84,9 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
         setState(() {
           _isLoading = false;
         });
@@ -100,11 +130,12 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Text('First Objective:',
+            Text(
+              'First Objective:',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Colors.white
+                color: Colors.white,
               ),
               textAlign: TextAlign.center,
             ),
@@ -173,7 +204,9 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const GoalPromptScreen(),
+                        ),
                         (route) => false,
                       );
                     },
@@ -211,7 +244,9 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(

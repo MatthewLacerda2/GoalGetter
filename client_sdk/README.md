@@ -75,8 +75,12 @@ Class | Method | HTTP request | Description
 *ChatApi* | [**editMessageApiV1ChatEditPatch**](doc//ChatApi.md#editmessageapiv1chateditpatch) | **PATCH** /api/v1/chat/edit | Edit Message
 *ChatApi* | [**getChatMessagesApiV1ChatGet**](doc//ChatApi.md#getchatmessagesapiv1chatget) | **GET** /api/v1/chat | Get Chat Messages
 *ChatApi* | [**likeMessageApiV1ChatLikesPatch**](doc//ChatApi.md#likemessageapiv1chatlikespatch) | **PATCH** /api/v1/chat/likes | Like Message
-*DefaultApi* | [**healthCheckHealthGet**](doc//DefaultApi.md#healthcheckhealthget) | **GET** /health | Health Check
-*DefaultApi* | [**rootGet**](doc//DefaultApi.md#rootget) | **GET** / | Root
+*DefaultApi* | [**llmsTxtLlmsTxtGet**](doc//DefaultApi.md#llmstxtllmstxtget) | **GET** /llms.txt | Llms Txt
+*DefaultApi* | [**rootApiV1CheckGet**](doc//DefaultApi.md#rootapiv1checkget) | **GET** /api/v1/check | Root
+*DefaultApi* | [**securityTxtFallbackSecurityTxtGet**](doc//DefaultApi.md#securitytxtfallbacksecuritytxtget) | **GET** /security.txt | Security Txt Fallback
+*GoalsApi* | [**deleteGoalApiV1GoalsGoalIdDelete**](doc//GoalsApi.md#deletegoalapiv1goalsgoaliddelete) | **DELETE** /api/v1/goals/{goal_id} | Delete Goal
+*GoalsApi* | [**listGoalsApiV1GoalsGet**](doc//GoalsApi.md#listgoalsapiv1goalsget) | **GET** /api/v1/goals | List Goals
+*GoalsApi* | [**setActiveGoalApiV1GoalsGoalIdSetActivePut**](doc//GoalsApi.md#setactivegoalapiv1goalsgoalidsetactiveput) | **PUT** /api/v1/goals/{goal_id}/set-active | Set Active Goal
 *ObjectiveApi* | [**getObjectiveApiV1ObjectiveGet**](doc//ObjectiveApi.md#getobjectiveapiv1objectiveget) | **GET** /api/v1/objective | Get Objective
 *ObjectiveApi* | [**getObjectivesListApiV1ObjectiveListGet**](doc//ObjectiveApi.md#getobjectiveslistapiv1objectivelistget) | **GET** /api/v1/objective/list | Get Objectives List
 *OnboardingApi* | [**generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPost**](doc//OnboardingApi.md#generatefollowupquestionsapiv1onboardingfollowupquestionspost) | **POST** /api/v1/onboarding/follow_up_questions | Generate Follow Up Questions
@@ -101,12 +105,14 @@ Class | Method | HTTP request | Description
  - [GoalCreationFollowUpQuestionsResponse](doc//GoalCreationFollowUpQuestionsResponse.md)
  - [GoalFollowUpQuestionAndAnswer](doc//GoalFollowUpQuestionAndAnswer.md)
  - [GoalFullCreationRequest](doc//GoalFullCreationRequest.md)
+ - [GoalListItem](doc//GoalListItem.md)
  - [GoalStudyPlanRequest](doc//GoalStudyPlanRequest.md)
  - [GoalStudyPlanResponse](doc//GoalStudyPlanResponse.md)
  - [HTTPValidationError](doc//HTTPValidationError.md)
  - [LeaderboardItem](doc//LeaderboardItem.md)
  - [LeaderboardResponse](doc//LeaderboardResponse.md)
  - [LikeMessageRequest](doc//LikeMessageRequest.md)
+ - [ListGoalsResponse](doc//ListGoalsResponse.md)
  - [MultipleChoiceActivityEvaluationRequest](doc//MultipleChoiceActivityEvaluationRequest.md)
  - [MultipleChoiceActivityEvaluationResponse](doc//MultipleChoiceActivityEvaluationResponse.md)
  - [MultipleChoiceActivityResponse](doc//MultipleChoiceActivityResponse.md)

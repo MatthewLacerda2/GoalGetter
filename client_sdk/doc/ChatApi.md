@@ -178,7 +178,7 @@ import 'package:openapi/api.dart';
 //defaultApiClient.getAuthentication<HttpBearerAuth>('HTTPBearer').setAccessToken(yourTokenGeneratorFunction);
 
 final api_instance = ChatApi();
-final messageId = messageId_example; // String | 
+final messageId = messageId_example; // String | Get messages before this message ID (for backward pagination)
 final limit = 56; // int | 
 
 try {
@@ -193,7 +193,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **messageId** | **String**|  | [optional] 
+ **messageId** | **String**| Get messages before this message ID (for backward pagination) | [optional] 
  **limit** | **int**|  | [optional] 
 
 ### Return type

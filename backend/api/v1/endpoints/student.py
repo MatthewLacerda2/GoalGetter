@@ -24,6 +24,6 @@ async def get_student_current_status(
         student_email=current_user.email,
         current_streak=current_user.current_streak,
         overall_xp=current_user.overall_xp,
-        goal_id=current_user.goal_id,
-        goal_name=current_user.goal_name,
+        goal_id=current_user.goal_id or None,
+        goal_name=current_user.goal_name or None,
     )

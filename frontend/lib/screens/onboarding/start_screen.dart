@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:openapi/api.dart';
+
+import '../../config/app_config.dart';
 import '../../services/auth_service.dart';
+import '../../utils/settings_storage.dart';
+import '../goal_selection_screen.dart';
 import 'goal_prompt_screen.dart';
 
 class StartScreen extends StatefulWidget {
@@ -14,6 +19,97 @@ class _StartScreenState extends State<StartScreen> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
 
+  Future<void> _routeAfterSignIn() async {
+    try {
+      // Get stored Google token
+      final googleToken = await _authService.getStoredGoogleToken();
+      if (googleToken == null) {
+        // If no token, go to goal prompt screen
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+          );
+        }
+        return;
+      }
+
+      // Try to get access token first (if user has completed onboarding)
+      final accessToken = await _authService.getStoredAccessToken();
+      String? authToken = accessToken ?? googleToken;
+
+      // Call /goals endpoint to check goals count using OpenAPI SDK
+      try {
+        final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+        apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
+
+        final goalsApi = GoalsApi(apiClient);
+        final goalsResponse = await goalsApi.listGoalsApiV1GoalsGet();
+
+        if (goalsResponse != null) {
+          final goals = goalsResponse.goals;
+
+          if (goals.isEmpty) {
+            // 0 goals: navigate to goal prompt screen
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const GoalPromptScreen(),
+                ),
+              );
+            }
+          } else if (goals.length == 1) {
+            // 1 goal: store goal ID and navigate
+            final goal = goals[0];
+            await SettingsStorage.setCurrentGoalId(goal.id);
+
+            // If user has access token, they've completed onboarding
+            // Navigate to main screen via restarting app state
+            // For now, just navigate to goal prompt - AuthWrapper will handle showing main if user has access token
+            // Actually, we can't easily restart AuthWrapper, so we'll let it handle on next app load
+            // For now, go to goal prompt - if they have access token, AuthWrapper should show main on app restart
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const GoalPromptScreen(),
+                ),
+              );
+            }
+          } else {
+            // 2+ goals: navigate to goal selection screen
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const GoalSelectionScreen(),
+                ),
+              );
+            }
+          }
+        } else {
+          // No response - go to goal prompt screen
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+            );
+          }
+        }
+      } catch (e) {
+        // On error checking goals, go to goal prompt screen
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+          );
+        }
+      }
+    } catch (e) {
+      // On error, go to goal prompt screen
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+        );
+      }
+    }
+  }
+
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isLoading = true;
@@ -21,15 +117,11 @@ class _StartScreenState extends State<StartScreen> {
 
     try {
       final result = await _authService.signInWithGoogleWeb();
-      
+
       if (result != null) {
-        // Successfully signed in, navigate to goal prompt screen
+        // Successfully signed in, check goals count and route accordingly
         if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => const GoalPromptScreen(),
-            ),
-          );
+          await _routeAfterSignIn();
         }
       } else {
         // User cancelled sign-in
@@ -81,28 +173,24 @@ class _StartScreenState extends State<StartScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(flex: 2),
-                
+
                 // App Icon/Logo placeholder
                 Container(
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Colors.blue.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.blue.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
-                  child: const Icon(
-                    Icons.school,
-                    size: 60,
-                    color: Colors.blue,
-                  ),
+                  child: const Icon(Icons.school, size: 60, color: Colors.blue),
                 ),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // App Title
                 const Text(
                   'Goal Getter',
@@ -113,9 +201,9 @@ class _StartScreenState extends State<StartScreen> {
                     letterSpacing: 1.2,
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Subtitle
                 const Text(
                   'Your 1:1 Tutor',
@@ -125,9 +213,9 @@ class _StartScreenState extends State<StartScreen> {
                     fontWeight: FontWeight.w300,
                   ),
                 ),
-                
+
                 const Spacer(flex: 3),
-                
+
                 // Google Sign In Button
                 SizedBox(
                   width: double.infinity,
@@ -140,7 +228,9 @@ class _StartScreenState extends State<StartScreen> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const FaIcon(
@@ -160,16 +250,16 @@ class _StartScreenState extends State<StartScreen> {
                       backgroundColor: const Color(0xFF4285F4),
                       foregroundColor: Colors.white,
                       elevation: 2,
-                      shadowColor: Colors.black.withOpacity(0.3),
+                      shadowColor: Colors.black.withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Terms and Privacy
                 Text(
                   'By continuing, you agree to our Terms of Service\nand Privacy Policy',
@@ -180,7 +270,7 @@ class _StartScreenState extends State<StartScreen> {
                     height: 1.4,
                   ),
                 ),
-                
+
                 const Spacer(flex: 1),
               ],
             ),

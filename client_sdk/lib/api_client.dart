@@ -204,6 +204,8 @@ class ApiClient {
           return GoalFollowUpQuestionAndAnswer.fromJson(value);
         case 'GoalFullCreationRequest':
           return GoalFullCreationRequest.fromJson(value);
+        case 'GoalListItem':
+          return GoalListItem.fromJson(value);
         case 'GoalStudyPlanRequest':
           return GoalStudyPlanRequest.fromJson(value);
         case 'GoalStudyPlanResponse':
@@ -216,6 +218,8 @@ class ApiClient {
           return LeaderboardResponse.fromJson(value);
         case 'LikeMessageRequest':
           return LikeMessageRequest.fromJson(value);
+        case 'ListGoalsResponse':
+          return ListGoalsResponse.fromJson(value);
         case 'MultipleChoiceActivityEvaluationRequest':
           return MultipleChoiceActivityEvaluationRequest.fromJson(value);
         case 'MultipleChoiceActivityEvaluationResponse':

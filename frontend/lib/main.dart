@@ -98,10 +98,55 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   Future<void> _checkAuthStatus() async {
-    // Check if user has completed onboarding (has stored access token)
-    final hasCompletedOnboarding = await widget.authService.isSignedIn();
+    // Check if user is signed in (has stored access token OR Google token)
+    final hasAccessToken = await widget.authService.isSignedIn();
+    final hasGoogleToken = await widget.authService.getStoredGoogleToken();
+    final isSignedIn = hasAccessToken || (hasGoogleToken != null && hasGoogleToken.isNotEmpty);
+    
+    if (isSignedIn && hasAccessToken) {
+      // User has completed onboarding - check for stored goal/objective IDs
+      final storedGoalId = await SettingsStorage.getCurrentGoalId();
+      final storedObjectiveId = await SettingsStorage.getCurrentObjectiveId();
+      
+      if (storedGoalId == null || storedObjectiveId == null) {
+        // Fetch current goal/objective from API and store them
+        try {
+          final accessToken = await widget.authService.getStoredAccessToken();
+          if (accessToken != null) {
+            final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+            apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+            
+            final studentApi = StudentApi(apiClient);
+            final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
+            
+            if (studentResponse != null) {
+              if (studentResponse.goalId != null && studentResponse.goalId!.isNotEmpty) {
+                await SettingsStorage.setCurrentGoalId(studentResponse.goalId!);
+                
+                // Get objective ID
+                final objectiveApi = ObjectiveApi(apiClient);
+                final objectiveResponse = await objectiveApi.getObjectiveApiV1ObjectiveGet();
+                if (objectiveResponse != null) {
+                  await SettingsStorage.setCurrentObjectiveId(objectiveResponse.id);
+                }
+              } else {
+                // User has no goals - navigate to goal prompt
+                setState(() {
+                  _hasCompletedOnboarding = false;
+                  _isLoading = false;
+                });
+                return;
+              }
+            }
+          }
+        } catch (e) {
+          // On error, continue with normal flow
+        }
+      }
+    }
+    
     setState(() {
-      _hasCompletedOnboarding = hasCompletedOnboarding;
+      _hasCompletedOnboarding = isSignedIn && hasAccessToken;
       _isLoading = false;
     });
   }
@@ -125,6 +170,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         onLanguageChanged: widget.onLanguageChanged,
       );
     } else {
+      // User is not signed in or hasn't completed onboarding - show start screen
       return const StartScreen();
     }
   }
@@ -149,7 +195,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late int _selectedIndex;
   bool _showResourcesTab = false;
-  bool _isLoadingResources = true;
+  bool _isLoadingResources = false;
   final AuthService _authService = AuthService();
   
   @override

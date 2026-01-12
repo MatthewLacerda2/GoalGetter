@@ -35,8 +35,8 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
   }
 
   Future<List<String>?> _fetchObjectiveQuestions(String prompt) async {
-    // Get the Google token from AuthService
-    final googleToken = _authService.getTempGoogleToken();
+    // Get the Google token from SharedPreferences
+    final googleToken = await _authService.getStoredGoogleToken();
     if (googleToken == null) {
       throw Exception('No Google token available. Please sign in again.');
     }

@@ -5,6 +5,7 @@ from sqlalchemy import select
 from backend.core.database import AsyncSessionLocal
 from backend.models.student import Student
 from backend.models.goal import Goal
+from backend.models.objective import Objective
 from backend.models.student_context import StudentContext
 from backend.repositories.student_repository import StudentRepository
 from backend.repositories.objective_repository import ObjectiveRepository
@@ -22,7 +23,7 @@ async def run_mastery_evaluation_job():
     """
     Scheduled job that runs at 5:00 AM daily to evaluate student mastery.
     
-    For each eligible student:
+    For each active objective (latest objective for each goal):
     1. Check streak day eligibility (yesterday OR 3+ in last 7 days)
     2. Check accuracy requirements (80%+ for last 30 MCQs and 10 subjective questions)
     3. Check objective update timing (must be updated >= 7 days ago)
@@ -34,34 +35,49 @@ async def run_mastery_evaluation_job():
     
     async with AsyncSessionLocal() as db:
         try:
-            student_repo = StudentRepository(db)
             objective_repo = ObjectiveRepository(db)
             
-            # Get all students
-            stmt = select(Student)
-            result = await db.execute(stmt)
-            all_students = result.scalars().all()
+            # Get all active objectives (latest objective for each goal)
+            goals_stmt = select(Goal)
+            goals_result = await db.execute(goals_stmt)
+            all_goals = goals_result.scalars().all()
             
-            logger.info(f"Found {len(all_students)} students to evaluate")
+            active_objectives = []
+            for goal in all_goals:
+                latest_objective = await objective_repo.get_latest_by_goal_id(goal.id)
+                if latest_objective:
+                    active_objectives.append((goal, latest_objective))
+            
+            logger.info(f"Found {len(active_objectives)} active objectives to evaluate")
             
             processed_count = 0
             skipped_count = 0
             error_count = 0
             
-            for student in all_students:
+            for goal, objective in active_objectives:
                 try:
-                    # Process each student in their own session to isolate failures
-                    async with AsyncSessionLocal() as student_db:
-                        if await should_evaluate_student(student, student_db):
-                            await evaluate_student_progress(student, student_db)
+                    # Get the student for this goal
+                    student_stmt = select(Student).where(Student.id == goal.student_id)
+                    student_result = await db.execute(student_stmt)
+                    student = student_result.scalar_one_or_none()
+                    
+                    if not student:
+                        logger.warning(f"Goal {goal.id} has no associated student")
+                        skipped_count += 1
+                        continue
+                    
+                    # Process each objective in its own session to isolate failures
+                    async with AsyncSessionLocal() as objective_db:
+                        if await should_evaluate_objective(student, goal, objective, objective_db):
+                            await evaluate_objective_progress(student, goal, objective, objective_db)
                             processed_count += 1
-                            logger.info(f"Successfully evaluated student {student.id}")
+                            logger.info(f"Successfully evaluated objective {objective.id}")
                         else:
                             skipped_count += 1
                 except Exception as e:
                     error_count += 1
-                    logger.error(f"Error evaluating student {student.id}: {e}", exc_info=True)
-                    # Continue with next student
+                    logger.error(f"Error evaluating objective {objective.id}: {e}", exc_info=True)
+                    # Continue with next objective
                     continue
             
             logger.info(
@@ -73,23 +89,21 @@ async def run_mastery_evaluation_job():
             raise
 
 
-async def should_evaluate_student(student: Student, db: AsyncSession) -> bool:
+async def should_evaluate_objective(student: Student, goal: Goal, objective: "Objective", db: AsyncSession) -> bool:
     """
-    Check if a student is eligible for evaluation based on:
+    Check if an objective is eligible for evaluation based on:
     1. Streak day requirements (yesterday OR 3+ in last 7 days)
     2. Accuracy requirements (80%+ for MCQs and subjective questions)
     3. Objective update timing (must be >= 7 days ago)
     
-    Returns:
-        True if student should be evaluated, False otherwise
-    """
-    # Get current objective
-    objective_repo = ObjectiveRepository(db)
-    objective = await objective_repo.get_by_id(student.current_objective_id)
+    Args:
+        student: The student for this objective
+        goal: The goal for this objective
+        objective: The objective to check
     
-    if not objective:
-        logger.warning(f"Student {student.id} has no current objective")
-        return False
+    Returns:
+        True if objective should be evaluated, False otherwise
+    """
     
     # Check 1: Streak day eligibility
     # Student must have streak day yesterday OR 3+ streak days in last 7 days
@@ -126,7 +140,7 @@ async def should_evaluate_student(student: Student, db: AsyncSession) -> bool:
     # objective.last_updated_at is timezone-aware, so compare directly
     if objective.last_updated_at > seven_days_ago:
         logger.debug(
-            f"Student {student.id} objective updated too recently: "
+            f"Objective {objective.id} updated too recently: "
             f"{objective.last_updated_at} > {seven_days_ago}"
         )
         return False
@@ -134,31 +148,22 @@ async def should_evaluate_student(student: Student, db: AsyncSession) -> bool:
     return True
 
 
-async def evaluate_student_progress(student: Student, db: AsyncSession):
+async def evaluate_objective_progress(student: Student, goal: Goal, objective: "Objective", db: AsyncSession):
     """
-    Evaluate a student's progress and update their objective.
+    Evaluate an objective's progress and update it.
     
     Args:
-        student: The student to evaluate
+        student: The student for this objective
+        goal: The goal for this objective
+        objective: The objective to evaluate
         db: Database session
     """
-    objective_repo = ObjectiveRepository(db)
     context_repo = StudentContextRepository(db)
     
-    # Get goal using select statement
-    goal_stmt = select(Goal).where(Goal.id == student.goal_id)
-    goal_result = await db.execute(goal_stmt)
-    goal = goal_result.scalar_one_or_none()
-    
-    objective = await objective_repo.get_by_id(student.current_objective_id)
-    
-    if not goal or not objective:
-        raise ValueError(f"Student {student.id} missing goal or objective")
-    
-    # Get latest 8 valid student contexts, ordered by objective (current first), then created_at DESC
+    # Get latest 8 valid student contexts for this objective, ordered by created_at DESC
     contexts = await context_repo.get_latest_for_evaluation(
         student.id,
-        student.current_objective_id,
+        objective.id,
         limit=8
     )
     
@@ -208,8 +213,8 @@ async def evaluate_student_progress(student: Student, db: AsyncSession):
         # Create StudentContext
         student_context = StudentContext(
             student_id=student.id,
-            goal_id=student.goal_id,
-            objective_id=student.current_objective_id,
+            goal_id=goal.id,
+            objective_id=objective.id,
             source="progress_evaluation",
             state=state,
             metacognition=metacognition,
@@ -222,6 +227,7 @@ async def evaluate_student_progress(student: Student, db: AsyncSession):
         await context_repo.create(student_context)
     
     # Update objective percentage_completed and last_updated_at
+    objective_repo = ObjectiveRepository(db)
     objective.percentage_completed = evaluation.percentage_completed
     objective.last_updated_at = datetime.now(timezone.utc)
     
@@ -229,7 +235,7 @@ async def evaluate_student_progress(student: Student, db: AsyncSession):
     await db.commit()
     
     logger.info(
-        f"Updated objective {objective.id} for student {student.id}: "
+        f"Updated objective {objective.id}: "
         f"percentage_completed = {evaluation.percentage_completed}%, "
         f"created {max_length} student contexts"
     )

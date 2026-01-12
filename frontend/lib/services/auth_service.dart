@@ -11,6 +11,7 @@ class AuthService {
 
   static const String _tokenKey = 'access_token';
   static const String _userInfoKey = 'user_info';
+  static const String _googleTokenKey = 'google_token';
   
   // Web-specific configuration
   static const String _webClientId = "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com";
@@ -114,11 +115,13 @@ class AuthService {
           throw Exception('Failed to get any token from Google');
         }
         
-        // Store access token temporarily
+        // Store access token temporarily and persistently
         _tempGoogleToken = accessToken;
+        await storeGoogleToken(accessToken);
       } else {
-        // Store ID token
+        // Store ID token temporarily and persistently
         _tempGoogleToken = idToken;
+        await storeGoogleToken(idToken);
       }
       
       _tempUserInfo = {
@@ -205,5 +208,17 @@ class AuthService {
   void clearTempAuthData() {
     _tempGoogleToken = null;
     _tempUserInfo = null;
+  }
+
+  // Store Google token in SharedPreferences
+  Future<void> storeGoogleToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_googleTokenKey, token);
+  }
+
+  // Get stored Google token from SharedPreferences
+  Future<String?> getStoredGoogleToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_googleTokenKey);
   }
 }

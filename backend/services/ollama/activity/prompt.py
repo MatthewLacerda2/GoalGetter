@@ -35,7 +35,7 @@ def generate_multiple_choice_questions_prompt(objective_name: str, objective_des
     - choices: A list of 4 choices
     - correct_answer_index: The zero-based index of the correct answer
     
-    Each question MUST be less than 50 words.
+    Each question MUST be less than 30 words.
     The first choice is at index 0.
     
     The questions MUST be in the language of the user's objective.

@@ -46,9 +46,6 @@ We use Google Gemini-3-Flash and Ollama
 
 # How to run
 
-Install [Ollama](https://ollama.com/download). I presume you have the GPU drivers.
-If you own and AMD GPU you're in for a bad time.
-
 You will need a Gemini API Key. You can get it in a free tier at [Google AI Studio](https://aistudio.google.com/api-keys). GCP account is probably required.
 
 Copy example.env into a .env and replace the API key.

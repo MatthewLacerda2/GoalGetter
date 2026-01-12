@@ -20,6 +20,6 @@ class StudentCurrentStatusResponse(BaseModel):
     student_name: str
     student_email: str
     overall_xp: int
-    goal_id: str
-    goal_name: str
+    goal_id: str | None = None
+    goal_name: str | None = None
     current_streak: int
