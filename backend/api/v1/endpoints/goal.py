@@ -1,6 +1,6 @@
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, and_
 from sqlalchemy.orm import joinedload
 from fastapi import APIRouter, Depends, HTTPException, status
 from backend.core.database import get_db
@@ -169,30 +169,29 @@ async def delete_goal(
             detail="Goal does not belong to the current student"
         )
     
-    # Check if this is the current active goal
+    # Check if this goal is the current_user's active goal
+    # Since each goal belongs to only one student, only current_user could have it as active
+    student_repo = StudentRepository(db)
     is_active_goal = current_user.goal_id == goal_id
     
-    # Delete the goal (objectives will be cascade deleted)
-    await db.delete(goal)
-    await db.flush()
-    
-    # If deleted goal was the current active goal, find the most recently updated objective
-    # owned by the student and set its goal as the new active goal
     if is_active_goal:
         # Find the most recently updated objective for this student
-        # Join Objective with Goal to filter by student_id
+        # Join Objective with Goal to filter by student_id, excluding the goal we're about to delete
         stmt = (
             select(Objective)
             .join(Goal, Objective.goal_id == Goal.id)
-            .where(Goal.student_id == current_user.id)
+            .where(
+                and_(
+                    Goal.student_id == current_user.id,
+                    Goal.id != goal_id  # Exclude the goal we're about to delete
+                )
+            )
             .order_by(desc(Objective.last_updated_at))
             .limit(1)
             .options(joinedload(Objective.goal))
         )
         result = await db.execute(stmt)
         latest_objective = result.unique().scalar_one_or_none()
-        
-        student_repo = StudentRepository(db)
         
         if latest_objective and latest_objective.goal:
             # Set the goal of the most recently updated objective as the new active goal
@@ -208,7 +207,10 @@ async def delete_goal(
             current_user.current_objective_name = None
         
         await student_repo.update(current_user)
+        await db.flush()  # Flush to ensure foreign key constraint is satisfied
     
+    # Delete the goal using the repository (objectives will be cascade deleted)
+    await goal_repo.delete(goal_id)
     await db.commit()
     
     return None

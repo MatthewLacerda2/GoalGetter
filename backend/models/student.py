@@ -29,7 +29,7 @@ class Student(Base):
     current_objective_name = Column(String, nullable=True)
     overall_xp = Column(Integer, nullable=False, default=0)
     
-    goals = relationship("Goal", back_populates="student")
+    goals = relationship("Goal", back_populates="student", foreign_keys="Goal.student_id")
     current_objective = relationship("Objective", back_populates="student", uselist=False)
     streak_days = relationship("StreakDay", back_populates="student", uselist=True)
     chat_messages = relationship("ChatMessage", back_populates="student")

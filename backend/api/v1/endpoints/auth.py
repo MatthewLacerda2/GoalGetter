@@ -51,6 +51,16 @@ async def delete_account(
     """
     try:
         student_repo = StudentRepository(db)
+        
+        # Clear foreign key references before deletion to avoid constraint issues
+        # Since each goal belongs to only one student, only this student could reference their goals
+        current_user.goal_id = None
+        current_user.goal_name = None
+        current_user.current_objective_id = None
+        current_user.current_objective_name = None
+        await student_repo.update(current_user)
+        await db.flush()
+        
         success = await student_repo.delete(current_user.id)
         
         if not success:
@@ -63,7 +73,8 @@ async def delete_account(
         raise
     except Exception as e:
         await db.rollback()
+        logger.error(f"Error deleting account: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error deleting account"
+            detail=f"Error deleting account: {str(e)}"
         )

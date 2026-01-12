@@ -12,7 +12,7 @@ async def test_list_goals_success(authenticated_client_with_objective, test_db):
     client, access_token = authenticated_client_with_objective
     
     # Get the test user
-    stmt = select(Student).where(Student.google_id == "12345")
+    stmt = select(Student).where(Student.google_id == "test_google_id_123")
     result = await test_db.execute(stmt)
     student = result.scalar_one()
     
@@ -61,7 +61,7 @@ async def test_set_active_goal_success(authenticated_client_with_objective, test
     client, access_token = authenticated_client_with_objective
     
     # Get the test user
-    stmt = select(Student).where(Student.google_id == "12345")
+    stmt = select(Student).where(Student.google_id == "test_google_id_123")
     result = await test_db.execute(stmt)
     student = result.scalar_one()
     
@@ -157,7 +157,7 @@ async def test_delete_goal_success(authenticated_client_with_objective, test_db)
     client, access_token = authenticated_client_with_objective
     
     # Get the test user
-    stmt = select(Student).where(Student.google_id == "12345")
+    stmt = select(Student).where(Student.google_id == "test_google_id_123")
     result = await test_db.execute(stmt)
     student = result.scalar_one()
     
@@ -204,11 +204,11 @@ async def test_delete_goal_success(authenticated_client_with_objective, test_db)
 
 @pytest.mark.asyncio
 async def test_delete_goal_sets_null_if_active(authenticated_client_with_objective, test_db):
-    """Test that DELETE /goals/{goal_id} sets goal_id to NULL if deleting active goal"""
+    """Test that DELETE /goals/{goal_id} sets goal_id to NULL if deleting active goal and no other goals exist"""
     client, access_token = authenticated_client_with_objective
     
     # Get the test user
-    stmt = select(Student).where(Student.google_id == "12345")
+    stmt = select(Student).where(Student.google_id == "test_google_id_123")
     result = await test_db.execute(stmt)
     student = result.scalar_one()
     
@@ -216,19 +216,41 @@ async def test_delete_goal_sets_null_if_active(authenticated_client_with_objecti
     current_goal_id = student.goal_id
     
     if current_goal_id:
-        response = await client.delete(
-            f"/api/v1/goals/{current_goal_id}",
-            headers={"Authorization": f"Bearer {access_token}"}
-        )
+        # Verify this is the only goal for this student
+        goals_stmt = select(Goal).where(Goal.student_id == student.id)
+        goals_result = await test_db.execute(goals_stmt)
+        all_goals = goals_result.scalars().all()
         
-        assert response.status_code == 204
-        
-        # Verify student's goal_id and current_objective_id are now NULL
-        await test_db.refresh(student)
-        assert student.goal_id is None
-        assert student.goal_name is None
-        assert student.current_objective_id is None
-        assert student.current_objective_name is None
+        # If there's only one goal, deleting it should set goal_id to NULL
+        # If there are multiple goals, it should switch to another goal
+        if len(all_goals) == 1:
+            response = await client.delete(
+                f"/api/v1/goals/{current_goal_id}",
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            
+            assert response.status_code == 204
+            
+            # Verify student's goal_id and current_objective_id are now NULL
+            await test_db.refresh(student)
+            assert student.goal_id is None
+            assert student.goal_name is None
+            assert student.current_objective_id is None
+            assert student.current_objective_name is None
+        else:
+            # Multiple goals exist - deleting active goal should switch to another goal
+            response = await client.delete(
+                f"/api/v1/goals/{current_goal_id}",
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            
+            assert response.status_code == 204
+            
+            # Verify student's goal_id was updated to another goal (not NULL)
+            await test_db.refresh(student)
+            assert student.goal_id is not None
+            assert student.goal_id != current_goal_id
+            assert student.goal_name is not None
 
 
 @pytest.mark.asyncio

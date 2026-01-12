@@ -9,13 +9,25 @@ import pytest_asyncio
 async def test_user(test_db):
     """Fixture to create a test user with goal and objective for testing"""
     
+    # Create Student first (required for Goal.student_id)
+    student = Student(
+        email="test@example.com",
+        google_id="test_google_id_123",
+        name="Test User",
+    )
+    test_db.add(student)
+    await test_db.flush()
+    
+    # Create Goal with student_id
     goal = Goal(
+        student_id=student.id,
         name="Learn Python Programming",
         description="Master Python programming fundamentals and build applications"
     )
     test_db.add(goal)
     await test_db.flush()
     
+    # Create Objective
     objective = Objective(
         goal_id=goal.id,
         name="Complete Python Basics",
@@ -25,16 +37,11 @@ async def test_user(test_db):
     test_db.add(objective)
     await test_db.flush()
     
-    student = Student(
-        email="test@example.com",
-        google_id="test_google_id_123",
-        name="Test User",
-        goal_id=goal.id,
-        goal_name=goal.name,
-        current_objective_id=objective.id,
-        current_objective_name=objective.name,
-    )
-    test_db.add(student)
+    # Update student to set active goal and objective
+    student.goal_id = goal.id
+    student.goal_name = goal.name
+    student.current_objective_id = objective.id
+    student.current_objective_name = objective.name
     await test_db.flush()
     
     await test_db.commit()

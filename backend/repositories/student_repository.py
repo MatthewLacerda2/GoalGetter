@@ -45,9 +45,9 @@ class StudentRepository(BaseRepository[Student]):
         Returns a tuple of (current_user, leaderboard_users)
         Raises ValueError if user with given ID is not found.
         """
-        # First, get the current user with their goal and current_objective information
+        # First, get the current user with their goals and current_objective information
         current_user_stmt = select(Student).options(
-            selectinload(Student.goal),
+            selectinload(Student.goals),
             selectinload(Student.current_objective)
         ).where(Student.id == user_id)
         
@@ -61,7 +61,7 @@ class StudentRepository(BaseRepository[Student]):
         
         # Get the users right above in the leaderboard
         above_stmt = select(Student).options(
-            selectinload(Student.goal),
+            selectinload(Student.goals),
             selectinload(Student.current_objective)
         ).where(
             and_(
@@ -75,7 +75,7 @@ class StudentRepository(BaseRepository[Student]):
         
         # Get the users right below in the leaderboard
         below_stmt = select(Student).options(
-            selectinload(Student.goal),
+            selectinload(Student.goals),
             selectinload(Student.current_objective)
         ).where(
             and_(
@@ -91,10 +91,10 @@ class StudentRepository(BaseRepository[Student]):
         
         return leaderboard_users
     
-    async def get_user_with_goal(self, user_id: str) -> Optional[Student]:
-        """Get a user with their goal information loaded"""
+    async def get_user_with_goals(self, user_id: str) -> Optional[Student]:
+        """Get a user with their goals information loaded"""
         stmt = select(Student).options(
-            selectinload(Student.goal)
+            selectinload(Student.goals)
         ).where(Student.id == user_id)
         
         result = await self.db.execute(stmt)
