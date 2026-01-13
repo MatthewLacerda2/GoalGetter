@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
-import 'screens/objective_screen.dart';
-import 'screens/stats_screen.dart';
-import 'screens/resources_screen.dart';
-import 'screens/tutor_screen.dart';
-import 'screens/profile_screen.dart';
-import 'screens/onboarding/start_screen.dart';
-import 'l10n/app_localizations.dart';
-import 'utils/settings_storage.dart';
-import 'services/auth_service.dart';
-import 'widgets/main_screen_icon.dart';
+
 import 'config/app_config.dart';
+import 'l10n/app_localizations.dart';
+import 'screens/objective_screen.dart';
+import 'screens/onboarding/start_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/resources_screen.dart';
+import 'screens/stats_screen.dart';
+import 'screens/tutor_screen.dart';
+import 'services/auth_service.dart';
+import 'utils/settings_storage.dart';
+import 'widgets/main_screen_icon.dart';
 
 void main() {
   runApp(const MyApp());
@@ -73,8 +74,8 @@ class _MyAppState extends State<MyApp> {
 
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({
-    super.key, 
-    required this.title, 
+    super.key,
+    required this.title,
     required this.onLanguageChanged,
     required this.authService,
   });
@@ -101,13 +102,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
     // Check if user is signed in (has stored access token OR Google token)
     final hasAccessToken = await widget.authService.isSignedIn();
     final hasGoogleToken = await widget.authService.getStoredGoogleToken();
-    final isSignedIn = hasAccessToken || (hasGoogleToken != null && hasGoogleToken.isNotEmpty);
-    
+    final isSignedIn =
+        hasAccessToken || (hasGoogleToken != null && hasGoogleToken.isNotEmpty);
+
     if (isSignedIn && hasAccessToken) {
       // User has completed onboarding - check for stored goal/objective IDs
       final storedGoalId = await SettingsStorage.getCurrentGoalId();
       final storedObjectiveId = await SettingsStorage.getCurrentObjectiveId();
-      
+
       if (storedGoalId == null || storedObjectiveId == null) {
         // Fetch current goal/objective from API and store them
         try {
@@ -115,19 +117,24 @@ class _AuthWrapperState extends State<AuthWrapper> {
           if (accessToken != null) {
             final apiClient = ApiClient(basePath: AppConfig.baseUrl);
             apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
-            
+
             final studentApi = StudentApi(apiClient);
-            final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
-            
+            final studentResponse = await studentApi
+                .getStudentCurrentStatusApiV1StudentGet();
+
             if (studentResponse != null) {
-              if (studentResponse.goalId != null && studentResponse.goalId!.isNotEmpty) {
+              if (studentResponse.goalId != null &&
+                  studentResponse.goalId!.isNotEmpty) {
                 await SettingsStorage.setCurrentGoalId(studentResponse.goalId!);
-                
+
                 // Get objective ID
                 final objectiveApi = ObjectiveApi(apiClient);
-                final objectiveResponse = await objectiveApi.getObjectiveApiV1ObjectiveGet();
+                final objectiveResponse = await objectiveApi
+                    .getObjectiveApiV1ObjectiveGet();
                 if (objectiveResponse != null) {
-                  await SettingsStorage.setCurrentObjectiveId(objectiveResponse.id);
+                  await SettingsStorage.setCurrentObjectiveId(
+                    objectiveResponse.id,
+                  );
                 }
               } else {
                 // User has no goals - navigate to goal prompt
@@ -144,7 +151,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         }
       }
     }
-    
+
     setState(() {
       _hasCompletedOnboarding = isSignedIn && hasAccessToken;
       _isLoading = false;
@@ -156,11 +163,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color.fromARGB(255, 33, 33, 33),
-        body: Center(
-          child: CircularProgressIndicator(
-            color: Colors.blue,
-          ),
-        ),
+        body: Center(child: CircularProgressIndicator(color: Colors.blue)),
       );
     }
 
@@ -178,8 +181,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({
-    super.key, 
-    required this.title, 
+    super.key,
+    required this.title,
     required this.onLanguageChanged,
     this.selectedIndex = 0,
   });
@@ -197,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showResourcesTab = false;
   bool _isLoadingResources = false;
   final AuthService _authService = AuthService();
-  
+
   @override
   void initState() {
     super.initState();
@@ -208,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _initializeResourcesTab() async {
     // First, check SharedPreferences to see if we should show the tab initially
     final hasResourcesInPrefs = await SettingsStorage.hasResources();
-    
+
     setState(() {
       _showResourcesTab = hasResourcesInPrefs;
     });
@@ -234,7 +237,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Get student status to get goalId
       final studentApi = StudentApi(apiClient);
-      final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
+      final studentResponse = await studentApi
+          .getStudentCurrentStatusApiV1StudentGet();
 
       if (studentResponse == null) {
         setState(() {
@@ -247,17 +251,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Fetch resources
       final resourcesApi = ResourcesApi(apiClient);
-      final resourcesResponse = await resourcesApi.getResourcesApiV1ResourcesGet(studentResponse.goalId);
+      final resourcesResponse = await resourcesApi
+          .getResourcesApiV1ResourcesGet(studentResponse.goalId!);
 
-      final hasResources = resourcesResponse != null && 
-                          resourcesResponse.resources.isNotEmpty;
+      final hasResources =
+          resourcesResponse != null && resourcesResponse.resources.isNotEmpty;
 
       if (mounted) {
         setState(() {
           final previousShowResources = _showResourcesTab;
           _showResourcesTab = hasResources;
           _isLoadingResources = false;
-          
+
           // Adjust selected index if resources tab visibility changed
           if (previousShowResources != hasResources) {
             // If resources tab was removed and we were on it or profile, adjust
@@ -304,13 +309,13 @@ class _MyHomePageState extends State<MyHomePage> {
       const TutorScreen(),
       StatsScreen(),
     ];
-    
+
     if (_showResourcesTab) {
       pages.add(ResourcesScreen());
     }
-    
+
     pages.add(ProfileScreen(onLanguageChanged: widget.onLanguageChanged));
-    
+
     return pages;
   }
 
@@ -381,9 +386,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Container(
         color: const Color.fromARGB(255, 33, 33, 33),
-        child: SafeArea(
-          child: _tabPages[_selectedIndex],
-        ),
+        child: SafeArea(child: _tabPages[_selectedIndex]),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

@@ -15,8 +15,5 @@ import 'package:test/test.dart';
 void main() {
   // final instance = ValidationErrorLocInner();
 
-  group('test ValidationErrorLocInner', () {
-
-  });
-
+  group('test ValidationErrorLocInner', () {});
 }
