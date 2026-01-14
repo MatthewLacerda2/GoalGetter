@@ -1,5 +1,4 @@
 services:
-  # Production PostgreSQL Database
   postgres:
     image: pgvector/pgvector:pg16
     container_name: goalgetter_postgres
@@ -18,7 +17,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Test PostgreSQL Database
   postgres_test:
     image: pgvector/pgvector:pg16
     container_name: goalgetter_postgres_test
@@ -38,7 +36,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend FastAPI Service
   backend:
     build:
       context: .
@@ -63,13 +60,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    # Remove volume mount for production (code is baked into image)
-    # volumes:
-    #   - ./backend:/app/backend
-    # Remove --reload flag for production
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --workers 4
 
-  # Frontend Flutter Web Service
   frontend:
     build:
       context: .
@@ -96,7 +88,6 @@ services:
       retries: 3
       start_period: 10s
 
-  # Cloudflare Tunnel
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: goalgetter_cloudflared

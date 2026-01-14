@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.v1.endpoints import router as api_v1_router
+from backend.core.database import engine
+from backend.models.base import Base
 from backend.core.logging_middleware import LoggingMiddleware
 from backend.core.scheduler import setup_scheduler_jobs, start_scheduler, stop_scheduler
 from backend.llms import get_llms_txt
@@ -11,6 +13,8 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from fastapi.responses import PlainTextResponse
+from backend.core.database import engine
+from backend.models.base import Base
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,6 +29,17 @@ async def lifespan(app: FastAPI):
     FastAPI lifespan context manager to start and stop the scheduler.
     """
     # Startup: Setup and start the scheduler
+    logger.info("Checking for database tables...")
+    try:
+        async with engine.begin() as conn:
+            # run_sync allows us to run the synchronous create_all 
+            # within an asynchronous connection
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables verified/created")
+    except Exception as e:
+        logger.error(f"Error creating database tables: {e}")
+        raise
+
     setup_scheduler_jobs()
     start_scheduler()
     
