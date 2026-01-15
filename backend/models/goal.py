@@ -10,8 +10,8 @@ from backend.models.base import Base
 class Goal(Base):
     __tablename__ = "goals"
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    student_id = Column(UUID(as_uuid=False), ForeignKey("students.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
     name = Column(String, nullable=True)
     description = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
@@ -21,4 +21,4 @@ class Goal(Base):
     resources = relationship("Resource", back_populates="goal")
     objectives = relationship("Objective", back_populates="goal")
     student_contexts = relationship("StudentContext", back_populates="goal")
-    achievements = relationship("Achievement", back_populates="goal")
+    player_achievements = relationship("PlayerAchievement", back_populates="goal")

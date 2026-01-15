@@ -13,8 +13,8 @@ class ObjectiveNote(Base):
         Index('idx_objective_note_objective_id', 'objective_id'),
     )
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    objective_id = Column(UUID(as_uuid=False), ForeignKey("objectives.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=False)
     title = Column(String, nullable=False)
     info = Column(String, nullable=False)
     info_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)

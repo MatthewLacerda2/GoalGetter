@@ -10,8 +10,8 @@ class StreakDay(Base):
         Index('idx_streak_day_student_date', 'student_id', 'date_time'),
     )
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    student_id = Column(UUID(as_uuid=False), ForeignKey("students.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
     date_time = Column(DateTime(timezone=True), nullable=False)
     xp = Column(Integer, nullable=False)
 

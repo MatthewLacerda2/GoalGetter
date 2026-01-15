@@ -13,8 +13,8 @@ class LearnInfo(Base):
         Index('idx_learn_info_objective_id', 'objective_id'),
     )
     
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    objective_id = Column(UUID(as_uuid=False), ForeignKey("objectives.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=False)
     title = Column(String, nullable=False)
     theme = Column(String, nullable=False)
     content = Column(String, nullable=False)

@@ -14,8 +14,8 @@ class ChatMessage(Base):
         Index('idx_chat_message_student_created', 'student_id', 'created_at'),
     )
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    student_id = Column(UUID(as_uuid=False), ForeignKey("students.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
     sender_id = Column(String(36), nullable=False)  #Who sent this message? If student, this'll be == student_id. If AI, this'll be model's name
     array_id = Column(String(36), nullable=True, unique=False)
     message = Column(String, nullable=False)

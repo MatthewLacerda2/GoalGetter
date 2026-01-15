@@ -15,17 +15,17 @@ class Student(Base):
         Index('idx_student_current_objective_id', 'current_objective_id'),
     )
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, nullable=False, unique=True)
     google_id = Column(String, nullable=False, unique=True)
-    goal_id = Column(UUID(as_uuid=False), ForeignKey("goals.id"), nullable=True)
+    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id"), nullable=True)
     goal_name = Column(String, nullable=True)
     name = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     last_login = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     current_streak = Column(Integer, nullable=False, default=0)
     longest_streak = Column(Integer, nullable=False, default=0)
-    current_objective_id = Column(UUID(as_uuid=False), ForeignKey("objectives.id"), nullable=True)
+    current_objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=True)
     current_objective_name = Column(String, nullable=True)
     overall_xp = Column(Integer, nullable=False, default=0)
     

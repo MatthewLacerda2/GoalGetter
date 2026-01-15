@@ -20,9 +20,9 @@ class Resource(Base):
         Index('idx_resource_objective_id', 'objective_id'),
     )
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    goal_id = Column(UUID(as_uuid=False), ForeignKey("goals.id"), nullable=False)
-    objective_id = Column(UUID(as_uuid=False), ForeignKey("objectives.id"), nullable=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id"), nullable=False)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=True)
     resource_type = Column(SQLEnum(StudyResourceType), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)

@@ -14,8 +14,8 @@ class SubjectiveQuestion(Base):
         Index('idx_sq_objective_id', 'objective_id'),
     )
     
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    objective_id = Column(UUID(as_uuid=False), ForeignKey("objectives.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=False)
     question = Column(String, nullable=False)
     #question_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True) #TODO: add vector embedding
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
@@ -33,9 +33,9 @@ class SubjectiveAnswer(Base):
         Index('idx_sa_student_id', 'student_id'),
     )
     
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    question_id = Column(UUID(as_uuid=False), ForeignKey("subjective_questions.id"), nullable=False)
-    student_id = Column(UUID(as_uuid=False), ForeignKey("students.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    question_id = Column(UUID(as_uuid=True), ForeignKey("subjective_questions.id"), nullable=False)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
     
     student_answer = Column(String, nullable=False)
     llm_approval = Column(Boolean, nullable=True, default=None)

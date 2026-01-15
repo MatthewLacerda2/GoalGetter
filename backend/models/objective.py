@@ -15,8 +15,8 @@ class Objective(Base):
         Index('idx_objective_goal_id', 'goal_id'),
     )
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    goal_id = Column(UUID(as_uuid=False), ForeignKey("goals.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id"), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     percentage_completed = Column(Float, nullable=False, default=0)

@@ -15,10 +15,10 @@ class StudentContext(Base):
         Index('idx_student_context_objective_id', 'objective_id'),
     )
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    student_id = Column(UUID(as_uuid=False), ForeignKey("students.id"), nullable=False)
-    goal_id = Column(UUID(as_uuid=False), ForeignKey("goals.id"), nullable=False)
-    objective_id = Column(UUID(as_uuid=False), ForeignKey("objectives.id"), nullable=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
+    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id"), nullable=False)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     is_still_valid = Column(Boolean, nullable=False, default=True)
     source = Column(String, nullable=False)
