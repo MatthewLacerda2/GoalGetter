@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import delete
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from backend.core.database import get_db
 from backend.core.security import create_access_token, verify_google_token, get_current_user
@@ -54,23 +55,17 @@ async def delete_account(
     current_user: Student = Depends(get_current_user)
 ):
     """
-    Delete user account and all associated data
+    Delete user account and all associated data.
+    Database CASCADE will automatically delete related goals and their objectives.
+    Use bulk delete to bypass ORM relationship handling which causes constraint violations.
     """
     try:
-        student_repo = StudentRepository(db)
+        # Use SQLAlchemy's delete statement directly to bypass ORM relationship tracking
+        # This allows the database CASCADE to handle related records without ORM interference
+        stmt = delete(Student).where(Student.id == current_user.id)
+        result = await db.execute(stmt)
         
-        # Clear foreign key references before deletion to avoid constraint issues
-        # Since each goal belongs to only one student, only this student could reference their goals
-        current_user.goal_id = None
-        current_user.goal_name = None
-        current_user.current_objective_id = None
-        current_user.current_objective_name = None
-        await student_repo.update(current_user)
-        await db.flush()
-        
-        success = await student_repo.delete(current_user.id)
-        
-        if not success:
+        if result.rowcount == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         
         await db.commit()
