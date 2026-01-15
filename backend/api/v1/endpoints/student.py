@@ -19,11 +19,11 @@ async def get_student_current_status(
     """Get the current status of the student"""
     
     return StudentCurrentStatusResponse(
-        student_id=current_user.id,
+        student_id=str(current_user.id),
         student_name=current_user.name,
         student_email=current_user.email,
         current_streak=current_user.current_streak,
         overall_xp=current_user.overall_xp,
-        goal_id=current_user.goal_id or None,
+        goal_id=str(current_user.goal_id) if current_user.goal_id else None,
         goal_name=current_user.goal_name or None,
     )

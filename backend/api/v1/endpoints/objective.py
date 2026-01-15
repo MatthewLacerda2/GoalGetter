@@ -4,7 +4,7 @@ from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_db
 from backend.core.security import get_current_user
-from backend.schemas.objective import ObjectiveResponse, ObjectiveListResponse, ObjectiveItem
+from backend.schemas.objective import ObjectiveResponse, ObjectiveListResponse, ObjectiveItem, ObjectiveNote
 from backend.models.student import Student
 from backend.repositories.objective_repository import ObjectiveRepository
 
@@ -23,14 +23,26 @@ async def get_objective(
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id_with_notes(current_user.goal_id)
     
+    # Convert notes from SQLAlchemy objects to Pydantic models with string IDs
+    notes = [
+        ObjectiveNote(
+            id=str(note.id),
+            title=note.title,
+            info=note.info,
+            is_favorited=note.is_favorited,
+            created_at=note.created_at
+        )
+        for note in objective.notes
+    ]
+    
     return ObjectiveResponse(
-        id=objective.id,
+        id=str(objective.id),
         name=objective.name,
         description=objective.description,
         percentage_completed=objective.percentage_completed,
         created_at=objective.created_at,
         last_updated_at=objective.last_updated_at,
-        notes=objective.notes
+        notes=notes
     )
 
 #TODO: test this bad boy
@@ -47,7 +59,7 @@ async def get_objectives_list(
     
     objective_items = [
         ObjectiveItem(
-            id=obj.id,
+            id=str(obj.id),
             name=obj.name,
             description=obj.description,
             percentage_completed=int(obj.percentage_completed),
