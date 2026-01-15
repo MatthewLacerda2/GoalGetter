@@ -1,22 +1,22 @@
 import pytest
+import uuid
 from datetime import datetime
 from sqlalchemy import select
 from backend.models.chat_message import ChatMessage
 from backend.schemas.chat_message import CreateMessageRequestItem
 from backend.schemas.chat_message import ChatMessageResponse, ChatMessageItem, LikeMessageRequest, CreateMessageResponse, CreateMessageRequest, EditMessageRequest
 
-def create_chat_messages(user_id: str):
+def create_chat_messages(user_id):
     """Create a predefined array of chat messages for testing"""
 
-    import uuid
     TEST_NAMESPACE = uuid.UUID('00000000-0000-0000-0000-000000000001')
 
     messages = []
     for i in range(15):
         msg = ChatMessage(
-            id=str(uuid.uuid5(TEST_NAMESPACE, f"Message {i}")),
+            id=uuid.uuid5(TEST_NAMESPACE, f"Message {i}"),
             message=f"Message {i}",
-            sender_id=user_id,
+            sender_id=str(user_id),
             array_id="array1",
             created_at=datetime.now(),
             student_id=user_id
@@ -41,7 +41,7 @@ async def test_get_chat_messages_with_parameters(authenticated_client, test_db, 
     response = await client.get(
         "/api/v1/chat",
         headers={"Authorization": f"Bearer {access_token}"},
-        params={"message_id": chat_messages[1].id, "limit": limit}
+        params={"message_id": str(chat_messages[1].id), "limit": limit}
     )
     
     chat_response = ChatMessageResponse.model_validate(response.json())
@@ -95,7 +95,7 @@ async def test_get_chat_messages_invalid_token(client, mock_google_verify):
     )
     
     assert response.status_code == 401
-    
+
 @pytest.mark.asyncio
 async def test_like_message_unauthorized(client):
     """Test that the chat messages endpoint returns 403 without token."""
@@ -135,7 +135,7 @@ async def test_like_message(authenticated_client, test_db, test_user):
         test_db.add(msg)
     await test_db.commit()
     
-    payload = LikeMessageRequest(message_id=chat_messages[0].id, like=True)
+    payload = LikeMessageRequest(message_id=str(chat_messages[0].id), like=True)
     
     response = await client.patch(
         "/api/v1/chat/likes",
@@ -148,11 +148,11 @@ async def test_like_message(authenticated_client, test_db, test_user):
     assert response.status_code == 200
     assert isinstance(chat_response, ChatMessageItem)
     assert chat_response.is_liked == payload.like
-    assert chat_response.id == chat_messages[0].id
+    assert chat_response.id == str(chat_messages[0].id)
     assert chat_response.sender_id == chat_messages[0].sender_id
     assert chat_response.message == chat_messages[0].message
     assert chat_response.created_at == chat_messages[0].created_at
-    
+
 @pytest.mark.asyncio
 async def test_edit_message(authenticated_client, test_db, test_user):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
@@ -165,7 +165,7 @@ async def test_edit_message(authenticated_client, test_db, test_user):
         test_db.add(msg)
     await test_db.commit()
     
-    payload = EditMessageRequest(message_id=chat_messages[0].id, message="Edited message")
+    payload = EditMessageRequest(message_id=str(chat_messages[0].id), message="Edited message")
     
     response = await client.patch(
         "/api/v1/chat/edit",
@@ -178,7 +178,7 @@ async def test_edit_message(authenticated_client, test_db, test_user):
     assert response.status_code == 200
     assert isinstance(chat_response, ChatMessageItem)
     assert chat_response.is_liked == chat_messages[0].is_liked
-    assert chat_response.id == chat_messages[0].id
+    assert chat_response.id == str(chat_messages[0].id)
     assert chat_response.sender_id == chat_messages[0].sender_id
     assert chat_response.message == payload.message
     assert chat_response.created_at == chat_messages[0].created_at
@@ -222,7 +222,7 @@ async def test_delete_message(authenticated_client, test_db, test_user):
         test_db.add(msg)
     await test_db.commit()
     
-    id_to_delete = chat_messages[0].id
+    id_to_delete = str(chat_messages[0].id)
     
     response = await client.delete(
         f"/api/v1/chat/{id_to_delete}",
@@ -231,12 +231,12 @@ async def test_delete_message(authenticated_client, test_db, test_user):
     
     assert response.status_code == 204
     
-    query = select(ChatMessage).where(ChatMessage.id == id_to_delete)
+    query = select(ChatMessage).where(ChatMessage.id == uuid.UUID(id_to_delete))
     result = await test_db.execute(query)
     message = result.scalars().first()
     
     assert message is None
-    
+
 @pytest.mark.asyncio
 async def test_delete_message_unauthorized(client):
     """Test that the chat messages endpoint returns 403 without token."""
@@ -245,7 +245,7 @@ async def test_delete_message_unauthorized(client):
     )
     
     assert response.status_code == 403
-    
+
 @pytest.mark.asyncio
 async def test_delete_message_not_found(authenticated_client, test_user):
     """Test that the chat messages endpoint returns 404 if the message is not found."""

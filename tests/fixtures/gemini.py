@@ -87,11 +87,11 @@ def mock_gemini_subjective_questions():
 
 @pytest.fixture
 def mock_gemini_messages_generator():
-    """Fixture to mock Gemini chat messages generator responses"""
-    def mock_gemini_messages_generator(*args, **kwargs):
-        from backend.services.gemini.chat.schema import GeminiChatResponse
+    """Fixture to mock Ollama chat messages generator responses"""
+    def mock_ollama_messages_generator(*args, **kwargs):
+        from backend.services.ollama.chat.schema import OllamaChatResponse
         
-        return GeminiChatResponse(
+        return OllamaChatResponse(
             messages=[
                 "I can help you understand those SQLAlchemy concepts!",
                 "Flush forces pending changes to be sent to the database immediately.",
@@ -100,7 +100,7 @@ def mock_gemini_messages_generator():
             ]
         )
     
-    with patch('backend.api.v1.endpoints.chat.gemini_messages_generator', side_effect=mock_gemini_messages_generator) as mock:
+    with patch('backend.services.chat.chat_service.ollama_messages_generator', side_effect=mock_ollama_messages_generator) as mock:
         yield mock
 
 @pytest.fixture
