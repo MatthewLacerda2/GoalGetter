@@ -52,13 +52,11 @@ You will need a Gemini API Key. You can get it in a free tier at [Google AI Stud
 
 Copy example.env into a .env and replace the API key.
 
-`docker-compose up -d`
-These won't spin the backend, frontend and tunnel. That'd be `docker-compose --profile prod up -d`
-I trust you'll stop the Cloudflare Tunnel image and not steal my life's work.
+`docker-compose --profile dev up -d`
 
-To start the:
-backend: `uvicorn backend.main:app --reload`
-frontend: `flutter run -d chrome --web-port=8080`
+Use Python 3.12.10 to create your venv and then run the migrations. Then:
+Backend: `uvicorn backend.main:app --reload`
+Frontend: `flutter run -d chrome --web-port=8080`
 
 Whenever you change the api, you can get the .json specs at [swagger-ui](http://127.0.0.1:8000/openapi.docs)
 
