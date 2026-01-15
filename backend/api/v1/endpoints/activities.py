@@ -15,7 +15,7 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.repositories.multiple_choice_question_repository import MultipleChoiceQuestionRepository
 from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.schemas.activity import MultipleChoiceActivityResponse, MultipleChoiceActivityEvaluationResponse
-from backend.schemas.activity import MultipleChoiceActivityEvaluationRequest
+from backend.schemas.activity import MultipleChoiceActivityEvaluationRequest, MultipleChoiceQuestionResponse
 from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
 from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
 
@@ -91,7 +91,16 @@ async def take_multiple_choice_activity(
     )
     
     if len(multiple_choice_question_results) >= NUM_QUESTIONS_PER_LESSON:
-        return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
+        question_responses = [
+            MultipleChoiceQuestionResponse(
+                id=str(q.id),
+                question=q.question,
+                choices=q.choices,
+                correct_answer_index=q.correct_answer_index
+            )
+            for q in multiple_choice_question_results
+        ]
+        return MultipleChoiceActivityResponse(questions=question_responses)
     
     # Questions not ready - create them synchronously
     await create_lesson_questions_async(
@@ -106,7 +115,16 @@ async def take_multiple_choice_activity(
         objective.id, current_user.id, NUM_QUESTIONS_PER_LESSON
     )
     
-    return MultipleChoiceActivityResponse(questions=multiple_choice_question_results)
+    question_responses = [
+        MultipleChoiceQuestionResponse(
+            id=str(q.id),
+            question=q.question,
+            choices=q.choices,
+            correct_answer_index=q.correct_answer_index
+        )
+        for q in multiple_choice_question_results
+    ]
+    return MultipleChoiceActivityResponse(questions=question_responses)
 
 @router.post("/evaluate", response_model=MultipleChoiceActivityEvaluationResponse, status_code=status.HTTP_201_CREATED)
 async def take_multiple_choice_activity(
