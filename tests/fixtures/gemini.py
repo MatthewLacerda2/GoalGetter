@@ -36,9 +36,8 @@ def mock_gemini_embeddings():
     def mock_get_gemini_embeddings(text):
         return np.zeros(3072, dtype=np.float32)
 
-    with patch('backend.utils.gemini.gemini_configs.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock1, \
-         patch('backend.api.v1.endpoints.assessments.subjective_question_evaluation', side_effect=mock_get_gemini_embeddings) as mock2:
-        yield mock1, mock2
+    with patch('backend.utils.gemini.gemini_configs.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
+        yield mock
 
 @pytest.fixture
 def mock_gemini_multiple_choice_questions():
@@ -67,22 +66,6 @@ def mock_gemini_multiple_choice_questions():
         )
     
     with patch('backend.api.v1.endpoints.activities.gemini_generate_multiple_choice_questions', side_effect=mock_generate_multiple_choice_questions) as mock:
-        yield mock
-
-@pytest.fixture
-def mock_gemini_subjective_questions():
-    """Fixture to mock Gemini subjective questions responses"""
-    def mock_generate_subjective_questions(*args, **kwargs):
-        from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
-        from backend.services.gemini.assessment.assessment import GeminiEvaluationQuestionsResponse
-        
-        questions = [f"Question {i+1}" for i in range(NUM_QUESTIONS_PER_EVALUATION)]
-        
-        return GeminiEvaluationQuestionsResponse(
-            questions=questions,
-            ai_model="gemini-2.5-flash"
-        )
-    with patch('backend.services.gemini.assessment.assessment.gemini_generate_subjective_questions', side_effect=mock_generate_subjective_questions) as mock:
         yield mock
 
 @pytest.fixture
@@ -139,24 +122,6 @@ def mock_gemini_follow_up_validation():
         yield mock
 
 @pytest.fixture
-def mock_gemini_single_question_review():
-    """Fixture to mock Gemini single question review responses"""
-    def mock_gemini_generate_question_review(*args, **kwargs):
-        from backend.services.gemini.assessment.single_question.schema import GeminiSingleQuestionReview
-        
-        return GeminiSingleQuestionReview(
-            approval=True,
-            evaluation="The answer demonstrates a good understanding of diffusion models, though it could be more precise about the iterative denoising process.",
-            metacognition="The student shows conceptual understanding but may benefit from more technical detail about the diffusion process."
-        )
-    
-    with patch(
-        'backend.services.gemini.assessment.single_question.single_question.gemini_generate_question_review',
-        side_effect=mock_gemini_generate_question_review,
-    ) as mock:
-        yield mock
-
-@pytest.fixture
 def mock_subjective_question_repository():
     """Fixture to mock SubjectiveQuestionRepository.get_by_id"""
     from backend.models.subjective_question import SubjectiveQuestion
@@ -177,25 +142,5 @@ def mock_subjective_question_repository():
     with patch(
         'backend.repositories.subjective_question_repository.SubjectiveQuestionRepository.get_by_id',
         side_effect=mock_get_by_id,
-    ) as mock:
-        yield mock
-
-@pytest.fixture
-def mock_gemini_overall_evaluation_review():
-    """Fixture to mock Gemini overall evaluation review responses"""
-    def mock_gemini_subjective_evaluation_review(*args, **kwargs):
-        from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReviewResponse
-        
-        return GeminiSubjectiveEvaluationReviewResponse(
-            evaluation="The student demonstrates good understanding of the concepts with clear explanations and practical examples.",
-            information="The answers show comprehensive knowledge of the subject matter with accurate technical details.",
-            metacognition="The student appears to have a solid grasp of the material and can apply concepts effectively.",
-            approval=True,
-            ai_model="gemini-2.5-flash"
-        )
-    
-    with patch(
-        'backend.services.gemini.assessment.overall_evaluation.overall_evaluation.gemini_subjective_evaluation_review',
-        side_effect=mock_gemini_subjective_evaluation_review,
     ) as mock:
         yield mock

@@ -33,12 +33,3 @@ def mock_create_lesson_questions_async(monkeypatch):
         pass
     
     monkeypatch.setattr(activities, 'create_lesson_questions_async', mock_create_lesson_questions_async)
-
-@pytest.fixture(autouse=True)
-def mock_save_evaluation_data(monkeypatch):
-    """Mock save_evaluation_data background task to prevent it from running in tests"""
-    async def mock_save_evaluation_data(*args, **kwargs):
-        pass
-    
-    from backend.api.v1.endpoints import assessments
-    monkeypatch.setattr(assessments, 'save_evaluation_data', mock_save_evaluation_data)

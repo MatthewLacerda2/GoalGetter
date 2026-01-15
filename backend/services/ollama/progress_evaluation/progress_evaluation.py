@@ -75,7 +75,7 @@ def ollama_progress_evaluation(
 
 
 # You can call this test with
-# python -m backend.services.ollama.assessment.progress_evaluation.progress_evaluation
+# python -m backend.services.ollama.progress_evaluation.progress_evaluation
 if __name__ == "__main__":
     from datetime import datetime, timezone
 
