@@ -8,6 +8,9 @@ from backend.core.security import get_current_user
 from backend.models.student import Student
 from backend.models.goal import Goal
 from backend.models.objective import Objective
+from backend.models.player_achievement import PlayerAchievement
+from backend.models.resource import Resource
+from backend.models.student_context import StudentContext
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.student_repository import StudentRepository
@@ -62,7 +65,7 @@ async def list_goals(
     # Add goals with objectives (already sorted)
     for goal, _ in goals_with_updates:
         goals_list.append(GoalListItem(
-            id=goal.id,
+            id=str(goal.id),
             name=goal.name or "",
             description=goal.description or "",
             created_at=goal.created_at
@@ -71,7 +74,7 @@ async def list_goals(
     # Add goals without objectives (sorted by created_at DESC)
     for goal in sorted(goals_without_objectives, key=lambda g: g.created_at, reverse=True):
         goals_list.append(GoalListItem(
-            id=goal.id,
+            id=str(goal.id),
             name=goal.name or "",
             description=goal.description or "",
             created_at=goal.created_at
@@ -131,12 +134,12 @@ async def set_active_goal(
     await db.refresh(current_user)
     
     return StudentCurrentStatusResponse(
-        student_id=current_user.id,
+        student_id=str(current_user.id),
         student_name=current_user.name,
         student_email=current_user.email,
         current_streak=current_user.current_streak,
         overall_xp=current_user.overall_xp,
-        goal_id=current_user.goal_id,
+        goal_id=str(current_user.goal_id) if current_user.goal_id else None,
         goal_name=current_user.goal_name,
     )
 
@@ -172,7 +175,7 @@ async def delete_goal(
     # Check if this goal is the current_user's active goal
     # Since each goal belongs to only one student, only current_user could have it as active
     student_repo = StudentRepository(db)
-    is_active_goal = current_user.goal_id == goal_id
+    is_active_goal = current_user.goal_id == goal.id
     
     if is_active_goal:
         # Find the most recently updated objective for this student
@@ -209,7 +212,38 @@ async def delete_goal(
         await student_repo.update(current_user)
         await db.flush()  # Flush to ensure foreign key constraint is satisfied
     
-    # Delete the goal using the repository (objectives will be cascade deleted)
+    # Delete related records before deleting the goal
+    # Delete player achievements
+    player_achievements_stmt = select(PlayerAchievement).where(PlayerAchievement.goal_id == goal_id)
+    player_achievements_result = await db.execute(player_achievements_stmt)
+    player_achievements = player_achievements_result.scalars().all()
+    for pa in player_achievements:
+        await db.delete(pa)
+    
+    # Delete resources
+    resources_stmt = select(Resource).where(Resource.goal_id == goal_id)
+    resources_result = await db.execute(resources_stmt)
+    resources = resources_result.scalars().all()
+    for resource in resources:
+        await db.delete(resource)
+    
+    # Delete student contexts
+    student_contexts_stmt = select(StudentContext).where(StudentContext.goal_id == goal_id)
+    student_contexts_result = await db.execute(student_contexts_stmt)
+    student_contexts = student_contexts_result.scalars().all()
+    for sc in student_contexts:
+        await db.delete(sc)
+    
+    # Delete objectives
+    objectives_stmt = select(Objective).where(Objective.goal_id == goal_id)
+    objectives_result = await db.execute(objectives_stmt)
+    objectives = objectives_result.scalars().all()
+    for objective in objectives:
+        await db.delete(objective)
+    
+    await db.flush()
+    
+    # Delete the goal using the repository
     await goal_repo.delete(goal_id)
     await db.commit()
     

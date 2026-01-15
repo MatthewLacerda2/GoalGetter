@@ -10,7 +10,7 @@ from backend.repositories.student_repository import StudentRepository
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, get_follow_up_validation, isGoalValidated, isFollowUpValidated
-from backend.schemas.student import TokenResponse
+from backend.schemas.student import TokenResponse, StudentResponse
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.services.account_creation_tasks import account_creation_tasks
@@ -146,12 +146,18 @@ async def generate_full_creation(
                     logger = logging.getLogger(__name__)
                     logger.error(f"Error in background account creation tasks: {e}", exc_info=True)
         
-        # Fire and forget - don't await to avoid blocking the response
         asyncio.create_task(run_account_creation_tasks())
+        
+        student_response = StudentResponse(
+            id=str(user.id),
+            google_id=user.google_id,
+            email=user.email,
+            name=user.name
+        )
         
         return TokenResponse(
             access_token=access_token,
-            student=user
+            student=student_response
         )
         
     except HTTPException:

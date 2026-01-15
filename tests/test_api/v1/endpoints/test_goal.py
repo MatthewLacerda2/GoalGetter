@@ -52,7 +52,7 @@ async def test_list_goals_success(authenticated_client_with_objective, test_db):
     # Check that goals are ordered by latest objective update (most recent first)
     if len(validated_response.goals) >= 2:
         # The goal with the most recently updated objective should be first
-        assert validated_response.goals[0].id == goal2.id
+        assert validated_response.goals[0].id == str(goal2.id)
 
 
 @pytest.mark.asyncio
@@ -92,7 +92,7 @@ async def test_set_active_goal_success(authenticated_client_with_objective, test
     
     assert response.status_code == 200
     response_data = response.json()
-    assert response_data["goal_id"] == goal2.id
+    assert response_data["goal_id"] == str(goal2.id)
     assert response_data["goal_name"] == goal2.name
     
     # Verify student's active goal was updated

@@ -20,7 +20,7 @@ class MultipleChoiceQuestion(Base):
     )
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=False)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False)
     question = Column(String, nullable=False)
     
     option_a = Column(String, nullable=False)
@@ -51,8 +51,8 @@ class MultipleChoiceAnswer(Base):
     )
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    question_id = Column(UUID(as_uuid=True), ForeignKey("multiple_choice_questions.id"), nullable=False)
-    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
+    question_id = Column(UUID(as_uuid=True), ForeignKey("multiple_choice_questions.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
     
     student_answer_index = Column(Integer, nullable=False)
     seconds_spent = Column(Integer, nullable=True, default=None)

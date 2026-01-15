@@ -28,16 +28,30 @@ TestingSessionLocal = sessionmaker(
     autoflush=False,
 )
 
+async def drop_all_tables(conn):
+    """Drop all tables using raw SQL to handle circular dependencies"""
+    # Get all table names from metadata
+    table_names = [table.name for table in Base.metadata.tables.values()]
+    
+    if table_names:
+        # Drop all tables with CASCADE to handle foreign key dependencies
+        # This avoids circular dependency errors
+        drop_statements = ', '.join([f'"{name}"' for name in table_names])
+        await conn.execute(text(f'DROP TABLE IF EXISTS {drop_statements} CASCADE'))
+
 @pytest_asyncio.fixture(scope="session")
 async def setup_test_db():
     """Create tables once at session start, drop at end"""
     async with test_engine.begin() as conn:
-        # Enable pgvector extension (required for VECTOR columns)
         await conn.execute(text('CREATE EXTENSION IF NOT EXISTS vector'))
+        # Drop all tables first to ensure fresh schema (using CASCADE to handle circular deps)
+        await drop_all_tables(conn)
+        # Create all tables with current schema
         await conn.run_sync(Base.metadata.create_all)
     yield
     async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        # Drop all tables at end
+        await drop_all_tables(conn)
 
 @pytest_asyncio.fixture
 async def test_db(setup_test_db):

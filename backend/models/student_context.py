@@ -16,9 +16,9 @@ class StudentContext(Base):
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
-    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id"), nullable=False)
-    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=True)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     is_still_valid = Column(Boolean, nullable=False, default=True)
     source = Column(String, nullable=False)

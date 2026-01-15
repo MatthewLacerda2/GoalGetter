@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from backend.core.database import get_db
 from backend.core.security import create_access_token, verify_google_token, get_current_user
 from backend.models.student import Student
-from backend.schemas.student import OAuth2Request, TokenResponse
+from backend.schemas.student import OAuth2Request, TokenResponse, StudentResponse
 from backend.repositories.student_repository import StudentRepository
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,16 @@ async def login(
     
     await db.commit()
     
+    student_response = StudentResponse(
+        id=str(updated_user.id),
+        google_id=updated_user.google_id,
+        email=updated_user.email,
+        name=updated_user.name
+    )
+    
     return TokenResponse(
         access_token=access_token,
-        student=updated_user
+        student=student_response
     )
 
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Index
+from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Index, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from backend.models.base import Base
 from datetime import datetime
@@ -11,12 +11,13 @@ class PlayerAchievement(Base):
         Index('idx_player_achievement_student_id', 'student_id'),
         Index('idx_player_achievement_achievement_id', 'achievement_id'),
         Index('idx_player_achievement_goal_id', 'goal_id'),
+        UniqueConstraint('student_id', 'achievement_id', 'goal_id', name='uq_student_achievement_goal'),
     )
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
     achievement_id = Column(UUID(as_uuid=True), ForeignKey("achievements.id"), nullable=False)
-    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id"), nullable=False)
+    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)
     is_student_achievement = Column(Boolean, nullable=False, default=False)
     achieved_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
 

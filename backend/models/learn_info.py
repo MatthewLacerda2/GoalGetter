@@ -14,7 +14,7 @@ class LearnInfo(Base):
     )
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=False)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
     theme = Column(String, nullable=False)
     content = Column(String, nullable=False)

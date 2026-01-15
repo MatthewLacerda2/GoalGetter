@@ -21,8 +21,8 @@ class Resource(Base):
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id"), nullable=False)
-    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=True)
+    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id", ondelete="SET NULL"), nullable=True)
     resource_type = Column(SQLEnum(StudyResourceType), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)

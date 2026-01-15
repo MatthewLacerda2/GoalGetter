@@ -14,7 +14,7 @@ class ObjectiveNote(Base):
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id"), nullable=False)
+    objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
     info = Column(String, nullable=False)
     info_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
