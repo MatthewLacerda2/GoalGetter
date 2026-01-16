@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies (cached unless changed)
 RUN apt-get update && apt-get install -y \
     gcc \
+    libpq-dev \
     postgresql-client \
     curl \
     && rm -rf /var/lib/apt/lists/*
