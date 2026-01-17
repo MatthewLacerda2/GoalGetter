@@ -15,10 +15,8 @@ terraform/
 **/.dart_tool/
 **/.flutter-plugins
 **/.flutter-plugins-dependencies
-**/.packages
 **/.pub/
 **/.pub-preload-cache/
-**/pubspec.lock
 
 # IDE and editor files
 **/.idea/
