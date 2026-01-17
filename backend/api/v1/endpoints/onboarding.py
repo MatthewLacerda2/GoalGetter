@@ -85,9 +85,12 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(goal)
         
+        # Store goal ID immediately after refresh to avoid async issues
+        goal_id = goal.id
+        
         # Create objective
         objective = Objective(
-            goal_id=goal.id,
+            goal_id=goal_id,
             name=request.first_objective_name,
             description=request.first_objective_description,
             ai_model="gemini-2.5-flash"
@@ -97,11 +100,15 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(objective)
         
+        # Store objective ID immediately after refresh to avoid async issues
+        objective_id = objective.id
+        
         # Update student's active goal and objective
-        user.goal_id = goal.id
-        user.goal_name = goal.name or ""
-        user.current_objective_id = objective.id
-        user.current_objective_name = objective.name
+        # Use request values directly to avoid any async ORM attribute access issues
+        user.goal_id = goal_id
+        user.goal_name = request.goal_name
+        user.current_objective_id = objective_id
+        user.current_objective_name = request.first_objective_name
         
         await student_repo.update(user)
         
