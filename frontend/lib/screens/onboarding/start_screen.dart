@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:openapi/api.dart';
 
-import '../../config/app_config.dart';
 import '../../services/auth_service.dart';
-import '../../utils/settings_storage.dart';
-import '../goal_selection_screen.dart';
 import 'goal_prompt_screen.dart';
 
 class StartScreen extends StatefulWidget {
@@ -33,72 +29,12 @@ class _StartScreenState extends State<StartScreen> {
         return;
       }
 
-      // Try to get access token first (if user has completed onboarding)
-      final accessToken = await _authService.getStoredAccessToken();
-      String? authToken = accessToken ?? googleToken;
-
-      // Call /goals endpoint to check goals count using OpenAPI SDK
-      try {
-        final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-        apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
-
-        final goalsApi = GoalsApi(apiClient);
-        final goalsResponse = await goalsApi.listGoalsApiV1GoalsGet();
-
-        if (goalsResponse != null) {
-          final goals = goalsResponse.goals;
-
-          if (goals.isEmpty) {
-            // 0 goals: navigate to goal prompt screen
-            if (mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => const GoalPromptScreen(),
-                ),
-              );
-            }
-          } else if (goals.length == 1) {
-            // 1 goal: store goal ID and navigate
-            final goal = goals[0];
-            await SettingsStorage.setCurrentGoalId(goal.id);
-
-            // If user has access token, they've completed onboarding
-            // Navigate to main screen via restarting app state
-            // For now, just navigate to goal prompt - AuthWrapper will handle showing main if user has access token
-            // Actually, we can't easily restart AuthWrapper, so we'll let it handle on next app load
-            // For now, go to goal prompt - if they have access token, AuthWrapper should show main on app restart
-            if (mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => const GoalPromptScreen(),
-                ),
-              );
-            }
-          } else {
-            // 2+ goals: navigate to goal selection screen
-            if (mounted) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => const GoalSelectionScreen(),
-                ),
-              );
-            }
-          }
-        } else {
-          // No response - go to goal prompt screen
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
-            );
-          }
-        }
-      } catch (e) {
-        // On error checking goals, go to goal prompt screen
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
-          );
-        }
+      // Navigate directly to goal prompt screen
+      // TODO: Re-enable goals API check once client_sdk files are properly indexed
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+        );
       }
     } catch (e) {
       // On error, go to goal prompt screen
