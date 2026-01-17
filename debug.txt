@@ -1,0 +1,63 @@
+INFO:     127.0.0.1:64363 - "OPTIONS /api/v1/onboarding/full_creation HTTP/1.1" 200 OK
+2026-01-17 19:21:49,027 - INFO - backend.core.security - Verifying Google token (length: 338)
+2026-01-17 19:21:49,888 - ERROR - backend.api.v1.endpoints.onboarding - Error in generate_full_creation: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+Traceback (most recent call last):
+  File "C:\Users\USER\Desktop\repos\GoalGetter\backend\api\v1\endpoints\onboarding.py", line 101, in generate_full_creation
+    user.goal_id = goal.id
+                   ^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 566, in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1086, in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1116, in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\state.py", line 803, in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 1670, in load_scalar_attributes
+    result = load_on_ident(
+             ^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\orm\context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1415, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 523, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1637, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1982, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2354, in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 580, in execute
+    self._adapt_connection.await_(
+  File "C:\Users\USER\Desktop\repos\GoalGetter\venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 123, in await_only
+    raise exc.MissingGreenlet(
+sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+2026-01-17 19:21:50,193 - ERROR - backend.core.logging_middleware - Error Body: [Binary or Undecodable Error Body]
+2026-01-17 19:21:50,195 - INFO - backend.core.logging_middleware - IP: 127.0.0.1 | POST /api/v1/onboarding/full_creation | Status: 500
+INFO:     127.0.0.1:57038 - "POST /api/v1/onboarding/full_creation HTTP/1.1" 500 Internal Server Error
