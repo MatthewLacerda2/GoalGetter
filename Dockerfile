@@ -7,12 +7,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     xz-utils \
     zip \
-    libgtk-3-dev \
     liblzma-dev \
-    chromium \
-    clang \
-    cmake \
-    ninja-build \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
@@ -52,7 +47,7 @@ ARG BASE_URL
 ENV BASE_URL=${BASE_URL}
 
 # Build the app (rebuilds when code changes)
-RUN flutter build web --release --dart-define=BASE_URL=${BASE_URL}
+RUN flutter build web --release --web-renderer html --dart-define=BASE_URL=${BASE_URL}
 
 FROM nginx:alpine
 

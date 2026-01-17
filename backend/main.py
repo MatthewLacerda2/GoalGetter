@@ -37,6 +37,7 @@ app = FastAPI(
     title="GoalGetter API",
     description="API for the GoalGetter app",
     version="1.0.0",
+    openapi_url="/api/v1/openapi.json",
     docs_url="/api/v1/docs",  # Move docs to /api/v1/docs
     redoc_url="/api/v1/redoc",  # Move redoc to /api/v1/redoc
     lifespan=lifespan
