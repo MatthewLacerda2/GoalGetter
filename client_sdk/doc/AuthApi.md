@@ -18,7 +18,7 @@ Method | HTTP request | Description
 
 Delete Account
 
-Delete user account and all associated data
+Delete user account and all associated data. Database CASCADE will automatically delete related goals and their objectives. Use bulk delete to bypass ORM relationship handling which causes constraint violations.
 
 ### Example
 ```dart

@@ -65,9 +65,6 @@ Class | Method | HTTP request | Description
 *AchievementsApi* | [**getXpByDaysApiV1AchievementsXpByDaysGet**](doc//AchievementsApi.md#getxpbydaysapiv1achievementsxpbydaysget) | **GET** /api/v1/achievements/xp_by_days | Get Xp By Days
 *ActivitiesApi* | [**takeMultipleChoiceActivityApiV1ActivitiesEvaluatePost**](doc//ActivitiesApi.md#takemultiplechoiceactivityapiv1activitiesevaluatepost) | **POST** /api/v1/activities/evaluate | Take Multiple Choice Activity
 *ActivitiesApi* | [**takeMultipleChoiceActivityApiV1ActivitiesPost**](doc//ActivitiesApi.md#takemultiplechoiceactivityapiv1activitiespost) | **POST** /api/v1/activities | Take Multiple Choice Activity
-*AssessmentsApi* | [**subjectiveQuestionEvaluationApiV1AssessmentsEvaluateSingleQuestionPost**](doc//AssessmentsApi.md#subjectivequestionevaluationapiv1assessmentsevaluatesinglequestionpost) | **POST** /api/v1/assessments/evaluate/single_question | Subjective Question Evaluation
-*AssessmentsApi* | [**subjectiveQuestionsOverallEvaluationApiV1AssessmentsEvaluateOverallPost**](doc//AssessmentsApi.md#subjectivequestionsoverallevaluationapiv1assessmentsevaluateoverallpost) | **POST** /api/v1/assessments/evaluate/overall | Subjective Questions Overall Evaluation
-*AssessmentsApi* | [**takeSubjectiveQuestionsAssessmentApiV1AssessmentsPost**](doc//AssessmentsApi.md#takesubjectivequestionsassessmentapiv1assessmentspost) | **POST** /api/v1/assessments | Take Subjective Questions Assessment
 *AuthApi* | [**deleteAccountApiV1AuthAccountDelete**](doc//AuthApi.md#deleteaccountapiv1authaccountdelete) | **DELETE** /api/v1/auth/account | Delete Account
 *AuthApi* | [**loginApiV1AuthLoginPost**](doc//AuthApi.md#loginapiv1authloginpost) | **POST** /api/v1/auth/login | Login
 *ChatApi* | [**createMessageApiV1ChatPost**](doc//ChatApi.md#createmessageapiv1chatpost) | **POST** /api/v1/chat | Create Message
@@ -131,12 +128,6 @@ Class | Method | HTTP request | Description
  - [StudentCurrentStatusResponse](doc//StudentCurrentStatusResponse.md)
  - [StudentResponse](doc//StudentResponse.md)
  - [StudyResourceType](doc//StudyResourceType.md)
- - [SubjectiveQuestionEvaluationRequest](doc//SubjectiveQuestionEvaluationRequest.md)
- - [SubjectiveQuestionEvaluationResponse](doc//SubjectiveQuestionEvaluationResponse.md)
- - [SubjectiveQuestionSchema](doc//SubjectiveQuestionSchema.md)
- - [SubjectiveQuestionsAssessmentEvaluationRequest](doc//SubjectiveQuestionsAssessmentEvaluationRequest.md)
- - [SubjectiveQuestionsAssessmentEvaluationResponse](doc//SubjectiveQuestionsAssessmentEvaluationResponse.md)
- - [SubjectiveQuestionsAssessmentResponse](doc//SubjectiveQuestionsAssessmentResponse.md)
  - [TimePeriodStreak](doc//TimePeriodStreak.md)
  - [TokenResponse](doc//TokenResponse.md)
  - [ValidationError](doc//ValidationError.md)

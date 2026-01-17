@@ -18,7 +18,7 @@ class AuthApi {
 
   /// Delete Account
   ///
-  /// Delete user account and all associated data
+  /// Delete user account and all associated data. Database CASCADE will automatically delete related goals and their objectives. Use bulk delete to bypass ORM relationship handling which causes constraint violations.
   ///
   /// Note: This method returns the HTTP [Response].
   Future<Response> deleteAccountApiV1AuthAccountDeleteWithHttpInfo() async {
@@ -48,7 +48,7 @@ class AuthApi {
 
   /// Delete Account
   ///
-  /// Delete user account and all associated data
+  /// Delete user account and all associated data. Database CASCADE will automatically delete related goals and their objectives. Use bulk delete to bypass ORM relationship handling which causes constraint violations.
   Future<void> deleteAccountApiV1AuthAccountDelete() async {
     final response = await deleteAccountApiV1AuthAccountDeleteWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {

@@ -256,18 +256,6 @@ class ApiClient {
           return StudentResponse.fromJson(value);
         case 'StudyResourceType':
           return StudyResourceTypeTypeTransformer().decode(value);
-        case 'SubjectiveQuestionEvaluationRequest':
-          return SubjectiveQuestionEvaluationRequest.fromJson(value);
-        case 'SubjectiveQuestionEvaluationResponse':
-          return SubjectiveQuestionEvaluationResponse.fromJson(value);
-        case 'SubjectiveQuestionSchema':
-          return SubjectiveQuestionSchema.fromJson(value);
-        case 'SubjectiveQuestionsAssessmentEvaluationRequest':
-          return SubjectiveQuestionsAssessmentEvaluationRequest.fromJson(value);
-        case 'SubjectiveQuestionsAssessmentEvaluationResponse':
-          return SubjectiveQuestionsAssessmentEvaluationResponse.fromJson(value);
-        case 'SubjectiveQuestionsAssessmentResponse':
-          return SubjectiveQuestionsAssessmentResponse.fromJson(value);
         case 'TimePeriodStreak':
           return TimePeriodStreak.fromJson(value);
         case 'TokenResponse':
