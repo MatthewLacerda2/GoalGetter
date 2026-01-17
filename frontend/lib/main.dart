@@ -198,7 +198,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late int _selectedIndex;
   bool _showResourcesTab = false;
-  bool _isLoadingResources = false;
   final AuthService _authService = AuthService();
 
   @override
@@ -225,7 +224,6 @@ class _MyHomePageState extends State<MyHomePage> {
       final accessToken = await _authService.getStoredAccessToken();
       if (accessToken == null) {
         setState(() {
-          _isLoadingResources = false;
           _showResourcesTab = false;
         });
         await SettingsStorage.setHasResources(false);
@@ -242,7 +240,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (studentResponse == null) {
         setState(() {
-          _isLoadingResources = false;
           _showResourcesTab = false;
         });
         await SettingsStorage.setHasResources(false);
@@ -261,7 +258,6 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           final previousShowResources = _showResourcesTab;
           _showResourcesTab = hasResources;
-          _isLoadingResources = false;
 
           // Adjust selected index if resources tab visibility changed
           if (previousShowResources != hasResources) {
@@ -290,7 +286,6 @@ class _MyHomePageState extends State<MyHomePage> {
       if (mounted) {
         setState(() {
           _showResourcesTab = false;
-          _isLoadingResources = false;
         });
         await SettingsStorage.setHasResources(false);
       }
