@@ -98,6 +98,9 @@ class AuthService {
 
     try {
       developer.log('Starting Google Sign-In for web...');
+      // Sign out first to ensure we get a fresh ID token
+      await _googleSignIn.signOut();
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -117,22 +120,26 @@ class AuthService {
       );
 
       final String? idToken = googleAuth.idToken;
+      final String? accessToken = googleAuth.accessToken;
+
+      // Use ID token if available, otherwise fall back to access token
+      // Backend now supports both ID tokens and access tokens
+      final String? tokenToUse = idToken ?? accessToken;
+
+      if (tokenToUse == null) {
+        developer.log('Both ID token and access token are null');
+        throw Exception(
+          'Failed to get token from Google. Please try signing in again.',
+        );
+      }
 
       if (idToken == null) {
-        // For web, if ID token is null, try using access token
-        final String? accessToken = googleAuth.accessToken;
-        if (accessToken == null) {
-          throw Exception('Failed to get any token from Google');
-        }
-
-        // Store access token temporarily and persistently
-        _tempGoogleToken = accessToken;
-        await storeGoogleToken(accessToken);
-      } else {
-        // Store ID token temporarily and persistently
-        _tempGoogleToken = idToken;
-        await storeGoogleToken(idToken);
+        developer.log('ID Token is null, using access token instead');
       }
+
+      // Store token temporarily and persistently
+      _tempGoogleToken = tokenToUse;
+      await storeGoogleToken(tokenToUse);
 
       _tempUserInfo = {
         'sub': googleUser.id,
@@ -142,7 +149,7 @@ class AuthService {
       };
 
       developer.log('Successfully authenticated user: ${googleUser.email}');
-      return {'token': _tempGoogleToken, 'user': _tempUserInfo};
+      return {'token': tokenToUse, 'user': _tempUserInfo};
     } catch (error) {
       developer.log('Error signing in to your app with Google: $error');
       rethrow;
