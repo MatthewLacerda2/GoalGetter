@@ -185,6 +185,7 @@ app.*.symbols
 
 # Project-specific
 auxpy.py
+debug.txt
 
 # Terraform
 terraform.tfvars
