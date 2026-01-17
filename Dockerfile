@@ -1,4 +1,3 @@
-# Stage 1: Flutter base with dependencies (cached layer)
 FROM debian:bullseye-slim AS flutter-base
 
 RUN apt-get update && apt-get install -y \
@@ -16,7 +15,7 @@ ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
 
 # Install Flutter (this layer will be cached unless Flutter version changes)
-RUN git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_HOME \
+RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 $FLUTTER_HOME \
     && cd $FLUTTER_HOME \
     && flutter config --enable-web \
     && flutter precache --web
@@ -42,12 +41,10 @@ COPY client_sdk/ ./client_sdk/
 
 WORKDIR /app/frontend
 
-# Accept BASE_URL as build argument
 ARG BASE_URL
 ENV BASE_URL=${BASE_URL}
 
-# Build the app (rebuilds when code changes)
-RUN flutter build web --release --web-renderer html --dart-define=BASE_URL=${BASE_URL}
+RUN flutter build web --release --dart-define=BASE_URL=${BASE_URL}
 
 FROM nginx:alpine
 
@@ -60,7 +57,5 @@ COPY --from=builder /app/frontend/build/web /usr/share/nginx/html
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
