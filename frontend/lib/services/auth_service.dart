@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../config/app_config.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -12,10 +16,11 @@ class AuthService {
   static const String _tokenKey = 'access_token';
   static const String _userInfoKey = 'user_info';
   static const String _googleTokenKey = 'google_token';
-  
+
   // Web-specific configuration
-  static const String _webClientId = "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com";
-  
+  static const String _webClientId =
+      "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com";
+
   GoogleSignIn get _googleSignIn {
     if (kIsWeb) {
       // For web, use the web client ID with openid scope to get ID token
@@ -42,22 +47,26 @@ class AuthService {
     try {
       developer.log('Starting Google Sign-In...');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+
       if (googleUser == null) {
         developer.log('User cancelled sign-in');
         return null; // User cancelled the sign-in
       }
 
       developer.log('Google user: ${googleUser.email}');
-      final GoogleSignInAuthentication googleAuth = 
+      final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      developer.log('ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}');
-      developer.log('Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}');
+      developer.log(
+        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
+      );
+      developer.log(
+        'Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}',
+      );
       developer.log('Full auth object: $googleAuth');
 
       final String? idToken = googleAuth.idToken;
-      
+
       if (idToken == null) {
         developer.log('ID Token is null, throwing exception');
         throw Exception('Failed to get ID token from Google');
@@ -65,7 +74,7 @@ class AuthService {
 
       // Store temporarily in memory only (not persisted)
       _tempGoogleToken = idToken;
-      
+
       _tempUserInfo = {
         'sub': googleUser.id,
         'email': googleUser.email,
@@ -74,10 +83,7 @@ class AuthService {
       };
 
       developer.log('Successfully authenticated user: ${googleUser.email}');
-      return {
-        'token': idToken,
-        'user': _tempUserInfo,
-      };
+      return {'token': idToken, 'user': _tempUserInfo};
     } catch (error) {
       developer.log('Error signing in to your app with Google: $error');
       rethrow;
@@ -89,32 +95,36 @@ class AuthService {
     if (!kIsWeb) {
       throw Exception('This method is only for web');
     }
-    
+
     try {
       developer.log('Starting Google Sign-In for web...');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+
       if (googleUser == null) {
         developer.log('User cancelled sign-in');
         return null;
       }
 
       developer.log('Google user: ${googleUser.email}');
-      final GoogleSignInAuthentication googleAuth = 
+      final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      developer.log('ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}');
-      developer.log('Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}');
+      developer.log(
+        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
+      );
+      developer.log(
+        'Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}',
+      );
 
       final String? idToken = googleAuth.idToken;
-      
-     if (idToken == null) {
+
+      if (idToken == null) {
         // For web, if ID token is null, try using access token
         final String? accessToken = googleAuth.accessToken;
         if (accessToken == null) {
           throw Exception('Failed to get any token from Google');
         }
-        
+
         // Store access token temporarily and persistently
         _tempGoogleToken = accessToken;
         await storeGoogleToken(accessToken);
@@ -123,7 +133,7 @@ class AuthService {
         _tempGoogleToken = idToken;
         await storeGoogleToken(idToken);
       }
-      
+
       _tempUserInfo = {
         'sub': googleUser.id,
         'email': googleUser.email,
@@ -132,10 +142,7 @@ class AuthService {
       };
 
       developer.log('Successfully authenticated user: ${googleUser.email}');
-      return {
-        'token': _tempGoogleToken,
-        'user': _tempUserInfo,
-      };
+      return {'token': _tempGoogleToken, 'user': _tempUserInfo};
     } catch (error) {
       developer.log('Error signing in to your app with Google: $error');
       rethrow;
@@ -158,11 +165,14 @@ class AuthService {
   }
 
   // Store final credentials after successful onboarding
-  Future<void> storeFinalCredentials(String accessToken, Map<String, dynamic> userInfo) async {
+  Future<void> storeFinalCredentials(
+    String accessToken,
+    Map<String, dynamic> userInfo,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, accessToken);
     await prefs.setString(_userInfoKey, jsonEncode(userInfo));
-    
+
     // Clear temporary data
     _tempGoogleToken = null;
     _tempUserInfo = null;
@@ -178,7 +188,7 @@ class AuthService {
   Future<Map<String, dynamic>?> getStoredUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     final userInfoString = prefs.getString(_userInfoKey);
-    
+
     if (userInfoString != null) {
       return jsonDecode(userInfoString);
     }
@@ -194,11 +204,11 @@ class AuthService {
   // Sign out (clear both memory and storage)
   Future<void> signOut() async {
     await _googleSignIn.signOut();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userInfoKey);
-    
+
     // Clear temporary data
     _tempGoogleToken = null;
     _tempUserInfo = null;
@@ -220,5 +230,43 @@ class AuthService {
   Future<String?> getStoredGoogleToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_googleTokenKey);
+  }
+
+  // Sign up with Google (creates account if doesn't exist, or returns existing account)
+  Future<Map<String, dynamic>?> signupWithGoogle(String googleToken) async {
+    try {
+      developer.log('Calling /signup endpoint...');
+
+      final url = Uri.parse('${AppConfig.baseUrl}/api/v1/auth/signup');
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $googleToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        final accessToken = responseData['access_token'] as String;
+        final studentData = responseData['student'] as Map<String, dynamic>;
+
+        // Store both Google token and JWT access token
+        await storeGoogleToken(googleToken);
+        await storeFinalCredentials(accessToken, studentData);
+
+        developer.log('Successfully signed up: ${studentData['email']}');
+        return {'access_token': accessToken, 'student': studentData};
+      } else {
+        developer.log('Signup failed with status: ${response.statusCode}');
+        developer.log('Response body: ${response.body}');
+        throw Exception(
+          'Signup failed: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (error) {
+      developer.log('Error in signupWithGoogle: $error');
+      rethrow;
+    }
   }
 }

@@ -68,7 +68,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
           // If we can't get goal ID, continue anyway
         }
 
-        // Store access token from response
+        // Store/update access token from response (account already exists from signup)
         await _authService.storeFinalCredentials(response.accessToken, {
           'id': student.id,
           'email': student.email,

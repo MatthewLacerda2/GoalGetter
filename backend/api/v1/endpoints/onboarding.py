@@ -1,6 +1,6 @@
 import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from backend.models.goal import Goal
 from backend.core.database import get_db
 from backend.core.security import create_access_token, verify_google_token_header
@@ -57,7 +57,7 @@ async def generate_study_plan(
     "/full_creation",
     status_code=201,
     response_model=TokenResponse,
-    description="Create user account and complete onboarding with goal and objective.")
+    description="Complete onboarding by creating a goal and objective. Account must already exist.")
 async def generate_full_creation(
     request: GoalFullCreationRequest,
     user_info: dict = Depends(verify_google_token_header),
@@ -66,19 +66,13 @@ async def generate_full_creation(
     
     try:
         student_repo = StudentRepository(db)
-        existing_user = await student_repo.get_by_google_id(user_info["sub"])
+        user = await student_repo.get_by_google_id(user_info["sub"])
         
-        if existing_user:
-            # Existing user: create new goal and objective, update active goal/objective
-            user = existing_user
-        else:
-            # New user: create student
-            user = Student(
-                email=user_info["email"],
-                google_id=user_info["sub"],
-                name=user_info.get("name"),
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User account not found. Please sign up first."
             )
-            user = await student_repo.create(user)
         
         # Create goal with student_id
         goal = Goal(
@@ -114,13 +108,8 @@ async def generate_full_creation(
         # Save description embeddings
         await save_description_embeddings_async(goal, objective, db)
         
-        # Generate or reuse access token
-        if existing_user:
-            # For existing users, we still need to return a token
-            # They might be using Google token, but we'll return a JWT token for consistency
-            access_token = create_access_token(data={"sub": user.google_id})
-        else:
-            access_token = create_access_token(data={"sub": user.google_id})
+        # Generate JWT access token
+        access_token = create_access_token(data={"sub": user.google_id})
         
         await db.commit()
         

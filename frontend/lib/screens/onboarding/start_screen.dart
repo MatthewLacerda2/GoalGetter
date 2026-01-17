@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:openapi/api.dart';
 
+import '../../config/app_config.dart';
+import '../../main.dart';
 import '../../services/auth_service.dart';
 import 'goal_prompt_screen.dart';
 
@@ -17,9 +20,9 @@ class _StartScreenState extends State<StartScreen> {
 
   Future<void> _routeAfterSignIn() async {
     try {
-      // Get stored Google token
-      final googleToken = await _authService.getStoredGoogleToken();
-      if (googleToken == null) {
+      // Get stored access token (JWT)
+      final accessToken = await _authService.getStoredAccessToken();
+      if (accessToken == null) {
         // If no token, go to goal prompt screen
         if (mounted) {
           Navigator.of(context).pushReplacement(
@@ -29,12 +32,32 @@ class _StartScreenState extends State<StartScreen> {
         return;
       }
 
-      // Navigate directly to goal prompt screen
-      // TODO: Re-enable goals API check once client_sdk files are properly indexed
+      // Check student status to see if user has goals
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final studentApi = StudentApi(apiClient);
+      final studentStatus = await studentApi
+          .getStudentCurrentStatusApiV1StudentGet();
+
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
-        );
+        if (studentStatus != null &&
+            studentStatus.goalId != null &&
+            studentStatus.goalId!.isNotEmpty) {
+          // User has goals, go to main screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => MyHomePage(
+                title: 'Goal Getter',
+                onLanguageChanged: (String) {},
+              ),
+            ),
+          );
+        } else {
+          // User has no goals, go to goal prompt screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+          );
+        }
       }
     } catch (e) {
       // On error, go to goal prompt screen
@@ -52,11 +75,16 @@ class _StartScreenState extends State<StartScreen> {
     });
 
     try {
-      final result = await _authService.signInWithGoogleWeb();
+      final googleAuthResult = await _authService.signInWithGoogleWeb();
 
-      if (result != null) {
-        // Successfully signed in, check goals count and route accordingly
-        if (mounted) {
+      if (googleAuthResult != null) {
+        final googleToken = googleAuthResult['token'] as String;
+
+        // Call signup endpoint to create/fetch account
+        final signupResult = await _authService.signupWithGoogle(googleToken);
+
+        if (signupResult != null && mounted) {
+          // Check student status to see if user has goals
           await _routeAfterSignIn();
         }
       } else {

@@ -106,7 +106,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         hasAccessToken || (hasGoogleToken != null && hasGoogleToken.isNotEmpty);
 
     if (isSignedIn && hasAccessToken) {
-      // User has completed onboarding - check for stored goal/objective IDs
+      // User has account - check for stored goal/objective IDs and fetch status
       final storedGoalId = await SettingsStorage.getCurrentGoalId();
       final storedObjectiveId = await SettingsStorage.getCurrentObjectiveId();
 
@@ -150,6 +150,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
           // On error, continue with normal flow
         }
       }
+    } else if (isSignedIn && !hasAccessToken && hasGoogleToken != null) {
+      // User has Google token but no JWT token (account exists but might not have completed a goal)
+      // This shouldn't happen normally after signup, but handle it gracefully
+      setState(() {
+        _hasCompletedOnboarding = false;
+        _isLoading = false;
+      });
+      return;
     }
 
     setState(() {
