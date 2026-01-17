@@ -74,9 +74,15 @@ async def generate_full_creation(
                 detail="User account not found. Please sign up first."
             )
         
+        # Store user attributes immediately after fetch to avoid async ORM access issues
+        user_id = user.id
+        user_google_id = user.google_id
+        user_email = user.email
+        user_name = user.name
+        
         # Create goal with student_id
         goal = Goal(
-            student_id=user.id,
+            student_id=user_id,
             name=request.goal_name,
             description=request.goal_description,
         )
@@ -113,12 +119,24 @@ async def generate_full_creation(
         await student_repo.update(user)
         
         # Save description embeddings
-        await save_description_embeddings_async(goal, objective, db)
+        await save_description_embeddings_async(
+            goal,
+            objective,
+            request.goal_description,
+            request.first_objective_description,
+            db,
+        )
         
         # Generate JWT access token
-        access_token = create_access_token(data={"sub": user.google_id})
+        access_token = create_access_token(data={"sub": user_google_id})
         
         await db.commit()
+        
+        # Extract values for background task to avoid ORM object detachment
+        goal_name = request.goal_name
+        goal_description = request.goal_description
+        objective_name = request.first_objective_name
+        objective_description = request.first_objective_description
         
         # Trigger async account creation tasks (MCQs, notes, resources, student context)
         # These run in the background with a new database session
@@ -129,9 +147,13 @@ async def generate_full_creation(
             async with AsyncSessionLocal() as new_db:
                 try:
                     await account_creation_tasks(
-                        student=user,
-                        goal=goal,
-                        objective=objective,
+                        student_id=str(user_id),
+                        goal_id=str(goal_id),
+                        goal_name=goal_name,
+                        goal_description=goal_description,
+                        objective_id=str(objective_id),
+                        objective_name=objective_name,
+                        objective_description=objective_description,
                         db=new_db,
                         onboarding_prompt=None,
                         questions_answers=None
@@ -145,10 +167,10 @@ async def generate_full_creation(
         asyncio.create_task(run_account_creation_tasks())
         
         student_response = StudentResponse(
-            id=str(user.id),
-            google_id=user.google_id,
-            email=user.email,
-            name=user.name
+            id=str(user_id),
+            google_id=user_google_id,
+            email=user_email,
+            name=user_name
         )
         
         return TokenResponse(
@@ -168,9 +190,15 @@ async def generate_full_creation(
             detail="Internal server error"
         )
 
-async def save_description_embeddings_async(goal: Goal, objective: Objective, db: AsyncSession):
-    goal_description_embedding = get_gemini_embeddings(goal.description)
-    objective_description_embedding = get_gemini_embeddings(objective.description)
+async def save_description_embeddings_async(
+    goal: Goal,
+    objective: Objective,
+    goal_description: str,
+    objective_description: str,
+    db: AsyncSession,
+):
+    goal_description_embedding = get_gemini_embeddings(goal_description)
+    objective_description_embedding = get_gemini_embeddings(objective_description)
     goal.description_embedding = goal_description_embedding
     objective.description_embedding = objective_description_embedding
     await db.commit()

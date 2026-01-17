@@ -1,8 +1,5 @@
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.models.objective import Objective
-from backend.models.goal import Goal
-from backend.models.student import Student
 from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
 from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
@@ -18,9 +15,13 @@ from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 logger = logging.getLogger(__name__)
 
 async def account_creation_tasks(
-    student: Student,
-    goal: Goal,
-    objective: Objective,
+    student_id: str,
+    goal_id: str,
+    goal_name: str,
+    goal_description: str,
+    objective_id: str,
+    objective_name: str,
+    objective_description: str,
     db: AsyncSession,
     onboarding_prompt: str | None = None,
     questions_answers: list[tuple[str, str]] | None = None
@@ -41,29 +42,35 @@ async def account_creation_tasks(
     try:
         # Generate MCQs in 4 batches
         for i in range(4):
-            await create_mcqs_async(objective, db)
+            await create_mcqs_async(objective_id, objective_name, objective_description, db)
         
         # Create objective notes
-        await create_notes_async(objective.name, objective.description, objective.id, db)
+        await create_notes_async(objective_name, objective_description, objective_id, db)
         
         # Search and save resources
-        await create_resources_async(goal, objective, db, onboarding_prompt, questions_answers)
+        await create_resources_async(
+            goal_id, goal_name, goal_description,
+            objective_id, objective_name, objective_description,
+            db, onboarding_prompt, questions_answers
+        )
         
         # Create initial student context
         await create_student_context_async(
-            student, goal, objective, db, onboarding_prompt, questions_answers
+            student_id, goal_id, goal_name, goal_description,
+            objective_id, objective_name, objective_description,
+            db, onboarding_prompt, questions_answers
         )
         
     except Exception as e:
         logger.error(f"Error in account_creation_tasks: {e}", exc_info=True)
         raise
 
-async def create_mcqs_async(objective: Objective, db: AsyncSession) -> None:
+async def create_mcqs_async(objective_id: str, objective_name: str, objective_description: str, db: AsyncSession) -> None:
     """Create a batch of multiple choice questions using Gemini"""
     try:
         gemini_mc_questions = gemini_generate_multiple_choice_questions(
-            objective_name=objective.name,
-            objective_description=objective.description,
+            objective_name=objective_name,
+            objective_description=objective_description,
             previous_objectives=["This is the student's first objective ever"],
             informations=["No relevant information to add"],
             num_questions=NUM_QUESTIONS_PER_LESSON
@@ -76,7 +83,7 @@ async def create_mcqs_async(objective: Objective, db: AsyncSession) -> None:
                 continue
                 
             mcq = MultipleChoiceQuestion(
-                objective_id=objective.id,
+                objective_id=objective_id,
                 question=question.question,
                 option_a=question.choices[0],
                 option_b=question.choices[1],
@@ -114,8 +121,12 @@ async def create_notes_async(obj_name: str, obj_desc: str, obj_id: str, db: Asyn
         raise
 
 async def create_resources_async(
-    goal: Goal,
-    objective: Objective,
+    goal_id: str,
+    goal_name: str,
+    goal_description: str,
+    objective_id: str,
+    objective_name: str,
+    objective_description: str,
     db: AsyncSession,
     onboarding_prompt: str | None = None,
     questions_answers: list[tuple[str, str]] | None = None
@@ -134,12 +145,12 @@ async def create_resources_async(
         
         # Search for resources
         resources = search_resources(
-            goal_id=goal.id,
-            goal_name=goal.name,
-            goal_description=goal.description,
-            objective_id=objective.id,
-            objective_name=objective.name,
-            objective_description=objective.description,
+            goal_id=goal_id,
+            goal_name=goal_name,
+            goal_description=goal_description,
+            objective_id=objective_id,
+            objective_name=objective_name,
+            objective_description=objective_description,
             student_context=student_context_list
         )
         
@@ -155,9 +166,13 @@ async def create_resources_async(
         raise
 
 async def create_student_context_async(
-    student: Student,
-    goal: Goal,
-    objective: Objective,
+    student_id: str,
+    goal_id: str,
+    goal_name: str,
+    goal_description: str,
+    objective_id: str,
+    objective_name: str,
+    objective_description: str,
     db: AsyncSession,
     onboarding_prompt: str | None = None,
     questions_answers: list[tuple[str, str]] | None = None
@@ -165,10 +180,10 @@ async def create_student_context_async(
     """Create initial student context using Gemini"""
     try:
         gemini_context = gemini_generate_student_context(
-            goal_name=goal.name,
-            goal_description=goal.description,
-            objective_name=objective.name,
-            objective_description=objective.description,
+            goal_name=goal_name,
+            goal_description=goal_description,
+            objective_name=objective_name,
+            objective_description=objective_description,
             onboarding_prompt=onboarding_prompt,
             questions_answers=questions_answers
         )
@@ -179,9 +194,9 @@ async def create_student_context_async(
         
         # Create student context
         student_context = StudentContext(
-            student_id=student.id,
-            goal_id=goal.id,
-            objective_id=objective.id,
+            student_id=student_id,
+            goal_id=goal_id,
+            objective_id=objective_id,
             state=gemini_context.state,
             state_embedding=state_embedding,
             metacognition=gemini_context.metacognition,
