@@ -3,6 +3,7 @@ import 'package:openapi/api.dart';
 
 import 'config/app_config.dart';
 import 'l10n/app_localizations.dart';
+import 'screens/missions_screen.dart';
 import 'screens/objective_screen.dart';
 import 'screens/onboarding/start_screen.dart';
 import 'screens/profile_screen.dart';
@@ -271,18 +272,18 @@ class _MyHomePageState extends State<MyHomePage> {
           if (previousShowResources != hasResources) {
             // If resources tab was removed and we were on it or profile, adjust
             if (!hasResources && previousShowResources) {
-              if (_selectedIndex == 3) {
-                // Was on resources, move to stats
-                _selectedIndex = 2;
-              } else if (_selectedIndex == 4) {
-                // Was on profile, keep on profile (now index 3)
+              if (_selectedIndex == 4) {
+                // Was on resources, move to awards
                 _selectedIndex = 3;
+              } else if (_selectedIndex == 5) {
+                // Was on profile, keep on profile (now index 4)
+                _selectedIndex = 4;
               }
             } else if (hasResources && !previousShowResources) {
               // If resources tab was added and we were on profile, adjust
-              if (_selectedIndex == 3) {
-                // Was on profile, keep on profile (now index 4)
-                _selectedIndex = 4;
+              if (_selectedIndex == 4) {
+                // Was on profile, keep on profile (now index 5)
+                _selectedIndex = 5;
               }
             }
           }
@@ -309,6 +310,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> get _tabPages {
     final pages = <Widget>[
       ObjectiveScreen(),
+      const MissionsScreen(),
       const TutorScreen(),
       StatsScreen(),
     ];
@@ -334,9 +336,17 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
+          icon: Icons.flag,
+          color: Colors.orange,
+          isSelected: _selectedIndex == 1,
+        ),
+        label: 'Missions',
+      ),
+      BottomNavigationBarItem(
+        icon: MainScreenIcon(
           icon: Icons.graphic_eq,
           color: Colors.purpleAccent,
-          isSelected: _selectedIndex == 1,
+          isSelected: _selectedIndex == 2,
         ),
         label: AppLocalizations.of(context)!.tutor,
       ),
@@ -344,7 +354,7 @@ class _MyHomePageState extends State<MyHomePage> {
         icon: MainScreenIcon(
           icon: Icons.emoji_events,
           color: Colors.blue,
-          isSelected: _selectedIndex == 2,
+          isSelected: _selectedIndex == 3,
         ),
         label: AppLocalizations.of(context)!.awards,
       ),
@@ -356,7 +366,7 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: MainScreenIcon(
             icon: Icons.school,
             color: Colors.deepOrange,
-            isSelected: _selectedIndex == 3,
+            isSelected: _selectedIndex == 4,
           ),
           label: AppLocalizations.of(context)!.resources,
         ),
@@ -364,7 +374,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Profile is always last
-    final profileIndex = _showResourcesTab ? 4 : 3;
+    final profileIndex = _showResourcesTab ? 5 : 4;
     items.add(
       BottomNavigationBarItem(
         icon: MainScreenIcon(

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
-import '../widgets/info_card.dart';
-import '../widgets/progress_bar.dart';
-import '../widgets/screens/objective/objective_tab_header.dart';
-import '../widgets/screens/objective/lesson_button.dart';
+
 import '../config/app_config.dart';
 import '../services/auth_service.dart';
+import '../widgets/info_card.dart';
+import '../widgets/screens/objective/lesson_button.dart';
+import '../widgets/screens/objective/objective_tab_header.dart';
 
 class ObjectiveScreen extends StatefulWidget {
   const ObjectiveScreen({super.key});
@@ -19,12 +19,10 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
   final _authService = AuthService();
   bool _isLoading = true;
   String? _errorMessage;
-  
+
   String? _goalTitle;
   int? _streakCounter;
   String? _objectiveName;
-  String? _objectiveDescription;
-  double? _percentageCompleted;
   List<ObjectiveNote>? _notes;
 
   @override
@@ -54,8 +52,10 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
       final studentApi = StudentApi(apiClient);
       final objectiveApi = ObjectiveApi(apiClient);
 
-      final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
-      final objectiveResponse = await objectiveApi.getObjectiveApiV1ObjectiveGet();
+      final studentResponse = await studentApi
+          .getStudentCurrentStatusApiV1StudentGet();
+      final objectiveResponse = await objectiveApi
+          .getObjectiveApiV1ObjectiveGet();
 
       if (studentResponse == null) {
         throw Exception('Failed to fetch student status');
@@ -70,8 +70,6 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
           _goalTitle = studentResponse.goalName;
           _streakCounter = studentResponse.currentStreak;
           _objectiveName = objectiveResponse.name;
-          _objectiveDescription = objectiveResponse.description;
-          _percentageCompleted = objectiveResponse.percentageCompleted.toDouble();
           _notes = objectiveResponse.notes;
           _isLoading = false;
         });
@@ -97,67 +95,58 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
+                ? const Center(child: CircularProgressIndicator())
                 : _errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Error: $_errorMessage',
-                              style: const TextStyle(color: Colors.red),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: _fetchData,
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Error: $_errorMessage',
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
                         ),
-                      )
-                    : ListView(
-                        padding: const EdgeInsets.all(12),
-                        children: [
-                          const SizedBox(height: 12),
-                          if (_objectiveName != null && _percentageCompleted != null)
-                            ProgressBar(
-                              title: _objectiveName!,
-                              progress: _percentageCompleted!,
-                              end: 100.0,
-                              color: Colors.grey.withValues(alpha: 0.1),
-                            ),
-                          const SizedBox(height: 16),
-                          if (_objectiveName != null)
-                            LessonButton(
-                              title: _objectiveName!,
-                              description: AppLocalizations.of(context)!.startLesson,
-                              mainColor: Colors.blue,
-                            ),
-                          if (_notes != null && _notes!.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            Text(
-                              '${AppLocalizations.of(context)!.notes}:',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            ..._notes!.map((note) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: InfoCard(
-                                    title: note.title,
-                                    description: note.info,
-                                  ),
-                                )),
-                          ],
-                          const SizedBox(height: 28),
-                        ],
-                      ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _fetchData,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView(
+                    padding: const EdgeInsets.all(12),
+                    children: [
+                      const SizedBox(height: 12),
+                      if (_objectiveName != null)
+                        LessonButton(
+                          title: _objectiveName!,
+                          description: AppLocalizations.of(
+                            context,
+                          )!.startLesson,
+                          mainColor: Colors.blue,
+                        ),
+                      if (_notes != null && _notes!.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          '${AppLocalizations.of(context)!.notes}:',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ..._notes!.map(
+                          (note) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: InfoCard(description: note.info),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 28),
+                    ],
+                  ),
           ),
         ],
       ),
