@@ -160,10 +160,6 @@ class _ResourcesScreenState extends State<ResourcesScreen>
           dividerHeight: 4,
           tabs: [
             Tab(
-              icon: Icon(Icons.book, size: 24),
-              text: AppLocalizations.of(context)!.book,
-            ),
-            Tab(
               icon: Icon(Icons.play_circle, size: 28),
               text: AppLocalizations.of(context)!.youtube,
             ),
@@ -171,15 +167,19 @@ class _ResourcesScreenState extends State<ResourcesScreen>
               icon: Icon(Icons.language, size: 28),
               text: AppLocalizations.of(context)!.sites,
             ),
+            Tab(
+              icon: Icon(Icons.book, size: 24),
+              text: AppLocalizations.of(context)!.book,
+            ),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          ResourceTab(resources: _books),
           ResourceTab(resources: _youtube),
           ResourceTab(resources: _sites),
+          ResourceTab(resources: _books),
         ],
       ),
     );

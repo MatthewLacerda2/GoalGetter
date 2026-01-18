@@ -206,99 +206,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late int _selectedIndex;
-  bool _showResourcesTab = false;
-  final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.selectedIndex;
-    _initializeResourcesTab();
-  }
-
-  Future<void> _initializeResourcesTab() async {
-    // First, check SharedPreferences to see if we should show the tab initially
-    final hasResourcesInPrefs = await SettingsStorage.hasResources();
-
-    setState(() {
-      _showResourcesTab = hasResourcesInPrefs;
-    });
-
-    // Then fetch from API regardless
-    await _fetchResources();
-  }
-
-  Future<void> _fetchResources() async {
-    try {
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        setState(() {
-          _showResourcesTab = false;
-        });
-        await SettingsStorage.setHasResources(false);
-        return;
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
-
-      // Get student status to get goalId
-      final studentApi = StudentApi(apiClient);
-      final studentResponse = await studentApi
-          .getStudentCurrentStatusApiV1StudentGet();
-
-      if (studentResponse == null) {
-        setState(() {
-          _showResourcesTab = false;
-        });
-        await SettingsStorage.setHasResources(false);
-        return;
-      }
-
-      // Fetch resources
-      final resourcesApi = ResourcesApi(apiClient);
-      final resourcesResponse = await resourcesApi
-          .getResourcesApiV1ResourcesGet(studentResponse.goalId!);
-
-      final hasResources =
-          resourcesResponse != null && resourcesResponse.resources.isNotEmpty;
-
-      if (mounted) {
-        setState(() {
-          final previousShowResources = _showResourcesTab;
-          _showResourcesTab = hasResources;
-
-          // Adjust selected index if resources tab visibility changed
-          if (previousShowResources != hasResources) {
-            // If resources tab was removed and we were on it or profile, adjust
-            if (!hasResources && previousShowResources) {
-              if (_selectedIndex == 4) {
-                // Was on resources, move to awards
-                _selectedIndex = 3;
-              } else if (_selectedIndex == 5) {
-                // Was on profile, keep on profile (now index 4)
-                _selectedIndex = 4;
-              }
-            } else if (hasResources && !previousShowResources) {
-              // If resources tab was added and we were on profile, adjust
-              if (_selectedIndex == 4) {
-                // Was on profile, keep on profile (now index 5)
-                _selectedIndex = 5;
-              }
-            }
-          }
-        });
-        await SettingsStorage.setHasResources(hasResources);
-      }
-    } catch (e) {
-      // On error, hide the tab
-      if (mounted) {
-        setState(() {
-          _showResourcesTab = false;
-        });
-        await SettingsStorage.setHasResources(false);
-      }
-    }
   }
 
   void _onTabTapped(int index) {
@@ -308,20 +220,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> get _tabPages {
-    final pages = <Widget>[
+    return [
       ObjectiveScreen(),
       const MissionsScreen(),
       const TutorScreen(),
       StatsScreen(),
+      const ResourcesScreen(),
+      ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
     ];
-
-    if (_showResourcesTab) {
-      pages.add(ResourcesScreen());
-    }
-
-    pages.add(ProfileScreen(onLanguageChanged: widget.onLanguageChanged));
-
-    return pages;
   }
 
   List<BottomNavigationBarItem> get _bottomNavItems {
@@ -358,33 +264,23 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         label: AppLocalizations.of(context)!.awards,
       ),
-    ];
-
-    if (_showResourcesTab) {
-      items.add(
-        BottomNavigationBarItem(
-          icon: MainScreenIcon(
-            icon: Icons.school,
-            color: Colors.deepOrange,
-            isSelected: _selectedIndex == 4,
-          ),
-          label: AppLocalizations.of(context)!.resources,
+      BottomNavigationBarItem(
+        icon: MainScreenIcon(
+          icon: Icons.school,
+          color: Colors.deepOrange,
+          isSelected: _selectedIndex == 4,
         ),
-      );
-    }
-
-    // Profile is always last
-    final profileIndex = _showResourcesTab ? 5 : 4;
-    items.add(
+        label: AppLocalizations.of(context)!.resources,
+      ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.person,
           color: Colors.blueGrey,
-          isSelected: _selectedIndex == profileIndex,
+          isSelected: _selectedIndex == 5,
         ),
         label: AppLocalizations.of(context)!.profile,
       ),
-    );
+    ];
 
     return items;
   }

@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsStorage {
   static const String _languageKey = 'user_language';
   static const String _isFirstLaunchKey = 'is_first_launch';
-  static const String _hasResourcesKey = 'has_resources';
   static const String _currentGoalIdKey = 'current_goal_id';
   static const String _currentObjectiveIdKey = 'current_objective_id';
 
@@ -45,16 +44,6 @@ class SettingsStorage {
   static Future<bool> setFirstLaunchCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     return await prefs.setBool(_isFirstLaunchKey, false);
-  }
-
-  static Future<bool> hasResources() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_hasResourcesKey) ?? false;
-  }
-
-  static Future<bool> setHasResources(bool hasResources) async {
-    final prefs = await SharedPreferences.getInstance();
-    return await prefs.setBool(_hasResourcesKey, hasResources);
   }
 
   static Future<String?> getCurrentGoalId() async {
