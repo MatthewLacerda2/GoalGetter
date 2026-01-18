@@ -71,4 +71,11 @@ class SettingsStorage {
     await prefs.remove(_currentGoalIdKey);
     await prefs.remove(_currentObjectiveIdKey);
   }
+
+  static Future<void> clearAllUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_currentGoalIdKey);
+    await prefs.remove(_currentObjectiveIdKey);
+    // Note: Language preference is kept, but other user data is cleared
+  }
 }

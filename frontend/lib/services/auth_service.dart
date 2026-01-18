@@ -215,6 +215,7 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userInfoKey);
+    await prefs.remove(_googleTokenKey);
 
     // Clear temporary data
     _tempGoogleToken = null;

@@ -2,9 +2,11 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/auth_service.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
 import 'onboarding/goal_prompt_screen.dart';
+import 'onboarding/start_screen.dart';
 import 'show_objectives_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _currentLanguage = SettingsStorage.defaultLanguage;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -122,6 +125,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             }),
+
+            const SizedBox(height: 32),
+
+            _buildSignOutButton(),
           ],
         ),
       ),
@@ -170,5 +177,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
         onTap: onTap,
       ),
     );
+  }
+
+  Widget _buildSignOutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _handleSignOut,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red.withValues(alpha: 0.2),
+          foregroundColor: Colors.red,
+          side: const BorderSide(color: Colors.red, width: 2),
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: const Text(
+          'Sign out',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleSignOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sign out'),
+          content: const Text('Are you sure?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Sign out'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      // Clear auth data
+      await _authService.signOut();
+
+      // Clear user data from settings
+      await SettingsStorage.clearAllUserData();
+
+      // Navigate to start screen
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const StartScreen()),
+          (route) => false,
+        );
+      }
+    }
   }
 }
