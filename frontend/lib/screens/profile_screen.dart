@@ -5,8 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
 import 'onboarding/goal_prompt_screen.dart';
-
-//TODO: Create a 'previous objectives screen' and a 'future objectives screen'
+import 'show_objectives_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -109,6 +108,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ListGoalsScreen(),
+                ),
+              );
+            }),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile('Show objectives', Icons.checklist, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ShowObjectivesScreen(),
                 ),
               );
             }),
