@@ -13,8 +13,8 @@ part of openapi.api;
 //TODO: make it read from a .env so this works on local development
 class ApiClient {
   ApiClient({
-    //this.basePath = 'https://goalsgetter.org',
-    this.basePath = 'http://localhost:8000',
+    this.basePath = 'https://goalsgetter.org',
+    //this.basePath = 'http://localhost:8000',
     this.authentication,
   });
 

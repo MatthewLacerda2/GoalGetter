@@ -45,7 +45,6 @@ async def get_objective(
         notes=notes
     )
 
-#TODO: test this bad boy
 @router.get("/list", response_model=ObjectiveListResponse, status_code=status.HTTP_200_OK)
 async def get_objectives_list(
     db: AsyncSession = Depends(get_db),
