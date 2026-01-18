@@ -35,7 +35,25 @@ async def create_message(
 ):
     """Create a new chat message for the authenticated user."""
     ai_chat_messages = await create_chat_message_service(request, current_user, db)
-    return _build_response_from_messages(ai_chat_messages)
+    
+    # Extract attribute values immediately to avoid MissingGreenlet errors
+    # Access ORM attributes while still in async context
+    message_data = [
+        {
+            "id": str(msg.id),
+            "sender_id": msg.sender_id,
+            "message": msg.message,
+            "created_at": msg.created_at,
+            "is_liked": msg.is_liked
+        }
+        for msg in ai_chat_messages
+    ]
+    
+    return CreateMessageResponse(
+        messages=[
+            ChatMessageResponseItem(**data) for data in message_data
+        ]
+    )
 
 @router.get("", response_model=ChatMessageResponse)
 async def get_chat_messages(

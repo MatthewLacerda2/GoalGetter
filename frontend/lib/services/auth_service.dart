@@ -244,7 +244,7 @@ class AuthService {
     try {
       developer.log('Calling /signup endpoint...');
 
-      final url = Uri.parse('${AppConfig.baseUrl}auth/signup');
+      final url = Uri.parse('${AppConfig.baseUrl}/api/v1/auth/signup');
       final response = await http.post(
         url,
         headers: {
