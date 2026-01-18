@@ -11,22 +11,6 @@ from backend.services.chat.chat_service import create_chat_message_service
 
 router = APIRouter()
 
-
-def _build_response_from_messages(ai_chat_messages) -> CreateMessageResponse:
-    """Build CreateMessageResponse from ChatMessage list."""
-    return CreateMessageResponse(
-        messages=[
-            ChatMessageResponseItem(
-                id=str(message.id),
-                sender_id=message.sender_id,
-                message=message.message,
-                created_at=message.created_at,
-                is_liked=message.is_liked
-            ) for message in ai_chat_messages
-        ]
-    )
-
-
 @router.post("", response_model=CreateMessageResponse, status_code=201)
 async def create_message(
     request: CreateMessageRequest,
@@ -84,10 +68,19 @@ async def like_message(
         raise HTTPException(status_code=404, detail="Message not found")
     
     message.is_liked = request.like
+    # Extract attribute values BEFORE commit to avoid MissingGreenlet errors
+    # Access ORM attributes while still in async context
+    message_data = {
+        "id": str(message.id),
+        "sender_id": message.sender_id,
+        "message": message.message,
+        "created_at": message.created_at,
+        "is_liked": message.is_liked
+    }
     await chat_repo.update(message)
     await db.commit()
     
-    return ChatMessageItem.model_validate(message)
+    return ChatMessageItem(**message_data)
 
 @router.patch("/edit", response_model=ChatMessageItem)
 async def edit_message(
@@ -104,10 +97,19 @@ async def edit_message(
         raise HTTPException(status_code=404, detail="Message not found")
     
     message.message = request.message
-    updated_message = await chat_repo.update(message)
+    # Extract attribute values BEFORE commit to avoid MissingGreenlet errors
+    # Access ORM attributes while still in async context
+    message_data = {
+        "id": str(message.id),
+        "sender_id": message.sender_id,
+        "message": message.message,
+        "created_at": message.created_at,
+        "is_liked": message.is_liked
+    }
+    await chat_repo.update(message)
     await db.commit()
     
-    return ChatMessageItem.model_validate(updated_message)
+    return ChatMessageItem(**message_data)
 
 @router.delete("/{message_id}", status_code=204)
 async def delete_message(

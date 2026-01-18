@@ -183,6 +183,7 @@ class _TutorScreenState extends State<TutorScreen> {
       id: item.id,
       message: item.message,
       sender: isUser ? ChatMessageSender.user : ChatMessageSender.tutor,
+      isLiked: item.isLiked,
     );
   }
 
@@ -193,6 +194,7 @@ class _TutorScreenState extends State<TutorScreen> {
       id: item.id,
       message: item.message,
       sender: isUser ? ChatMessageSender.user : ChatMessageSender.tutor,
+      isLiked: item.isLiked,
     );
   }
 
@@ -220,6 +222,7 @@ class _TutorScreenState extends State<TutorScreen> {
           id: tempId,
           message: messageText,
           sender: ChatMessageSender.user,
+          isLiked: false,
         ),
       );
     });
@@ -337,6 +340,92 @@ class _TutorScreenState extends State<TutorScreen> {
     }
   }
 
+  Future<void> _toggleLikeMessage(
+    String messageId,
+    bool currentLikeStatus,
+  ) async {
+    // Don't allow liking temporary messages (they don't exist on server yet)
+    if (messageId.startsWith('temp_')) {
+      return;
+    }
+
+    // Optimistically update the UI
+    setState(() {
+      final messageIndex = _messages.indexWhere((msg) => msg.id == messageId);
+      if (messageIndex != -1) {
+        final message = _messages[messageIndex];
+        _messages[messageIndex] = ChatMessage(
+          id: message.id,
+          message: message.message,
+          sender: message.sender,
+          isLiked: !currentLikeStatus,
+        );
+      }
+    });
+
+    try {
+      // Get the stored access token
+      final accessToken = await _authService.getStoredAccessToken();
+      if (accessToken == null) {
+        throw Exception('No access token available. Please sign in again.');
+      }
+
+      // Create API client and add the access token as Authorization header
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+
+      final chatApi = ChatApi(apiClient);
+
+      // Create the like request
+      final request = LikeMessageRequest(
+        messageId: messageId,
+        like: !currentLikeStatus,
+      );
+
+      // Send like/unlike request to API
+      final response = await chatApi.likeMessageApiV1ChatLikesPatch(request);
+
+      if (mounted && response != null) {
+        // Update with the actual response from server
+        setState(() {
+          final messageIndex = _messages.indexWhere(
+            (msg) => msg.id == messageId,
+          );
+          if (messageIndex != -1) {
+            final message = _messages[messageIndex];
+            _messages[messageIndex] = ChatMessage(
+              id: message.id,
+              message: message.message,
+              sender: message.sender,
+              isLiked: response.isLiked,
+            );
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        // Revert optimistic update on error
+        setState(() {
+          final messageIndex = _messages.indexWhere(
+            (msg) => msg.id == messageId,
+          );
+          if (messageIndex != -1) {
+            final message = _messages[messageIndex];
+            _messages[messageIndex] = ChatMessage(
+              id: message.id,
+              message: message.message,
+              sender: message.sender,
+              isLiked: currentLikeStatus,
+            );
+          }
+        });
+        setState(() {
+          _errorMessage = 'Failed to like message: ${e.toString()}';
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -382,7 +471,11 @@ class _TutorScreenState extends State<TutorScreen> {
                     itemCount: _messages.length,
                     itemBuilder: (context, index) {
                       final message = _messages[index];
-                      return ChatMessageBubble(message: message);
+                      return ChatMessageBubble(
+                        message: message,
+                        onDoubleTap: () =>
+                            _toggleLikeMessage(message.id, message.isLiked),
+                      );
                     },
                   ),
           ),
