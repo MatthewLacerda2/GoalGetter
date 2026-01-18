@@ -12,6 +12,7 @@ doc/ChatMessageResponseItem.md
 doc/CreateMessageRequest.md
 doc/CreateMessageRequestItem.md
 doc/CreateMessageResponse.md
+doc/CreateStudentContextRequest.md
 doc/DefaultApi.md
 doc/EditMessageRequest.md
 doc/GoalCreationFollowUpQuestionsRequest.md
@@ -47,6 +48,9 @@ doc/ResourcesApi.md
 doc/StreakApi.md
 doc/StreakDayResponse.md
 doc/StudentApi.md
+doc/StudentContextApi.md
+doc/StudentContextItem.md
+doc/StudentContextResponse.md
 doc/StudentCurrentStatusResponse.md
 doc/StudentResponse.md
 doc/StudyResourceType.md
@@ -69,6 +73,7 @@ lib/api/onboarding_api.dart
 lib/api/resources_api.dart
 lib/api/streak_api.dart
 lib/api/student_api.dart
+lib/api/student_context_api.dart
 lib/api_client.dart
 lib/api_exception.dart
 lib/api_helper.dart
@@ -83,6 +88,7 @@ lib/model/chat_message_response_item.dart
 lib/model/create_message_request.dart
 lib/model/create_message_request_item.dart
 lib/model/create_message_response.dart
+lib/model/create_student_context_request.dart
 lib/model/edit_message_request.dart
 lib/model/goal_creation_follow_up_questions_request.dart
 lib/model/goal_creation_follow_up_questions_response.dart
@@ -111,6 +117,8 @@ lib/model/player_achievement_response.dart
 lib/model/resource_item.dart
 lib/model/resource_response.dart
 lib/model/streak_day_response.dart
+lib/model/student_context_item.dart
+lib/model/student_context_response.dart
 lib/model/student_current_status_response.dart
 lib/model/student_response.dart
 lib/model/study_resource_type.dart

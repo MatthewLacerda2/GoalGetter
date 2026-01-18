@@ -67,6 +67,7 @@ Class | Method | HTTP request | Description
 *ActivitiesApi* | [**takeMultipleChoiceActivityApiV1ActivitiesPost**](doc//ActivitiesApi.md#takemultiplechoiceactivityapiv1activitiespost) | **POST** /api/v1/activities | Take Multiple Choice Activity
 *AuthApi* | [**deleteAccountApiV1AuthAccountDelete**](doc//AuthApi.md#deleteaccountapiv1authaccountdelete) | **DELETE** /api/v1/auth/account | Delete Account
 *AuthApi* | [**loginApiV1AuthLoginPost**](doc//AuthApi.md#loginapiv1authloginpost) | **POST** /api/v1/auth/login | Login
+*AuthApi* | [**signupApiV1AuthSignupPost**](doc//AuthApi.md#signupapiv1authsignuppost) | **POST** /api/v1/auth/signup | Signup
 *ChatApi* | [**createMessageApiV1ChatPost**](doc//ChatApi.md#createmessageapiv1chatpost) | **POST** /api/v1/chat | Create Message
 *ChatApi* | [**deleteMessageApiV1ChatMessageIdDelete**](doc//ChatApi.md#deletemessageapiv1chatmessageiddelete) | **DELETE** /api/v1/chat/{message_id} | Delete Message
 *ChatApi* | [**editMessageApiV1ChatEditPatch**](doc//ChatApi.md#editmessageapiv1chateditpatch) | **PATCH** /api/v1/chat/edit | Edit Message
@@ -87,6 +88,9 @@ Class | Method | HTTP request | Description
 *StreakApi* | [**getMonthStreakApiV1StreakStudentIdMonthGet**](doc//StreakApi.md#getmonthstreakapiv1streakstudentidmonthget) | **GET** /api/v1/streak/{student_id}/month | Get Month Streak
 *StreakApi* | [**getWeekStreakApiV1StreakStudentIdWeekGet**](doc//StreakApi.md#getweekstreakapiv1streakstudentidweekget) | **GET** /api/v1/streak/{student_id}/week | Get Week Streak
 *StudentApi* | [**getStudentCurrentStatusApiV1StudentGet**](doc//StudentApi.md#getstudentcurrentstatusapiv1studentget) | **GET** /api/v1/student | Get Student Current Status
+*StudentContextApi* | [**createStudentContextApiV1StudentContextPost**](doc//StudentContextApi.md#createstudentcontextapiv1studentcontextpost) | **POST** /api/v1/student-context | Create Student Context
+*StudentContextApi* | [**deleteStudentContextApiV1StudentContextContextIdDelete**](doc//StudentContextApi.md#deletestudentcontextapiv1studentcontextcontextiddelete) | **DELETE** /api/v1/student-context/{context_id} | Delete Student Context
+*StudentContextApi* | [**getStudentContextsApiV1StudentContextGet**](doc//StudentContextApi.md#getstudentcontextsapiv1studentcontextget) | **GET** /api/v1/student-context | Get Student Contexts
 
 
 ## Documentation For Models
@@ -97,6 +101,7 @@ Class | Method | HTTP request | Description
  - [CreateMessageRequest](doc//CreateMessageRequest.md)
  - [CreateMessageRequestItem](doc//CreateMessageRequestItem.md)
  - [CreateMessageResponse](doc//CreateMessageResponse.md)
+ - [CreateStudentContextRequest](doc//CreateStudentContextRequest.md)
  - [EditMessageRequest](doc//EditMessageRequest.md)
  - [GoalCreationFollowUpQuestionsRequest](doc//GoalCreationFollowUpQuestionsRequest.md)
  - [GoalCreationFollowUpQuestionsResponse](doc//GoalCreationFollowUpQuestionsResponse.md)
@@ -125,6 +130,8 @@ Class | Method | HTTP request | Description
  - [ResourceItem](doc//ResourceItem.md)
  - [ResourceResponse](doc//ResourceResponse.md)
  - [StreakDayResponse](doc//StreakDayResponse.md)
+ - [StudentContextItem](doc//StudentContextItem.md)
+ - [StudentContextResponse](doc//StudentContextResponse.md)
  - [StudentCurrentStatusResponse](doc//StudentCurrentStatusResponse.md)
  - [StudentResponse](doc//StudentResponse.md)
  - [StudyResourceType](doc//StudyResourceType.md)

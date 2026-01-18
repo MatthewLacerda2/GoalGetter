@@ -10,11 +10,9 @@
 
 part of openapi.api;
 
-//TODO: make it read from a .env so this works on local development
 class ApiClient {
   ApiClient({
     this.basePath = 'https://goalsgetter.org',
-    //this.basePath = 'http://localhost:8000',
     this.authentication,
   });
 
@@ -243,6 +241,8 @@ class ApiClient {
           return CreateMessageRequestItem.fromJson(value);
         case 'CreateMessageResponse':
           return CreateMessageResponse.fromJson(value);
+        case 'CreateStudentContextRequest':
+          return CreateStudentContextRequest.fromJson(value);
         case 'EditMessageRequest':
           return EditMessageRequest.fromJson(value);
         case 'GoalCreationFollowUpQuestionsRequest':
@@ -299,6 +299,10 @@ class ApiClient {
           return ResourceResponse.fromJson(value);
         case 'StreakDayResponse':
           return StreakDayResponse.fromJson(value);
+        case 'StudentContextItem':
+          return StudentContextItem.fromJson(value);
+        case 'StudentContextResponse':
+          return StudentContextResponse.fromJson(value);
         case 'StudentCurrentStatusResponse':
           return StudentCurrentStatusResponse.fromJson(value);
         case 'StudentResponse':

@@ -74,7 +74,7 @@ class OnboardingApi {
 
   /// Generate Full Creation
   ///
-  /// Create user account and complete onboarding with goal and objective.
+  /// Complete onboarding by creating a goal and objective. Account must already exist.
   ///
   /// Note: This method returns the HTTP [Response].
   ///
@@ -108,7 +108,7 @@ class OnboardingApi {
 
   /// Generate Full Creation
   ///
-  /// Create user account and complete onboarding with goal and objective.
+  /// Complete onboarding by creating a goal and objective. Account must already exist.
   ///
   /// Parameters:
   ///
