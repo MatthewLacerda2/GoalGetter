@@ -35,10 +35,12 @@ class ChatMessageBubble extends StatelessWidget {
                   color: isTutor ? Colors.grey[800] : Colors.grey[700],
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Stack(
                   children: [
-                    Expanded(
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: message.isLiked ? 18.0 : 0.0,
+                      ),
                       child: Text(
                         message.message,
                         style: TextStyle(
@@ -48,10 +50,16 @@ class ChatMessageBubble extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (message.isLiked) ...[
-                      const SizedBox(width: 8),
-                      Icon(Icons.favorite, size: 16, color: Colors.red[400]),
-                    ],
+                    if (message.isLiked)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Icon(
+                          Icons.favorite,
+                          size: 18,
+                          color: Colors.red[400],
+                        ),
+                      ),
                   ],
                 ),
               ),
