@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
+import 'list_memories_screen.dart';
 import 'onboarding/goal_prompt_screen.dart';
 import 'onboarding/start_screen.dart';
 import 'show_objectives_screen.dart';
@@ -111,6 +112,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ShowObjectivesScreen(),
+                ),
+              );
+            }),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile('List memories', Icons.memory, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ListMemoriesScreen(),
                 ),
               );
             }),
