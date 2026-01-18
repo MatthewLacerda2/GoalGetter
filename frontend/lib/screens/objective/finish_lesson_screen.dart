@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:goal_getter/screens/objective/streak_screen.dart';
+
 import '../../widgets/screens/objective/lesson/stat.dart';
 import '../../widgets/screens/objective/lesson/stat_data.dart';
 
@@ -43,26 +44,16 @@ class FinishLessonScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Icon(
-                      icon,
-                      color: Colors.orange,
-                      size: 140,
-                    ),
+                    Icon(icon, color: Colors.orange, size: 140),
                     const SizedBox(height: 60),
                     // Three stat widgets
                     Row(
                       children: [
-                        Expanded(
-                          child: StatWidget(statData: timeSpent),
-                        ),
+                        Expanded(child: StatWidget(statData: timeSpent)),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: StatWidget(statData: accuracy),
-                        ),
+                        Expanded(child: StatWidget(statData: accuracy)),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: StatWidget(statData: combo),
-                        ),
+                        Expanded(child: StatWidget(statData: combo)),
                       ],
                     ),
                   ],
@@ -76,17 +67,13 @@ class FinishLessonScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => StreakScreen(
-                          streakCount: 365,
-                          sunday: false,
-                          monday: true,
-                          tuesday: true,
-                          wednesday: true,
-                          thursday: true,
-                          descriptionText: AppLocalizations.of(context)!.keepThePressureOn,
+                          descriptionText: AppLocalizations.of(
+                            context,
+                          )!.keepThePressureOn,
                         ),
                       ),
                       (route) => false,
-                  );
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
