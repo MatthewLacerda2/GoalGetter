@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import '../../../models/lesson_question_data.dart';
+
 import '../../../screens/objective/lesson_screen.dart';
 
 class LessonButton extends StatelessWidget {
   final String title;
   final String description;
-  final List<LessonQuestionData>? questions;
   final Color? mainColor;
 
   const LessonButton({
     super.key,
     required this.title,
     required this.description,
-    this.questions,
     this.mainColor,
   });
 
@@ -24,7 +22,10 @@ class LessonButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: mainColor ?? Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 2),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.7),
+          width: 2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,21 +44,14 @@ class LessonButton extends StatelessWidget {
           InkWell(
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => LessonScreen(
-                    questions: questions ?? [],
-                  ),
-                ),
+                MaterialPageRoute(builder: (context) => const LessonScreen()),
               );
             },
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.white, width: 2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

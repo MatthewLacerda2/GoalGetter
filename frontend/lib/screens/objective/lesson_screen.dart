@@ -1,41 +1,138 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
 import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
+import 'package:openapi/api.dart';
+
+import '../../config/app_config.dart';
 import '../../models/lesson_question_data.dart';
+import '../../services/auth_service.dart';
 import '../intermediate/info_screen.dart';
-import 'dart:async';
 
 class LessonScreen extends StatefulWidget {
-  final List<LessonQuestionData> questions;
+  final List<LessonQuestionData>? questions;
 
-  const LessonScreen({
-    super.key,
-    required this.questions,
-  });
+  const LessonScreen({super.key, this.questions});
 
   @override
   State<LessonScreen> createState() => _LessonScreenState();
 }
 
+class _QuestionData {
+  final MultipleChoiceQuestionResponse apiQuestion;
+  LessonQuestionStatus status;
+  DateTime? startTime;
+  int? studentAnswerIndex;
+  int? secondsSpent;
+
+  _QuestionData({required this.apiQuestion})
+    : status = LessonQuestionStatus.notAnswered,
+      startTime = null,
+      studentAnswerIndex = null,
+      secondsSpent = null;
+}
+
 class _LessonScreenState extends State<LessonScreen> {
+  final _authService = AuthService();
+  bool _isLoading = true;
+  String? _errorMessage;
+
   int currentQuestionIndex = 0;
   int? selectedChoiceIndex;
   bool isAnswerRevealed = false;
-  List<LessonQuestionData> questionsToReview = [];
+  List<_QuestionData> questionsToReview = [];
   bool isReviewMode = false;
-  
+  bool _hasSubmittedAnswers = false;
+
   // Time tracking variables
   late DateTime _startTime;
   Duration _totalTimeSpent = Duration.zero;
   Timer? _timer;
 
+  // Store API response data
+  MultipleChoiceActivityEvaluationResponse? _evaluationResponse;
+
   @override
   void initState() {
     super.initState();
-    questionsToReview = List.from(widget.questions);
     _startTime = DateTime.now();
     _startTimer();
+
+    if (widget.questions != null && widget.questions!.isNotEmpty) {
+      // Legacy mode: use provided questions
+      _initializeFromQuestions(widget.questions!);
+    } else {
+      // New mode: fetch from API
+      _fetchQuestions();
+    }
+  }
+
+  void _initializeFromQuestions(List<LessonQuestionData> questions) {
+    // Convert legacy format to new format
+    // Note: This is for backwards compatibility only
+    setState(() {
+      _isLoading = false;
+      questionsToReview = questions.map((q) {
+        // Create a dummy API question for legacy support
+        // This won't work for submission but maintains UI compatibility
+        final dummyApiQuestion = MultipleChoiceQuestionResponse(
+          id: '',
+          question: q.question,
+          choices: q.choices,
+          correctAnswerIndex: q.choices.indexOf(q.correctAnswer),
+        );
+        return _QuestionData(apiQuestion: dummyApiQuestion);
+      }).toList();
+      if (questionsToReview.isNotEmpty) {
+        questionsToReview[0].startTime = DateTime.now();
+      }
+    });
+  }
+
+  Future<void> _fetchQuestions() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final accessToken = await _authService.getStoredAccessToken();
+      if (accessToken == null) {
+        throw Exception('No access token available. Please sign in again.');
+      }
+
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+
+      final activitiesApi = ActivitiesApi(apiClient);
+      final response = await activitiesApi
+          .takeMultipleChoiceActivityApiV1ActivitiesPost();
+
+      if (response == null || response.questions.isEmpty) {
+        throw Exception('No questions available');
+      }
+
+      if (mounted) {
+        setState(() {
+          questionsToReview = response.questions.map((q) {
+            return _QuestionData(apiQuestion: q);
+          }).toList();
+          if (questionsToReview.isNotEmpty) {
+            questionsToReview[0].startTime = DateTime.now();
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -62,16 +159,18 @@ class _LessonScreenState extends State<LessonScreen> {
   int _calculateLongestStreak() {
     int longestStreak = 0;
     int currentStreak = 0;
-    
+
     for (var question in questionsToReview) {
       if (question.status == LessonQuestionStatus.correct) {
         currentStreak++;
-        longestStreak = currentStreak > longestStreak ? currentStreak : longestStreak;
+        longestStreak = currentStreak > longestStreak
+            ? currentStreak
+            : longestStreak;
       } else {
         currentStreak = 0;
       }
     }
-    
+
     return longestStreak;
   }
 
@@ -89,8 +188,19 @@ class _LessonScreenState extends State<LessonScreen> {
     setState(() {
       isAnswerRevealed = true;
       final currentQuestion = questionsToReview[currentQuestionIndex];
-      final isCorrect = currentQuestion.choices[selectedChoiceIndex!] == currentQuestion.correctAnswer;
-      
+      currentQuestion.studentAnswerIndex = selectedChoiceIndex;
+
+      // Calculate time spent on this question
+      if (currentQuestion.startTime != null) {
+        final timeSpent = DateTime.now().difference(currentQuestion.startTime!);
+        currentQuestion.secondsSpent = timeSpent.inSeconds.clamp(2, 3600);
+      } else {
+        currentQuestion.secondsSpent = 2; // Minimum required by API
+      }
+
+      final isCorrect =
+          selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
+
       if (isCorrect) {
         currentQuestion.status = LessonQuestionStatus.correct;
       } else {
@@ -99,90 +209,169 @@ class _LessonScreenState extends State<LessonScreen> {
     });
   }
 
+  Future<void> _submitAnswers() async {
+    if (_hasSubmittedAnswers) return;
+
+    try {
+      final accessToken = await _authService.getStoredAccessToken();
+      if (accessToken == null) {
+        throw Exception('No access token available. Please sign in again.');
+      }
+
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+
+      final activitiesApi = ActivitiesApi(apiClient);
+
+      // Build answer list from first pass (before review mode)
+      final answers = questionsToReview
+          .where((q) => q.studentAnswerIndex != null && q.secondsSpent != null)
+          .map(
+            (q) => MultipleChoiceQuestionAnswer(
+              id: q.apiQuestion.id,
+              studentAnswerIndex: q.studentAnswerIndex!,
+              secondsSpent: q.secondsSpent!,
+            ),
+          )
+          .toList();
+
+      if (answers.isEmpty) {
+        throw Exception('No answers to submit');
+      }
+
+      final request = MultipleChoiceActivityEvaluationRequest(answers: answers);
+      final response = await activitiesApi
+          .takeMultipleChoiceActivityApiV1ActivitiesEvaluatePost(request);
+
+      if (mounted) {
+        setState(() {
+          _evaluationResponse = response;
+          _hasSubmittedAnswers = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
+
   void nextQuestion() {
     if (currentQuestionIndex < questionsToReview.length - 1) {
       setState(() {
         currentQuestionIndex++;
         selectedChoiceIndex = null;
         isAnswerRevealed = false;
+        // Start timer for next question
+        questionsToReview[currentQuestionIndex].startTime = DateTime.now();
       });
     } else {
-      // Check if there are any incorrect answers
-      final incorrectQuestions = questionsToReview.where((q) => q.status == LessonQuestionStatus.incorrect).toList();
-      
-      if (incorrectQuestions.isNotEmpty) {
-        // Show InfoScreen for mistakes
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => InfoScreen(
-              icon: Icons.quiz,
-              descriptionText: AppLocalizations.of(context)!.nowLetSCorrectYourMistakes,
-              buttonText: AppLocalizations.of(context)!.continuate,
-              onButtonPressed: () {
-                Navigator.of(context).pop();
-                startReviewMode(incorrectQuestions);
-              },
-            ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: animation.drive(
-                  Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                      .chain(CurveTween(curve: Curves.easeInOut)),
-                ),
-                child: child,
-              );
-            },  
-          ),
-        );
+      // All questions answered - submit to API if not in review mode
+      if (!isReviewMode && !_hasSubmittedAnswers) {
+        _submitAnswers().then((_) {
+          _handleCompletion();
+        });
       } else {
-        // All questions correct, go to finish screen
-        _timer?.cancel(); // Stop the timer
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => FinishLessonScreen(
-              title: "Finish lesson screen",
-              icon: Icons.check_circle,
-              timeSpent: StatData(
-                title: "Time", 
-                icon: Icons.timer, 
-                text: _formatDuration(_totalTimeSpent), 
-                color: Colors.blue
-              ),
-              accuracy: StatData(
-                title: "Accuracy", 
-                icon: Icons.check_circle, 
-                text: "${(questionsToReview.where((q) => q.status == LessonQuestionStatus.correct).length / questionsToReview.length * 100).toStringAsFixed(2)}%", 
-                color: Colors.green
-              ),
-              combo: StatData(
-                title: "Combo", 
-                icon: Icons.star, 
-                text: "${_calculateLongestStreak()}", 
-                color: Colors.yellow
-              )
-            ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: animation.drive(
-                  Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                      .chain(CurveTween(curve: Curves.easeInOut)),
-                ),
-                child: child,
-              );
-            },
-          ),
-        );
+        _handleCompletion();
       }
     }
   }
 
-  void startReviewMode(List<LessonQuestionData> incorrectQuestions) {
+  void _handleCompletion() {
+    // Check if there are any incorrect answers
+    final incorrectQuestions = questionsToReview
+        .where((q) => q.status == LessonQuestionStatus.incorrect)
+        .toList();
+
+    if (incorrectQuestions.isNotEmpty && !isReviewMode) {
+      // Show InfoScreen for mistakes
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => InfoScreen(
+            icon: Icons.quiz,
+            descriptionText: AppLocalizations.of(
+              context,
+            )!.nowLetSCorrectYourMistakes,
+            buttonText: AppLocalizations.of(context)!.continuate,
+            onButtonPressed: () {
+              Navigator.of(context).pop();
+              startReviewMode(incorrectQuestions);
+            },
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: animation.drive(
+                Tween(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).chain(CurveTween(curve: Curves.easeInOut)),
+              ),
+              child: child,
+            );
+          },
+        ),
+      );
+    } else {
+      // All questions correct or review complete, go to finish screen
+      _timer?.cancel();
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => FinishLessonScreen(
+            title: "Finish lesson screen",
+            icon: Icons.check_circle,
+            timeSpent: StatData(
+              title: "Time",
+              icon: Icons.timer,
+              text: _evaluationResponse != null
+                  ? _formatDuration(
+                      Duration(seconds: _evaluationResponse!.totalSecondsSpent),
+                    )
+                  : _formatDuration(_totalTimeSpent),
+              color: Colors.blue,
+            ),
+            accuracy: StatData(
+              title: "Accuracy",
+              icon: Icons.check_circle,
+              text: _evaluationResponse != null
+                  ? "${_evaluationResponse!.studentAccuracy.toStringAsFixed(2)}%"
+                  : "${(questionsToReview.where((q) => q.status == LessonQuestionStatus.correct).length / questionsToReview.length * 100).toStringAsFixed(2)}%",
+              color: Colors.green,
+            ),
+            combo: StatData(
+              title: "Combo",
+              icon: Icons.star,
+              text: "${_calculateLongestStreak()}",
+              color: Colors.yellow,
+            ),
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: animation.drive(
+                Tween(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).chain(CurveTween(curve: Curves.easeInOut)),
+              ),
+              child: child,
+            );
+          },
+        ),
+      );
+    }
+  }
+
+  void startReviewMode(List<_QuestionData> incorrectQuestions) {
     setState(() {
       questionsToReview = incorrectQuestions;
       currentQuestionIndex = 0;
       selectedChoiceIndex = null;
       isAnswerRevealed = false;
       isReviewMode = true;
+      if (questionsToReview.isNotEmpty) {
+        questionsToReview[0].startTime = DateTime.now();
+      }
     });
   }
 
@@ -190,38 +379,92 @@ class _LessonScreenState extends State<LessonScreen> {
     if (!isAnswerRevealed) {
       return selectedChoiceIndex == index ? Colors.blue : Colors.grey;
     }
-    
+
     final currentQuestion = questionsToReview[currentQuestionIndex];
-    final isCorrectAnswer = currentQuestion.choices[index] == currentQuestion.correctAnswer;
+    final isCorrectAnswer =
+        index == currentQuestion.apiQuestion.correctAnswerIndex;
     final isSelectedAnswer = selectedChoiceIndex == index;
-    
+
     if (isCorrectAnswer) {
       return Colors.green;
     } else if (isSelectedAnswer && !isCorrectAnswer) {
       return Colors.red;
     } else {
       return Colors.grey;
-    }    
+    }
   }
 
   Color getButtonColor() {
     if (selectedChoiceIndex == null) {
       return Colors.grey[600]!;
     }
-    
+
     if (!isAnswerRevealed) {
       return Colors.blue;
     } else {
       final currentQuestion = questionsToReview[currentQuestionIndex];
-      final isCorrect = currentQuestion.choices[selectedChoiceIndex!] == currentQuestion.correctAnswer;
+      final isCorrect =
+          selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
       return isCorrect ? Colors.green : Colors.red;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[900],
+        body: const SafeArea(child: Center(child: CircularProgressIndicator())),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: Colors.grey[900],
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Error: $_errorMessage',
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    if (widget.questions == null) {
+                      _fetchQuestions();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (questionsToReview.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.grey[900],
+        body: const SafeArea(
+          child: Center(
+            child: Text(
+              'No questions available',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      );
+    }
+
     final currentQuestion = questionsToReview[currentQuestionIndex];
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body: SafeArea(
@@ -243,16 +486,19 @@ class _LessonScreenState extends State<LessonScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: LinearProgressIndicator(
-                      value: (currentQuestionIndex + 1) / questionsToReview.length,
+                      value:
+                          (currentQuestionIndex + 1) / questionsToReview.length,
                       backgroundColor: Colors.grey[700],
-                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.blue,
+                      ),
                     ),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Question text
               Container(
                 width: double.infinity,
@@ -263,7 +509,7 @@ class _LessonScreenState extends State<LessonScreen> {
                   border: Border.all(color: Colors.grey[600]!),
                 ),
                 child: Text(
-                  currentQuestion.question,
+                  currentQuestion.apiQuestion.question,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -272,13 +518,13 @@ class _LessonScreenState extends State<LessonScreen> {
                   textAlign: TextAlign.left,
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
+
               // Choices
               Expanded(
                 child: ListView.builder(
-                  itemCount: currentQuestion.choices.length,
+                  itemCount: currentQuestion.apiQuestion.choices.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 20),
@@ -296,7 +542,7 @@ class _LessonScreenState extends State<LessonScreen> {
                             ),
                           ),
                           child: Text(
-                            currentQuestion.choices[index],
+                            currentQuestion.apiQuestion.choices[index],
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -309,15 +555,16 @@ class _LessonScreenState extends State<LessonScreen> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Submit/Next button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: selectedChoiceIndex != null ? 
-                    (isAnswerRevealed ? nextQuestion : submitAnswer) : null,
+                  onPressed: selectedChoiceIndex != null
+                      ? (isAnswerRevealed ? nextQuestion : submitAnswer)
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: getButtonColor(),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -326,7 +573,9 @@ class _LessonScreenState extends State<LessonScreen> {
                     ),
                   ),
                   child: Text(
-                    isAnswerRevealed ? AppLocalizations.of(context)!.continuate : AppLocalizations.of(context)!.enter,
+                    isAnswerRevealed
+                        ? AppLocalizations.of(context)!.continuate
+                        : AppLocalizations.of(context)!.enter,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -335,7 +584,7 @@ class _LessonScreenState extends State<LessonScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 8),
             ],
           ),
