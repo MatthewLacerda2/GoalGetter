@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
-import '../widgets/tutor/chat_message_bubble.dart';
-import '../models/chat_message.dart';
-import '../widgets/tutor/chat_input.dart';
+
 import '../config/app_config.dart';
+import '../models/chat_message.dart';
 import '../services/auth_service.dart';
+import '../widgets/tutor/chat_input.dart';
+import '../widgets/tutor/chat_message_bubble.dart';
 
 class TutorScreen extends StatefulWidget {
   const TutorScreen({super.key});
@@ -25,11 +28,15 @@ class _TutorScreenState extends State<TutorScreen> {
   String? _errorMessage;
   String? _studentId;
   String? _oldestMessageId;
+  Timer? _debounceTimer;
+  final List<String> _pendingMessages = [];
+  int _temporaryMessageCounter = 0;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _textController.addListener(_onTextChanged);
     _fetchMessages();
     // Scroll to bottom after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -37,11 +44,23 @@ class _TutorScreenState extends State<TutorScreen> {
     });
   }
 
+  void _onTextChanged() {
+    // Cancel previous timer
+    _debounceTimer?.cancel();
+
+    // Set new timer to send after 1 second of no typing
+    _debounceTimer = Timer(const Duration(seconds: 1), () {
+      if (_pendingMessages.isNotEmpty) {
+        _sendPendingMessages();
+      }
+    });
+  }
+
   void _onScroll() {
     if (_scrollController.hasClients) {
       // Detect when user scrolls near the top (within 200 pixels)
-      if (_scrollController.position.pixels < 200 && 
-          !_isLoadingMore && 
+      if (_scrollController.position.pixels < 200 &&
+          !_isLoadingMore &&
           _hasMoreMessages &&
           _oldestMessageId != null) {
         _fetchMessages(loadMore: true);
@@ -50,7 +69,8 @@ class _TutorScreenState extends State<TutorScreen> {
   }
 
   Future<void> _fetchMessages({bool loadMore = false}) async {
-    if (loadMore && (_isLoadingMore || !_hasMoreMessages || _oldestMessageId == null)) {
+    if (loadMore &&
+        (_isLoadingMore || !_hasMoreMessages || _oldestMessageId == null)) {
       return;
     }
 
@@ -77,8 +97,9 @@ class _TutorScreenState extends State<TutorScreen> {
       // Fetch student status to get student_id if not already fetched
       if (_studentId == null) {
         final studentApi = StudentApi(apiClient);
-        final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
-        
+        final studentResponse = await studentApi
+            .getStudentCurrentStatusApiV1StudentGet();
+
         if (studentResponse == null) {
           throw Exception('Failed to fetch student status');
         }
@@ -96,7 +117,7 @@ class _TutorScreenState extends State<TutorScreen> {
 
       if (mounted && chatResponse != null) {
         final newMessages = chatResponse.messages.reversed.toList();
-        
+
         if (newMessages.isEmpty) {
           setState(() {
             _hasMoreMessages = false;
@@ -112,21 +133,25 @@ class _TutorScreenState extends State<TutorScreen> {
         setState(() {
           if (loadMore) {
             // Prepend older messages to the beginning
-            final convertedMessages = newMessages.map((msg) => _convertToChatMessage(msg)).toList();
+            final convertedMessages = newMessages
+                .map((msg) => _convertToChatMessage(msg))
+                .toList();
             _messages.insertAll(0, convertedMessages);
             _isLoadingMore = false;
           } else {
             // Initial load - replace all messages
             _messages.clear();
-            _messages.addAll(newMessages.map((msg) => _convertToChatMessage(msg)));
+            _messages.addAll(
+              newMessages.map((msg) => _convertToChatMessage(msg)),
+            );
             _isLoading = false;
           }
-          
+
           // Update oldest message ID for next pagination
           if (_messages.isNotEmpty) {
             _oldestMessageId = _messages.first.id;
           }
-          
+
           // Check if we got fewer messages than requested (no more to load)
           if (newMessages.length < 20) {
             _hasMoreMessages = false;
@@ -181,9 +206,45 @@ class _TutorScreenState extends State<TutorScreen> {
     }
   }
 
-  Future<void> _sendMessage() async {
+  void _handleMessageSubmitted() {
     final messageText = _textController.text.trim();
-    if (messageText.isEmpty || _isSending) return;
+    if (messageText.isEmpty) return;
+
+    // Add to pending messages
+    setState(() {
+      _pendingMessages.add(messageText);
+      // Add optimistic message to UI immediately
+      final tempId = 'temp_${_temporaryMessageCounter++}';
+      _messages.add(
+        ChatMessage(
+          id: tempId,
+          message: messageText,
+          sender: ChatMessageSender.user,
+        ),
+      );
+    });
+
+    // Clear input immediately
+    _textController.clear();
+
+    // Scroll to bottom to show new message
+    _scrollToBottom();
+
+    // Cancel previous timer and set new one
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 1), () {
+      if (_pendingMessages.isNotEmpty) {
+        _sendPendingMessages();
+      }
+    });
+  }
+
+  Future<void> _sendPendingMessages() async {
+    if (_pendingMessages.isEmpty || _isSending) return;
+
+    // Get all pending messages to send
+    final messagesToSend = List<String>.from(_pendingMessages);
+    _pendingMessages.clear();
 
     setState(() {
       _isSending = true;
@@ -201,29 +262,70 @@ class _TutorScreenState extends State<TutorScreen> {
       apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
 
       final chatApi = ChatApi(apiClient);
-      
-      // Create the request with the user's message
+
+      // Create the request with all pending messages in sequence
       final request = CreateMessageRequest(
-        messagesList: [
-          CreateMessageRequestItem(
-            message: messageText,
-            datetime: DateTime.now(),
-          ),
-        ],
+        messagesList: messagesToSend
+            .map(
+              (msg) => CreateMessageRequestItem(
+                message: msg,
+                datetime: DateTime.now(),
+              ),
+            )
+            .toList(),
       );
 
-      // Clear input immediately for better UX
-      _textController.clear();
+      // Send messages to API
+      final response = await chatApi.createMessageApiV1ChatPost(request);
 
-      // Send message to API
-      await chatApi.createMessageApiV1ChatPost(request);
+      if (mounted && response != null && response.messages.isNotEmpty) {
+        // Remove temporary user messages and add real messages from response
+        setState(() {
+          // Remove all temporary user messages
+          _messages.removeWhere(
+            (msg) =>
+                msg.id.startsWith('temp_') &&
+                msg.sender == ChatMessageSender.user,
+          );
+        });
 
-      // Refetch all messages to get the updated conversation
-      await _fetchMessages();
+        // Convert all response messages
+        final responseMessages = response.messages
+            .map((item) => _convertResponseItemToChatMessage(item))
+            .toList();
+
+        // Add first message immediately
+        if (responseMessages.isNotEmpty) {
+          setState(() {
+            _messages.add(responseMessages[0]);
+          });
+          _scrollToBottom();
+        }
+
+        // Add subsequent messages with 0.5s delay after each previous one
+        for (int i = 1; i < responseMessages.length; i++) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (mounted) {
+            setState(() {
+              _messages.add(responseMessages[i]);
+            });
+            _scrollToBottom();
+          }
+        }
+      } else {
+        // If no response, refetch messages to sync with server
+        await _fetchMessages();
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
           _errorMessage = 'Failed to send message: ${e.toString()}';
+          // Remove temporary messages on error
+          _messages.removeWhere(
+            (msg) =>
+                msg.id.startsWith('temp_') &&
+                msg.sender == ChatMessageSender.user,
+          );
         });
       }
     } finally {
@@ -244,46 +346,49 @@ class _TutorScreenState extends State<TutorScreen> {
           if (_isLoadingMore)
             Container(
               padding: const EdgeInsets.all(8),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
+                ? const Center(child: CircularProgressIndicator())
                 : _errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Error: $_errorMessage',
-                              style: const TextStyle(color: Colors.red),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () => _fetchMessages(),
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Error: $_errorMessage',
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
                         ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.only(bottom: 8),
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          final message = _messages[index];
-                          return ChatMessageBubble(message: message);
-                        },
-                      ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => _fetchMessages(),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : _messages.isEmpty
+                ? Center(
+                    child: Text(
+                      'New chat',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(bottom: 8),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return ChatMessageBubble(message: message);
+                    },
+                  ),
           ),
           ChatInput(
             controller: _textController,
-            onSendMessage: _sendMessage,
+            onSendMessage: _handleMessageSubmitted,
             isSending: _isSending,
           ),
         ],
@@ -293,10 +398,11 @@ class _TutorScreenState extends State<TutorScreen> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _scrollController.removeListener(_onScroll);
+    _textController.removeListener(_onTextChanged);
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 }
-

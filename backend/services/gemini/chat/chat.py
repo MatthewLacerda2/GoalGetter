@@ -8,7 +8,7 @@ def gemini_messages_generator(
 ) -> GeminiChatResponse:
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiChatResponse.model_json_schema())
     config.temperature = 1
     full_prompt = chat_system_prompt(objective_name, objective_description, goal_name, contexts)    

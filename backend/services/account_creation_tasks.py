@@ -1,13 +1,14 @@
 import logging
+import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
-from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
+from backend.services.ollama.activity.multiple_choice import ollama_generate_multiple_choice_questions
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
-from backend.services.gemini.objective_notes.objective_notes import gemini_define_objective_notes
+from backend.services.ollama.objective_notes.objective_notes import ollama_define_objective_notes
 from backend.models.objective_note import ObjectiveNote
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.repositories.resource_repository import ResourceRepository
-from backend.services.gemini.student_context.student_context import gemini_generate_student_context
+from backend.services.ollama.student_context.student_context import ollama_generate_student_context
 from backend.models.student_context import StudentContext
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
@@ -66,9 +67,9 @@ async def account_creation_tasks(
         raise
 
 async def create_mcqs_async(objective_id: str, objective_name: str, objective_description: str, db: AsyncSession) -> None:
-    """Create a batch of multiple choice questions using Gemini"""
+    """Create a batch of multiple choice questions using Ollama"""
     try:
-        gemini_mc_questions = gemini_generate_multiple_choice_questions(
+        ollama_mc_questions = ollama_generate_multiple_choice_questions(
             objective_name=objective_name,
             objective_description=objective_description,
             previous_objectives=["This is the student's first objective ever"],
@@ -76,7 +77,7 @@ async def create_mcqs_async(objective_id: str, objective_name: str, objective_de
             num_questions=NUM_QUESTIONS_PER_LESSON
         )
         
-        for question in gemini_mc_questions.questions:
+        for question in ollama_mc_questions.questions:
             # Map choices list to individual option fields
             if len(question.choices) < 4:
                 logger.warning(f"Question has fewer than 4 choices: {question.question}")
@@ -90,7 +91,7 @@ async def create_mcqs_async(objective_id: str, objective_name: str, objective_de
                 option_c=question.choices[2],
                 option_d=question.choices[3],
                 correct_answer_index=question.correct_answer_index,
-                ai_model=gemini_mc_questions.ai_model,
+                ai_model=ollama_mc_questions.ai_model,
             )
             db.add(mcq)
         
@@ -101,16 +102,16 @@ async def create_mcqs_async(objective_id: str, objective_name: str, objective_de
         raise
 
 async def create_notes_async(obj_name: str, obj_desc: str, obj_id: str, db: AsyncSession):
-    """Create objective notes using Gemini"""
+    """Create objective notes using Ollama"""
     try:
-        gemini_notes = gemini_define_objective_notes(obj_name, obj_desc)
+        ollama_notes = ollama_define_objective_notes(obj_name, obj_desc)
         
-        for note in gemini_notes.notes:
+        for note in ollama_notes.notes:
             objective_note = ObjectiveNote(
                 objective_id=obj_id,
                 title=note.title,
                 info=note.info,
-                ai_model=gemini_notes.ai_model
+                ai_model=ollama_notes.ai_model
             )
             db.add(objective_note)
         
@@ -177,9 +178,9 @@ async def create_student_context_async(
     onboarding_prompt: str | None = None,
     questions_answers: list[tuple[str, str]] | None = None
 ) -> None:
-    """Create initial student context using Gemini"""
+    """Create initial student context using Ollama"""
     try:
-        gemini_context = gemini_generate_student_context(
+        ollama_context = ollama_generate_student_context(
             goal_name=goal_name,
             goal_description=goal_description,
             objective_name=objective_name,
@@ -189,19 +190,20 @@ async def create_student_context_async(
         )
         
         # Generate embeddings
-        state_embedding = get_gemini_embeddings(gemini_context.state)
-        metacognition_embedding = get_gemini_embeddings(gemini_context.metacognition)
+        state_embedding = get_gemini_embeddings(ollama_context.state)
+        metacognition_embedding = get_gemini_embeddings(ollama_context.metacognition)
         
         # Create student context
         student_context = StudentContext(
-            student_id=student_id,
-            goal_id=goal_id,
-            objective_id=objective_id,
-            state=gemini_context.state,
+            student_id=uuid.UUID(student_id),
+            goal_id=uuid.UUID(goal_id),
+            objective_id=uuid.UUID(objective_id),
+            source="onboarding",
+            state=ollama_context.state,
             state_embedding=state_embedding,
-            metacognition=gemini_context.metacognition,
+            metacognition=ollama_context.metacognition,
             metacognition_embedding=metacognition_embedding,
-            ai_model=gemini_context.ai_model
+            ai_model=ollama_context.ai_model
         )
         
         context_repo = StudentContextRepository(db)

@@ -7,7 +7,7 @@ def gemini_define_learn_info(
 ) -> GeminiLearnInfo:
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiLearnInfo.model_json_schema())
     config.temperature = 2
     full_prompt = get_generate_learn_info_prompt(objective_name, objective_description, informations)

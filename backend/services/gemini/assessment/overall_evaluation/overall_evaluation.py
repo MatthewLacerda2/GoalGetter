@@ -10,7 +10,7 @@ def gemini_subjective_evaluation_review(
     q_and_a = get_formatted_q_and_a(questions, answers)
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiSubjectiveEvaluationReview.model_json_schema())
     full_prompt = get_overall_review_prompt(objective_name, objective_description, q_and_a)
 

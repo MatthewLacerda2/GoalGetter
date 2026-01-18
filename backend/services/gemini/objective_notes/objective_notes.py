@@ -7,7 +7,7 @@ def gemini_define_objective_notes(
 ) -> GeminiObjectiveNotesResponse:
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiObjectiveNotesList.model_json_schema())
     config.temperature = 1
     full_prompt = get_define_objective_notes_prompt(objective_name, objective_description)
