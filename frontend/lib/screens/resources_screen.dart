@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import '../widgets/screens/resource/resource_tab.dart';
+import 'package:openapi/api.dart';
+
+import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
+import '../services/auth_service.dart';
+import '../widgets/screens/resource/resource_tab.dart';
 
 class ResourcesScreen extends StatefulWidget {
   const ResourcesScreen({super.key});
@@ -9,34 +13,22 @@ class ResourcesScreen extends StatefulWidget {
   State<ResourcesScreen> createState() => _ResourcesScreenState();
 }
 
-//TODO: put in a filter for resources that no longer fit the objective
-
 class _ResourcesScreenState extends State<ResourcesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final AuthService _authService = AuthService();
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  final List<Map<String, String>> books = [
-    {'title': 'Apostila de Violão – Allan Sales', 'description': 'Dicas musicais para iniciantes', 'link': 'https://www.viamusical.com.br/Apostila%20Violao%20(versao%201).pdf'},
-    {'title': 'Curso Prático De Violão Básico', 'description': 'Para ajudar os verdadeiros interessados em seu aprendizado', 'link': 'https://musicaeadoracao.com.br/recursos/arquivos/tecnicos/instrumentos/violao.pdf'},
-    {'title': 'Curso Básico de Violão Popular', 'description': 'Curso básico de violão, extremamente prático', 'link': 'https://www.ibel.org.br/download/ApostilaDeViolao.pdf'},
-  ];
-
-  final List<Map<String, String>> youtube = [
-    {'title': 'Hebert Freire', 'description': 'O papo aqui é violão!', 'link': 'https://www.youtube.com/@HebertFreire', 'image': 'https://yt3.googleusercontent.com/A_eM8MM0vMyXG3diHg697BZ9aXRHMbaxrsyzViiXnkNn7tuTDM6zvJdhr9Cc9DCKtHlS2V2f3g=s160-c-k-c0x00ffffff-no-rj'},
-    {'title': 'Heitor Castro', 'description': 'Para dominar o violão!', 'link': 'https://www.youtube.com/@heitorcastro', 'image': 'https://yt3.googleusercontent.com/ytc/AIdro_nlaREsV8Qc26FFmZYfiA0u8ueftvg9tbKrQZz54hUHUnQ=s160-c-k-c0x00ffffff-no-rj'},
-    {'title': 'Sidimar Antunes', 'description': 'O papo aqui é violão!', 'link': 'https://www.youtube.com/@SidimarAntunes', 'image': 'https://yt3.googleusercontent.com/CD29-HW1jyA4sq7oK3AYRmPkuAVf3JDWng1kFxVwECXt8nm99Yw_i1y8mOAXQSb65I9hvDIL=s160-c-k-c0x00ffffff-no-rj'},
-  ];
-
-  final List<Map<String, String>> sites = [
-    {'title': 'Aprenda a tocar violão do zero (para iniciantes)', 'description': 'Guia inicial para aprender violão. Aqui tem o básico para você começar, é só ficar vendo repetidamente e praticar', 'link': 'https://www.descomplicandoamusica.com/aprenda-como-tocar-violao-aula-iniciantes/'},
-    {'title': 'Cifra Club', 'description': 'Aqui você pega as cifras de qualquer som, e vai vendo elas enquanto a música passa', 'link': 'https://www.cifraclub.com.br/david-quinlan/abraca-me/', 'image': 'https://play-lh.googleusercontent.com/7-ERikbkh50hRSox2GDbUHDXykqI8G9TH_Tc4--HCqyHBnfFdlym1w-l0SilD3MAEA=w240-h480-rw'},
-    {'title': 'Chordu', 'description': 'Outro site para ver a cifra enquanto a música passa', 'link': 'https://chordu.com/'},
-  ];
+  List<Map<String, String>> _books = [];
+  List<Map<String, String>> _youtube = [];
+  List<Map<String, String>> _sites = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadResources();
   }
 
   @override
@@ -45,35 +37,149 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     super.dispose();
   }
 
+  Future<void> _loadResources() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final accessToken = await _authService.getStoredAccessToken();
+      if (accessToken == null) {
+        throw Exception('No access token available. Please sign in again.');
+      }
+
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+
+      // Get student status to get goalId
+      final studentApi = StudentApi(apiClient);
+      final studentResponse = await studentApi
+          .getStudentCurrentStatusApiV1StudentGet();
+
+      if (studentResponse == null || studentResponse.goalId == null) {
+        throw Exception('Failed to fetch student status');
+      }
+
+      // Fetch resources
+      final resourcesApi = ResourcesApi(apiClient);
+      final resourcesResponse = await resourcesApi
+          .getResourcesApiV1ResourcesGet(studentResponse.goalId!);
+
+      if (resourcesResponse != null && mounted) {
+        // Group resources by type and convert to Map format
+        final books = <Map<String, String>>[];
+        final youtube = <Map<String, String>>[];
+        final sites = <Map<String, String>>[];
+
+        for (final resource in resourcesResponse.resources) {
+          final resourceMap = <String, String>{
+            'title': resource.name,
+            'description': resource.description,
+            'link': resource.link,
+          };
+
+          if (resource.imageUrl != null && resource.imageUrl!.isNotEmpty) {
+            resourceMap['image'] = resource.imageUrl!;
+          }
+
+          if (resource.resourceType == StudyResourceType.pdf) {
+            books.add(resourceMap);
+          } else if (resource.resourceType == StudyResourceType.youtube) {
+            youtube.add(resourceMap);
+          } else if (resource.resourceType == StudyResourceType.webpage) {
+            sites.add(resourceMap);
+          }
+        }
+
+        setState(() {
+          _books = books;
+          _youtube = youtube;
+          _sites = sites;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _books = [];
+          _youtube = [];
+          _sites = [];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          toolbarHeight: 0,
-          bottom: TabBar(
-            controller: _tabController,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.grey[600],
-            dividerHeight: 4,
-            tabs: [
-              Tab(icon: Icon(Icons.book, size: 24), text: AppLocalizations.of(context)!.book),
-              Tab(icon: Icon(Icons.play_circle, size: 28), text: AppLocalizations.of(context)!.youtube),
-              Tab(icon: Icon(Icons.language, size: 28), text: AppLocalizations.of(context)!.sites),
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Colors.blue)),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: Colors.red, size: 48),
+              SizedBox(height: 16),
+              Text(
+                'Error loading resources',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              SizedBox(height: 8),
+              Text(
+                _errorMessage!,
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 24),
+              ElevatedButton(onPressed: _loadResources, child: Text('Retry')),
             ],
           ),
         ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.grey[600],
+          dividerHeight: 4,
+          tabs: [
+            Tab(
+              icon: Icon(Icons.book, size: 24),
+              text: AppLocalizations.of(context)!.book,
+            ),
+            Tab(
+              icon: Icon(Icons.play_circle, size: 28),
+              text: AppLocalizations.of(context)!.youtube,
+            ),
+            Tab(
+              icon: Icon(Icons.language, size: 28),
+              text: AppLocalizations.of(context)!.sites,
+            ),
+          ],
+        ),
+      ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          ResourceTab(
-            resources: books,
-          ),
-          ResourceTab(
-            resources: youtube,
-          ),
-          ResourceTab(
-            resources: sites,
-          ),
+          ResourceTab(resources: _books),
+          ResourceTab(resources: _youtube),
+          ResourceTab(resources: _sites),
         ],
       ),
     );

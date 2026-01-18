@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query, Depends, status
 from backend.core.database import get_db
 from backend.models.resource import Resource
-from backend.schemas.resource import ResourceResponse
+from backend.schemas.resource import ResourceResponse, ResourceItem
 from backend.repositories.resource_repository import ResourceRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,4 +18,17 @@ async def get_resources(
     resource_repo = ResourceRepository(db)
     resources = await resource_repo.get_by_goal_id(goal_id)
     
-    return ResourceResponse(resources=resources)
+    # Convert Resource objects to ResourceItem with string IDs
+    resource_items = [
+        ResourceItem(
+            id=str(resource.id),
+            resource_type=resource.resource_type,
+            name=resource.name,
+            description=resource.description,
+            link=resource.link,
+            image_url=resource.image_url
+        )
+        for resource in resources
+    ]
+    
+    return ResourceResponse(resources=resource_items)
