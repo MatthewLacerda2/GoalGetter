@@ -92,17 +92,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 16),
 
-            _buildSectionTile('Onboarding', Icons.map, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const GoalPromptScreen(),
-                ),
-              );
-            }),
-
-            const SizedBox(height: 16),
-
             _buildSectionTile('Goals', Icons.list, () {
               Navigator.push(
                 context,
@@ -119,6 +108,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ShowObjectivesScreen(),
+                ),
+              );
+            }),
+
+            const SizedBox(height: 16),
+
+            _buildSectionTile('Create a new goal', Icons.map, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GoalPromptScreen(),
                 ),
               );
             }),

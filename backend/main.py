@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
     
     # Start background task to create missing content for objectives
     # This runs asynchronously and doesn't block startup
-    asyncio.create_task(run_startup_content_creation())
+    #asyncio.create_task(run_startup_content_creation())
     
     yield
     

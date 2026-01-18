@@ -4,8 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.student import Student
 from backend.models.chat_message import ChatMessage
 from backend.schemas.chat_message import CreateMessageRequest
-from backend.services.ollama.chat.chat import ollama_messages_generator
-from backend.services.ollama.chat.schema import OllamaChatMessage, StudentContextToChat
+# from backend.services.ollama.chat.chat import ollama_messages_generator
+# from backend.services.ollama.chat.schema import OllamaChatMessage, StudentContextToChat
+from backend.services.gemini.chat.chat import gemini_messages_generator
+from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.student_context_repository import StudentContextRepository
@@ -14,7 +16,7 @@ from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 # Constants
 RECENT_MESSAGES_DAYS = 1
 STUDENT_CONTEXT_LIMIT = 8
-AI_MODEL_NAME = "gpt-oss:120b-cloud"
+AI_MODEL_NAME = "gemini-2.5-flash-lite"
 
 
 def _create_user_messages_from_request(
@@ -38,10 +40,20 @@ def _create_user_messages_from_request(
     ]
 
 
-def _convert_to_ollama_format(messages: List[ChatMessage]) -> List[OllamaChatMessage]:
-    """Convert ChatMessage to OllamaChatMessage format."""
+# def _convert_to_ollama_format(messages: List[ChatMessage]) -> List[OllamaChatMessage]:
+#     """Convert ChatMessage to OllamaChatMessage format."""
+#     return [
+#         OllamaChatMessage(
+#             message=msg.message,
+#             time=msg.created_at.strftime("%H:%M:%S"),
+#             role="user" if msg.sender_id == str(msg.student_id) else "assistant",
+#         ) for msg in messages
+#     ]
+
+def _convert_to_gemini_format(messages: List[ChatMessage]) -> List[GeminiChatMessage]:
+    """Convert ChatMessage to GeminiChatMessage format."""
     return [
-        OllamaChatMessage(
+        GeminiChatMessage(
             message=msg.message,
             time=msg.created_at.strftime("%H:%M:%S"),
             role="user" if msg.sender_id == str(msg.student_id) else "assistant",
@@ -94,10 +106,10 @@ async def create_chat_message_service(
         current_user.id, days=RECENT_MESSAGES_DAYS
     )
     
-    # Convert to Ollama format
-    recent_messages_ollama = _convert_to_ollama_format(recent_chat_messages)
-    new_messages_ollama = _convert_to_ollama_format(user_messages)
-    chat_history_ollama = recent_messages_ollama + new_messages_ollama
+    # Convert to Gemini format
+    recent_messages_gemini = _convert_to_gemini_format(recent_chat_messages)
+    new_messages_gemini = _convert_to_gemini_format(user_messages)
+    chat_history_gemini = recent_messages_gemini + new_messages_gemini
     
     # Get objective and student context
     objective_repo = ObjectiveRepository(db)
@@ -116,8 +128,15 @@ async def create_chat_message_service(
     ]
     
     # Generate AI response
-    ai_response = ollama_messages_generator(
-        chat_history_ollama,
+    # ai_response = ollama_messages_generator(
+    #     chat_history_ollama,
+    #     context,
+    #     objective.name,
+    #     objective.description,
+    #     current_user.goal_name
+    # )
+    ai_response = gemini_messages_generator(
+        chat_history_gemini,
         context,
         objective.name,
         objective.description,
@@ -137,5 +156,9 @@ async def create_chat_message_service(
     await chat_repo.create_many(user_messages)
     await chat_repo.create_many(ai_chat_messages)
     await db.commit()
+    
+    # Refresh objects after commit to avoid MissingGreenlet errors when accessing attributes
+    for msg in ai_chat_messages:
+        await db.refresh(msg)
     
     return ai_chat_messages
