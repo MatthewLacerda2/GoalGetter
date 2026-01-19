@@ -1,13 +1,17 @@
 from typing import List
+
 from pydantic import BaseModel
 
-class OllamaProgressEvaluation(BaseModel):
+
+class GeminiProgressEvaluation(BaseModel):
     state: List[str] = []
     metacognition: List[str] = []
     percentage_completed: float
 
-class OllamaProgressEvaluationResponse(BaseModel):
+
+class GeminiProgressEvaluationResponse(BaseModel):
     state: List[str]
     metacognition: List[str]
     percentage_completed: float
     ai_model: str
+

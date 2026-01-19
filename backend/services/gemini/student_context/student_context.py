@@ -25,9 +25,8 @@ def gemini_generate_student_context(
         GeminiStudentContextResponse with state, metacognition, and ai_model
     """
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiStudentContext.model_json_schema())
-    config.temperature = 1
     
     full_prompt = get_student_context_prompt(
         goal_name=goal_name,

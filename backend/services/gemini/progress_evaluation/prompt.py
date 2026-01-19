@@ -1,25 +1,28 @@
 from typing import List
+
 from backend.models.student_context import StudentContext
 
+
 def format_student_contexts(contexts: List[StudentContext]) -> str:
-    """Format student contexts for the prompt"""
+    """Format student contexts for the prompt."""
     if not contexts:
         return "No previous student contexts available."
-    
-    context_parts = []
+
+    context_parts: list[str] = []
     for context in contexts:
-        parts = []
-        if context.state:
+        parts: list[str] = []
+        if getattr(context, "state", None):
             parts.append(f"State: {context.state}")
-        if context.metacognition:
+        if getattr(context, "metacognition", None):
             parts.append(f"Metacognition: {context.metacognition}")
-        
+
         if parts:
             context_parts.append("- " + " | ".join(parts))
         else:
             context_parts.append("- (No state or metacognition recorded)")
-    
+
     return "\n".join(context_parts)
+
 
 def get_progress_evaluation_prompt(
     goal_name: str,
@@ -27,11 +30,11 @@ def get_progress_evaluation_prompt(
     objective_name: str,
     objective_description: str,
     percentage_completed: float,
-    contexts: List[StudentContext]
+    contexts: List[StudentContext],
 ) -> str:
-    """Generate prompt for progress evaluation"""
+    """Generate prompt for progress evaluation."""
     formatted_contexts = format_student_contexts(contexts)
-    
+
     return f"""
 ## Context
 
@@ -82,3 +85,4 @@ Each element in the state has a corresponding element in the metacognition array
 
 Write in the language of the student's goal and objective.
 """
+

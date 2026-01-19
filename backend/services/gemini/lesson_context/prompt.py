@@ -1,15 +1,17 @@
 from typing import List, Optional
 
+
 def format_questions_answers(questions_answers: List[tuple[str, str]]) -> str:
-    """Format questions and answers for the prompt"""
+    """Format questions and answers for the prompt."""
     if not questions_answers:
         return "No questions and answers available."
-    
-    qa_parts = []
+
+    qa_parts: list[str] = []
     for question, answer in questions_answers:
         qa_parts.append(f"-question: {question}\nanswer: {answer}")
-    
+
     return "\n".join(qa_parts)
+
 
 def get_lesson_context_prompt(
     goal_name: str,
@@ -17,12 +19,17 @@ def get_lesson_context_prompt(
     objective_name: str,
     objective_description: str,
     questions_answers: List[tuple[str, str]],
-    student_context: Optional[List[str]] = None
+    student_context: Optional[List[str]] = None,
 ) -> str:
-    """Generate prompt for lesson context generation"""
+    """Generate prompt for lesson context generation."""
     formatted_qa = format_questions_answers(questions_answers)
-    context_list: str = ("Here is some context about the student:\n" + "\n".join([f"- {context}." for context in student_context])) if student_context else ""
-    
+    context_list: str = (
+        "Here is some context about the student:\n"
+        + "\n".join([f"- {context}." for context in student_context])
+        if student_context
+        else ""
+    )
+
     return f"""
 ## Context
 
@@ -69,3 +76,4 @@ Each element in the state has a corresponding element in the metacognition array
 
 Write in the language of the student's goal and objective.
 """
+

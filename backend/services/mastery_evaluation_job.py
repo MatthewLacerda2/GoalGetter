@@ -13,7 +13,7 @@ from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
 from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.ollama.progress_evaluation.progress_evaluation import ollama_progress_evaluation
+from backend.services.gemini.progress_evaluation.progress_evaluation import gemini_progress_evaluation
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.utils.time_period import get_yesterday_date_range
 
@@ -148,7 +148,7 @@ async def should_evaluate_objective(student: Student, goal: Goal, objective: "Ob
     return True
 
 
-async def evaluate_objective_progress(student: Student, goal: Goal, objective: "Objective", db: AsyncSession):
+async def evaluate_objective_progress(student: Student, goal: Goal, objective: Objective, db: AsyncSession):
     """
     Evaluate an objective's progress and update it.
     
@@ -168,7 +168,7 @@ async def evaluate_objective_progress(student: Student, goal: Goal, objective: "
     )
     
     # Generate progress evaluation using AI
-    evaluation = ollama_progress_evaluation(
+    evaluation = gemini_progress_evaluation(
         goal_name=goal.name or "",
         goal_description=goal.description or "",
         objective_name=objective.name,

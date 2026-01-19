@@ -13,7 +13,7 @@ from backend.models.multiple_choice_question import MultipleChoiceAnswer
 from backend.models.subjective_question import SubjectiveAnswer
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.ollama.lesson_context.lesson_context import ollama_lesson_context
+from backend.services.gemini.lesson_context.lesson_context import gemini_lesson_context
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.utils.time_period import get_yesterday_date_range
 
@@ -233,7 +233,7 @@ async def generate_context_from_lesson_for_objective(student: Student, goal: Goa
     ] if existing_contexts else None
     
     # Generate context using AI
-    evaluation = ollama_lesson_context(
+    evaluation = gemini_lesson_context(
         goal_name=goal.name or "",
         goal_description=goal.description or "",
         objective_name=objective.name,

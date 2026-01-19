@@ -34,7 +34,6 @@ def gemini_chat_context(
     client = get_client()
     model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiChatContext.model_json_schema())
-    config.temperature = 1
 
     full_prompt = get_chat_context_prompt(
         goal_name=goal_name,

@@ -31,7 +31,7 @@ async def test_list_goals_success(authenticated_client_with_objective, test_db):
         goal_id=goal2.id,
         name="Objective 2",
         description="Objective 2 Description",
-        ai_model="gemini-2.5-flash",
+        ai_model="gemini-2.5-flash-lite",
         last_updated_at=datetime.now(timezone.utc)
     )
     test_db.add(objective2)
@@ -79,7 +79,7 @@ async def test_set_active_goal_success(authenticated_client_with_objective, test
         goal_id=goal2.id,
         name="Objective 2",
         description="Objective 2 Description",
-        ai_model="gemini-2.5-flash"
+        ai_model="gemini-2.5-flash-lite"
     )
     test_db.add(objective2)
     await test_db.commit()
@@ -178,7 +178,7 @@ async def test_delete_goal_success(authenticated_client_with_objective, test_db)
         goal_id=goal2.id,
         name="Objective to Delete",
         description="This objective will be deleted",
-        ai_model="gemini-2.5-flash"
+        ai_model="gemini-2.5-flash-lite"
     )
     test_db.add(objective2)
     await test_db.commit()
