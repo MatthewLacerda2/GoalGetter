@@ -8,7 +8,6 @@ import 'screens/objective_screen.dart';
 import 'screens/onboarding/start_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/resources_screen.dart';
-import 'screens/stats_screen.dart';
 import 'screens/tutor_screen.dart';
 import 'services/auth_service.dart';
 import 'utils/settings_storage.dart';
@@ -224,7 +223,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ObjectiveScreen(),
       const MissionsScreen(),
       const TutorScreen(),
-      StatsScreen(),
+      const MissionsScreen(), //TODO: placeholder while StatsScreen is not implemented
+      //StatsScreen(),
       const ResourcesScreen(),
       ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
     ];

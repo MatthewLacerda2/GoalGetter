@@ -2,7 +2,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsStorage {
   static const String _languageKey = 'user_language';
-  static const String _isFirstLaunchKey = 'is_first_launch';
   static const String _currentGoalIdKey = 'current_goal_id';
   static const String _currentObjectiveIdKey = 'current_objective_id';
 
@@ -34,16 +33,6 @@ class SettingsStorage {
         language == french ||
         language == spanish ||
         language == german;
-  }
-
-  static Future<bool> isFirstLaunch() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isFirstLaunchKey) ?? true;
-  }
-
-  static Future<bool> setFirstLaunchCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
-    return await prefs.setBool(_isFirstLaunchKey, false);
   }
 
   static Future<String?> getCurrentGoalId() async {
