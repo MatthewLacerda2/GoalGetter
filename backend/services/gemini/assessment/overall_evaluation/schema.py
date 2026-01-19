@@ -5,3 +5,10 @@ class GeminiSubjectiveEvaluationReview(BaseModel):
     information: str
     metacognition: str
     approval: bool
+
+class GeminiSubjectiveEvaluationReviewResponse(BaseModel):
+    evaluation: str
+    information: str
+    metacognition: str
+    approval: bool
+    ai_model: str

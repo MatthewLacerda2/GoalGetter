@@ -82,8 +82,8 @@ async def test_generate_full_creation_invalid_token(client, mock_google_verify):
     assert response.json()["detail"] == "Invalid Google token"
 
 @pytest.mark.asyncio
-async def test_generate_full_creation_existing_user(client, mock_google_verify, test_db):
-    """Test full creation attempt with existing Google account"""
+async def test_generate_full_creation_existing_user(client, mock_google_verify, mock_gemini_embeddings, test_db):
+    """Test full creation with existing user - should allow adding new goals"""
     
     first_response = await client.post(
         "/api/v1/onboarding/full_creation",
@@ -91,14 +91,28 @@ async def test_generate_full_creation_existing_user(client, mock_google_verify, 
         json=full_creation_request.model_dump()
     )
     
+    assert first_response.status_code == 201
+    
+    # Second creation should succeed - existing users can add new goals
+    second_request = GoalFullCreationRequest(
+        goal_name="Second Goal",
+        goal_description="Second Goal Description",
+        first_objective_name="Second Objective",
+        first_objective_description="Second Objective Description"
+    )
+    
     second_response = await client.post(
         "/api/v1/onboarding/full_creation",
         headers={"Authorization": "Bearer valid_google_token"},
-        json=full_creation_request.model_dump()
+        json=second_request.model_dump()
     )
     
-    assert second_response.status_code == 409
-    assert second_response.json()["detail"] == "User already exists"
+    assert second_response.status_code == 201
+    response_data = second_response.json()
+    validated_response = TokenResponse.model_validate(response_data)
+    assert isinstance(validated_response, TokenResponse)
+    # User should have the new goal as active
+    assert validated_response.student.email == "test1@example.com"
 
 @pytest.mark.asyncio
 async def test_generate_full_creation_missing_token(client):

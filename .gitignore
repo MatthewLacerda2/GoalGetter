@@ -2,12 +2,77 @@
 *.class
 *.lock
 *.log
-*.pyc
 *.swp
 .buildlog/
 .history
 
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+__pycache__/
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+lib/
+lib64/
+# Exception: don't ignore Dart package lib directories
+!client_sdk/lib/
+!frontend/lib/
+parts/
+sdist/
+var/
+wheels/
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
 
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+
+# Pytest
+.pytest_cache/
+.tox/
+.hypothesis/
+.coverage
+htmlcov/
+*.cover
+.cache
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# FastAPI
+*.db
+*.sqlite
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*env.txt
+
+# Alembic
+alembic/versions/*.pyc
 
 # Flutter repo-specific
 /bin/cache/
@@ -118,8 +183,12 @@ app.*.symbols
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
 
-# Environment variables
-.env
-*env.txt
-
+# Project-specific
 auxpy.py
+debug.txt
+
+# Terraform
+terraform.tfvars
+*.tfstate
+*.tfstate.backup
+.terraform/

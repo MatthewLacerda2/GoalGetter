@@ -24,7 +24,7 @@ def search_resources(
         language= e.language,
         link= e.link,
         image_url= e.image_url,
-        description = get_gemini_embeddings(e.description)
+        description_embedding = get_gemini_embeddings(e.description)
     )for e in ebooks.resources]
     
     site_resources= [Resource(
@@ -36,7 +36,7 @@ def search_resources(
         language= w.language,
         link= w.link,
         image_url= w.image_url,
-        description = get_gemini_embeddings(w.description)
+        description_embedding = get_gemini_embeddings(w.description)
     )for w in websites.resources]
     
     yt_resources= [Resource(
@@ -48,7 +48,7 @@ def search_resources(
         language= y.language,
         link= y.link,
         image_url= y.image_url,
-        description = get_gemini_embeddings(y.description)
+        description_embedding = get_gemini_embeddings(y.description)
     )for y in yt_channels.resources]
     
     response = ebook_resources + site_resources + yt_resources

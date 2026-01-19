@@ -27,7 +27,7 @@ def isGoalValidated(goalValidation: GeminiGoalValidation) -> bool :
 def get_follow_up_validation(study_plan_request: GoalStudyPlanRequest) -> GeminiFollowUpValidation:
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     full_prompt = get_follow_up_validation_prompt(study_plan_request)
     config = get_gemini_config(GeminiFollowUpValidation.model_json_schema())
     

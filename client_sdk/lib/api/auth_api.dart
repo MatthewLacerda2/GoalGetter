@@ -18,7 +18,7 @@ class AuthApi {
 
   /// Delete Account
   ///
-  /// Delete user account and all associated data
+  /// Delete user account and all associated data. Database CASCADE will automatically delete related goals and their objectives. Use bulk delete to bypass ORM relationship handling which causes constraint violations.
   ///
   /// Note: This method returns the HTTP [Response].
   Future<Response> deleteAccountApiV1AuthAccountDeleteWithHttpInfo() async {
@@ -48,7 +48,7 @@ class AuthApi {
 
   /// Delete Account
   ///
-  /// Delete user account and all associated data
+  /// Delete user account and all associated data. Database CASCADE will automatically delete related goals and their objectives. Use bulk delete to bypass ORM relationship handling which causes constraint violations.
   Future<void> deleteAccountApiV1AuthAccountDelete() async {
     final response = await deleteAccountApiV1AuthAccountDeleteWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {
@@ -99,6 +99,54 @@ class AuthApi {
   /// * [OAuth2Request] oAuth2Request (required):
   Future<TokenResponse?> loginApiV1AuthLoginPost(OAuth2Request oAuth2Request,) async {
     final response = await loginApiV1AuthLoginPostWithHttpInfo(oAuth2Request,);
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'TokenResponse',) as TokenResponse;
+    
+    }
+    return null;
+  }
+
+  /// Signup
+  ///
+  /// Sign up or sign in using Google OAuth2 token. Creates a new account if the user doesn't exist, or returns existing account info.
+  ///
+  /// Note: This method returns the HTTP [Response].
+  Future<Response> signupApiV1AuthSignupPostWithHttpInfo() async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/auth/signup';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'POST',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Signup
+  ///
+  /// Sign up or sign in using Google OAuth2 token. Creates a new account if the user doesn't exist, or returns existing account info.
+  Future<TokenResponse?> signupApiV1AuthSignupPost() async {
+    final response = await signupApiV1AuthSignupPostWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

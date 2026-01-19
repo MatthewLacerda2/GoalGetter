@@ -184,6 +184,7 @@ class ChatApi {
   /// Parameters:
   ///
   /// * [String] messageId:
+  ///   Get messages before this message ID (for backward pagination)
   ///
   /// * [int] limit:
   Future<Response> getChatMessagesApiV1ChatGetWithHttpInfo({ String? messageId, int? limit, }) async {
@@ -223,6 +224,7 @@ class ChatApi {
   /// Parameters:
   ///
   /// * [String] messageId:
+  ///   Get messages before this message ID (for backward pagination)
   ///
   /// * [int] limit:
   Future<ChatMessageResponse?> getChatMessagesApiV1ChatGet({ String? messageId, int? limit, }) async {

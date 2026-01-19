@@ -1,4 +1,5 @@
 from typing import List
+
 from pydantic import BaseModel
 
 class GeminiMultipleChoiceQuestion(BaseModel):
@@ -8,3 +9,7 @@ class GeminiMultipleChoiceQuestion(BaseModel):
 
 class GeminiMultipleChoiceQuestionsList(BaseModel):
     questions: List[GeminiMultipleChoiceQuestion]
+
+class GeminiMultipleChoiceQuestionsResponse(BaseModel):
+    questions: List[GeminiMultipleChoiceQuestion]
+    ai_model: str

@@ -17,7 +17,7 @@ async def test_get_achievements_with_student(client, test_user):
 async def test_get_achievements_with_no_student(client, test_db):
     """Test getting achievements for a non-existent student returns 404"""
     
-    response = await client.get(f"/api/v1/achievements/non-existent-id?limit=10")
+    response = await client.get(f"/api/v1/achievements/00000000-0000-0000-0000-000000000000?limit=10")
     
     assert response.status_code == 404
     assert response.json()["detail"] == "Student not found"

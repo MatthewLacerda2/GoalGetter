@@ -1,18 +1,19 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
 import asyncio
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException, status
 from backend.models.goal import Goal
 from backend.core.database import get_db
-from backend.core.security import verify_google_token_header, create_access_token
+from backend.core.security import create_access_token, verify_google_token_header
 from backend.models.student import Student
 from backend.models.objective import Objective
 from backend.repositories.student_repository import StudentRepository
-from backend.schemas.student import TokenResponse
-from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, get_follow_up_validation, isGoalValidated, isFollowUpValidated
+from backend.schemas.student import TokenResponse, StudentResponse
+from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+from backend.services.account_creation_tasks import account_creation_tasks
 
 router = APIRouter()
 
@@ -56,7 +57,7 @@ async def generate_study_plan(
     "/full_creation",
     status_code=201,
     response_model=TokenResponse,
-    description="Create user account and complete onboarding with goal and objective.")
+    description="Complete onboarding by creating a goal and objective. Account must already exist.")
 async def generate_full_creation(
     request: GoalFullCreationRequest,
     user_info: dict = Depends(verify_google_token_header),
@@ -65,12 +66,23 @@ async def generate_full_creation(
     
     try:
         student_repo = StudentRepository(db)
-        existing_user = await student_repo.get_by_google_id(user_info["sub"])
+        user = await student_repo.get_by_google_id(user_info["sub"])
         
-        if existing_user:
-            raise HTTPException(status_code=409,detail="User already exists")
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User account not found. Please sign up first."
+            )
         
+        # Store user attributes immediately after fetch to avoid async ORM access issues
+        user_id = user.id
+        user_google_id = user.google_id
+        user_email = user.email
+        user_name = user.name
+        
+        # Create goal with student_id
         goal = Goal(
+            student_id=user_id,
             name=request.goal_name,
             description=request.goal_description,
         )
@@ -79,52 +91,114 @@ async def generate_full_creation(
         await db.commit()
         await db.refresh(goal)
         
+        # Store goal ID immediately after refresh to avoid async issues
+        goal_id = goal.id
+        
+        # Create objective
         objective = Objective(
-            goal_id=goal.id,
+            goal_id=goal_id,
             name=request.first_objective_name,
-            description=request.first_objective_description
+            description=request.first_objective_description,
+            ai_model="gemini-2.5-flash-lite"
         )
         
         db.add(objective)
         await db.commit()
         await db.refresh(objective)
         
-        user = Student(
-            email=user_info["email"],
-            google_id=user_info["sub"],
-            name=user_info.get("name"),
-            goal_id=goal.id,
-            goal_name=goal.name,
-            current_objective_id=objective.id,
-            current_objective_name=objective.name,
-        )
-        created_user = await student_repo.create(user)
+        # Store objective ID immediately after refresh to avoid async issues
+        objective_id = objective.id
         
-        asyncio.create_task(
-            save_description_embeddings_async(goal, objective, db)
+        # Update student's active goal and objective
+        # Use request values directly to avoid any async ORM attribute access issues
+        user.goal_id = goal_id
+        user.goal_name = request.goal_name
+        user.current_objective_id = objective_id
+        user.current_objective_name = request.first_objective_name
+        
+        await student_repo.update(user)
+        
+        # Save description embeddings
+        await save_description_embeddings_async(
+            goal,
+            objective,
+            request.goal_description,
+            request.first_objective_description,
+            db,
         )
         
-        access_token = create_access_token(data={"sub": created_user.google_id})
+        # Generate JWT access token
+        access_token = create_access_token(data={"sub": user_google_id})
         
         await db.commit()
         
+        # Extract values for background task to avoid ORM object detachment
+        goal_name = request.goal_name
+        goal_description = request.goal_description
+        objective_name = request.first_objective_name
+        objective_description = request.first_objective_description
+        
+        # Trigger async account creation tasks (MCQs, notes, resources, student context)
+        # These run in the background with a new database session
+        # Note: onboarding_prompt and questions_answers are None since GoalFullCreationRequest
+        # doesn't include them. This can be enhanced later by adding them to the request schema.
+        async def run_account_creation_tasks():
+            from backend.core.database import AsyncSessionLocal
+            async with AsyncSessionLocal() as new_db:
+                try:
+                    await account_creation_tasks(
+                        student_id=str(user_id),
+                        goal_id=str(goal_id),
+                        goal_name=goal_name,
+                        goal_description=goal_description,
+                        objective_id=str(objective_id),
+                        objective_name=objective_name,
+                        objective_description=objective_description,
+                        db=new_db,
+                        onboarding_prompt=None,
+                        questions_answers=None
+                    )
+                except Exception as e:
+                    # Log error but don't fail the request
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Error in background account creation tasks: {e}", exc_info=True)
+        
+        asyncio.create_task(run_account_creation_tasks())
+        
+        student_response = StudentResponse(
+            id=str(user_id),
+            google_id=user_google_id,
+            email=user_email,
+            name=user_name
+        )
+        
         return TokenResponse(
             access_token=access_token,
-            student=created_user
+            student=student_response
         )
         
     except HTTPException:
         raise
     except Exception as e:
         await db.rollback()
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in generate_full_creation: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail="Internal server error"
         )
 
-async def save_description_embeddings_async(goal: Goal, objective: Objective, db: AsyncSession):
-    goal_description_embedding = get_gemini_embeddings(goal.description)
-    objective_description_embedding = get_gemini_embeddings(objective.description)
+async def save_description_embeddings_async(
+    goal: Goal,
+    objective: Objective,
+    goal_description: str,
+    objective_description: str,
+    db: AsyncSession,
+):
+    goal_description_embedding = get_gemini_embeddings(goal_description)
+    objective_description_embedding = get_gemini_embeddings(objective_description)
     goal.description_embedding = goal_description_embedding
     objective.description_embedding = objective_description_embedding
     await db.commit()

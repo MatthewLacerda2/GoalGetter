@@ -31,7 +31,7 @@ async def get_week_streak(
     
     streak_day_schemas = [
         StreakDayResponse(
-            id=day.id,
+            id=str(day.id),
             date_time=day.date_time
         ) for day in streak_days
     ]
@@ -66,7 +66,7 @@ async def get_month_streak(
     
     streak_day_schemas = [
         StreakDayResponse(
-            id=day.id,
+            id=str(day.id),
             date_time=day.date_time
         ) for day in streak_days
     ]

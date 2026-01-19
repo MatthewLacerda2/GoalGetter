@@ -1,17 +1,18 @@
-from pydantic_settings import BaseSettings
-from pydantic import ConfigDict
 from functools import lru_cache
+from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "GoalGetter"
-    #TODO: all values below are made-up. read from .env
-    GEMINI_API_KEY: str = "AIzaSyDmrw4L5uRbqb6lrwneZ1CTg78IU7M5iKU"
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback"
-    SECRET_KEY: str = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
     
-    DATABASE_URL: str = "postgresql+asyncpg://localhost/goalgetter"
+    GEMINI_API_KEY: str
+    GOOGLE_REDIRECT_URI: str
+    SECRET_KEY: str
+    
+    DATABASE_URL: str
+    TEST_DATABASE_URL: str | None = None  # Optional, only needed for tests
     
     model_config = ConfigDict(
         case_sensitive=True, 

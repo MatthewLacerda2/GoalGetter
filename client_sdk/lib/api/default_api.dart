@@ -16,12 +16,12 @@ class DefaultApi {
 
   final ApiClient apiClient;
 
-  /// Health Check
+  /// Llms Txt
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> healthCheckHealthGetWithHttpInfo() async {
+  Future<Response> llmsTxtLlmsTxtGetWithHttpInfo() async {
     // ignore: prefer_const_declarations
-    final path = r'/health';
+    final path = r'/llms.txt';
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -44,9 +44,53 @@ class DefaultApi {
     );
   }
 
-  /// Health Check
-  Future<Object?> healthCheckHealthGet() async {
-    final response = await healthCheckHealthGetWithHttpInfo();
+  /// Llms Txt
+  Future<String?> llmsTxtLlmsTxtGet() async {
+    final response = await llmsTxtLlmsTxtGetWithHttpInfo();
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'String',) as String;
+    
+    }
+    return null;
+  }
+
+  /// Root
+  ///
+  /// Note: This method returns the HTTP [Response].
+  Future<Response> rootApiV1CheckGetWithHttpInfo() async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/check';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Root
+  Future<Object?> rootApiV1CheckGet() async {
+    final response = await rootApiV1CheckGetWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -60,12 +104,12 @@ class DefaultApi {
     return null;
   }
 
-  /// Root
+  /// Security Txt Fallback
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> rootGetWithHttpInfo() async {
+  Future<Response> securityTxtFallbackSecurityTxtGetWithHttpInfo() async {
     // ignore: prefer_const_declarations
-    final path = r'/';
+    final path = r'/security.txt';
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -88,9 +132,9 @@ class DefaultApi {
     );
   }
 
-  /// Root
-  Future<Object?> rootGet() async {
-    final response = await rootGetWithHttpInfo();
+  /// Security Txt Fallback
+  Future<String?> securityTxtFallbackSecurityTxtGet() async {
+    final response = await securityTxtFallbackSecurityTxtGetWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -98,7 +142,7 @@ class DefaultApi {
     // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
     // FormatException when trying to decode an empty string.
     if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
-      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'Object',) as Object;
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'String',) as String;
     
     }
     return null;

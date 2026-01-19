@@ -7,7 +7,7 @@ def gemini_define_objective(
 ) -> GeminiObjective:
     
     client = get_client()
-    model = "gemini-2.5-pro"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiObjective.model_json_schema())
     full_prompt = get_define_objective_prompt(goal_name, goal_description, latest_objective, latest_objective_description, student_context)
     

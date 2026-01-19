@@ -36,18 +36,20 @@ def mock_gemini_embeddings():
     def mock_get_gemini_embeddings(text):
         return np.zeros(3072, dtype=np.float32)
 
-    with patch('backend.api.v1.endpoints.onboarding.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock1, \
-         patch('backend.api.v1.endpoints.chat.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock2, \
-         patch('backend.api.v1.endpoints.assessments.subjective_question_evaluation', side_effect=mock_get_gemini_embeddings) as mock3:
-        yield mock1, mock2, mock3
+    with patch('backend.utils.gemini.gemini_configs.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
+        yield mock
 
 @pytest.fixture
 def mock_gemini_multiple_choice_questions():
     """Fixture to mock Gemini multiple choice questions responses"""
     def mock_generate_multiple_choice_questions(*args, **kwargs):
-        from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsList, GeminiMultipleChoiceQuestion
+        from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsResponse, GeminiMultipleChoiceQuestion
+        from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
         
-        return GeminiMultipleChoiceQuestionsList(
+        # Get num_questions from args (5th argument) or default to NUM_QUESTIONS_PER_LESSON
+        num_questions = args[4] if len(args) > 4 else NUM_QUESTIONS_PER_LESSON
+        
+        return GeminiMultipleChoiceQuestionsResponse(
             questions=[
                 GeminiMultipleChoiceQuestion(
                     question=f"Sample question {i+1}: What is the correct way to print 'Hello World' in Python?",
@@ -57,37 +59,22 @@ def mock_gemini_multiple_choice_questions():
                         "console.log('Hello World')",
                         "System.out.println('Hello World')"
                     ],
-                    correct_answer_index=0,
-                    xp = 10
-                ) for i in range(10)
-            ]
+                    correct_answer_index=0
+                ) for i in range(num_questions)
+            ],
+            ai_model="test-model"
         )
     
     with patch('backend.api.v1.endpoints.activities.gemini_generate_multiple_choice_questions', side_effect=mock_generate_multiple_choice_questions) as mock:
         yield mock
 
 @pytest.fixture
-def mock_gemini_subjective_questions():
-    """Fixture to mock Gemini subjective questions responses"""
-    def mock_generate_subjective_questions(*args, **kwargs):
-        from backend.utils.envs import NUM_QUESTIONS_PER_EVALUATION
-        from backend.services.gemini.assessment.assessment import GeminiEvaluationQuestionsList
-        
-        questions = [f"Question {i+1}" for i in range(NUM_QUESTIONS_PER_EVALUATION)]
-        
-        return GeminiEvaluationQuestionsList(
-            questions=questions
-        )
-    with patch('backend.api.v1.endpoints.assessments.gemini_generate_subjective_questions', side_effect=mock_generate_subjective_questions) as mock:
-        yield mock
-
-@pytest.fixture
 def mock_gemini_messages_generator():
-    """Fixture to mock Gemini chat messages generator responses"""
-    def mock_gemini_messages_generator(*args, **kwargs):
-        from backend.services.gemini.chat.schema import GeminiChatResponse
+    """Fixture to mock Ollama chat messages generator responses"""
+    def mock_ollama_messages_generator(*args, **kwargs):
+        from backend.services.ollama.chat.schema import OllamaChatResponse
         
-        return GeminiChatResponse(
+        return OllamaChatResponse(
             messages=[
                 "I can help you understand those SQLAlchemy concepts!",
                 "Flush forces pending changes to be sent to the database immediately.",
@@ -96,7 +83,7 @@ def mock_gemini_messages_generator():
             ]
         )
     
-    with patch('backend.api.v1.endpoints.chat.gemini_messages_generator', side_effect=mock_gemini_messages_generator) as mock:
+    with patch('backend.services.chat.chat_service.ollama_messages_generator', side_effect=mock_ollama_messages_generator) as mock:
         yield mock
 
 @pytest.fixture
@@ -135,24 +122,6 @@ def mock_gemini_follow_up_validation():
         yield mock
 
 @pytest.fixture
-def mock_gemini_single_question_review():
-    """Fixture to mock Gemini single question review responses"""
-    def mock_gemini_generate_question_review(*args, **kwargs):
-        from backend.services.gemini.assessment.single_question.schema import GeminiSingleQuestionReview
-        
-        return GeminiSingleQuestionReview(
-            approval=True,
-            evaluation="The answer demonstrates a good understanding of diffusion models, though it could be more precise about the iterative denoising process.",
-            metacognition="The student shows conceptual understanding but may benefit from more technical detail about the diffusion process."
-        )
-    
-    with patch(
-        'backend.services.gemini.assessment.single_question.single_question.gemini_generate_question_review',
-        side_effect=mock_gemini_generate_question_review,
-    ) as mock:
-        yield mock
-
-@pytest.fixture
 def mock_subjective_question_repository():
     """Fixture to mock SubjectiveQuestionRepository.get_by_id"""
     from backend.models.subjective_question import SubjectiveQuestion
@@ -162,6 +131,7 @@ def mock_subjective_question_repository():
         question = SubjectiveQuestion()
         question.id = question_id
         question.question = "A Question"
+        question.ai_model = "test-model"
         question.llm_approval = None
         question.llm_evaluation = None
         question.llm_metacognition = None
@@ -172,24 +142,5 @@ def mock_subjective_question_repository():
     with patch(
         'backend.repositories.subjective_question_repository.SubjectiveQuestionRepository.get_by_id',
         side_effect=mock_get_by_id,
-    ) as mock:
-        yield mock
-
-@pytest.fixture
-def mock_gemini_overall_evaluation_review():
-    """Fixture to mock Gemini overall evaluation review responses"""
-    def mock_gemini_subjective_evaluation_review(*args, **kwargs):
-        from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReview
-        
-        return GeminiSubjectiveEvaluationReview(
-            evaluation="The student demonstrates good understanding of the concepts with clear explanations and practical examples.",
-            information="The answers show comprehensive knowledge of the subject matter with accurate technical details.",
-            metacognition="The student appears to have a solid grasp of the material and can apply concepts effectively.",
-            approval=True
-        )
-    
-    with patch(
-        'backend.api.v1.endpoints.assessments.gemini_subjective_evaluation_review',
-        side_effect=mock_gemini_subjective_evaluation_review,
     ) as mock:
         yield mock

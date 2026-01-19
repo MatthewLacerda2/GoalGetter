@@ -5,12 +5,13 @@ from typing import Any
 from google.genai import Client
 from google.genai.types import GenerateContentConfig, EmbedContentConfig
 from backend.utils.envs import NUM_DIMENSIONS
+from backend.core.config import settings
 
 logger = logging.getLogger(__name__)
 load_dotenv()
 
 def get_client():
-    return Client(api_key="AIzaSyDmrw4L5uRbqb6lrwneZ1CTg78IU7M5iKU")
+    return Client(api_key=settings.GEMINI_API_KEY)
 
 def get_gemini_config(json_schema: dict[str, Any]) -> GenerateContentConfig:
     return GenerateContentConfig(

@@ -1,16 +1,16 @@
 from typing import List
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.assessment.overall_evaluation.prompt import get_overall_review_prompt
-from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReview
+from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReview, GeminiSubjectiveEvaluationReviewResponse
 
 def gemini_subjective_evaluation_review(
     objective_name: str, objective_description: List[str], questions: List[str], answers: List[str]
-) -> GeminiSubjectiveEvaluationReview:
+) -> GeminiSubjectiveEvaluationReviewResponse:
     
     q_and_a = get_formatted_q_and_a(questions, answers)
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiSubjectiveEvaluationReview.model_json_schema())
     full_prompt = get_overall_review_prompt(objective_name, objective_description, q_and_a)
 
@@ -20,7 +20,14 @@ def gemini_subjective_evaluation_review(
     
     json_response = response.text
     
-    return GeminiSubjectiveEvaluationReview.model_validate_json(json_response)
+    review = GeminiSubjectiveEvaluationReview.model_validate_json(json_response)
+    return GeminiSubjectiveEvaluationReviewResponse(
+        evaluation=review.evaluation,
+        information=review.information,
+        metacognition=review.metacognition,
+        approval=review.approval,
+        ai_model=model
+    )
 
 def get_formatted_q_and_a(questions: List[str], answers: List[str]) -> str:
     

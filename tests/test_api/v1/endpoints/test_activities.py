@@ -63,7 +63,7 @@ async def test_evaluate_multiple_choice_activity_success(authenticated_client_wi
     
     client, access_token = authenticated_client_with_objective
     
-    answers = [MultipleChoiceQuestionAnswer(id=f"id_{i}", student_answer_index= 0, seconds_spent=5) for i in range (NUM_QUESTIONS_PER_LESSON)]
+    answers = [MultipleChoiceQuestionAnswer(id=str(question.id), student_answer_index=0, seconds_spent=5) for question in test_multiple_choice_questions]
     request_body = MultipleChoiceActivityEvaluationRequest(answers=answers)
     
     response = await client.post(

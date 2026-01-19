@@ -1,20 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:goal_getter/screens/intermediate/info_screen.dart';
-import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
-import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
-import '../utils/settings_storage.dart';
-import '../l10n/app_localizations.dart';
-import 'onboarding/goal_prompt_screen.dart';
 import 'package:country_flags/country_flags.dart';
-import 'onboarding/tutorial_screen.dart';
-import 'objective/finish_evaluation_screen.dart';
-import 'objective/evaluation_screen.dart';
+import 'package:flutter/material.dart';
 
-//TODO: Create a 'previous objectives screen' and a 'future objectives screen'
+import '../l10n/app_localizations.dart';
+import '../services/auth_service.dart';
+import '../utils/settings_storage.dart';
+import 'list_goals_screen.dart';
+import 'list_memories_screen.dart';
+import 'onboarding/goal_prompt_screen.dart';
+import 'onboarding/start_screen.dart';
+import 'show_objectives_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
-  
+
   const ProfileScreen({super.key, this.onLanguageChanged});
 
   @override
@@ -23,6 +21,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _currentLanguage = SettingsStorage.defaultLanguage;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -45,7 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     widget.onLanguageChanged?.call(language);
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -94,125 +93,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            
-            const SizedBox(height: 16),
-            
-            _buildSectionTile(
-              'Onboarding',
-              Icons.map,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const GoalPromptScreen(),
-                  ),
-                );
-              },
-            ),
 
             const SizedBox(height: 16),
 
-            _buildSectionTile(
-              'Tutorial screen',
-              Icons.hourglass_empty,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TutorialScreen(),
-                  ),
-                );
-              },
-            ),
+            _buildSectionTile('Goals', Icons.list, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ListGoalsScreen(),
+                ),
+              );
+            }),
 
             const SizedBox(height: 16),
 
-            _buildSectionTile(
-              'Finish evaluation screen',
-              Icons.check_circle,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FinishEvaluationScreen(),
-                  ),
-                );
-              },
-            ),
+            _buildSectionTile('Show objectives', Icons.checklist, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ShowObjectivesScreen(),
+                ),
+              );
+            }),
 
             const SizedBox(height: 16),
 
-            _buildSectionTile(
-              'Evaluation screen',
-              Icons.assessment,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EvaluationScreen(),
-                  ),
-                );
-              },
-            ),
+            _buildSectionTile('List memories', Icons.memory, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ListMemoriesScreen(),
+                ),
+              );
+            }),
 
             const SizedBox(height: 16),
 
-            _buildSectionTile(
-              'Info screen',
-              Icons.person,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InfoScreen(
-                      icon: Icons.info, 
-                      title: "Info screen",
-                      descriptionText: "Description", 
-                      buttonText: "Button", 
-                      onButtonPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
+            _buildSectionTile('Create a new goal', Icons.map, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GoalPromptScreen(),
+                ),
+              );
+            }),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
 
-            _buildSectionTile(
-              'Finish lesson screen',
-              Icons.check_circle,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FinishLessonScreen(
-                      title: "Finish lesson screen",
-                      icon: Icons.check_circle,
-                      timeSpent: StatData(
-                        title: "Time", 
-                        icon: Icons.timer, 
-                        text: "1:39", 
-                        color: Colors.blue
-                      ),
-                      accuracy: StatData(
-                        title: "Accuracy", 
-                        icon: Icons.check_circle, 
-                        text: "90%", 
-                        color: Colors.green
-                      ),
-                      combo: StatData(
-                        title: "Combo", 
-                        icon: Icons.star, 
-                        text: "3", 
-                        color: Colors.yellow
-                      )
-                    ),
-                  ),
-                );
-              },
-            ),
+            _buildSignOutButton(),
           ],
         ),
       ),
@@ -221,15 +149,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildLanguageButton(String label, String language, IconData icon) {
     final isSelected = _currentLanguage == language;
-    
+
     return GestureDetector(
       onTap: () => _changeLanguage(language),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected 
-            ? Theme.of(context).colorScheme.primary 
-            : Theme.of(context).colorScheme.surface,
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(4),
         ),
         child: SizedBox(
@@ -252,23 +180,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(
           title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
-        trailing: const Icon(
-          Icons.chevron_right,
-          color: Colors.grey,
-        ),
+        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: onTap,
       ),
     );
+  }
+
+  Widget _buildSignOutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _handleSignOut,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red.withValues(alpha: 0.2),
+          foregroundColor: Colors.red,
+          side: const BorderSide(color: Colors.red, width: 2),
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: const Text(
+          'Sign out',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleSignOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sign out'),
+          content: const Text('Are you sure?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Sign out'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      // Clear auth data
+      await _authService.signOut();
+
+      // Clear user data from settings
+      await SettingsStorage.clearAllUserData();
+
+      // Navigate to start screen
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const StartScreen()),
+          (route) => false,
+        );
+      }
+    }
   }
 }

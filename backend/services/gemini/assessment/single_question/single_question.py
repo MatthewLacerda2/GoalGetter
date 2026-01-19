@@ -7,7 +7,7 @@ def gemini_generate_question_review(
 ) -> GeminiSingleQuestionReview:
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     config = get_gemini_config(GeminiSingleQuestionReview.model_json_schema())
     full_prompt = get_single_question_review_prompt(question, answer)
 

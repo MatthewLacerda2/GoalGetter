@@ -22,16 +22,35 @@ class SubjectiveQuestionRepository(BaseRepository[SubjectiveQuestion]):
         result = await self.db.execute(stmt)
         return result.scalars().all()
     
-    async def get_unanswered_or_wrong(self, objective_id: str, limit: int) -> List[SubjectiveQuestion]:
-        """Get unanswered or wrong subjective questions for a specific objective"""
-        unanswered = SubjectiveQuestion.student_answer == None
-        wrong = SubjectiveQuestion.llm_approval == False
-        stmt = select(SubjectiveQuestion).where(
-            SubjectiveQuestion.objective_id == objective_id,
-            unanswered | wrong
-        ).limit(limit)
-        result = await self.db.execute(stmt)
-        return result.scalars().all()
+    async def get_unanswered_or_wrong(self, objective_id: str, student_id: str, limit: int) -> List[SubjectiveQuestion]:
+        """Get unanswered or wrong subjective questions for a specific objective and student"""
+        from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
+        
+        # Get all questions for the objective
+        all_questions_stmt = select(SubjectiveQuestion).where(
+            SubjectiveQuestion.objective_id == objective_id
+        )
+        all_questions_result = await self.db.execute(all_questions_stmt)
+        all_questions = all_questions_result.scalars().all()
+        
+        answer_repo = SubjectiveAnswerRepository(self.db)
+        
+        # Filter questions: unanswered or wrong (based on latest answer)
+        filtered_questions = []
+        for question in all_questions:
+            latest_answer = await answer_repo.get_latest_by_question_and_student(question.id, student_id)
+            
+            if latest_answer is None:
+                # Unanswered
+                filtered_questions.append(question)
+            elif latest_answer.llm_approval == False:
+                # Wrong (based on latest answer)
+                filtered_questions.append(question)
+            
+            if len(filtered_questions) >= limit:
+                break
+        
+        return filtered_questions[:limit]
     
     async def update(self, entity: SubjectiveQuestion) -> SubjectiveQuestion:
         await self.db.flush()

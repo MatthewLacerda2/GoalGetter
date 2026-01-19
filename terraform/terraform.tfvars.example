@@ -1,0 +1,19 @@
+# Cloudflare Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your actual values
+# terraform.tfvars is gitignored, so your secrets won't be committed
+
+# Cloudflare API Token (create at https://dash.cloudflare.com/profile/api-tokens)
+# Permissions needed: Account: Cloudflare Tunnel: Edit, Zone: Zone: Read, DNS: Edit
+cloudflare_api_token = "your-cloudflare-api-token-here"
+
+# Cloudflare Account ID (found in dashboard, right sidebar)
+cloudflare_account_id = "your-account-id-here"
+
+# Your domain name (must be added to Cloudflare first)
+domain = "example.com"
+
+# Subdomain to use (use "@" for root domain, or "app" for app.example.com)
+subdomain = "@"
+
+# Tunnel name (optional, defaults to "goalgetter-tunnel")
+tunnel_name = "goalgetter-tunnel"

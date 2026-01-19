@@ -2,12 +2,14 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from backend.main import app
-from tests.fixtures.database import override_get_db
 from backend.core.database import get_db
 
 @pytest_asyncio.fixture
-async def client():
-    """Async test client fixture"""
+async def client(test_db):
+    """Async test client fixture with transaction-bound session"""
+    async def override_get_db():
+        yield test_db
+    
     app.dependency_overrides[get_db] = override_get_db
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac

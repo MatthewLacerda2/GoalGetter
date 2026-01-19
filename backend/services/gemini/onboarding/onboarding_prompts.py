@@ -19,7 +19,7 @@ def get_goal_follow_up_questions_prompt(prompt: str) -> str:
 
     ## Guidelines
 
-    Your questions MUST:
+    Write questions to:
     - Find out what is the user's knowledge/experience in the subject.
     - Build a knowledge profile of the user within that field.
     - Find out if the user is afraid or intimidated by any part of the challenges ahead.
@@ -38,12 +38,12 @@ def get_goal_follow_up_questions_prompt(prompt: str) -> str:
     - Match the user's language.
     - NOT expect long and detailed answers.
 
-    Don't ask more than 8 questions
+    Don't ask more than 10 questions
     """
 
 def get_goal_study_plan_prompt(goal_study_plan_request: GoalStudyPlanRequest) -> str:
     
-    questions_answers = "\n".join([f"- {question}: {answer}" for question, answer in goal_study_plan_request.questions_answers])
+    questions_answers = "\n".join([f"- {qa.question}: {qa.answer}" for qa in goal_study_plan_request.questions_answers])
     
     return f"""
     ## Context
@@ -62,7 +62,7 @@ def get_goal_study_plan_prompt(goal_study_plan_request: GoalStudyPlanRequest) ->
     Your task is to generate a basic study guide for the user.
     You will generate a goal, an objective and a list of milestones.
 
-    The goal must be ambitious and challenging.
+    The goal must be ambitious and specific.
     The objective is the most basic thing just above the student's current level.
     The milestones are just the general milestones that a person with that goal will generally achieve.
 
@@ -79,7 +79,7 @@ def get_goal_study_plan_prompt(goal_study_plan_request: GoalStudyPlanRequest) ->
     - First Objective Description: Explain what is the objective about
     - Milestones: The main milestones to the goal.
 
-    The milestones must start with the first objective. 4 to 8 milestones.
+    The milestones must start with the first objective. 6 to 9 milestones.
     We want the milestones definition, not an explanation. Be succinct.
 
     Keep it concise and to the point.

@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime, timedelta
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, and_
 from backend.models.chat_message import ChatMessage
 from backend.repositories.base import BaseRepository
 
@@ -28,12 +28,16 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
         self, 
         student_id: str, 
         limit: int = 20, 
-        from_message_id: Optional[str] = None
+        before_message_id: Optional[str] = None
     ) -> List[ChatMessage]:
         query = select(ChatMessage).where(ChatMessage.student_id == student_id)
         
-        if from_message_id:
-            query = query.where(ChatMessage.id >= from_message_id)
+        if before_message_id:
+            # Get the reference message to use its created_at for backward pagination
+            reference_message = await self.get_by_id(before_message_id)
+            if reference_message:
+                # Get messages created before this message (older messages)
+                query = query.where(ChatMessage.created_at < reference_message.created_at)
         
         query = query.order_by(desc(ChatMessage.created_at)).limit(limit)
         result = await self.db.execute(query)
@@ -66,3 +70,30 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
             await self.db.delete(entity)
             return True
         return False
+    
+    async def get_by_student_and_date_range(
+        self, 
+        student_id: str, 
+        start_date: datetime, 
+        end_date: datetime
+    ) -> List[ChatMessage]:
+        """
+        Get messages for a student within a date range, ordered by created_at ASC.
+        
+        Args:
+            student_id: The student's ID
+            start_date: Start of date range (inclusive)
+            end_date: End of date range (inclusive)
+        
+        Returns:
+            List[ChatMessage] ordered by created_at ASC
+        """
+        stmt = select(ChatMessage).where(
+            and_(
+                ChatMessage.student_id == student_id,
+                ChatMessage.created_at >= start_date,
+                ChatMessage.created_at <= end_date
+            )
+        ).order_by(ChatMessage.created_at)
+        result = await self.db.execute(stmt)
+        return result.scalars().all()

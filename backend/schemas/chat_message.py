@@ -1,6 +1,7 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 from datetime import datetime
 from typing import List
+from backend.utils.uuid_validators import convert_uuid_to_str
 
 class ChatMessageItem(BaseModel):
     id: str
@@ -10,6 +11,11 @@ class ChatMessageItem(BaseModel):
     is_liked: bool
     
     model_config = ConfigDict(from_attributes=True)
+    
+    @field_validator('id', mode='before')
+    @classmethod
+    def validate_id(cls, v):
+        return convert_uuid_to_str(v)
 
 class ChatMessageItensList(BaseModel):
     messages: List[ChatMessageItem]
@@ -48,6 +54,11 @@ class ChatMessageResponseItem(BaseModel):
     is_liked: bool
     
     model_config = ConfigDict(from_attributes=True)
+    
+    @field_validator('id', mode='before')
+    @classmethod
+    def validate_id(cls, v):
+        return convert_uuid_to_str(v)
     
 class CreateMessageResponse(BaseModel):
     messages: List[ChatMessageResponseItem]

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'goal_questions_screen.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
+import '../../config/app_config.dart';
+import '../../services/auth_service.dart';
 
 class GoalPromptScreen extends StatefulWidget {
   const GoalPromptScreen({super.key});
@@ -15,6 +17,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
   final _promptController = TextEditingController();
   
   final _promptFocusNode = FocusNode();
+  final _authService = AuthService();
 
   bool _isLoading = false;
 
@@ -32,7 +35,17 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
   }
 
   Future<List<String>?> _fetchObjectiveQuestions(String prompt) async {
-    final goalApi = OnboardingApi(ApiClient(basePath: 'http://127.0.0.1:8000'));//TODO: read from env
+    // Get the Google token from SharedPreferences
+    final googleToken = await _authService.getStoredGoogleToken();
+    if (googleToken == null) {
+      throw Exception('No Google token available. Please sign in again.');
+    }
+
+    // Create API client and add the Google token as Authorization header
+    final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+    apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+    
+    final goalApi = OnboardingApi(apiClient);
     final request = GoalCreationFollowUpQuestionsRequest(
       prompt: prompt
     );
