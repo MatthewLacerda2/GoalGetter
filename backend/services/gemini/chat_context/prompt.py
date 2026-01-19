@@ -2,15 +2,15 @@ from typing import List, Optional
 from backend.models.chat_message import ChatMessage
 
 def format_chat_messages(messages: List[ChatMessage]) -> str:
-    """Format chat messages for the prompt"""
+    """Format chat messages for the prompt."""
     if not messages:
         return "No chat messages available."
-    
-    message_parts = []
+
+    message_parts: list[str] = []
     for message in messages:
         role = "user" if message.student_id == message.sender_id else "assistant"
         message_parts.append(f"{role}: {message.message}")
-    
+
     return "\n".join(message_parts)
 
 def get_chat_context_prompt(
@@ -19,12 +19,17 @@ def get_chat_context_prompt(
     objective_name: str,
     objective_description: str,
     messages: List[ChatMessage],
-    student_context: Optional[List[str]] = None
+    student_context: Optional[List[str]] = None,
 ) -> str:
-    """Generate prompt for chat context generation"""
+    """Generate prompt for chat context generation."""
     formatted_messages = format_chat_messages(messages)
-    context_list: str = ("Here is some context about the student:\n" + "\n".join([f"- {context}." for context in student_context])) if student_context else ""
-    
+    context_list: str = (
+        "Here is some context about the student:\n"
+        + "\n".join([f"- {context}." for context in student_context])
+        if student_context
+        else ""
+    )
+
     return f"""
 ## Context
 
@@ -71,3 +76,4 @@ Each element in the state has a corresponding element in the metacognition array
 
 Write in the language of the student's goal and objective.
 """
+

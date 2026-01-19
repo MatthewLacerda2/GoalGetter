@@ -2,7 +2,7 @@ import logging
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.utils.envs import NUM_QUESTIONS_PER_LESSON
-from backend.services.ollama.activity.multiple_choice import ollama_generate_multiple_choice_questions
+from backend.services.gemini.activity.multiple_choices import gemini_generate_multiple_choice_questions
 from backend.models.multiple_choice_question import MultipleChoiceQuestion
 from backend.services.ollama.objective_notes.objective_notes import ollama_define_objective_notes
 from backend.models.objective_note import ObjectiveNote
@@ -67,9 +67,9 @@ async def account_creation_tasks(
         raise
 
 async def create_mcqs_async(objective_id: str, objective_name: str, objective_description: str, db: AsyncSession) -> None:
-    """Create a batch of multiple choice questions using Ollama"""
+    """Create a batch of multiple choice questions using Gemini"""
     try:
-        ollama_mc_questions = ollama_generate_multiple_choice_questions(
+        mc_questions = gemini_generate_multiple_choice_questions(
             objective_name=objective_name,
             objective_description=objective_description,
             previous_objectives=["This is the student's first objective ever"],
@@ -77,7 +77,7 @@ async def create_mcqs_async(objective_id: str, objective_name: str, objective_de
             num_questions=NUM_QUESTIONS_PER_LESSON
         )
         
-        for question in ollama_mc_questions.questions:
+        for question in mc_questions.questions:
             # Map choices list to individual option fields
             if len(question.choices) < 4:
                 logger.warning(f"Question has fewer than 4 choices: {question.question}")
@@ -91,7 +91,7 @@ async def create_mcqs_async(objective_id: str, objective_name: str, objective_de
                 option_c=question.choices[2],
                 option_d=question.choices[3],
                 correct_answer_index=question.correct_answer_index,
-                ai_model=ollama_mc_questions.ai_model,
+                ai_model=mc_questions.ai_model,
             )
             db.add(mcq)
         

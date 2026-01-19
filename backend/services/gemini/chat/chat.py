@@ -23,10 +23,6 @@ def gemini_messages_generator(
             "role": role,
             "parts": [{"text": msg.message}]
         })
-    
-    print("--------------------------------")
-    print(gemini_messages)
-    print("--------------------------------")
 
     response: GenerateContentResponse = client.models.generate_content(
         model=model, contents=gemini_messages, config=config

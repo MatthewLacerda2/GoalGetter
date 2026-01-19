@@ -4,8 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.student import Student
 from backend.models.chat_message import ChatMessage
 from backend.schemas.chat_message import CreateMessageRequest
-# from backend.services.ollama.chat.chat import ollama_messages_generator
-# from backend.services.ollama.chat.schema import OllamaChatMessage, StudentContextToChat
 from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
 from backend.repositories.chat_message_repository import ChatMessageRepository
@@ -39,17 +37,6 @@ def _create_user_messages_from_request(
         ) for m in request.messages_list
     ]
 
-
-# def _convert_to_ollama_format(messages: List[ChatMessage]) -> List[OllamaChatMessage]:
-#     """Convert ChatMessage to OllamaChatMessage format."""
-#     return [
-#         OllamaChatMessage(
-#             message=msg.message,
-#             time=msg.created_at.strftime("%H:%M:%S"),
-#             role="user" if msg.sender_id == str(msg.student_id) else "assistant",
-#         ) for msg in messages
-#     ]
-
 def _convert_to_gemini_format(messages: List[ChatMessage]) -> List[GeminiChatMessage]:
     """Convert ChatMessage to GeminiChatMessage format."""
     return [
@@ -59,7 +46,6 @@ def _convert_to_gemini_format(messages: List[ChatMessage]) -> List[GeminiChatMes
             role="user" if msg.sender_id == str(msg.student_id) else "assistant",
         ) for msg in messages
     ]
-
 
 def _create_ai_messages_from_response(
     ai_response_messages: List[str],
@@ -126,15 +112,7 @@ async def create_chat_message_service(
             metacognition=sc.metacognition
         ) for sc in student_contexts
     ]
-    
-    # Generate AI response
-    # ai_response = ollama_messages_generator(
-    #     chat_history_ollama,
-    #     context,
-    #     objective.name,
-    #     objective.description,
-    #     current_user.goal_name
-    # )
+   
     ai_response = gemini_messages_generator(
         chat_history_gemini,
         context,

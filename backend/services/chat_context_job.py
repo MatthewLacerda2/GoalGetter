@@ -11,7 +11,7 @@ from backend.repositories.student_repository import StudentRepository
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.ollama.chat_context.chat_context import ollama_chat_context
+from backend.services.gemini.chat_context.chat_context import gemini_chat_context
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.utils.time_period import get_yesterday_date_range
 
@@ -168,7 +168,7 @@ async def generate_context_from_chat_for_objective(student: Student, goal: Goal,
     ] if existing_contexts else None
     
     # Generate context using AI
-    evaluation = ollama_chat_context(
+    evaluation = gemini_chat_context(
         goal_name=goal.name or "",
         goal_description=goal.description or "",
         objective_name=objective.name,
