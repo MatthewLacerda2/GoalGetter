@@ -20,7 +20,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
-  String? _goalTitle;
+  int? _overallXp;
   int? _streakCounter;
   String? _objectiveName;
   List<ObjectiveNote>? _notes;
@@ -67,7 +67,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
 
       if (mounted) {
         setState(() {
-          _goalTitle = studentResponse.goalName;
+          _overallXp = studentResponse.overallXp;
           _streakCounter = studentResponse.currentStreak;
           _objectiveName = objectiveResponse.name;
           _notes = objectiveResponse.notes;
@@ -90,7 +90,8 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
       body: Column(
         children: [
           ObjectiveTabHeader(
-            goalTitle: _goalTitle ?? '',
+            overallXp: _overallXp ?? 0,
+            objectiveTitle: _objectiveName ?? '',
             streakCounter: _streakCounter ?? 0,
           ),
           Expanded(
@@ -120,11 +121,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                       const SizedBox(height: 12),
                       if (_objectiveName != null)
                         LessonButton(
-                          title: _objectiveName!,
-                          description: AppLocalizations.of(
-                            context,
-                          )!.startLesson,
-                          mainColor: Colors.blue,
+                          label: AppLocalizations.of(context)!.startLesson,
                         ),
                       if (_notes != null && _notes!.isNotEmpty) ...[
                         const SizedBox(height: 12),
