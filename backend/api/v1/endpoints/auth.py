@@ -99,14 +99,7 @@ async def delete_account(
     db: AsyncSession = Depends(get_db),
     current_user: Student = Depends(get_current_user)
 ):
-    """
-    Delete user account and all associated data.
-    Database CASCADE will automatically delete related goals and their objectives.
-    Use bulk delete to bypass ORM relationship handling which causes constraint violations.
-    """
     try:
-        # Use SQLAlchemy's delete statement directly to bypass ORM relationship tracking
-        # This allows the database CASCADE to handle related records without ORM interference
         stmt = delete(Student).where(Student.id == current_user.id)
         result = await db.execute(stmt)
         

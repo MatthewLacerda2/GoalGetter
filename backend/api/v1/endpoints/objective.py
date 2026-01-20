@@ -22,8 +22,6 @@ async def get_objective(
     """
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id_with_notes(current_user.goal_id)
-    
-    # Convert notes from SQLAlchemy objects to Pydantic models with string IDs
     notes = [
         ObjectiveNote(
             id=str(note.id),
@@ -55,7 +53,6 @@ async def get_objectives_list(
     """
     objective_repo = ObjectiveRepository(db)
     objectives = await objective_repo.get_by_goal_id(current_user.goal_id)
-    
     objective_items = [
         ObjectiveItem(
             id=str(obj.id),

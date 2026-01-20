@@ -13,30 +13,19 @@ from backend.models.multiple_choice_question import MultipleChoiceAnswer
 from backend.models.subjective_question import SubjectiveAnswer
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.ollama.lesson_context.lesson_context import ollama_lesson_context
+from backend.services.gemini.lesson_context.lesson_context import gemini_lesson_context
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.utils.time_period import get_yesterday_date_range
 
 logger = logging.getLogger(__name__)
 
 async def run_lesson_context_job():
-    """
-    Scheduled job that runs at 2:00 AM daily to generate student context from lesson answers.
-    
-    For each active objective (latest objective for each goal):
-    1. Check if there are answers (subjective or multiple-choice) from yesterday for that objective
-    2. Gather all answers from yesterday
-    3. Generate context using AI
-    4. Create StudentContext records for state/metacognition pairs
-    """
     logger.info("Starting lesson context generation job")
     
     async with AsyncSessionLocal() as db:
         try:
-            # Get all active objectives (latest objective for each goal)
             objective_repo = ObjectiveRepository(db)
             
-            # Get all goals
             goals_stmt = select(Goal)
             goals_result = await db.execute(goals_stmt)
             all_goals = goals_result.scalars().all()
@@ -67,7 +56,7 @@ async def run_lesson_context_job():
                     
                     # Process each objective in its own session to isolate failures
                     async with AsyncSessionLocal() as objective_db:
-                        if await should_generate_context_for_objective(student, goal, objective, objective_db):
+                        if await should_generate_context_for_objective(student, objective, objective_db):
                             await generate_context_from_lesson_for_objective(student, goal, objective, objective_db)
                             processed_count += 1
                             logger.info(f"Successfully generated context for objective {objective.id}")
@@ -88,24 +77,9 @@ async def run_lesson_context_job():
             raise
 
 
-async def should_generate_context_for_objective(student: Student, goal: Goal, objective: Objective, db: AsyncSession) -> bool:
-    """
-    Check if an objective is eligible for context generation based on:
-    - Student has answers (subjective or multiple-choice) from yesterday for this objective
-    
-    Args:
-        student: The student to check
-        goal: The goal for this objective
-        objective: The objective to check
-        db: Database session
-    
-    Returns:
-        True if objective should have context generated, False otherwise
-    """
-    # Get yesterday's date range (00:00:00 to 23:59:59)
+async def should_generate_context_for_objective(student: Student, objective: Objective, db: AsyncSession) -> bool:
     yesterday_start, yesterday_end = get_yesterday_date_range()
     
-    # Check for subjective answers from yesterday for this objective
     subjective_stmt = select(SubjectiveAnswer).join(
         SubjectiveQuestion, SubjectiveAnswer.question_id == SubjectiveQuestion.id
     ).where(
@@ -119,7 +93,6 @@ async def should_generate_context_for_objective(student: Student, goal: Goal, ob
     subjective_result = await db.execute(subjective_stmt)
     has_subjective = subjective_result.scalar_one_or_none() is not None
     
-    # Check for multiple-choice answers from yesterday for this objective
     from backend.models.multiple_choice_question import MultipleChoiceQuestion
     mc_stmt = select(MultipleChoiceAnswer).join(
         MultipleChoiceQuestion, MultipleChoiceAnswer.question_id == MultipleChoiceQuestion.id
@@ -142,21 +115,10 @@ async def should_generate_context_for_objective(student: Student, goal: Goal, ob
 
 
 async def generate_context_from_lesson_for_objective(student: Student, goal: Goal, objective: "Objective", db: AsyncSession):
-    """
-    Generate context from lesson answers for an objective.
-    
-    Args:
-        student: The student to generate context for
-        goal: The goal for this objective
-        objective: The objective to generate context for
-        db: Database session
-    """
     context_repo = StudentContextRepository(db)
     
-    # Get yesterday's date range (00:00:00 to 23:59:59)
     yesterday_start, yesterday_end = get_yesterday_date_range()
     
-    # Get all subjective answers from yesterday for this objective with questions joined
     subjective_stmt = select(SubjectiveAnswer).options(
         joinedload(SubjectiveAnswer.question)
     ).join(
@@ -173,7 +135,6 @@ async def generate_context_from_lesson_for_objective(student: Student, goal: Goa
     subjective_result = await db.execute(subjective_stmt)
     subjective_answers = list(subjective_result.unique().scalars().all())
     
-    # Get all multiple-choice answers from yesterday for this objective with questions joined
     from backend.models.multiple_choice_question import MultipleChoiceQuestion
     mc_stmt = select(MultipleChoiceAnswer).options(
         joinedload(MultipleChoiceAnswer.question)
@@ -233,7 +194,7 @@ async def generate_context_from_lesson_for_objective(student: Student, goal: Goa
     ] if existing_contexts else None
     
     # Generate context using AI
-    evaluation = ollama_lesson_context(
+    evaluation = gemini_lesson_context(
         goal_name=goal.name or "",
         goal_description=goal.description or "",
         objective_name=objective.name,
@@ -256,27 +217,9 @@ async def generate_context_from_lesson_for_objective(student: Student, goal: Goa
         state = state_array[i] if i < len(state_array) else ""
         metacognition = metacognition_array[i] if i < len(metacognition_array) else ""
         
-        # Skip if both are empty
         if not state and not metacognition:
             continue
         
-        # Generate embeddings for non-empty strings
-        state_embedding = None
-        metacognition_embedding = None
-        
-        if state:
-            try:
-                state_embedding = get_gemini_embeddings(state)
-            except Exception as e:
-                logger.warning(f"Error generating state embedding: {e}")
-        
-        if metacognition:
-            try:
-                metacognition_embedding = get_gemini_embeddings(metacognition)
-            except Exception as e:
-                logger.warning(f"Error generating metacognition embedding: {e}")
-        
-        # Create StudentContext with source="lesson_context"
         student_context = StudentContext(
             student_id=student.id,
             goal_id=goal.id,
@@ -284,8 +227,8 @@ async def generate_context_from_lesson_for_objective(student: Student, goal: Goa
             source="lesson_context",
             state=state,
             metacognition=metacognition,
-            state_embedding=state_embedding,
-            metacognition_embedding=metacognition_embedding,
+            state_embedding=get_gemini_embeddings(state) if state else None,
+            metacognition_embedding=get_gemini_embeddings(metacognition) if metacognition else None,
             is_still_valid=True,
             ai_model=evaluation.ai_model
         )

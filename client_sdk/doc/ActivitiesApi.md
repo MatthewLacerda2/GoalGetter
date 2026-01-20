@@ -67,8 +67,6 @@ Name | Type | Description  | Notes
 
 Take Multiple Choice Activity
 
-Deliver a multiple choice activity to the current user.  It takes one from the DB or creates a new activity for the user if none exists.
-
 ### Example
 ```dart
 import 'package:openapi/api.dart';

@@ -107,17 +107,6 @@ services:
       frontend:
         condition: service_healthy
     restart: unless-stopped
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ./ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
-    restart: unless-stopped
 volumes:
   postgres_data:
   postgres_test_data:

@@ -7,37 +7,24 @@ from backend.models.student import Student
 from backend.models.goal import Goal
 from backend.models.objective import Objective
 from backend.models.student_context import StudentContext
-from backend.repositories.student_repository import StudentRepository
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
 from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.ollama.progress_evaluation.progress_evaluation import ollama_progress_evaluation
+from backend.services.gemini.progress_evaluation.progress_evaluation import gemini_progress_evaluation
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.utils.time_period import get_yesterday_date_range
 
 logger = logging.getLogger(__name__)
 
 async def run_mastery_evaluation_job():
-    """
-    Scheduled job that runs at 5:00 AM daily to evaluate student mastery.
-    
-    For each active objective (latest objective for each goal):
-    1. Check streak day eligibility (yesterday OR 3+ in last 7 days)
-    2. Check accuracy requirements (80%+ for last 30 MCQs and 10 subjective questions)
-    3. Check objective update timing (must be updated >= 7 days ago)
-    4. Generate progress evaluation using AI
-    5. Create StudentContext records for state/metacognition pairs
-    6. Update objective percentage_completed and last_updated_at
-    """
     logger.info("Starting mastery evaluation job")
     
     async with AsyncSessionLocal() as db:
         try:
             objective_repo = ObjectiveRepository(db)
             
-            # Get all active objectives (latest objective for each goal)
             goals_stmt = select(Goal)
             goals_result = await db.execute(goals_stmt)
             all_goals = goals_result.scalars().all()
@@ -56,7 +43,6 @@ async def run_mastery_evaluation_job():
             
             for goal, objective in active_objectives:
                 try:
-                    # Get the student for this goal
                     student_stmt = select(Student).where(Student.id == goal.student_id)
                     student_result = await db.execute(student_stmt)
                     student = student_result.scalar_one_or_none()
@@ -66,9 +52,8 @@ async def run_mastery_evaluation_job():
                         skipped_count += 1
                         continue
                     
-                    # Process each objective in its own session to isolate failures
                     async with AsyncSessionLocal() as objective_db:
-                        if await should_evaluate_objective(student, goal, objective, objective_db):
+                        if await should_evaluate_objective(student, objective, objective_db):
                             await evaluate_objective_progress(student, goal, objective, objective_db)
                             processed_count += 1
                             logger.info(f"Successfully evaluated objective {objective.id}")
@@ -77,7 +62,6 @@ async def run_mastery_evaluation_job():
                 except Exception as e:
                     error_count += 1
                     logger.error(f"Error evaluating objective {objective.id}: {e}", exc_info=True)
-                    # Continue with next objective
                     continue
             
             logger.info(
@@ -89,22 +73,7 @@ async def run_mastery_evaluation_job():
             raise
 
 
-async def should_evaluate_objective(student: Student, goal: Goal, objective: "Objective", db: AsyncSession) -> bool:
-    """
-    Check if an objective is eligible for evaluation based on:
-    1. Streak day requirements (yesterday OR 3+ in last 7 days)
-    2. Accuracy requirements (80%+ for MCQs and subjective questions)
-    3. Objective update timing (must be >= 7 days ago)
-    
-    Args:
-        student: The student for this objective
-        goal: The goal for this objective
-        objective: The objective to check
-    
-    Returns:
-        True if objective should be evaluated, False otherwise
-    """
-    
+async def should_evaluate_objective(student: Student, objective: "Objective", db: AsyncSession) -> bool:
     # Check 1: Streak day eligibility
     # Student must have streak day yesterday OR 3+ streak days in last 7 days
     streak_repo = StreakDayRepository(db)
@@ -148,7 +117,7 @@ async def should_evaluate_objective(student: Student, goal: Goal, objective: "Ob
     return True
 
 
-async def evaluate_objective_progress(student: Student, goal: Goal, objective: "Objective", db: AsyncSession):
+async def evaluate_objective_progress(student: Student, goal: Goal, objective: Objective, db: AsyncSession):
     """
     Evaluate an objective's progress and update it.
     
@@ -168,7 +137,7 @@ async def evaluate_objective_progress(student: Student, goal: Goal, objective: "
     )
     
     # Generate progress evaluation using AI
-    evaluation = ollama_progress_evaluation(
+    evaluation = gemini_progress_evaluation(
         goal_name=goal.name or "",
         goal_description=goal.description or "",
         objective_name=objective.name,
@@ -190,27 +159,9 @@ async def evaluate_objective_progress(student: Student, goal: Goal, objective: "
         state = state_array[i] if i < len(state_array) else ""
         metacognition = metacognition_array[i] if i < len(metacognition_array) else ""
         
-        # Skip if both are empty
         if not state and not metacognition:
             continue
         
-        # Generate embeddings for non-empty strings
-        state_embedding = None
-        metacognition_embedding = None
-        
-        if state:
-            try:
-                state_embedding = get_gemini_embeddings(state)
-            except Exception as e:
-                logger.warning(f"Error generating state embedding: {e}")
-        
-        if metacognition:
-            try:
-                metacognition_embedding = get_gemini_embeddings(metacognition)
-            except Exception as e:
-                logger.warning(f"Error generating metacognition embedding: {e}")
-        
-        # Create StudentContext
         student_context = StudentContext(
             student_id=student.id,
             goal_id=goal.id,
@@ -218,8 +169,8 @@ async def evaluate_objective_progress(student: Student, goal: Goal, objective: "
             source="progress_evaluation",
             state=state,
             metacognition=metacognition,
-            state_embedding=state_embedding,
-            metacognition_embedding=metacognition_embedding,
+            state_embedding=get_gemini_embeddings(state) if state else None,
+            metacognition_embedding=get_gemini_embeddings(metacognition) if metacognition else None,
             is_still_valid=True,
             ai_model=evaluation.ai_model
         )

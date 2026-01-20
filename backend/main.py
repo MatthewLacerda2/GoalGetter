@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -6,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
 from backend.core.scheduler import setup_scheduler_jobs, start_scheduler, stop_scheduler
-from backend.services.startup_content_creation import run_startup_content_creation
 from backend.llms import get_llms_txt
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -23,15 +21,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    FastAPI lifespan context manager to start and stop the scheduler.
-    """
     # Startup: Setup and start the scheduler
     setup_scheduler_jobs()
     start_scheduler()
     
-    # Start background task to create missing content for objectives
-    # This runs asynchronously and doesn't block startup
     #asyncio.create_task(run_startup_content_creation())
     
     yield
