@@ -371,6 +371,12 @@ abstract class AppLocalizations {
   /// **'Objective'**
   String get objective;
 
+  /// Label for objectives
+  ///
+  /// In en, this message translates to:
+  /// **'Objectives'**
+  String get objectives;
+
   /// Label for tutor
   ///
   /// In en, this message translates to:
@@ -460,6 +466,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Now let\'s correct your mistakes'**
   String get nowLetSCorrectYourMistakes;
+
+  /// Label for no completed objectives
+  ///
+  /// In en, this message translates to:
+  /// **'No completed objectives'**
+  String get noCompletedObjectives;
+
+  /// Label for created at
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get createdAt;
+
+  /// Label for goals
+  ///
+  /// In en, this message translates to:
+  /// **'My Goals'**
+  String get goals;
+
+  /// Label for show objectives
+  ///
+  /// In en, this message translates to:
+  /// **'List of objectives'**
+  String get showObjectives;
+
+  /// Label for list memories
+  ///
+  /// In en, this message translates to:
+  /// **'Memories'**
+  String get listMemories;
+
+  /// Label for create new goal
+  ///
+  /// In en, this message translates to:
+  /// **'Create new goal'**
+  String get createNewGoal;
+
+  /// Label for sign out
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// Label for are you sure
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure?'**
+  String get areYouSure;
+
+  /// Label for cancel
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Label for delete
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Label for coming soon
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoon;
+
+  /// Label for delete memory
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteMemory;
+
+  /// Label for no memories
+  ///
+  /// In en, this message translates to:
+  /// **'No memories'**
+  String get noMemories;
+
+  /// Label for delete memory description
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this memory?'**
+  String get deleteMemoryDescription;
+
+  /// Label for untitled goal
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled goal'**
+  String get untitledGoal;
+
+  /// Label for are you sure you want to delete this goal
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this goal? This action cannot be undone.'**
+  String get areYouSureYouWantToDeleteThisGoal;
+
+  /// Label for warning
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warning;
+
+  /// Label for delete goal warning description
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete the goal and all its objectives. This action cannot be reversed. Are you absolutely sure?'**
+  String get deleteGoalWarningDescription;
+
+  /// Label for select goal
+  ///
+  /// In en, this message translates to:
+  /// **'Select Goal'**
+  String get selectGoal;
+
+  /// Label for no goals found
+  ///
+  /// In en, this message translates to:
+  /// **'No goals found'**
+  String get noGoalsFound;
+
+  /// Label for create first goal
+  ///
+  /// In en, this message translates to:
+  /// **'Create first goal'**
+  String get createFirstGoal;
+
+  /// Label for delete goal
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Goal?'**
+  String get deleteGoal;
+
+  /// Label for study plan
+  ///
+  /// In en, this message translates to:
+  /// **'Study Plan'**
+  String get studyPlan;
+
+  /// Label for first objective
+  ///
+  /// In en, this message translates to:
+  /// **'First Objective'**
+  String get firstObjective;
+
+  /// Label for milestones
+  ///
+  /// In en, this message translates to:
+  /// **'Milestones'**
+  String get milestones;
+
+  /// Label for confirm question
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm?'**
+  String get confirmQuestion;
+
+  /// Label for no
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// Label for yes
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// Label for your mentor
+  ///
+  /// In en, this message translates to:
+  /// **'Your personal mentor!'**
+  String get yourMentor;
+
+  /// Label for agree to terms and privacy policy
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing, you agree to our Terms of Service and Privacy Policy'**
+  String get agreeToTermsAndPrivacyPolicy;
+
+  /// Example course text 1 shown on pre-onboarding tutorial
+  ///
+  /// In en, this message translates to:
+  /// **'“AI Engineering course”'**
+  String get exampleCourse1;
+
+  /// Example course text 2 shown on pre-onboarding tutorial
+  ///
+  /// In en, this message translates to:
+  /// **'“I wanna know Gardening 101”'**
+  String get exampleCourse2;
+
+  /// Example course text 3 shown on pre-onboarding tutorial
+  ///
+  /// In en, this message translates to:
+  /// **'“How to be a gentleman?”'**
+  String get exampleCourse3;
+
+  /// Pre-onboarding tutorial page title: Your courses
+  ///
+  /// In en, this message translates to:
+  /// **'Your courses'**
+  String get preOnboardingYourCoursesTitle;
+
+  /// Pre-onboarding tutorial page body: Your courses
+  ///
+  /// In en, this message translates to:
+  /// **'GoalGetter is a courses platform, where every course is generated specifically for you'**
+  String get preOnboardingYourCoursesBody;
+
+  /// Pre-onboarding tutorial page title: Tell us your Goal
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us your Goal'**
+  String get preOnboardingTellUsYourGoalTitle;
+
+  /// Pre-onboarding tutorial page body: Tell us your Goal
+  ///
+  /// In en, this message translates to:
+  /// **'Say what you want to learn, achieve or accomplish'**
+  String get preOnboardingTellUsYourGoalBody;
+
+  /// Pre-onboarding tutorial page title: Daily lesson
+  ///
+  /// In en, this message translates to:
+  /// **'Daily lesson'**
+  String get preOnboardingDailyLessonTitle;
+
+  /// Pre-onboarding tutorial page body: Daily lesson
+  ///
+  /// In en, this message translates to:
+  /// **'Practice every day, keep progressing to your goal'**
+  String get preOnboardingDailyLessonBody;
+
+  /// Pre-onboarding tutorial page title: Made for you
+  ///
+  /// In en, this message translates to:
+  /// **'Made for you!'**
+  String get preOnboardingMadeForYouTitle;
+
+  /// Pre-onboarding tutorial page body: Made for you
+  ///
+  /// In en, this message translates to:
+  /// **'All content is made for you and your goal'**
+  String get preOnboardingMadeForYouBody;
+
+  /// Pre-onboarding tutorial page title: An AI that knows you
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with your AI'**
+  String get preOnboardingAiThatKnowsYouTitle;
+
+  /// Pre-onboarding tutorial page body: An AI that knows you
+  ///
+  /// In en, this message translates to:
+  /// **'Your Tutor knows you and is ready to talk and guide you'**
+  String get preOnboardingAiThatKnowsYouBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

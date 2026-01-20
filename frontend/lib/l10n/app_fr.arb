@@ -180,6 +180,10 @@
     "@objective": {
         "description": "Label for objective"
     },
+    "objectives": "Objectifs",
+    "@objectives": {
+        "description": "Label for objectives"
+    },
     "tutor": "Tuteur",
     "@tutor": {
         "description": "Label for tutor"
@@ -239,5 +243,177 @@
     "nowLetSCorrectYourMistakes": "Maintenant, corrigeons vos erreurs",
     "@nowLetSCorrectYourMistakes": {
         "description": "Label for now let's correct your mistakes"
+    },
+    "noCompletedObjectives": "Aucun objectif complet",
+    "@noCompletedObjectives": {
+        "description": "Label for no completed objectives"
+    },
+    "createdAt": "Créé le",
+    "@createdAt": {
+        "description": "Label for created at"
+    },
+    "goals": "Mes objectifs",
+    "@goals": {
+        "description": "Label for goals"
+    },
+    "showObjectives": "Liste des objectifs",
+    "@showObjectives": {
+        "description": "Label for show objectives"
+    },
+    "listMemories": "Mémoires",
+    "@listMemories": {
+        "description": "Label for list memories"
+    },
+    "createNewGoal": "Créer un nouvel objectif",
+    "@createNewGoal": {
+        "description": "Label for create new goal"
+    },
+    "signOut": "Se déconnecter",
+    "@signOut": {
+        "description": "Label for sign out"
+    },
+    "areYouSure": "Êtes-vous sûr?",
+    "@areYouSure": {
+        "description": "Label for are you sure"
+    },
+    "cancel": "Annuler",
+    "@cancel": {
+        "description": "Label for cancel"
+    },
+    "delete": "Supprimer",
+    "@delete": {
+        "description": "Label for delete"
+    },
+    "comingSoon": "Bientôt disponible",
+    "@comingSoon": {
+        "description": "Label for coming soon"
+    },
+    "deleteMemory": "Supprimer",
+    "@deleteMemory": {
+        "description": "Label for delete"
+    },
+    "noMemories": "Aucune mémoire",
+    "@noMemories": {
+        "description": "Label for no memories"
+    },
+    "deleteMemoryDescription": "Êtes-vous sûr de vouloir supprimer cette mémoire?",
+    "@deleteMemoryDescription": {
+        "description": "Label for delete memory description"
+    },
+    "untitledGoal": "Objectif sans nom",
+    "@untitledGoal": {
+        "description": "Label for untitled goal"
+    },
+    "areYouSureYouWantToDeleteThisGoal": "Êtes-vous sûr de vouloir supprimer cet objectif? Cette action ne peut pas être annulée.",
+    "@areYouSureYouWantToDeleteThisGoal": {
+        "description": "Label for are you sure you want to delete this goal"
+    },
+    "warning": "Avertissement",
+    "@warning": {
+        "description": "Label for warning"
+    },
+    "deleteGoalWarningDescription": "Cela supprimera l'objectif et tous ses objectifs de façon permanente. Cette action ne peut pas être annulée. Êtes-vous absolument sûr?",
+    "@deleteGoalWarningDescription": {
+        "description": "Label for delete goal warning description"
+    },
+    "selectGoal": "Sélectionner un Objectif",
+    "@selectGoal": {
+        "description": "Label for select goal"
+    },
+    "noGoalsFound": "Aucun objectif trouvé",
+    "@noGoalsFound": {
+        "description": "Label for no goals found"
+    },
+    "createFirstGoal": "Créer le premier objectif",
+    "@createFirstGoal": {
+        "description": "Label for create first goal"
+    },
+    "deleteGoal": "Supprimer l'Objectif ?",
+    "@deleteGoal": {
+        "description": "Label for delete goal"
+    },
+    "studyPlan": "Plan de étude",
+    "@studyPlan": {
+        "description": "Label for study plan"
+    },
+    "firstObjective": "Premier Objectif",
+    "@firstObjective": {
+        "description": "Label for first objective"
+    },
+    "milestones": "Étapes Importantes",
+    "@milestones": {
+        "description": "Label for milestones"
+    },
+    "confirmQuestion": "Êtes-vous sûr?",
+    "@confirmQuestion": {
+        "description": "Label for confirm question"
+    },
+    "no": "Non",
+    "@no": {
+        "description": "Label for no"
+    },
+    "yes": "Oui",
+    "@yes": {
+        "description": "Label for yes"
+    },
+    "yourMentor": "Votre mentor personnalisé!",
+    "@yourMentor": {
+        "description": "Label for your mentor"
+    },
+    "agreeToTermsAndPrivacyPolicy": "En continuant, vous acceptez nos Conditions d'Utilisation et Politique de Confidentialité",
+    "@agreeToTermsAndPrivacyPolicy": {
+        "description": "Label for agree to terms and privacy policy"
+    },
+    "exampleCourse1": "“Comment devenir charismatique”",
+    "@exampleCourse1": {
+        "description": "Example course text 1 shown on pre-onboarding tutorial"
+    },
+    "exampleCourse2": "“Je veux apprendre l'histoire de l'art”",
+    "@exampleCourse2": {
+        "description": "Example course text 2 shown on pre-onboarding tutorial"
+    },
+    "exampleCourse3": "“Je veux apprendre à faire des boissons”",
+    "@exampleCourse3": {
+        "description": "Example course text 3 shown on pre-onboarding tutorial"
+    },
+    "preOnboardingYourCoursesTitle": "Vos cours",
+    "@preOnboardingYourCoursesTitle": {
+        "description": "Pre-onboarding tutorial page title: Your courses"
+    },
+    "preOnboardingYourCoursesBody": "GoalGetter est une plateforme de cours, où chaque cours est généré spécifiquement pour vous",
+    "@preOnboardingYourCoursesBody": {
+        "description": "Pre-onboarding tutorial page body: Your courses"
+    },
+    "preOnboardingTellUsYourGoalTitle": "Dites-nous votre objectif",
+    "@preOnboardingTellUsYourGoalTitle": {
+        "description": "Pre-onboarding tutorial page title: Tell us your Goal"
+    },
+    "preOnboardingTellUsYourGoalBody": "Dites-nous ce que vous voulez apprendre, atteindre ou accomplir",
+    "@preOnboardingTellUsYourGoalBody": {
+        "description": "Pre-onboarding tutorial page body: Tell us your Goal"
+    },
+    "preOnboardingDailyLessonTitle": "Leçon quotidienne",
+    "@preOnboardingDailyLessonTitle": {
+        "description": "Pre-onboarding tutorial page title: Daily lesson"
+    },
+    "preOnboardingDailyLessonBody": "Pratiquez chaque jour, maintenez votre progression vers votre objectif",
+    "@preOnboardingDailyLessonBody": {
+        "description": "Pre-onboarding tutorial page body: Daily lesson"
+    },
+    "preOnboardingMadeForYouTitle": "Fait pour vous!",
+    "@preOnboardingMadeForYouTitle": {
+        "description": "Pre-onboarding tutorial page title: Made for you"
+    },
+    "preOnboardingMadeForYouBody": "Tout le contenu est fait pour vous et votre objectif",
+    "@preOnboardingMadeForYouBody": {
+        "description": "Pre-onboarding tutorial page body: Made for you"
+    },
+    "preOnboardingAiThatKnowsYouTitle": "Chat avec votre AI",
+    "@preOnboardingAiThatKnowsYouTitle": {
+        "description": "Pre-onboarding tutorial page title: An AI that knows you"
+    },
+    "preOnboardingAiThatKnowsYouBody": "Votre tuteur vous connaît et est prêt à parler et vous guider",
+    "@preOnboardingAiThatKnowsYouBody": {
+        "description": "Pre-onboarding tutorial page body: An AI that knows you"
     }
 }

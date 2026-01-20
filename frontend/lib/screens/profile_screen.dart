@@ -96,47 +96,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 16),
 
-            _buildSectionTile('Goals', Icons.list, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ListGoalsScreen(),
-                ),
-              );
-            }),
+            _buildSectionTile(
+              AppLocalizations.of(context)!.goals,
+              Icons.list,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ListGoalsScreen(),
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 16),
 
-            _buildSectionTile('Show objectives', Icons.checklist, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ShowObjectivesScreen(),
-                ),
-              );
-            }),
+            _buildSectionTile(
+              AppLocalizations.of(context)!.showObjectives,
+              Icons.checklist,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ShowObjectivesScreen(),
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 16),
 
-            _buildSectionTile('List memories', Icons.memory, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ListMemoriesScreen(),
-                ),
-              );
-            }),
+            _buildSectionTile(
+              AppLocalizations.of(context)!.listMemories,
+              Icons.memory,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ListMemoriesScreen(),
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 16),
 
-            _buildSectionTile('Create a new goal', Icons.map, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const GoalPromptScreen(),
-                ),
-              );
-            }),
+            _buildSectionTile(
+              AppLocalizations.of(context)!.createNewGoal,
+              Icons.map,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GoalPromptScreen(),
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 32),
 
@@ -203,8 +219,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.symmetric(vertical: 20),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: const Text(
-          'Sign out',
+        child: Text(
+          AppLocalizations.of(context)!.signOut,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
@@ -216,17 +232,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Sign out'),
-          content: const Text('Are you sure?'),
+          title: Text(AppLocalizations.of(context)!.signOut),
+          content: Text(AppLocalizations.of(context)!.areYouSure),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Sign out'),
+              child: Text(AppLocalizations.of(context)!.signOut),
             ),
           ],
         );

@@ -82,8 +82,8 @@ class FinishLessonScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
+                  child: Text(
+                    AppLocalizations.of(context)!.continuate,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,

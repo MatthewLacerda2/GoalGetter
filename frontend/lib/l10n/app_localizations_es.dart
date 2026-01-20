@@ -144,6 +144,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get objective => 'Objetivo';
 
   @override
+  String get objectives => 'Objetivos';
+
+  @override
   String get tutor => 'Tutor';
 
   @override
@@ -187,4 +190,133 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nowLetSCorrectYourMistakes => 'Ahora vamos a corregir tus errores';
+
+  @override
+  String get noCompletedObjectives => 'Ningún objetivo completado';
+
+  @override
+  String get createdAt => 'Creado el';
+
+  @override
+  String get goals => 'Mis objetivos';
+
+  @override
+  String get showObjectives => 'Lista de objetivos';
+
+  @override
+  String get listMemories => 'Recuerdos';
+
+  @override
+  String get createNewGoal => 'Crear nuevo objetivo';
+
+  @override
+  String get signOut => 'Cerrar sesión';
+
+  @override
+  String get areYouSure => '¿Estás seguro?';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get comingSoon => 'Próximamente';
+
+  @override
+  String get deleteMemory => 'Eliminar';
+
+  @override
+  String get noMemories => 'No hay recuerdos';
+
+  @override
+  String get deleteMemoryDescription => '¿Estás seguro de querer eliminar este recuerdo?';
+
+  @override
+  String get untitledGoal => 'Objetivo sin nombre';
+
+  @override
+  String get areYouSureYouWantToDeleteThisGoal => '¿Estás seguro de querer eliminar este objetivo? Esta acción no puede ser desfeita.';
+
+  @override
+  String get warning => 'Advertencia';
+
+  @override
+  String get deleteGoalWarningDescription => 'Esto eliminará el objetivo y todos sus objetivos permanentemente. Esta acción no puede ser desfeita. ¿Estás absolutamente seguro?';
+
+  @override
+  String get selectGoal => 'Seleccionar Objetivo';
+
+  @override
+  String get noGoalsFound => 'No hay objetivos encontrados';
+
+  @override
+  String get createFirstGoal => 'Crear primer objetivo';
+
+  @override
+  String get deleteGoal => '¿Eliminar Objetivo?';
+
+  @override
+  String get studyPlan => 'Plan de estudio';
+
+  @override
+  String get firstObjective => 'Primer Objetivo';
+
+  @override
+  String get milestones => 'Hitos';
+
+  @override
+  String get confirmQuestion => '¿Confirmar?';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get yes => 'Sí';
+
+  @override
+  String get yourMentor => 'Tu mentor personalizado!';
+
+  @override
+  String get agreeToTermsAndPrivacyPolicy => 'Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad';
+
+  @override
+  String get exampleCourse1 => '“Quiero aprender a dibujar manga”';
+
+  @override
+  String get exampleCourse2 => '“Quiero aprender a escribir poesía”';
+
+  @override
+  String get exampleCourse3 => '“Quiero ser un nerd de la historia”';
+
+  @override
+  String get preOnboardingYourCoursesTitle => 'Tus cursos';
+
+  @override
+  String get preOnboardingYourCoursesBody => 'GoalGetter es una plataforma de cursos, donde cada curso es generado específicamente para ti';
+
+  @override
+  String get preOnboardingTellUsYourGoalTitle => 'Dinos tu objetivo';
+
+  @override
+  String get preOnboardingTellUsYourGoalBody => 'Dinos lo que quieres aprender, lograr o lograr';
+
+  @override
+  String get preOnboardingDailyLessonTitle => 'Lección diaria';
+
+  @override
+  String get preOnboardingDailyLessonBody => 'Practica todos los días, mantén tu progreso hacia tu objetivo';
+
+  @override
+  String get preOnboardingMadeForYouTitle => 'Hecho para ti!';
+
+  @override
+  String get preOnboardingMadeForYouBody => 'Todo el contenido es hecho para ti y tu objetivo';
+
+  @override
+  String get preOnboardingAiThatKnowsYouTitle => 'Chat con tu AI';
+
+  @override
+  String get preOnboardingAiThatKnowsYouBody => 'Tu tutor te conoce y está listo para hablar y guiarte';
 }

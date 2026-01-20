@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
 import '../../config/app_config.dart';
+import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../utils/settings_storage.dart';
 import '../../widgets/info_card.dart';
@@ -77,6 +78,9 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         });
 
         // Success - navigate to tutorial screen
+        if (!mounted) {
+          return;
+        }
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const TutorialScreen()),
           (route) => false,
@@ -101,7 +105,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
     return Scaffold(
       backgroundColor: Colors.black87,
       appBar: AppBar(
-        title: const Text('Study Plan'),
+        title: Text(AppLocalizations.of(context)!.studyPlan),
         backgroundColor: Colors.grey[900],
         foregroundColor: Colors.white,
       ),
@@ -131,7 +135,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'First Objective:',
+              AppLocalizations.of(context)!.firstObjective,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
@@ -164,7 +168,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
             // Milestones
             if (widget.plan.milestones.isNotEmpty) ...[
               Text(
-                'Milestones',
+                AppLocalizations.of(context)!.milestones,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -189,7 +193,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
             const SizedBox(height: 12),
             Center(
               child: Text(
-                'Confirm?',
+                AppLocalizations.of(context)!.confirmQuestion,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -217,8 +221,8 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'No',
+                    child: Text(
+                      AppLocalizations.of(context)!.no,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -249,8 +253,8 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                               ),
                             ),
                           )
-                        : const Text(
-                            'Yes',
+                        : Text(
+                            AppLocalizations.of(context)!.yes,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,

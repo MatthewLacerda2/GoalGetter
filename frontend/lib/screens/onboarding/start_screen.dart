@@ -3,8 +3,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:openapi/api.dart';
 
 import '../../config/app_config.dart';
+import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
 import 'goal_prompt_screen.dart';
 
 class StartScreen extends StatefulWidget {
@@ -17,6 +19,12 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
+
+  static const TextStyle _subtitleStyle = TextStyle(
+    fontSize: 20,
+    color: Colors.grey,
+    fontWeight: FontWeight.w300,
+  );
 
   Future<void> _routeAfterSignIn() async {
     try {
@@ -48,7 +56,7 @@ class _StartScreenState extends State<StartScreen> {
             MaterialPageRoute(
               builder: (context) => MyHomePage(
                 title: 'Goal Getter',
-                onLanguageChanged: (String) {},
+                onLanguageChanged: (String language) {},
               ),
             ),
           );
@@ -138,23 +146,6 @@ class _StartScreenState extends State<StartScreen> {
               children: [
                 const Spacer(flex: 2),
 
-                // App Icon/Logo placeholder
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Colors.blue.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
-                  ),
-                  child: const Icon(Icons.school, size: 60, color: Colors.blue),
-                ),
-
-                const SizedBox(height: 40),
-
                 // App Title
                 const Text(
                   'Goal Getter',
@@ -166,19 +157,17 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
-
                 // Subtitle
-                const Text(
-                  'Your 1:1 Tutor',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w300,
-                  ),
+                Text(
+                  AppLocalizations.of(context)!.yourMentor,
+                  style: _subtitleStyle,
                 ),
 
-                const Spacer(flex: 3),
+                const SizedBox(height: 28),
+
+                const PreOnboardingCarousel(height: 170),
+
+                const Spacer(flex: 2),
 
                 // Google Sign In Button
                 SizedBox(
@@ -222,11 +211,9 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
-
                 // Terms and Privacy
                 Text(
-                  'By continuing, you agree to our Terms of Service\nand Privacy Policy',
+                  AppLocalizations.of(context)!.agreeToTermsAndPrivacyPolicy,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

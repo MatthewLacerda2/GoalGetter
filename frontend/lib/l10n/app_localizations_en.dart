@@ -144,6 +144,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get objective => 'Objective';
 
   @override
+  String get objectives => 'Objectives';
+
+  @override
   String get tutor => 'Tutor';
 
   @override
@@ -187,4 +190,133 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nowLetSCorrectYourMistakes => 'Now let\'s correct your mistakes';
+
+  @override
+  String get noCompletedObjectives => 'No completed objectives';
+
+  @override
+  String get createdAt => 'Created at';
+
+  @override
+  String get goals => 'My Goals';
+
+  @override
+  String get showObjectives => 'List of objectives';
+
+  @override
+  String get listMemories => 'Memories';
+
+  @override
+  String get createNewGoal => 'Create new goal';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get areYouSure => 'Are you sure?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override
+  String get deleteMemory => 'Delete';
+
+  @override
+  String get noMemories => 'No memories';
+
+  @override
+  String get deleteMemoryDescription => 'Are you sure you want to delete this memory?';
+
+  @override
+  String get untitledGoal => 'Untitled goal';
+
+  @override
+  String get areYouSureYouWantToDeleteThisGoal => 'Are you sure you want to delete this goal? This action cannot be undone.';
+
+  @override
+  String get warning => 'Warning';
+
+  @override
+  String get deleteGoalWarningDescription => 'This will permanently delete the goal and all its objectives. This action cannot be reversed. Are you absolutely sure?';
+
+  @override
+  String get selectGoal => 'Select Goal';
+
+  @override
+  String get noGoalsFound => 'No goals found';
+
+  @override
+  String get createFirstGoal => 'Create first goal';
+
+  @override
+  String get deleteGoal => 'Delete Goal?';
+
+  @override
+  String get studyPlan => 'Study Plan';
+
+  @override
+  String get firstObjective => 'First Objective';
+
+  @override
+  String get milestones => 'Milestones';
+
+  @override
+  String get confirmQuestion => 'Confirm?';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get yourMentor => 'Your personal mentor!';
+
+  @override
+  String get agreeToTermsAndPrivacyPolicy => 'By continuing, you agree to our Terms of Service and Privacy Policy';
+
+  @override
+  String get exampleCourse1 => '“AI Engineering course”';
+
+  @override
+  String get exampleCourse2 => '“I wanna know Gardening 101”';
+
+  @override
+  String get exampleCourse3 => '“How to be a gentleman?”';
+
+  @override
+  String get preOnboardingYourCoursesTitle => 'Your courses';
+
+  @override
+  String get preOnboardingYourCoursesBody => 'GoalGetter is a courses platform, where every course is generated specifically for you';
+
+  @override
+  String get preOnboardingTellUsYourGoalTitle => 'Tell us your Goal';
+
+  @override
+  String get preOnboardingTellUsYourGoalBody => 'Say what you want to learn, achieve or accomplish';
+
+  @override
+  String get preOnboardingDailyLessonTitle => 'Daily lesson';
+
+  @override
+  String get preOnboardingDailyLessonBody => 'Practice every day, keep progressing to your goal';
+
+  @override
+  String get preOnboardingMadeForYouTitle => 'Made for you!';
+
+  @override
+  String get preOnboardingMadeForYouBody => 'All content is made for you and your goal';
+
+  @override
+  String get preOnboardingAiThatKnowsYouTitle => 'Chat with your AI';
+
+  @override
+  String get preOnboardingAiThatKnowsYouBody => 'Your Tutor knows you and is ready to talk and guide you';
 }
