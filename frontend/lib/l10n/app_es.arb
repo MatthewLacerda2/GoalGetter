@@ -356,12 +356,64 @@
     "@yes": {
         "description": "Label for yes"
     },
-    "yourMentor": "Tu Mentor de éxitos!",
+    "yourMentor": "Tu mentor personalizado!",
     "@yourMentor": {
         "description": "Label for your mentor"
     },
     "agreeToTermsAndPrivacyPolicy": "Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad",
     "@agreeToTermsAndPrivacyPolicy": {
         "description": "Label for agree to terms and privacy policy"
+    },
+    "exampleCourse1": "“Quiero aprender a dibujar manga”",
+    "@exampleCourse1": {
+        "description": "Example course text 1 shown on pre-onboarding tutorial"
+    },
+    "exampleCourse2": "“Quiero aprender a escribir poesía”",
+    "@exampleCourse2": {
+        "description": "Example course text 2 shown on pre-onboarding tutorial"
+    },
+    "exampleCourse3": "“Quiero ser un nerd de la historia”",
+    "@exampleCourse3": {
+        "description": "Example course text 3 shown on pre-onboarding tutorial"
+    },
+    "preOnboardingYourCoursesTitle": "Tus cursos",
+    "@preOnboardingYourCoursesTitle": {
+        "description": "Pre-onboarding tutorial page title: Your courses"
+    },
+    "preOnboardingYourCoursesBody": "GoalGetter es una plataforma de cursos, donde cada curso es generado específicamente para ti",
+    "@preOnboardingYourCoursesBody": {
+        "description": "Pre-onboarding tutorial page body: Your courses"
+    },
+    "preOnboardingTellUsYourGoalTitle": "Dinos tu objetivo",
+    "@preOnboardingTellUsYourGoalTitle": {
+        "description": "Pre-onboarding tutorial page title: Tell us your Goal"
+    },
+    "preOnboardingTellUsYourGoalBody": "Dinos lo que quieres aprender, lograr o lograr",
+    "@preOnboardingTellUsYourGoalBody": {
+        "description": "Pre-onboarding tutorial page body: Tell us your Goal"
+    },
+    "preOnboardingDailyLessonTitle": "Lección diaria",
+    "@preOnboardingDailyLessonTitle": {
+        "description": "Pre-onboarding tutorial page title: Daily lesson"
+    },
+    "preOnboardingDailyLessonBody": "Practica todos los días, mantén tu progreso hacia tu objetivo",
+    "@preOnboardingDailyLessonBody": {
+        "description": "Pre-onboarding tutorial page body: Daily lesson"
+    },
+    "preOnboardingMadeForYouTitle": "Hecho para ti!",
+    "@preOnboardingMadeForYouTitle": {
+        "description": "Pre-onboarding tutorial page title: Made for you"
+    },
+    "preOnboardingMadeForYouBody": "Todo el contenido es hecho para ti y tu objetivo",
+    "@preOnboardingMadeForYouBody": {
+        "description": "Pre-onboarding tutorial page body: Made for you"
+    },
+    "preOnboardingAiThatKnowsYouTitle": "Chat con tu AI",
+    "@preOnboardingAiThatKnowsYouTitle": {
+        "description": "Pre-onboarding tutorial page title: An AI that knows you"
+    },
+    "preOnboardingAiThatKnowsYouBody": "Tu tutor te conoce y está listo para hablar y guiarte",
+    "@preOnboardingAiThatKnowsYouBody": {
+        "description": "Pre-onboarding tutorial page body: An AI that knows you"
     }
 }

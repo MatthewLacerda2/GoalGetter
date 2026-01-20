@@ -638,7 +638,7 @@ abstract class AppLocalizations {
   /// Label for your mentor
   ///
   /// In en, this message translates to:
-  /// **'The Mentor of your Success!'**
+  /// **'Your personal mentor!'**
   String get yourMentor;
 
   /// Label for agree to terms and privacy policy
@@ -646,6 +646,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'By continuing, you agree to our Terms of Service and Privacy Policy'**
   String get agreeToTermsAndPrivacyPolicy;
+
+  /// Example course text 1 shown on pre-onboarding tutorial
+  ///
+  /// In en, this message translates to:
+  /// **'“AI Engineering course”'**
+  String get exampleCourse1;
+
+  /// Example course text 2 shown on pre-onboarding tutorial
+  ///
+  /// In en, this message translates to:
+  /// **'“I wanna know Gardening 101”'**
+  String get exampleCourse2;
+
+  /// Example course text 3 shown on pre-onboarding tutorial
+  ///
+  /// In en, this message translates to:
+  /// **'“How to be a gentleman?”'**
+  String get exampleCourse3;
+
+  /// Pre-onboarding tutorial page title: Your courses
+  ///
+  /// In en, this message translates to:
+  /// **'Your courses'**
+  String get preOnboardingYourCoursesTitle;
+
+  /// Pre-onboarding tutorial page body: Your courses
+  ///
+  /// In en, this message translates to:
+  /// **'GoalGetter is a courses platform, where every course is generated specifically for you'**
+  String get preOnboardingYourCoursesBody;
+
+  /// Pre-onboarding tutorial page title: Tell us your Goal
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us your Goal'**
+  String get preOnboardingTellUsYourGoalTitle;
+
+  /// Pre-onboarding tutorial page body: Tell us your Goal
+  ///
+  /// In en, this message translates to:
+  /// **'Say what you want to learn, achieve or accomplish'**
+  String get preOnboardingTellUsYourGoalBody;
+
+  /// Pre-onboarding tutorial page title: Daily lesson
+  ///
+  /// In en, this message translates to:
+  /// **'Daily lesson'**
+  String get preOnboardingDailyLessonTitle;
+
+  /// Pre-onboarding tutorial page body: Daily lesson
+  ///
+  /// In en, this message translates to:
+  /// **'Practice every day, keep progressing to your goal'**
+  String get preOnboardingDailyLessonBody;
+
+  /// Pre-onboarding tutorial page title: Made for you
+  ///
+  /// In en, this message translates to:
+  /// **'Made for you!'**
+  String get preOnboardingMadeForYouTitle;
+
+  /// Pre-onboarding tutorial page body: Made for you
+  ///
+  /// In en, this message translates to:
+  /// **'All content is made for you and your goal'**
+  String get preOnboardingMadeForYouBody;
+
+  /// Pre-onboarding tutorial page title: An AI that knows you
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with your AI'**
+  String get preOnboardingAiThatKnowsYouTitle;
+
+  /// Pre-onboarding tutorial page body: An AI that knows you
+  ///
+  /// In en, this message translates to:
+  /// **'Your Tutor knows you and is ready to talk and guide you'**
+  String get preOnboardingAiThatKnowsYouBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

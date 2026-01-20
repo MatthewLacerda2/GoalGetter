@@ -116,7 +116,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
               MaterialPageRoute(
                 builder: (context) => MyHomePage(
                   title: 'Goal Getter',
-                  onLanguageChanged: (String) {},
+                  onLanguageChanged: (String language) {},
                 ),
               ),
             );
@@ -168,6 +168,10 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
     );
 
     if (confirm1 != true) {
+      return;
+    }
+
+    if (!mounted) {
       return;
     }
 
@@ -224,6 +228,9 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
       // If no goals left, navigate to goal prompt screen
       if (_goals.isEmpty && mounted) {
         await SettingsStorage.clearCurrentGoalAndObjective();
+        if (!mounted) {
+          return;
+        }
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
         );

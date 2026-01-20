@@ -78,6 +78,9 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         });
 
         // Success - navigate to tutorial screen
+        if (!mounted) {
+          return;
+        }
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const TutorialScreen()),
           (route) => false,

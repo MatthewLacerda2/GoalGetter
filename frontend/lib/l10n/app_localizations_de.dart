@@ -276,8 +276,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String get yes => 'Ja';
 
   @override
-  String get yourMentor => 'Der Mentor deines Erfolgs!';
+  String get yourMentor => 'Ein Mentor für dich';
 
   @override
   String get agreeToTermsAndPrivacyPolicy => 'Durch die Fortfahrt erklärst du dich mit unseren Nutzungsbedingungen und Datenschutzrichtlinien einverstanden';
+
+  @override
+  String get exampleCourse1 => '“Studiengang Internationale Beziehungen”';
+
+  @override
+  String get exampleCourse2 => '“Ich benötige Grundlagen der Finanzwirtschaft”';
+
+  @override
+  String get exampleCourse3 => '“Ich möchte Maschinenbau lernen”';
+
+  @override
+  String get preOnboardingYourCoursesTitle => 'Deine Kurse';
+
+  @override
+  String get preOnboardingYourCoursesBody => 'GoalGetter ist eine Kursplattform, wo jeder Kurs speziell für dich generiert wird';
+
+  @override
+  String get preOnboardingTellUsYourGoalTitle => 'Erzähle uns dein Ziel';
+
+  @override
+  String get preOnboardingTellUsYourGoalBody => 'Erzähle uns, was du lernen, erreichen oder erreichen möchtest';
+
+  @override
+  String get preOnboardingDailyLessonTitle => 'Tägliche Lektion';
+
+  @override
+  String get preOnboardingDailyLessonBody => 'Übe jeden Tag, halte deinen Fortschritt bei deinem Ziel';
+
+  @override
+  String get preOnboardingMadeForYouTitle => 'Für dich gemacht!';
+
+  @override
+  String get preOnboardingMadeForYouBody => 'Alle Inhalte sind für dich und dein Ziel gemacht';
+
+  @override
+  String get preOnboardingAiThatKnowsYouTitle => 'Chat mit deinem AI';
+
+  @override
+  String get preOnboardingAiThatKnowsYouBody => 'Dein Tutor kennt dich und ist bereit, dich zu unterstützen und zu führen';
 }
