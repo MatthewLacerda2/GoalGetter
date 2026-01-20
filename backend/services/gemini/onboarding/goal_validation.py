@@ -6,7 +6,7 @@ from backend.services.gemini.onboarding.goal_validation_prompt import get_goal_v
 def get_prompt_validation(initiation_request: GoalCreationFollowUpQuestionsRequest) -> GeminiGoalValidation:
     
     client = get_client()
-    model = "gemini-3-flash"
+    model = "gemini-3-flash-preview"
     full_prompt = get_goal_validation_prompt(initiation_request.prompt)
     config = get_gemini_config(GeminiGoalValidation.model_json_schema())
     
@@ -27,7 +27,7 @@ def isGoalValidated(goalValidation: GeminiGoalValidation) -> bool :
 def get_follow_up_validation(study_plan_request: GoalStudyPlanRequest) -> GeminiFollowUpValidation:
     
     client = get_client()
-    model = "gemini-3-flash"
+    model = "gemini-3-pro-preview"
     full_prompt = get_follow_up_validation_prompt(study_plan_request)
     config = get_gemini_config(GeminiFollowUpValidation.model_json_schema())
     

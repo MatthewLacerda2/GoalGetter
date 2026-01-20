@@ -99,7 +99,7 @@ async def generate_full_creation(
             goal_id=goal_id,
             name=request.first_objective_name,
             description=request.first_objective_description,
-            ai_model="gemini-3-flash"
+            ai_model="gemini-3-flash-preview"
         )
         
         db.add(objective)

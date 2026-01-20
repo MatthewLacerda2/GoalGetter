@@ -32,7 +32,7 @@ def gemini_progress_evaluation(
         GeminiProgressEvaluationResponse with state[], metacognition[], percentage_completed, and ai_model
     """
     client = get_client()
-    model = "gemini-3-flash"
+    model = "gemini-3-pro-preview"
     config = get_gemini_config(GeminiProgressEvaluation.model_json_schema())
 
     full_prompt = get_progress_evaluation_prompt(

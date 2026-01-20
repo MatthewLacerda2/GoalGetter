@@ -7,7 +7,7 @@ def gemini_generate_multiple_choice_questions(
 ) -> GeminiMultipleChoiceQuestionsResponse:
     
     client = get_client()
-    model = "gemini-3-flash"
+    model = "gemini-3-flash-preview"
     config = get_gemini_config(GeminiMultipleChoiceQuestionsList.model_json_schema())
     full_prompt = generate_multiple_choice_questions_prompt(objective_name, objective_description, previous_objectives, informations, num_questions)
 

@@ -37,7 +37,7 @@ def gemini_search_ebooks_plain_text(
     )
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-3-flash-preview"
     full_prompt = get_search_ebooks_prompt_plain_text(goal_name, goal_description, objective_name, objective_description, student_context)
     config = get_gemini_config_plain_text()
     config.tools = [grounding_tool]
@@ -51,7 +51,7 @@ def gemini_search_ebooks_plain_text(
 def gemini_search_ebooks(gemini_results_plain_text: str) -> GeminiResourceSearchResults:
     
     client = get_client()
-    model = "gemini-2.5-flash"
+    model = "gemini-3-flash-preview"
     full_prompt = get_search_ebooks_prompt(gemini_results_plain_text)
     config = get_gemini_config(GeminiResourceSearchResults.model_json_schema())
     

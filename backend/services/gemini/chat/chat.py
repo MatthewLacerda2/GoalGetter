@@ -15,8 +15,6 @@ def gemini_messages_generator(
     
     gemini_messages = []
     for msg in messages:
-        # Gemini only accepts 'user' and 'model' as roles
-        # Map any non-user role (like 'assistant') to 'model'
         role = msg.role if msg.role == "user" else "model"
         gemini_messages.append({
             "role": role,
