@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 class MissionsScreen extends StatelessWidget {
   const MissionsScreen({super.key});
 
@@ -13,7 +15,7 @@ class MissionsScreen extends StatelessWidget {
             Icon(Icons.flag, size: 100, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
-              'Coming soon',
+              AppLocalizations.of(context)!.comingSoon,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

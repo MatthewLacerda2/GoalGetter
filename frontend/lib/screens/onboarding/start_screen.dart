@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:openapi/api.dart';
 
 import '../../config/app_config.dart';
+import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../services/auth_service.dart';
 import 'goal_prompt_screen.dart';
@@ -169,8 +170,8 @@ class _StartScreenState extends State<StartScreen> {
                 const SizedBox(height: 16),
 
                 // Subtitle
-                const Text(
-                  'Your 1:1 Tutor',
+                Text(
+                  AppLocalizations.of(context)!.yourMentor,
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.grey,
@@ -203,7 +204,7 @@ class _StartScreenState extends State<StartScreen> {
                             size: 20,
                           ),
                     label: Text(
-                      _isLoading ? 'Signing in...' : 'Start with Google',
+                      'Signing...',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -226,7 +227,7 @@ class _StartScreenState extends State<StartScreen> {
 
                 // Terms and Privacy
                 Text(
-                  'By continuing, you agree to our Terms of Service\nand Privacy Policy',
+                  AppLocalizations.of(context)!.agreeToTermsAndPrivacyPolicy,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

@@ -144,6 +144,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get objective => 'Objetivo';
 
   @override
+  String get objectives => 'Objetivos';
+
+  @override
   String get tutor => 'Tutor';
 
   @override
@@ -187,4 +190,94 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get nowLetSCorrectYourMistakes => 'Agora vamos corrigir seus erros';
+
+  @override
+  String get noCompletedObjectives => 'Nenhum objetivo concluído';
+
+  @override
+  String get createdAt => 'Criado em';
+
+  @override
+  String get goals => 'Minhas metas';
+
+  @override
+  String get showObjectives => 'Lista de objetivos';
+
+  @override
+  String get listMemories => 'Memórias';
+
+  @override
+  String get createNewGoal => 'Criar nova meta';
+
+  @override
+  String get signOut => 'Sair';
+
+  @override
+  String get areYouSure => 'Você tem certeza?';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get delete => 'Deletar';
+
+  @override
+  String get comingSoon => 'Em breve';
+
+  @override
+  String get deleteMemory => 'Deletar';
+
+  @override
+  String get noMemories => 'Nenhuma memória';
+
+  @override
+  String get deleteMemoryDescription => 'Tem certeza que deseja deletar esta memória?';
+
+  @override
+  String get untitledGoal => 'Meta sem nome';
+
+  @override
+  String get areYouSureYouWantToDeleteThisGoal => 'Tem certeza que deseja deletar esta meta? Esta ação não pode ser desfeita.';
+
+  @override
+  String get warning => 'Aviso';
+
+  @override
+  String get deleteGoalWarningDescription => 'Isso deletará a meta e todos os seus objetivos permanentemente. Esta ação não pode ser desfeita. Tem certeza?';
+
+  @override
+  String get selectGoal => 'Selecionar Meta';
+
+  @override
+  String get noGoalsFound => 'Nenhuma meta encontrada';
+
+  @override
+  String get createFirstGoal => 'Criar primeira meta';
+
+  @override
+  String get deleteGoal => 'Deletar Meta';
+
+  @override
+  String get studyPlan => 'Plano de Estudo';
+
+  @override
+  String get firstObjective => 'Primeiro Objetivo';
+
+  @override
+  String get milestones => 'Marcos';
+
+  @override
+  String get confirmQuestion => 'Confirmar?';
+
+  @override
+  String get no => 'Não';
+
+  @override
+  String get yes => 'Sim';
+
+  @override
+  String get yourMentor => 'O Mentor das suas Conquistas!';
+
+  @override
+  String get agreeToTermsAndPrivacyPolicy => 'Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade';
 }

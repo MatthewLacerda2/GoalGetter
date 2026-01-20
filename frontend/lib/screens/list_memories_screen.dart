@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:openapi/api.dart';
 
 import '../config/app_config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 
 class ListMemoriesScreen extends StatefulWidget {
@@ -70,17 +71,17 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Memory'),
-          content: const Text('Are you sure you want to delete this memory?'),
+          title: Text(AppLocalizations.of(context)!.deleteMemory),
+          content: Text(AppLocalizations.of(context)!.deleteMemoryDescription),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );
@@ -128,7 +129,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Memories'),
+        title: Text(AppLocalizations.of(context)!.listMemories),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: _isLoading
@@ -152,9 +153,9 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
               ),
             )
           : _memories.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                'No memories',
+                AppLocalizations.of(context)!.noMemories,
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             )
@@ -198,7 +199,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
                               ],
                               const SizedBox(height: 8),
                               Text(
-                                'created at ${_formatDate(memory.createdAt)}',
+                                '${AppLocalizations.of(context)!.createdAt} ${_formatDate(memory.createdAt)}',
                                 style: TextStyle(
                                   color: Colors.grey.shade700,
                                   fontSize: 12,

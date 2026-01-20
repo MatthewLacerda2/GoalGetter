@@ -180,6 +180,10 @@
     "@objective": {
         "description": "Label for objective"
     },
+    "objectives": "Objectives",
+    "@objectives": {
+        "description": "Label for objectives"
+    },
     "tutor": "Tutor",
     "@tutor": {
         "description": "Label for tutor"
@@ -239,5 +243,125 @@
     "nowLetSCorrectYourMistakes": "Now let's correct your mistakes",
     "@nowLetSCorrectYourMistakes": {
         "description": "Label for now let's correct your mistakes"
+    },
+    "noCompletedObjectives": "No completed objectives",
+    "@noCompletedObjectives": {
+        "description": "Label for no completed objectives"
+    },
+    "createdAt": "Created at",
+    "@createdAt": {
+        "description": "Label for created at"
+    },
+    "goals": "My Goals",
+    "@goals": {
+        "description": "Label for goals"
+    },
+    "showObjectives": "List of objectives",
+    "@showObjectives": {
+        "description": "Label for show objectives"
+    },
+    "listMemories": "Memories",
+    "@listMemories": {
+        "description": "Label for list memories"
+    },
+    "createNewGoal": "Create new goal",
+    "@createNewGoal": {
+        "description": "Label for create new goal"
+    },
+    "signOut": "Sign out",
+    "@signOut": {
+        "description": "Label for sign out"
+    },
+    "areYouSure": "Are you sure?",
+    "@areYouSure": {
+        "description": "Label for are you sure"
+    },
+    "cancel": "Cancel",
+    "@cancel": {
+        "description": "Label for cancel"
+    },
+    "delete": "Delete",
+    "@delete": {
+        "description": "Label for delete"
+    },
+    "comingSoon": "Coming soon",
+    "@comingSoon": {
+        "description": "Label for coming soon"
+    },
+    "deleteMemory": "Delete",
+    "@deleteMemory": {
+        "description": "Label for delete memory"
+    },
+    "noMemories": "No memories",
+    "@noMemories": {
+        "description": "Label for no memories"
+    },
+    "deleteMemoryDescription": "Are you sure you want to delete this memory?",
+    "@deleteMemoryDescription": {
+        "description": "Label for delete memory description"
+    },
+    "untitledGoal": "Untitled goal",
+    "@untitledGoal": {
+        "description": "Label for untitled goal"
+    },
+    "areYouSureYouWantToDeleteThisGoal": "Are you sure you want to delete this goal? This action cannot be undone.",
+    "@areYouSureYouWantToDeleteThisGoal": {
+        "description": "Label for are you sure you want to delete this goal"
+    },
+    "warning": "Warning",
+    "@warning": {
+        "description": "Label for warning"
+    },
+    "deleteGoalWarningDescription": "This will permanently delete the goal and all its objectives. This action cannot be reversed. Are you absolutely sure?",
+    "@deleteGoalWarningDescription": {
+        "description": "Label for delete goal warning description"
+    },
+    "selectGoal": "Select Goal",
+    "@selectGoal": {
+        "description": "Label for select goal"
+    },
+    "noGoalsFound": "No goals found",
+    "@noGoalsFound": {
+        "description": "Label for no goals found"
+    },
+    "createFirstGoal": "Create first goal",
+    "@createFirstGoal": {
+        "description": "Label for create first goal"
+    },
+    "deleteGoal": "Delete Goal?",
+    "@deleteGoal": {
+        "description": "Label for delete goal"
+    },
+    "studyPlan": "Study Plan",
+    "@studyPlan": {
+        "description": "Label for study plan"
+    },
+    "firstObjective": "First Objective",
+    "@firstObjective": {
+        "description": "Label for first objective"
+    },
+    "milestones": "Milestones",
+    "@milestones": {
+        "description": "Label for milestones"
+    },
+    "confirmQuestion": "Confirm?",
+    "@confirmQuestion": {
+        "description": "Label for confirm question"
+    },
+    "no": "No",
+    "@no": {
+        "description": "Label for no"
+    },
+    "yes": "Yes",
+    "@yes": {
+        "description": "Label for yes"
+    },
+    "yourMentor": "The Mentor of your Success!",
+    "@yourMentor": {
+        "description": "Label for your mentor"
+    },
+    "agreeToTermsAndPrivacyPolicy": "By continuing, you agree to our Terms of Service and Privacy Policy",
+    "@agreeToTermsAndPrivacyPolicy": {
+        "description": "Label for agree to terms and privacy policy"
     }
 }

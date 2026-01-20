@@ -144,6 +144,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get objective => 'Objectif';
 
   @override
+  String get objectives => 'Objectifs';
+
+  @override
   String get tutor => 'Tuteur';
 
   @override
@@ -187,4 +190,94 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get nowLetSCorrectYourMistakes => 'Maintenant, corrigeons vos erreurs';
+
+  @override
+  String get noCompletedObjectives => 'Aucun objectif complet';
+
+  @override
+  String get createdAt => 'Créé le';
+
+  @override
+  String get goals => 'Mes objectifs';
+
+  @override
+  String get showObjectives => 'Liste des objectifs';
+
+  @override
+  String get listMemories => 'Mémoires';
+
+  @override
+  String get createNewGoal => 'Créer un nouvel objectif';
+
+  @override
+  String get signOut => 'Se déconnecter';
+
+  @override
+  String get areYouSure => 'Êtes-vous sûr?';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get delete => 'Supprimer';
+
+  @override
+  String get comingSoon => 'Bientôt disponible';
+
+  @override
+  String get deleteMemory => 'Supprimer';
+
+  @override
+  String get noMemories => 'Aucune mémoire';
+
+  @override
+  String get deleteMemoryDescription => 'Êtes-vous sûr de vouloir supprimer cette mémoire?';
+
+  @override
+  String get untitledGoal => 'Objectif sans nom';
+
+  @override
+  String get areYouSureYouWantToDeleteThisGoal => 'Êtes-vous sûr de vouloir supprimer cet objectif? Cette action ne peut pas être annulée.';
+
+  @override
+  String get warning => 'Avertissement';
+
+  @override
+  String get deleteGoalWarningDescription => 'Cela supprimera l\'objectif et tous ses objectifs de façon permanente. Cette action ne peut pas être annulée. Êtes-vous absolument sûr?';
+
+  @override
+  String get selectGoal => 'Sélectionner un Objectif';
+
+  @override
+  String get noGoalsFound => 'Aucun objectif trouvé';
+
+  @override
+  String get createFirstGoal => 'Créer le premier objectif';
+
+  @override
+  String get deleteGoal => 'Supprimer l\'Objectif ?';
+
+  @override
+  String get studyPlan => 'Plan de étude';
+
+  @override
+  String get firstObjective => 'Premier Objectif';
+
+  @override
+  String get milestones => 'Étapes Importantes';
+
+  @override
+  String get confirmQuestion => 'Êtes-vous sûr?';
+
+  @override
+  String get no => 'Non';
+
+  @override
+  String get yes => 'Oui';
+
+  @override
+  String get yourMentor => 'Votre Mentor des Réussites!';
+
+  @override
+  String get agreeToTermsAndPrivacyPolicy => 'En continuant, vous acceptez nos Conditions d\'Utilisation et Politique de Confidentialité';
 }

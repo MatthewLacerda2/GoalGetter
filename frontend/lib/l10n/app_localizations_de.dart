@@ -144,6 +144,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get objective => 'Ziel';
 
   @override
+  String get objectives => 'Ziele';
+
+  @override
   String get tutor => 'Tutor';
 
   @override
@@ -187,4 +190,94 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get nowLetSCorrectYourMistakes => 'Jetzt lass uns deine Fehler korrigieren';
+
+  @override
+  String get noCompletedObjectives => 'Keine Ziele erreicht';
+
+  @override
+  String get createdAt => 'Erstellt am';
+
+  @override
+  String get goals => 'Meine Ziele';
+
+  @override
+  String get showObjectives => 'Liste der Ziele';
+
+  @override
+  String get listMemories => 'Erinnerungen';
+
+  @override
+  String get createNewGoal => 'Erstelle ein neues Ziel';
+
+  @override
+  String get signOut => 'Abmelden';
+
+  @override
+  String get areYouSure => 'Bist du sicher?';
+
+  @override
+  String get cancel => 'Abbrechen';
+
+  @override
+  String get delete => 'Löschen';
+
+  @override
+  String get comingSoon => 'Bald verfügbar';
+
+  @override
+  String get deleteMemory => 'Erinnerung löschen';
+
+  @override
+  String get noMemories => 'Keine Erinnerungen';
+
+  @override
+  String get deleteMemoryDescription => 'Bist du sicher, dass du diese Erinnerung löschen möchtest?';
+
+  @override
+  String get untitledGoal => 'Unbenanntes Ziel';
+
+  @override
+  String get areYouSureYouWantToDeleteThisGoal => 'Bist du sicher, dass du dieses Ziel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get warning => 'Warnung';
+
+  @override
+  String get deleteGoalWarningDescription => 'Dies wird das Ziel und alle seine Ziele endgültig löschen. Diese Aktion kann nicht rückgängig gemacht werden. Bist du absolut sicher?';
+
+  @override
+  String get selectGoal => 'Ziel auswählen';
+
+  @override
+  String get noGoalsFound => 'Keine Ziele gefunden';
+
+  @override
+  String get createFirstGoal => 'Erstelle erstes Ziel';
+
+  @override
+  String get deleteGoal => 'Ziel löschen?';
+
+  @override
+  String get studyPlan => 'Lernplan';
+
+  @override
+  String get firstObjective => 'Erstes Ziel';
+
+  @override
+  String get milestones => 'Meilensteine';
+
+  @override
+  String get confirmQuestion => 'Bestätigen?';
+
+  @override
+  String get no => 'Nein';
+
+  @override
+  String get yes => 'Ja';
+
+  @override
+  String get yourMentor => 'Der Mentor deines Erfolgs!';
+
+  @override
+  String get agreeToTermsAndPrivacyPolicy => 'Durch die Fortfahrt erklärst du dich mit unseren Nutzungsbedingungen und Datenschutzrichtlinien einverstanden';
 }

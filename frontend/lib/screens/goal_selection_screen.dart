@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
 import '../config/app_config.dart';
+import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../services/auth_service.dart';
 import '../utils/settings_storage.dart';
@@ -147,19 +148,19 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Goal?'),
-          content: const Text(
-            'Are you sure you want to delete this goal? This action cannot be reversed.',
+          title: Text(AppLocalizations.of(context)!.deleteGoal),
+          content: Text(
+            AppLocalizations.of(context)!.areYouSureYouWantToDeleteThisGoal,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );
@@ -175,19 +176,19 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Warning'),
-          content: const Text(
-            'Warning: This will permanently delete the goal and all its objectives. This action cannot be reversed. Are you absolutely sure?',
+          title: Text(AppLocalizations.of(context)!.warning),
+          content: Text(
+            AppLocalizations.of(context)!.deleteGoalWarningDescription,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );
@@ -247,7 +248,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text('Select Goal'),
+        title: Text(AppLocalizations.of(context)!.selectGoal),
         backgroundColor: Colors.grey[800],
         elevation: 0,
         foregroundColor: Colors.white,
@@ -277,8 +278,8 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'No goals found',
+                  Text(
+                    AppLocalizations.of(context)!.noGoalsFound,
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                   const SizedBox(height: 16),
@@ -290,7 +291,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                         ),
                       );
                     },
-                    child: const Text('Create First Goal'),
+                    child: Text(AppLocalizations.of(context)!.createFirstGoal),
                   ),
                 ],
               ),
@@ -337,7 +338,9 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            goal.name.isNotEmpty ? goal.name : 'Untitled Goal',
+                            goal.name.isNotEmpty
+                                ? goal.name
+                                : AppLocalizations.of(context)!.untitledGoal,
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -374,7 +377,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
         },
         backgroundColor: Colors.blue,
         icon: const Icon(Icons.add),
-        label: const Text('Create New Goal'),
+        label: Text(AppLocalizations.of(context)!.createNewGoal),
       ),
     );
   }

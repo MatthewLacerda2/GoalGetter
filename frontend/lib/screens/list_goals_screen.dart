@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
 import '../config/app_config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../utils/settings_storage.dart';
 
@@ -121,7 +122,7 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Goals'),
+        title: Text(AppLocalizations.of(context)!.goals),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: _isLoading
@@ -174,7 +175,9 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
                         ),
                       ),
                       child: Text(
-                        goal.name.isNotEmpty ? goal.name : 'Untitled Goal',
+                        goal.name.isNotEmpty
+                            ? goal.name
+                            : AppLocalizations.of(context)!.untitledGoal,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,

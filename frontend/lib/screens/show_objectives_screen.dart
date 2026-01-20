@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:openapi/api.dart';
 
 import '../config/app_config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 
 class ShowObjectivesScreen extends StatefulWidget {
@@ -74,7 +75,7 @@ class _ShowObjectivesScreenState extends State<ShowObjectivesScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Objectives'),
+        title: Text(AppLocalizations.of(context)!.objectives),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: _isLoading
@@ -98,9 +99,9 @@ class _ShowObjectivesScreenState extends State<ShowObjectivesScreen> {
               ),
             )
           : _objectives.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                'No completed objectives',
+                AppLocalizations.of(context)!.noCompletedObjectives,
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             )
@@ -128,13 +129,12 @@ class _ShowObjectivesScreenState extends State<ShowObjectivesScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
-                          'created at ${_formatDate(objective.createdAt)}',
+                          '${AppLocalizations.of(context)!.createdAt} ${_formatDate(objective.createdAt)}',
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 14,
-                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
