@@ -32,9 +32,6 @@ async def list_goals(
     current_user: Student = Depends(get_current_user)
 ):
     """Get all goals for the current student, ordered by the last_updated_at of their latest objective"""
-    
-    # Query goals with their latest objective's last_updated_at
-    # Join with objectives, group by goal, order by MAX(objectives.last_updated_at) DESC
     stmt = (
         select(
             Goal,
@@ -95,11 +92,8 @@ async def set_active_goal(
     current_user: Student = Depends(get_current_user)
 ):
     """Set the active goal and objective for the current student"""
-    
-    # Verify the goal belongs to the current student
     goal_repo = GoalRepository(db)
     goal = await goal_repo.get_by_id(goal_id)
-    
     if not goal:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -155,11 +149,8 @@ async def delete_goal(
     current_user: Student = Depends(get_current_user)
 ):
     """Delete a goal and all its associated objectives. Does NOT decrement student.overall_xp"""
-    
-    # Verify the goal belongs to the current student
     goal_repo = GoalRepository(db)
     goal = await goal_repo.get_by_id(goal_id)
-    
     if not goal:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

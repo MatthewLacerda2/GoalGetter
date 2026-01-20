@@ -74,8 +74,6 @@ class ActivitiesApi {
 
   /// Take Multiple Choice Activity
   ///
-  /// Deliver a multiple choice activity to the current user.  It takes one from the DB or creates a new activity for the user if none exists.
-  ///
   /// Note: This method returns the HTTP [Response].
   Future<Response> takeMultipleChoiceActivityApiV1ActivitiesPostWithHttpInfo() async {
     // ignore: prefer_const_declarations
@@ -103,8 +101,6 @@ class ActivitiesApi {
   }
 
   /// Take Multiple Choice Activity
-  ///
-  /// Deliver a multiple choice activity to the current user.  It takes one from the DB or creates a new activity for the user if none exists.
   Future<MultipleChoiceActivityResponse?> takeMultipleChoiceActivityApiV1ActivitiesPost() async {
     final response = await takeMultipleChoiceActivityApiV1ActivitiesPostWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {

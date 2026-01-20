@@ -42,8 +42,6 @@ class StudentRepository(BaseRepository[Student]):
         """
         Get the current user and 10 users above and below their XP level.
         Only includes users who have completed onboarding (have objectives).
-        Returns a tuple of (current_user, leaderboard_users)
-        Raises ValueError if user with given ID is not found.
         """
         # First, get the current user with their goals and current_objective information
         current_user_stmt = select(Student).options(

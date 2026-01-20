@@ -29,15 +29,6 @@ async def create_lesson_questions_async(
     num_questions: int,
     db: AsyncSession
 ) -> None:
-    """
-    Create lesson questions asynchronously.
-    
-    Args:
-        student_id: The ID of the student
-        goal_id: The ID of the goal
-        num_questions: Number of questions to create
-        db: Database session
-    """
     try:
         objective_repo = ObjectiveRepository(db)
         objective = await objective_repo.get_latest_by_goal_id(goal_id)
@@ -77,11 +68,6 @@ async def take_multiple_choice_activity(
     db: AsyncSession = Depends(get_db),
     current_user: Student = Depends(get_current_user)
 ):
-    """
-    Deliver a multiple choice activity to the current user.
-
-    It takes one from the DB or creates a new activity for the user if none exists.
-    """
     objective_repo = ObjectiveRepository(db)
     objective = await objective_repo.get_latest_by_goal_id(current_user.goal_id)
         
