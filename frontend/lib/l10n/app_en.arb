@@ -415,5 +415,17 @@
     "preOnboardingAiThatKnowsYouBody": "Your Tutor knows you and is ready to talk and guide you",
     "@preOnboardingAiThatKnowsYouBody": {
         "description": "Pre-onboarding tutorial page body: An AI that knows you"
+    },
+    "writeYourMemory": "Write your memory...",
+    "@writeYourMemory": {
+        "description": "Label for write your memory"
+    },
+    "noDescription": "No description",
+    "@noDescription": {
+        "description": "Label for no description"
+    },
+    "setAsCurrentGoal": "Set as current goal",
+    "@setAsCurrentGoal": {
+        "description": "Label for set as current goal"
     }
 }

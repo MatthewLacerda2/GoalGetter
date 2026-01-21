@@ -108,8 +108,8 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
                 controller: controller,
                 autofocus: true,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  hintText: 'Write your memory…',
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.writeYourMemory,
                 ),
                 onSubmitted: (_) => submitWrapped(),
               ),
@@ -128,7 +128,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Send'),
+                      : Text(AppLocalizations.of(context)!.send),
                 ),
               ],
             );
@@ -145,8 +145,8 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Are you sure?'),
-          content: const Text('Are you sure?'),
+          title: Text(AppLocalizations.of(context)!.areYouSure),
+          content: Text(AppLocalizations.of(context)!.areYouSure),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),

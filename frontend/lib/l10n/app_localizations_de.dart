@@ -319,4 +319,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get preOnboardingAiThatKnowsYouBody => 'Dein Tutor kennt dich und ist bereit, dich zu unterstützen und zu führen';
+
+  @override
+  String get writeYourMemory => 'Schreibe deine Erinnerung...';
+
+  @override
+  String get noDescription => 'Keine Beschreibung';
+
+  @override
+  String get setAsCurrentGoal => 'Als aktuelles Ziel setzen';
 }

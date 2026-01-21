@@ -724,6 +724,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your Tutor knows you and is ready to talk and guide you'**
   String get preOnboardingAiThatKnowsYouBody;
+
+  /// Label for write your memory
+  ///
+  /// In en, this message translates to:
+  /// **'Write your memory...'**
+  String get writeYourMemory;
+
+  /// Label for no description
+  ///
+  /// In en, this message translates to:
+  /// **'No description'**
+  String get noDescription;
+
+  /// Label for set as current goal
+  ///
+  /// In en, this message translates to:
+  /// **'Set as current goal'**
+  String get setAsCurrentGoal;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

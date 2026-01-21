@@ -96,17 +96,19 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete goal'),
-          content: const Text('Are you sure? This action can not be undone'),
+          title: Text(AppLocalizations.of(context)!.deleteGoal),
+          content: Text(
+            AppLocalizations.of(context)!.areYouSureYouWantToDeleteThisGoal,
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete goal'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );
@@ -187,7 +189,7 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
               Text(
                 widget.goal.description.isNotEmpty
                     ? widget.goal.description
-                    : 'No description',
+                    : AppLocalizations.of(context)!.noDescription,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
@@ -227,8 +229,8 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'Set as current goal',
+                      : Text(
+                          AppLocalizations.of(context)!.setAsCurrentGoal,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -264,8 +266,8 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'Delete goal',
+                      : Text(
+                          AppLocalizations.of(context)!.deleteGoal,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

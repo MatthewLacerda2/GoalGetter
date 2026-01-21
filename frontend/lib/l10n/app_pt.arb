@@ -415,5 +415,17 @@
     "preOnboardingAiThatKnowsYouBody": "Um Tutor que conhece você e está pronto para conversar e guiá-lo",
     "@preOnboardingAiThatKnowsYouBody": {
         "description": "Pre-onboarding tutorial page body: An AI that knows you"
+    },
+    "writeYourMemory": "Escreva sua memória...",
+    "@writeYourMemory": {
+        "description": "Label for write your memory"
+    },
+    "noDescription": "Deletar Meta",
+    "@noDescription": {
+        "description": "Label for no description"
+    },
+    "setAsCurrentGoal": "Definir como meta atual",
+    "@setAsCurrentGoal": {
+        "description": "Label for set as current goal"
     }
 }

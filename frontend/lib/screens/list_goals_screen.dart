@@ -84,9 +84,9 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
               ),
             )
           : _goals.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                'No goals found',
+                AppLocalizations.of(context)!.noGoalsFound,
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             )
