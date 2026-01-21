@@ -7,7 +7,7 @@ class ObjectiveTabHeader extends StatelessWidget {
   final int overallXp;
   final String objectiveTitle;
   final int streakCounter;
-  final Color streakIconColor;
+  final Color streakBadgeBackgroundColor;
 
   static const double buttonsHeight = 44;
 
@@ -16,11 +16,12 @@ class ObjectiveTabHeader extends StatelessWidget {
     required this.overallXp,
     required this.objectiveTitle,
     required this.streakCounter,
-    required this.streakIconColor,
+    required this.streakBadgeBackgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool hasBadgeBackground = streakBadgeBackgroundColor.a > 0;
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[800],
@@ -70,8 +71,12 @@ class ObjectiveTabHeader extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: hasBadgeBackground
+                    ? streakBadgeBackgroundColor
+                    : Colors.transparent,
                 foregroundColor: Colors.white,
+                elevation: hasBadgeBackground ? 2 : 0,
+                shadowColor: Colors.transparent,
                 padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -80,10 +85,10 @@ class ObjectiveTabHeader extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.local_fire_department,
                     size: 20,
-                    color: streakIconColor,
+                    color: Colors.white,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -91,6 +96,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ],

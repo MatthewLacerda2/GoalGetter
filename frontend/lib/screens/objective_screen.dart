@@ -22,7 +22,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
 
   int? _overallXp;
   int? _streakCounter;
-  Color _streakIconColor = Colors.transparent;
+  Color _streakBadgeBackgroundColor = Colors.transparent;
   String? _objectiveName;
   List<ObjectiveNote>? _notes;
 
@@ -67,12 +67,12 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
         throw Exception('Failed to fetch objective');
       }
 
-      // Fetch week streak data (used only to decide streak icon color in header).
+      // Fetch week streak data (used only to decide streak badge background in header).
       // The streak counter continues to come from `studentResponse.currentStreak`.
       final streakResponse = await streakApi
           .getWeekStreakApiV1StreakStudentIdWeekGet(studentResponse.studentId);
 
-      Color computeStreakIconColor() {
+      Color computeStreakBadgeBackgroundColor() {
         final streakDays = streakResponse?.streakDays ?? <StreakDayResponse>[];
 
         final now = DateTime.now();
@@ -98,7 +98,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
         setState(() {
           _overallXp = studentResponse.overallXp;
           _streakCounter = studentResponse.currentStreak;
-          _streakIconColor = computeStreakIconColor();
+          _streakBadgeBackgroundColor = computeStreakBadgeBackgroundColor();
           _objectiveName = objectiveResponse.name;
           _notes = objectiveResponse.notes;
           _isLoading = false;
@@ -123,7 +123,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
             overallXp: _overallXp ?? 0,
             objectiveTitle: _objectiveName ?? '',
             streakCounter: _streakCounter ?? 0,
-            streakIconColor: _streakIconColor,
+            streakBadgeBackgroundColor: _streakBadgeBackgroundColor,
           ),
           Expanded(
             child: _isLoading

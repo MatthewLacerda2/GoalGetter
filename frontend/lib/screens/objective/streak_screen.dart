@@ -22,6 +22,7 @@ class _StreakScreenState extends State<StreakScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   int _streakCount = 0;
+  Color _streakIconBackgroundColor = Colors.transparent;
   String? _studentId;
   bool? _sunday;
   bool? _monday;
@@ -89,6 +90,25 @@ class _StreakScreenState extends State<StreakScreen> {
           final now = DateTime.now();
           final today = DateTime(now.year, now.month, now.day);
           final todayWeekday = today.weekday;
+          final yesterday = today.subtract(const Duration(days: 1));
+          final dayBeforeYesterday = today.subtract(const Duration(days: 2));
+
+          bool hasDay(DateTime targetDay) {
+            for (final streakDay in streakDays) {
+              final dt = streakDay.dateTime.toLocal();
+              final normalized = DateTime(dt.year, dt.month, dt.day);
+              if (normalized == targetDay) return true;
+            }
+            return false;
+          }
+
+          if (hasDay(today)) {
+            _streakIconBackgroundColor = Colors.orange;
+          } else if (hasDay(yesterday) || hasDay(dayBeforeYesterday)) {
+            _streakIconBackgroundColor = Colors.grey;
+          } else {
+            _streakIconBackgroundColor = Colors.transparent;
+          }
 
           // Calculate start of current week (Monday)
           // DateTime.weekday returns 1-7 (Monday=1, Sunday=7)
@@ -187,18 +207,33 @@ class _StreakScreenState extends State<StreakScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.local_fire_department,
-                          color: Colors.orange,
-                          size: 80,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          '$_streakCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 80,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _streakIconBackgroundColor,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.local_fire_department,
+                                color: Colors.white,
+                                size: 80,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                '$_streakCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 80,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
