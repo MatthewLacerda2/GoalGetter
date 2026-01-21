@@ -17,22 +17,9 @@ def gemini_progress_evaluation(
     percentage_completed: float,
     contexts: List[StudentContext],
 ) -> GeminiProgressEvaluationResponse:
-    """
-    Generate progress evaluation using Gemini AI.
 
-    Args:
-        goal_name: Name of the student's goal
-        goal_description: Description of the goal
-        objective_name: Name of the current objective
-        objective_description: Description of the current objective
-        percentage_completed: Current percentage completed for the objective
-        contexts: List of student contexts (latest 8, ordered by objective then created_at)
-
-    Returns:
-        GeminiProgressEvaluationResponse with state[], metacognition[], percentage_completed, and ai_model
-    """
     client = get_client()
-    model = "gemini-3-pro-preview"
+    model = "gemini-3-flash-preview"
     config = get_gemini_config(GeminiProgressEvaluation.model_json_schema())
 
     full_prompt = get_progress_evaluation_prompt(

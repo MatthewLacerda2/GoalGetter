@@ -5,7 +5,7 @@ from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreat
 def get_gemini_follow_up_questions(initiation_request: GoalCreationFollowUpQuestionsRequest) -> GoalCreationFollowUpQuestionsResponse:
     
     client = get_client()
-    model = "gemini-3-pro-preview"
+    model = "gemini-3-flash-preview"
     full_prompt = get_goal_follow_up_questions_prompt(initiation_request.prompt)
     config = get_gemini_config(GoalCreationFollowUpQuestionsResponse.model_json_schema())
     
@@ -20,7 +20,7 @@ def get_gemini_follow_up_questions(initiation_request: GoalCreationFollowUpQuest
 def get_gemini_study_plan(study_plan_request: GoalStudyPlanRequest) -> GoalStudyPlanResponse:
     
     client = get_client()
-    model = "gemini-3-pro-preview"
+    model = "gemini-3-flash-preview"
     full_prompt = get_goal_study_plan_prompt(study_plan_request)
     config = get_gemini_config(GoalStudyPlanResponse.model_json_schema())
     
