@@ -49,6 +49,8 @@ async def create_student_context(
     current_user: Student = Depends(get_current_user)
 ):
     """Create a new student context"""
+
+    from backend.utils.gemini.gemini_configs import get_gemini_embeddings
     
     if not current_user.goal_id:
         raise HTTPException(
@@ -65,7 +67,7 @@ async def create_student_context(
         source="student",
         state=request.context,
         metacognition="",
-        state_embedding=None,
+        state_embedding=get_gemini_embeddings(request.context),
         metacognition_embedding=None,
         ai_model="non-artificial"
     )
