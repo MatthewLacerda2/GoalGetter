@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:openapi/api.dart';
 
+import '../../app/app.dart';
 import '../../l10n/app_localizations.dart';
-import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
-import 'goal_prompt_screen.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -33,9 +32,7 @@ class _StartScreenState extends State<StartScreen> {
       if (accessToken == null) {
         // If no token, go to goal prompt screen
         if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
-          );
+          Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
         }
         return;
       }
@@ -53,27 +50,16 @@ class _StartScreenState extends State<StartScreen> {
             studentStatus.goalId != null &&
             studentStatus.goalId!.isNotEmpty) {
           // User has goals, go to main screen
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => MyHomePage(
-                title: 'Goal Getter',
-                onLanguageChanged: (String language) {},
-              ),
-            ),
-          );
+          Navigator.of(context).pushReplacementNamed(AppRoutes.home);
         } else {
           // User has no goals, go to goal prompt screen
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
-          );
+          Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
         }
       }
     } catch (e) {
       // On error, go to goal prompt screen
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
-        );
+        Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
       }
     }
   }

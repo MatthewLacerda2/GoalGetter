@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
+import '../app/app.dart';
 import '../l10n/app_localizations.dart';
-import '../main.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
 import '../utils/settings_storage.dart';
@@ -97,19 +97,10 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
           // Check if user has access token (completed onboarding)
           if (accessToken != null && accessToken.isNotEmpty) {
             // User has completed onboarding, navigate to main screen
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => MyHomePage(
-                  title: 'Goal Getter',
-                  onLanguageChanged: (String language) {},
-                ),
-              ),
-            );
+            Navigator.of(context).pushReplacementNamed(AppRoutes.home);
           } else {
             // User hasn't completed onboarding, go to goal prompt
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
-            );
+            Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
           }
         }
       } else {

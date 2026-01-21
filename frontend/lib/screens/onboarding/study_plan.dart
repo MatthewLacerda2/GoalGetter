@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
+import '../../app/app.dart';
 import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
-import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../utils/settings_storage.dart';
@@ -90,14 +90,11 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         if (!mounted) return;
 
         // Navigate straight into the app (same end state as first-goal flow).
-        final newRoute = MaterialPageRoute(
-          builder: (context) => MyHomePage(
-            title: 'Goal Getter',
-            onLanguageChanged: (String _) {},
-            selectedIndex: 0,
-          ),
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.home,
+          (route) => false,
+          arguments: const HomeRouteArgs(selectedIndex: 0),
         );
-        Navigator.of(context).pushAndRemoveUntil(newRoute, (route) => false);
       }
     } catch (e) {
       if (mounted) {
