@@ -79,14 +79,6 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
     ) -> List[ChatMessage]:
         """
         Get messages for a student within a date range, ordered by created_at ASC.
-        
-        Args:
-            student_id: The student's ID
-            start_date: Start of date range (inclusive)
-            end_date: End of date range (inclusive)
-        
-        Returns:
-            List[ChatMessage] ordered by created_at ASC
         """
         stmt = select(ChatMessage).where(
             and_(

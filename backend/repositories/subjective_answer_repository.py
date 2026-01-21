@@ -56,13 +56,6 @@ class SubjectiveAnswerRepository(BaseRepository[SubjectiveAnswer]):
     async def get_latest_with_accuracy(self, student_id: str, limit: int = 10) -> Tuple[List[SubjectiveAnswer], float]:
         """
         Get latest N subjective answers for a student with approval accuracy calculation.
-        
-        Args:
-            student_id: The student's ID
-            limit: Number of latest answers to retrieve (default: 10)
-        
-        Returns:
-            Tuple of (list of answers, approval accuracy percentage)
         """
         # Get latest answers ordered by created_at DESC
         stmt = select(SubjectiveAnswer).where(

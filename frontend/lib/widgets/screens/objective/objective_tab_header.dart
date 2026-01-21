@@ -7,6 +7,7 @@ class ObjectiveTabHeader extends StatelessWidget {
   final int overallXp;
   final String objectiveTitle;
   final int streakCounter;
+  final Color streakBadgeBackgroundColor;
 
   static const double buttonsHeight = 44;
 
@@ -15,10 +16,12 @@ class ObjectiveTabHeader extends StatelessWidget {
     required this.overallXp,
     required this.objectiveTitle,
     required this.streakCounter,
+    required this.streakBadgeBackgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool hasBadgeBackground = streakBadgeBackgroundColor.a > 0;
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[800],
@@ -68,9 +71,12 @@ class ObjectiveTabHeader extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors
-                    .orange, //TODO: make this go cyanGrey if the user didnt finish a lesson today
+                backgroundColor: hasBadgeBackground
+                    ? streakBadgeBackgroundColor
+                    : Colors.transparent,
                 foregroundColor: Colors.white,
+                elevation: hasBadgeBackground ? 2 : 0,
+                shadowColor: Colors.transparent,
                 padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -79,13 +85,18 @@ class ObjectiveTabHeader extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.local_fire_department, size: 20),
+                  const Icon(
+                    Icons.local_fire_department,
+                    size: 20,
+                    color: Colors.white,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '$streakCounter',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ],

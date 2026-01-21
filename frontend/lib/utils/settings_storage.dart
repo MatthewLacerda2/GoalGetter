@@ -11,11 +11,61 @@ class SettingsStorage {
   static const String spanish = 'es';
   static const String german = 'de';
 
-  static const String defaultLanguage = english;
+  /// Default whenever we cannot match the device language.
+  static const String defaultLanguage = portuguese;
+
+  static String _normalizeLanguageCode(String language) {
+    // Defensive normalization in case we ever receive values like "en-US" / "pt_BR".
+    final normalized = language.trim().toLowerCase();
+    final separatorIndex = normalized.indexOf(RegExp(r'[-_]'));
+    return separatorIndex == -1
+        ? normalized
+        : normalized.substring(0, separatorIndex);
+  }
+
+  /// Picks the best supported language from a list of preferred device language codes.
+  /// Falls back to [defaultLanguage] when no match is found.
+  static String pickBestSupportedLanguage(
+    Iterable<String> preferredLanguageCodes,
+  ) {
+    for (final code in preferredLanguageCodes) {
+      final normalized = _normalizeLanguageCode(code);
+      if (isSupportedLanguage(normalized)) return normalized;
+    }
+    return defaultLanguage;
+  }
 
   static Future<String> getUserLanguage() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_languageKey) ?? defaultLanguage;
+    final stored = prefs.getString(_languageKey);
+    if (stored != null && isSupportedLanguage(stored)) return stored;
+    return defaultLanguage;
+  }
+
+  /// Returns the stored language (if any) without falling back.
+  static Future<String?> getStoredUserLanguageOrNull() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_languageKey);
+    if (stored == null) return null;
+    return isSupportedLanguage(stored) ? stored : null;
+  }
+
+  /// Ensures a language is stored for newcomers (first launch / before login).
+  ///
+  /// - If a supported language is already stored, it is returned.
+  /// - Otherwise, it selects the best match from [preferredLanguageCodes] and stores it.
+  /// - If no match is found, it stores and returns [defaultLanguage] (Portuguese).
+  static Future<String> getOrInitUserLanguage({
+    required Iterable<String> preferredLanguageCodes,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final stored = prefs.getString(_languageKey);
+    if (stored != null && isSupportedLanguage(stored)) return stored;
+
+    final selected = pickBestSupportedLanguage(preferredLanguageCodes);
+    await prefs.setString(_languageKey, selected);
+    return selected;
   }
 
   static Future<bool> setUserLanguage(String language) async {

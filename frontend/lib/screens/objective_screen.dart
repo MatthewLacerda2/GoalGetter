@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 import '../widgets/info_card.dart';
 import '../widgets/screens/objective/lesson_button.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
@@ -22,6 +22,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
 
   int? _overallXp;
   int? _streakCounter;
+  Color _streakBadgeBackgroundColor = Colors.transparent;
   String? _objectiveName;
   List<ObjectiveNote>? _notes;
 
@@ -38,19 +39,14 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
     });
 
     try {
-      // Get the stored access token
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      // Create API client and add the access token as Authorization header
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       // Fetch student status and objective in parallel
       final studentApi = StudentApi(apiClient);
       final objectiveApi = ObjectiveApi(apiClient);
+      final streakApi = StreakApi(apiClient);
 
       final studentResponse = await studentApi
           .getStudentCurrentStatusApiV1StudentGet();
@@ -65,10 +61,38 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
         throw Exception('Failed to fetch objective');
       }
 
+      // Fetch week streak data (used only to decide streak badge background in header).
+      // The streak counter continues to come from `studentResponse.currentStreak`.
+      final streakResponse = await streakApi
+          .getWeekStreakApiV1StreakStudentIdWeekGet(studentResponse.studentId);
+
+      Color computeStreakBadgeBackgroundColor() {
+        final streakDays = streakResponse?.streakDays ?? <StreakDayResponse>[];
+
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final yesterday = today.subtract(const Duration(days: 1));
+        final dayBeforeYesterday = today.subtract(const Duration(days: 2));
+
+        bool hasDay(DateTime targetDay) {
+          for (final streakDay in streakDays) {
+            final dt = streakDay.dateTime.toLocal();
+            final normalized = DateTime(dt.year, dt.month, dt.day);
+            if (normalized == targetDay) return true;
+          }
+          return false;
+        }
+
+        if (hasDay(today)) return Colors.orange;
+        if (hasDay(yesterday) || hasDay(dayBeforeYesterday)) return Colors.grey;
+        return Colors.transparent;
+      }
+
       if (mounted) {
         setState(() {
           _overallXp = studentResponse.overallXp;
           _streakCounter = studentResponse.currentStreak;
+          _streakBadgeBackgroundColor = computeStreakBadgeBackgroundColor();
           _objectiveName = objectiveResponse.name;
           _notes = objectiveResponse.notes;
           _isLoading = false;
@@ -93,6 +117,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
             overallXp: _overallXp ?? 0,
             objectiveTitle: _objectiveName ?? '',
             streakCounter: _streakCounter ?? 0,
+            streakBadgeBackgroundColor: _streakBadgeBackgroundColor,
           ),
           Expanded(
             child: _isLoading

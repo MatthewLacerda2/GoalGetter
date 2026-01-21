@@ -31,15 +31,7 @@ class MultipleChoiceAnswerRepository(BaseRepository[MultipleChoiceAnswer]):
     async def get_latest_with_accuracy(self, student_id: str, limit: int = 30) -> Tuple[List[MultipleChoiceAnswer], float]:
         """
         Get latest N multiple choice answers for a student with accuracy calculation.
-        
-        Args:
-            student_id: The student's ID
-            limit: Number of latest answers to retrieve (default: 30)
-        
-        Returns:
-            Tuple of (list of answers, accuracy percentage)
         """
-        # Get latest answers with questions joined for efficiency
         stmt = select(MultipleChoiceAnswer).options(
             joinedload(MultipleChoiceAnswer.question)
         ).where(

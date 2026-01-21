@@ -319,4 +319,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get preOnboardingAiThatKnowsYouBody => 'Um Tutor que conhece você e está pronto para conversar e guiá-lo';
+
+  @override
+  String get writeYourMemory => 'Escreva sua memória...';
+
+  @override
+  String get noDescription => 'Deletar Meta';
+
+  @override
+  String get setAsCurrentGoal => 'Definir como meta atual';
 }

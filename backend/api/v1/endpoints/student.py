@@ -17,7 +17,7 @@ async def get_student_current_status(
     current_user: Student = Depends(get_current_user)
 ):
     """Get the current status of the student"""
-    
+
     return StudentCurrentStatusResponse(
         student_id=str(current_user.id),
         student_name=current_user.name,

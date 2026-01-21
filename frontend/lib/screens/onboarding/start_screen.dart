@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:openapi/api.dart';
 
-import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../services/auth_service.dart';
+import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
 import 'goal_prompt_screen.dart';
 
@@ -41,8 +41,9 @@ class _StartScreenState extends State<StartScreen> {
       }
 
       // Check student status to see if user has goals
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
       final studentApi = StudentApi(apiClient);
       final studentStatus = await studentApi
           .getStudentCurrentStatusApiV1StudentGet();

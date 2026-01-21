@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
+import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/onboarding/goal_questions.dart';
 import 'study_plan.dart';
 
@@ -25,7 +25,6 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
     with TickerProviderStateMixin {
   List<String> _answers = [];
   bool _showErrors = false;
-  bool _isLoading = false;
   int _currentQuestionIndex = 0;
 
   late AnimationController _slideController;
@@ -89,19 +88,10 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
 
   void _onSendPressed() async {
     if (_allAnswered) {
-      setState(() {
-        _isLoading = true;
-      });
       try {
-        // Get the Google token from SharedPreferences
-        final googleToken = await _authService.getStoredGoogleToken();
-        if (googleToken == null) {
-          throw Exception('No Google token available. Please sign in again.');
-        }
-
-        // Create API client and add the Google token as Authorization header
-        final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-        apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+        final apiClient = await OpenApiClientFactory(
+          authService: _authService,
+        ).createWithGoogleToken();
 
         // Build request
         final api = OnboardingApi(apiClient);
@@ -170,12 +160,6 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
             duration: const Duration(seconds: 5),
           ),
         );
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
       }
     } else {
       setState(() {
@@ -187,7 +171,8 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      // Prevent white flash during SlideTransition+FadeTransition.
+      backgroundColor: const Color.fromARGB(255, 43, 43, 43),
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.questions),
         centerTitle: true,
@@ -221,42 +206,6 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
                   isActive: true,
                   showError: _showErrors,
                 ),
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _onSendPressed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoading
-                    ? SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        _currentQuestionIndex < widget.questions.length - 1
-                            ? AppLocalizations.of(context)!.next
-                            : AppLocalizations.of(context)!.send,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
               ),
             ),
           ),

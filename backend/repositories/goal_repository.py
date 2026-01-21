@@ -28,7 +28,6 @@ class GoalRepository(BaseRepository[Goal]):
     async def delete(self, entity_id: str) -> bool:
         entity = await self.get_by_id(entity_id)
         if entity:
-            # Use db.delete() method from session
             await self.db.delete(entity)
             await self.db.flush()
             return True

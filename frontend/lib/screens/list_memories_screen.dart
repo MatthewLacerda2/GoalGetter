@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 
 class ListMemoriesScreen extends StatefulWidget {
   const ListMemoriesScreen({super.key});
@@ -25,6 +25,13 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
     _loadMemories();
   }
 
+  Future<StudentContextApi> _buildStudentContextApi() async {
+    final apiClient = await OpenApiClientFactory(
+      authService: _authService,
+    ).createAuthorized();
+    return StudentContextApi(apiClient);
+  }
+
   Future<void> _loadMemories() async {
     setState(() {
       _isLoading = true;
@@ -32,18 +39,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
     });
 
     try {
-      final accessToken = await _authService.getStoredAccessToken();
-      final googleToken = await _authService.getStoredGoogleToken();
-      final authToken = accessToken ?? googleToken;
-
-      if (authToken == null) {
-        throw Exception('No authentication token available');
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
-
-      final studentContextApi = StudentContextApi(apiClient);
+      final studentContextApi = await _buildStudentContextApi();
       final memoriesResponse = await studentContextApi
           .getStudentContextsApiV1StudentContextGet();
 
@@ -66,13 +62,91 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
     }
   }
 
+  Future<void> _showAddMemoryDialog() async {
+    final screenContext = context;
+    final controller = TextEditingController();
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        var isSending = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            // Keep local rebuilds cheap + reliable
+            void setSending(bool value) => setState(() => isSending = value);
+
+            Future<void> submitWrapped() async {
+              final text = controller.text.trim();
+              if (text.isEmpty || isSending) return;
+              setSending(true);
+              final navigator = Navigator.of(dialogContext);
+              final messenger = ScaffoldMessenger.of(screenContext);
+              try {
+                final studentContextApi = await _buildStudentContextApi();
+                await studentContextApi
+                    .createStudentContextApiV1StudentContextPost(
+                      CreateStudentContextRequest(context: text),
+                    );
+                if (!mounted) return;
+                navigator.pop();
+                await _loadMemories();
+              } catch (e) {
+                setSending(false);
+                if (!mounted) return;
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Error adding memory: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+
+            return AlertDialog(
+              title: const Text('+ Add'),
+              content: TextField(
+                controller: controller,
+                autofocus: true,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.writeYourMemory,
+                ),
+                onSubmitted: (_) => submitWrapped(),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSending
+                      ? null
+                      : () => Navigator.of(dialogContext).pop(),
+                  child: Text(AppLocalizations.of(context)!.cancel),
+                ),
+                TextButton(
+                  onPressed: isSending ? null : submitWrapped,
+                  child: isSending
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(AppLocalizations.of(context)!.send),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    controller.dispose();
+  }
+
   Future<void> _deleteMemory(StudentContextItem memory) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.deleteMemory),
-          content: Text(AppLocalizations.of(context)!.deleteMemoryDescription),
+          title: Text(AppLocalizations.of(context)!.areYouSure),
+          content: Text(AppLocalizations.of(context)!.areYouSure),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -90,18 +164,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        final accessToken = await _authService.getStoredAccessToken();
-        final googleToken = await _authService.getStoredGoogleToken();
-        final authToken = accessToken ?? googleToken;
-
-        if (authToken == null) {
-          throw Exception('No authentication token available');
-        }
-
-        final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-        apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
-
-        final studentContextApi = StudentContextApi(apiClient);
+        final studentContextApi = await _buildStudentContextApi();
         await studentContextApi
             .deleteStudentContextApiV1StudentContextContextIdDelete(memory.id);
 
@@ -131,6 +194,12 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.listMemories),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          TextButton(
+            onPressed: _showAddMemoryDialog,
+            child: const Text('+ Add', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

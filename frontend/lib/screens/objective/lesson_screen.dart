@@ -6,9 +6,9 @@ import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
 import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
 import 'package:openapi/api.dart';
 
-import '../../config/app_config.dart';
 import '../../models/lesson_question_data.dart';
 import '../../services/auth_service.dart';
+import '../../services/openapi_client_factory.dart';
 import '../intermediate/info_screen.dart';
 
 class LessonScreen extends StatefulWidget {
@@ -98,13 +98,9 @@ class _LessonScreenState extends State<LessonScreen> {
     });
 
     try {
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       final activitiesApi = ActivitiesApi(apiClient);
       final response = await activitiesApi
@@ -213,13 +209,9 @@ class _LessonScreenState extends State<LessonScreen> {
     if (_hasSubmittedAnswers) return;
 
     try {
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       final activitiesApi = ActivitiesApi(apiClient);
 
