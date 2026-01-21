@@ -13,32 +13,34 @@ import 'services/openapi_client_factory.dart';
 import 'utils/settings_storage.dart';
 import 'widgets/main_screen_icon.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final initialLanguage = await SettingsStorage.getOrInitUserLanguage(
+    preferredLanguageCodes: WidgetsBinding.instance.platformDispatcher.locales
+        .map((locale) => locale.languageCode),
+  );
+
+  runApp(MyApp(initialLocale: Locale(initialLanguage)));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.initialLocale});
+
+  final Locale initialLocale;
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale _locale = const Locale('en');
+  late Locale _locale;
   final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
-    _loadSavedLanguage();
-  }
-
-  Future<void> _loadSavedLanguage() async {
-    final language = await SettingsStorage.getUserLanguage();
-    setState(() {
-      _locale = Locale(language);
-    });
+    _locale = widget.initialLocale;
   }
 
   void _changeLanguage(String language) {
