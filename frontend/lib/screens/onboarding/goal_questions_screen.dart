@@ -25,7 +25,6 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
     with TickerProviderStateMixin {
   List<String> _answers = [];
   bool _showErrors = false;
-  bool _isLoading = false;
   int _currentQuestionIndex = 0;
 
   late AnimationController _slideController;
@@ -89,9 +88,6 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
 
   void _onSendPressed() async {
     if (_allAnswered) {
-      setState(() {
-        _isLoading = true;
-      });
       try {
         final apiClient = await OpenApiClientFactory(
           authService: _authService,
@@ -164,12 +160,6 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
             duration: const Duration(seconds: 5),
           ),
         );
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
       }
     } else {
       setState(() {
@@ -181,7 +171,8 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      // Prevent white flash during SlideTransition+FadeTransition.
+      backgroundColor: const Color.fromARGB(255, 43, 43, 43),
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.questions),
         centerTitle: true,
@@ -215,42 +206,6 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
                   isActive: true,
                   showError: _showErrors,
                 ),
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _onSendPressed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoading
-                    ? SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        _currentQuestionIndex < widget.questions.length - 1
-                            ? AppLocalizations.of(context)!.next
-                            : AppLocalizations.of(context)!.send,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
               ),
             ),
           ),

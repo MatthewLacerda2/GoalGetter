@@ -135,6 +135,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
               TextFormField(
                 controller: _promptController,
                 focusNode: _promptFocusNode,
+                enabled: !_isLoading,
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(
                     context,
@@ -143,48 +144,20 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
                   filled: true,
                   fillColor: Colors.grey[800],
                   hintStyle: TextStyle(color: Colors.grey[400]),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    tooltip: AppLocalizations.of(context)!.enter,
+                    onPressed: _isLoading ? null : _onEnterPressed,
+                  ),
                 ),
                 maxLength: 500,
                 maxLines: 8,
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) => setState(() {}),
+                textInputAction: TextInputAction.send,
+                onFieldSubmitted: (_) => _onEnterPressed(),
               ),
             ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _onEnterPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: _isLoading
-                  ? SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(
-                      AppLocalizations.of(context)!.enter,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
           ),
         ),
       ),

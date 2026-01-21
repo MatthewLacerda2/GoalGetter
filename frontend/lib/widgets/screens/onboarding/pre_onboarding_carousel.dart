@@ -24,7 +24,7 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
   void initState() {
     super.initState();
 
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 13), (_) {
       if (!mounted || !_controller.hasClients) {
         return;
       }
