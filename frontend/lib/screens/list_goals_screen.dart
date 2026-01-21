@@ -4,7 +4,7 @@ import 'package:openapi/api.dart';
 import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
-import '../utils/settings_storage.dart';
+import 'goals_detail_screen.dart';
 
 class ListGoalsScreen extends StatefulWidget {
   const ListGoalsScreen({super.key});
@@ -62,61 +62,6 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
     }
   }
 
-  Future<void> _setActiveGoal(GoalListItem goal) async {
-    try {
-      final accessToken = await _authService.getStoredAccessToken();
-      final googleToken = await _authService.getStoredGoogleToken();
-      final authToken = accessToken ?? googleToken;
-
-      if (authToken == null) {
-        throw Exception('No authentication token available');
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
-
-      final goalsApi = GoalsApi(apiClient);
-      final response = await goalsApi.setActiveGoalApiV1GoalsGoalIdSetActivePut(
-        goal.id,
-      );
-
-      if (response != null) {
-        if (response.goalId != null) {
-          await SettingsStorage.setCurrentGoalId(response.goalId!);
-        }
-
-        if (accessToken != null) {
-          try {
-            final objectiveApi = ObjectiveApi(apiClient);
-            final objectiveResponse = await objectiveApi
-                .getObjectiveApiV1ObjectiveGet();
-
-            if (objectiveResponse != null) {
-              await SettingsStorage.setCurrentObjectiveId(objectiveResponse.id);
-            }
-          } catch (e) {
-            // If we can't fetch objective ID, continue anyway
-          }
-        }
-
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      } else {
-        throw Exception('Failed to set active goal: No response received');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error setting active goal: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,7 +106,26 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: ElevatedButton(
-                      onPressed: () => _setActiveGoal(goal),
+                      onPressed: () async {
+                        final result = await Navigator.of(context)
+                            .push<GoalsDetailResult>(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GoalsDetailScreen(goal: goal),
+                              ),
+                            );
+
+                        if (result == GoalsDetailResult.deleted) {
+                          await _loadGoals();
+                        }
+
+                        if (result == GoalsDetailResult.activated) {
+                          if (!context.mounted) {
+                            return;
+                          }
+                          Navigator.of(context).pop();
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                         foregroundColor: Colors.white,

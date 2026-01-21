@@ -86,14 +86,6 @@ class StudentContextRepository(BaseRepository[StudentContext]):
     async def get_latest_for_evaluation(self, student_id: str, current_objective_id: str, limit: int = 8) -> List[StudentContext]:
         """
         Get latest valid student contexts for evaluation, ordered by latest objective first then created_at DESC.
-        
-        Args:
-            student_id: The student's ID
-            current_objective_id: The student's current objective ID
-            limit: Maximum number of contexts to return (default: 8)
-        
-        Returns:
-            List of StudentContext ordered by objective_id (current objective first), then created_at DESC
         """
         # Order by objective_id (current objective first using CASE), then by created_at DESC
         # Use CASE to prioritize current objective (0) over others (1)
