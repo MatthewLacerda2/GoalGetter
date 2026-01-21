@@ -3,11 +3,11 @@ import 'package:openapi/api.dart';
 
 import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
+import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../utils/settings_storage.dart';
 import '../../widgets/info_card.dart';
 import 'goal_prompt_screen.dart';
-import 'tutorial_screen.dart';
 
 class StudyPlanScreen extends StatefulWidget {
   final GoalStudyPlanResponse plan;
@@ -50,24 +50,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
           .generateFullCreationApiV1OnboardingFullCreationPost(request);
 
       if (response != null && mounted) {
-        // Store goal and objective IDs
         final student = response.student;
-        // Extract goal_id and objective_id from student response
-        // The response should contain goal information
-        // For now, we'll fetch it from the student status endpoint
-        try {
-          final studentApi = StudentApi(apiClient);
-          final studentStatus = await studentApi
-              .getStudentCurrentStatusApiV1StudentGet();
-          if (studentStatus != null &&
-              studentStatus.goalId != null &&
-              studentStatus.goalId!.isNotEmpty) {
-            await SettingsStorage.setCurrentGoalId(studentStatus.goalId!);
-            // Objective ID will be fetched by main screen
-          }
-        } catch (e) {
-          // If we can't get goal ID, continue anyway
-        }
 
         // Store/update access token from response (account already exists from signup)
         await _authService.storeFinalCredentials(response.accessToken, {
@@ -77,14 +60,49 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
           'google_id': student.googleId,
         });
 
-        // Success - navigate to tutorial screen
-        if (!mounted) {
-          return;
+        // Use the JWT access token to persist the active goal/objective IDs.
+        try {
+          final jwtClient = ApiClient(basePath: AppConfig.baseUrl);
+          jwtClient.addDefaultHeader(
+            'Authorization',
+            'Bearer ${response.accessToken}',
+          );
+
+          final studentApi = StudentApi(jwtClient);
+          final objectiveApi = ObjectiveApi(jwtClient);
+
+          final studentStatus = await studentApi
+              .getStudentCurrentStatusApiV1StudentGet();
+
+          if (studentStatus?.goalId != null &&
+              studentStatus!.goalId!.isNotEmpty) {
+            await SettingsStorage.setCurrentGoalId(studentStatus.goalId!);
+          }
+
+          try {
+            final objectiveResponse = await objectiveApi
+                .getObjectiveApiV1ObjectiveGet();
+            if (objectiveResponse != null && objectiveResponse.id.isNotEmpty) {
+              await SettingsStorage.setCurrentObjectiveId(objectiveResponse.id);
+            }
+          } catch (_) {
+            // Best-effort only.
+          }
+        } catch (_) {
+          // Best-effort only.
         }
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const TutorialScreen()),
-          (route) => false,
+
+        if (!mounted) return;
+
+        // Navigate straight into the app (same end state as first-goal flow).
+        final newRoute = MaterialPageRoute(
+          builder: (context) => MyHomePage(
+            title: 'Goal Getter',
+            onLanguageChanged: (String _) {},
+            selectedIndex: 0,
+          ),
         );
+        Navigator.of(context).pushAndRemoveUntil(newRoute, (route) => false);
       }
     } catch (e) {
       if (mounted) {
