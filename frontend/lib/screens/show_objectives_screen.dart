@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 
 class ShowObjectivesScreen extends StatefulWidget {
   const ShowObjectivesScreen({super.key});
@@ -32,16 +32,9 @@ class _ShowObjectivesScreenState extends State<ShowObjectivesScreen> {
     });
 
     try {
-      final accessToken = await _authService.getStoredAccessToken();
-      final googleToken = await _authService.getStoredGoogleToken();
-      final authToken = accessToken ?? googleToken;
-
-      if (authToken == null) {
-        throw Exception('No authentication token available');
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createAuthorized();
 
       final objectiveApi = ObjectiveApi(apiClient);
       final objectivesResponse = await objectiveApi

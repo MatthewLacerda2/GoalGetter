@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 import 'goals_detail_screen.dart';
 
 class ListGoalsScreen extends StatefulWidget {
@@ -32,16 +32,9 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
     });
 
     try {
-      final accessToken = await _authService.getStoredAccessToken();
-      final googleToken = await _authService.getStoredGoogleToken();
-      final authToken = accessToken ?? googleToken;
-
-      if (authToken == null) {
-        throw Exception('No authentication token available');
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createAuthorized();
 
       final goalsApi = GoalsApi(apiClient);
       final goalsResponse = await goalsApi.listGoalsApiV1GoalsGet();

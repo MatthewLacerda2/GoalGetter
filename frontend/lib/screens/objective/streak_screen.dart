@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../services/auth_service.dart';
+import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';
 
 class StreakScreen extends StatefulWidget {
@@ -45,15 +45,9 @@ class _StreakScreenState extends State<StreakScreen> {
     });
 
     try {
-      // Get the stored access token
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      // Create API client and add the access token as Authorization header
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       // Fetch student status to get student_id if not already fetched
       if (_studentId == null) {

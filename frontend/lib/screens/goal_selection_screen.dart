@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 import '../utils/settings_storage.dart';
 import 'onboarding/goal_prompt_screen.dart';
 
@@ -34,18 +34,10 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
     });
 
     try {
-      // Get access token or Google token
-      final accessToken = await _authService.getStoredAccessToken();
-      final googleToken = await _authService.getStoredGoogleToken();
-      final authToken = accessToken ?? googleToken;
-
-      if (authToken == null) {
-        throw Exception('No authentication token available');
-      }
-
       // Call /goals endpoint using OpenAPI SDK
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createAuthorized();
 
       final goalsApi = GoalsApi(apiClient);
       final goalsResponse = await goalsApi.listGoalsApiV1GoalsGet();
@@ -68,18 +60,11 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
 
   Future<void> _selectGoal(GoalListItem goal) async {
     try {
-      // Get access token or Google token
       final accessToken = await _authService.getStoredAccessToken();
-      final googleToken = await _authService.getStoredGoogleToken();
-      final authToken = accessToken ?? googleToken;
-
-      if (authToken == null) {
-        throw Exception('No authentication token available');
-      }
-
       // Set goal as active via API using OpenAPI SDK
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createAuthorized();
 
       final goalsApi = GoalsApi(apiClient);
       final response = await goalsApi.setActiveGoalApiV1GoalsGoalIdSetActivePut(
@@ -204,18 +189,10 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
     }
 
     try {
-      // Get access token or Google token
-      final accessToken = await _authService.getStoredAccessToken();
-      final googleToken = await _authService.getStoredGoogleToken();
-      final authToken = accessToken ?? googleToken;
-
-      if (authToken == null) {
-        throw Exception('No authentication token available');
-      }
-
       // Delete goal via API using OpenAPI SDK
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createAuthorized();
 
       final goalsApi = GoalsApi(apiClient);
       await goalsApi.deleteGoalApiV1GoalsGoalIdDelete(goal.id);

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 import '../widgets/screens/resource/resource_tab.dart';
 
 class ResourcesScreen extends StatefulWidget {
@@ -44,13 +44,9 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     });
 
     try {
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       // Get student status to get goalId
       final studentApi = StudentApi(apiClient);

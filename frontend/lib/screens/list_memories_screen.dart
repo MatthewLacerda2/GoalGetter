@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 
 class ListMemoriesScreen extends StatefulWidget {
   const ListMemoriesScreen({super.key});
@@ -26,16 +26,9 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
   }
 
   Future<StudentContextApi> _buildStudentContextApi() async {
-    final accessToken = await _authService.getStoredAccessToken();
-    final googleToken = await _authService.getStoredGoogleToken();
-    final authToken = accessToken ?? googleToken;
-
-    if (authToken == null) {
-      throw Exception('No authentication token available');
-    }
-
-    final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-    apiClient.addDefaultHeader('Authorization', 'Bearer $authToken');
+    final apiClient = await OpenApiClientFactory(
+      authService: _authService,
+    ).createAuthorized();
     return StudentContextApi(apiClient);
   }
 
@@ -86,6 +79,8 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
               final text = controller.text.trim();
               if (text.isEmpty || isSending) return;
               setSending(true);
+              final navigator = Navigator.of(dialogContext);
+              final messenger = ScaffoldMessenger.of(screenContext);
               try {
                 final studentContextApi = await _buildStudentContextApi();
                 await studentContextApi
@@ -93,12 +88,12 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
                       CreateStudentContextRequest(context: text),
                     );
                 if (!mounted) return;
-                Navigator.of(dialogContext).pop();
+                navigator.pop();
                 await _loadMemories();
               } catch (e) {
                 setSending(false);
                 if (!mounted) return;
-                ScaffoldMessenger.of(screenContext).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text('Error adding memory: ${e.toString()}'),
                     backgroundColor: Colors.red,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'goal_questions_screen.dart';
-import '../../l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
-import '../../config/app_config.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
+import '../../services/openapi_client_factory.dart';
+import 'goal_questions_screen.dart';
 
 class GoalPromptScreen extends StatefulWidget {
   const GoalPromptScreen({super.key});
@@ -15,7 +16,7 @@ class GoalPromptScreen extends StatefulWidget {
 class _GoalPromptScreenState extends State<GoalPromptScreen> {
   final _formKey = GlobalKey<FormState>();
   final _promptController = TextEditingController();
-  
+
   final _promptFocusNode = FocusNode();
   final _authService = AuthService();
 
@@ -35,21 +36,14 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
   }
 
   Future<List<String>?> _fetchObjectiveQuestions(String prompt) async {
-    // Get the Google token from SharedPreferences
-    final googleToken = await _authService.getStoredGoogleToken();
-    if (googleToken == null) {
-      throw Exception('No Google token available. Please sign in again.');
-    }
+    final apiClient = await OpenApiClientFactory(
+      authService: _authService,
+    ).createWithGoogleToken();
 
-    // Create API client and add the Google token as Authorization header
-    final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-    apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
-    
     final goalApi = OnboardingApi(apiClient);
-    final request = GoalCreationFollowUpQuestionsRequest(
-      prompt: prompt
-    );
-    final response = await goalApi.generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPost(request);
+    final request = GoalCreationFollowUpQuestionsRequest(prompt: prompt);
+    final response = await goalApi
+        .generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPost(request);
     return response?.questions;
   }
 
@@ -58,9 +52,11 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
       setState(() {
         _isLoading = true;
       });
-      
+
       try {
-        final questions = await _fetchObjectiveQuestions(_promptController.text);
+        final questions = await _fetchObjectiveQuestions(
+          _promptController.text,
+        );
         if (mounted) {
           if (questions != null) {
             Navigator.push(
@@ -77,10 +73,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
               SnackBar(
                 content: Text(
                   'Error: No questions received',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
             );
@@ -92,10 +85,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
             SnackBar(
               content: Text(
                 'Error: $e',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),
           );
@@ -112,8 +102,8 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         SnackBar(
           content: Text(
             AppLocalizations.of(context)!.beDetailedOfYourGoal,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
-          )
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
         ),
       );
     }
@@ -139,17 +129,16 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
               const SizedBox(height: 2),
               Text(
                 AppLocalizations.of(context)!.tellWhatYourGoalIs,
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
+                style: const TextStyle(fontSize: 18, color: Colors.white),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _promptController,
                 focusNode: _promptFocusNode,
                 decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.goalDescriptionHintText,
+                  hintText: AppLocalizations.of(
+                    context,
+                  )!.goalDescriptionHintText,
                   border: const OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.grey[800],
@@ -179,22 +168,22 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
                 ),
               ),
               child: _isLoading
-                ? SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
+                  ? SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      AppLocalizations.of(context)!.enter,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                  )
-                : Text(
-                    AppLocalizations.of(context)!.enter,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
             ),
           ),
         ),

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../models/chat_message.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 import '../widgets/tutor/chat_input.dart';
 import '../widgets/tutor/chat_message_bubble.dart';
 
@@ -84,15 +84,9 @@ class _TutorScreenState extends State<TutorScreen> {
     });
 
     try {
-      // Get the stored access token
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      // Create API client and add the access token as Authorization header
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       // Fetch student status to get student_id if not already fetched
       if (_studentId == null) {
@@ -254,15 +248,9 @@ class _TutorScreenState extends State<TutorScreen> {
     });
 
     try {
-      // Get the stored access token
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      // Create API client and add the access token as Authorization header
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       final chatApi = ChatApi(apiClient);
 
@@ -364,15 +352,9 @@ class _TutorScreenState extends State<TutorScreen> {
     });
 
     try {
-      // Get the stored access token
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      // Create API client and add the access token as Authorization header
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       final chatApi = ChatApi(apiClient);
 

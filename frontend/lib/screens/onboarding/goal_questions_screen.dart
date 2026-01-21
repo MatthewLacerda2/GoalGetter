@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
+import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/onboarding/goal_questions.dart';
 import 'study_plan.dart';
 
@@ -93,15 +93,9 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
         _isLoading = true;
       });
       try {
-        // Get the Google token from SharedPreferences
-        final googleToken = await _authService.getStoredGoogleToken();
-        if (googleToken == null) {
-          throw Exception('No Google token available. Please sign in again.');
-        }
-
-        // Create API client and add the Google token as Authorization header
-        final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-        apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+        final apiClient = await OpenApiClientFactory(
+          authService: _authService,
+        ).createWithGoogleToken();
 
         // Build request
         final api = OnboardingApi(apiClient);

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:openapi/api.dart';
 
-import '../config/app_config.dart';
 import '../services/auth_service.dart';
+import '../services/openapi_client_factory.dart';
 import '../widgets/info_card.dart';
 import '../widgets/screens/objective/lesson_button.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
@@ -39,15 +39,9 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
     });
 
     try {
-      // Get the stored access token
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        throw Exception('No access token available. Please sign in again.');
-      }
-
-      // Create API client and add the access token as Authorization header
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithAccessToken();
 
       // Fetch student status and objective in parallel
       final studentApi = StudentApi(apiClient);

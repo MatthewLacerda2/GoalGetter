@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import 'config/app_config.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/missions_screen.dart';
 import 'screens/objective_screen.dart';
@@ -10,6 +9,7 @@ import 'screens/profile_screen.dart';
 import 'screens/resources_screen.dart';
 import 'screens/tutor_screen.dart';
 import 'services/auth_service.dart';
+import 'services/openapi_client_factory.dart';
 import 'utils/settings_storage.dart';
 import 'widgets/main_screen_icon.dart';
 
@@ -115,8 +115,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
         try {
           final accessToken = await widget.authService.getStoredAccessToken();
           if (accessToken != null) {
-            final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-            apiClient.addDefaultHeader('Authorization', 'Bearer $accessToken');
+            final apiClient = await OpenApiClientFactory(
+              authService: widget.authService,
+            ).createWithAccessToken();
 
             final studentApi = StudentApi(apiClient);
             final studentResponse = await studentApi

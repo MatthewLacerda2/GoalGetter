@@ -5,6 +5,7 @@ import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../services/auth_service.dart';
+import '../../services/openapi_client_factory.dart';
 import '../../utils/settings_storage.dart';
 import '../../widgets/info_card.dart';
 import 'goal_prompt_screen.dart';
@@ -28,15 +29,9 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
     });
 
     try {
-      // Get the Google token from SharedPreferences
-      final googleToken = await _authService.getStoredGoogleToken();
-      if (googleToken == null) {
-        throw Exception('No Google token available. Please sign in again.');
-      }
-
-      // Create API client and add the Google token as Authorization header
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+      final apiClient = await OpenApiClientFactory(
+        authService: _authService,
+      ).createWithGoogleToken();
 
       final onboardingApi = OnboardingApi(apiClient);
       final request = GoalFullCreationRequest(
