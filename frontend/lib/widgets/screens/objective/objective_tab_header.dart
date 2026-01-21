@@ -7,6 +7,7 @@ class ObjectiveTabHeader extends StatelessWidget {
   final int overallXp;
   final String objectiveTitle;
   final int streakCounter;
+  final Color streakIconColor;
 
   static const double buttonsHeight = 44;
 
@@ -15,6 +16,7 @@ class ObjectiveTabHeader extends StatelessWidget {
     required this.overallXp,
     required this.objectiveTitle,
     required this.streakCounter,
+    required this.streakIconColor,
   });
 
   @override
@@ -68,8 +70,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors
-                    .orange, //TODO: make this go cyanGrey if the user didnt finish a lesson today
+                backgroundColor: Colors.grey[700],
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                 shape: RoundedRectangleBorder(
@@ -79,7 +80,11 @@ class ObjectiveTabHeader extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.local_fire_department, size: 20),
+                  Icon(
+                    Icons.local_fire_department,
+                    size: 20,
+                    color: streakIconColor,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '$streakCounter',
