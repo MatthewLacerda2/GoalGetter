@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
+import '../../app/app.dart';
 import '../../l10n/app_localizations.dart';
-import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';
@@ -314,16 +314,9 @@ class _StreakScreenState extends State<StreakScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushAndRemoveUntil(
+                    Navigator.of(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => MyHomePage(
-                          title: 'GoalGetter',
-                          onLanguageChanged: (language) {},
-                        ),
-                      ),
-                      (route) => false,
-                    );
+                    ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
