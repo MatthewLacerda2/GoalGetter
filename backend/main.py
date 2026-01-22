@@ -6,10 +6,10 @@ from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
 from backend.core.scheduler import setup_scheduler_jobs, start_scheduler, stop_scheduler
 from backend.llms import get_llms_txt
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
+from backend.core.rate_limiter import limiter
 from fastapi.responses import PlainTextResponse
 
 logging.basicConfig(
@@ -21,15 +21,12 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Setup and start the scheduler
     setup_scheduler_jobs()
-    start_scheduler()
-    
-    #asyncio.create_task(run_startup_content_creation())
-    
+    start_scheduler()    
+
+    #asyncio.create_task(run_startup_content_creation())    
     yield
     
-    # Shutdown: Stop the scheduler
     stop_scheduler()
 
 app = FastAPI(
@@ -47,10 +44,9 @@ app.add_middleware(
     allow_origins=["https://goalsgetter.org", "http://localhost:8080"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
-limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
