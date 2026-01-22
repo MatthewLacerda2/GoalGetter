@@ -137,9 +137,6 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
                 focusNode: _promptFocusNode,
                 enabled: !_isLoading,
                 decoration: InputDecoration(
-                  hintText: AppLocalizations.of(
-                    context,
-                  )!.goalDescriptionHintText,
                   border: const OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.grey[800],

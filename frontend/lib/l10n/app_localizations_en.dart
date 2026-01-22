@@ -30,9 +30,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tellWhatYourGoalIs => 'Tell your goal, what can you do so far, and what is the purpose';
 
   @override
-  String get goalDescriptionHintText => 'I wanna learn guitar, i can play most basic chords';
-
-  @override
   String get enter => 'Enter';
 
   @override

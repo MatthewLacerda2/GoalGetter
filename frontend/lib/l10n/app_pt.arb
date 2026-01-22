@@ -28,10 +28,6 @@
     "@tellWhatYourGoalIs": {
         "description": "Label para dizer o que é sua meta"
     },
-    "goalDescriptionHintText": "Quero aprender violão, sei tocar notas básicas",
-    "@goalDescriptionHintText": {
-        "description": "Texto de dica para descrição da meta"
-    },
     "enter": "Enter",
     "@enter": {
         "description": "Label para botão entrar"

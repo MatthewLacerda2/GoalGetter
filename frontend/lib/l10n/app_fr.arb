@@ -28,10 +28,6 @@
     "@tellWhatYourGoalIs": {
         "description": "Label for tell what your goal is"
     },
-    "goalDescriptionHintText": "Je veux apprendre la guitare, je connais les accords de base déjà",
-    "@goalDescriptionHintText": {
-        "description": "Hint text for goal description"
-    },
     "enter": "Entrer",
     "@enter": {
         "description": "Label for enter button"

@@ -143,12 +143,6 @@ abstract class AppLocalizations {
   /// **'Tell your goal, what can you do so far, and what is the purpose'**
   String get tellWhatYourGoalIs;
 
-  /// Hint text for goal description
-  ///
-  /// In en, this message translates to:
-  /// **'I wanna learn guitar, i can play most basic chords'**
-  String get goalDescriptionHintText;
-
   /// Label for enter button
   ///
   /// In en, this message translates to:
