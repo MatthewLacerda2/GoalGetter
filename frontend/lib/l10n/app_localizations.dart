@@ -695,18 +695,6 @@ abstract class AppLocalizations {
   /// **'Practice every day, keep progressing to your goal'**
   String get preOnboardingDailyLessonBody;
 
-  /// Pre-onboarding tutorial page title: Made for you
-  ///
-  /// In en, this message translates to:
-  /// **'Made for you!'**
-  String get preOnboardingMadeForYouTitle;
-
-  /// Pre-onboarding tutorial page body: Made for you
-  ///
-  /// In en, this message translates to:
-  /// **'All content is made for you and your goal'**
-  String get preOnboardingMadeForYouBody;
-
   /// Pre-onboarding tutorial page title: An AI that knows you
   ///
   /// In en, this message translates to:

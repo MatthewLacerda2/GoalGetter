@@ -396,14 +396,6 @@
     "@preOnboardingDailyLessonBody": {
         "description": "Pre-onboarding tutorial page body: Daily lesson"
     },
-    "preOnboardingMadeForYouTitle": "Made for you!",
-    "@preOnboardingMadeForYouTitle": {
-        "description": "Pre-onboarding tutorial page title: Made for you"
-    },
-    "preOnboardingMadeForYouBody": "All content is made for you and your goal",
-    "@preOnboardingMadeForYouBody": {
-        "description": "Pre-onboarding tutorial page body: Made for you"
-    },
     "preOnboardingAiThatKnowsYouTitle": "Chat with your AI",
     "@preOnboardingAiThatKnowsYouTitle": {
         "description": "Pre-onboarding tutorial page title: An AI that knows you"

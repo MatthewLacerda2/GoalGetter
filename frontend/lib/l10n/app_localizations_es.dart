@@ -306,12 +306,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get preOnboardingDailyLessonBody => 'Practica todos los días, mantén tu progreso hacia tu objetivo';
 
   @override
-  String get preOnboardingMadeForYouTitle => 'Hecho para ti!';
-
-  @override
-  String get preOnboardingMadeForYouBody => 'Todo el contenido es hecho para ti y tu objetivo';
-
-  @override
   String get preOnboardingAiThatKnowsYouTitle => 'Chat con tu AI';
 
   @override
