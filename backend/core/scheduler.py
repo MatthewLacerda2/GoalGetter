@@ -12,6 +12,8 @@ scheduler = AsyncIOScheduler()
 
 def setup_scheduler_jobs() -> None:
 
+    #TODO: Add a job to generate the lessons
+
     scheduler.add_job(
         run_lesson_context_job,
         trigger=CronTrigger(hour=2, minute=0),

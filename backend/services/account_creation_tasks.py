@@ -27,19 +27,7 @@ async def account_creation_tasks(
     onboarding_prompt: str | None = None,
     questions_answers: list[tuple[str, str]] | None = None
 ) -> None:
-    """
-    Async function to create all initial data for a new objective.
-    
-    This can be called for:
-    - New student account creation (first goal/objective)
-    - New objective creation (when adding goals to existing students)
-    
-    This includes:
-    - Generating multiple choice questions (4 batches)
-    - Creating objective notes
-    - Searching and saving resources
-    - Creating initial student context
-    """
+    """ Async function to create new goal. """
     try:
         # Generate MCQs in 4 batches
         for i in range(4):

@@ -4,7 +4,9 @@ from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, ForeignKey, Integer, DateTime, CheckConstraint, Index
 from sqlalchemy.dialects.postgresql import UUID
+from pgvector.sqlalchemy import Vector
 from backend.models.base import Base
+from backend.utils.envs import NUM_DIMENSIONS
 
 class QuestionPurpose(Enum):
     TEACH = "teach"
@@ -22,6 +24,7 @@ class MultipleChoiceQuestion(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     objective_id = Column(UUID(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False)
     question = Column(String, nullable=False)
+    question_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     option_a = Column(String, nullable=False)
     option_b = Column(String, nullable=False)
