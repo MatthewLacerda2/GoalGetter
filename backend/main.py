@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+
     setup_scheduler_jobs()
     start_scheduler()    
 
-    #asyncio.create_task(run_startup_content_creation())    
     yield
     
     stop_scheduler()

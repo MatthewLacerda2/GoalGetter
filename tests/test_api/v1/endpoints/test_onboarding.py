@@ -3,6 +3,8 @@ from backend.schemas.student import TokenResponse
 from backend.schemas.goal import GoalFollowUpQuestionAndAnswer, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest
 
+#TODO: missing fixture usage
+
 full_creation_request = GoalFullCreationRequest(
     goal_name="Create a Python Application",
     goal_description="Create a Python App for Data Science",
@@ -30,8 +32,18 @@ async def test_generate_follow_up_questions_success(client, mock_google_verify, 
     assert isinstance(validated_response, GoalCreationFollowUpQuestionsResponse)
 
 @pytest.mark.asyncio
-async def test_generate_study_plan_success(client, mock_google_verify, mock_gemini_study_plan, mock_gemini_follow_up_validation):
+async def test_generate_study_plan_success(client, mock_google_verify, mock_gemini_study_plan, mock_gemini_follow_up_validation, mock_gemini_embeddings, test_db):
     """Test that the onboarding generate study plan endpoint returns a valid response for a valid request."""
+    from backend.models.student import Student
+    
+    # Create user with google_id="12345" to match mock_google_verify
+    student = Student(
+        email="test1@example.com",
+        google_id="12345",
+        name="Test User 1"
+    )
+    test_db.add(student)
+    await test_db.commit()
     
     study_plan_request = GoalStudyPlanRequest(
         prompt="I want to learn Python. I just ran a 'hello world'. I wanna make apps",
@@ -52,6 +64,16 @@ async def test_generate_study_plan_success(client, mock_google_verify, mock_gemi
 @pytest.mark.asyncio
 async def test_generate_full_creation_success(client, mock_google_verify, mock_gemini_embeddings, test_db):
     """Test that the onboarding generate full creation endpoint returns a valid response for a valid request."""
+    from backend.models.student import Student
+    
+    # Create user with google_id="12345" to match mock_google_verify
+    student = Student(
+        email="test1@example.com",
+        google_id="12345",
+        name="Test User 1"
+    )
+    test_db.add(student)
+    await test_db.commit()
         
     response = await client.post(
         "/api/v1/onboarding/full_creation",
@@ -84,6 +106,16 @@ async def test_generate_full_creation_invalid_token(client, mock_google_verify):
 @pytest.mark.asyncio
 async def test_generate_full_creation_existing_user(client, mock_google_verify, mock_gemini_embeddings, test_db):
     """Test full creation with existing user - should allow adding new goals"""
+    from backend.models.student import Student
+    
+    # Create user with google_id="12345" to match mock_google_verify
+    student = Student(
+        email="test1@example.com",
+        google_id="12345",
+        name="Test User 1"
+    )
+    test_db.add(student)
+    await test_db.commit()
     
     first_response = await client.post(
         "/api/v1/onboarding/full_creation",
