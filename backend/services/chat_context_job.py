@@ -152,6 +152,15 @@ async def generate_context_from_chat_for_objective(student: Student, goal: Goal,
         
         if not state and not metacognition:
             continue
+
+        is_duplicate = await context_repo.is_too_similar(
+            student_id=student.id, 
+            state=state, 
+            metacognition=metacognition
+        )
+        
+        if is_duplicate:
+            continue
         
         student_context = StudentContext(
             student_id=student.id,

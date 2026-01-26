@@ -68,12 +68,12 @@ async def generate_study_plan(
     for qa in request.questions_answers:
 
         questions_answer_text = f"{qa.question}. Answer: {qa.answer}"        
-        questions_answers_embedding = get_gemini_embeddings(questions_answer_text)
+        #questions_answers_embedding = get_gemini_embeddings(questions_answer_text) #TODO: add this back but async
         
         onboarding = Onboarding(
             prompt=request.prompt,
             questions_answer=questions_answer_text,
-            questions_answers_embedding=questions_answers_embedding
+            #questions_answers_embedding=questions_answers_embedding
         )
         
         await onboard_repo.create(onboarding)

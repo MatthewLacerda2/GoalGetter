@@ -13,4 +13,4 @@ class Onboarding(Base):
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     prompt = Column(String, nullable=False)
     questions_answer = Column(String, nullable=False)
-    questions_answers_embedding = Column(Vector(NUM_DIMENSIONS), nullable=False)
+    questions_answers_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)

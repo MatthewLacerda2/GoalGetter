@@ -154,6 +154,15 @@ async def evaluate_objective_progress(student: Student, goal: Goal, objective: O
         if not state and not metacognition:
             continue
         
+        is_duplicate = await context_repo.is_too_similar(
+            student_id=student.id, 
+            state=state, 
+            metacognition=metacognition
+        )
+        
+        if is_duplicate:
+            continue
+        
         student_context = StudentContext(
             student_id=student.id,
             goal_id=goal.id,
