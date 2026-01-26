@@ -99,9 +99,9 @@ async def should_evaluate_objective(student: Student, objective: "Objective", db
         logger.debug(f"Student {student.id} failed MCQ accuracy check: {mcq_accuracy}% < 80%")
         return False
     
-    if sq_accuracy < 80.0:
-        logger.debug(f"Student {student.id} failed subjective accuracy check: {sq_accuracy}% < 80%")
-        return False
+    #if sq_accuracy < 80.0:
+        #logger.debug(f"Student {student.id} failed subjective accuracy check: {sq_accuracy}% < 80%")
+        #return False
     
     # Check 3: Objective update timing (must be >= 7 days ago)
     seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
@@ -118,15 +118,7 @@ async def should_evaluate_objective(student: Student, objective: "Objective", db
 
 
 async def evaluate_objective_progress(student: Student, goal: Goal, objective: Objective, db: AsyncSession):
-    """
-    Evaluate an objective's progress and update it.
-    
-    Args:
-        student: The student for this objective
-        goal: The goal for this objective
-        objective: The objective to evaluate
-        db: Database session
-    """
+    """ Evaluate an objective's progress and update it. """
     context_repo = StudentContextRepository(db)
     
     # Get latest 8 valid student contexts for this objective, ordered by created_at DESC
