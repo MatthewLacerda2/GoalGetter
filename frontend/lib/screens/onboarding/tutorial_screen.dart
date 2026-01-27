@@ -4,6 +4,7 @@ import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
 import '../../app/app.dart';
+import '../../theme/app_theme.dart';
 
 class TutorialScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
@@ -22,8 +23,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       useScrollView: true,
       titleWidget: Text(
         title,
-        style: TextStyle(
-          color: Colors.green,
+        style: const TextStyle(
+          color: AppTheme.accentPrimary,
           fontSize: 28,
           fontWeight: FontWeight.bold,
         ),
@@ -32,11 +33,18 @@ class _TutorialScreenState extends State<TutorialScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 28),
         child: Text(
           body,
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: const TextStyle(
+            color: AppTheme.textPrimary,
+            fontSize: AppTheme.fontSize18,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
-      image: Icon(icon, size: 104, color: Colors.orange),
+      image: Icon(
+        icon,
+        size: 104,
+        color: AppTheme.accentSecondary,
+      ),
     );
   }
 
@@ -77,27 +85,27 @@ class _TutorialScreenState extends State<TutorialScreen> {
             Icons.workspace_premium_outlined,
           ),
         ],
-        globalBackgroundColor: Colors.black87,
+        globalBackgroundColor: AppTheme.background,
         skip: Text(
           AppLocalizations.of(context)!.skip,
-          style: TextStyle(
-            color: Colors.green,
+          style: const TextStyle(
+            color: AppTheme.accentPrimary,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
         next: Text(
           AppLocalizations.of(context)!.next,
-          style: TextStyle(
-            color: Colors.green,
+          style: const TextStyle(
+            color: AppTheme.accentPrimary,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
         done: Text(
           AppLocalizations.of(context)!.done,
-          style: TextStyle(
-            color: Colors.green,
+          style: const TextStyle(
+            color: AppTheme.accentPrimary,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -107,9 +115,9 @@ class _TutorialScreenState extends State<TutorialScreen> {
         showSkipButton: true,
         dotsDecorator: DotsDecorator(
           size: const Size(8, 8),
-          color: Colors.orange,
+          color: AppTheme.accentSecondary.withValues(alpha: 0.5),
           activeSize: const Size(14, 14),
-          activeColor: Colors.orange,
+          activeColor: AppTheme.accentSecondary,
         ),
       ),
     );

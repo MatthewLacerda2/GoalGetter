@@ -4,6 +4,7 @@ import 'package:openapi/api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
+import '../../theme/app_theme.dart';
 import 'goal_questions_screen.dart';
 
 class GoalPromptScreen extends StatefulWidget {
@@ -120,7 +121,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Form(
           key: _formKey,
           child: Column(

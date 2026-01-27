@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../theme/app_theme.dart';
+
 class Leaderboarder extends StatelessWidget {
   final List<Map<String, dynamic>> people;
   final int startingPosition;
@@ -16,9 +18,9 @@ class Leaderboarder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         border: Border.all(
-          color: Colors.grey,
+          color: AppTheme.textTertiary.withValues(alpha: 0.5),
           width: 2,
         ),
       ),

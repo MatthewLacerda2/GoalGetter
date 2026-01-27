@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../theme/app_theme.dart';
+
 class PlayerBadge extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -19,11 +21,14 @@ class PlayerBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppTheme.spacing16),
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color.fromARGB(80, 200, 200, 200), width: 2.8),
+        color: AppTheme.cardBackground,
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        border: Border.all(
+          color: AppTheme.textTertiary.withValues(alpha: 0.5),
+          width: 2.8,
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -31,9 +36,9 @@ class PlayerBadge extends StatelessWidget {
           Icon(
             icon,
             size: 48,
-            color: iconColor ?? Colors.blue,
+            color: iconColor ?? AppTheme.accentPrimary,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppTheme.spacing12),
           Text(
             text,
             textAlign: TextAlign.center,
@@ -42,7 +47,7 @@ class PlayerBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.w500,
-              color: textColor ?? Colors.white,
+              color: textColor ?? AppTheme.textPrimary,
             ),
           ),
         ],

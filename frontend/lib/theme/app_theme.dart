@@ -171,17 +171,17 @@ class AppTheme {
         fillColor: cardBackground,
         hintStyle: const TextStyle(color: textSecondary, fontSize: fontSize14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(cardRadius),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(cardRadius),
           borderSide: BorderSide(
             color: textTertiary.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(cardRadius),
           borderSide: const BorderSide(color: accentPrimary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(

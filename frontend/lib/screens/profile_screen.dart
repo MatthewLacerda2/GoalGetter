@@ -53,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppTheme.spacing12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -66,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppTheme.spacing12),
                 _buildLanguageButton(
                   'US',
                   SettingsStorage.english,
@@ -155,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: AppTheme.spacing32),
 
             _buildSignOutButton(),
           ],
@@ -175,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: isSelected
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(AppTheme.spacing4),
         ),
         child: SizedBox(
           width: 44,
@@ -190,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppTheme.spacing8),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
           width: 1,
@@ -223,7 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: AppTheme.error,
             width: 2,
           ),
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacing24),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppTheme.spacing8),
           ),

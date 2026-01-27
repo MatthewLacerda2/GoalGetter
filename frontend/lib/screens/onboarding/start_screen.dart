@@ -6,6 +6,7 @@ import '../../app/app.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
 
 class StartScreen extends StatefulWidget {
@@ -191,7 +192,8 @@ class _StartScreenState extends State<StartScreen> {
                       foregroundColor: Colors.white,
                       elevation: 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.cardRadius),
                       ),
                     ),
                   ),

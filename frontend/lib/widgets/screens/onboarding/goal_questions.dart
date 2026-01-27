@@ -93,7 +93,7 @@ class _GoalQuestionsState extends State<GoalQuestions> {
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.yourAnswer,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppTheme.cardRadius),
                 ),
                 filled: true,
                 fillColor: widget.isActive
