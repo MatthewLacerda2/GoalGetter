@@ -2,43 +2,33 @@ from backend.schemas.goal import GoalStudyPlanRequest
 
 def get_goal_follow_up_questions_prompt(prompt: str) -> str:
     return f"""
-    ## Context
+    <Context>
+    You are an experienced expert in the user's chosen field.
+    The user reached out for guidance, saying: {prompt}
+    </Context>
 
-    The user has reached out for guidance on how to learn something.
-    You are an experienced expert in the user's chosen field, who will act as an AI-Tutor.
+    <Task>
 
-    - The user requested: {prompt}
+    Your task is to generate 5 follow-up questions to build a profile of the user
+    These questions MUST help build a knowledge profile of the user.
 
+    </Task>
 
-    ## Task
+    <Guidelines>
+    
+    Look to find the user's knowledge/experience in the subject.
+    Be direct to find if the user fits an archetype of student in that field.
 
-    Your task is to generate a list of follow-up questions.
-    These questions MUST help build a knowledge profile of the user within that field, what the user understands about the journey, and what motivates the user.
-    The answers will be used so we can tutor the user towards the ultimate goal.
+    Your questions must be basic, simple and direct.
+    Expect simple, short answers. Don't expect the user to be detailed or know what he is talking.
 
+    Your questions MUST be distinct from one another.
 
-    ## Guidelines
+    Write in the user's language.
 
-    Write questions to:
-    - Find out what is the user's knowledge/experience in the subject.
-    - Build a knowledge profile of the user within that field.
-    - Find out if the user is afraid or intimidated by any part of the challenges ahead.
-    - Find out what motivates the user.
-
-    Look to find if the user fits an archetype of student in that field, as quick as possible.
-    Always assume the user doesn't know what he doesn't know.
-
-
-    ## Format
-
-    Your questions MUST:
-    - Be direct and succinct.
-    - Be distinct from one another.
-    - Each focus at one or two aspects at a time.
-    - Match the user's language.
-    - NOT expect long and detailed answers.
-
-    Don't ask more than 10 questions
+    Write exactly 5 questions.
+    
+    </Guidelines>
     """
 
 def get_goal_study_plan_prompt(goal_study_plan_request: GoalStudyPlanRequest) -> str:
