@@ -21,37 +21,29 @@ class AuthService {
   static const String _webClientId =
       "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com";
 
-  GoogleSignIn get _googleSignIn {
-    if (kIsWeb) {
-      // For web, use the web client ID with openid scope to get ID token
-      return GoogleSignIn(
-        clientId: _webClientId,
-        scopes: ['email', 'profile', 'openid'], // Add 'openid' scope
-      );
-    } else {
-      // For mobile (if you add it later), use mobile client ID
-      return GoogleSignIn(
-        clientId: _webClientId, // You'll change this later for mobile
-        scopes: ['email', 'profile', 'openid'], // Add 'openid' scope here too
-      );
+  // Scopes for Google Sign-In
+  static const List<String> _scopes = ['email', 'profile', 'openid'];
+
+  // Track initialization state
+  bool _isInitialized = false;
+
+  // Ensure GoogleSignIn is initialized before use
+  Future<void> _ensureInitialized() async {
+    if (!_isInitialized) {
+      await GoogleSignIn.instance.initialize(clientId: _webClientId);
+      _isInitialized = true;
     }
   }
-
-  // In-memory storage for OAuth data during onboarding
-  String? _tempGoogleToken;
-  Map<String, dynamic>? _tempUserInfo;
 
   // Sign in with Google and return the ID token (in memory only)
   Future<Map<String, dynamic>?> signInWithGoogle() async {
     developer.log("EA SPORTS, its in the game");
     try {
+      await _ensureInitialized();
       developer.log('Starting Google Sign-In...');
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      if (googleUser == null) {
-        developer.log('User cancelled sign-in');
-        return null; // User cancelled the sign-in
-      }
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance
+          .authenticate(scopeHint: _scopes);
 
       developer.log('Google user: ${googleUser.email}');
       final GoogleSignInAuthentication googleAuth =
@@ -59,9 +51,6 @@ class AuthService {
 
       developer.log(
         'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
-      );
-      developer.log(
-        'Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}',
       );
       developer.log('Full auth object: $googleAuth');
 
@@ -84,6 +73,14 @@ class AuthService {
 
       developer.log('Successfully authenticated user: ${googleUser.email}');
       return {'token': idToken, 'user': _tempUserInfo};
+    } on GoogleSignInException catch (e) {
+      // Handle cancellation or other Google Sign-In specific errors
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        developer.log('User cancelled sign-in');
+        return null;
+      }
+      developer.log('Google Sign-In error: ${e.code} - ${e.description}');
+      rethrow;
     } catch (error) {
       developer.log('Error signing in to your app with Google: $error');
       rethrow;
@@ -97,16 +94,13 @@ class AuthService {
     }
 
     try {
+      await _ensureInitialized();
       developer.log('Starting Google Sign-In for web...');
       // Sign out first to ensure we get a fresh ID token
-      await _googleSignIn.signOut();
+      await GoogleSignIn.instance.signOut();
 
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) {
-        developer.log('User cancelled sign-in');
-        return null;
-      }
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance
+          .authenticate(scopeHint: _scopes);
 
       developer.log('Google user: ${googleUser.email}');
       final GoogleSignInAuthentication googleAuth =
@@ -115,12 +109,26 @@ class AuthService {
       developer.log(
         'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
       );
-      developer.log(
-        'Access Token: ${googleAuth.accessToken != null ? "Present" : "NULL"}',
-      );
 
       final String? idToken = googleAuth.idToken;
-      final String? accessToken = googleAuth.accessToken;
+
+      // Get access token via authorization client
+      String? accessToken;
+      try {
+        final authorization = await googleUser.authorizationClient
+            .authorizeScopes(_scopes);
+        accessToken = authorization.accessToken;
+        developer.log('Access Token: Present');
+      } catch (e) {
+        developer.log('Failed to get access token: $e');
+        // Try to get existing authorization without prompting
+        final existingAuth = await googleUser.authorizationClient
+            .authorizationForScopes(_scopes);
+        accessToken = existingAuth?.accessToken;
+        developer.log(
+          'Access Token (existing): ${accessToken != null ? "Present" : "NULL"}',
+        );
+      }
 
       // Use ID token if available, otherwise fall back to access token
       // Backend now supports both ID tokens and access tokens
@@ -150,11 +158,23 @@ class AuthService {
 
       developer.log('Successfully authenticated user: ${googleUser.email}');
       return {'token': tokenToUse, 'user': _tempUserInfo};
+    } on GoogleSignInException catch (e) {
+      // Handle cancellation or other Google Sign-In specific errors
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        developer.log('User cancelled sign-in');
+        return null;
+      }
+      developer.log('Google Sign-In error: ${e.code} - ${e.description}');
+      rethrow;
     } catch (error) {
       developer.log('Error signing in to your app with Google: $error');
       rethrow;
     }
   }
+
+  // In-memory storage for OAuth data during onboarding
+  String? _tempGoogleToken;
+  Map<String, dynamic>? _tempUserInfo;
 
   // Get temporary Google token (in memory)
   String? getTempGoogleToken() {
@@ -210,7 +230,7 @@ class AuthService {
 
   // Sign out (clear both memory and storage)
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
+    await GoogleSignIn.instance.signOut();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
