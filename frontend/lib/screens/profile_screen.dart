@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
 import 'list_memories_screen.dart';
@@ -52,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppTheme.edgePadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -60,12 +61,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   '${AppLocalizations.of(context)!.language}:',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppTheme.spacing12),
                 _buildLanguageButton(
                   'US',
                   SettingsStorage.english,
@@ -154,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: AppTheme.spacing32),
 
             _buildSignOutButton(),
           ],
@@ -174,7 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: isSelected
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(AppTheme.spacing4),
         ),
         child: SizedBox(
           width: 44,
@@ -189,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppTheme.spacing8),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
           width: 1,
@@ -199,9 +197,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.labelLarge,
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: AppTheme.textSecondary,
+        ),
         onTap: onTap,
       ),
     );
@@ -213,15 +214,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: ElevatedButton(
         onPressed: _handleSignOut,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.withValues(alpha: 0.2),
-          foregroundColor: Colors.red,
-          side: const BorderSide(color: Colors.red, width: 2),
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          backgroundColor: AppTheme.error.withValues(alpha: 0.2),
+          foregroundColor: AppTheme.error,
+          side: const BorderSide(
+            color: AppTheme.error,
+            width: 2,
+          ),
+          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacing24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.spacing8),
+          ),
         ),
         child: Text(
           AppLocalizations.of(context)!.signOut,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
         ),
       ),
     );
@@ -241,7 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.error),
               child: Text(AppLocalizations.of(context)!.signOut),
             ),
           ],

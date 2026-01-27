@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
 
 class MissionsScreen extends StatelessWidget {
   const MissionsScreen({super.key});
@@ -8,18 +9,23 @@ class MissionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.flag, size: 100, color: Colors.grey[400]),
+            Icon(
+              Icons.flag,
+              size: 100,
+              color: AppTheme.textSecondary,
+            ),
             const SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.comingSoon,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[400],
+                color: AppTheme.textSecondary,
               ),
             ),
           ],

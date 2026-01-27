@@ -4,6 +4,7 @@ import 'package:openapi/api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
+import '../theme/app_theme.dart';
 import 'goals_detail_screen.dart';
 
 class ListGoalsScreen extends StatefulWidget {
@@ -58,93 +59,104 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.goals),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: AppTheme.surfaceVariant,
+        foregroundColor: AppTheme.textPrimary,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(
+                color: AppTheme.accentPrimary,
+              ),
+            )
           : _errorMessage != null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Error: $_errorMessage',
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Error: $_errorMessage',
+                        style: const TextStyle(color: AppTheme.error),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppTheme.spacing16),
+                      ElevatedButton(
+                        onPressed: _loadGoals,
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadGoals,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            )
-          : _goals.isEmpty
-          ? Center(
-              child: Text(
-                AppLocalizations.of(context)!.noGoalsFound,
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: ListView.builder(
-                itemCount: _goals.length,
-                itemBuilder: (context, index) {
-                  final goal = _goals[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final result = await Navigator.of(context)
-                            .push<GoalsDetailResult>(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    GoalsDetailScreen(goal: goal),
-                              ),
-                            );
-
-                        if (result == GoalsDetailResult.deleted) {
-                          await _loadGoals();
-                        }
-
-                        if (result == GoalsDetailResult.activated) {
-                          if (!context.mounted) {
-                            return;
-                          }
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 16,
-                        ),
-                        minimumSize: const Size(double.infinity, 60),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                )
+              : _goals.isEmpty
+                  ? Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.noGoalsFound,
+                        style: const TextStyle(
+                          fontSize: AppTheme.fontSize18,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
-                      child: Text(
-                        goal.name.isNotEmpty
-                            ? goal.name
-                            : AppLocalizations.of(context)!.untitledGoal,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(AppTheme.edgePadding),
+                      child: ListView.builder(
+                        itemCount: _goals.length,
+                        itemBuilder: (context, index) {
+                          final goal = _goals[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: AppTheme.spacing12),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final result = await Navigator.of(context)
+                                    .push<GoalsDetailResult>(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            GoalsDetailScreen(goal: goal),
+                                      ),
+                                    );
+
+                                if (result == GoalsDetailResult.deleted) {
+                                  await _loadGoals();
+                                }
+
+                                if (result == GoalsDetailResult.activated) {
+                                  if (!context.mounted) {
+                                    return;
+                                  }
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.accentPrimary,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 20,
+                                  horizontal: AppTheme.spacing16,
+                                ),
+                                minimumSize: const Size(double.infinity, 60),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      AppTheme.spacing8),
+                                ),
+                              ),
+                              child: Text(
+                                goal.name.isNotEmpty
+                                    ? goal.name
+                                    : AppLocalizations.of(context)!
+                                        .untitledGoal,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: AppTheme.fontSize16,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
     );
   }
 }

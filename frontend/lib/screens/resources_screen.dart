@@ -4,6 +4,7 @@ import 'package:openapi/api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
+import '../theme/app_theme.dart';
 import '../widgets/screens/resource/resource_tab.dart';
 
 class ResourcesScreen extends StatefulWidget {
@@ -116,30 +117,53 @@ class _ResourcesScreenState extends State<ResourcesScreen>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        body: Center(child: CircularProgressIndicator(color: Colors.blue)),
+        backgroundColor: AppTheme.background,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AppTheme.accentPrimary,
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
+        backgroundColor: AppTheme.background,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, color: Colors.red, size: 48),
-              SizedBox(height: 16),
+              Icon(
+                Icons.error_outline,
+                color: AppTheme.error,
+                size: 48,
+              ),
+              const SizedBox(height: AppTheme.spacing16),
               Text(
                 'Error loading resources',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(
+                  color: AppTheme.textPrimary,
+                  fontSize: AppTheme.fontSize18,
+                ),
               ),
-              SizedBox(height: 8),
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: Colors.grey, fontSize: 14),
-                textAlign: TextAlign.center,
+              const SizedBox(height: AppTheme.spacing8),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.spacing24),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: AppTheme.fontSize14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-              SizedBox(height: 24),
-              ElevatedButton(onPressed: _loadResources, child: Text('Retry')),
+              const SizedBox(height: AppTheme.spacing24),
+              ElevatedButton(
+                onPressed: _loadResources,
+                child: const Text('Retry'),
+              ),
             ],
           ),
         ),
@@ -147,13 +171,17 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     }
 
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         toolbarHeight: 0,
+        backgroundColor: AppTheme.background,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.grey[600],
+          labelColor: AppTheme.accentPrimary,
+          unselectedLabelColor: AppTheme.textSecondary,
           dividerHeight: 4,
+          dividerColor: AppTheme.accentPrimary,
+          indicatorColor: AppTheme.accentPrimary,
           tabs: [
             Tab(
               icon: Icon(Icons.play_circle, size: 28),

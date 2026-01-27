@@ -6,6 +6,7 @@ import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
+import '../../theme/app_theme.dart';
 import '../../utils/settings_storage.dart';
 import '../../widgets/info_card.dart';
 import 'goal_prompt_screen.dart';
@@ -120,57 +121,45 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppTheme.edgePadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Goal title
             Text(
               widget.plan.goalName,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppTheme.accentPrimary,
+                  ),
             ),
             const SizedBox(height: 8),
             // Goal description
             Text(
               widget.plan.goalDescription,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[400], // dark grey-ish
-                height: 1.6,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    height: 1.6,
+                  ),
             ),
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.firstObjective,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             // First objective
             Text(
               widget.plan.firstObjectiveName,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppTheme.accentPrimary,
+                  ),
             ),
             const SizedBox(height: 6),
             Text(
               widget.plan.firstObjectiveDescription,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-                height: 1.6,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    height: 1.6,
+                  ),
             ),
             const SizedBox(height: 20),
             Divider(color: Colors.grey[500]),
@@ -190,11 +179,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
               ...widget.plan.milestones.map(
                 (m) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: InfoCard(
-                    title: m,
-                    backgroundColor: milestoneBg,
-                    borderColor: Colors.grey[600],
-                  ),
+                  child: InfoCard(title: m, backgroundColor: milestoneBg),
                 ),
               ),
             ],
@@ -204,11 +189,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
             Center(
               child: Text(
                 AppLocalizations.of(context)!.confirmQuestion,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
             const SizedBox(height: 12),
@@ -225,31 +206,37 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: AppTheme.error,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppTheme.spacing16,
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppTheme.spacing8),
                       ),
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.no,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: AppTheme.fontSize18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppTheme.spacing12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submitFullCreation,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: AppTheme.accentPrimary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppTheme.spacing16,
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppTheme.spacing8),
                       ),
                     ),
                     child: _isLoading
@@ -265,11 +252,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                           )
                         : Text(
                             AppLocalizations.of(context)!.yes,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                   ),
                 ),

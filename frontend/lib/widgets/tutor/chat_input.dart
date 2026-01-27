@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../l10n/app_localizations.dart';
+
+import '../../l10n/app_localizations.dart';
+import '../../theme/app_theme.dart';
 
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
@@ -16,32 +18,41 @@ class ChatInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppTheme.spacing12),
       color: Colors.transparent,
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: controller,
+              style: const TextStyle(
+                color: AppTheme.textPrimary,
+                fontSize: AppTheme.fontSize16,
+              ),
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.typeYourMessage,
-                filled: false,
-                fillColor: Colors.transparent,
+                hintStyle: const TextStyle(color: AppTheme.textSecondary),
+                filled: true,
+                fillColor: AppTheme.cardBackground,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+                  borderSide: BorderSide(
+                    color: AppTheme.textTertiary.withValues(alpha: 0.4),
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(color: Colors.blue),
+                  borderSide: const BorderSide(
+                    color: AppTheme.accentPrimary,
+                    width: 1.5,
+                  ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 12,
+                  horizontal: AppTheme.spacing16,
+                  vertical: AppTheme.spacing12,
                 ),
               ),
               minLines: 1,
@@ -53,13 +64,16 @@ class ChatInput extends StatelessWidget {
           IconButton(
             onPressed: isSending ? null : onSendMessage,
             icon: isSending
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.accentPrimary,
+                    ),
                   )
                 : const Icon(Icons.send),
-            color: Colors.blue,
+            color: AppTheme.accentPrimary,
           ),
         ],
       ),

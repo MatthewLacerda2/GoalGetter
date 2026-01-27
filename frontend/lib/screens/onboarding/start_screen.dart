@@ -6,6 +6,7 @@ import '../../app/app.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
 
 class StartScreen extends StatefulWidget {
@@ -19,11 +20,6 @@ class _StartScreenState extends State<StartScreen> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
 
-  static const TextStyle _subtitleStyle = TextStyle(
-    fontSize: 20,
-    color: Colors.grey,
-    fontWeight: FontWeight.w300,
-  );
 
   Future<void> _routeAfterSignIn() async {
     try {
@@ -127,27 +123,25 @@ class _StartScreenState extends State<StartScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppTheme.edgePadding),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(flex: 2),
 
                 // App Title
-                const Text(
+                Text(
                   'Goal Getter',
-                  style: TextStyle(
-                    fontSize: 42,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 1.2,
-                  ),
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
 
                 // Subtitle
                 Text(
                   AppLocalizations.of(context)!.yourMentor,
-                  style: _subtitleStyle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w300,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
 
                 const SizedBox(height: 28),
@@ -180,19 +174,15 @@ class _StartScreenState extends State<StartScreen> {
                           ),
                     label: Text(
                       _isLoading ? 'Signing in...' : 'Start with Google',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: Theme.of(context).textTheme.labelLarge,
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4285F4),
                       foregroundColor: Colors.white,
                       elevation: 2,
-                      shadowColor: Colors.black.withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.cardRadius),
                       ),
                     ),
                   ),
@@ -202,11 +192,7 @@ class _StartScreenState extends State<StartScreen> {
                 Text(
                   AppLocalizations.of(context)!.agreeToTermsAndPrivacyPolicy,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[400],
-                    height: 1.4,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
 
                 const Spacer(flex: 1),

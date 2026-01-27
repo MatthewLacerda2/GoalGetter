@@ -4,6 +4,7 @@ import 'package:openapi/api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
+import '../../theme/app_theme.dart';
 import 'goal_questions_screen.dart';
 
 class GoalPromptScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
               SnackBar(
                 content: Text(
                   'Error: No questions received',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
               ),
             );
@@ -83,10 +84,10 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'Error: $e',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
+                content: Text(
+                  'Error: $e',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
             ),
           );
         }
@@ -102,7 +103,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         SnackBar(
           content: Text(
             AppLocalizations.of(context)!.beDetailedOfYourGoal,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: Theme.of(context).textTheme.labelLarge,
           ),
         ),
       );
@@ -120,7 +121,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppTheme.edgePadding),
         child: Form(
           key: _formKey,
           child: Column(
@@ -129,7 +130,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
               const SizedBox(height: 2),
               Text(
                 AppLocalizations.of(context)!.tellWhatYourGoalIs,
-                style: const TextStyle(fontSize: 18, color: Colors.white),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -140,16 +141,19 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
                   border: const OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.grey[800],
-                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  hintStyle: Theme.of(context).textTheme.bodySmall,
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
+                    icon: Icon(
+                      Icons.send,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     tooltip: AppLocalizations.of(context)!.enter,
                     onPressed: _isLoading ? null : _onEnterPressed,
                   ),
                 ),
                 maxLength: 500,
                 maxLines: 8,
-                style: const TextStyle(color: Colors.white),
+                style: Theme.of(context).textTheme.bodyLarge,
                 onChanged: (value) => setState(() {}),
                 textInputAction: TextInputAction.send,
                 onFieldSubmitted: (_) => _onEnterPressed(),

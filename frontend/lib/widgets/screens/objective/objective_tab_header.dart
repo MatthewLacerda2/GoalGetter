@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/screens/objective/streak_screen.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../theme/app_theme.dart';
 
 class ObjectiveTabHeader extends StatelessWidget {
   final int overallXp;
@@ -9,7 +10,7 @@ class ObjectiveTabHeader extends StatelessWidget {
   final int streakCounter;
   final Color streakBadgeBackgroundColor;
 
-  static const double buttonsHeight = 44;
+  static const double _buttonsHeight = 44;
 
   const ObjectiveTabHeader({
     super.key,
@@ -21,32 +22,40 @@ class ObjectiveTabHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasBadgeBackground = streakBadgeBackgroundColor.a > 0;
+    final hasBadgeBackground = streakBadgeBackgroundColor.a > 0;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[800],
-        border: Border(bottom: BorderSide(color: Colors.green, width: 4)),
+        color: AppTheme.surfaceVariant,
+        border: Border(
+          bottom: BorderSide(
+            color: AppTheme.accentPrimary,
+            width: 2,
+          ),
+        ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacing12,
+        vertical: AppTheme.spacing8,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             '$overallXp XP',
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: AppTheme.fontSize18,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: AppTheme.accentPrimary,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppTheme.spacing8),
           Expanded(
             child: Text(
               objectiveTitle,
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: AppTheme.fontSize20,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: AppTheme.textPrimary,
               ),
               textAlign: TextAlign.center,
               softWrap: true,
@@ -54,9 +63,9 @@ class ObjectiveTabHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppTheme.spacing8),
           SizedBox(
-            height: buttonsHeight,
+            height: _buttonsHeight,
             child: ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -74,29 +83,37 @@ class ObjectiveTabHeader extends StatelessWidget {
                 backgroundColor: hasBadgeBackground
                     ? streakBadgeBackgroundColor
                     : Colors.transparent,
-                foregroundColor: Colors.white,
-                elevation: hasBadgeBackground ? 2 : 0,
-                shadowColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                foregroundColor: hasBadgeBackground
+                    ? AppTheme.textPrimary
+                    : AppTheme.textSecondary,
+                elevation: hasBadgeBackground ? AppTheme.cardElevation : 0,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: AppTheme.spacing8,
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppTheme.spacing8),
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.local_fire_department,
                     size: 20,
-                    color: Colors.white,
+                    color: hasBadgeBackground
+                        ? AppTheme.textPrimary
+                        : AppTheme.textSecondary,
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppTheme.spacing4),
                   Text(
                     '$streakCounter',
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: AppTheme.fontSize18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: hasBadgeBackground
+                          ? AppTheme.textPrimary
+                          : AppTheme.textSecondary,
                     ),
                   ),
                 ],

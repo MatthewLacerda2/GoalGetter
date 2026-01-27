@@ -1,4 +1,3 @@
-// calendar screen
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
@@ -6,6 +5,7 @@ import '../../app/app.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';
 
 class StreakScreen extends StatefulWidget {
@@ -97,9 +97,9 @@ class _StreakScreenState extends State<StreakScreen> {
           }
 
           if (hasDay(today)) {
-            _streakIconBackgroundColor = Colors.orange;
+            _streakIconBackgroundColor = AppTheme.accentSecondary;
           } else if (hasDay(yesterday) || hasDay(dayBeforeYesterday)) {
-            _streakIconBackgroundColor = Colors.grey;
+            _streakIconBackgroundColor = AppTheme.textTertiary;
           } else {
             _streakIconBackgroundColor = Colors.transparent;
           }
@@ -157,14 +157,20 @@ class _StreakScreenState extends State<StreakScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[900],
-        body: const SafeArea(child: Center(child: CircularProgressIndicator())),
+        backgroundColor: AppTheme.background,
+        body: SafeArea(
+          child: Center(
+            child: CircularProgressIndicator(
+              color: AppTheme.accentPrimary,
+            ),
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppTheme.background,
         body: SafeArea(
           child: Center(
             child: Column(
@@ -172,10 +178,10 @@ class _StreakScreenState extends State<StreakScreen> {
               children: [
                 Text(
                   'Error: $_errorMessage',
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: AppTheme.error),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacing16),
                 ElevatedButton(
                   onPressed: _fetchWeekStreak,
                   child: const Text('Retry'),
@@ -188,10 +194,10 @@ class _StreakScreenState extends State<StreakScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppTheme.edgePadding),
           child: Column(
             children: [
               Expanded(
@@ -215,14 +221,14 @@ class _StreakScreenState extends State<StreakScreen> {
                             children: [
                               const Icon(
                                 Icons.local_fire_department,
-                                color: Colors.white,
+                                color: AppTheme.textPrimary,
                                 size: 80,
                               ),
-                              const SizedBox(width: 10),
+                              const SizedBox(width: AppTheme.spacing8),
                               Text(
                                 '$_streakCount',
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppTheme.textPrimary,
                                   fontSize: 80,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -234,13 +240,16 @@ class _StreakScreenState extends State<StreakScreen> {
                     ),
                     Text(
                       AppLocalizations.of(context)!.dayStreak,
-                      style: TextStyle(color: Colors.white, fontSize: 26),
+                      style: const TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontSize: 26,
+                      ),
                     ),
                     const SizedBox(height: 36),
                     Card(
-                      color: Colors.grey[800],
+                      color: AppTheme.surfaceVariant,
                       child: Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(AppTheme.edgePadding),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -292,15 +301,20 @@ class _StreakScreenState extends State<StreakScreen> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                            const Divider(color: Colors.grey, thickness: 1),
-                            const SizedBox(height: 12),
+                            Divider(
+                              color: AppTheme.textTertiary.withValues(
+                                alpha: 0.5,
+                              ),
+                              thickness: 1,
+                            ),
+                            const SizedBox(height: AppTheme.spacing12),
                             Text(
                               widget.descriptionText,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: AppTheme.textPrimary,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: AppTheme.fontSize18,
                               ),
                             ),
                           ],
@@ -319,15 +333,20 @@ class _StreakScreenState extends State<StreakScreen> {
                     ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    backgroundColor: AppTheme.accentPrimary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTheme.spacing16,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.cardRadius,
+                      ),
                     ),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.continuate,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

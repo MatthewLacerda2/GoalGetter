@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
-import '../widgets/screens/stats/player_badge.dart';
-import '../widgets/screens/stats/line_chart_table.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../widgets/screens/stats/leaderboarder.dart';
-import '../models/fake_leaderboard_example.dart';
+import 'package:flutter/material.dart';
+
 import '../l10n/app_localizations.dart';
+import '../models/fake_leaderboard_example.dart';
+import '../theme/app_theme.dart';
+import '../widgets/screens/stats/leaderboarder.dart';
+import '../widgets/screens/stats/line_chart_table.dart';
+import '../widgets/screens/stats/player_badge.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -22,20 +24,25 @@ class StatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       body: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppTheme.edgePadding),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 12),
-              Icon(Icons.emoji_events, size: 100, color: Colors.grey[400]),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spacing12),
+              Icon(
+                Icons.emoji_events,
+                size: 100,
+                color: AppTheme.textSecondary,
+              ),
+              const SizedBox(height: AppTheme.spacing8),
               Text(
                 "Prata Elite Master",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[400],
+                  color: AppTheme.textSecondary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -44,12 +51,13 @@ class StatsScreen extends StatelessWidget {
                 startingPosition: FakeLeaderboardData.getStartingPosition(),
                 username: FakeLeaderboardData.getCurrentUsername(),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spacing24),
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(AppTheme.cardRadius),
                   border: Border.all(
-                    color: Colors.grey,
+                    color: AppTheme.textTertiary.withValues(alpha: 0.5),
                     width: 2,
                   ),
                 ),
@@ -57,32 +65,40 @@ class StatsScreen extends StatelessWidget {
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.spacing16,
+                        vertical: AppTheme.spacing12,
+                      ),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 50, 50, 50),
+                        color: AppTheme.surfaceVariant,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
+                          topLeft: Radius.circular(
+                              AppTheme.cardRadius),
+                          topRight: Radius.circular(
+                              AppTheme.cardRadius),
                         ),
                       ),
                       child: Text(
                         AppLocalizations.of(context)!.progress,
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: AppTheme.fontSize20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                         ),
                         textAlign: TextAlign.left,
                       ),
                     ),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(
+                          AppTheme.spacing16),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 50, 50, 50),
+                        color: AppTheme.surfaceVariant,
                         borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(
+                              AppTheme.cardRadius),
+                          bottomRight: Radius.circular(
+                              AppTheme.cardRadius),
                         ),
                       ),
                       child: LineChartTable(spots: spots),
@@ -90,17 +106,17 @@ class StatsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spacing16),
               Text(
                 AppLocalizations.of(context)!.awards,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
                 textAlign: TextAlign.left,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.spacing16),
               SizedBox(
                 height: 120,
                 child: ListView(
@@ -108,32 +124,34 @@ class StatsScreen extends StatelessWidget {
                   children: [
                     PlayerBadge(
                       icon: Icons.emoji_events,
-                      iconColor: Colors.green,
+                      iconColor: AppTheme.success,
                       text: 'Aprendeu todas as notas básicas',
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     PlayerBadge(
                       icon: Icons.star,
-                      iconColor: Colors.yellow,
-                      text: 'Tocou violão até a mão não mexer mais',
+                      iconColor: AppTheme.accentSecondary,
+                      text:
+                          'Tocou violão até a mão não mexer mais',
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     PlayerBadge(
                       icon: Icons.trending_up,
-                      iconColor: Colors.blue,
+                      iconColor: AppTheme.accentPrimary,
                       text: 'Tocou violão por 1 hora',
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     PlayerBadge(
                       icon: Icons.fitness_center,
-                      iconColor: Colors.red,
+                      iconColor: AppTheme.error,
                       text: 'Finalizou sua primeira música',
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     PlayerBadge(
                       icon: Icons.psychology,
-                      iconColor: Colors.white,
-                      text: 'Trocou entre três notas consecutivas',
+                      iconColor: AppTheme.textPrimary,
+                      text:
+                          'Trocou entre três notas consecutivas',
                     ),
                   ],
                 ),

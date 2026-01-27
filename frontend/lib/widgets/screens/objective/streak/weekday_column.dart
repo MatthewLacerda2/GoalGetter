@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../theme/app_theme.dart';
+
 class WeekdayColumn extends StatelessWidget {
   final String dayLabel;
   final bool? isCompleted;
@@ -14,6 +16,19 @@ class WeekdayColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color circleColor;
+    final IconData circleIcon;
+    if (isCompleted == null) {
+      circleColor = AppTheme.textTertiary;
+      circleIcon = Icons.remove;
+    } else if (isCompleted == true) {
+      circleColor = AppTheme.success;
+      circleIcon = Icons.check;
+    } else {
+      circleColor = AppTheme.error;
+      circleIcon = Icons.close;
+    }
+
     return SizedBox(
       width: width,
       child: Column(
@@ -22,29 +37,21 @@ class WeekdayColumn extends StatelessWidget {
           Text(
             dayLabel,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppTheme.textPrimary,
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: AppTheme.fontSize16,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppTheme.spacing16),
           Container(
             width: 32,
             height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isCompleted == null 
-                  ? Colors.grey 
-                  : isCompleted == true
-                      ? Colors.green 
-                      : Colors.red,
+              color: circleColor,
             ),
             child: Icon(
-              isCompleted == null 
-                  ? Icons.remove 
-                  : isCompleted == true
-                      ? Icons.check 
-                      : Icons.close,
+              circleIcon,
               color: Colors.white,
               size: 20,
             ),
