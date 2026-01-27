@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../screens/objective/lesson_screen.dart';
+import '../../../theme/app_theme.dart';
 
 class LessonButton extends StatelessWidget {
   final String label;
@@ -10,31 +11,39 @@ class LessonButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap:
-          onTap ??
-          () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const LessonScreen()),
-            );
-          },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.green,
-          border: Border.all(color: Colors.white, width: 2),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-            height: 1.6,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap:
+            onTap ??
+            () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const LessonScreen(),
+                ),
+              );
+            },
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            vertical: AppTheme.spacing16,
+            horizontal: AppTheme.spacing24,
           ),
-          textAlign: TextAlign.center,
+          decoration: BoxDecoration(
+            color: AppTheme.accentPrimary,
+            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: AppTheme.fontSize18,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
     );

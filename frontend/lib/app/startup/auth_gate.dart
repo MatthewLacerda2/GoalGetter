@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app.dart';
+import '../../theme/app_theme.dart';
 import 'app_start_controller.dart';
 
 /// Startup gate that decides the initial screen.
@@ -32,9 +33,11 @@ class _AuthGateState extends State<AuthGate> {
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(
-            backgroundColor: Color.fromARGB(255, 33, 33, 33),
-            body: Center(child: CircularProgressIndicator(color: Colors.blue)),
+          return Scaffold(
+            backgroundColor: AppTheme.background,
+            body: Center(
+              child: CircularProgressIndicator(color: AppTheme.accentPrimary),
+            ),
           );
         }
 
@@ -60,9 +63,11 @@ class _AuthGateState extends State<AuthGate> {
         }
 
         // Keep showing a stable loading UI while we navigate.
-        return const Scaffold(
-          backgroundColor: Color.fromARGB(255, 33, 33, 33),
-          body: Center(child: CircularProgressIndicator(color: Colors.blue)),
+        return Scaffold(
+          backgroundColor: AppTheme.background,
+          body: Center(
+            child: CircularProgressIndicator(color: AppTheme.accentPrimary),
+          ),
         );
       },
     );

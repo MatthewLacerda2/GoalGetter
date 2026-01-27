@@ -1,18 +1,18 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../theme/app_theme.dart';
+
 // ignore: must_be_immutable
 class LineChartTable extends StatelessWidget {
-
   final Color lineColor;
   final List<FlSpot> spots;
 
-  
   LineChartTable({
     super.key,
     Color? lineColor,
     required this.spots,
-  }) : lineColor = lineColor ?? Colors.blue {
+  }) : lineColor = lineColor ?? AppTheme.accentPrimary {
       minSpotX = spots.first.x;
       maxSpotX = spots.first.x;
       minSpotY = spots.first.y;

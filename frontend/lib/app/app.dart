@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/app_theme.dart';
 import '../screens/onboarding/goal_prompt_screen.dart';
 import '../screens/onboarding/start_screen.dart';
 import 'home/home_shell.dart';
@@ -88,14 +89,7 @@ class _GoalGetterAppState extends State<GoalGetterApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'GoalGetter',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.transparent,
-      ),
+      theme: AppTheme.dark,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: _locale,

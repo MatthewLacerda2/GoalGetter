@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:goal_getter/screens/objective/streak_screen.dart';
 
+import '../../theme/app_theme.dart';
 import '../../widgets/screens/objective/lesson/stat.dart';
 import '../../widgets/screens/objective/lesson/stat_data.dart';
 
@@ -24,10 +25,10 @@ class FinishLessonScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppTheme.spacing16),
           child: Column(
             children: [
               Expanded(
@@ -38,21 +39,24 @@ class FinishLessonScreen extends StatelessWidget {
                       title,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppTheme.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 32,
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Icon(icon, color: Colors.orange, size: 140),
+                    Icon(
+                      icon,
+                      color: AppTheme.accentSecondary,
+                      size: 140,
+                    ),
                     const SizedBox(height: 60),
-                    // Three stat widgets
                     Row(
                       children: [
                         Expanded(child: StatWidget(statData: timeSpent)),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: AppTheme.spacing12),
                         Expanded(child: StatWidget(statData: accuracy)),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: AppTheme.spacing12),
                         Expanded(child: StatWidget(statData: combo)),
                       ],
                     ),
@@ -76,15 +80,19 @@ class FinishLessonScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppTheme.accentPrimary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTheme.spacing16,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.cardRadius),
                     ),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.continuate,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -92,7 +100,7 @@ class FinishLessonScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spacing8),
             ],
           ),
         ),

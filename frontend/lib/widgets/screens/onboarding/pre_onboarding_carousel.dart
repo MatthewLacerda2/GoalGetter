@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../theme/app_theme.dart';
 
 class PreOnboardingCarousel extends StatefulWidget {
   const PreOnboardingCarousel({super.key, this.height = 170});
@@ -118,25 +119,29 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(item.icon, size: 44, color: Colors.green),
-                      const SizedBox(height: 12),
+                      Icon(
+                        item.icon,
+                        size: 44,
+                        color: AppTheme.accentPrimary,
+                      ),
+                      const SizedBox(height: AppTheme.spacing12),
                       Text(
                         item.title,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: AppTheme.fontSize20,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                           height: 1.2,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppTheme.spacing8),
                       Text(
                         item.body,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
+                          fontSize: AppTheme.fontSize16,
+                          color: AppTheme.textSecondary,
                           height: 1.25,
                         ),
                       ),
@@ -160,8 +165,8 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
               height: active ? 10 : 8,
               decoration: BoxDecoration(
                 color: active
-                    ? Colors.green
-                    : Colors.green.withValues(alpha: 0.4),
+                    ? AppTheme.accentPrimary
+                    : AppTheme.accentPrimary.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(99),
               ),
             );

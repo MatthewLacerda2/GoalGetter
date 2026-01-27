@@ -6,6 +6,7 @@ import 'package:openapi/api.dart';
 import '../models/chat_message.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
+import '../theme/app_theme.dart';
 import '../widgets/tutor/chat_input.dart';
 import '../widgets/tutor/chat_message_bubble.dart';
 
@@ -411,55 +412,67 @@ class _TutorScreenState extends State<TutorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       body: Column(
         children: [
-          // Show loading indicator at top when loading more messages
           if (_isLoadingMore)
             Container(
-              padding: const EdgeInsets.all(8),
-              child: const Center(child: CircularProgressIndicator()),
+              padding: const EdgeInsets.all(AppTheme.spacing8),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.accentPrimary,
+                ),
+              ),
             ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.accentPrimary,
+                    ),
+                  )
                 : _errorMessage != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Error: $_errorMessage',
-                          style: const TextStyle(color: Colors.red),
-                          textAlign: TextAlign.center,
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Error: $_errorMessage',
+                              style: const TextStyle(color: AppTheme.error),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppTheme.spacing16),
+                            ElevatedButton(
+                              onPressed: () => _fetchMessages(),
+                              child: const Text('Retry'),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => _fetchMessages(),
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  )
-                : _messages.isEmpty
-                ? Center(
-                    child: Text(
-                      'New chat',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.only(bottom: 8),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      return ChatMessageBubble(
-                        message: message,
-                        onDoubleTap: () =>
-                            _toggleLikeMessage(message.id, message.isLiked),
-                      );
-                    },
-                  ),
+                      )
+                    : _messages.isEmpty
+                        ? Center(
+                            child: Text(
+                              'New chat',
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: AppTheme.fontSize14,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.only(
+                                bottom: AppTheme.spacing8),
+                            itemCount: _messages.length,
+                            itemBuilder: (context, index) {
+                              final message = _messages[index];
+                              return ChatMessageBubble(
+                                message: message,
+                                onDoubleTap: () => _toggleLikeMessage(
+                                    message.id, message.isLiked),
+                              );
+                            },
+                          ),
           ),
           ChatInput(
             controller: _textController,

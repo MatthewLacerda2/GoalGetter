@@ -5,6 +5,7 @@ import 'package:openapi/api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
+import '../theme/app_theme.dart';
 
 class ListMemoriesScreen extends StatefulWidget {
   const ListMemoriesScreen({super.key});
@@ -96,7 +97,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
                 messenger.showSnackBar(
                   SnackBar(
                     content: Text('Error adding memory: ${e.toString()}'),
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppTheme.error,
                   ),
                 );
               }
@@ -154,7 +155,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.error),
               child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
@@ -175,7 +176,7 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error deleting memory: ${e.toString()}'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.error,
             ),
           );
         }
@@ -190,103 +191,126 @@ class _ListMemoriesScreenState extends State<ListMemoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.listMemories),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: AppTheme.surfaceVariant,
+        foregroundColor: AppTheme.textPrimary,
         actions: [
           TextButton(
             onPressed: _showAddMemoryDialog,
-            child: const Text('+ Add', style: TextStyle(color: Colors.white)),
+            child: Text(
+              '+ Add',
+              style: const TextStyle(color: AppTheme.textPrimary),
+            ),
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(
+                color: AppTheme.accentPrimary,
+              ),
+            )
           : _errorMessage != null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Error: $_errorMessage',
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Error: $_errorMessage',
+                        style: const TextStyle(color: AppTheme.error),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppTheme.spacing16),
+                      ElevatedButton(
+                        onPressed: _loadMemories,
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadMemories,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            )
-          : _memories.isEmpty
-          ? Center(
-              child: Text(
-                AppLocalizations.of(context)!.noMemories,
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: ListView.builder(
-                itemCount: _memories.length,
-                itemBuilder: (context, index) {
-                  final memory = _memories[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                memory.state,
-                                style: TextStyle(
-                                  color: Colors.grey.shade900,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              if (memory.metacognition.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Text(
-                                  memory.metacognition,
-                                  style: TextStyle(
-                                    color: Colors.grey.shade800,
-                                    fontSize: 14,
-                                    fontStyle: FontStyle.italic,
+                )
+              : _memories.isEmpty
+                  ? Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.noMemories,
+                        style: const TextStyle(
+                          fontSize: AppTheme.fontSize18,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(AppTheme.spacing16),
+                      child: ListView.builder(
+                        itemCount: _memories.length,
+                        itemBuilder: (context, index) {
+                          final memory = _memories[index];
+                          return Container(
+                            margin: const EdgeInsets.only(
+                                bottom: AppTheme.spacing12),
+                            padding: const EdgeInsets.all(
+                                AppTheme.spacing16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.cardBackground,
+                              borderRadius: BorderRadius.circular(
+                                  AppTheme.spacing8),
+                            ),
+                            child: Row(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        memory.state,
+                                        style: const TextStyle(
+                                          color: AppTheme.textPrimary,
+                                          fontSize: AppTheme.fontSize16,
+                                        ),
+                                      ),
+                                      if (memory.metacognition
+                                          .isNotEmpty) ...[
+                                        const SizedBox(
+                                            height: AppTheme.spacing8),
+                                        Text(
+                                          memory.metacognition,
+                                          style: const TextStyle(
+                                            color: AppTheme.textSecondary,
+                                            fontSize: AppTheme.fontSize14,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ],
+                                      const SizedBox(
+                                          height: AppTheme.spacing8),
+                                      Text(
+                                        '${AppLocalizations.of(context)!.createdAt} ${_formatDate(memory.createdAt)}',
+                                        style: const TextStyle(
+                                          color: AppTheme.textSecondary,
+                                          fontSize: AppTheme.fontSize12,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                              const SizedBox(height: 8),
-                              Text(
-                                '${AppLocalizations.of(context)!.createdAt} ${_formatDate(memory.createdAt)}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade700,
-                                  fontSize: 12,
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: AppTheme.error,
+                                  ),
+                                  onPressed: () =>
+                                      _deleteMemory(memory),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: Colors.grey.shade900),
-                          onPressed: () => _deleteMemory(memory),
-                        ),
-                      ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
-              ),
-            ),
     );
   }
 }

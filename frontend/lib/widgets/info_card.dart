@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 class InfoCard extends StatelessWidget {
   final String? title;
   final String? description;
   final Color? backgroundColor;
-  final Color? borderColor;
 
   const InfoCard({
     super.key,
     this.title,
     this.description,
     this.backgroundColor,
-    this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).textTheme;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppTheme.cardPadding),
       decoration: BoxDecoration(
-        color: backgroundColor ?? Colors.white.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: borderColor ?? Colors.white.withValues(alpha: 0.24),
-          width: 2,
-        ),
+        color: backgroundColor ?? AppTheme.cardBackground,
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,23 +37,26 @@ class InfoCard extends StatelessWidget {
           if (title != null)
             Text(
               title!,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
+              style: theme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
               ),
             ),
           if (title != null && description != null) ...[
-            const SizedBox(height: 10),
-            Divider(height: 1, color: Colors.white),
-            const SizedBox(height: 10),
+            const SizedBox(height: AppTheme.spacing12),
+            Divider(
+              height: 1,
+              color: AppTheme.textTertiary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: AppTheme.spacing12),
           ],
           if (description != null)
             Text(
               description!,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white,
+              style: theme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.normal,
+                fontSize: AppTheme.notesHeadingSize * 0.8,
+                color: AppTheme.textPrimary,
                 height: 1.6,
               ),
             ),

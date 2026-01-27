@@ -4,6 +4,7 @@ import 'package:openapi/api.dart';
 
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
+import '../theme/app_theme.dart';
 import '../widgets/info_card.dart';
 import '../widgets/screens/objective/lesson_button.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
@@ -83,8 +84,10 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
           return false;
         }
 
-        if (hasDay(today)) return Colors.orange;
-        if (hasDay(yesterday) || hasDay(dayBeforeYesterday)) return Colors.grey;
+        if (hasDay(today)) return AppTheme.accentSecondary;
+        if (hasDay(yesterday) || hasDay(dayBeforeYesterday)) {
+          return AppTheme.textTertiary;
+        }
         return Colors.transparent;
       }
 
@@ -111,6 +114,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       body: Column(
         children: [
           ObjectiveTabHeader(
@@ -121,54 +125,63 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _errorMessage != null
                 ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Error: $_errorMessage',
-                          style: const TextStyle(color: Colors.red),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _fetchData,
-                          child: const Text('Retry'),
-                        ),
-                      ],
+                    child: CircularProgressIndicator(
+                      color: AppTheme.accentPrimary,
                     ),
                   )
-                : ListView(
-                    padding: const EdgeInsets.all(12),
-                    children: [
-                      const SizedBox(height: 12),
-                      if (_objectiveName != null)
-                        LessonButton(
-                          label: AppLocalizations.of(context)!.startLesson,
+                : _errorMessage != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Error: $_errorMessage',
+                              style: const TextStyle(color: AppTheme.error),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppTheme.spacing16),
+                            ElevatedButton(
+                              onPressed: _fetchData,
+                              child: const Text('Retry'),
+                            ),
+                          ],
                         ),
-                      if (_notes != null && _notes!.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          '${AppLocalizations.of(context)!.notes}:',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ..._notes!.map(
-                          (note) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: InfoCard(description: note.info),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 28),
-                    ],
-                  ),
+                      )
+                    : ListView(
+                        padding: const EdgeInsets.all(AppTheme.spacing12),
+                        children: [
+                          const SizedBox(height: AppTheme.spacing12),
+                          if (_objectiveName != null)
+                            LessonButton(
+                              label: AppLocalizations.of(context)!
+                                  .startLesson,
+                            ),
+                          if (_notes != null && _notes!.isNotEmpty) ...[
+                            const SizedBox(height: AppTheme.spacing12),
+                            Text(
+                              '${AppLocalizations.of(context)!.notes}:',
+                              style: const TextStyle(
+                                fontSize: AppTheme.notesHeadingSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: AppTheme.spacing16),
+                            ..._notes!.map(
+                              (note) => Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: AppTheme.spacing16),
+                                child: InfoCard(
+                                  description: note.info,
+                                  backgroundColor: Colors.transparent,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: AppTheme.spacing24),
+                        ],
+                      ),
           ),
         ],
       ),

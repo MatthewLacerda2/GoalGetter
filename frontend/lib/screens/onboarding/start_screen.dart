@@ -190,7 +190,6 @@ class _StartScreenState extends State<StartScreen> {
                       backgroundColor: const Color(0xFF4285F4),
                       foregroundColor: Colors.white,
                       elevation: 2,
-                      shadowColor: Colors.black.withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

@@ -9,6 +9,7 @@ import 'package:openapi/api.dart';
 import '../../models/lesson_question_data.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
+import '../../theme/app_theme.dart';
 import '../intermediate/info_screen.dart';
 
 class LessonScreen extends StatefulWidget {
@@ -321,7 +322,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       Duration(seconds: _evaluationResponse!.totalSecondsSpent),
                     )
                   : _formatDuration(_totalTimeSpent),
-              color: Colors.blue,
+              color: AppTheme.accentPrimary,
             ),
             accuracy: StatData(
               title: "Accuracy",
@@ -329,13 +330,13 @@ class _LessonScreenState extends State<LessonScreen> {
               text: _evaluationResponse != null
                   ? "${_evaluationResponse!.studentAccuracy.toStringAsFixed(2)}%"
                   : "${(questionsToReview.where((q) => q.status == LessonQuestionStatus.correct).length / questionsToReview.length * 100).toStringAsFixed(2)}%",
-              color: Colors.green,
+              color: AppTheme.success,
             ),
             combo: StatData(
               title: "Combo",
               icon: Icons.star,
               text: "${_calculateLongestStreak()}",
-              color: Colors.yellow,
+              color: AppTheme.accentSecondary,
             ),
           ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -367,9 +368,11 @@ class _LessonScreenState extends State<LessonScreen> {
     });
   }
 
-  Color getChoiceBorderColor(int index) {
+  Color getChoiceFillColor(int index) {
     if (!isAnswerRevealed) {
-      return selectedChoiceIndex == index ? Colors.blue : Colors.grey;
+      return selectedChoiceIndex == index
+          ? AppTheme.accentPrimary.withValues(alpha: 0.2)
+          : AppTheme.textTertiary.withValues(alpha: 0.12);
     }
 
     final currentQuestion = questionsToReview[currentQuestionIndex];
@@ -378,41 +381,46 @@ class _LessonScreenState extends State<LessonScreen> {
     final isSelectedAnswer = selectedChoiceIndex == index;
 
     if (isCorrectAnswer) {
-      return Colors.green;
-    } else if (isSelectedAnswer && !isCorrectAnswer) {
-      return Colors.red;
-    } else {
-      return Colors.grey;
+      return AppTheme.success.withValues(alpha: 0.2);
     }
+    if (isSelectedAnswer && !isCorrectAnswer) {
+      return AppTheme.error.withValues(alpha: 0.2);
+    }
+    return AppTheme.textTertiary.withValues(alpha: 0.12);
   }
 
   Color getButtonColor() {
     if (selectedChoiceIndex == null) {
-      return Colors.grey[600]!;
+      return AppTheme.textTertiary;
     }
 
     if (!isAnswerRevealed) {
-      return Colors.blue;
-    } else {
-      final currentQuestion = questionsToReview[currentQuestionIndex];
-      final isCorrect =
-          selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
-      return isCorrect ? Colors.green : Colors.red;
+      return AppTheme.accentPrimary;
     }
+    final currentQuestion = questionsToReview[currentQuestionIndex];
+    final isCorrect =
+        selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
+    return isCorrect ? AppTheme.success : AppTheme.error;
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[900],
-        body: const SafeArea(child: Center(child: CircularProgressIndicator())),
+        backgroundColor: AppTheme.background,
+        body: SafeArea(
+          child: Center(
+            child: CircularProgressIndicator(
+              color: AppTheme.accentPrimary,
+            ),
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppTheme.background,
         body: SafeArea(
           child: Center(
             child: Column(
@@ -420,10 +428,10 @@ class _LessonScreenState extends State<LessonScreen> {
               children: [
                 Text(
                   'Error: $_errorMessage',
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: AppTheme.error),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppTheme.spacing16),
                 ElevatedButton(
                   onPressed: () {
                     if (widget.questions == null) {
@@ -443,12 +451,12 @@ class _LessonScreenState extends State<LessonScreen> {
 
     if (questionsToReview.isEmpty) {
       return Scaffold(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppTheme.background,
         body: const SafeArea(
           child: Center(
             child: Text(
               'No questions available',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppTheme.textPrimary),
             ),
           ),
         ),
@@ -458,62 +466,55 @@ class _LessonScreenState extends State<LessonScreen> {
     final currentQuestion = questionsToReview[currentQuestionIndex];
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppTheme.spacing16),
           child: Column(
             children: [
-              // Progress indicator
               Row(
                 children: [
                   Text(
                     '${currentQuestionIndex + 1} / ${questionsToReview.length}',
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                      color: AppTheme.textPrimary,
+                      fontSize: AppTheme.fontSize16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: AppTheme.spacing16),
                   Expanded(
                     child: LinearProgressIndicator(
-                      value:
-                          (currentQuestionIndex + 1) / questionsToReview.length,
-                      backgroundColor: Colors.grey[700],
+                      value: (currentQuestionIndex + 1) /
+                          questionsToReview.length,
+                      backgroundColor: AppTheme.surfaceVariant,
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        Colors.blue,
+                        AppTheme.accentPrimary,
                       ),
                     ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 32),
-
-              // Question text
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppTheme.spacing16),
                 decoration: BoxDecoration(
-                  color: Colors.grey[800]!.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[600]!),
+                  color: AppTheme.textTertiary.withValues(alpha: 0.12),
+                  borderRadius:
+                      BorderRadius.circular(AppTheme.cardRadius),
                 ),
                 child: Text(
                   currentQuestion.apiQuestion.question,
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
+                    color: AppTheme.textPrimary,
+                    fontSize: AppTheme.fontSize20,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.left,
                 ),
               ),
-
               const SizedBox(height: 40),
-
-              // Choices
               Expanded(
                 child: ListView.builder(
                   itemCount: currentQuestion.apiQuestion.choices.length,
@@ -522,22 +523,23 @@ class _LessonScreenState extends State<LessonScreen> {
                       padding: const EdgeInsets.only(bottom: 20),
                       child: InkWell(
                         onTap: () => selectChoice(index),
+                        borderRadius: BorderRadius.circular(
+                            AppTheme.cardRadius),
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(
+                              AppTheme.spacing16),
                           decoration: BoxDecoration(
-                            color: Colors.grey[800]!.withValues(alpha: 0.6),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: getChoiceBorderColor(index),
-                              width: 2,
-                            ),
+                            color: getChoiceFillColor(index),
+                            borderRadius: BorderRadius.circular(
+                                AppTheme.cardRadius),
                           ),
                           child: Text(
-                            currentQuestion.apiQuestion.choices[index],
+                            currentQuestion
+                                .apiQuestion.choices[index],
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
+                              color: AppTheme.textPrimary,
+                              fontSize: AppTheme.fontSize18,
                             ),
                             textAlign: TextAlign.left,
                           ),
@@ -547,21 +549,22 @@ class _LessonScreenState extends State<LessonScreen> {
                   },
                 ),
               ),
-
-              const SizedBox(height: 16),
-
-              // Submit/Next button
+              const SizedBox(height: AppTheme.spacing16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: selectedChoiceIndex != null
-                      ? (isAnswerRevealed ? nextQuestion : submitAnswer)
+                      ? (isAnswerRevealed
+                          ? nextQuestion
+                          : submitAnswer)
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: getButtonColor(),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: AppTheme.spacing16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                          AppTheme.cardRadius),
                     ),
                   ),
                   child: Text(
@@ -570,14 +573,13 @@ class _LessonScreenState extends State<LessonScreen> {
                         : AppLocalizations.of(context)!.enter,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: AppTheme.fontSize20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spacing8),
             ],
           ),
         ),

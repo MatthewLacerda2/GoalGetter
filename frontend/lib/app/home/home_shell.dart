@@ -56,11 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<BottomNavigationBarItem> get _bottomNavItems {
-    final items = <BottomNavigationBarItem>[
+    return [
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.event_note,
-          color: Colors.green,
           isSelected: _selectedIndex == 0,
         ),
         label: AppLocalizations.of(context)!.objective,
@@ -68,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.flag,
-          color: Colors.orange,
           isSelected: _selectedIndex == 1,
         ),
         label: 'Missions',
@@ -76,7 +74,6 @@ class _MyHomePageState extends State<MyHomePage> {
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.graphic_eq,
-          color: Colors.purpleAccent,
           isSelected: _selectedIndex == 2,
         ),
         label: AppLocalizations.of(context)!.tutor,
@@ -84,7 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.emoji_events,
-          color: Colors.blue,
           isSelected: _selectedIndex == 3,
         ),
         label: AppLocalizations.of(context)!.awards,
@@ -92,7 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.school,
-          color: Colors.deepOrange,
           isSelected: _selectedIndex == 4,
         ),
         label: AppLocalizations.of(context)!.resources,
@@ -100,24 +95,18 @@ class _MyHomePageState extends State<MyHomePage> {
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.person,
-          color: Colors.blueGrey,
           isSelected: _selectedIndex == 5,
         ),
         label: AppLocalizations.of(context)!.profile,
       ),
     ];
-
-    return items;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: const Color.fromARGB(255, 33, 33, 33),
-        child: SafeArea(
-          child: IndexedStack(index: _selectedIndex, children: _tabPages),
-        ),
+      body: SafeArea(
+        child: IndexedStack(index: _selectedIndex, children: _tabPages),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -126,7 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedFontSize: 10,
         unselectedFontSize: 10,
         iconSize: 28,
-        backgroundColor: const Color.fromARGB(255, 11, 11, 11),
         enableFeedback: false,
         items: _bottomNavItems,
         currentIndex: _selectedIndex,

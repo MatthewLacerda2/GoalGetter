@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
+import '../../../../theme/app_theme.dart';
 import 'stat_data.dart';
 
-//We will have separate lessons in the future, so might as well make separate stats to use on the finish lesson screen
 class StatWidget extends StatelessWidget {
   final StatData statData;
 
@@ -14,36 +15,38 @@ class StatWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        color: AppTheme.textTertiary.withValues(alpha: 0.12),
         border: Border.all(color: statData.color, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            padding: const EdgeInsets.symmetric(
+              vertical: AppTheme.spacing8,
+              horizontal: AppTheme.spacing12,
+            ),
             decoration: BoxDecoration(
               color: statData.color,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+                topLeft: Radius.circular(AppTheme.cardRadius),
+                topRight: Radius.circular(AppTheme.cardRadius),
               ),
             ),
             child: Text(
               statData.title.toUpperCase(),
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: AppTheme.fontSize14,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.6,
               ),
               textAlign: TextAlign.center,
             ),
           ),
-          // Body
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppTheme.spacing12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -52,12 +55,12 @@ class StatWidget extends StatelessWidget {
                   color: statData.color,
                   size: 24,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppTheme.spacing12),
                 Text(
                   statData.text,
-                  style: TextStyle(
-                    color: statData.color,
-                    fontSize: 16,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: AppTheme.fontSize16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

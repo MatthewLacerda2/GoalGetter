@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../../l10n/app_localizations.dart';
+import '../../../theme/app_theme.dart';
 
 class GoalQuestions extends StatefulWidget {
   final String question;
@@ -64,49 +66,56 @@ class _GoalQuestionsState extends State<GoalQuestions> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color.fromARGB(255, 43, 43, 43),
+      color: AppTheme.surfaceVariant,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacing24,
+          vertical: AppTheme.spacing16,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Question text
             Text(
               widget.question,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: AppTheme.fontSize18,
                 fontWeight: FontWeight.w500,
-                color: Colors.white,
+                color: AppTheme.textPrimary,
               ),
             ),
-            const SizedBox(height: 12),
-            
-            // Answer input field
+            const SizedBox(height: AppTheme.spacing12),
             TextField(
               controller: _textController,
               enabled: widget.isActive,
               onSubmitted: _handleSubmitted,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppTheme.textPrimary),
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.yourAnswer,
-                border: const OutlineInputBorder(),
-                filled: true,
-                fillColor: widget.isActive 
-                    ? Colors.grey[800]
-                    : Colors.grey[700],
-                hintStyle: TextStyle(color: Colors.grey[400]),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                errorText: (widget.showError || _hasError) && _textController.text.trim().isEmpty
+                filled: true,
+                fillColor: widget.isActive
+                    ? AppTheme.cardBackground
+                    : AppTheme.surfaceVariant,
+                hintStyle: const TextStyle(color: AppTheme.textSecondary),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacing16,
+                  vertical: AppTheme.spacing12,
+                ),
+                errorText: (widget.showError || _hasError) &&
+                        _textController.text.trim().isEmpty
                     ? AppLocalizations.of(context)!.pleaseAnswerThisQuestion
                     : null,
                 suffixIcon: widget.isActive
                     ? IconButton(
-                        icon: const Icon(Icons.send, color: Colors.white),
-                        onPressed: () => _handleSubmitted(_textController.text),
+                        icon: const Icon(
+                          Icons.send,
+                          color: AppTheme.textPrimary,
+                        ),
+                        onPressed: () =>
+                            _handleSubmitted(_textController.text),
                         tooltip: 'Submit',
                       )
                     : null,

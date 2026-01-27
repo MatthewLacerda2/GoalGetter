@@ -190,11 +190,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
               ...widget.plan.milestones.map(
                 (m) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: InfoCard(
-                    title: m,
-                    backgroundColor: milestoneBg,
-                    borderColor: Colors.grey[600],
-                  ),
+                  child: InfoCard(title: m, backgroundColor: milestoneBg),
                 ),
               ),
             ],

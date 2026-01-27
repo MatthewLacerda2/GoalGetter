@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/chat_message.dart';
+import '../../theme/app_theme.dart';
 
 class ChatMessageBubble extends StatelessWidget {
   final ChatMessage message;
@@ -13,7 +14,10 @@ class ChatMessageBubble extends StatelessWidget {
     final isTutor = message.sender == ChatMessageSender.tutor;
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      margin: const EdgeInsets.symmetric(
+        vertical: AppTheme.spacing4,
+        horizontal: AppTheme.spacing12,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: isTutor
@@ -28,12 +32,15 @@ class ChatMessageBubble extends StatelessWidget {
                   maxWidth: MediaQuery.of(context).size.width * 0.7,
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
+                  horizontal: AppTheme.spacing12,
+                  vertical: AppTheme.spacing12,
                 ),
                 decoration: BoxDecoration(
-                  color: isTutor ? Colors.grey[800] : Colors.grey[700],
-                  borderRadius: BorderRadius.circular(16),
+                  color: isTutor
+                      ? AppTheme.surfaceVariant
+                      : AppTheme.accentPrimary,
+                  borderRadius:
+                      BorderRadius.circular(AppTheme.chatBubbleRadius),
                 ),
                 child: Stack(
                   children: [
@@ -44,8 +51,10 @@ class ChatMessageBubble extends StatelessWidget {
                       child: Text(
                         message.message,
                         style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
+                          fontSize: AppTheme.fontSize16,
+                          color: isTutor
+                              ? AppTheme.textPrimary
+                              : Colors.white,
                           height: 1.6,
                         ),
                       ),
@@ -57,7 +66,7 @@ class ChatMessageBubble extends StatelessWidget {
                         child: Icon(
                           Icons.favorite,
                           size: 18,
-                          color: Colors.red[400],
+                          color: AppTheme.error,
                         ),
                       ),
                   ],

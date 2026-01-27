@@ -5,6 +5,7 @@ import 'package:openapi/api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
+import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 
 enum GoalsDetailResult { deleted, activated }
@@ -85,7 +86,7 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error setting active goal: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.error,
         ),
       );
     }
@@ -153,7 +154,7 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error deleting goal: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.error,
         ),
       );
     }
@@ -166,14 +167,15 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
         : AppLocalizations.of(context)!.untitledGoal;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(goalTitle),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: AppTheme.surfaceVariant,
+        foregroundColor: AppTheme.textPrimary,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppTheme.spacing16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -182,24 +184,27 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spacing12),
               Text(
                 widget.goal.description.isNotEmpty
                     ? widget.goal.description
                     : AppLocalizations.of(context)!.noDescription,
                 style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
+                  fontSize: AppTheme.fontSize16,
+                  color: AppTheme.textSecondary,
                   height: 1.3,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spacing12),
               Text(
                 _formatCreatedAt(context, widget.goal.createdAt),
-                style: const TextStyle(fontSize: 14, color: Colors.white54),
+                style: const TextStyle(
+                  fontSize: AppTheme.fontSize14,
+                  color: AppTheme.textSecondary,
+                ),
               ),
               const Spacer(),
               SizedBox(
@@ -209,14 +214,15 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                       ? null
                       : _setAsCurrentGoal,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppTheme.accentPrimary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
+                      vertical: AppTheme.spacing16,
+                      horizontal: AppTheme.spacing16,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(
+                          AppTheme.cardRadius),
                     ),
                     elevation: 0,
                   ),
@@ -231,14 +237,14 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                         )
                       : Text(
                           AppLocalizations.of(context)!.setAsCurrentGoal,
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: const TextStyle(
+                            fontSize: AppTheme.fontSize16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spacing12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -246,14 +252,15 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                       ? null
                       : _deleteGoal,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.withValues(alpha: 0.6),
+                    backgroundColor: AppTheme.error.withValues(alpha: 0.8),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
+                      vertical: AppTheme.spacing16,
+                      horizontal: AppTheme.spacing16,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(
+                          AppTheme.cardRadius),
                     ),
                     elevation: 0,
                   ),
@@ -268,8 +275,8 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                         )
                       : Text(
                           AppLocalizations.of(context)!.deleteGoal,
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: const TextStyle(
+                            fontSize: AppTheme.fontSize16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

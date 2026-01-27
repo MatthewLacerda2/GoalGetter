@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../theme/app_theme.dart';
+
 class ResourceTab extends StatelessWidget {
   final List<Map<String, String>> resources;
 
@@ -12,107 +14,127 @@ class ResourceTab extends StatelessWidget {
       return Center(
         child: Text(
           'No resources here',
-          style: TextStyle(fontSize: 18, color: Colors.grey[400]),
+          style: TextStyle(
+            fontSize: AppTheme.fontSize18,
+            color: AppTheme.textSecondary,
+          ),
         ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppTheme.spacing12),
       itemCount: resources.length,
       itemBuilder: (context, index) {
         final resource = resources[index];
         final hasImage =
             resource['image'] != null && resource['image']!.isNotEmpty;
 
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 2,
-          color: Colors.grey[400]!.withValues(alpha: 0.12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: BorderSide(
-              color: Colors.white.withValues(alpha: 0.2),
-              width: 1,
-            ),
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
+          decoration: BoxDecoration(
+            color: AppTheme.cardBackground,
+            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: hasImage
-              ? InkWell(
-                  onTap: () {
-                    launchUrl(Uri.parse(resource['link'] ?? ''));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            resource['image']!,
-                            width: 68,
-                            height: 68,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                width: 68,
-                                height: 68,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.image_not_supported,
-                                  color: Colors.white,
-                                ),
-                              );
-                            },
+          child: Material(
+            color: Colors.transparent,
+            child: hasImage
+                ? InkWell(
+                    onTap: () {
+                      launchUrl(Uri.parse(resource['link'] ?? ''));
+                    },
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.cardRadius),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppTheme.cardPadding),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.spacing8),
+                            child: Image.network(
+                              resource['image']!,
+                              width: 68,
+                              height: 68,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 68,
+                                  height: 68,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.surfaceVariant,
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.spacing8,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.broken_image_outlined,
+                                    color: AppTheme.textTertiary,
+                                    size: 28,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                resource['title'] ?? '',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  fontSize: 16,
+                          const SizedBox(width: AppTheme.spacing16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  resource['title'] ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textPrimary,
+                                    fontSize: AppTheme.fontSize16,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                resource['description'] ?? '',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
+                                const SizedBox(height: AppTheme.spacing4),
+                                Text(
+                                  resource['description'] ?? '',
+                                  style: const TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontSize: AppTheme.fontSize14,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              : ListTile(
-                  title: Text(
-                    resource['title'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  )
+                : ListTile(
+                    title: Text(
+                      resource['title'] ?? '',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.cardPadding,
+                      vertical: AppTheme.spacing8,
+                    ),
+                    subtitle: Text(
+                      resource['description'] ?? '',
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: AppTheme.fontSize14,
+                      ),
+                    ),
+                    onTap: () {
+                      launchUrl(Uri.parse(resource['link'] ?? ''));
+                    },
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 1,
-                  ),
-                  subtitle: Text(
-                    resource['description'] ?? '',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  onTap: () {
-                    launchUrl(Uri.parse(resource['link'] ?? ''));
-                  },
-                ),
+          ),
         );
       },
     );

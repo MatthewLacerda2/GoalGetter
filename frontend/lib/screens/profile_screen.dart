@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
 import 'list_memories_screen.dart';
@@ -201,7 +202,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           title,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: AppTheme.textSecondary,
+        ),
         onTap: onTap,
       ),
     );
@@ -213,11 +217,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: ElevatedButton(
         onPressed: _handleSignOut,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.withValues(alpha: 0.2),
-          foregroundColor: Colors.red,
-          side: const BorderSide(color: Colors.red, width: 2),
+          backgroundColor: AppTheme.error.withValues(alpha: 0.2),
+          foregroundColor: AppTheme.error,
+          side: const BorderSide(
+            color: AppTheme.error,
+            width: 2,
+          ),
           padding: const EdgeInsets.symmetric(vertical: 20),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.spacing8),
+          ),
         ),
         child: Text(
           AppLocalizations.of(context)!.signOut,
@@ -241,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.error),
               child: Text(AppLocalizations.of(context)!.signOut),
             ),
           ],

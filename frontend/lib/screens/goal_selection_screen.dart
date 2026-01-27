@@ -5,6 +5,7 @@ import '../app/app.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
+import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 import 'onboarding/goal_prompt_screen.dart';
 
@@ -167,7 +168,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.error),
               child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
@@ -211,7 +212,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error deleting goal: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.error,
           ),
         );
       }
@@ -221,15 +222,17 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.selectGoal),
-        backgroundColor: Colors.grey[800],
+        backgroundColor: AppTheme.surfaceVariant,
         elevation: 0,
-        foregroundColor: Colors.white,
+        foregroundColor: AppTheme.textPrimary,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.blue))
+          ? Center(
+              child: CircularProgressIndicator(color: AppTheme.accentPrimary),
+            )
           : _errorMessage != null
           ? Center(
               child: Column(
@@ -237,10 +240,10 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                 children: [
                   Text(
                     'Error: $_errorMessage',
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: AppTheme.error),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   ElevatedButton(
                     onPressed: _loadGoals,
                     child: const Text('Retry'),
@@ -255,9 +258,12 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.noGoalsFound,
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: AppTheme.fontSize18,
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
@@ -272,7 +278,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
               ),
             )
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.spacing16),
               itemCount: _goals.length,
               itemBuilder: (context, index) {
                 final goal = _goals[index];
@@ -281,8 +287,8 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                   direction: DismissDirection.endToStart,
                   background: Container(
                     alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    color: Colors.red,
+                    padding: const EdgeInsets.only(right: AppTheme.spacing24),
+                    color: AppTheme.error,
                     child: const Icon(
                       Icons.delete,
                       color: Colors.white,
@@ -290,23 +296,24 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                     ),
                   ),
                   confirmDismiss: (direction) async {
-                    // Show confirmation dialogs
                     await _deleteGoal(goal, index);
-                    return false; // We handle deletion manually
+                    return false;
                   },
                   child: Card(
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
                     color: Colors.transparent,
                     elevation: 0,
                     child: ElevatedButton(
                       onPressed: () => _selectGoal(goal),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: AppTheme.accentSecondary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppTheme.spacing16),
                         alignment: Alignment.centerLeft,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.spacing8,
+                          ),
                         ),
                       ),
                       child: Column(
@@ -317,18 +324,18 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                                 ? goal.name
                                 : AppLocalizations.of(context)!.untitledGoal,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AppTheme.textPrimary,
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: AppTheme.fontSize18,
                             ),
                           ),
                           if (goal.description.isNotEmpty) ...[
-                            const SizedBox(height: 8),
+                            const SizedBox(height: AppTheme.spacing8),
                             Text(
                               goal.description,
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
+                                color: AppTheme.textSecondary,
+                                fontSize: AppTheme.fontSize14,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -343,14 +350,12 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          // Navigate to goal prompt screen
           await Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
           );
-          // Reload goals when returning from goal prompt
           await _loadGoals();
         },
-        backgroundColor: Colors.blue,
+        backgroundColor: AppTheme.accentPrimary,
         icon: const Icon(Icons.add),
         label: Text(AppLocalizations.of(context)!.createNewGoal),
       ),
