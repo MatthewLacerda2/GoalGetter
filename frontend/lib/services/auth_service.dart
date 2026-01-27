@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,8 +16,8 @@ class AuthService {
   static const String _userInfoKey = 'user_info';
   static const String _googleTokenKey = 'google_token';
 
-  // Web-specific configuration
-  static const String _webClientId =
+  // Google Sign-In client ID
+  static const String _clientId =
       "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com";
 
   // Scopes for Google Sign-In
@@ -30,12 +29,12 @@ class AuthService {
   // Ensure GoogleSignIn is initialized before use
   Future<void> _ensureInitialized() async {
     if (!_isInitialized) {
-      await GoogleSignIn.instance.initialize(clientId: _webClientId);
+      await GoogleSignIn.instance.initialize(clientId: _clientId);
       _isInitialized = true;
     }
   }
 
-  // Sign in with Google and return the ID token (in memory only)
+  // Sign in with Google and return the ID token or access token
   Future<Map<String, dynamic>?> signInWithGoogle() async {
     developer.log("EA SPORTS, its in the game");
     try {
@@ -52,67 +51,10 @@ class AuthService {
       developer.log(
         'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
       );
-      developer.log('Full auth object: $googleAuth');
 
       final String? idToken = googleAuth.idToken;
 
-      if (idToken == null) {
-        developer.log('ID Token is null, throwing exception');
-        throw Exception('Failed to get ID token from Google');
-      }
-
-      // Store temporarily in memory only (not persisted)
-      _tempGoogleToken = idToken;
-
-      _tempUserInfo = {
-        'sub': googleUser.id,
-        'email': googleUser.email,
-        'name': googleUser.displayName,
-        'picture': googleUser.photoUrl,
-      };
-
-      developer.log('Successfully authenticated user: ${googleUser.email}');
-      return {'token': idToken, 'user': _tempUserInfo};
-    } on GoogleSignInException catch (e) {
-      // Handle cancellation or other Google Sign-In specific errors
-      if (e.code == GoogleSignInExceptionCode.canceled) {
-        developer.log('User cancelled sign-in');
-        return null;
-      }
-      developer.log('Google Sign-In error: ${e.code} - ${e.description}');
-      rethrow;
-    } catch (error) {
-      developer.log('Error signing in to your app with Google: $error');
-      rethrow;
-    }
-  }
-
-  // Add this method for web-only authentication
-  Future<Map<String, dynamic>?> signInWithGoogleWeb() async {
-    if (!kIsWeb) {
-      throw Exception('This method is only for web');
-    }
-
-    try {
-      await _ensureInitialized();
-      developer.log('Starting Google Sign-In for web...');
-      // Sign out first to ensure we get a fresh ID token
-      await GoogleSignIn.instance.signOut();
-
-      final GoogleSignInAccount googleUser = await GoogleSignIn.instance
-          .authenticate(scopeHint: _scopes);
-
-      developer.log('Google user: ${googleUser.email}');
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      developer.log(
-        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
-      );
-
-      final String? idToken = googleAuth.idToken;
-
-      // Get access token via authorization client
+      // Get access token via authorization client as fallback
       String? accessToken;
       try {
         final authorization = await googleUser.authorizationClient
@@ -131,7 +73,7 @@ class AuthService {
       }
 
       // Use ID token if available, otherwise fall back to access token
-      // Backend now supports both ID tokens and access tokens
+      // Backend supports both ID tokens and access tokens
       final String? tokenToUse = idToken ?? accessToken;
 
       if (tokenToUse == null) {

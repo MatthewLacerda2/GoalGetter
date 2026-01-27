@@ -66,7 +66,7 @@ class _StartScreenState extends State<StartScreen> {
     });
 
     try {
-      final googleAuthResult = await _authService.signInWithGoogleWeb();
+      final googleAuthResult = await _authService.signInWithGoogle();
 
       if (googleAuthResult != null) {
         final googleToken = googleAuthResult['token'] as String;
