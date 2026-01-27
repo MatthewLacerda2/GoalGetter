@@ -143,12 +143,6 @@ abstract class AppLocalizations {
   /// **'Tell your goal, what can you do so far, and what is the purpose'**
   String get tellWhatYourGoalIs;
 
-  /// Hint text for goal description
-  ///
-  /// In en, this message translates to:
-  /// **'I wanna learn guitar, i can play most basic chords'**
-  String get goalDescriptionHintText;
-
   /// Label for enter button
   ///
   /// In en, this message translates to:
@@ -700,18 +694,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Practice every day, keep progressing to your goal'**
   String get preOnboardingDailyLessonBody;
-
-  /// Pre-onboarding tutorial page title: Made for you
-  ///
-  /// In en, this message translates to:
-  /// **'Made for you!'**
-  String get preOnboardingMadeForYouTitle;
-
-  /// Pre-onboarding tutorial page body: Made for you
-  ///
-  /// In en, this message translates to:
-  /// **'All content is made for you and your goal'**
-  String get preOnboardingMadeForYouBody;
 
   /// Pre-onboarding tutorial page title: An AI that knows you
   ///

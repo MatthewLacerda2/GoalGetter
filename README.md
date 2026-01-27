@@ -65,7 +65,7 @@ Then generate the Client_sdk with:
 
 _The web version is meant for the MVP. This app is meant as a mobile app only_
 
-# Infra
+# Architecture
 
 _This is a rabbit hole_
 

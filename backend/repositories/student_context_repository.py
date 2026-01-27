@@ -106,3 +106,34 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+    
+    async def is_too_similar(self, student_id: str, state: str, metacognition: str, threshold: float = 0.85) -> bool:
+        from sqlalchemy import text
+        """
+        Checks if the new state or metacognition is too similar to existing valid records.
+        Formula: 1 - (levenshtein / max_length)
+        """
+        if len(state) < 30 and len(metacognition) < 30:
+            return False
+
+        query = text("""
+            SELECT EXISTS (
+                SELECT 1 FROM student_contexts
+                WHERE student_id = :student_id
+                AND is_still_valid = True
+                AND (
+                    (length(state) >= 30 AND (1.0 - (levenshtein(state, :state)::float / GREATEST(length(state), length(:state)))) > :threshold)
+                    OR
+                    (length(metacognition) >= 30 AND (1.0 - (levenshtein(metacognition, :metacognition)::float / GREATEST(length(metacognition), length(:metacognition)))) > :threshold)
+                )
+                LIMIT 1
+            )
+        """)
+        
+        result = await self.db.execute(query, {
+            "student_id": student_id,
+            "state": state,
+            "metacognition": metacognition,
+            "threshold": threshold
+        })
+        return result.scalar()

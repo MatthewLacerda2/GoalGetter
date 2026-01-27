@@ -30,9 +30,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tellWhatYourGoalIs => 'Dínos tu objetivo, lo que has hecho hasta ahora y el propósito';
 
   @override
-  String get goalDescriptionHintText => 'Quiero aprender guitarra, puedo tocar unos acordes básicos';
-
-  @override
   String get enter => 'Entrar';
 
   @override
@@ -307,12 +304,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get preOnboardingDailyLessonBody => 'Practica todos los días, mantén tu progreso hacia tu objetivo';
-
-  @override
-  String get preOnboardingMadeForYouTitle => 'Hecho para ti!';
-
-  @override
-  String get preOnboardingMadeForYouBody => 'Todo el contenido es hecho para ti y tu objetivo';
 
   @override
   String get preOnboardingAiThatKnowsYouTitle => 'Chat con tu AI';

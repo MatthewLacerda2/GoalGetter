@@ -71,11 +71,6 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
         body: l10n.preOnboardingDailyLessonBody,
       ),
       (
-        icon: Icons.person,
-        title: l10n.preOnboardingMadeForYouTitle,
-        body: l10n.preOnboardingMadeForYouBody,
-      ),
-      (
         icon: Icons.smart_toy,
         title: l10n.preOnboardingAiThatKnowsYouTitle,
         body: l10n.preOnboardingAiThatKnowsYouBody,

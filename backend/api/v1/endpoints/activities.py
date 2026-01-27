@@ -76,30 +76,18 @@ async def take_multiple_choice_activity(
         objective.id, current_user.id, NUM_QUESTIONS_PER_LESSON
     )
     
-    if len(multiple_choice_question_results) >= NUM_QUESTIONS_PER_LESSON:
-        question_responses = [
-            MultipleChoiceQuestionResponse(
-                id=str(q.id),
-                question=q.question,
-                choices=q.choices,
-                correct_answer_index=q.correct_answer_index
-            )
-            for q in multiple_choice_question_results
-        ]
-        return MultipleChoiceActivityResponse(questions=question_responses)
-    
-    # Questions not ready - create them synchronously
-    await create_lesson_questions_async(
-        student_id=current_user.id,
-        goal_id=current_user.goal_id,
-        num_questions=NUM_QUESTIONS_PER_LESSON,
-        db=db
-    )
-    
-    # Fetch the newly created questions
-    multiple_choice_question_results = await mcq_repo.get_unanswered_or_wrong(
-        objective.id, current_user.id, NUM_QUESTIONS_PER_LESSON
-    )
+    # Create questions if we don't have enough
+    if len(multiple_choice_question_results) < NUM_QUESTIONS_PER_LESSON:
+        await create_lesson_questions_async(
+            student_id=current_user.id,
+            goal_id=current_user.goal_id,
+            num_questions=NUM_QUESTIONS_PER_LESSON,
+            db=db
+        )
+        # Fetch the newly created questions
+        multiple_choice_question_results = await mcq_repo.get_unanswered_or_wrong(
+            objective.id, current_user.id, NUM_QUESTIONS_PER_LESSON
+        )
     
     question_responses = [
         MultipleChoiceQuestionResponse(
@@ -187,22 +175,8 @@ async def take_multiple_choice_activity(
     await student_repo.increment_streak_days(current_user.id, total_xp)
     
     await db.commit()
-
-    # Kick off async job to create next lesson (20 questions)
-    async def run_lesson_creation_task():
-        async with AsyncSessionLocal() as new_db:
-            try:
-                await create_lesson_questions_async(
-                    student_id=current_user.id,
-                    goal_id=current_user.goal_id,
-                    num_questions=20,
-                    db=new_db
-                )
-            except Exception as e:
-                logger.error(f"Error in background lesson creation task: {e}", exc_info=True)
     
-    # Fire and forget - don't await to avoid blocking the response
-    asyncio.create_task(run_lesson_creation_task())
+    #TODO: kickoff lesson creation if there aren't enough questions
 
     return MultipleChoiceActivityEvaluationResponse(
         total_seconds_spent=total_seconds_spent,

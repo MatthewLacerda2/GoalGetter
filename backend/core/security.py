@@ -87,7 +87,7 @@ def verify_google_token(token: str) -> dict:
             # Re-raise the original error for ID token verification failures
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"ValueError: Invalid Google token. {e}"
+                detail="Invalid Google token"
             )
 
 def verify_token(token: str) -> dict:

@@ -28,10 +28,6 @@
     "@tellWhatYourGoalIs": {
         "description": "Label for tell what your goal is"
     },
-    "goalDescriptionHintText": "I wanna learn guitar, i can play most basic chords",
-    "@goalDescriptionHintText": {
-        "description": "Hint text for goal description"
-    },
     "enter": "Enter",
     "@enter": {
         "description": "Label for enter button"
@@ -399,14 +395,6 @@
     "preOnboardingDailyLessonBody": "Practice every day, keep progressing to your goal",
     "@preOnboardingDailyLessonBody": {
         "description": "Pre-onboarding tutorial page body: Daily lesson"
-    },
-    "preOnboardingMadeForYouTitle": "Made for you!",
-    "@preOnboardingMadeForYouTitle": {
-        "description": "Pre-onboarding tutorial page title: Made for you"
-    },
-    "preOnboardingMadeForYouBody": "All content is made for you and your goal",
-    "@preOnboardingMadeForYouBody": {
-        "description": "Pre-onboarding tutorial page body: Made for you"
     },
     "preOnboardingAiThatKnowsYouTitle": "Chat with your AI",
     "@preOnboardingAiThatKnowsYouTitle": {

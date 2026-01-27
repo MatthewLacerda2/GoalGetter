@@ -28,10 +28,6 @@
     "@tellWhatYourGoalIs": {
         "description": "Label para dizer o que é sua meta"
     },
-    "goalDescriptionHintText": "Quero aprender violão, sei tocar notas básicas",
-    "@goalDescriptionHintText": {
-        "description": "Texto de dica para descrição da meta"
-    },
     "enter": "Enter",
     "@enter": {
         "description": "Label para botão entrar"
@@ -399,14 +395,6 @@
     "preOnboardingDailyLessonBody": "Pratique todos os dias, mantenha seu progresso em sua meta",
     "@preOnboardingDailyLessonBody": {
         "description": "Pre-onboarding tutorial page body: Daily lesson"
-    },
-    "preOnboardingMadeForYouTitle": "Feito para você!",
-    "@preOnboardingMadeForYouTitle": {
-        "description": "Pre-onboarding tutorial page title: Made for you"
-    },
-    "preOnboardingMadeForYouBody": "Todo conteúdo é feito para você e sua meta",
-    "@preOnboardingMadeForYouBody": {
-        "description": "Pre-onboarding tutorial page body: Made for you"
     },
     "preOnboardingAiThatKnowsYouTitle": "Chat com sua I.A.",
     "@preOnboardingAiThatKnowsYouTitle": {

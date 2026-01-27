@@ -1,0 +1,48 @@
+"""pull-request-db-2.0
+
+Revision ID: a388db378804
+Revises: cb90c4636986
+Create Date: 2026-01-26 01:05:29.225507
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+# This specific import ensures the nested namespace used below is available
+import pgvector.sqlalchemy 
+
+
+# revision identifiers, used by Alembic.
+revision: str = 'a388db378804'
+down_revision: Union[str, Sequence[str], None] = 'cb90c4636986'
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    # Ensure extensions exist before creating tables/columns that use them
+    op.execute("CREATE EXTENSION IF NOT EXISTS vector")
+    op.execute("CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;")
+    
+    op.create_table('onboardings',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('prompt', sa.String(), nullable=False),
+    sa.Column('questions_answer', sa.String(), nullable=False),
+    sa.Column('questions_answers_embedding', pgvector.sqlalchemy.vector.VECTOR(dim=3072), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    
+    op.add_column('multiple_choice_questions', sa.Column('question_embedding', pgvector.sqlalchemy.vector.VECTOR(dim=3072), nullable=True))
+    op.add_column('subjective_answers', sa.Column('student_answer_embedding', pgvector.sqlalchemy.vector.VECTOR(dim=3072), nullable=True))
+    op.add_column('subjective_questions', sa.Column('question_embedding', pgvector.sqlalchemy.vector.VECTOR(dim=3072), nullable=True))
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    op.drop_column('subjective_questions', 'question_embedding')
+    op.drop_column('subjective_answers', 'student_answer_embedding')
+    op.drop_column('multiple_choice_questions', 'question_embedding')
+    op.drop_table('onboardings')
