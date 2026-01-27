@@ -1,45 +1,30 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens for GoalGetter. Mobile-first (Android & iOS).
-/// Page = #121212; cards = slightly lighter; no borders; elevation for depth.
 class AppTheme {
   AppTheme._();
 
-  // --- Background ---
-  /// Rich dark charcoal. Page/scaffold background. No pure black.
   static const Color background = Color(0xFF121212);
 
-  /// Slightly lighter than page. Card/surface variant. No borders.
   static const Color cardBackground = Color(0xFF1E1E1E);
 
-  /// Optional slightly lighter surface (e.g. headers).
   static const Color surfaceVariant = Color(0xFF252525);
 
-  // --- Text ---
-  /// Primary: soft white / off-white.
   static const Color textPrimary = Color(0xFFE8E8E8);
 
-  /// Secondary: gray, lower contrast. Slightly smaller than primary.
   static const Color textSecondary = Color(0xFFA0A0A0);
 
   static const Color textTertiary = Color(0xFF6B6B6B);
 
-  // --- Accents (desaturated) ---
-  /// Primary accent (e.g. CTAs, selected tab, user chat).
   static const Color accentPrimary = Color(0xFF2D9D78);
 
-  /// Secondary (e.g. streak, warmth).
   static const Color accentSecondary = Color(0xFFC49450);
 
-  /// Muted accent for unselected / subtle highlights.
   static const Color accentMuted = Color(0xFF5A8B7A);
 
-  // --- Semantic ---
   static const Color success = Color(0xFF3DA872);
   static const Color error = Color(0xFFC75C5C);
   static const Color errorMuted = Color(0xFF8B5A5A);
 
-  // --- Spacing (4dp base) ---
   static const double spacing4 = 4;
   static const double spacing8 = 8;
   static const double spacing12 = 12;
@@ -47,36 +32,26 @@ class AppTheme {
   static const double spacing24 = 24;
   static const double spacing32 = 32;
 
-  /// Card inner padding (doubled from legacy 12).
   static const double cardPadding = 24;
 
-  /// Card / surface border radius. Increased from legacy.
   static const double cardRadius = 20;
 
-  /// Chat bubble corner radius (much rounder).
   static const double chatBubbleRadius = 24;
 
-  /// Elevation for cards (depth, no borders).
   static const double cardElevation = 2;
 
-  // --- Layout Tokens ---
-  /// Edge padding for page content (margin from phone edge).
   static const double edgePadding = spacing16;
 
-  /// Gap between major sections.
   static const double sectionGap = spacing32;
 
-  /// Gap between list items.
   static const double elementGap = spacing16;
 
-  // --- Typography ---
   static const double fontSize12 = 12;
   static const double fontSize14 = 14;
   static const double fontSize16 = 16;
   static const double fontSize18 = 18;
   static const double fontSize20 = 20;
 
-  /// Notes heading size. Body = 80% of this.
   static const double notesHeadingSize = 20;
 
   static const String _fontFamily = 'Roboto';
