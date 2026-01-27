@@ -74,7 +74,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
               SnackBar(
                 content: Text(
                   'Error: No questions received',
-                  style: Theme.of(context).textTheme.labelLarge,
+                  style: const TextStyle(color: Colors.black),
                 ),
               ),
             );
@@ -84,10 +84,10 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                  'Error: $e',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
+              content: Text(
+                'Error: $e',
+                style: const TextStyle(color: Colors.black),
+              ),
             ),
           );
         }
@@ -103,7 +103,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         SnackBar(
           content: Text(
             AppLocalizations.of(context)!.beDetailedOfYourGoal,
-            style: Theme.of(context).textTheme.labelLarge,
+            style: const TextStyle(color: Colors.black),
           ),
         ),
       );
