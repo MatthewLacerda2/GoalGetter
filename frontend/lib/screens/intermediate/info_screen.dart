@@ -24,7 +24,7 @@ class InfoScreen extends StatelessWidget {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.spacing16),
+          padding: const EdgeInsets.all(AppTheme.edgePadding),
           child: Column(
             children: [
               Expanded(

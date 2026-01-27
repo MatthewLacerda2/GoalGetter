@@ -469,7 +469,7 @@ class _LessonScreenState extends State<LessonScreen> {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.spacing16),
+          padding: const EdgeInsets.all(AppTheme.edgePadding),
           child: Column(
             children: [
               Row(
@@ -498,7 +498,7 @@ class _LessonScreenState extends State<LessonScreen> {
               const SizedBox(height: 32),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(AppTheme.spacing16),
+                padding: const EdgeInsets.all(AppTheme.edgePadding),
                 decoration: BoxDecoration(
                   color: AppTheme.textTertiary.withValues(alpha: 0.12),
                   borderRadius:

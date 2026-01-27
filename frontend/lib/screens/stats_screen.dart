@@ -26,7 +26,7 @@ class StatsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Padding(
-        padding: const EdgeInsets.all(AppTheme.spacing12),
+        padding: const EdgeInsets.all(AppTheme.edgePadding),
         child: SingleChildScrollView(
           child: Column(
             children: [

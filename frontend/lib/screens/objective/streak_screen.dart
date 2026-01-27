@@ -197,7 +197,7 @@ class _StreakScreenState extends State<StreakScreen> {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.spacing16),
+          padding: const EdgeInsets.all(AppTheme.edgePadding),
           child: Column(
             children: [
               Expanded(
@@ -249,7 +249,7 @@ class _StreakScreenState extends State<StreakScreen> {
                     Card(
                       color: AppTheme.surfaceVariant,
                       child: Padding(
-                        padding: const EdgeInsets.all(AppTheme.spacing24),
+                        padding: const EdgeInsets.all(AppTheme.edgePadding),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [

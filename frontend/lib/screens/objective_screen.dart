@@ -5,7 +5,7 @@ import 'package:openapi/api.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
 import '../theme/app_theme.dart';
-import '../widgets/info_card.dart';
+import '../widgets/sections/notes_section.dart';
 import '../widgets/screens/objective/lesson_button.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
 
@@ -137,7 +137,9 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           children: [
                             Text(
                               'Error: $_errorMessage',
-                              style: const TextStyle(color: AppTheme.error),
+                              style: TextStyle(
+                                color: AppTheme.error,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: AppTheme.spacing16),
@@ -149,37 +151,21 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         ),
                       )
                     : ListView(
-                        padding: const EdgeInsets.all(AppTheme.spacing12),
+                        padding: const EdgeInsets.all(AppTheme.edgePadding),
                         children: [
-                          const SizedBox(height: AppTheme.spacing12),
+                          const SizedBox(height: AppTheme.elementGap),
                           if (_objectiveName != null)
                             LessonButton(
                               label: AppLocalizations.of(context)!
                                   .startLesson,
                             ),
                           if (_notes != null && _notes!.isNotEmpty) ...[
-                            const SizedBox(height: AppTheme.spacing12),
-                            Text(
-                              '${AppLocalizations.of(context)!.notes}:',
-                              style: const TextStyle(
-                                fontSize: AppTheme.notesHeadingSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: AppTheme.spacing16),
-                            ..._notes!.map(
-                              (note) => Padding(
-                                padding: const EdgeInsets.only(
-                                    bottom: AppTheme.spacing16),
-                                child: InfoCard(
-                                  description: note.info,
-                                  backgroundColor: Colors.transparent,
-                                ),
-                              ),
+                            const SizedBox(height: AppTheme.sectionGap),
+                            NotesSection(
+                              notes: _notes!.map((note) => note.info).toList(),
                             ),
                           ],
-                          const SizedBox(height: AppTheme.spacing24),
+                          const SizedBox(height: AppTheme.sectionGap),
                         ],
                       ),
           ),

@@ -23,20 +23,16 @@ class _TutorialScreenState extends State<TutorialScreen> {
       useScrollView: true,
       titleWidget: Text(
         title,
-        style: const TextStyle(
-          color: AppTheme.accentPrimary,
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-        ),
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppTheme.accentPrimary,
+              fontSize: 28,
+            ),
       ),
       bodyWidget: Container(
         padding: const EdgeInsets.symmetric(horizontal: 28),
         child: Text(
           body,
-          style: const TextStyle(
-            color: AppTheme.textPrimary,
-            fontSize: AppTheme.fontSize18,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge,
           textAlign: TextAlign.center,
         ),
       ),
@@ -88,27 +84,21 @@ class _TutorialScreenState extends State<TutorialScreen> {
         globalBackgroundColor: AppTheme.background,
         skip: Text(
           AppLocalizations.of(context)!.skip,
-          style: const TextStyle(
-            color: AppTheme.accentPrimary,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: AppTheme.accentPrimary,
+              ),
         ),
         next: Text(
           AppLocalizations.of(context)!.next,
-          style: const TextStyle(
-            color: AppTheme.accentPrimary,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: AppTheme.accentPrimary,
+              ),
         ),
         done: Text(
           AppLocalizations.of(context)!.done,
-          style: const TextStyle(
-            color: AppTheme.accentPrimary,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: AppTheme.accentPrimary,
+              ),
         ),
         onSkip: () => _navigateToHome(),
         onDone: () => _navigateToHome(),

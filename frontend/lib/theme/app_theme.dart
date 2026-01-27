@@ -51,13 +51,23 @@ class AppTheme {
   static const double cardPadding = 24;
 
   /// Card / surface border radius. Increased from legacy.
-  static const double cardRadius = 16;
+  static const double cardRadius = 20;
 
   /// Chat bubble corner radius (much rounder).
-  static const double chatBubbleRadius = 20;
+  static const double chatBubbleRadius = 24;
 
   /// Elevation for cards (depth, no borders).
   static const double cardElevation = 2;
+
+  // --- Layout Tokens ---
+  /// Edge padding for page content (margin from phone edge).
+  static const double edgePadding = spacing16;
+
+  /// Gap between major sections.
+  static const double sectionGap = spacing32;
+
+  /// Gap between list items.
+  static const double elementGap = spacing16;
 
   // --- Typography ---
   static const double fontSize12 = 12;
@@ -77,14 +87,14 @@ class AppTheme {
         fontFamily: _fontFamily,
         fontSize: fontSize16,
         fontWeight: FontWeight.normal,
-        color: textPrimary,
+        color: textSecondary,
         height: 1.5,
       ),
       bodyMedium: const TextStyle(
         fontFamily: _fontFamily,
         fontSize: fontSize14,
         fontWeight: FontWeight.normal,
-        color: textPrimary,
+        color: textSecondary,
         height: 1.5,
       ),
       bodySmall: const TextStyle(
@@ -126,6 +136,20 @@ class AppTheme {
         fontSize: fontSize12,
         fontWeight: FontWeight.w500,
         color: textSecondary,
+      ),
+      headlineSmall: const TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: notesHeadingSize,
+        fontWeight: FontWeight.bold,
+        color: textPrimary,
+        height: 1.3,
+      ),
+      headlineMedium: const TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: textPrimary,
+        letterSpacing: 1.2,
       ),
     );
   }
@@ -195,6 +219,7 @@ class AppTheme {
           backgroundColor: accentPrimary,
           foregroundColor: Colors.white,
           elevation: 0,
+          minimumSize: const Size(double.infinity, 56),
           padding: const EdgeInsets.symmetric(
             horizontal: spacing24,
             vertical: spacing16,

@@ -278,7 +278,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
               ),
             )
           : ListView.builder(
-              padding: const EdgeInsets.all(AppTheme.spacing16),
+              padding: const EdgeInsets.all(AppTheme.edgePadding),
               itemCount: _goals.length,
               itemBuilder: (context, index) {
                 final goal = _goals[index];
@@ -308,7 +308,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.accentSecondary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.all(AppTheme.spacing16),
+                        padding: const EdgeInsets.all(AppTheme.edgePadding),
                         alignment: Alignment.centerLeft,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(

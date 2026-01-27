@@ -417,7 +417,7 @@ class _TutorScreenState extends State<TutorScreen> {
         children: [
           if (_isLoadingMore)
             Container(
-              padding: const EdgeInsets.all(AppTheme.spacing8),
+              padding: const EdgeInsets.all(AppTheme.edgePadding),
               child: Center(
                 child: CircularProgressIndicator(
                   color: AppTheme.accentPrimary,

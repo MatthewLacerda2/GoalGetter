@@ -121,57 +121,45 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.spacing16),
+        padding: const EdgeInsets.all(AppTheme.edgePadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Goal title
             Text(
               widget.plan.goalName,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppTheme.accentPrimary,
+                  ),
             ),
             const SizedBox(height: 8),
             // Goal description
             Text(
               widget.plan.goalDescription,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[400], // dark grey-ish
-                height: 1.6,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    height: 1.6,
+                  ),
             ),
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.firstObjective,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             // First objective
             Text(
               widget.plan.firstObjectiveName,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppTheme.accentPrimary,
+                  ),
             ),
             const SizedBox(height: 6),
             Text(
               widget.plan.firstObjectiveDescription,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-                height: 1.6,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    height: 1.6,
+                  ),
             ),
             const SizedBox(height: 20),
             Divider(color: Colors.grey[500]),
@@ -201,11 +189,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
             Center(
               child: Text(
                 AppLocalizations.of(context)!.confirmQuestion,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
             const SizedBox(height: 12),
@@ -268,11 +252,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                           )
                         : Text(
                             AppLocalizations.of(context)!.yes,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: AppTheme.fontSize18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                   ),
                 ),

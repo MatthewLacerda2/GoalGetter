@@ -100,7 +100,7 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
                       ),
                     )
                   : Padding(
-                      padding: const EdgeInsets.all(AppTheme.spacing16),
+                      padding: const EdgeInsets.all(AppTheme.edgePadding),
                       child: ListView.builder(
                         itemCount: _goals.length,
                         itemBuilder: (context, index) {

@@ -53,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(AppTheme.spacing12),
+        padding: const EdgeInsets.all(AppTheme.edgePadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,10 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   '${AppLocalizations.of(context)!.language}:',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(width: AppTheme.spacing12),
                 _buildLanguageButton(
@@ -200,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.labelLarge,
         ),
         trailing: const Icon(
           Icons.chevron_right,
@@ -230,7 +227,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Text(
           AppLocalizations.of(context)!.signOut,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
         ),
       ),
     );
