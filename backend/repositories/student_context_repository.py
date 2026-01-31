@@ -129,6 +129,10 @@ class StudentContextRepository(BaseRepository[StudentContext]):
                 LIMIT 1
             )
         """)
+
+        #levenshtein has a 255 character limit
+        state = state[:250]
+        metacognition = metacognition[:250]
         
         result = await self.db.execute(query, {
             "student_id": student_id,

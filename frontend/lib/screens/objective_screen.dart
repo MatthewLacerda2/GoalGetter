@@ -8,6 +8,8 @@ import '../theme/app_theme.dart';
 import '../widgets/screens/objective/lesson_button.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
 
+//TODO: put notes back (only one, they rotate after some time)
+
 class ObjectiveScreen extends StatefulWidget {
   const ObjectiveScreen({super.key});
 
