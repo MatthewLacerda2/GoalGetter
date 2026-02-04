@@ -4,6 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 from backend.services.mastery_evaluation_job import run_mastery_evaluation_job
 from backend.services.chat_context_job import run_chat_context_job
 from backend.services.lesson_context_job import run_lesson_context_job
+from backend.services.lesson_creation_job import run_lesson_creation_job
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +13,14 @@ scheduler = AsyncIOScheduler()
 
 def setup_scheduler_jobs() -> None:
 
-    #TODO: Add a job to generate the lessons
+    scheduler.add_job(
+        run_lesson_creation_job,
+        trigger=CronTrigger(hour=4, minute=30),
+        id="lesson_creation_job",
+        name="Daily Lesson Creation Job",
+        replace_existing=True,
+        max_instances=1
+    )
 
     scheduler.add_job(
         run_lesson_context_job,
