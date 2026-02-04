@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import selectinload
-from sqlalchemy import select, and_, desc, case
+from sqlalchemy import select, and_, or_, desc, case
 from backend.models.student_context import StudentContext
 from backend.repositories.base import BaseRepository
 
@@ -107,37 +107,20 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
     
-    async def is_too_similar(self, student_id: str, state: str, metacognition: str, threshold: float = 0.85) -> bool:
-        from sqlalchemy import text
+    async def is_too_similar(self, student_id: str, state: str, metacognition: str) -> bool:
         """
-        Checks if the new state or metacognition is too similar to existing valid records.
-        Formula: 1 - (levenshtein / max_length)
+        Checks if the new state or metacognition is identical to existing valid records.
         """
-        if len(state) < 30 and len(metacognition) < 30:
-            return False
-
-        query = text("""
-            SELECT EXISTS (
-                SELECT 1 FROM student_contexts
-                WHERE student_id = :student_id
-                AND is_still_valid = True
-                AND (
-                    (length(state) >= 30 AND (1.0 - (levenshtein(state, :state)::float / GREATEST(length(state), length(:state)))) > :threshold)
-                    OR
-                    (length(metacognition) >= 30 AND (1.0 - (levenshtein(metacognition, :metacognition)::float / GREATEST(length(metacognition), length(:metacognition)))) > :threshold)
+        stmt = select(StudentContext.id).where(
+            and_(
+                StudentContext.student_id == student_id,
+                StudentContext.is_still_valid == True,
+                or_(
+                    and_(StudentContext.state == state, state != ""),
+                    and_(StudentContext.metacognition == metacognition, metacognition != "")
                 )
-                LIMIT 1
             )
-        """)
-
-        #levenshtein has a 255 character limit
-        state = state[:250]
-        metacognition = metacognition[:250]
+        ).limit(1)
         
-        result = await self.db.execute(query, {
-            "student_id": student_id,
-            "state": state,
-            "metacognition": metacognition,
-            "threshold": threshold
-        })
-        return result.scalar()
+        result = await self.db.execute(stmt)
+        return result.scalar() is not None
