@@ -1,5 +1,6 @@
+from datetime import datetime
 from typing import Optional, Tuple, List
-from sqlalchemy import select, and_, desc
+from sqlalchemy import select, and_, desc, func
 from sqlalchemy.orm import joinedload
 from backend.repositories.base import BaseRepository
 from backend.models.multiple_choice_question import MultipleChoiceAnswer, MultipleChoiceQuestion
@@ -61,6 +62,30 @@ class MultipleChoiceAnswerRepository(BaseRepository[MultipleChoiceAnswer]):
         accuracy = (correct_count / len(answers)) * 100.0 if answers else 0.0
         
         return answers, accuracy
+
+    async def get_accuracy_by_date_range(self, student_id: str, start_date: datetime, end_date: datetime) -> float:
+        """Calculate accuracy for a student within a date range."""
+        stmt = select(MultipleChoiceAnswer).options(
+            joinedload(MultipleChoiceAnswer.question)
+        ).where(
+            and_(
+                MultipleChoiceAnswer.student_id == student_id,
+                MultipleChoiceAnswer.created_at >= start_date,
+                MultipleChoiceAnswer.created_at <= end_date
+            )
+        )
+        result = await self.db.execute(stmt)
+        answers = list(result.unique().scalars().all())
+        
+        if not answers:
+            return 0.0
+        
+        correct_count = 0
+        for answer in answers:
+            if answer.question and answer.student_answer_index == answer.question.correct_answer_index:
+                correct_count += 1
+        
+        return (correct_count / len(answers)) * 100.0
     
     async def update(self, entity: MultipleChoiceAnswer) -> MultipleChoiceAnswer:
         await self.db.flush()

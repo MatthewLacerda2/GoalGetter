@@ -5,9 +5,10 @@ import 'package:openapi/api.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
 import '../theme/app_theme.dart';
-import '../widgets/sections/notes_section.dart';
 import '../widgets/screens/objective/lesson_button.dart';
 import '../widgets/screens/objective/objective_tab_header.dart';
+
+//TODO: put notes back (only one, they rotate after some time)
 
 class ObjectiveScreen extends StatefulWidget {
   const ObjectiveScreen({super.key});
@@ -131,43 +132,33 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                     ),
                   )
                 : _errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Error: $_errorMessage',
-                              style: TextStyle(
-                                color: AppTheme.error,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: AppTheme.spacing16),
-                            ElevatedButton(
-                              onPressed: _fetchData,
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Error: $_errorMessage',
+                          style: TextStyle(color: AppTheme.error),
+                          textAlign: TextAlign.center,
                         ),
-                      )
-                    : ListView(
-                        padding: const EdgeInsets.all(AppTheme.edgePadding),
-                        children: [
-                          const SizedBox(height: AppTheme.elementGap),
-                          if (_objectiveName != null)
-                            LessonButton(
-                              label: AppLocalizations.of(context)!
-                                  .startLesson,
-                            ),
-                          if (_notes != null && _notes!.isNotEmpty) ...[
-                            const SizedBox(height: AppTheme.sectionGap),
-                            NotesSection(
-                              notes: _notes!.map((note) => note.info).toList(),
-                            ),
-                          ],
-                          const SizedBox(height: AppTheme.sectionGap),
-                        ],
-                      ),
+                        const SizedBox(height: AppTheme.spacing16),
+                        ElevatedButton(
+                          onPressed: _fetchData,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView(
+                    padding: const EdgeInsets.all(AppTheme.edgePadding),
+                    children: [
+                      const SizedBox(height: AppTheme.elementGap),
+                      if (_objectiveName != null)
+                        LessonButton(
+                          label: AppLocalizations.of(context)!.startLesson,
+                        ),
+                    ],
+                  ),
           ),
         ],
       ),
