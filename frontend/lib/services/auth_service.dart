@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,8 +41,14 @@ class AuthService {
       await _ensureInitialized();
       developer.log('Starting Google Sign-In...');
 
-      final GoogleSignInAccount googleUser = await GoogleSignIn.instance
-          .authenticate(scopeHint: _scopes);
+      final GoogleSignInAccount? googleUser = kIsWeb
+          ? await GoogleSignIn.instance.signIn()
+          : await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
+
+      if (googleUser == null) {
+        developer.log('Google user is null (cancelled)');
+        return null;
+      }
 
       developer.log('Google user: ${googleUser.email}');
       final GoogleSignInAuthentication googleAuth =
