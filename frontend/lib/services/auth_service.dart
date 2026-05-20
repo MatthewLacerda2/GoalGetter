@@ -34,6 +34,11 @@ class AuthService {
     }
   }
 
+  // Public method to ensure GoogleSignIn is initialized (needed for Web button rendering)
+  Future<void> ensureInitialized() async {
+    await _ensureInitialized();
+  }
+
   // Sign in with Google and return the ID token or access token
   Future<Map<String, dynamic>?> signInWithGoogle() async {
     developer.log("EA SPORTS, its in the game");
@@ -41,9 +46,12 @@ class AuthService {
       await _ensureInitialized();
       developer.log('Starting Google Sign-In...');
 
-      final GoogleSignInAccount? googleUser = kIsWeb
-          ? await GoogleSignIn.instance.signIn()
-          : await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
+      if (kIsWeb) {
+        throw UnsupportedError('Programmatic sign-in is not supported on Web. Use the Google sign-in button instead.');
+      }
+
+      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance
+          .authenticate(scopeHint: _scopes);
 
       if (googleUser == null) {
         developer.log('Google user is null (cancelled)');
@@ -116,6 +124,70 @@ class AuthService {
       rethrow;
     } catch (error) {
       developer.log('Error signing in to your app with Google: $error');
+      rethrow;
+    }
+  }
+
+  // Handle GoogleSignInAccount directly (e.g. from the stream on Web)
+  Future<Map<String, dynamic>?> handleGoogleSignInAccount(GoogleSignInAccount? googleUser) async {
+    try {
+      if (googleUser == null) {
+        developer.log('Google user is null');
+        return null;
+      }
+
+      developer.log('Google user: ${googleUser.email}');
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      developer.log(
+        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
+      );
+
+      final String? idToken = googleAuth.idToken;
+
+      // Get access token via authorization client as fallback
+      String? accessToken;
+      try {
+        final authorization = await googleUser.authorizationClient
+            .authorizeScopes(_scopes);
+        accessToken = authorization.accessToken;
+        developer.log('Access Token: Present');
+      } catch (e) {
+        developer.log('Failed to get access token: $e');
+        // Try to get existing authorization without prompting
+        final existingAuth = await googleUser.authorizationClient
+            .authorizationForScopes(_scopes);
+        accessToken = existingAuth?.accessToken;
+        developer.log(
+          'Access Token (existing): ${accessToken != null ? "Present" : "NULL"}',
+        );
+      }
+
+      final String? tokenToUse = idToken ?? accessToken;
+
+      if (tokenToUse == null) {
+        developer.log('Both ID token and access token are null');
+        throw Exception(
+          'Failed to get token from Google. Please try signing in again.',
+        );
+      }
+
+      // Store token temporarily and persistently
+      _tempGoogleToken = tokenToUse;
+      await storeGoogleToken(tokenToUse);
+
+      _tempUserInfo = {
+        'sub': googleUser.id,
+        'email': googleUser.email,
+        'name': googleUser.displayName,
+        'picture': googleUser.photoUrl,
+      };
+
+      developer.log('Successfully authenticated user: ${googleUser.email}');
+      return {'token': tokenToUse, 'user': _tempUserInfo};
+    } catch (error) {
+      developer.log('Error handling Google sign-in account: $error');
       rethrow;
     }
   }
