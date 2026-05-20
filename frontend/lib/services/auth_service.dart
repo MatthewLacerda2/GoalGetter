@@ -17,8 +17,7 @@ class AuthService {
   static const String _googleTokenKey = 'google_token';
 
   // Google Sign-In client ID
-  static const String _clientId =
-      "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com";
+  static const String _clientId = AppConfig.googleClientId;
 
   // Scopes for Google Sign-In
   static const List<String> _scopes = ['email', 'profile', 'openid'];

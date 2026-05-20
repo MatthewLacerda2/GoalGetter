@@ -19,7 +19,7 @@ def gemini_progress_evaluation(
 ) -> GeminiProgressEvaluationResponse:
 
     client = get_client()
-    model = "gemini-3-flash-preview"
+    model = GEMINI_AI_MODEL
     config = get_gemini_config(GeminiProgressEvaluation.model_json_schema())
 
     full_prompt = get_progress_evaluation_prompt(

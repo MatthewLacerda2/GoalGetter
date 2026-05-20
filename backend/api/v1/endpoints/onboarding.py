@@ -15,6 +15,7 @@ from backend.services.gemini.onboarding.goal_validation import get_prompt_valida
 from backend.schemas.student import TokenResponse, StudentResponse
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalCreationFollowUpQuestionsResponse, GoalStudyPlanRequest, GoalStudyPlanResponse, GoalFullCreationRequest
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
+from backend.utils.envs import GEMINI_AI_MODEL
 from backend.services.account_creation_tasks import account_creation_tasks
 
 router = APIRouter()
@@ -128,7 +129,7 @@ async def generate_full_creation(
             goal_id=goal_id,
             name=request.first_objective_name,
             description=request.first_objective_description,
-            ai_model="gemini-3-flash-preview"
+            ai_model=GEMINI_AI_MODEL
         )
         
         db.add(objective)

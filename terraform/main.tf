@@ -2,52 +2,26 @@ terraform {
   required_version = ">= 1.0"
   
   required_providers {
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 4.0"
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
     }
   }
 }
 
-provider "cloudflare" {
-  api_token = var.cloudflare_api_token
+provider "google" {
+  # Uses your local authenticated gcloud credentials automatically
 }
 
-# Create a Cloudflare Tunnel
-resource "cloudflare_tunnel" "goalgetter_tunnel" {
-  account_id = var.cloudflare_account_id
-  name       = var.tunnel_name
+resource "google_project" "goalgetter_project" {
+  name            = "GoalGetter AI Tutor"
+  project_id      = var.project_id
+  billing_account = var.billing_account
 }
 
-# Create tunnel configuration (route)
-resource "cloudflare_tunnel_config" "goalgetter_tunnel_config" {
-  account_id = var.cloudflare_account_id
-  tunnel_id  = cloudflare_tunnel.goalgetter_tunnel.id
+resource "google_project_service" "generativelanguage" {
+  project = google_project.goalgetter_project.project_id
+  service = "generativelanguage.googleapis.com"
 
-  config {
-    ingress_rule {
-      hostname = var.subdomain == "@" ? var.domain : "${var.subdomain}.${var.domain}"
-      service  = "http://frontend:80"
-    }
-
-    # Catch-all rule - must be last
-    ingress_rule {
-      service = "http_status:404"
-    }
-  }
-}
-
-# Create DNS CNAME record pointing to the tunnel
-resource "cloudflare_record" "tunnel_dns" {
-  zone_id = data.cloudflare_zone.domain.id
-  name    = var.subdomain == "@" ? var.domain : var.subdomain
-  value   = "${cloudflare_tunnel.goalgetter_tunnel.id}.cfargotunnel.com"
-  type    = "CNAME"
-  proxied = true
-  comment = "Cloudflare Tunnel for GoalGetter"
-}
-
-# Get the zone ID for the domain
-data "cloudflare_zone" "domain" {
-  name = var.domain
+  disable_on_destroy = false
 }

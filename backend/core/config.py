@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str
     GOOGLE_REDIRECT_URI: str
     SECRET_KEY: str
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_PROJECT_ID: str
     
     DATABASE_URL: str
     TEST_DATABASE_URL: str | None = None  # Optional, only needed for tests
