@@ -32,7 +32,7 @@ async def test_generate_follow_up_questions_success(client, mock_google_verify, 
     assert isinstance(validated_response, GoalCreationFollowUpQuestionsResponse)
 
 @pytest.mark.asyncio
-async def test_generate_study_plan_success(client, mock_google_verify, mock_gemini_study_plan, mock_gemini_follow_up_validation, mock_gemini_embeddings, test_db):
+async def test_generate_study_plan_success(client, mock_google_verify, mock_gemini_study_plan, mock_gemini_follow_up_validation, test_db):
     """Test that the onboarding generate study plan endpoint returns a valid response for a valid request."""
     from backend.models.student import Student
     
@@ -62,7 +62,7 @@ async def test_generate_study_plan_success(client, mock_google_verify, mock_gemi
     assert isinstance(validated_response, GoalStudyPlanResponse)
 
 @pytest.mark.asyncio
-async def test_generate_full_creation_success(client, mock_google_verify, mock_gemini_embeddings, test_db):
+async def test_generate_full_creation_success(client, mock_google_verify, test_db):
     """Test that the onboarding generate full creation endpoint returns a valid response for a valid request."""
     from backend.models.student import Student
     
@@ -104,7 +104,7 @@ async def test_generate_full_creation_invalid_token(client, mock_google_verify):
     assert response.json()["detail"] == "Invalid Google token"
 
 @pytest.mark.asyncio
-async def test_generate_full_creation_existing_user(client, mock_google_verify, mock_gemini_embeddings, test_db):
+async def test_generate_full_creation_existing_user(client, mock_google_verify, test_db):
     """Test full creation with existing user - should allow adding new goals"""
     from backend.models.student import Student
     
@@ -156,3 +156,57 @@ async def test_generate_full_creation_missing_token(client):
     )
     
     assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_generate_follow_up_questions_validation_failure(client, mock_google_verify, mock_gemini_prompt_validation):
+    """Test onboarding initiation validation failure returns 400 with reasoning"""
+    from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest
+    from backend.services.gemini.onboarding.schema import GeminiGoalValidation
+    
+    mock_gemini_prompt_validation.side_effect = lambda *args, **kwargs: GeminiGoalValidation(
+        makes_sense=False,
+        is_harmless=True,
+        is_achievable=True,
+        reasoning="Harmful or invalid prompt details"
+    )
+    
+    follow_up_questions_request = GoalCreationFollowUpQuestionsRequest(
+        prompt="Harmful/invalid goal prompt"
+    )
+    
+    response = await client.post(
+        "/api/v1/onboarding/follow_up_questions",
+        headers={"Authorization": "Bearer valid_google_token"},
+        json=follow_up_questions_request.model_dump(),
+    )
+    
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Harmful or invalid prompt details"
+
+@pytest.mark.asyncio
+async def test_generate_study_plan_validation_failure(client, mock_google_verify, mock_gemini_follow_up_validation):
+    """Test onboarding study plan validation failure returns 400 with reasoning"""
+    from backend.schemas.goal import GoalStudyPlanRequest, GoalFollowUpQuestionAndAnswer
+    from backend.services.gemini.onboarding.schema import GeminiFollowUpValidation
+    
+    mock_gemini_follow_up_validation.side_effect = lambda *args, **kwargs: GeminiFollowUpValidation(
+        has_enough_information=True,
+        makes_sense=False,
+        is_harmless=True,
+        is_achievable=True,
+        reasoning="Unachievable or nonsensical study plan prompt"
+    )
+    
+    study_plan_request = GoalStudyPlanRequest(
+        prompt="Nonsensical prompt",
+        questions_answers=[GoalFollowUpQuestionAndAnswer(question="Question", answer="Answer")]
+    )
+    
+    response = await client.post(
+        "/api/v1/onboarding/study_plan",
+        headers={"Authorization": "Bearer valid_google_token"},
+        json=study_plan_request.model_dump()
+    )
+    
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Unachievable or nonsensical study plan prompt"

@@ -1,8 +1,31 @@
 import pytest
 import numpy as np
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalStudyPlanResponse
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_gemini_client():
+    """Global session-level fixture to mock google.genai.Client to prevent any real API calls."""
+    mock_client_instance = MagicMock()
+    
+    # Configure embed_content to return zero embeddings by default
+    mock_embed_response = MagicMock()
+    mock_embedding = MagicMock()
+    mock_embedding.values = [0.0] * 3072
+    mock_embed_response.embeddings = [mock_embedding]
+    mock_client_instance.models.embed_content.return_value = mock_embed_response
+    
+    # Configure generate_content to return a mock response that raises if called unmocked
+    def mock_generate_content(*args, **kwargs):
+        raise RuntimeError(
+            "Attempted to make a real Gemini API generate_content call in a test without a mock! "
+            "Please use mock_gemini_study_plan, mock_gemini_follow_up_questions, or other mocked fixtures."
+        )
+    mock_client_instance.models.generate_content.side_effect = mock_generate_content
+    
+    with patch('google.genai.Client', return_value=mock_client_instance) as mock_class:
+        yield mock_class
 
 @pytest.fixture
 def mock_gemini_follow_up_questions():

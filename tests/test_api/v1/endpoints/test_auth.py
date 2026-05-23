@@ -19,7 +19,7 @@ async def test_login_successful(client, test_user, mock_google_verify):
     assert token_response.student.google_id == test_user.google_id
 
 @pytest.mark.asyncio
-async def test_login_nonexistent_user(client, mock_google_verify, test_db):
+async def test_login_nonexistent_user(client, mock_google_verify):
     """Test login attempt with Google account that hasn't signed up"""
     
     mock_google_verify.return_value = {
@@ -98,7 +98,7 @@ async def test_delete_account_invalid_token(client):
 
 
 @pytest.mark.asyncio
-async def test_signup_new_user(client, mock_google_verify, test_db):
+async def test_signup_new_user(client, mock_google_verify):
     """Test signing up a new user with a valid Google token"""
     
     mock_google_verify.side_effect = lambda token, request, client_id: {
@@ -123,7 +123,7 @@ async def test_signup_new_user(client, mock_google_verify, test_db):
 
 
 @pytest.mark.asyncio
-async def test_signup_existing_user(client, mock_google_verify, test_user, test_db):
+async def test_signup_existing_user(client, mock_google_verify, test_user):
     """Test signing up with an existing Google account (login behavior)"""
     
     mock_google_verify.side_effect = lambda token, request, client_id: {

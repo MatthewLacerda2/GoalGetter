@@ -107,7 +107,7 @@ async def test_like_message_unauthorized(client):
     assert response.status_code == 403
     
 @pytest.mark.asyncio
-async def test_like_message_not_found(authenticated_client, test_db, test_user):
+async def test_like_message_not_found(authenticated_client):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
     client, access_token = authenticated_client
@@ -194,7 +194,7 @@ async def test_edit_message_unauthorized(client):
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_edit_message_not_found(authenticated_client, test_user):
+async def test_edit_message_not_found(authenticated_client):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
     client, access_token = authenticated_client
@@ -247,7 +247,7 @@ async def test_delete_message_unauthorized(client):
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_delete_message_not_found(authenticated_client, test_user):
+async def test_delete_message_not_found(authenticated_client):
     """Test that the chat messages endpoint returns 404 if the message is not found."""
     
     client, access_token = authenticated_client
@@ -261,7 +261,7 @@ async def test_delete_message_not_found(authenticated_client, test_user):
     assert response.json()["detail"] == "Message not found"
 
 @pytest.mark.asyncio
-async def test_create_message(authenticated_client, test_user, mock_gemini_messages_generator, mock_gemini_embeddings):
+async def test_create_message(authenticated_client, mock_gemini_messages_generator):
     """Test that the chat messages endpoint returns a valid response for a valid request."""
     
     client, access_token = authenticated_client
