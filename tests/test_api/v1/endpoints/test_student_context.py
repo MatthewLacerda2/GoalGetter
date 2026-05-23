@@ -33,10 +33,10 @@ def create_student_contexts(student_id, goal_id, objective_id, count=3):
     return contexts
 
 @pytest.mark.asyncio
-async def test_get_student_contexts_successful(authenticated_client_with_objective, test_db, test_user):
+async def test_get_student_contexts_successful(authenticated_client, test_db, test_user):
     """Test that get student contexts endpoint returns a valid response"""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     contexts = create_student_contexts(
         test_user.id,
@@ -91,10 +91,10 @@ async def test_get_student_contexts_no_objective(authenticated_client, test_db, 
     assert len(context_response.contexts) == 0
 
 @pytest.mark.asyncio
-async def test_create_student_context_successful(authenticated_client_with_objective, test_db, test_user):
+async def test_create_student_context_successful(authenticated_client, test_db, test_user):
     """Test that create student context endpoint returns a valid response"""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     payload = CreateStudentContextRequest(context="This is a test context")
     
@@ -159,10 +159,10 @@ async def test_create_student_context_no_goal(authenticated_client, test_db, tes
     assert "active goal" in response.json()["detail"].lower()
 
 @pytest.mark.asyncio
-async def test_delete_student_context_successful(authenticated_client_with_objective, test_db, test_user):
+async def test_delete_student_context_successful(authenticated_client, test_db, test_user):
     """Test that delete student context endpoint deletes the context"""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     contexts = create_student_contexts(
         test_user.id,
@@ -203,10 +203,10 @@ async def test_delete_student_context_unauthorized(client):
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_delete_student_context_not_found(authenticated_client_with_objective, test_user):
+async def test_delete_student_context_not_found(authenticated_client, test_user):
     """Test that delete student context endpoint returns 404 for non-existent context"""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     fake_id = str(uuid.uuid4())
     
@@ -219,10 +219,10 @@ async def test_delete_student_context_not_found(authenticated_client_with_object
     assert "not found" in response.json()["detail"].lower()
 
 @pytest.mark.asyncio
-async def test_delete_student_context_forbidden(authenticated_client_with_objective, test_db, test_user):
+async def test_delete_student_context_forbidden(authenticated_client, test_db, test_user):
     """Test that delete student context endpoint returns 403 for context owned by another student"""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     # Create another student with a goal and objective
     other_student = Student(

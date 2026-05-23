@@ -2,6 +2,7 @@ from google.genai.types import GenerateContentResponse
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.chat.prompt import chat_system_prompt
 from backend.services.gemini.chat.schema import StudentContextToChat, GeminiChatMessage, GeminiChatResponse
+from backend.utils.envs import GEMINI_AI_MODEL
 
 def gemini_messages_generator(
     messages: list[GeminiChatMessage], contexts: list[StudentContextToChat], objective_name: str, objective_description: str, goal_name: str

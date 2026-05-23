@@ -30,14 +30,28 @@ def mock_gemini_study_plan():
     with patch('backend.api.v1.endpoints.onboarding.get_gemini_study_plan', side_effect=mock_get_gemini_study_plan) as mock:
         yield mock
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_gemini_embeddings():
-    """Fixture to mock Gemini embeddings responses"""
+    """Fixture to mock Gemini embeddings responses. Uses autouse to prevent real API calls."""
     def mock_get_gemini_embeddings(text):
         return np.zeros(3072, dtype=np.float32)
 
-    with patch('backend.utils.gemini.gemini_configs.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
-        yield mock
+    patch_targets = [
+        'backend.utils.gemini.gemini_configs.get_gemini_embeddings',
+        'backend.api.v1.endpoints.onboarding.get_gemini_embeddings',
+        'backend.services.chat.chat_service.get_gemini_embeddings',
+        'backend.services.account_creation_tasks.get_gemini_embeddings',
+        'backend.services.chat_context_job.get_gemini_embeddings',
+        'backend.services.gemini.resources.search_resources.get_gemini_embeddings',
+        'backend.services.lesson_context_job.get_gemini_embeddings',
+        'backend.services.mastery_evaluation_job.get_gemini_embeddings',
+    ]
+
+    patchers = [patch(target, side_effect=mock_get_gemini_embeddings) for target in patch_targets]
+    mocks = [p.start() for p in patchers]
+    yield mocks[0]
+    for p in patchers:
+        p.stop()
 
 @pytest.fixture
 def mock_gemini_multiple_choice_questions():
@@ -121,26 +135,3 @@ def mock_gemini_follow_up_validation():
     ) as mock:
         yield mock
 
-@pytest.fixture
-def mock_subjective_question_repository():
-    """Fixture to mock SubjectiveQuestionRepository.get_by_id"""
-    from backend.models.subjective_question import SubjectiveQuestion
-    
-    def mock_get_by_id(question_id: str):
-        # Return a mock question object
-        question = SubjectiveQuestion()
-        question.id = question_id
-        question.question = "A Question"
-        question.ai_model = "test-model"
-        question.llm_approval = None
-        question.llm_evaluation = None
-        question.llm_metacognition = None
-        question.seconds_spent = None
-        question.llm_metacognition_embedding = None
-        return question
-    
-    with patch(
-        'backend.repositories.subjective_question_repository.SubjectiveQuestionRepository.get_by_id',
-        side_effect=mock_get_by_id,
-    ) as mock:
-        yield mock

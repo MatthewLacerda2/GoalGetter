@@ -33,14 +33,14 @@ async def test_get_leaderboard_invalid_token(client, mock_google_verify):
     """Test that the leaderboard endpoint returns 401 with invalid token."""
     mock_google_verify.side_effect = Exception("Invalid token")
     
-    response = await client.post("/api/v1/activities", headers={"Authorization": "Bearer invalid_token"})
+    response = await client.get("/api/v1/achievements/leaderboard", headers={"Authorization": "Bearer invalid_token"})
     assert response.status_code == 401
 
 @pytest.mark.asyncio
-async def test_get_leaderboard_with_student(authenticated_client_with_objective):
+async def test_get_leaderboard_with_student(authenticated_client):
     """Test getting the leaderboard with a student"""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     response = await client.get(f"/api/v1/achievements/leaderboard", headers={"Authorization": f"Bearer {access_token}"})
     
@@ -50,10 +50,10 @@ async def test_get_leaderboard_with_student(authenticated_client_with_objective)
     assert isinstance(response_data, LeaderboardResponse)
 
 @pytest.mark.asyncio
-async def test_get_student_daily_xps(authenticated_client_with_objective):
+async def test_get_student_daily_xps(authenticated_client):
     """Test getting the student's xp for an N number of days"""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     response = await client.get(f"/api/v1/achievements/xp_by_days", headers={"Authorization": f"Bearer {access_token}"})
     
@@ -61,3 +61,10 @@ async def test_get_student_daily_xps(authenticated_client_with_objective):
     
     assert response.status_code == 200
     assert isinstance(response_data, XpByDaysResponse)
+
+
+@pytest.mark.asyncio
+async def test_get_student_daily_xps_unauthorized(client):
+    """Test that getting daily XP without auth header returns 403"""
+    response = await client.get("/api/v1/achievements/xp_by_days")
+    assert response.status_code == 403
