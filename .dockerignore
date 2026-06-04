@@ -33,6 +33,7 @@ terraform/
 
 # Test files
 **/test/
+**/tests/
 **/coverage/
 
 # Generated files

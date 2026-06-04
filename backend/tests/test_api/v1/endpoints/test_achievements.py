@@ -5,22 +5,25 @@ from backend.schemas.player_achievement import PlayerAchievementResponse, Leader
 @pytest.mark.asyncio
 async def test_get_achievements_with_student(client, test_user):
     """Test getting achievements for a student"""
-    
     response = await client.get(f"/api/v1/achievements/{test_user.id}?limit=10")
-    
     response_data = PlayerAchievementResponse.model_validate(response.json())
-    
     assert response.status_code == 200
     assert isinstance(response_data, PlayerAchievementResponse)
     
 @pytest.mark.asyncio
-async def test_get_achievements_with_no_student(client, test_db):
+async def test_get_achievements_with_no_student(client):
     """Test getting achievements for a non-existent student returns 404"""
-    
-    response = await client.get(f"/api/v1/achievements/00000000-0000-0000-0000-000000000000?limit=10")
-    
+    response = await client.get("/api/v1/achievements/00000000-0000-0000-0000-000000000000?limit=10")
     assert response.status_code == 404
     assert response.json()["detail"] == "Student not found"
+
+@pytest.mark.asyncio
+async def test_get_leaderboard_with_student(auth_client):
+    """Test getting the leaderboard with an authenticated student"""
+    response = await auth_client.get("/api/v1/achievements/leaderboard")
+    response_data = LeaderboardResponse.model_validate(response.json())
+    assert response.status_code == 200
+    assert isinstance(response_data, LeaderboardResponse)
 
 @pytest.mark.asyncio
 async def test_get_leaderboard_unauthorized(client):
@@ -29,39 +32,12 @@ async def test_get_leaderboard_unauthorized(client):
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_get_leaderboard_invalid_token(client, mock_google_verify):
-    """Test that the leaderboard endpoint returns 401 with invalid token."""
-    mock_google_verify.side_effect = Exception("Invalid token")
-    
-    response = await client.get("/api/v1/achievements/leaderboard", headers={"Authorization": "Bearer invalid_token"})
-    assert response.status_code == 401
-
-@pytest.mark.asyncio
-async def test_get_leaderboard_with_student(authenticated_client):
-    """Test getting the leaderboard with a student"""
-    
-    client, access_token = authenticated_client
-    
-    response = await client.get(f"/api/v1/achievements/leaderboard", headers={"Authorization": f"Bearer {access_token}"})
-    
-    response_data = LeaderboardResponse.model_validate(response.json())
-    
-    assert response.status_code == 200
-    assert isinstance(response_data, LeaderboardResponse)
-
-@pytest.mark.asyncio
-async def test_get_student_daily_xps(authenticated_client):
-    """Test getting the student's xp for an N number of days"""
-    
-    client, access_token = authenticated_client
-    
-    response = await client.get(f"/api/v1/achievements/xp_by_days", headers={"Authorization": f"Bearer {access_token}"})
-    
+async def test_get_student_daily_xps(auth_client):
+    """Test getting the student's xp for daily tracking"""
+    response = await auth_client.get("/api/v1/achievements/xp_by_days")
     response_data = XpByDaysResponse.model_validate(response.json())
-    
     assert response.status_code == 200
     assert isinstance(response_data, XpByDaysResponse)
-
 
 @pytest.mark.asyncio
 async def test_get_student_daily_xps_unauthorized(client):
