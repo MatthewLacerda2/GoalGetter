@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy code (this invalidates cache when code changes, not dependencies)
 COPY backend/ ./backend/
-COPY tests/ ./tests/
+
 
 EXPOSE 8000
 
