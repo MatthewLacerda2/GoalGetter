@@ -8,8 +8,9 @@ from backend.core.config import settings
 NUM_QUESTIONS_PER_LESSON = 12 #TODO: deprecated
 NUM_QUESTIONS_PER_EVALUATION = 8
 NUM_DIMENSIONS = 3072
-EMBEDDING_MODEL = "gemini-embedding-002"
-GEMINI_AI_MODEL = "gemini-3.1-flash-lite"
+EMBEDDING_MODEL = "gemini-embedding-2"
+GEMINI_FAST_MODEL = "gemini-3.1-flash-lite"
+GEMINI_PREMIUM_MODEL = "gemini-3.5-flash"
 GOOGLE_PROJECT_ID = settings.GOOGLE_PROJECT_ID
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
 

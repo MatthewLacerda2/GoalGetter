@@ -7,6 +7,7 @@ from backend.services.gemini.chat_context.schema import (
     GeminiChatContextResponse,
 )
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_FAST_MODEL
 
 
 def gemini_chat_context(
@@ -32,7 +33,7 @@ def gemini_chat_context(
         GeminiChatContextResponse with state[], metacognition[], and ai_model
     """
     client = get_client()
-    model = GEMINI_AI_MODEL
+    model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiChatContext.model_json_schema())
 
     full_prompt = get_chat_context_prompt(

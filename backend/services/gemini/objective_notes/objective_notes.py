@@ -1,4 +1,5 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_FAST_MODEL
 from backend.services.gemini.objective_notes.schema import GeminiObjectiveNotesList, GeminiObjectiveNotesResponse
 from backend.services.gemini.objective_notes.prompt import get_define_objective_notes_prompt
 
@@ -7,7 +8,7 @@ def gemini_define_objective_notes(
 ) -> GeminiObjectiveNotesResponse:
     
     client = get_client()
-    model = GEMINI_AI_MODEL
+    model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiObjectiveNotesList.model_json_schema())
     full_prompt = get_define_objective_notes_prompt(objective_name, objective_description)
     

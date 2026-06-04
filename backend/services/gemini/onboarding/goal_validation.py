@@ -1,4 +1,5 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_PREMIUM_MODEL
 from backend.schemas.goal import GoalCreationFollowUpQuestionsRequest, GoalStudyPlanRequest
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 from backend.services.gemini.onboarding.goal_validation_prompt import get_goal_validation_prompt, get_follow_up_validation_prompt
@@ -6,7 +7,7 @@ from backend.services.gemini.onboarding.goal_validation_prompt import get_goal_v
 def get_prompt_validation(initiation_request: GoalCreationFollowUpQuestionsRequest) -> GeminiGoalValidation:
     
     client = get_client()
-    model = GEMINI_AI_MODEL
+    model = GEMINI_PREMIUM_MODEL
     full_prompt = get_goal_validation_prompt(initiation_request.prompt)
     config = get_gemini_config(GeminiGoalValidation.model_json_schema())
     
@@ -27,7 +28,7 @@ def isGoalValidated(goalValidation: GeminiGoalValidation) -> bool :
 def get_follow_up_validation(study_plan_request: GoalStudyPlanRequest) -> GeminiFollowUpValidation:
     
     client = get_client()
-    model = GEMINI_AI_MODEL
+    model = GEMINI_PREMIUM_MODEL
     full_prompt = get_follow_up_validation_prompt(study_plan_request)
     config = get_gemini_config(GeminiFollowUpValidation.model_json_schema())
     

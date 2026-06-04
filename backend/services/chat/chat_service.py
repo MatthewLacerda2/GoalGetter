@@ -10,12 +10,12 @@ from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
-from backend.utils.envs import GEMINI_AI_MODEL
+from backend.utils.envs import GEMINI_FAST_MODEL
 
 # Constants
 RECENT_MESSAGES_DAYS = 1
 STUDENT_CONTEXT_LIMIT = 8
-AI_MODEL_NAME = GEMINI_AI_MODEL
+AI_MODEL_NAME = GEMINI_FAST_MODEL
 
 
 def _create_user_messages_from_request(

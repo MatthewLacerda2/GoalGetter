@@ -1,4 +1,5 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_FAST_MODEL
 from backend.services.gemini.assessment.single_question.schema import GeminiSingleQuestionReview
 from backend.services.gemini.assessment.single_question.prompt import get_single_question_review_prompt
 
@@ -7,7 +8,7 @@ def gemini_generate_question_review(
 ) -> GeminiSingleQuestionReview:
     
     client = get_client()
-    model = GEMINI_AI_MODEL
+    model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiSingleQuestionReview.model_json_schema())
     full_prompt = get_single_question_review_prompt(question, answer)
 
