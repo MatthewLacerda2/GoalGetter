@@ -1,13 +1,14 @@
 import logging
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from backend.core.database import AsyncSessionLocal
 from backend.models.student import Student
 from backend.models.goal import Goal
 from backend.models.objective import Objective
 from backend.models.student_context import StudentContext
 from backend.repositories.objective_repository import ObjectiveRepository
+from backend.repositories.goal_repository import GoalRepository
+from backend.repositories.student_repository import StudentRepository
 from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
 from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
@@ -25,9 +26,8 @@ async def run_mastery_evaluation_job():
         try:
             objective_repo = ObjectiveRepository(db)
             
-            goals_stmt = select(Goal)
-            goals_result = await db.execute(goals_stmt)
-            all_goals = goals_result.scalars().all()
+            goal_repo = GoalRepository(db)
+            all_goals = await goal_repo.get_all()
             
             active_objectives = []
             for goal in all_goals:
@@ -43,9 +43,8 @@ async def run_mastery_evaluation_job():
             
             for goal, objective in active_objectives:
                 try:
-                    student_stmt = select(Student).where(Student.id == goal.student_id)
-                    student_result = await db.execute(student_stmt)
-                    student = student_result.scalar_one_or_none()
+                    student_repo = StudentRepository(db)
+                    student = await student_repo.get_by_id(goal.student_id)
                     
                     if not student:
                         logger.warning(f"Goal {goal.id} has no associated student")

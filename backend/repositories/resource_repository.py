@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from typing import List, Optional
 from backend.models.resource import Resource
 from backend.repositories.base import BaseRepository
@@ -32,3 +32,10 @@ class ResourceRepository(BaseRepository[Resource]):
         stmt = select(Resource).where(Resource.goal_id == goal_id).order_by(Resource.resource_type, Resource.name)
         result = await self.db.execute(stmt)
         return result.scalars().all()
+
+    async def count_by_goal_id(self, goal_id: str) -> int:
+        stmt = select(func.count(Resource.id)).where(
+            Resource.goal_id == goal_id
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar() or 0

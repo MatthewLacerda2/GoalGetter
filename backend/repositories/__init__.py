@@ -10,9 +10,13 @@ from .objective_repository import ObjectiveRepository
 from .player_achievement_repository import PlayerAchievementRepository
 from .streak_day_repository import StreakDayRepository
 from .student_context_repository import StudentContextRepository
+from .achievement_repository import AchievementRepository
+from .onboading import OnboardingRepository
+from .goal_repository import GoalRepository
 
 __all__ = [
     "BaseRepository", "ChatMessageRepository", "StudentRepository", "MultipleChoiceQuestionRepository",
     "MultipleChoiceAnswerRepository", "SubjectiveQuestionRepository", "SubjectiveAnswerRepository",
-    "ObjectiveNoteRepository", "ObjectiveRepository", "PlayerAchievementRepository", "StreakDayRepository", "StudentContextRepository"
+    "ObjectiveNoteRepository", "ObjectiveRepository", "PlayerAchievementRepository", "StreakDayRepository", 
+    "StudentContextRepository", "AchievementRepository", "OnboardingRepository", "GoalRepository"
 ]

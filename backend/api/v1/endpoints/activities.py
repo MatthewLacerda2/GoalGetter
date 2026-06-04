@@ -44,6 +44,7 @@ async def create_lesson_questions_async(
             objective.name, objective.description, [o.name for o in objectives], contexts, num_questions
         )
         
+        mcq_repo = MultipleChoiceQuestionRepository(db)
         for question in gemini_mc_questions.questions:
             mcq = MultipleChoiceQuestion(
                 objective_id=objective.id,
@@ -55,7 +56,7 @@ async def create_lesson_questions_async(
                 correct_answer_index=question.correct_answer_index,
                 ai_model=gemini_mc_questions.ai_model,
             )
-            db.add(mcq)
+            await mcq_repo.create(mcq)
         
         await db.commit()
     except Exception as e:
