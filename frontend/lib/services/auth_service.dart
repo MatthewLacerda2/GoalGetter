@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:openapi/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_config.dart';
@@ -283,34 +284,28 @@ class AuthService {
   // Sign up with Google (creates account if doesn't exist, or returns existing account)
   Future<Map<String, dynamic>?> signupWithGoogle(String googleToken) async {
     try {
-      developer.log('Calling /signup endpoint...');
+      developer.log('Calling /signup endpoint via OpenAPI client...');
 
-      final url = Uri.parse('${AppConfig.baseUrl}/api/v1/auth/signup');
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $googleToken',
-          'Content-Type': 'application/json',
-        },
-      );
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
 
-      if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-        final accessToken = responseData['access_token'] as String;
-        final studentData = responseData['student'] as Map<String, dynamic>;
+      final authApi = AuthApi(apiClient);
+      final tokenResponse = await authApi.signupApiV1AuthSignupPost();
+
+      if (tokenResponse != null) {
+        final accessToken = tokenResponse.accessToken;
+        final studentResponse = tokenResponse.student;
+        
+        final studentData = studentResponse.toJson();
 
         // Store both Google token and JWT access token
         await storeGoogleToken(googleToken);
         await storeFinalCredentials(accessToken, studentData);
 
-        developer.log('Successfully signed up: ${studentData['email']}');
+        developer.log('Successfully signed up: ${studentResponse.email}');
         return {'access_token': accessToken, 'student': studentData};
       } else {
-        developer.log('Signup failed with status: ${response.statusCode}');
-        developer.log('Response body: ${response.body}');
-        throw Exception(
-          'Signup failed: ${response.statusCode} - ${response.body}',
-        );
+        throw Exception('Signup failed: Empty response from server');
       }
     } catch (error) {
       developer.log('Error in signupWithGoogle: $error');
