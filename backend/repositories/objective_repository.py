@@ -55,3 +55,22 @@ class ObjectiveRepository(BaseRepository[Objective]):
             await self.db.delete(entity)
             return True
         return False
+
+    async def get_latest_for_student_excluding_goal(self, student_id: str, excluded_goal_id: str) -> Optional[Objective]:
+        from sqlalchemy import and_
+        from backend.models.goal import Goal
+        stmt = (
+            select(Objective)
+            .join(Goal, Objective.goal_id == Goal.id)
+            .where(
+                and_(
+                    Goal.student_id == student_id,
+                    Goal.id != excluded_goal_id
+                )
+            )
+            .order_by(desc(Objective.last_updated_at))
+            .limit(1)
+            .options(joinedload(Objective.goal))
+        )
+        result = await self.db.execute(stmt)
+        return result.unique().scalar_one_or_none()

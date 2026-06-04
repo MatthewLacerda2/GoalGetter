@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import select, and_, desc
 from typing import List, Optional, Tuple
 from backend.repositories.base import BaseRepository
@@ -89,3 +90,21 @@ class SubjectiveAnswerRepository(BaseRepository[SubjectiveAnswer]):
             await self.db.delete(entity)
             return True
         return False
+
+    async def get_by_student_objective_and_date_range(self, student_id: str, objective_id: str, start_date: datetime, end_date: datetime) -> List[SubjectiveAnswer]:
+        from backend.models.subjective_question import SubjectiveQuestion
+        from sqlalchemy.orm import joinedload
+        stmt = select(SubjectiveAnswer).options(
+            joinedload(SubjectiveAnswer.question)
+        ).join(
+            SubjectiveQuestion, SubjectiveAnswer.question_id == SubjectiveQuestion.id
+        ).where(
+            and_(
+                SubjectiveAnswer.student_id == student_id,
+                SubjectiveQuestion.objective_id == objective_id,
+                SubjectiveAnswer.created_at >= start_date,
+                SubjectiveAnswer.created_at <= end_date
+            )
+        ).order_by(desc(SubjectiveAnswer.created_at))
+        result = await self.db.execute(stmt)
+        return list(result.unique().scalars().all())

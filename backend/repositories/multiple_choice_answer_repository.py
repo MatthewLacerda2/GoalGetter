@@ -97,3 +97,19 @@ class MultipleChoiceAnswerRepository(BaseRepository[MultipleChoiceAnswer]):
             await self.db.delete(entity)
             return True
         return False
+
+    async def get_by_student_objective_and_date_range(self, student_id: str, objective_id: str, start_date: datetime, end_date: datetime) -> List[MultipleChoiceAnswer]:
+        stmt = select(MultipleChoiceAnswer).options(
+            joinedload(MultipleChoiceAnswer.question)
+        ).join(
+            MultipleChoiceQuestion, MultipleChoiceAnswer.question_id == MultipleChoiceQuestion.id
+        ).where(
+            and_(
+                MultipleChoiceAnswer.student_id == student_id,
+                MultipleChoiceQuestion.objective_id == objective_id,
+                MultipleChoiceAnswer.created_at >= start_date,
+                MultipleChoiceAnswer.created_at <= end_date
+            )
+        ).order_by(desc(MultipleChoiceAnswer.created_at))
+        result = await self.db.execute(stmt)
+        return list(result.unique().scalars().all())

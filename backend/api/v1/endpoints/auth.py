@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import delete
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from backend.core.database import get_db
 from backend.core.security import create_access_token, verify_google_token, get_current_user, verify_google_token_header
@@ -100,10 +99,10 @@ async def delete_account(
     current_user: Student = Depends(get_current_user)
 ):
     try:
-        stmt = delete(Student).where(Student.id == current_user.id)
-        result = await db.execute(stmt)
+        student_repo = StudentRepository(db)
+        success = await student_repo.delete(current_user.id)
         
-        if result.rowcount == 0:
+        if not success:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         
         await db.commit()

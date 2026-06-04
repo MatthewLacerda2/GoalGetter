@@ -7,6 +7,8 @@ from backend.models.multiple_choice_question import MultipleChoiceQuestion
 from backend.models.objective_note import ObjectiveNote
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.repositories.resource_repository import ResourceRepository
+from backend.repositories.multiple_choice_question_repository import MultipleChoiceQuestionRepository
+from backend.repositories.objective_note_repository import ObjectiveNoteRepository
 from backend.services.gemini.objective_notes.objective_notes import gemini_define_objective_notes
 from backend.models.student_context import StudentContext
 from backend.repositories.student_context_repository import StudentContextRepository
@@ -65,6 +67,7 @@ async def create_mcqs_async(objective_id: str, objective_name: str, objective_de
             num_questions=NUM_QUESTIONS_PER_LESSON
         )
         
+        mcq_repo = MultipleChoiceQuestionRepository(db)
         for question in mc_questions.questions:
             # Map choices list to individual option fields
             if len(question.choices) < 4:
@@ -81,7 +84,7 @@ async def create_mcqs_async(objective_id: str, objective_name: str, objective_de
                 correct_answer_index=question.correct_answer_index,
                 ai_model=mc_questions.ai_model,
             )
-            db.add(mcq)
+            await mcq_repo.create(mcq)
         
         await db.commit()
     except Exception as e:
@@ -94,6 +97,7 @@ async def create_notes_async(obj_name: str, obj_desc: str, obj_id: str, db: Asyn
     try:
         gemini_notes = gemini_define_objective_notes(obj_name, obj_desc)
         
+        notes_repo = ObjectiveNoteRepository(db)
         for note in gemini_notes.notes:
             objective_note = ObjectiveNote(
                 objective_id=obj_id,
@@ -101,7 +105,7 @@ async def create_notes_async(obj_name: str, obj_desc: str, obj_id: str, db: Asyn
                 info=note.info,
                 ai_model=gemini_notes.ai_model
             )
-            db.add(objective_note)
+            await notes_repo.create(objective_note)
         
         await db.commit()
     except Exception as e:

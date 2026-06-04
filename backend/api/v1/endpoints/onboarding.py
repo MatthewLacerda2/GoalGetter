@@ -6,8 +6,7 @@ from backend.core.database import get_db
 from backend.core.security import create_access_token, verify_google_token_header
 from backend.models.student import Student
 from backend.models.objective import Objective
-from backend.repositories.student_repository import StudentRepository
-from backend.repositories.onboading import OnboardingRepository
+from backend.repositories import StudentRepository, OnboardingRepository, GoalRepository, ObjectiveRepository
 from backend.models.onboarding import Onboarding
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
 from backend.services.gemini.onboarding.onboarding import get_gemini_follow_up_questions, get_gemini_study_plan
@@ -110,6 +109,9 @@ async def generate_full_creation(
         user_email = user.email
         user_name = user.name
         
+        goal_repo = GoalRepository(db)
+        objective_repo = ObjectiveRepository(db)
+        
         # Create goal with student_id
         goal = Goal(
             student_id=user_id,
@@ -117,9 +119,8 @@ async def generate_full_creation(
             description=request.goal_description,
         )
         
-        db.add(goal)
+        await goal_repo.create(goal)
         await db.commit()
-        await db.refresh(goal)
         
         # Store goal ID immediately after refresh to avoid async issues
         goal_id = goal.id
@@ -132,9 +133,8 @@ async def generate_full_creation(
             ai_model=GEMINI_PREMIUM_MODEL
         )
         
-        db.add(objective)
+        await objective_repo.create(objective)
         await db.commit()
-        await db.refresh(objective)
         
         # Store objective ID immediately after refresh to avoid async issues
         objective_id = objective.id
@@ -231,6 +231,9 @@ async def save_description_embeddings_async(
     objective_description_embedding = get_gemini_embeddings(objective_description)
     goal.description_embedding = goal_description_embedding
     objective.description_embedding = objective_description_embedding
+    
+    goal_repo = GoalRepository(db)
+    objective_repo = ObjectiveRepository(db)
+    await goal_repo.update(goal)
+    await objective_repo.update(objective)
     await db.commit()
-    await db.refresh(goal)
-    await db.refresh(objective)

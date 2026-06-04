@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import selectinload
-from sqlalchemy import select, and_, desc, asc
+from sqlalchemy import select, delete as sql_delete, and_, desc, asc
 from backend.models.student import Student
 from backend.repositories.base import BaseRepository
 
@@ -32,11 +32,9 @@ class StudentRepository(BaseRepository[Student]):
         return entity
     
     async def delete(self, entity_id: str) -> bool:
-        entity = await self.get_by_id(entity_id)
-        if entity:
-            await self.db.delete(entity)
-            return True
-        return False
+        stmt = sql_delete(Student).where(Student.id == entity_id)
+        result = await self.db.execute(stmt)
+        return result.rowcount > 0
     
     async def get_leaderboard_around_user(self, user_id: str, limit: int = 10) -> Tuple[Student, List[Student]]:
         """

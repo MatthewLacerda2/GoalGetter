@@ -65,3 +65,11 @@ class MultipleChoiceQuestionRepository(BaseRepository[MultipleChoiceQuestion]):
             await self.db.delete(entity)
             return True
         return False
+
+    async def count_by_objective_id(self, objective_id: str) -> int:
+        stmt = select(func.count(MultipleChoiceQuestion.id)).where(
+            MultipleChoiceQuestion.objective_id == objective_id
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar() or 0
+

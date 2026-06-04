@@ -1,10 +1,9 @@
 import logging
-from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.models.multiple_choice_question import MultipleChoiceQuestion
-from backend.models.objective_note import ObjectiveNote
-from backend.models.resource import Resource
-from backend.models.student_context import StudentContext
+from backend.repositories.multiple_choice_question_repository import MultipleChoiceQuestionRepository
+from backend.repositories.objective_note_repository import ObjectiveNoteRepository
+from backend.repositories.resource_repository import ResourceRepository
+from backend.repositories.student_context_repository import StudentContextRepository
 
 logger = logging.getLogger(__name__)
 
@@ -35,35 +34,20 @@ async def objective_missing_content(
     """
     try:
         # Check multiple choice questions count
-        mcq_stmt = select(func.count(MultipleChoiceQuestion.id)).where(
-            MultipleChoiceQuestion.objective_id == objective_id
-        )
-        mcq_result = await db.execute(mcq_stmt)
-        mcq_count = mcq_result.scalar() or 0
+        mcq_repo = MultipleChoiceQuestionRepository(db)
+        mcq_count = await mcq_repo.count_by_objective_id(objective_id)
         
         # Check objective notes count
-        notes_stmt = select(func.count(ObjectiveNote.id)).where(
-            ObjectiveNote.objective_id == objective_id
-        )
-        notes_result = await db.execute(notes_stmt)
-        notes_count = notes_result.scalar() or 0
+        notes_repo = ObjectiveNoteRepository(db)
+        notes_count = await notes_repo.count_by_objective_id(objective_id)
         
         # Check resources count for goal
-        resources_stmt = select(func.count(Resource.id)).where(
-            Resource.goal_id == goal_id
-        )
-        resources_result = await db.execute(resources_stmt)
-        resources_count = resources_result.scalar() or 0
+        resources_repo = ResourceRepository(db)
+        resources_count = await resources_repo.count_by_goal_id(goal_id)
         
         # Check student context count for objective and student
-        context_stmt = select(func.count(StudentContext.id)).where(
-            and_(
-                StudentContext.objective_id == objective_id,
-                StudentContext.student_id == student_id
-            )
-        )
-        context_result = await db.execute(context_stmt)
-        context_count = context_result.scalar() or 0
+        context_repo = StudentContextRepository(db)
+        context_count = await context_repo.count_by_objective_and_student(objective_id, student_id)
         
         # Return True if ANY content is missing
         missing = (mcq_count == 0 or notes_count == 0 or resources_count == 0 or context_count == 0)
@@ -80,3 +64,4 @@ async def objective_missing_content(
         logger.error(f"Error checking content for objective {objective_id}: {e}", exc_info=True)
         # On error, assume content is missing to be safe (will trigger content creation)
         return True
+

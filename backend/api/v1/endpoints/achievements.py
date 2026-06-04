@@ -1,15 +1,14 @@
 from typing import List
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, HTTPException, Depends, Query
 from backend.core.database import get_db
 from backend.core.security import get_current_user
 from backend.schemas.streak import XpDay, XpByDaysResponse
 from backend.models.student import Student
-from backend.models.achievement import Achievement
 from backend.repositories.student_repository import StudentRepository
 from backend.repositories.streak_day_repository import StreakDayRepository
 from backend.repositories.player_achievement_repository import PlayerAchievementRepository
+from backend.repositories.achievement_repository import AchievementRepository
 from backend.schemas.player_achievement import PlayerAchievementResponse, PlayerAchievementItem, LeaderboardResponse, LeaderboardItem
 
 router = APIRouter()
@@ -66,19 +65,18 @@ async def get_achievements(
     player_achievements_repo = PlayerAchievementRepository(db)
     player_achievements = await player_achievements_repo.get_by_student_id(student_id, limit)
     
+    achievement_repo = AchievementRepository(db)
     achievements = []
     for player_achievement in player_achievements:
-        achievement_query = select(Achievement).where(Achievement.id == player_achievement.achievement_id)
-        achievement_result = await db.execute(achievement_query)
-        achievement = achievement_result.scalars().first()
-    
-        achievements.append(PlayerAchievementItem(
-            id=player_achievement.id,
-            name=achievement.name,
-            description=achievement.description,
-            image_url=achievement.image_url,
-            achieved_at=player_achievement.achieved_at
-        ))
+        achievement = await achievement_repo.get_by_id(player_achievement.achievement_id)
+        if achievement:
+            achievements.append(PlayerAchievementItem(
+                id=player_achievement.id,
+                name=achievement.name,
+                description=achievement.description,
+                image_url=achievement.image_url,
+                achieved_at=player_achievement.achieved_at
+            ))
 
     achievements.sort(key=lambda x: x.achieved_at, reverse=True)
 

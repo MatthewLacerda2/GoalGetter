@@ -1,9 +1,9 @@
 import logging
-from sqlalchemy import select
 from backend.core.database import AsyncSessionLocal
-from backend.models.goal import Goal
+from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.objective_repository import ObjectiveRepository
 from backend.repositories.multiple_choice_question_repository import MultipleChoiceQuestionRepository
+from backend.models.multiple_choice_question import MultipleChoiceQuestion
 from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
 from backend.services.account_creation_tasks import gemini_generate_multiple_choice_questions
 from backend.repositories.streak_day_repository import StreakDayRepository
@@ -22,9 +22,8 @@ async def run_lesson_creation_job():
             answer_repo = MultipleChoiceAnswerRepository(db)
             
             # 1. Get all goals (to find active students and their objectives)
-            goals_stmt = select(Goal)
-            goals_result = await db.execute(goals_stmt)
-            all_goals = goals_result.scalars().all()
+            goal_repo = GoalRepository(db)
+            all_goals = await goal_repo.get_all()
             
             yesterday_start, yesterday_end = get_yesterday_date_range()
             
@@ -85,7 +84,7 @@ async def run_lesson_creation_job():
                                 correct_answer_index=question.correct_answer_index,
                                 ai_model=mc_questions.ai_model,
                             )
-                            db.add(mcq)
+                            await mcq_repo.create(mcq)
                         
                         await db.commit()
                     

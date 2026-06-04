@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, func
 from backend.models.objective_note import ObjectiveNote
 from backend.repositories.base import BaseRepository
 
@@ -31,3 +31,10 @@ class ObjectiveNoteRepository(BaseRepository[ObjectiveNote]):
             await self.db.delete(entity)
             return True
         return False
+
+    async def count_by_objective_id(self, objective_id: str) -> int:
+        stmt = select(func.count(ObjectiveNote.id)).where(
+            ObjectiveNote.objective_id == objective_id
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar() or 0

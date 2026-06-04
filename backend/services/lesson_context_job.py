@@ -1,17 +1,12 @@
 import logging
 from datetime import datetime
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, desc
-from backend.models.subjective_question import SubjectiveQuestion
-from sqlalchemy.orm import joinedload
 from backend.core.database import AsyncSessionLocal
 from backend.models.student import Student
 from backend.models.goal import Goal
 from backend.models.objective import Objective
 from backend.models.student_context import StudentContext
-from backend.models.multiple_choice_question import MultipleChoiceAnswer
-from backend.models.subjective_question import SubjectiveAnswer
 from backend.repositories.objective_repository import ObjectiveRepository
+from backend.repositories.student_context_repository import StudentContextRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.lesson_context.lesson_context import gemini_lesson_context
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
@@ -26,9 +21,10 @@ async def run_lesson_context_job():
         try:
             objective_repo = ObjectiveRepository(db)
             
-            goals_stmt = select(Goal)
-            goals_result = await db.execute(goals_stmt)
-            all_goals = goals_result.scalars().all()
+            # Get all goals
+            from backend.repositories.goal_repository import GoalRepository
+            goal_repo = GoalRepository(db)
+            all_goals = await goal_repo.get_all()
             
             active_objectives = []
             for goal in all_goals:
@@ -45,9 +41,10 @@ async def run_lesson_context_job():
             for goal, objective in active_objectives:
                 try:
                     # Get the student for this goal
-                    student_stmt = select(Student).where(Student.id == goal.student_id)
-                    student_result = await db.execute(student_stmt)
-                    student = student_result.scalar_one_or_none()
+                    # Get the student for this goal
+                    from backend.repositories.student_repository import StudentRepository
+                    student_repo = StudentRepository(db)
+                    student = await student_repo.get_by_id(goal.student_id)
                     
                     if not student:
                         logger.warning(f"Goal {goal.id} has no associated student")
@@ -77,35 +74,23 @@ async def run_lesson_context_job():
             raise
 
 
-async def should_generate_context_for_objective(student: Student, objective: Objective, db: AsyncSession) -> bool:
+async def should_generate_context_for_objective(student: Student, objective: Objective, db: AsyncSessionLocal) -> bool:
     yesterday_start, yesterday_end = get_yesterday_date_range()
     
-    subjective_stmt = select(SubjectiveAnswer).join(
-        SubjectiveQuestion, SubjectiveAnswer.question_id == SubjectiveQuestion.id
-    ).where(
-        and_(
-            SubjectiveAnswer.student_id == student.id,
-            SubjectiveQuestion.objective_id == objective.id,
-            SubjectiveAnswer.created_at >= yesterday_start,
-            SubjectiveAnswer.created_at <= yesterday_end
-        )
-    ).limit(1)
-    subjective_result = await db.execute(subjective_stmt)
-    has_subjective = subjective_result.scalar_one_or_none() is not None
+    from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
+    from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
     
-    from backend.models.multiple_choice_question import MultipleChoiceQuestion
-    mc_stmt = select(MultipleChoiceAnswer).join(
-        MultipleChoiceQuestion, MultipleChoiceAnswer.question_id == MultipleChoiceQuestion.id
-    ).where(
-        and_(
-            MultipleChoiceAnswer.student_id == student.id,
-            MultipleChoiceQuestion.objective_id == objective.id,
-            MultipleChoiceAnswer.created_at >= yesterday_start,
-            MultipleChoiceAnswer.created_at <= yesterday_end
-        )
-    ).limit(1)
-    mc_result = await db.execute(mc_stmt)
-    has_multiple_choice = mc_result.scalar_one_or_none() is not None
+    subjective_repo = SubjectiveAnswerRepository(db)
+    subjective_answers = await subjective_repo.get_by_student_objective_and_date_range(
+        student.id, objective.id, yesterday_start, yesterday_end
+    )
+    has_subjective = len(subjective_answers) > 0
+    
+    mc_repo = MultipleChoiceAnswerRepository(db)
+    mc_answers = await mc_repo.get_by_student_objective_and_date_range(
+        student.id, objective.id, yesterday_start, yesterday_end
+    )
+    has_multiple_choice = len(mc_answers) > 0
     
     if not has_subjective and not has_multiple_choice:
         logger.debug(f"Objective {objective.id} has no answers from yesterday")
@@ -114,43 +99,23 @@ async def should_generate_context_for_objective(student: Student, objective: Obj
     return True
 
 
-async def generate_context_from_lesson_for_objective(student: Student, goal: Goal, objective: "Objective", db: AsyncSession):
+async def generate_context_from_lesson_for_objective(student: Student, goal: Goal, objective: "Objective", db: AsyncSessionLocal):
     context_repo = StudentContextRepository(db)
     
     yesterday_start, yesterday_end = get_yesterday_date_range()
     
-    subjective_stmt = select(SubjectiveAnswer).options(
-        joinedload(SubjectiveAnswer.question)
-    ).join(
-        SubjectiveQuestion, SubjectiveAnswer.question_id == SubjectiveQuestion.id
-    ).where(
-        and_(
-            SubjectiveAnswer.student_id == student.id,
-            SubjectiveQuestion.objective_id == objective.id,
-            SubjectiveAnswer.created_at >= yesterday_start,
-            SubjectiveAnswer.created_at <= yesterday_end
-        )
-    ).order_by(desc(SubjectiveAnswer.created_at))
+    from backend.repositories.subjective_answer_repository import SubjectiveAnswerRepository
+    from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
     
-    subjective_result = await db.execute(subjective_stmt)
-    subjective_answers = list(subjective_result.unique().scalars().all())
+    subjective_repo = SubjectiveAnswerRepository(db)
+    subjective_answers = await subjective_repo.get_by_student_objective_and_date_range(
+        student.id, objective.id, yesterday_start, yesterday_end
+    )
     
-    from backend.models.multiple_choice_question import MultipleChoiceQuestion
-    mc_stmt = select(MultipleChoiceAnswer).options(
-        joinedload(MultipleChoiceAnswer.question)
-    ).join(
-        MultipleChoiceQuestion, MultipleChoiceAnswer.question_id == MultipleChoiceQuestion.id
-    ).where(
-        and_(
-            MultipleChoiceAnswer.student_id == student.id,
-            MultipleChoiceQuestion.objective_id == objective.id,
-            MultipleChoiceAnswer.created_at >= yesterday_start,
-            MultipleChoiceAnswer.created_at <= yesterday_end
-        )
-    ).order_by(desc(MultipleChoiceAnswer.created_at))
-    
-    mc_result = await db.execute(mc_stmt)
-    mc_answers = list(mc_result.unique().scalars().all())
+    mc_repo = MultipleChoiceAnswerRepository(db)
+    mc_answers = await mc_repo.get_by_student_objective_and_date_range(
+        student.id, objective.id, yesterday_start, yesterday_end
+    )
     
     if not subjective_answers and not mc_answers:
         logger.warning(f"Objective {objective.id} has no answers from yesterday")

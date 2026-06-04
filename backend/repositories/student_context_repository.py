@@ -124,3 +124,15 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         
         result = await self.db.execute(stmt)
         return result.scalar() is not None
+
+    async def count_by_objective_and_student(self, objective_id: str, student_id: str) -> int:
+        from sqlalchemy import func
+        stmt = select(func.count(StudentContext.id)).where(
+            and_(
+                StudentContext.objective_id == objective_id,
+                StudentContext.student_id == student_id
+            )
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar() or 0
+
