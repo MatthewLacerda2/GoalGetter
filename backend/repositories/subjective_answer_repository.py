@@ -1,8 +1,9 @@
 from datetime import datetime
 from sqlalchemy import select, and_, desc
+from sqlalchemy.orm import joinedload
 from typing import List, Optional, Tuple
 from backend.repositories.base import BaseRepository
-from backend.models.subjective_question import SubjectiveAnswer
+from backend.models.subjective_question import SubjectiveAnswer, SubjectiveQuestion
 
 class SubjectiveAnswerRepository(BaseRepository[SubjectiveAnswer]):
     
@@ -92,8 +93,6 @@ class SubjectiveAnswerRepository(BaseRepository[SubjectiveAnswer]):
         return False
 
     async def get_by_student_objective_and_date_range(self, student_id: str, objective_id: str, start_date: datetime, end_date: datetime) -> List[SubjectiveAnswer]:
-        from backend.models.subjective_question import SubjectiveQuestion
-        from sqlalchemy.orm import joinedload
         stmt = select(SubjectiveAnswer).options(
             joinedload(SubjectiveAnswer.question)
         ).join(

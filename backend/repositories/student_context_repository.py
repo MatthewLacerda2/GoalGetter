@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import selectinload
-from sqlalchemy import select, and_, or_, desc, case
+from sqlalchemy import select, and_, or_, desc, case, func
 from backend.models.student_context import StudentContext
 from backend.repositories.base import BaseRepository
 
@@ -126,7 +126,6 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         return result.scalar() is not None
 
     async def count_by_objective_and_student(self, objective_id: str, student_id: str) -> int:
-        from sqlalchemy import func
         stmt = select(func.count(StudentContext.id)).where(
             and_(
                 StudentContext.objective_id == objective_id,

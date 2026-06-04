@@ -11,7 +11,7 @@ from .player_achievement_repository import PlayerAchievementRepository
 from .streak_day_repository import StreakDayRepository
 from .student_context_repository import StudentContextRepository
 from .achievement_repository import AchievementRepository
-from .onboading import OnboardingRepository
+from .onboarding_repository import OnboardingRepository
 from .goal_repository import GoalRepository
 
 __all__ = [
