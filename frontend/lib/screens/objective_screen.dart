@@ -25,6 +25,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
   int? _overallXp;
   int? _streakCounter;
   Color _streakBadgeBackgroundColor = Colors.transparent;
+  String? _goalName;
   String? _objectiveName;
   List<ObjectiveNote>? _notes;
 
@@ -97,6 +98,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
           _overallXp = studentResponse.overallXp;
           _streakCounter = studentResponse.currentStreak;
           _streakBadgeBackgroundColor = computeStreakBadgeBackgroundColor();
+          _goalName = studentResponse.goalName;
           _objectiveName = objectiveResponse.name;
           _notes = objectiveResponse.notes;
           _isLoading = false;
@@ -120,6 +122,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
         children: [
           ObjectiveTabHeader(
             overallXp: _overallXp ?? 0,
+            goalTitle: _goalName ?? '',
             objectiveTitle: _objectiveName ?? '',
             streakCounter: _streakCounter ?? 0,
             streakBadgeBackgroundColor: _streakBadgeBackgroundColor,
