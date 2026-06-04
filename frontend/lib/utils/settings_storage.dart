@@ -14,6 +14,17 @@ class SettingsStorage {
   /// Default whenever we cannot match the device language.
   static const String defaultLanguage = portuguese;
 
+  static SharedPreferences? _prefs;
+
+  /// Initialize SettingsStorage with pre-loaded SharedPreferences
+  static void initialize(SharedPreferences prefs) {
+    _prefs = prefs;
+  }
+
+  static Future<SharedPreferences> get _instance async {
+    return _prefs ??= await SharedPreferences.getInstance();
+  }
+
   static String _normalizeLanguageCode(String language) {
     // Defensive normalization in case we ever receive values like "en-US" / "pt_BR".
     final normalized = language.trim().toLowerCase();
@@ -36,7 +47,7 @@ class SettingsStorage {
   }
 
   static Future<String> getUserLanguage() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     final stored = prefs.getString(_languageKey);
     if (stored != null && isSupportedLanguage(stored)) return stored;
     return defaultLanguage;
@@ -44,7 +55,7 @@ class SettingsStorage {
 
   /// Returns the stored language (if any) without falling back.
   static Future<String?> getStoredUserLanguageOrNull() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     final stored = prefs.getString(_languageKey);
     if (stored == null) return null;
     return isSupportedLanguage(stored) ? stored : null;
@@ -58,7 +69,7 @@ class SettingsStorage {
   static Future<String> getOrInitUserLanguage({
     required Iterable<String> preferredLanguageCodes,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
 
     final stored = prefs.getString(_languageKey);
     if (stored != null && isSupportedLanguage(stored)) return stored;
@@ -73,7 +84,7 @@ class SettingsStorage {
       throw ArgumentError('Unsupported language: $language');
     }
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     return await prefs.setString(_languageKey, language);
   }
 
@@ -86,33 +97,33 @@ class SettingsStorage {
   }
 
   static Future<String?> getCurrentGoalId() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     return prefs.getString(_currentGoalIdKey);
   }
 
   static Future<bool> setCurrentGoalId(String goalId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     return await prefs.setString(_currentGoalIdKey, goalId);
   }
 
   static Future<String?> getCurrentObjectiveId() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     return prefs.getString(_currentObjectiveIdKey);
   }
 
   static Future<bool> setCurrentObjectiveId(String objectiveId) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     return await prefs.setString(_currentObjectiveIdKey, objectiveId);
   }
 
   static Future<void> clearCurrentGoalAndObjective() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     await prefs.remove(_currentGoalIdKey);
     await prefs.remove(_currentObjectiveIdKey);
   }
 
   static Future<void> clearAllUserData() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     await prefs.remove(_currentGoalIdKey);
     await prefs.remove(_currentObjectiveIdKey);
     // Note: Language preference is kept, but other user data is cleared
