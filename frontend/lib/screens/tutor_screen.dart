@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/error_retry_widget.dart';
 import '../widgets/tutor/chat_input.dart';
 import '../widgets/tutor/chat_message_bubble.dart';
 import 'tutor_controller.dart';
@@ -83,24 +84,11 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
                     ),
                   )
                 : state.errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Error: ${state.errorMessage}',
-                              style: const TextStyle(color: AppTheme.error),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: AppTheme.spacing16),
-                            ElevatedButton(
-                              onPressed: () => ref
-                                  .read(tutorControllerProvider.notifier)
-                                  .fetchMessages(),
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
+                    ? ErrorRetryWidget(
+                        errorMessage: state.errorMessage!,
+                        onRetry: () => ref
+                            .read(tutorControllerProvider.notifier)
+                            .fetchMessages(),
                       )
                     : state.messages.isEmpty
                         ? const Center(

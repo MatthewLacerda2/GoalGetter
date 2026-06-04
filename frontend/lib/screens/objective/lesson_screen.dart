@@ -6,6 +6,7 @@ import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
 
 import '../../models/lesson_question_data.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/error_retry_widget.dart';
 import '../intermediate/info_screen.dart';
 import 'lesson_controller.dart';
 
@@ -173,28 +174,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       return Scaffold(
         backgroundColor: AppTheme.background,
         body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Error: ${state.errorMessage}',
-                  style: const TextStyle(color: AppTheme.error),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppTheme.spacing16),
-                ElevatedButton(
-                  onPressed: () {
-                    if (widget.questions == null) {
-                      ref.read(lessonControllerProvider.notifier).init(null);
-                    } else {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
+          child: ErrorRetryWidget(
+            errorMessage: state.errorMessage!,
+            onRetry: () {
+              if (widget.questions == null) {
+                ref.read(lessonControllerProvider.notifier).init(null);
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
           ),
         ),
       );
