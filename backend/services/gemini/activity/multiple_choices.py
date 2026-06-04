@@ -1,4 +1,5 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_FAST_MODEL
 from backend.services.gemini.activity.schema import GeminiMultipleChoiceQuestionsList, GeminiMultipleChoiceQuestionsResponse
 from backend.services.gemini.activity.prompt import generate_multiple_choice_questions_prompt
 
@@ -7,7 +8,7 @@ def gemini_generate_multiple_choice_questions(
 ) -> GeminiMultipleChoiceQuestionsResponse:
     
     client = get_client()
-    model = "gemini-3-flash-preview"
+    model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiMultipleChoiceQuestionsList.model_json_schema())
     full_prompt = generate_multiple_choice_questions_prompt(objective_name, objective_description, previous_objectives, informations, num_questions)
 

@@ -185,6 +185,7 @@ app.*.symbols
 
 # Project-specific
 auxpy.py
+auxmd.md
 debug.txt
 
 # Terraform

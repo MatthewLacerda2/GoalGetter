@@ -6,6 +6,7 @@ import '../../../../theme/app_theme.dart';
 
 class ObjectiveTabHeader extends StatelessWidget {
   final int overallXp;
+  final String goalTitle;
   final String objectiveTitle;
   final int streakCounter;
   final Color streakBadgeBackgroundColor;
@@ -15,6 +16,7 @@ class ObjectiveTabHeader extends StatelessWidget {
   const ObjectiveTabHeader({
     super.key,
     required this.overallXp,
+    required this.goalTitle,
     required this.objectiveTitle,
     required this.streakCounter,
     required this.streakBadgeBackgroundColor,
@@ -23,8 +25,25 @@ class ObjectiveTabHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasBadgeBackground = streakBadgeBackgroundColor.a > 0;
+    
+    // Determine the content colors for readability and contrast
+    final Color contentColor;
+    if (hasBadgeBackground) {
+      if (streakBadgeBackgroundColor == AppTheme.accentSecondary) {
+        contentColor = AppTheme.background;
+      } else {
+        contentColor = AppTheme.textPrimary;
+      }
+    } else {
+      contentColor = AppTheme.textPrimary;
+    }
+
+    final Color iconColor = hasBadgeBackground
+        ? contentColor
+        : AppTheme.accentSecondary;
+
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppTheme.surfaceVariant,
         border: Border(
           bottom: BorderSide(
@@ -50,17 +69,36 @@ class ObjectiveTabHeader extends StatelessWidget {
           ),
           const SizedBox(width: AppTheme.spacing8),
           Expanded(
-            child: Text(
-              objectiveTitle,
-              style: const TextStyle(
-                fontSize: AppTheme.fontSize20,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-              softWrap: true,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (goalTitle.isNotEmpty)
+                  Text(
+                    goalTitle,
+                    style: const TextStyle(
+                      fontSize: AppTheme.fontSize12,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.accentPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                if (goalTitle.isNotEmpty) const SizedBox(height: 2),
+                Text(
+                  objectiveTitle.isNotEmpty ? objectiveTitle : 'No Active Objective',
+                  style: const TextStyle(
+                    fontSize: AppTheme.fontSize16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                  softWrap: true,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
           const SizedBox(width: AppTheme.spacing8),
@@ -80,13 +118,19 @@ class ObjectiveTabHeader extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 backgroundColor: hasBadgeBackground
                     ? streakBadgeBackgroundColor
-                    : Colors.transparent,
-                foregroundColor: hasBadgeBackground
-                    ? AppTheme.textPrimary
-                    : AppTheme.textSecondary,
+                    : AppTheme.cardBackground,
+                foregroundColor: contentColor,
                 elevation: hasBadgeBackground ? AppTheme.cardElevation : 0,
+                side: hasBadgeBackground
+                    ? BorderSide.none
+                    : BorderSide(
+                        color: AppTheme.textTertiary.withOpacity(0.5),
+                        width: 1,
+                      ),
                 padding: const EdgeInsets.symmetric(
                   vertical: 0,
                   horizontal: AppTheme.spacing8,
@@ -101,9 +145,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                   Icon(
                     Icons.local_fire_department,
                     size: 20,
-                    color: hasBadgeBackground
-                        ? AppTheme.textPrimary
-                        : AppTheme.textSecondary,
+                    color: iconColor,
                   ),
                   const SizedBox(width: AppTheme.spacing4),
                   Text(
@@ -111,9 +153,7 @@ class ObjectiveTabHeader extends StatelessWidget {
                     style: TextStyle(
                       fontSize: AppTheme.fontSize18,
                       fontWeight: FontWeight.bold,
-                      color: hasBadgeBackground
-                          ? AppTheme.textPrimary
-                          : AppTheme.textSecondary,
+                      color: contentColor,
                     ),
                   ),
                 ],

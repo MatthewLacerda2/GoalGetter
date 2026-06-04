@@ -1,4 +1,5 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_FAST_MODEL
 from backend.services.gemini.objective.schema import GeminiObjective
 from backend.services.gemini.objective.prompt import get_define_objective_prompt
 
@@ -7,7 +8,7 @@ def gemini_define_objective(
 ) -> GeminiObjective:
     
     client = get_client()
-    model = "gemini-3-flash-preview"
+    model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiObjective.model_json_schema())
     full_prompt = get_define_objective_prompt(goal_name, goal_description, latest_objective, latest_objective_description, student_context)
     

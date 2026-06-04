@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from typing import Any
 from google.genai import Client
 from google.genai.types import GenerateContentConfig, EmbedContentConfig
-from backend.utils.envs import NUM_DIMENSIONS
+from backend.utils.envs import NUM_DIMENSIONS, EMBEDDING_MODEL
 from backend.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def get_gemini_embeddings(text: str) -> np.ndarray:
     client = get_client()
     
     response = client.models.embed_content(
-        model="gemini-embedding-001",
+        model=EMBEDDING_MODEL,
         contents=text,
         config=EmbedContentConfig(
             output_dimensionality=NUM_DIMENSIONS,

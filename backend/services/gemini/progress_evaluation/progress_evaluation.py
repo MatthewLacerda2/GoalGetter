@@ -7,6 +7,7 @@ from backend.services.gemini.progress_evaluation.schema import (
     GeminiProgressEvaluationResponse,
 )
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_PREMIUM_MODEL
 
 
 def gemini_progress_evaluation(
@@ -19,7 +20,7 @@ def gemini_progress_evaluation(
 ) -> GeminiProgressEvaluationResponse:
 
     client = get_client()
-    model = "gemini-3-flash-preview"
+    model = GEMINI_PREMIUM_MODEL
     config = get_gemini_config(GeminiProgressEvaluation.model_json_schema())
 
     full_prompt = get_progress_evaluation_prompt(

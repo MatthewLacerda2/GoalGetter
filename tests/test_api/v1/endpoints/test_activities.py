@@ -5,10 +5,10 @@ from backend.schemas.activity import MultipleChoiceActivityResponse, MultipleCho
 from backend.schemas.activity import MultipleChoiceQuestionAnswer, MultipleChoiceActivityEvaluationRequest
 
 @pytest.mark.asyncio
-async def test_take_multiple_choice_activity_success(authenticated_client_with_objective, mock_gemini_multiple_choice_questions):
+async def test_take_multiple_choice_activity_success(authenticated_client, mock_gemini_multiple_choice_questions):
     """Test that the activities endpoint returns a valid response."""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     response = await client.post(
         "/api/v1/activities",
@@ -50,18 +50,16 @@ async def test_evaluate_multiple_choice_activity_invalid_token(client, mock_goog
     assert response.status_code == 401
 
 @pytest.mark.asyncio
-async def test_evaluate_multiple_choice_activity_unauthorized(client, mock_google_verify):
+async def test_evaluate_multiple_choice_activity_unauthorized(client):
     """Test that the evaluate activities endpoint returns 403 without token."""
-    mock_google_verify.side_effect = Exception("Invalid token")
-    
     response = await client.post("/api/v1/activities/evaluate")
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_evaluate_multiple_choice_activity_success(authenticated_client_with_objective, test_multiple_choice_questions):
+async def test_evaluate_multiple_choice_activity_success(authenticated_client, test_multiple_choice_questions):
     """Test that the evaluate activities endpoint returns a valid response."""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     answers = [MultipleChoiceQuestionAnswer(id=str(question.id), student_answer_index=0, seconds_spent=5) for question in test_multiple_choice_questions]
     request_body = MultipleChoiceActivityEvaluationRequest(answers=answers)
@@ -78,10 +76,10 @@ async def test_evaluate_multiple_choice_activity_success(authenticated_client_wi
     assert isinstance(activity_response, MultipleChoiceActivityEvaluationResponse)
 
 @pytest.mark.asyncio
-async def test_evaluate_multiple_choice_not_enough_questions(authenticated_client_with_objective):
+async def test_evaluate_multiple_choice_not_enough_questions(authenticated_client):
     """Test that the evaluate activities endpoint returns 400 without enough questions."""
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     answers = [MultipleChoiceQuestionAnswer(id=f"id_{i}", student_answer_index= 0, seconds_spent=5) for i in range (2)]
     request_body = MultipleChoiceActivityEvaluationRequest(answers=answers)

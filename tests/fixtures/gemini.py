@@ -1,8 +1,31 @@
 import pytest
 import numpy as np
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from backend.schemas.goal import GoalCreationFollowUpQuestionsResponse, GoalStudyPlanResponse
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation, GeminiFollowUpValidation
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_gemini_client():
+    """Global session-level fixture to mock google.genai.Client to prevent any real API calls."""
+    mock_client_instance = MagicMock()
+    
+    # Configure embed_content to return zero embeddings by default
+    mock_embed_response = MagicMock()
+    mock_embedding = MagicMock()
+    mock_embedding.values = [0.0] * 3072
+    mock_embed_response.embeddings = [mock_embedding]
+    mock_client_instance.models.embed_content.return_value = mock_embed_response
+    
+    # Configure generate_content to return a mock response that raises if called unmocked
+    def mock_generate_content(*args, **kwargs):
+        raise RuntimeError(
+            "Attempted to make a real Gemini API generate_content call in a test without a mock! "
+            "Please use mock_gemini_study_plan, mock_gemini_follow_up_questions, or other mocked fixtures."
+        )
+    mock_client_instance.models.generate_content.side_effect = mock_generate_content
+    
+    with patch('google.genai.Client', return_value=mock_client_instance) as mock_class:
+        yield mock_class
 
 @pytest.fixture
 def mock_gemini_follow_up_questions():
@@ -30,14 +53,28 @@ def mock_gemini_study_plan():
     with patch('backend.api.v1.endpoints.onboarding.get_gemini_study_plan', side_effect=mock_get_gemini_study_plan) as mock:
         yield mock
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_gemini_embeddings():
-    """Fixture to mock Gemini embeddings responses"""
+    """Fixture to mock Gemini embeddings responses. Uses autouse to prevent real API calls."""
     def mock_get_gemini_embeddings(text):
         return np.zeros(3072, dtype=np.float32)
 
-    with patch('backend.utils.gemini.gemini_configs.get_gemini_embeddings', side_effect=mock_get_gemini_embeddings) as mock:
-        yield mock
+    patch_targets = [
+        'backend.utils.gemini.gemini_configs.get_gemini_embeddings',
+        'backend.api.v1.endpoints.onboarding.get_gemini_embeddings',
+        'backend.services.chat.chat_service.get_gemini_embeddings',
+        'backend.services.account_creation_tasks.get_gemini_embeddings',
+        'backend.services.chat_context_job.get_gemini_embeddings',
+        'backend.services.gemini.resources.search_resources.get_gemini_embeddings',
+        'backend.services.lesson_context_job.get_gemini_embeddings',
+        'backend.services.mastery_evaluation_job.get_gemini_embeddings',
+    ]
+
+    patchers = [patch(target, side_effect=mock_get_gemini_embeddings) for target in patch_targets]
+    mocks = [p.start() for p in patchers]
+    yield mocks[0]
+    for p in patchers:
+        p.stop()
 
 @pytest.fixture
 def mock_gemini_multiple_choice_questions():
@@ -121,26 +158,3 @@ def mock_gemini_follow_up_validation():
     ) as mock:
         yield mock
 
-@pytest.fixture
-def mock_subjective_question_repository():
-    """Fixture to mock SubjectiveQuestionRepository.get_by_id"""
-    from backend.models.subjective_question import SubjectiveQuestion
-    
-    def mock_get_by_id(question_id: str):
-        # Return a mock question object
-        question = SubjectiveQuestion()
-        question.id = question_id
-        question.question = "A Question"
-        question.ai_model = "test-model"
-        question.llm_approval = None
-        question.llm_evaluation = None
-        question.llm_metacognition = None
-        question.seconds_spent = None
-        question.llm_metacognition_embedding = None
-        return question
-    
-    with patch(
-        'backend.repositories.subjective_question_repository.SubjectiveQuestionRepository.get_by_id',
-        side_effect=mock_get_by_id,
-    ) as mock:
-        yield mock

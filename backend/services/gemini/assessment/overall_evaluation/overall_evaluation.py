@@ -1,5 +1,6 @@
 from typing import List
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.utils.envs import GEMINI_FAST_MODEL
 from backend.services.gemini.assessment.overall_evaluation.prompt import get_overall_review_prompt
 from backend.services.gemini.assessment.overall_evaluation.schema import GeminiSubjectiveEvaluationReview, GeminiSubjectiveEvaluationReviewResponse
 
@@ -10,7 +11,7 @@ def gemini_subjective_evaluation_review(
     q_and_a = get_formatted_q_and_a(questions, answers)
     
     client = get_client()
-    model = "gemini-2.5-flash-lite"
+    model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiSubjectiveEvaluationReview.model_json_schema())
     full_prompt = get_overall_review_prompt(objective_name, objective_description, q_and_a)
 

@@ -1,8 +1,14 @@
+import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in_platform_interface/google_sign_in_platform_interface.dart';
+import 'package:google_sign_in_web/google_sign_in_web.dart' as web;
 import 'package:openapi/api.dart';
 
 import '../../app/app.dart';
+import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
@@ -19,7 +25,77 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
+  bool _isGoogleInit = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _initGoogleSignIn();
+  }
+
+  Future<void> _initGoogleSignIn() async {
+    try {
+      developer.log('Initializing Google Sign-In...');
+      await _authService.ensureInitialized();
+      if (mounted) {
+        setState(() {
+          _isGoogleInit = true;
+        });
+      }
+
+      // Listen to authentication changes
+      if (kIsWeb) {
+        GoogleSignIn.instance.authenticationEvents.listen((GoogleSignInAuthenticationEvent event) async {
+          if (event is GoogleSignInAuthenticationEventSignIn) {
+            final GoogleSignInAccount account = event.user;
+            developer.log('Google user stream event received: ${account.email}');
+            await _handleGoogleSignInWeb(account);
+          }
+        });
+      }
+    } catch (e) {
+      developer.log('Failed to initialize Google Sign-In: $e');
+    }
+  }
+
+  Future<void> _handleGoogleSignInWeb(GoogleSignInAccount account) async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final googleAuthResult = await _authService.handleGoogleSignInAccount(account);
+
+      if (googleAuthResult != null) {
+        final googleToken = googleAuthResult['token'] as String;
+
+        // Call signup endpoint to create/fetch account
+        final signupResult = await _authService.signupWithGoogle(googleToken);
+
+        if (signupResult != null && mounted) {
+          // Check student status to see if user has goals
+          await _routeAfterSignIn();
+        }
+      }
+    } catch (error) {
+      developer.log('Error handling Google web sign-in event: $error');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error signing in: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   Future<void> _routeAfterSignIn() async {
     try {
@@ -154,38 +230,55 @@ class _StartScreenState extends State<StartScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleGoogleSignIn,
-                    icon: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+                  child: kIsWeb
+                      ? (_isGoogleInit && GoogleSignInPlatform.instance is web.GoogleSignInPlugin
+                          ? Center(
+                              child: SizedBox(
+                                width: 320,
+                                child: (GoogleSignInPlatform.instance as web.GoogleSignInPlugin).renderButton(
+                                  configuration: web.GSIButtonConfiguration(
+                                    type: web.GSIButtonType.standard,
+                                    shape: web.GSIButtonShape.rectangular,
+                                    size: web.GSIButtonSize.large,
+                                  ),
+                                ),
                               ),
-                            ),
-                          )
-                        : const FaIcon(
-                            FontAwesomeIcons.google,
-                            color: Colors.white,
-                            size: 20,
+                            )
+                          : const Center(
+                              child: CircularProgressIndicator(),
+                            ))
+                      : ElevatedButton.icon(
+                          onPressed: _isLoading ? null : _handleGoogleSignIn,
+                          icon: _isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const FaIcon(
+                                  FontAwesomeIcons.google,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                          label: Text(
+                            _isLoading ? 'Signing in...' : 'Start with Google',
+                            style: Theme.of(context).textTheme.labelLarge,
                           ),
-                    label: Text(
-                      _isLoading ? 'Signing in...' : 'Start with Google',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4285F4),
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppTheme.cardRadius),
-                      ),
-                    ),
-                  ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4285F4),
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(AppTheme.cardRadius),
+                            ),
+                          ),
+                        ),
                 ),
 
                 // Terms and Privacy

@@ -25,6 +25,36 @@ class MultipleChoiceQuestionRepository(BaseRepository[MultipleChoiceQuestion]):
         result = await self.db.execute(stmt)
         return result.scalars().all()
 
+    async def get_unanswered_or_wrong(self, objective_id: str, student_id: str, limit: int) -> List[MultipleChoiceQuestion]:
+        """Get unanswered or wrong multiple choice questions for a specific objective and student"""
+        from backend.repositories.multiple_choice_answer_repository import MultipleChoiceAnswerRepository
+        
+        # Get all questions for the objective
+        all_questions_stmt = select(MultipleChoiceQuestion).where(
+            MultipleChoiceQuestion.objective_id == objective_id
+        )
+        all_questions_result = await self.db.execute(all_questions_stmt)
+        all_questions = all_questions_result.scalars().all()
+        
+        answer_repo = MultipleChoiceAnswerRepository(self.db)
+        
+        # Filter questions: unanswered or wrong (based on latest answer)
+        filtered_questions = []
+        for question in all_questions:
+            latest_answer = await answer_repo.get_latest_by_question_and_student(question.id, student_id)
+            
+            if latest_answer is None:
+                # Unanswered
+                filtered_questions.append(question)
+            elif latest_answer.student_answer_index != question.correct_answer_index:
+                # Wrong (based on latest answer)
+                filtered_questions.append(question)
+            
+            if len(filtered_questions) >= limit:
+                break
+        
+        return filtered_questions[:limit]
+
     async def update(self, entity: MultipleChoiceQuestion) -> MultipleChoiceQuestion:
         await self.db.flush()
         return entity

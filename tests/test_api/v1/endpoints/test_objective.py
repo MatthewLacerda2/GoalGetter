@@ -7,11 +7,11 @@ from backend.models.objective_note import ObjectiveNote as ObjectiveNoteModel
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_get_objective_successful(authenticated_client_with_objective, test_db):
+async def test_get_objective_successful(authenticated_client, test_db):
     """Test getting an objective"""
     from sqlalchemy import select
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     stmt = select(Objective)
     result = await test_db.execute(stmt)
@@ -40,11 +40,11 @@ async def test_get_objective_successful(authenticated_client_with_objective, tes
     assert len(objective_response.notes) > 0
 
 @pytest.mark.asyncio
-async def test_get_objective_list_successful(authenticated_client_with_objective, test_db):
+async def test_get_objective_list_successful(authenticated_client, test_db):
     """Test getting an all user objectives"""
     from backend.schemas.objective import ObjectiveListResponse
     
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     response = await client.get(
         "/api/v1/objective/list",
@@ -56,3 +56,17 @@ async def test_get_objective_list_successful(authenticated_client_with_objective
     assert response.status_code == 200
     assert isinstance(objectives_response, ObjectiveListResponse)
     assert len(objectives_response.objective_list) > 0
+
+
+@pytest.mark.asyncio
+async def test_get_objective_unauthorized(client):
+    """Test getting current objective without auth header returns 403"""
+    response = await client.get("/api/v1/objective")
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_get_objective_list_unauthorized(client):
+    """Test getting objective list without auth header returns 403"""
+    response = await client.get("/api/v1/objective/list")
+    assert response.status_code == 403

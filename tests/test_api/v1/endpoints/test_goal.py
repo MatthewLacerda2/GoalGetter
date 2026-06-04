@@ -7,9 +7,9 @@ from backend.models.student import Student
 from datetime import datetime, timezone
 
 @pytest.mark.asyncio
-async def test_list_goals_success(authenticated_client_with_objective, test_db):
+async def test_list_goals_success(authenticated_client, test_db):
     """Test that GET /goals returns goals ordered by latest objective update"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     # Get the test user
     stmt = select(Student).where(Student.google_id == "test_google_id_123")
@@ -56,9 +56,9 @@ async def test_list_goals_success(authenticated_client_with_objective, test_db):
 
 
 @pytest.mark.asyncio
-async def test_set_active_goal_success(authenticated_client_with_objective, test_db):
+async def test_set_active_goal_success(authenticated_client, test_db):
     """Test that PUT /goals/{goal_id}/set-active sets the active goal"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     # Get the test user
     stmt = select(Student).where(Student.google_id == "test_google_id_123")
@@ -102,9 +102,9 @@ async def test_set_active_goal_success(authenticated_client_with_objective, test
 
 
 @pytest.mark.asyncio
-async def test_set_active_goal_not_found(authenticated_client_with_objective):
+async def test_set_active_goal_not_found(authenticated_client):
     """Test that PUT /goals/{goal_id}/set-active returns 404 for non-existent goal"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     import uuid
     fake_goal_id = str(uuid.uuid4())
@@ -119,9 +119,9 @@ async def test_set_active_goal_not_found(authenticated_client_with_objective):
 
 
 @pytest.mark.asyncio
-async def test_set_active_goal_forbidden(authenticated_client_with_objective, test_db):
+async def test_set_active_goal_forbidden(authenticated_client, test_db):
     """Test that PUT /goals/{goal_id}/set-active returns 403 for goal belonging to another student"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     # Create another student with a goal
     other_student = Student(
@@ -152,9 +152,9 @@ async def test_set_active_goal_forbidden(authenticated_client_with_objective, te
 
 
 @pytest.mark.asyncio
-async def test_delete_goal_success(authenticated_client_with_objective, test_db):
+async def test_delete_goal_success(authenticated_client, test_db):
     """Test that DELETE /goals/{goal_id} deletes goal and doesn't decrement XP"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     # Get the test user
     stmt = select(Student).where(Student.google_id == "test_google_id_123")
@@ -203,9 +203,9 @@ async def test_delete_goal_success(authenticated_client_with_objective, test_db)
 
 
 @pytest.mark.asyncio
-async def test_delete_goal_sets_null_if_active(authenticated_client_with_objective, test_db):
+async def test_delete_goal_sets_null_if_active_and_no_other_goals_exist(authenticated_client, test_db):
     """Test that DELETE /goals/{goal_id} sets goal_id to NULL if deleting active goal and no other goals exist"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     # Get the test user
     stmt = select(Student).where(Student.google_id == "test_google_id_123")
@@ -214,49 +214,84 @@ async def test_delete_goal_sets_null_if_active(authenticated_client_with_objecti
     
     # Get current active goal
     current_goal_id = student.goal_id
+    assert current_goal_id is not None
     
-    if current_goal_id:
-        # Verify this is the only goal for this student
-        goals_stmt = select(Goal).where(Goal.student_id == student.id)
-        goals_result = await test_db.execute(goals_stmt)
-        all_goals = goals_result.scalars().all()
-        
-        # If there's only one goal, deleting it should set goal_id to NULL
-        # If there are multiple goals, it should switch to another goal
-        if len(all_goals) == 1:
-            response = await client.delete(
-                f"/api/v1/goals/{current_goal_id}",
-                headers={"Authorization": f"Bearer {access_token}"}
-            )
-            
-            assert response.status_code == 204
-            
-            # Verify student's goal_id and current_objective_id are now NULL
-            await test_db.refresh(student)
-            assert student.goal_id is None
-            assert student.goal_name is None
-            assert student.current_objective_id is None
-            assert student.current_objective_name is None
-        else:
-            # Multiple goals exist - deleting active goal should switch to another goal
-            response = await client.delete(
-                f"/api/v1/goals/{current_goal_id}",
-                headers={"Authorization": f"Bearer {access_token}"}
-            )
-            
-            assert response.status_code == 204
-            
-            # Verify student's goal_id was updated to another goal (not NULL)
-            await test_db.refresh(student)
-            assert student.goal_id is not None
-            assert student.goal_id != current_goal_id
-            assert student.goal_name is not None
+    # Verify this is indeed the only goal
+    goals_stmt = select(Goal).where(Goal.student_id == student.id)
+    goals_result = await test_db.execute(goals_stmt)
+    all_goals = goals_result.scalars().all()
+    assert len(all_goals) == 1
+    
+    response = await client.delete(
+        f"/api/v1/goals/{current_goal_id}",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    assert response.status_code == 204
+    
+    # Verify student's goal_id and current_objective_id are now NULL
+    await test_db.refresh(student)
+    assert student.goal_id is None
+    assert student.goal_name is None
+    assert student.current_objective_id is None
+    assert student.current_objective_name is None
 
 
 @pytest.mark.asyncio
-async def test_delete_goal_not_found(authenticated_client_with_objective):
+async def test_delete_active_goal_switches_to_another_goal(authenticated_client, test_db):
+    """Test that DELETE /goals/{goal_id} switches to another goal if active goal is deleted but other goals exist"""
+    client, access_token = authenticated_client
+    
+    # Get the test user
+    stmt = select(Student).where(Student.google_id == "test_google_id_123")
+    result = await test_db.execute(stmt)
+    student = result.scalar_one()
+    
+    # Get current active goal
+    current_goal_id = student.goal_id
+    assert current_goal_id is not None
+    
+    # Create another goal for the student
+    other_goal = Goal(
+        student_id=student.id,
+        name="Learn Web Development",
+        description="Master HTML, CSS, and modern Javascript"
+    )
+    test_db.add(other_goal)
+    await test_db.flush()
+    
+    # Create an objective for the other goal so it can switch to it
+    other_objective = Objective(
+        goal_id=other_goal.id,
+        name="HTML Fundamentals",
+        description="Learn HTML markup syntax and structure",
+        ai_model="test-model",
+        last_updated_at=datetime.now(timezone.utc)
+    )
+    test_db.add(other_objective)
+    await test_db.flush()
+    await test_db.commit()
+    
+    # Delete the active goal
+    response = await client.delete(
+        f"/api/v1/goals/{current_goal_id}",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    assert response.status_code == 204
+    
+    # Verify student's active goal and objective switched to the other goal/objective
+    await test_db.refresh(student)
+    assert student.goal_id == other_goal.id
+    assert student.goal_name == other_goal.name
+    assert student.current_objective_id == other_objective.id
+    assert student.current_objective_name == other_objective.name
+
+
+@pytest.mark.asyncio
+async def test_delete_goal_not_found(authenticated_client):
     """Test that DELETE /goals/{goal_id} returns 404 for non-existent goal"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     import uuid
     fake_goal_id = str(uuid.uuid4())
@@ -271,9 +306,9 @@ async def test_delete_goal_not_found(authenticated_client_with_objective):
 
 
 @pytest.mark.asyncio
-async def test_delete_goal_forbidden(authenticated_client_with_objective, test_db):
+async def test_delete_goal_forbidden(authenticated_client, test_db):
     """Test that DELETE /goals/{goal_id} returns 403 for goal belonging to another student"""
-    client, access_token = authenticated_client_with_objective
+    client, access_token = authenticated_client
     
     # Create another student with a goal
     other_student = Student(

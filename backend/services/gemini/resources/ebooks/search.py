@@ -3,6 +3,7 @@ from typing import List
 from google.genai import types
 from urllib.parse import urljoin, urlparse
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config, get_gemini_config_plain_text
+from backend.utils.envs import GEMINI_PREMIUM_MODEL
 from backend.services.gemini.resources.ebooks.prompts import get_search_ebooks_prompt, get_search_ebooks_prompt_plain_text
 from backend.services.gemini.resources.schema import ResourceSearchResults, GeminiResourceSearchResults, ResourceSearchResultItem
 
@@ -37,7 +38,7 @@ def gemini_search_ebooks_plain_text(
     )
     
     client = get_client()
-    model = "gemini-3-flash-preview"
+    model = GEMINI_PREMIUM_MODEL
     full_prompt = get_search_ebooks_prompt_plain_text(goal_name, goal_description, objective_name, objective_description, student_context)
     config = get_gemini_config_plain_text()
     config.tools = [grounding_tool]
@@ -51,7 +52,7 @@ def gemini_search_ebooks_plain_text(
 def gemini_search_ebooks(gemini_results_plain_text: str) -> GeminiResourceSearchResults:
     
     client = get_client()
-    model = "gemini-3-flash-preview"
+    model = GEMINI_PREMIUM_MODEL
     full_prompt = get_search_ebooks_prompt(gemini_results_plain_text)
     config = get_gemini_config(GeminiResourceSearchResults.model_json_schema())
     

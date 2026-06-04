@@ -3,12 +3,16 @@
 #Will count time_per_questions instead, and sum up to hit 2min lessons
 #Evaluations are just when user hits 95% mastery
 
+from backend.core.config import settings
+
 NUM_QUESTIONS_PER_LESSON = 12 #TODO: deprecated
 NUM_QUESTIONS_PER_EVALUATION = 8
 NUM_DIMENSIONS = 3072
-EMBEDDING_MODEL = "gemini-embedding-001"
-GOOGLE_PROJECT_ID = "driven-actor-461001-j0"
-GOOGLE_CLIENT_ID = "205743657377-gg1iilbm7fcq4q1o7smi7c10bdhlnco0.apps.googleusercontent.com"
+EMBEDDING_MODEL = "gemini-embedding-2"
+GEMINI_FAST_MODEL = "gemini-3.1-flash-lite"
+GEMINI_PREMIUM_MODEL = "gemini-3.5-flash"
+GOOGLE_PROJECT_ID = settings.GOOGLE_PROJECT_ID
+GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
 
 JWT_ISSUER = "https://goalsgetter.org/api/v1"
 JWT_AUDIENCE = "https://goalsgetter.org/api/v1"
