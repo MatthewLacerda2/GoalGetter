@@ -1,8 +1,10 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/providers.dart';
 import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
@@ -11,42 +13,20 @@ import 'onboarding/goal_prompt_screen.dart';
 import 'onboarding/start_screen.dart';
 import 'show_objectives_screen.dart';
 
-class ProfileScreen extends StatefulWidget {
-  final Function(String)? onLanguageChanged;
-
-  const ProfileScreen({super.key, this.onLanguageChanged});
+class ProfileScreen extends ConsumerStatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  String _currentLanguage = SettingsStorage.defaultLanguage;
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final AuthService _authService = AuthService();
 
   @override
-  void initState() {
-    super.initState();
-    _loadCurrentLanguage();
-  }
-
-  Future<void> _loadCurrentLanguage() async {
-    final language = await SettingsStorage.getUserLanguage();
-    setState(() {
-      _currentLanguage = language;
-    });
-  }
-
-  Future<void> _changeLanguage(String language) async {
-    await SettingsStorage.setUserLanguage(language);
-    setState(() {
-      _currentLanguage = language;
-    });
-    widget.onLanguageChanged?.call(language);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final currentLanguage = ref.watch(localeProvider).languageCode;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -65,26 +45,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'US',
                   SettingsStorage.english,
                   Icons.language,
+                  currentLanguage,
                 ),
                 _buildLanguageButton(
                   'BR',
                   SettingsStorage.portuguese,
                   Icons.language,
+                  currentLanguage,
                 ),
                 _buildLanguageButton(
                   'FR',
                   SettingsStorage.french,
                   Icons.language,
+                  currentLanguage,
                 ),
                 _buildLanguageButton(
                   'ES',
                   SettingsStorage.spanish,
                   Icons.language,
+                  currentLanguage,
                 ),
                 _buildLanguageButton(
                   'DE',
                   SettingsStorage.german,
                   Icons.language,
+                  currentLanguage,
                 ),
               ],
             ),
@@ -158,11 +143,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ));
   }
 
-  Widget _buildLanguageButton(String label, String language, IconData icon) {
-    final isSelected = _currentLanguage == language;
+  Widget _buildLanguageButton(
+    String label,
+    String language,
+    IconData icon,
+    String currentLanguage,
+  ) {
+    final isSelected = currentLanguage == language;
 
     return GestureDetector(
-      onTap: () => _changeLanguage(language),
+      onTap: () => ref.read(localeProvider.notifier).setLanguage(language),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(

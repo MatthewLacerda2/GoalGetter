@@ -17,12 +17,10 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({
     super.key,
     required this.title,
-    required this.onLanguageChanged,
     this.selectedIndex = 0,
   });
 
   final String title;
-  final ValueChanged<String> onLanguageChanged;
   final int selectedIndex;
 
   @override
@@ -43,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
       const MissionsScreen(), //TODO: placeholder while StatsScreen is not implemented
       //StatsScreen(),
       const ResourcesScreen(),
-      ProfileScreen(onLanguageChanged: widget.onLanguageChanged),
+      const ProfileScreen(),
     ];
 
     _selectedIndex = widget.selectedIndex.clamp(0, _tabPages.length - 1);
