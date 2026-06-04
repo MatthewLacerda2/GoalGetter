@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../screens/onboarding/goal_prompt_screen.dart';
 import '../screens/onboarding/start_screen.dart';
+import '../services/providers.dart';
 import 'home/home_shell.dart';
 import 'startup/auth_gate.dart';
 
@@ -20,29 +22,10 @@ class HomeRouteArgs {
   final int selectedIndex;
 }
 
-class GoalGetterApp extends StatefulWidget {
+class GoalGetterApp extends ConsumerWidget {
   const GoalGetterApp({super.key, required this.initialLocale});
 
   final Locale initialLocale;
-
-  @override
-  State<GoalGetterApp> createState() => _GoalGetterAppState();
-}
-
-class _GoalGetterAppState extends State<GoalGetterApp> {
-  late Locale _locale;
-
-  @override
-  void initState() {
-    super.initState();
-    _locale = widget.initialLocale;
-  }
-
-  void _changeLanguage(String language) {
-    setState(() {
-      _locale = Locale(language);
-    });
-  }
 
   Route<dynamic> _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -72,7 +55,6 @@ class _GoalGetterAppState extends State<GoalGetterApp> {
           settings: settings,
           builder: (_) => MyHomePage(
             title: 'Goal Getter',
-            onLanguageChanged: _changeLanguage,
             selectedIndex: homeArgs.selectedIndex,
           ),
         );
@@ -86,13 +68,15 @@ class _GoalGetterAppState extends State<GoalGetterApp> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+
     return MaterialApp(
       title: 'GoalGetter',
       theme: AppTheme.dark,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      locale: _locale,
+      locale: locale,
       debugShowCheckedModeBanner: false,
       onGenerateRoute: _onGenerateRoute,
       initialRoute: AppRoutes.root,

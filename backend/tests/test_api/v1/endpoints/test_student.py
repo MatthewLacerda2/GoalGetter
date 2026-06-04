@@ -2,15 +2,10 @@ import pytest
 from backend.schemas.student import StudentCurrentStatusResponse
 
 @pytest.mark.asyncio
-async def test_get_student_current_status_successful(authenticated_client, test_user):
+async def test_get_student_current_status_successful(auth_client, test_user):
     """Test getting the current status of the student"""
     
-    client, access_token = authenticated_client
-    
-    response = await client.get(
-        "/api/v1/student",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
+    response = await auth_client.get("/api/v1/student")
     
     student_current_status_response = StudentCurrentStatusResponse.model_validate(response.json())
     

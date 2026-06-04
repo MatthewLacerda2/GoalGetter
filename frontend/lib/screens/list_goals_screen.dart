@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
 import '../theme/app_theme.dart';
+import '../widgets/error_retry_widget.dart';
 import 'goals_detail_screen.dart';
 
 class ListGoalsScreen extends StatefulWidget {
@@ -72,22 +73,9 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
               ),
             )
           : _errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Error: $_errorMessage',
-                        style: const TextStyle(color: AppTheme.error),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: AppTheme.spacing16),
-                      ElevatedButton(
-                        onPressed: _loadGoals,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
+              ? ErrorRetryWidget(
+                  errorMessage: _errorMessage!,
+                  onRetry: _loadGoals,
                 )
               : _goals.isEmpty
                   ? Center(
