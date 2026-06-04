@@ -53,6 +53,14 @@ class SettingsStorage {
     return defaultLanguage;
   }
 
+  static String getUserLanguageSync() {
+    final prefs = _prefs;
+    if (prefs == null) return defaultLanguage;
+    final stored = prefs.getString(_languageKey);
+    if (stored != null && isSupportedLanguage(stored)) return stored;
+    return defaultLanguage;
+  }
+
   /// Returns the stored language (if any) without falling back.
   static Future<String?> getStoredUserLanguageOrNull() async {
     final prefs = await _instance;
