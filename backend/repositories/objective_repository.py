@@ -1,8 +1,9 @@
 from typing import List, Optional
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, and_
 from sqlalchemy.orm import selectinload, joinedload
 from backend.models.objective import Objective
 from backend.models.objective_note import ObjectiveNote
+from backend.models.goal import Goal
 from backend.repositories.base import BaseRepository
 
 class ObjectiveRepository(BaseRepository[Objective]):
@@ -57,8 +58,6 @@ class ObjectiveRepository(BaseRepository[Objective]):
         return False
 
     async def get_latest_for_student_excluding_goal(self, student_id: str, excluded_goal_id: str) -> Optional[Objective]:
-        from sqlalchemy import and_
-        from backend.models.goal import Goal
         stmt = (
             select(Objective)
             .join(Goal, Objective.goal_id == Goal.id)

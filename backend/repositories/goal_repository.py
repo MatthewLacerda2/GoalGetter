@@ -1,6 +1,7 @@
 from typing import List, Optional
-from sqlalchemy import select
+from sqlalchemy import select, func, desc
 from backend.models.goal import Goal
+from backend.models.objective import Objective
 from backend.repositories.base import BaseRepository
 
 class GoalRepository(BaseRepository[Goal]):
@@ -27,8 +28,6 @@ class GoalRepository(BaseRepository[Goal]):
         return result.scalars().all()
 
     async def get_goals_with_latest_updates(self, student_id: str):
-        from sqlalchemy import func, desc
-        from backend.models.objective import Objective
         stmt = (
             select(
                 Goal,
@@ -47,46 +46,11 @@ class GoalRepository(BaseRepository[Goal]):
         return entity
     
     async def delete(self, entity_id: str) -> bool:
-        entity = await self.get_by_id(entity_id)
-        if entity:
-            await self.db.delete(entity)
-            await self.db.flush()
-            return True
-        return False
+        from sqlalchemy import delete as sql_delete
+        stmt = sql_delete(Goal).where(Goal.id == entity_id)
+        result = await self.db.execute(stmt)
+        return result.rowcount > 0
 
     async def delete_cascade(self, goal_id: str) -> None:
-        from backend.models.player_achievement import PlayerAchievement
-        from backend.models.resource import Resource
-        from backend.models.student_context import StudentContext
-        from backend.models.objective import Objective
-
-        # Delete PlayerAchievements
-        pa_stmt = select(PlayerAchievement).where(PlayerAchievement.goal_id == goal_id)
-        pa_result = await self.db.execute(pa_stmt)
-        for pa in pa_result.scalars().all():
-            await self.db.delete(pa)
-
-        # Delete Resources
-        r_stmt = select(Resource).where(Resource.goal_id == goal_id)
-        r_result = await self.db.execute(r_stmt)
-        for resource in r_result.scalars().all():
-            await self.db.delete(resource)
-
-        # Delete StudentContexts
-        sc_stmt = select(StudentContext).where(StudentContext.goal_id == goal_id)
-        sc_result = await self.db.execute(sc_stmt)
-        for sc in sc_result.scalars().all():
-            await self.db.delete(sc)
-
-        # Delete Objectives
-        obj_stmt = select(Objective).where(Objective.goal_id == goal_id)
-        obj_result = await self.db.execute(obj_stmt)
-        for objective in obj_result.scalars().all():
-            await self.db.delete(objective)
-
-        # Flush to satisfy foreign key constraints before deleting the goal
-        await self.db.flush()
-
-        # Delete Goal
         await self.delete(goal_id)
 
