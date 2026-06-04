@@ -112,4 +112,35 @@ async def chat_messages(test_db, test_user):
         messages.append(msg)
     await test_db.commit()
     return messages
+
+@pytest.fixture
+def student_context_factory(test_db):
+    """Factory to create StudentContext models dynamically"""
+    import uuid
+    from datetime import datetime
+    from backend.models.student_context import StudentContext
+    
+    async def _create_contexts(student_id, goal_id, objective_id, count=3):
+        TEST_NAMESPACE = uuid.UUID('00000000-0000-0000-0000-000000000001')
+        contexts = []
+        for i in range(count):
+            context = StudentContext(
+                id=uuid.uuid5(TEST_NAMESPACE, f"Context {i}"),
+                student_id=student_id,
+                goal_id=goal_id,
+                objective_id=objective_id,
+                source="student",
+                state=f"Test context state {i}",
+                metacognition="",
+                state_embedding=None,
+                metacognition_embedding=None,
+                ai_model="non-artificial",
+                created_at=datetime.now(),
+                is_still_valid=True
+            )
+            test_db.add(context)
+            contexts.append(context)
+        await test_db.flush()
+        return contexts
+    return _create_contexts
 
