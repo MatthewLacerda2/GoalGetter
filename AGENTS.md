@@ -38,4 +38,4 @@ This system has Rust Token Killer (RTK) installed globally. To save context wind
 
 2. **Expected Behavior:** RTK will automatically strip ANSI escape codes, truncate repetitive linter/test walls of text, and compress the output by up to 90% before it hits your context window. Trust the compressed output.
 
-The user can always overwrite any of these rules explicitly.
+All rules can be overridden by the user if it was an expressed order in the current or previous prompt.
