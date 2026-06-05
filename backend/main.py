@@ -2,9 +2,9 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from backend.api.v1.endpoints import router as api_v1_router
+# from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
-from backend.core.scheduler import setup_scheduler_jobs, start_scheduler, stop_scheduler
+# from backend.core.scheduler import setup_scheduler_jobs, start_scheduler, stop_scheduler
 from backend.llms import get_llms_txt
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -26,12 +26,15 @@ async def lifespan(app: FastAPI):
     from backend.models.base import Base
     import backend.models  # Register all models on Base.metadata
     
-    logger.info("Resetting database tables on startup...")
+    logger.info("Resetting database schema on startup...")
     async with engine.begin() as conn:
+        await conn.execute(text("DROP SCHEMA public CASCADE;"))
+        await conn.execute(text("CREATE SCHEMA public;"))
+        await conn.execute(text("GRANT ALL ON SCHEMA public TO postgres;"))
+        await conn.execute(text("GRANT ALL ON SCHEMA public TO public;"))
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database tables successfully reset.")
+    logger.info("Database schema successfully reset.")
     yield
 
 app = FastAPI(
@@ -58,7 +61,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(LoggingMiddleware)
-app.include_router(api_v1_router, prefix="/api/v1")
+# app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/api/v1/check")
 async def root(request: Request):
