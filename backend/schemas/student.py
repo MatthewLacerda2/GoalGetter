@@ -14,12 +14,3 @@ class StudentResponse(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str = Field(..., description="JWT access token")
     student: StudentResponse
-    
-class StudentCurrentStatusResponse(BaseModel):
-    student_id: str
-    student_name: str
-    student_email: str
-    overall_xp: int
-    goal_id: str | None = None
-    goal_name: str | None = None
-    current_streak: int

@@ -4,29 +4,25 @@ def get_llms_txt() -> str:
     """Returns the llms.txt content as a markdown string."""
     return """# GoalGetter
 
-An educational app with an AI tutor.
+An educational app with a custom-tailored AI-Tutor designed to help people learn anything, frictionlessly.
 
 ## How it works
 
-- **Goal**: During onboarding, the user states what they want to learn and answers follow-up questions.
-- **Objective**: The next immediate step toward the goal. Once the student shows they master the objective, we create a new one.
-- **Lessons**:
-  - Multiple-choice questions with a didactic purpose
-  - Subjective questions to stimulate thinking
-  - Subjective questions to assess the student's knowledge
-- **Tutoring**: A chatbot with knowledge about the user.
-- **Gamification**:
-  - Leaderboards
-  - Missions
-  - Achievements
-- **Resources**: Recommendations of websites, YouTube channels, and eBooks.
+- **Multi-Goal Tracking**: Users can define and pursue multiple goals at the same time.
+- **Micro-Lessons**: Quick 2-3 minute daily lessons consisting of multiple-choice questions. Incorrect answers are repeated until mastered. Completion percentage and XP are awarded.
+- **Chess-like Rating System**: Each goal tracks a user's `rating` representing their mastery. The AI generates and presents questions suited for the student's current rating level.
+- **AI Tutoring**: A chatbot with deep, personalized context about the student's progress and onboarding profile.
+- **Daily Streak & Off-the-Hook Days**: A streak mechanic tied to the user (not a specific goal). Users are allowed up to two "off the hook" days per week to prevent burnout.
+- **Resources Recommendations**: Curated suggestions of YouTube channels/videos, PDF guides, and external websites matching active goals.
 
-All content is custom-tailored for the user. It's a 1:1 tutor app!
+All content is custom-tailored for the user. It's a frictionless, 1:1 tutor app!
 
-## Philosophy
+## Core Principles
 
-- **Goal**: Must be as ambitious as possible.
-- **Small steps**: Each objective is the smallest step possible above the student's current level.
-- **Gamification**: We have XP and streaks aimed at user retention.
-- **1:1 Tutoring**: We record data and context all the time; that is used to create a custom-tailored experience.
+- **Frictionless Experience**: Seamless flow between launching the app and starting/finishing lessons.
+- **Effective Learning**: A genuine sense of comprehension and progress.
+- **Mastery Focus**: Guiding the student to fully master the subject matter.
+- **Chess-like Rating**: Adapting question difficulty to the student's rating for optimal challenge (not too easy, not too hard).
+- **1:1 Tutoring**: We record student context and onboarding data to dynamically customize lessons and resources.
 """
+

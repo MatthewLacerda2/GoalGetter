@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-# from backend.api.v1.endpoints import router as api_v1_router
+from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
 # from backend.core.scheduler import setup_scheduler_jobs, start_scheduler, stop_scheduler
 from backend.llms import get_llms_txt
@@ -61,7 +61,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(LoggingMiddleware)
-# app.include_router(api_v1_router, prefix="/api/v1")
+app.include_router(api_v1_router, prefix="/api/v1")
 
 @app.get("/api/v1/check")
 async def root(request: Request):
