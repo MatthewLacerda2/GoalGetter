@@ -1,0 +1,19 @@
+# Python caches and artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Local environment and git
+.env
+.git/
+.gitignore
+Dockerfile
+.dockerignore
+
+# Test folder (not needed in production container)
+tests/

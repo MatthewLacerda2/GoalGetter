@@ -1,0 +1,23 @@
+# Ignore all files at root
+*
+
+# Allow frontend and client_sdk directories
+!frontend/
+!client_sdk/
+
+# Ignore platform-specific and build folders inside frontend
+frontend/build/
+frontend/.dart_tool/
+frontend/.pub/
+frontend/.pub-preload-cache/
+frontend/android/
+frontend/ios/
+frontend/macos/
+frontend/windows/
+frontend/linux/
+frontend/test/
+
+# Ignore IDE files
+**/.idea/
+**/.vscode/
+**/*.iml
