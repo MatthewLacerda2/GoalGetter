@@ -27,4 +27,15 @@ We must always run the tests for the backend if there have been changes in the b
 
 Any documentation you write must be for AI agents to help navigate and understand the decisions taken in case it is not self-explained by the code. Business logic must be written by the user or by the user's request.
 
+## Token Optimization Rules (RTK)
+This system has Rust Token Killer (RTK) installed globally. To save context window and avoid token bloat during terminal tool executions, adhere to these rules:
+
+1. **Prepend Token-Heavy Commands:** Always prepend `rtk` to commands that generate massive terminal outputs.
+   - Use `rtk git diff` instead of `git diff`
+   - Use `rtk status` or `rtk git status` for large repository states
+   - Use `rtk test` or `rtk cargo test` / `rtk npm test` for running test suites
+   - Use `rtk run <command>` for verbose compiler outputs or logs
+
+2. **Expected Behavior:** RTK will automatically strip ANSI escape codes, truncate repetitive linter/test walls of text, and compress the output by up to 90% before it hits your context window. Trust the compressed output.
+
 The user can always overwrite any of these rules explicitly.

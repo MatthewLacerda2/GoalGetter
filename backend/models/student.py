@@ -22,4 +22,3 @@ class Student(Base):
     goals = relationship("Goal", back_populates="student", cascade="all, delete-orphan")
     chat_messages = relationship("ChatMessage", back_populates="student", cascade="all, delete-orphan")
     student_contexts = relationship("StudentContext", back_populates="student", cascade="all, delete-orphan")
-    onboarding_answers = relationship("OnboardingAnswer", back_populates="student", cascade="all, delete-orphan")

@@ -5,6 +5,5 @@ from backend.models.student_context import StudentContext
 from backend.models.lesson_question import LessonQuestion
 from backend.models.lesson_answer import LessonAnswer
 from backend.models.onboarding_question import OnboardingQuestion
-from backend.models.onboarding_answer import OnboardingAnswer
 from backend.models.resource import Resource
 from backend.models.chat_message import ChatMessage
