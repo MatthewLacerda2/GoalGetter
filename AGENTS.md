@@ -22,3 +22,9 @@ We use fixtures so we dont have to call real APIs.
 
 We NEVER push into main, we push into a another remote branch.
 We NEVER switch from the main branch locally. We run 'git pull' and then create a worktree and work there.
+
+We must always run the tests for the backend if there have been changes in the backend before committing the code.
+
+Any documentation you write must be for AI agents to help navigate and understand the decisions taken in case it is not self-explained by the code. Business logic must be written by the user or by the user's request.
+
+The user can always overwrite any of these rules explicitly.

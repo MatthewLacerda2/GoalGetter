@@ -20,7 +20,6 @@ services:
   postgres_test:
     image: pgvector/pgvector:pg16
     container_name: goalgetter_postgres_test
-    profiles: ["dev"]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD}
@@ -36,7 +35,6 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     container_name: goalgetter_backend
-    profiles: ["prod"]
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/goalgetter
       TEST_DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_TEST_PASSWORD}@postgres_test:5432/goalgetter_test
@@ -71,7 +69,6 @@ services:
       args:
         BASE_URL: ${BASE_URL}
     container_name: goalgetter_frontend
-    profiles: ["prod"]
     ports:
       - "8080:80"
     restart: unless-stopped
@@ -96,7 +93,6 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: goalgetter_cloudflared
-    profiles: ["prod"]
     command: tunnel run
     environment:
       TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
