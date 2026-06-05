@@ -21,13 +21,18 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
-    setup_scheduler_jobs()
-    start_scheduler()    
-
-    yield
+    from sqlalchemy import text
+    from backend.core.database import engine
+    from backend.models.base import Base
+    import backend.models  # Register all models on Base.metadata
     
-    stop_scheduler()
+    logger.info("Resetting database tables on startup...")
+    async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Database tables successfully reset.")
+    yield
 
 app = FastAPI(
     title="GoalGetter API",

@@ -17,6 +17,8 @@ What makes this app viable is the use of AI to generate custom-tailored lessons,
   To encourage daily consistency, users earn a daily streak. The streak is tied to the *user*, not a specific goal—meaning you can study Goal X today and Goal Y tomorrow to maintain a 2-day consecutive streak.
 - **Off-the-Hook Days**:
   To prevent burnout and avoid discouraging users who miss a day, the app lets you "off the hook" up to two days per week without breaking your streak.
+- **Chess-like Rating System**:
+  Each goal tracks a user's `rating` (similar to a chess rating). As the user answers questions correctly, their rating increases. The AI generates and presents questions suited for someone at that rating level, serving as a reflection of their actual experience in the subject and motivating them to progress.
 - **Resources Screen**:
   Curated suggestions of YouTube channels/videos, PDF guides, and external websites matching the active goals.
 
