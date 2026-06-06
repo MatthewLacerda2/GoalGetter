@@ -11,7 +11,7 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
-import 'mock-start_screen.dart';
+import 'mock_start_screen.dart';
 
 class StartScreen extends StatefulWidget {
   StartScreen({super.key});

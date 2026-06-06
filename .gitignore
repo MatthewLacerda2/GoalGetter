@@ -187,6 +187,7 @@ app.*.symbols
 auxpy.py
 auxmd.md
 debug.txt
+frontend/lib/l10n/generated/
 
 # Terraform
 terraform.tfvars

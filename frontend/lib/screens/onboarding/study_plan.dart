@@ -9,7 +9,7 @@ import '../../services/openapi_client_factory.dart';
 import '../../utils/settings_storage.dart';
 import '../../widgets/info_card.dart';
 import 'goal_prompt_screen.dart';
-import 'mock-study_plan.dart';
+import 'mock_study_plan.dart';
 
 class StudyPlanScreen extends StatefulWidget {
   final GoalStudyPlanResponse plan;

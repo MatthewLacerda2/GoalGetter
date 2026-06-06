@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'mock-goal_prompt_screen.dart';
-import 'mock-goal_questions_screen.dart';
+import 'mock_goal_prompt_screen.dart';
+import 'mock_goal_questions_screen.dart';
 import 'study_plan.dart';
 
 class GoalQuestionsScreen extends StatefulWidget {

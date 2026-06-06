@@ -6,7 +6,7 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';
-import 'mock-streak_screen.dart';
+import 'mock_streak_screen.dart';
 
 class StreakScreen extends StatefulWidget {
   final String descriptionText;

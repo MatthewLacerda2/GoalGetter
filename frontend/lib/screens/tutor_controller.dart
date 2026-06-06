@@ -4,7 +4,7 @@ import 'package:openapi/api.dart';
 
 import '../models/chat_message.dart';
 import '../services/providers.dart';
-import 'mock-tutor_controller.dart';
+import 'mock_tutor_controller.dart';
 
 class TutorState {
   final List<ChatMessage> messages;
