@@ -41,6 +41,10 @@ COPY client_sdk/ ./client_sdk/
 
 WORKDIR /app/frontend
 
+# Run line count checks and static analysis
+RUN dart run tool/frontend_linter.dart
+RUN flutter analyze --no-fatal-warnings --no-fatal-infos
+
 ARG BASE_URL
 ENV BASE_URL=${BASE_URL}
 
