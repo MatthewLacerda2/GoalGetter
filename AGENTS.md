@@ -43,3 +43,5 @@ This system has Rust Token Killer (RTK) installed globally. To save context wind
 All rules can be overridden by the user if it was an expressed order in the current or previous prompt.
 
 Never commit nor build and run the containers unless the user asked for it in the current or previous prompt
+
+The system was made with Linux as the OS for development and deployment.
