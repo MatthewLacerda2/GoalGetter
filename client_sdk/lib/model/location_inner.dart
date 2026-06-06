@@ -12,8 +12,7 @@ part of openapi.api;
 
 class LocationInner {
   /// Returns a new [LocationInner] instance.
-  LocationInner({
-  });
+  LocationInner();
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is LocationInner;
