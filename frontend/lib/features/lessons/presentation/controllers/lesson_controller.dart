@@ -1,9 +1,11 @@
 import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/features/lessons/domain/lesson_question_data.dart';
 import 'package:goal_getter/core/services/api_client_provider.dart';
+
+part 'lesson_controller.g.dart';
 
 class LessonQuestionState {
   final MultipleChoiceQuestionResponse apiQuestion;
@@ -88,10 +90,16 @@ class LessonState {
   }
 }
 
-class LessonNotifier extends StateNotifier<LessonState> {
-  LessonNotifier(this._ref) : super(LessonState());
+@riverpod
+class LessonController extends _$LessonController {
+  @override
+  LessonState build() {
+    ref.onDispose(() {
+      _timer?.cancel();
+    });
+    return LessonState();
+  }
 
-  final Ref _ref;
   Timer? _timer;
   late DateTime _startTime;
   bool _hasSubmittedAnswers = false;
@@ -110,11 +118,9 @@ class LessonNotifier extends StateNotifier<LessonState> {
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        state = state.copyWith(
-          totalTimeSpent: DateTime.now().difference(_startTime),
-        );
-      }
+      state = state.copyWith(
+        totalTimeSpent: DateTime.now().difference(_startTime),
+      );
     });
   }
 
@@ -145,7 +151,7 @@ class LessonNotifier extends StateNotifier<LessonState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final apiClient = await _ref.read(apiClientProvider.future);
+      final apiClient = await ref.read(apiClientProvider.future);
       final activitiesApi = ActivitiesApi(apiClient);
       final response = await activitiesApi.takeMultipleChoiceActivityApiV1ActivitiesPost();
 
@@ -238,7 +244,7 @@ class LessonNotifier extends StateNotifier<LessonState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      final apiClient = await _ref.read(apiClientProvider.future);
+      final apiClient = await ref.read(apiClientProvider.future);
       final activitiesApi = ActivitiesApi(apiClient);
 
       final answers = state.questions
@@ -307,13 +313,5 @@ class LessonNotifier extends StateNotifier<LessonState> {
     return longestStreak;
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-}
 
-final lessonControllerProvider = StateNotifierProvider.autoDispose<LessonNotifier, LessonState>((ref) {
-  return LessonNotifier(ref);
-});
+}

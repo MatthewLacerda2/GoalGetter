@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:goal_getter/app/app.dart';
 import 'package:goal_getter/app/startup/app_start_controller.dart';
@@ -6,24 +7,21 @@ import 'package:goal_getter/app/startup/app_start_controller.dart';
 /// Startup gate that decides the initial screen.
 ///
 /// It delegates startup/auth/onboarding decisions to [AppStartController].
-class AuthGate extends StatefulWidget {
-  AuthGate({super.key, AppStartController? controller})
-    : _controller = controller;
-
-  final AppStartController? _controller;
+class AuthGate extends ConsumerStatefulWidget {
+  const AuthGate({super.key});
 
   @override
-  State<AuthGate> createState() => _AuthGateState();
+  ConsumerState<AuthGate> createState() => _AuthGateState();
 }
 
-class _AuthGateState extends State<AuthGate> {
+class _AuthGateState extends ConsumerState<AuthGate> {
   late final Future<AppStartResult> _future;
   bool _hasNavigated = false;
 
   @override
   void initState() {
     super.initState();
-    _future = (widget._controller ?? AppStartController()).evaluate();
+    _future = ref.read(appStartControllerProvider).evaluate();
   }
 
   @override

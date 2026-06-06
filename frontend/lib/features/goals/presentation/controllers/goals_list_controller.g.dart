@@ -1,26 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'locale_provider.dart';
+part of 'goals_list_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$localeNotifierHash() => r'd6a6c42940a751ebb8dcd126e91bcc520f1c629b';
+String _$goalsListControllerHash() =>
+    r'3e48168df8375acca617c87e84f1398905af778a';
 
-/// See also [LocaleNotifier].
-@ProviderFor(LocaleNotifier)
-final localeNotifierProvider =
-    AutoDisposeNotifierProvider<LocaleNotifier, Locale>.internal(
-  LocaleNotifier.new,
-  name: r'localeNotifierProvider',
+/// See also [GoalsListController].
+@ProviderFor(GoalsListController)
+final goalsListControllerProvider = AutoDisposeAsyncNotifierProvider<
+    GoalsListController, List<GoalListItem>>.internal(
+  GoalsListController.new,
+  name: r'goalsListControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$localeNotifierHash,
+      : _$goalsListControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LocaleNotifier = AutoDisposeNotifier<Locale>;
+typedef _$GoalsListController = AutoDisposeAsyncNotifier<List<GoalListItem>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

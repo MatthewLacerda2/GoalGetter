@@ -1,35 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:openapi/api.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/core/services/openapi_client_factory.dart';
 import 'package:goal_getter/features/goals/presentation/widgets/resource_tab.dart';
-import 'package:goal_getter/features/goals/debug/mock_resources_screen.dart';
+import 'package:goal_getter/features/goals/presentation/controllers/resources_controller.dart';
 
-class ResourcesScreen extends StatefulWidget {
-  ResourcesScreen({super.key});
+class ResourcesScreen extends ConsumerStatefulWidget {
+  const ResourcesScreen({super.key});
 
   @override
-  State<ResourcesScreen> createState() => _ResourcesScreenState();
+  ConsumerState<ResourcesScreen> createState() => _ResourcesScreenState();
 }
 
-class _ResourcesScreenState extends State<ResourcesScreen>
+class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final AuthService _authService = AuthService();
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  List<Map<String, String>> _books = [];
-  List<Map<String, String>> _youtube = [];
-  List<Map<String, String>> _sites = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadResources();
   }
 
   @override
@@ -38,47 +28,20 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     super.dispose();
   }
 
-  Future<void> _loadResources() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final mockData = await getMockResources();
-      if (mounted) {
-        setState(() {
-          _youtube = mockData['youtube'] ?? [];
-          _sites = mockData['sites'] ?? [];
-          _books = mockData['books'] ?? [];
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
+    final resourcesAsync = ref.watch(resourcesProvider);
+
+    return resourcesAsync.when(
+      loading: () => Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
           child: CircularProgressIndicator(
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Scaffold(
+      ),
+      error: (err, stack) => Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
           child: Column(
@@ -89,7 +52,7 @@ class _ResourcesScreenState extends State<ResourcesScreen>
                 color: Theme.of(context).colorScheme.error,
                 size: 48,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Text(
                 'Error loading resources',
                 style: TextStyle(
@@ -97,12 +60,11 @@ class _ResourcesScreenState extends State<ResourcesScreen>
                   fontSize: 18.0,
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
-                  _errorMessage!,
+                  err.toString(),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 14.0,
@@ -110,53 +72,58 @@ class _ResourcesScreenState extends State<ResourcesScreen>
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 24.0),
+              const SizedBox(height: 24.0),
               ElevatedButton(
-                onPressed: _loadResources,
-                child: Text('Retry'),
+                onPressed: () => ref.refresh(resourcesProvider),
+                child: const Text('Retry'),
               ),
             ],
           ),
         ),
-      );
-    }
+      ),
+      data: (mockData) {
+        final youtube = mockData['youtube'] ?? [];
+        final sites = mockData['sites'] ?? [];
+        final books = mockData['books'] ?? [];
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Theme.of(context).colorScheme.primary,
-          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-          dividerHeight: 4,
-          dividerColor: Theme.of(context).colorScheme.primary,
-          indicatorColor: Theme.of(context).colorScheme.primary,
-          tabs: [
-            Tab(
-              icon: Icon(Icons.play_circle, size: 28),
-              text: AppLocalizations.of(context)!.youtube,
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            toolbarHeight: 0,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            bottom: TabBar(
+              controller: _tabController,
+              labelColor: Theme.of(context).colorScheme.primary,
+              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              dividerHeight: 4,
+              dividerColor: Theme.of(context).colorScheme.primary,
+              indicatorColor: Theme.of(context).colorScheme.primary,
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.play_circle, size: 28),
+                  text: AppLocalizations.of(context)!.youtube,
+                ),
+                Tab(
+                  icon: const Icon(Icons.language, size: 28),
+                  text: AppLocalizations.of(context)!.sites,
+                ),
+                Tab(
+                  icon: const Icon(Icons.book, size: 24),
+                  text: AppLocalizations.of(context)!.book,
+                ),
+              ],
             ),
-            Tab(
-              icon: Icon(Icons.language, size: 28),
-              text: AppLocalizations.of(context)!.sites,
-            ),
-            Tab(
-              icon: Icon(Icons.book, size: 24),
-              text: AppLocalizations.of(context)!.book,
-            ),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          ResourceTab(resources: _youtube),
-          ResourceTab(resources: _sites),
-          ResourceTab(resources: _books),
-        ],
-      ),
+          ),
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              ResourceTab(resources: youtube),
+              ResourceTab(resources: sites),
+              ResourceTab(resources: books),
+            ],
+          ),
+        );
+      },
     );
   }
 }

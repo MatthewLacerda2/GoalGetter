@@ -10,8 +10,8 @@ import 'package:goal_getter/core/utils/settings_storage.dart';
 Future<void> submitMockFullCreation(
   BuildContext context,
   GoalStudyPlanResponse plan,
+  AuthService authService,
 ) async {
-  final authService = AuthService();
 
   // Store mock JWT access token and student credentials
   await authService.storeFinalCredentials(

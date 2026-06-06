@@ -23,9 +23,7 @@ class HomeRouteArgs {
 }
 
 class GoalGetterApp extends ConsumerWidget {
-  const GoalGetterApp({super.key, required this.initialLocale});
-
-  final Locale initialLocale;
+  const GoalGetterApp({super.key});
 
   Route<dynamic> _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
