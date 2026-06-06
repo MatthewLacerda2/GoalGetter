@@ -35,22 +35,10 @@
     "questions": "Perguntas",
     "@questions": {
         "description": "Label para tela de perguntas"
-    },    
+    },
     "send": "Enviar",
     "@send": {
         "description": "Label para botão enviar"
-    },
-    "beforeYouStart": "Ah, e já vou avisando...",
-    "@beforeYouStart": {
-        "description": "Label para antes de começar"
-    },
-    "goalStarted": "Estrada iniciada!",
-    "@goalStarted": {
-        "description": "Label para meta iniciada"
-    },
-    "letSGo": "BORA LÁ!",
-    "@letSGo": {
-        "description": "Label para botão vamos lá"
     },
     "yourAnswer": "Sua resposta...",
     "@yourAnswer": {
@@ -68,34 +56,6 @@
     "@continuate": {
         "description": "Label para botão continuar"
     },
-    "sunday": "Domingo",
-    "@sunday": {
-        "description": "Label for sunday"
-    },
-    "monday": "Segunda",
-    "@monday": {
-        "description": "Label for monday"
-    },
-    "tuesday": "Terça",
-    "@tuesday": {
-        "description": "Label for tuesday"
-    },
-    "wednesday": "Quarta",
-    "@wednesday": {
-        "description": "Label for wednesday"
-    },
-    "thursday": "Quinta",
-    "@thursday": {
-        "description": "Label for thursday"
-    },
-    "friday": "Sexta",
-    "@friday": {
-        "description": "Label for friday"
-    },
-    "saturday": "Sábado",
-    "@saturday": {
-        "description": "Label for saturday"
-    },
     "sundayShort": "Dom",
     "@sundayShort": {
         "description": "Label for sunday short"
@@ -104,7 +64,7 @@
     "@mondayShort": {
         "description": "Label for monday short"
     },
-    "tuesdayShort": "Ter",  
+    "tuesdayShort": "Ter",
     "@tuesdayShort": {
         "description": "Label for tuesday short"
     },
@@ -136,14 +96,6 @@
     "@sites": {
         "description": "Label for sites"
     },
-    "lessonSession": "Partida de Aula",
-    "@lessonSession": {
-        "description": "Label for lesson session"
-    },
-    "showMeWhatYouGot": "Mostre-me o que sabe!",
-    "@showMeWhatYouGot": {
-        "description": "Label for show me what you got"
-    },
     "notes": "Notas",
     "@notes": {
         "description": "Label for notes"
@@ -151,10 +103,6 @@
     "progress": "Progresso",
     "@progress": {
         "description": "Label for progress"
-    },
-    "achievements": "Conquistas",
-    "@achievements": {
-        "description": "Label for achievements"
     },
     "typeYourMessage": "Mensagem...",
     "@typeYourMessage": {
@@ -164,21 +112,9 @@
     "@keepThePressureOn": {
         "description": "Label for keep the pressure on"
     },
-    "wellDone": "Boa resposta!",
-    "@wellDone": {
-        "description": "Label for well done"
-    },
-    "opsNotQuite": "Ops! Não é isso...",
-    "@opsNotQuite": {
-        "description": "Label for ops not quite"
-    },
     "objective": "Objetivo",
     "@objective": {
         "description": "Label for objective"
-    },
-    "objectives": "Objetivos",
-    "@objectives": {
-        "description": "Label for objectives"
     },
     "tutor": "Tutor",
     "@tutor": {
@@ -195,14 +131,6 @@
     "profile": "Perfil",
     "@profile": {
         "description": "Label for profile"
-    },
-    "startLesson": "Iniciar Lição",
-    "@startLesson": {
-        "description": "Label for start lesson"
-    },
-    "startAssessment": "Iniciar Avaliação",
-    "@startAssessment": {
-        "description": "Label for start assessment"
     },
     "trailwayToYourGoal": "Um plano de estudo pronto para você",
     "@trailwayToYourGoal": {
@@ -240,10 +168,6 @@
     "@nowLetSCorrectYourMistakes": {
         "description": "Label for now let's correct your mistakes"
     },
-    "noCompletedObjectives": "Nenhum objetivo concluído",
-    "@noCompletedObjectives": {
-        "description": "Label for no completed objectives"
-    },
     "createdAt": "Criado em",
     "@createdAt": {
         "description": "Label for created at"
@@ -251,14 +175,6 @@
     "goals": "Minhas metas",
     "@goals": {
         "description": "Label for goals"
-    },
-    "showObjectives": "Lista de objetivos",
-    "@showObjectives": {
-        "description": "Label for show objectives"
-    },
-    "listMemories": "Memórias",
-    "@listMemories": {
-        "description": "Label for list memories"
     },
     "createNewGoal": "Criar nova meta",
     "@createNewGoal": {
@@ -283,18 +199,6 @@
     "comingSoon": "Em breve",
     "@comingSoon": {
         "description": "Label for coming soon"
-    },
-    "deleteMemory": "Deletar",
-    "@deleteMemory": {
-        "description": "Label for delete memory"
-    },
-    "noMemories": "Nenhuma memória",
-    "@noMemories": {
-        "description": "Label for no memories"
-    },
-    "deleteMemoryDescription": "Tem certeza que deseja deletar esta memória?",
-    "@deleteMemoryDescription": {
-        "description": "Label for delete memory description"
     },
     "untitledGoal": "Meta sem nome",
     "@untitledGoal": {
@@ -360,18 +264,6 @@
     "@agreeToTermsAndPrivacyPolicy": {
         "description": "Label for agree to terms and privacy policy"
     },
-    "exampleCourse1": "“Como ser carismático”",
-    "@exampleCourse1": {
-        "description": "Example course text 1 shown on pre-onboarding tutorial"
-    },
-    "exampleCourse2": "“Curso para OAB”",
-    "@exampleCourse2": {
-        "description": "Example course text 2 shown on pre-onboarding tutorial"
-    },
-    "exampleCourse3": "“Computação Quantica”",
-    "@exampleCourse3": {
-        "description": "Example course text 3 shown on pre-onboarding tutorial"
-    },
     "preOnboardingYourCoursesTitle": "Seus cursos",
     "@preOnboardingYourCoursesTitle": {
         "description": "Pre-onboarding tutorial page title: Your courses"
@@ -403,10 +295,6 @@
     "preOnboardingAiThatKnowsYouBody": "Um Tutor que conhece você e está pronto para conversar e guiá-lo",
     "@preOnboardingAiThatKnowsYouBody": {
         "description": "Pre-onboarding tutorial page body: An AI that knows you"
-    },
-    "writeYourMemory": "Escreva sua memória...",
-    "@writeYourMemory": {
-        "description": "Label for write your memory"
     },
     "noDescription": "Deletar Meta",
     "@noDescription": {

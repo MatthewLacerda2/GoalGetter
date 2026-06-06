@@ -161,23 +161,8 @@ abstract class AppLocalizations {
   /// **'Send'**
   String get send;
 
-  /// Label for before you start
-  ///
-  /// In en, this message translates to:
-  /// **'Before you start...'**
-  String get beforeYouStart;
 
-  /// Label for goal started
-  ///
-  /// In en, this message translates to:
-  /// **'Goal started!'**
-  String get goalStarted;
 
-  /// Label for let's go button
-  ///
-  /// In en, this message translates to:
-  /// **'LET\'S GO!'**
-  String get letSGo;
 
   /// Label for your answer
   ///
@@ -203,47 +188,12 @@ abstract class AppLocalizations {
   /// **'Continue!'**
   String get continuate;
 
-  /// Label for sunday
-  ///
-  /// In en, this message translates to:
-  /// **'Sunday'**
-  String get sunday;
 
-  /// Label for monday
-  ///
-  /// In en, this message translates to:
-  /// **'Monday'**
-  String get monday;
 
-  /// Label for tuesday
-  ///
-  /// In en, this message translates to:
-  /// **'Tuesday'**
-  String get tuesday;
 
-  /// Label for wednesday
-  ///
-  /// In en, this message translates to:
-  /// **'Wednesday'**
-  String get wednesday;
 
-  /// Label for thursday
-  ///
-  /// In en, this message translates to:
-  /// **'Thursday'**
-  String get thursday;
 
-  /// Label for friday
-  ///
-  /// In en, this message translates to:
-  /// **'Friday'**
-  String get friday;
 
-  /// Label for saturday
-  ///
-  /// In en, this message translates to:
-  /// **'Saturday'**
-  String get saturday;
 
   /// Label for sunday short
   ///
@@ -305,17 +255,7 @@ abstract class AppLocalizations {
   /// **'Sites'**
   String get sites;
 
-  /// Label for lesson session
-  ///
-  /// In en, this message translates to:
-  /// **'Lesson Session'**
-  String get lessonSession;
 
-  /// Label for show me what you got
-  ///
-  /// In en, this message translates to:
-  /// **'Show me what you got'**
-  String get showMeWhatYouGot;
 
   /// Label for notes
   ///
@@ -329,11 +269,6 @@ abstract class AppLocalizations {
   /// **'Progress'**
   String get progress;
 
-  /// Label for achievements
-  ///
-  /// In en, this message translates to:
-  /// **'Achievements'**
-  String get achievements;
 
   /// Label for type your message
   ///
@@ -347,17 +282,7 @@ abstract class AppLocalizations {
   /// **'Yeah, keep the pressure on !!!'**
   String get keepThePressureOn;
 
-  /// Label for well done
-  ///
-  /// In en, this message translates to:
-  /// **'Well done!'**
-  String get wellDone;
 
-  /// Label for ops not quite
-  ///
-  /// In en, this message translates to:
-  /// **'Ops! Not quite...'**
-  String get opsNotQuite;
 
   /// Label for objective
   ///
@@ -365,11 +290,6 @@ abstract class AppLocalizations {
   /// **'Objective'**
   String get objective;
 
-  /// Label for objectives
-  ///
-  /// In en, this message translates to:
-  /// **'Objectives'**
-  String get objectives;
 
   /// Label for tutor
   ///
@@ -395,17 +315,7 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get profile;
 
-  /// Label for start lesson
-  ///
-  /// In en, this message translates to:
-  /// **'Start Lesson'**
-  String get startLesson;
 
-  /// Label for start assessment
-  ///
-  /// In en, this message translates to:
-  /// **'Start Assessment'**
-  String get startAssessment;
 
   /// Label for trailway to your goal
   ///
@@ -461,11 +371,6 @@ abstract class AppLocalizations {
   /// **'Now let\'s correct your mistakes'**
   String get nowLetSCorrectYourMistakes;
 
-  /// Label for no completed objectives
-  ///
-  /// In en, this message translates to:
-  /// **'No completed objectives'**
-  String get noCompletedObjectives;
 
   /// Label for created at
   ///
@@ -479,17 +384,7 @@ abstract class AppLocalizations {
   /// **'My Goals'**
   String get goals;
 
-  /// Label for show objectives
-  ///
-  /// In en, this message translates to:
-  /// **'List of objectives'**
-  String get showObjectives;
 
-  /// Label for list memories
-  ///
-  /// In en, this message translates to:
-  /// **'Memories'**
-  String get listMemories;
 
   /// Label for create new goal
   ///
@@ -527,23 +422,8 @@ abstract class AppLocalizations {
   /// **'Coming soon'**
   String get comingSoon;
 
-  /// Label for delete memory
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get deleteMemory;
 
-  /// Label for no memories
-  ///
-  /// In en, this message translates to:
-  /// **'No memories'**
-  String get noMemories;
 
-  /// Label for delete memory description
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete this memory?'**
-  String get deleteMemoryDescription;
 
   /// Label for untitled goal
   ///
@@ -641,23 +521,8 @@ abstract class AppLocalizations {
   /// **'By continuing, you agree to our Terms of Service and Privacy Policy'**
   String get agreeToTermsAndPrivacyPolicy;
 
-  /// Example course text 1 shown on pre-onboarding tutorial
-  ///
-  /// In en, this message translates to:
-  /// **'“AI Engineering course”'**
-  String get exampleCourse1;
 
-  /// Example course text 2 shown on pre-onboarding tutorial
-  ///
-  /// In en, this message translates to:
-  /// **'“I wanna know Gardening 101”'**
-  String get exampleCourse2;
 
-  /// Example course text 3 shown on pre-onboarding tutorial
-  ///
-  /// In en, this message translates to:
-  /// **'“How to be a gentleman?”'**
-  String get exampleCourse3;
 
   /// Pre-onboarding tutorial page title: Your courses
   ///
@@ -707,11 +572,6 @@ abstract class AppLocalizations {
   /// **'Your Tutor knows you and is ready to talk and guide you'**
   String get preOnboardingAiThatKnowsYouBody;
 
-  /// Label for write your memory
-  ///
-  /// In en, this message translates to:
-  /// **'Write your memory...'**
-  String get writeYourMemory;
 
   /// Label for no description
   ///

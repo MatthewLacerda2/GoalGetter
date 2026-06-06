@@ -38,14 +38,8 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get send => 'Enviar';
 
-  @override
-  String get beforeYouStart => 'Ah, e já vou avisando...';
 
-  @override
-  String get goalStarted => 'Estrada iniciada!';
 
-  @override
-  String get letSGo => 'BORA LÁ!';
 
   @override
   String get yourAnswer => 'Sua resposta...';
@@ -59,26 +53,12 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get continuate => 'Continue!';
 
-  @override
-  String get sunday => 'Domingo';
 
-  @override
-  String get monday => 'Segunda';
 
-  @override
-  String get tuesday => 'Terça';
 
-  @override
-  String get wednesday => 'Quarta';
 
-  @override
-  String get thursday => 'Quinta';
 
-  @override
-  String get friday => 'Sexta';
 
-  @override
-  String get saturday => 'Sábado';
 
   @override
   String get sundayShort => 'Dom';
@@ -110,11 +90,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get sites => 'Sites';
 
-  @override
-  String get lessonSession => 'Partida de Aula';
 
-  @override
-  String get showMeWhatYouGot => 'Mostre-me o que sabe!';
 
   @override
   String get notes => 'Notas';
@@ -122,8 +98,6 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get progress => 'Progresso';
 
-  @override
-  String get achievements => 'Conquistas';
 
   @override
   String get typeYourMessage => 'Mensagem...';
@@ -131,17 +105,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get keepThePressureOn => 'Continue sendo um orgulho!';
 
-  @override
-  String get wellDone => 'Boa resposta!';
 
-  @override
-  String get opsNotQuite => 'Ops! Não é isso...';
 
   @override
   String get objective => 'Objetivo';
 
-  @override
-  String get objectives => 'Objetivos';
 
   @override
   String get tutor => 'Tutor';
@@ -155,11 +123,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get profile => 'Perfil';
 
-  @override
-  String get startLesson => 'Iniciar Lição';
 
-  @override
-  String get startAssessment => 'Iniciar Avaliação';
 
   @override
   String get trailwayToYourGoal => 'Um plano de estudo pronto para você';
@@ -188,8 +152,6 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get nowLetSCorrectYourMistakes => 'Agora vamos corrigir seus erros';
 
-  @override
-  String get noCompletedObjectives => 'Nenhum objetivo concluído';
 
   @override
   String get createdAt => 'Criado em';
@@ -197,11 +159,7 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get goals => 'Minhas metas';
 
-  @override
-  String get showObjectives => 'Lista de objetivos';
 
-  @override
-  String get listMemories => 'Memórias';
 
   @override
   String get createNewGoal => 'Criar nova meta';
@@ -221,14 +179,8 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get comingSoon => 'Em breve';
 
-  @override
-  String get deleteMemory => 'Deletar';
 
-  @override
-  String get noMemories => 'Nenhuma memória';
 
-  @override
-  String get deleteMemoryDescription => 'Tem certeza que deseja deletar esta memória?';
 
   @override
   String get untitledGoal => 'Meta sem nome';
@@ -278,14 +230,8 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get agreeToTermsAndPrivacyPolicy => 'Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade';
 
-  @override
-  String get exampleCourse1 => '“Como ser carismático”';
 
-  @override
-  String get exampleCourse2 => '“Curso para OAB”';
 
-  @override
-  String get exampleCourse3 => '“Computação Quantica”';
 
   @override
   String get preOnboardingYourCoursesTitle => 'Seus cursos';
@@ -311,8 +257,6 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get preOnboardingAiThatKnowsYouBody => 'Um Tutor que conhece você e está pronto para conversar e guiá-lo';
 
-  @override
-  String get writeYourMemory => 'Escreva sua memória...';
 
   @override
   String get noDescription => 'Deletar Meta';

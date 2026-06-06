@@ -38,14 +38,8 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get send => 'Envoyer';
 
-  @override
-  String get beforeYouStart => 'Avant de commencer...';
 
-  @override
-  String get goalStarted => 'Objectif commencé !';
 
-  @override
-  String get letSGo => 'C\'EST PARTI !';
 
   @override
   String get yourAnswer => 'Votre réponse...';
@@ -59,26 +53,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get continuate => 'Continuez !';
 
-  @override
-  String get sunday => 'Dimanche';
 
-  @override
-  String get monday => 'Lundi';
 
-  @override
-  String get tuesday => 'Mardi';
 
-  @override
-  String get wednesday => 'Mercredi';
 
-  @override
-  String get thursday => 'Jeudi';
 
-  @override
-  String get friday => 'Vendredi';
 
-  @override
-  String get saturday => 'Samedi';
 
   @override
   String get sundayShort => 'Dim';
@@ -110,11 +90,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get sites => 'Sites';
 
-  @override
-  String get lessonSession => 'Session de cours';
 
-  @override
-  String get showMeWhatYouGot => 'Montrez-moi ce que vous avez';
 
   @override
   String get notes => 'Notes';
@@ -122,8 +98,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get progress => 'Progrès';
 
-  @override
-  String get achievements => 'Réalisations';
 
   @override
   String get typeYourMessage => 'Tapez votre message...';
@@ -131,17 +105,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get keepThePressureOn => 'Oui, continuez la pression !!!';
 
-  @override
-  String get wellDone => 'Bien joué !';
 
-  @override
-  String get opsNotQuite => 'Oups ! Pas tout à fait...';
 
   @override
   String get objective => 'Objectif';
 
-  @override
-  String get objectives => 'Objectifs';
 
   @override
   String get tutor => 'Tuteur';
@@ -155,11 +123,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get profile => 'Profil';
 
-  @override
-  String get startLesson => 'Commencer la leçon';
 
-  @override
-  String get startAssessment => 'Commencer l\'évaluation';
 
   @override
   String get trailwayToYourGoal => 'Un chemin donné vers votre objectif';
@@ -188,8 +152,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get nowLetSCorrectYourMistakes => 'Maintenant, corrigeons vos erreurs';
 
-  @override
-  String get noCompletedObjectives => 'Aucun objectif complet';
 
   @override
   String get createdAt => 'Créé le';
@@ -197,11 +159,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get goals => 'Mes objectifs';
 
-  @override
-  String get showObjectives => 'Liste des objectifs';
 
-  @override
-  String get listMemories => 'Mémoires';
 
   @override
   String get createNewGoal => 'Créer un nouvel objectif';
@@ -221,14 +179,8 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get comingSoon => 'Bientôt disponible';
 
-  @override
-  String get deleteMemory => 'Supprimer';
 
-  @override
-  String get noMemories => 'Aucune mémoire';
 
-  @override
-  String get deleteMemoryDescription => 'Êtes-vous sûr de vouloir supprimer cette mémoire?';
 
   @override
   String get untitledGoal => 'Objectif sans nom';
@@ -278,14 +230,8 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get agreeToTermsAndPrivacyPolicy => 'En continuant, vous acceptez nos Conditions d\'Utilisation et Politique de Confidentialité';
 
-  @override
-  String get exampleCourse1 => '“Comment devenir charismatique”';
 
-  @override
-  String get exampleCourse2 => '“Je veux apprendre l\'histoire de l\'art”';
 
-  @override
-  String get exampleCourse3 => '“Je veux apprendre à faire des boissons”';
 
   @override
   String get preOnboardingYourCoursesTitle => 'Vos cours';
@@ -311,8 +257,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get preOnboardingAiThatKnowsYouBody => 'Votre tuteur vous connaît et est prêt à parler et vous guider';
 
-  @override
-  String get writeYourMemory => 'Écrivez votre mémoire...';
 
   @override
   String get noDescription => 'Supprimer l\'Objectif';
