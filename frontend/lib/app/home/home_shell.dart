@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../screens/missions_screen.dart';
-import '../../screens/objective_screen.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/resources_screen.dart';
 import '../../screens/tutor_screen.dart';
@@ -35,11 +34,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _tabPages = [
-      const ObjectiveScreen(),
       const MissionsScreen(),
       const TutorScreen(),
-      const MissionsScreen(), //TODO: placeholder while StatsScreen is not implemented
-      //StatsScreen(),
       const ResourcesScreen(),
       const ProfileScreen(),
     ];
@@ -57,43 +53,29 @@ class _MyHomePageState extends State<MyHomePage> {
     return [
       BottomNavigationBarItem(
         icon: MainScreenIcon(
-          icon: Icons.event_note,
-          isSelected: _selectedIndex == 0,
-        ),
-        label: AppLocalizations.of(context)!.objective,
-      ),
-      BottomNavigationBarItem(
-        icon: MainScreenIcon(
           icon: Icons.flag,
-          isSelected: _selectedIndex == 1,
+          isSelected: _selectedIndex == 0,
         ),
         label: 'Missions',
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.graphic_eq,
-          isSelected: _selectedIndex == 2,
+          isSelected: _selectedIndex == 1,
         ),
         label: AppLocalizations.of(context)!.tutor,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
-          icon: Icons.emoji_events,
-          isSelected: _selectedIndex == 3,
-        ),
-        label: AppLocalizations.of(context)!.awards,
-      ),
-      BottomNavigationBarItem(
-        icon: MainScreenIcon(
           icon: Icons.school,
-          isSelected: _selectedIndex == 4,
+          isSelected: _selectedIndex == 2,
         ),
         label: AppLocalizations.of(context)!.resources,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.person,
-          isSelected: _selectedIndex == 5,
+          isSelected: _selectedIndex == 3,
         ),
         label: AppLocalizations.of(context)!.profile,
       ),

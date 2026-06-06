@@ -8,10 +8,8 @@ import '../services/providers.dart';
 import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
-import 'list_memories_screen.dart';
 import 'onboarding/goal_prompt_screen.dart';
 import 'onboarding/start_screen.dart';
-import 'show_objectives_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -84,36 +82,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const ListGoalsScreen(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            _buildSectionTile(
-              AppLocalizations.of(context)!.showObjectives,
-              Icons.checklist,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ShowObjectivesScreen(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            _buildSectionTile(
-              AppLocalizations.of(context)!.listMemories,
-              Icons.memory,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ListMemoriesScreen(),
                   ),
                 );
               },
