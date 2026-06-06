@@ -22,7 +22,7 @@ class WeekdayColumn extends StatelessWidget {
       circleColor = Theme.of(context).colorScheme.outline;
       circleIcon = Icons.remove;
     } else if (isCompleted == true) {
-      circleColor = Theme.of(context).extension<CustomColors>()!.success;
+      circleColor = Theme.of(context).extension<CustomColors>()?.success ?? Theme.of(context).colorScheme.primary;
       circleIcon = Icons.check;
     } else {
       circleColor = Theme.of(context).colorScheme.error;

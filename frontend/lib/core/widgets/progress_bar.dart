@@ -47,7 +47,7 @@ class ProgressBar extends StatelessWidget {
           LinearProgressIndicator(
             value: percentage.clamp(0.0, 1.0),
             backgroundColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.33),
-            valueColor: const AlwaysStoppedAnimation<Color>(
+            valueColor: AlwaysStoppedAnimation<Color>(
               Theme.of(context).colorScheme.primary,
             ),
             minHeight: 12.0,
