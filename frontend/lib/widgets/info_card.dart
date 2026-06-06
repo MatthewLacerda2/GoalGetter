@@ -13,7 +13,7 @@ class InfoCard extends StatelessWidget {
   final Color? backgroundColor;
   final InfoCardVariant variant;
 
-  const InfoCard({
+  InfoCard({
     super.key,
     this.title,
     this.description,
@@ -21,7 +21,7 @@ class InfoCard extends StatelessWidget {
     this.variant = InfoCardVariant.normal,
   });
 
-  const InfoCard.ghost({
+  InfoCard.ghost({
     super.key,
     this.title,
     this.description,
@@ -34,21 +34,21 @@ class InfoCard extends StatelessWidget {
     final effectiveBackgroundColor = backgroundColor ??
         (variant == InfoCardVariant.ghost
             ? Colors.transparent
-            : AppTheme.cardBackground);
+            : Theme.of(context).colorScheme.surfaceContainer);
     final hasShadow = variant != InfoCardVariant.ghost;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppTheme.cardPadding),
+      padding: EdgeInsets.all(24.0),
       decoration: BoxDecoration(
         color: effectiveBackgroundColor,
-        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        borderRadius: BorderRadius.circular(20.0),
         boxShadow: hasShadow
             ? [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  offset: Offset(0, 2),
                 ),
               ]
             : null,
@@ -61,16 +61,16 @@ class InfoCard extends StatelessWidget {
               title!,
               style: theme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           if (title != null && description != null) ...[
-            const SizedBox(height: AppTheme.spacing12),
+            SizedBox(height: 12.0),
             Divider(
               height: 1,
-              color: AppTheme.textTertiary.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: AppTheme.spacing12),
+            SizedBox(height: 12.0),
           ],
           if (description != null)
             Text(
@@ -78,7 +78,7 @@ class InfoCard extends StatelessWidget {
               style: theme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.normal,
                 fontSize: AppTheme.notesHeadingSize * 0.8,
-                color: AppTheme.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1.6,
               ),
             ),

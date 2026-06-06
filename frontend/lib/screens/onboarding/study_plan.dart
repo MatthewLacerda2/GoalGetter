@@ -6,7 +6,6 @@ import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/settings_storage.dart';
 import '../../widgets/info_card.dart';
 import 'goal_prompt_screen.dart';
@@ -14,7 +13,7 @@ import 'goal_prompt_screen.dart';
 class StudyPlanScreen extends StatefulWidget {
   final GoalStudyPlanResponse plan;
 
-  const StudyPlanScreen({super.key, required this.plan});
+  StudyPlanScreen({super.key, required this.plan});
 
   @override
   State<StudyPlanScreen> createState() => _StudyPlanScreenState();
@@ -83,7 +82,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         Navigator.of(context).pushNamedAndRemoveUntil(
           AppRoutes.home,
           (route) => false,
-          arguments: const HomeRouteArgs(selectedIndex: 0),
+          arguments: HomeRouteArgs(selectedIndex: 0),
         );
       }
     } catch (e) {
@@ -110,7 +109,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.edgePadding),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -118,10 +117,10 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
             Text(
               widget.plan.goalName,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppTheme.accentPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             // Goal description
             Text(
               widget.plan.goalDescription,
@@ -129,30 +128,30 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                     height: 1.6,
                   ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.firstObjective,
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             // First objective
             Text(
               widget.plan.firstObjectiveName,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppTheme.accentPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               widget.plan.firstObjectiveDescription,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     height: 1.6,
                   ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Divider(color: Colors.grey[500]),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             // Milestones
             if (widget.plan.milestones.isNotEmpty) ...[
               Text(
@@ -164,24 +163,24 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               ...widget.plan.milestones.map(
                 (m) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: EdgeInsets.only(bottom: 12),
                   child: InfoCard(title: m, backgroundColor: milestoneBg),
                 ),
               ),
             ],
-            const SizedBox(height: 28),
-            const Divider(color: Colors.grey),
-            const SizedBox(height: 12),
+            SizedBox(height: 28),
+            Divider(color: Colors.grey),
+            SizedBox(height: 12),
             Center(
               child: Text(
                 AppLocalizations.of(context)!.confirmQuestion,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -189,47 +188,47 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
                     onPressed: () {
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
-                          builder: (context) => const GoalPromptScreen(),
+                          builder: (context) => GoalPromptScreen(),
                         ),
                         (route) => false,
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.error,
+                      backgroundColor: Theme.of(context).colorScheme.error,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppTheme.spacing16,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.spacing8),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.no,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: AppTheme.fontSize18,
+                        fontSize: 18.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: AppTheme.spacing12),
+                SizedBox(width: 12.0),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submitFullCreation,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentPrimary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppTheme.spacing16,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.spacing8),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(

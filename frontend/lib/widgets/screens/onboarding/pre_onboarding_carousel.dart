@@ -4,10 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../theme/app_theme.dart';
-
 class PreOnboardingCarousel extends StatefulWidget {
-  const PreOnboardingCarousel({super.key, this.height = 170});
+  PreOnboardingCarousel({super.key, this.height = 170});
 
   final double height;
 
@@ -25,7 +23,7 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
   void initState() {
     super.initState();
 
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 13), (_) {
+    _autoSlideTimer = Timer.periodic(Duration(seconds: 13), (_) {
       if (!mounted || !_controller.hasClients) {
         return;
       }
@@ -38,7 +36,7 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
       final nextIndex = _index + 1;
       _controller.animateToPage(
         nextIndex,
-        duration: const Duration(milliseconds: 420),
+        duration: Duration(milliseconds: 420),
         curve: Curves.easeOutCubic,
       );
     });
@@ -97,7 +95,7 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
             ),
             child: PageView.builder(
               controller: _controller,
-              physics: const PageScrollPhysics(),
+              physics: PageScrollPhysics(),
               onPageChanged: (i) {
                 if (i == items.length) {
                   // We swiped onto the extra "duplicate" page -> jump back to real page 0.
@@ -115,33 +113,33 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
               itemBuilder: (context, i) {
                 final item = items[i % items.length];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         item.icon,
                         size: 44,
-                        color: AppTheme.accentPrimary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                      const SizedBox(height: AppTheme.spacing12),
+                      SizedBox(height: 12.0),
                       Text(
                         item.title,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: AppTheme.fontSize20,
+                        style: TextStyle(
+                          fontSize: 20.0,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           height: 1.2,
                         ),
                       ),
-                      const SizedBox(height: AppTheme.spacing8),
+                      SizedBox(height: 8.0),
                       Text(
                         item.body,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: AppTheme.fontSize16,
-                          color: AppTheme.textSecondary,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           height: 1.25,
                         ),
                       ),
@@ -152,21 +150,21 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(items.length, (i) {
             final active = i == _index;
             return AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
+              duration: Duration(milliseconds: 180),
               curve: Curves.easeOut,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
+              margin: EdgeInsets.symmetric(horizontal: 4),
               width: active ? 10 : 8,
               height: active ? 10 : 8,
               decoration: BoxDecoration(
                 color: active
-                    ? AppTheme.accentPrimary
-                    : AppTheme.accentPrimary.withValues(alpha: 0.4),
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(99),
               ),
             );

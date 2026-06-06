@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../theme/app_theme.dart';
-
 class ResourceTab extends StatelessWidget {
   final List<Map<String, String>> resources;
 
-  const ResourceTab({super.key, required this.resources});
+  ResourceTab({super.key, required this.resources});
 
   @override
   Widget build(BuildContext context) {
@@ -15,15 +13,15 @@ class ResourceTab extends StatelessWidget {
         child: Text(
           'No resources here',
           style: TextStyle(
-            fontSize: AppTheme.fontSize18,
-            color: AppTheme.textSecondary,
+            fontSize: 18.0,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(AppTheme.spacing12),
+      padding: EdgeInsets.all(12.0),
       itemCount: resources.length,
       itemBuilder: (context, index) {
         final resource = resources[index];
@@ -31,15 +29,15 @@ class ResourceTab extends StatelessWidget {
             resource['image'] != null && resource['image']!.isNotEmpty;
 
         return Container(
-          margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
+          margin: EdgeInsets.only(bottom: 12.0),
           decoration: BoxDecoration(
-            color: AppTheme.cardBackground,
-            borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(20.0),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 8,
-                offset: const Offset(0, 2),
+                offset: Offset(0, 2),
               ),
             ],
           ),
@@ -51,14 +49,14 @@ class ResourceTab extends StatelessWidget {
                       launchUrl(Uri.parse(resource['link'] ?? ''));
                     },
                     borderRadius:
-                        BorderRadius.circular(AppTheme.cardRadius),
+                        BorderRadius.circular(20.0),
                     child: Padding(
-                      padding: const EdgeInsets.all(AppTheme.cardPadding),
+                      padding: EdgeInsets.all(24.0),
                       child: Row(
                         children: [
                           ClipRRect(
                             borderRadius:
-                                BorderRadius.circular(AppTheme.spacing8),
+                                BorderRadius.circular(8.0),
                             child: Image.network(
                               resource['image']!,
                               width: 68,
@@ -69,39 +67,39 @@ class ResourceTab extends StatelessWidget {
                                   width: 68,
                                   height: 68,
                                   decoration: BoxDecoration(
-                                    color: AppTheme.surfaceVariant,
+                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                                     borderRadius: BorderRadius.circular(
-                                      AppTheme.spacing8,
+                                      8.0,
                                     ),
                                   ),
                                   child: Icon(
                                     Icons.broken_image_outlined,
-                                    color: AppTheme.textTertiary,
+                                    color: Theme.of(context).colorScheme.outline,
                                     size: 28,
                                   ),
                                 );
                               },
                             ),
                           ),
-                          const SizedBox(width: AppTheme.spacing16),
+                          SizedBox(width: 16.0),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   resource['title'] ?? '',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w700,
-                                    color: AppTheme.textPrimary,
-                                    fontSize: AppTheme.fontSize16,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 16.0,
                                   ),
                                 ),
-                                const SizedBox(height: AppTheme.spacing4),
+                                SizedBox(height: 4.0),
                                 Text(
                                   resource['description'] ?? '',
-                                  style: const TextStyle(
-                                    color: AppTheme.textSecondary,
-                                    fontSize: AppTheme.fontSize14,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    fontSize: 14.0,
                                   ),
                                 ),
                               ],
@@ -114,20 +112,20 @@ class ResourceTab extends StatelessWidget {
                 : ListTile(
                     title: Text(
                       resource['title'] ?? '',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppTheme.cardPadding,
-                      vertical: AppTheme.spacing8,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 24.0,
+                      vertical: 8.0,
                     ),
                     subtitle: Text(
                       resource['description'] ?? '',
-                      style: const TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: AppTheme.fontSize14,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 14.0,
                       ),
                     ),
                     onTap: () {

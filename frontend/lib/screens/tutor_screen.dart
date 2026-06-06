@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../theme/app_theme.dart';
 import '../widgets/error_retry_widget.dart';
 import '../widgets/tutor/chat_input.dart';
 import '../widgets/tutor/chat_message_bubble.dart';
 import 'tutor_controller.dart';
 
 class TutorScreen extends ConsumerStatefulWidget {
-  const TutorScreen({super.key});
+  TutorScreen({super.key});
 
   @override
   ConsumerState<TutorScreen> createState() => _TutorScreenState();
@@ -37,7 +36,7 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     }
@@ -64,15 +63,15 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Column(
         children: [
           if (state.isLoadingMore)
             Container(
-              padding: const EdgeInsets.all(AppTheme.edgePadding),
+              padding: EdgeInsets.all(16.0),
               child: Center(
                 child: CircularProgressIndicator(
-                  color: AppTheme.accentPrimary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -80,7 +79,7 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
             child: state.isLoading
                 ? Center(
                     child: CircularProgressIndicator(
-                      color: AppTheme.accentPrimary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   )
                 : state.errorMessage != null
@@ -91,19 +90,19 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
                             .fetchMessages(),
                       )
                     : state.messages.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text(
                               'New chat',
                               style: TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: AppTheme.fontSize14,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 14.0,
                               ),
                             ),
                           )
                         : ListView.builder(
                             controller: _scrollController,
-                            padding: const EdgeInsets.only(
-                                bottom: AppTheme.spacing8),
+                            padding: EdgeInsets.only(
+                                bottom: 8.0),
                             itemCount: state.messages.length,
                             itemBuilder: (context, index) {
                               final message = state.messages[index];

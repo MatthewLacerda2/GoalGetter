@@ -5,12 +5,11 @@ import '../app/app.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
-import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 import 'onboarding/goal_prompt_screen.dart';
 
 class GoalSelectionScreen extends StatefulWidget {
-  const GoalSelectionScreen({super.key});
+  GoalSelectionScreen({super.key});
 
   @override
   State<GoalSelectionScreen> createState() => _GoalSelectionScreenState();
@@ -153,7 +152,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: AppTheme.error),
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
               child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
@@ -186,7 +185,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
           return;
         }
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+          MaterialPageRoute(builder: (context) => GoalPromptScreen()),
         );
       } else {
         // Reload goals to refresh the list
@@ -197,7 +196,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error deleting goal: $e'),
-            backgroundColor: AppTheme.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -207,16 +206,16 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.selectGoal),
-        backgroundColor: AppTheme.surfaceVariant,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         elevation: 0,
-        foregroundColor: AppTheme.textPrimary,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: _isLoading
           ? Center(
-              child: CircularProgressIndicator(color: AppTheme.accentPrimary),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             )
           : _errorMessage != null
           ? Center(
@@ -225,13 +224,13 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                 children: [
                   Text(
                     'Error: $_errorMessage',
-                    style: const TextStyle(color: AppTheme.error),
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppTheme.spacing16),
+                  SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: _loadGoals,
-                    child: const Text('Retry'),
+                    child: Text('Retry'),
                   ),
                 ],
               ),
@@ -243,17 +242,17 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.noGoalsFound,
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: AppTheme.fontSize18,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 18.0,
                     ),
                   ),
-                  const SizedBox(height: AppTheme.spacing16),
+                  SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => const GoalPromptScreen(),
+                          builder: (context) => GoalPromptScreen(),
                         ),
                       );
                     },
@@ -263,7 +262,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
               ),
             )
           : ListView.builder(
-              padding: const EdgeInsets.all(AppTheme.edgePadding),
+              padding: EdgeInsets.all(16.0),
               itemCount: _goals.length,
               itemBuilder: (context, index) {
                 final goal = _goals[index];
@@ -272,9 +271,9 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                   direction: DismissDirection.endToStart,
                   background: Container(
                     alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: AppTheme.spacing24),
-                    color: AppTheme.error,
-                    child: const Icon(
+                    padding: EdgeInsets.only(right: 24.0),
+                    color: Theme.of(context).colorScheme.error,
+                    child: Icon(
                       Icons.delete,
                       color: Colors.white,
                       size: 30,
@@ -285,19 +284,19 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                     return false;
                   },
                   child: Card(
-                    margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
+                    margin: EdgeInsets.only(bottom: 12.0),
                     color: Colors.transparent,
                     elevation: 0,
                     child: ElevatedButton(
                       onPressed: () => _selectGoal(goal),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.accentSecondary,
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.all(AppTheme.edgePadding),
+                        padding: EdgeInsets.all(16.0),
                         alignment: Alignment.centerLeft,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            AppTheme.spacing8,
+                            8.0,
                           ),
                         ),
                       ),
@@ -308,19 +307,19 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                             goal.name.isNotEmpty
                                 ? goal.name
                                 : AppLocalizations.of(context)!.untitledGoal,
-                            style: const TextStyle(
-                              color: AppTheme.textPrimary,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
-                              fontSize: AppTheme.fontSize18,
+                              fontSize: 18.0,
                             ),
                           ),
                           if (goal.description.isNotEmpty) ...[
-                            const SizedBox(height: AppTheme.spacing8),
+                            SizedBox(height: 8.0),
                             Text(
                               goal.description,
-                              style: const TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: AppTheme.fontSize14,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 14.0,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -336,12 +335,12 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const GoalPromptScreen()),
+            MaterialPageRoute(builder: (context) => GoalPromptScreen()),
           );
           await _loadGoals();
         },
-        backgroundColor: AppTheme.accentPrimary,
-        icon: const Icon(Icons.add),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        icon: Icon(Icons.add),
         label: Text(AppLocalizations.of(context)!.createNewGoal),
       ),
     );

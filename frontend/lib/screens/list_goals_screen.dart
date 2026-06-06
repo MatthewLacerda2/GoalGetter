@@ -4,12 +4,11 @@ import 'package:openapi/api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
-import '../theme/app_theme.dart';
 import '../widgets/error_retry_widget.dart';
 import 'goals_detail_screen.dart';
 
 class ListGoalsScreen extends StatefulWidget {
-  const ListGoalsScreen({super.key});
+  ListGoalsScreen({super.key});
 
   @override
   State<ListGoalsScreen> createState() => _ListGoalsScreenState();
@@ -60,16 +59,16 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.goals),
-        backgroundColor: AppTheme.surfaceVariant,
-        foregroundColor: AppTheme.textPrimary,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
-                color: AppTheme.accentPrimary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             )
           : _errorMessage != null
@@ -81,21 +80,21 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
                   ? Center(
                       child: Text(
                         AppLocalizations.of(context)!.noGoalsFound,
-                        style: const TextStyle(
-                          fontSize: AppTheme.fontSize18,
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     )
                   : Padding(
-                      padding: const EdgeInsets.all(AppTheme.edgePadding),
+                      padding: EdgeInsets.all(16.0),
                       child: ListView.builder(
                         itemCount: _goals.length,
                         itemBuilder: (context, index) {
                           final goal = _goals[index];
                           return Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: AppTheme.spacing12),
+                            padding: EdgeInsets.only(
+                                bottom: 12.0),
                             child: ElevatedButton(
                               onPressed: () async {
                                 final result = await Navigator.of(context)
@@ -118,16 +117,16 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.accentPrimary,
+                                backgroundColor: Theme.of(context).colorScheme.primary,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
+                                padding: EdgeInsets.symmetric(
                                   vertical: 20,
-                                  horizontal: AppTheme.spacing16,
+                                  horizontal: 16.0,
                                 ),
-                                minimumSize: const Size(double.infinity, 60),
+                                minimumSize: Size(double.infinity, 60),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(
-                                      AppTheme.spacing8),
+                                      8.0),
                                 ),
                               ),
                               child: Text(
@@ -135,9 +134,9 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
                                     ? goal.name
                                     : AppLocalizations.of(context)!
                                         .untitledGoal,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: AppTheme.fontSize16,
+                                  fontSize: 16.0,
                                 ),
                               ),
                             ),

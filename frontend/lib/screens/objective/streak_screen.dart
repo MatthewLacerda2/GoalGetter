@@ -5,13 +5,12 @@ import '../../app/app.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';
 
 class StreakScreen extends StatefulWidget {
   final String descriptionText;
 
-  const StreakScreen({super.key, required this.descriptionText});
+  StreakScreen({super.key, required this.descriptionText});
 
   @override
   State<StreakScreen> createState() => _StreakScreenState();
@@ -84,8 +83,8 @@ class _StreakScreenState extends State<StreakScreen> {
           final now = DateTime.now();
           final today = DateTime(now.year, now.month, now.day);
           final todayWeekday = today.weekday;
-          final yesterday = today.subtract(const Duration(days: 1));
-          final dayBeforeYesterday = today.subtract(const Duration(days: 2));
+          final yesterday = today.subtract(Duration(days: 1));
+          final dayBeforeYesterday = today.subtract(Duration(days: 2));
 
           bool hasDay(DateTime targetDay) {
             for (final streakDay in streakDays) {
@@ -97,9 +96,9 @@ class _StreakScreenState extends State<StreakScreen> {
           }
 
           if (hasDay(today)) {
-            _streakIconBackgroundColor = AppTheme.accentSecondary;
+            _streakIconBackgroundColor = Theme.of(context).colorScheme.secondary;
           } else if (hasDay(yesterday) || hasDay(dayBeforeYesterday)) {
-            _streakIconBackgroundColor = AppTheme.textTertiary;
+            _streakIconBackgroundColor = Theme.of(context).colorScheme.outline;
           } else {
             _streakIconBackgroundColor = Colors.transparent;
           }
@@ -157,11 +156,11 @@ class _StreakScreenState extends State<StreakScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Center(
             child: CircularProgressIndicator(
-              color: AppTheme.accentPrimary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -170,7 +169,7 @@ class _StreakScreenState extends State<StreakScreen> {
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Center(
             child: Column(
@@ -178,13 +177,13 @@ class _StreakScreenState extends State<StreakScreen> {
               children: [
                 Text(
                   'Error: $_errorMessage',
-                  style: const TextStyle(color: AppTheme.error),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: AppTheme.spacing16),
+                SizedBox(height: 16.0),
                 ElevatedButton(
                   onPressed: _fetchWeekStreak,
-                  child: const Text('Retry'),
+                  child: Text('Retry'),
                 ),
               ],
             ),
@@ -194,10 +193,10 @@ class _StreakScreenState extends State<StreakScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.edgePadding),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
               Expanded(
@@ -212,23 +211,23 @@ class _StreakScreenState extends State<StreakScreen> {
                             color: _streakIconBackgroundColor,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 18,
                             vertical: 10,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.local_fire_department,
-                                color: AppTheme.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 size: 80,
                               ),
-                              const SizedBox(width: AppTheme.spacing8),
+                              SizedBox(width: 8.0),
                               Text(
                                 '$_streakCount',
-                                style: const TextStyle(
-                                  color: AppTheme.textPrimary,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 80,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -240,16 +239,16 @@ class _StreakScreenState extends State<StreakScreen> {
                     ),
                     Text(
                       AppLocalizations.of(context)!.dayStreak,
-                      style: const TextStyle(
-                        color: AppTheme.textPrimary,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 26,
                       ),
                     ),
-                    const SizedBox(height: 36),
+                    SizedBox(height: 36),
                     Card(
-                      color: AppTheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
                       child: Padding(
-                        padding: const EdgeInsets.all(AppTheme.edgePadding),
+                        padding: EdgeInsets.all(16.0),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -300,21 +299,21 @@ class _StreakScreenState extends State<StreakScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 20),
+                            SizedBox(height: 20),
                             Divider(
-                              color: AppTheme.textTertiary.withValues(
+                              color: Theme.of(context).colorScheme.outline.withValues(
                                 alpha: 0.5,
                               ),
                               thickness: 1,
                             ),
-                            const SizedBox(height: AppTheme.spacing12),
+                            SizedBox(height: 12.0),
                             Text(
                               widget.descriptionText,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppTheme.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
-                                fontSize: AppTheme.fontSize18,
+                                fontSize: 18.0,
                               ),
                             ),
                           ],
@@ -333,20 +332,20 @@ class _StreakScreenState extends State<StreakScreen> {
                     ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppTheme.spacing16,
+                    padding: EdgeInsets.symmetric(
+                      vertical: 16.0,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
-                        AppTheme.cardRadius,
+                        20.0,
                       ),
                     ),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.continuate,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -354,7 +353,7 @@ class _StreakScreenState extends State<StreakScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
             ],
           ),
         ),

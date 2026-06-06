@@ -5,13 +5,12 @@ import 'package:openapi/api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
-import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 
 enum GoalsDetailResult { deleted, activated }
 
 class GoalsDetailScreen extends StatefulWidget {
-  const GoalsDetailScreen({super.key, required this.goal});
+  GoalsDetailScreen({super.key, required this.goal});
 
   final GoalListItem goal;
 
@@ -71,7 +70,7 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error setting active goal: $e'),
-          backgroundColor: AppTheme.error,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -139,7 +138,7 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error deleting goal: $e'),
-          backgroundColor: AppTheme.error,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -152,46 +151,46 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
         : AppLocalizations.of(context)!.untitledGoal;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(goalTitle),
-        backgroundColor: AppTheme.surfaceVariant,
-        foregroundColor: AppTheme.textPrimary,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.edgePadding),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 goalTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing12),
+              SizedBox(height: 12.0),
               Text(
                 widget.goal.description.isNotEmpty
                     ? widget.goal.description
                     : AppLocalizations.of(context)!.noDescription,
-                style: const TextStyle(
-                  fontSize: AppTheme.fontSize16,
-                  color: AppTheme.textSecondary,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.3,
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing12),
+              SizedBox(height: 12.0),
               Text(
                 _formatCreatedAt(context, widget.goal.createdAt),
-                style: const TextStyle(
-                  fontSize: AppTheme.fontSize14,
-                  color: AppTheme.textSecondary,
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -199,20 +198,20 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                       ? null
                       : _setAsCurrentGoal,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppTheme.spacing16,
-                      horizontal: AppTheme.spacing16,
+                    padding: EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 16.0,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
-                          AppTheme.cardRadius),
+                          20.0),
                     ),
                     elevation: 0,
                   ),
                   child: _isSettingActive
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(
@@ -222,14 +221,14 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                         )
                       : Text(
                           AppLocalizations.of(context)!.setAsCurrentGoal,
-                          style: const TextStyle(
-                            fontSize: AppTheme.fontSize16,
+                          style: TextStyle(
+                            fontSize: 16.0,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing12),
+              SizedBox(height: 12.0),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -237,20 +236,20 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                       ? null
                       : _deleteGoal,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.error.withValues(alpha: 0.8),
+                    backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppTheme.spacing16,
-                      horizontal: AppTheme.spacing16,
+                    padding: EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 16.0,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
-                          AppTheme.cardRadius),
+                          20.0),
                     ),
                     elevation: 0,
                   ),
                   child: _isDeleting
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(
@@ -260,8 +259,8 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
                         )
                       : Text(
                           AppLocalizations.of(context)!.deleteGoal,
-                          style: const TextStyle(
-                            fontSize: AppTheme.fontSize16,
+                          style: TextStyle(
+                            fontSize: 16.0,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

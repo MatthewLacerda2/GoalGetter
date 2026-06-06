@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
-import '../theme/app_theme.dart';
-
 class MissionsScreen extends StatelessWidget {
-  const MissionsScreen({super.key});
+  MissionsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -17,15 +15,15 @@ class MissionsScreen extends StatelessWidget {
             Icon(
               Icons.flag,
               size: 100,
-              color: AppTheme.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.comingSoon,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

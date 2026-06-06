@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../theme/app_theme.dart';
-
 class GoalQuestions extends StatefulWidget {
   final String question;
   final String? initialAnswer;
@@ -11,7 +9,7 @@ class GoalQuestions extends StatefulWidget {
   final bool showError;
   final TextEditingController? controller;
 
-  const GoalQuestions({
+  GoalQuestions({
     super.key,
     required this.question,
     this.initialAnswer,
@@ -66,43 +64,43 @@ class _GoalQuestionsState extends State<GoalQuestions> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppTheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHigh,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppTheme.spacing24,
-          vertical: AppTheme.spacing16,
+        padding: EdgeInsets.symmetric(
+          horizontal: 24.0,
+          vertical: 16.0,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               widget.question,
-              style: const TextStyle(
-                fontSize: AppTheme.fontSize18,
+              style: TextStyle(
+                fontSize: 18.0,
                 fontWeight: FontWeight.w500,
-                color: AppTheme.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: AppTheme.spacing12),
+            SizedBox(height: 12.0),
             TextField(
               controller: _textController,
               enabled: widget.isActive,
               onSubmitted: _handleSubmitted,
-              style: const TextStyle(color: AppTheme.textPrimary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.yourAnswer,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+                  borderRadius: BorderRadius.circular(20.0),
                 ),
                 filled: true,
                 fillColor: widget.isActive
-                    ? AppTheme.cardBackground
-                    : AppTheme.surfaceVariant,
-                hintStyle: const TextStyle(color: AppTheme.textSecondary),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacing16,
-                  vertical: AppTheme.spacing12,
+                    ? Theme.of(context).colorScheme.surfaceContainer
+                    : Theme.of(context).colorScheme.surfaceContainerHigh,
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 12.0,
                 ),
                 errorText: (widget.showError || _hasError) &&
                         _textController.text.trim().isEmpty
@@ -110,9 +108,9 @@ class _GoalQuestionsState extends State<GoalQuestions> {
                     : null,
                 suffixIcon: widget.isActive
                     ? IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.send,
-                          color: AppTheme.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         onPressed: () =>
                             _handleSubmitted(_textController.text),

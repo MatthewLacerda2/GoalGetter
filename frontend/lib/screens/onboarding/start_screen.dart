@@ -12,11 +12,10 @@ import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
 
 class StartScreen extends StatefulWidget {
-  const StartScreen({super.key});
+  StartScreen({super.key});
 
   @override
   State<StartScreen> createState() => _StartScreenState();
@@ -158,7 +157,7 @@ class _StartScreenState extends State<StartScreen> {
         // User cancelled sign-in
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Sign-in cancelled'),
               backgroundColor: Colors.orange,
             ),
@@ -187,7 +186,7 @@ class _StartScreenState extends State<StartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -199,11 +198,11 @@ class _StartScreenState extends State<StartScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(AppTheme.edgePadding),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Spacer(flex: 2),
+                Spacer(flex: 2),
 
                 // App Title
                 Text(
@@ -220,11 +219,11 @@ class _StartScreenState extends State<StartScreen> {
                       ),
                 ),
 
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
 
-                const PreOnboardingCarousel(height: 170),
+                PreOnboardingCarousel(height: 170),
 
-                const Spacer(flex: 2),
+                Spacer(flex: 2),
 
                 // Google Sign In Button
                 SizedBox(
@@ -244,13 +243,13 @@ class _StartScreenState extends State<StartScreen> {
                                 ),
                               ),
                             )
-                          : const Center(
+                          : Center(
                               child: CircularProgressIndicator(),
                             ))
                       : ElevatedButton.icon(
                           onPressed: _isLoading ? null : _handleGoogleSignIn,
                           icon: _isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
@@ -260,7 +259,7 @@ class _StartScreenState extends State<StartScreen> {
                                     ),
                                   ),
                                 )
-                              : const FaIcon(
+                              : FaIcon(
                                   FontAwesomeIcons.google,
                                   color: Colors.white,
                                   size: 20,
@@ -270,12 +269,12 @@ class _StartScreenState extends State<StartScreen> {
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4285F4),
+                            backgroundColor: Color(0xFF4285F4),
                             foregroundColor: Colors.white,
                             elevation: 2,
                             shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.circular(AppTheme.cardRadius),
+                                  BorderRadius.circular(20.0),
                             ),
                           ),
                         ),
@@ -288,7 +287,7 @@ class _StartScreenState extends State<StartScreen> {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
 
-                const Spacer(flex: 1),
+                Spacer(flex: 1),
               ],
             ),
           ),

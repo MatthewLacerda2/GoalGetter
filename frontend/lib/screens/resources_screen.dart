@@ -4,11 +4,10 @@ import 'package:openapi/api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
-import '../theme/app_theme.dart';
 import '../widgets/screens/resource/resource_tab.dart';
 
 class ResourcesScreen extends StatefulWidget {
-  const ResourcesScreen({super.key});
+  ResourcesScreen({super.key});
 
   @override
   State<ResourcesScreen> createState() => _ResourcesScreenState();
@@ -117,10 +116,10 @@ class _ResourcesScreenState extends State<ResourcesScreen>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
           child: CircularProgressIndicator(
-            color: AppTheme.accentPrimary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       );
@@ -128,41 +127,41 @@ class _ResourcesScreenState extends State<ResourcesScreen>
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.error_outline,
-                color: AppTheme.error,
+                color: Theme.of(context).colorScheme.error,
                 size: 48,
               ),
-              const SizedBox(height: AppTheme.spacing16),
+              SizedBox(height: 16.0),
               Text(
                 'Error loading resources',
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: AppTheme.fontSize18,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 18.0,
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing8),
+              SizedBox(height: 8.0),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.spacing24),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 24.0),
                 child: Text(
                   _errorMessage!,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: AppTheme.fontSize14,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14.0,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing24),
+              SizedBox(height: 24.0),
               ElevatedButton(
                 onPressed: _loadResources,
-                child: const Text('Retry'),
+                child: Text('Retry'),
               ),
             ],
           ),
@@ -171,17 +170,17 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         toolbarHeight: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppTheme.accentPrimary,
-          unselectedLabelColor: AppTheme.textSecondary,
+          labelColor: Theme.of(context).colorScheme.primary,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
           dividerHeight: 4,
-          dividerColor: AppTheme.accentPrimary,
-          indicatorColor: AppTheme.accentPrimary,
+          dividerColor: Theme.of(context).colorScheme.primary,
+          indicatorColor: Theme.of(context).colorScheme.primary,
           tabs: [
             Tab(
               icon: Icon(Icons.play_circle, size: 28),

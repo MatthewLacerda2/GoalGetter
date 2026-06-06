@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../app.dart';
-import '../../theme/app_theme.dart';
 import 'app_start_controller.dart';
 
 /// Startup gate that decides the initial screen.
 ///
 /// It delegates startup/auth/onboarding decisions to [AppStartController].
 class AuthGate extends StatefulWidget {
-  const AuthGate({super.key, AppStartController? controller})
+  AuthGate({super.key, AppStartController? controller})
     : _controller = controller;
 
   final AppStartController? _controller;
@@ -34,9 +33,9 @@ class _AuthGateState extends State<AuthGate> {
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Scaffold(
-            backgroundColor: AppTheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             body: Center(
-              child: CircularProgressIndicator(color: AppTheme.accentPrimary),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             ),
           );
         }
@@ -64,9 +63,9 @@ class _AuthGateState extends State<AuthGate> {
 
         // Keep showing a stable loading UI while we navigate.
         return Scaffold(
-          backgroundColor: AppTheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           body: Center(
-            child: CircularProgressIndicator(color: AppTheme.accentPrimary),
+            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
           ),
         );
       },

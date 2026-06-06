@@ -33,7 +33,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
 class AppTheme {
   AppTheme._();
 
-  // --- Primitive Tokens (Private to this file only) ---
+  // --- Primitive Color Tokens (Private to this file only) ---
   static const _charcoal = Color(0xFF121212);
   static const _darkGrey = Color(0xFF1E1E1E);
   static const _mediumGrey = Color(0xFF252525);
@@ -49,29 +49,25 @@ class AppTheme {
   static const _red = Color(0xFFC75C5C);
   static const _roseMuted = Color(0xFF8B5A5A);
 
-  // --- Layout & Spacing Constants (Public for margins, paddings, and alignment) ---
-  static const double spacing4 = 4;
-  static const double spacing8 = 8;
-  static const double spacing12 = 12;
-  static const double spacing16 = 16;
-  static const double spacing24 = 24;
-  static const double spacing32 = 32;
+  // --- Private Primitive Spacing & Dimensions ---
+  static const double _spacing4 = 4;
+  static const double _spacing8 = 8;
+  static const double _spacing12 = 12;
+  static const double _spacing16 = 16;
+  static const double _spacing24 = 24;
+  static const double _spacing32 = 32;
 
-  static const double cardPadding = 24;
-  static const double cardRadius = 20;
-  static const double chatBubbleRadius = 24;
-  static const double cardElevation = 2;
-  static const double edgePadding = spacing16;
-  static const double sectionGap = spacing32;
-  static const double elementGap = spacing16;
+  static const double _cardPadding = 24;
+  static const double _cardRadius = 20;
+  static const double _cardElevation = 2;
 
-  static const double fontSize12 = 12;
-  static const double fontSize14 = 14;
-  static const double fontSize16 = 16;
-  static const double fontSize18 = 18;
-  static const double fontSize20 = 20;
+  static const double _fontSize12 = 12;
+  static const double _fontSize14 = 14;
+  static const double _fontSize16 = 16;
+  static const double _fontSize18 = 18;
+  static const double _fontSize20 = 20;
 
-  static const double notesHeadingSize = 20;
+  static const double _notesHeadingSize = 20;
   static const String _fontFamily = 'Roboto';
 
   static ThemeData get dark {
@@ -110,61 +106,61 @@ class AppTheme {
       textTheme: TextTheme(
         bodyLarge: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize16,
+          fontSize: _fontSize16,
           fontWeight: FontWeight.normal,
           color: _coolGrey,
           height: 1.5,
         ),
         bodyMedium: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize14,
+          fontSize: _fontSize14,
           fontWeight: FontWeight.normal,
           color: _coolGrey,
           height: 1.5,
         ),
         bodySmall: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize12,
+          fontSize: _fontSize12,
           fontWeight: FontWeight.normal,
           color: _coolGrey,
           height: 1.4,
         ),
         titleLarge: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize20,
+          fontSize: _fontSize20,
           fontWeight: FontWeight.w600,
           color: _lithium,
           height: 1.3,
         ),
         titleMedium: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize18,
+          fontSize: _fontSize18,
           fontWeight: FontWeight.w600,
           color: _lithium,
           height: 1.3,
         ),
         titleSmall: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize16,
+          fontSize: _fontSize16,
           fontWeight: FontWeight.w500,
           color: _lithium,
           height: 1.3,
         ),
         labelLarge: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize14,
+          fontSize: _fontSize14,
           fontWeight: FontWeight.w500,
           color: _lithium,
         ),
         labelMedium: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: fontSize12,
+          fontSize: _fontSize12,
           fontWeight: FontWeight.w500,
           color: _coolGrey,
         ),
         headlineSmall: const TextStyle(
           fontFamily: _fontFamily,
-          fontSize: notesHeadingSize,
+          fontSize: _notesHeadingSize,
           fontWeight: FontWeight.bold,
           color: _lithium,
           height: 1.3,
@@ -181,9 +177,9 @@ class AppTheme {
       // --- Component Themes (Driven by semantic colorScheme) ---
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainer,
-        elevation: cardElevation,
+        elevation: _cardElevation,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(cardRadius),
+          borderRadius: BorderRadius.circular(_cardRadius),
         ),
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
@@ -192,24 +188,24 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colorScheme.surfaceContainer,
-        hintStyle: const TextStyle(color: _coolGrey, fontSize: fontSize14),
+        hintStyle: const TextStyle(color: _coolGrey, fontSize: _fontSize14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(cardRadius),
+          borderRadius: BorderRadius.circular(_cardRadius),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(cardRadius),
+          borderRadius: BorderRadius.circular(_cardRadius),
           borderSide: BorderSide(
             color: _slate.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(cardRadius),
+          borderRadius: BorderRadius.circular(_cardRadius),
           borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: spacing16,
-          vertical: spacing12,
+          horizontal: _spacing16,
+          vertical: _spacing12,
         ),
       ),
 
@@ -220,11 +216,11 @@ class AppTheme {
           elevation: 0,
           minimumSize: const Size(double.infinity, 56),
           padding: const EdgeInsets.symmetric(
-            horizontal: spacing24,
-            vertical: spacing16,
+            horizontal: _spacing24,
+            vertical: _spacing16,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(cardRadius),
+            borderRadius: BorderRadius.circular(_cardRadius),
           ),
         ),
       ),

@@ -4,12 +4,10 @@ import 'package:goal_getter/l10n/app_localizations.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
 import '../../app/app.dart';
-import '../../theme/app_theme.dart';
-
 class TutorialScreen extends StatefulWidget {
   final Function(String)? onLanguageChanged;
 
-  const TutorialScreen({super.key, this.onLanguageChanged});
+  TutorialScreen({super.key, this.onLanguageChanged});
 
   @override
   State<TutorialScreen> createState() => _TutorialScreenState();
@@ -24,12 +22,12 @@ class _TutorialScreenState extends State<TutorialScreen> {
       titleWidget: Text(
         title,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppTheme.accentPrimary,
+              color: Theme.of(context).colorScheme.primary,
               fontSize: 28,
             ),
       ),
       bodyWidget: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
+        padding: EdgeInsets.symmetric(horizontal: 28),
         child: Text(
           body,
           style: Theme.of(context).textTheme.bodyLarge,
@@ -39,7 +37,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
       image: Icon(
         icon,
         size: 104,
-        color: AppTheme.accentSecondary,
+        color: Theme.of(context).colorScheme.secondary,
       ),
     );
   }
@@ -81,33 +79,33 @@ class _TutorialScreenState extends State<TutorialScreen> {
             Icons.workspace_premium_outlined,
           ),
         ],
-        globalBackgroundColor: AppTheme.background,
+        globalBackgroundColor: Theme.of(context).colorScheme.surface,
         skip: Text(
           AppLocalizations.of(context)!.skip,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.accentPrimary,
+                color: Theme.of(context).colorScheme.primary,
               ),
         ),
         next: Text(
           AppLocalizations.of(context)!.next,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.accentPrimary,
+                color: Theme.of(context).colorScheme.primary,
               ),
         ),
         done: Text(
           AppLocalizations.of(context)!.done,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.accentPrimary,
+                color: Theme.of(context).colorScheme.primary,
               ),
         ),
         onSkip: () => _navigateToHome(),
         onDone: () => _navigateToHome(),
         showSkipButton: true,
         dotsDecorator: DotsDecorator(
-          size: const Size(8, 8),
-          color: AppTheme.accentSecondary.withValues(alpha: 0.5),
-          activeSize: const Size(14, 14),
-          activeColor: AppTheme.accentSecondary,
+          size: Size(8, 8),
+          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+          activeSize: Size(14, 14),
+          activeColor: Theme.of(context).colorScheme.secondary,
         ),
       ),
     );
@@ -117,7 +115,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRoutes.home,
       (route) => false,
-      arguments: const HomeRouteArgs(selectedIndex: 0),
+      arguments: HomeRouteArgs(selectedIndex: 0),
     );
   }
 }

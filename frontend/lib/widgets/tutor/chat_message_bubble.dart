@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../models/chat_message.dart';
-import '../../theme/app_theme.dart';
-
 class ChatMessageBubble extends StatelessWidget {
   final ChatMessage message;
   final VoidCallback? onDoubleTap;
 
-  const ChatMessageBubble({super.key, required this.message, this.onDoubleTap});
+  ChatMessageBubble({super.key, required this.message, this.onDoubleTap});
 
   @override
   Widget build(BuildContext context) {
     final isTutor = message.sender == ChatMessageSender.tutor;
 
     return Container(
-      margin: const EdgeInsets.symmetric(
-        vertical: AppTheme.spacing4,
-        horizontal: AppTheme.spacing12,
+      margin: EdgeInsets.symmetric(
+        vertical: 4.0,
+        horizontal: 12.0,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,16 +29,16 @@ class ChatMessageBubble extends StatelessWidget {
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.7,
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacing12,
-                  vertical: AppTheme.spacing12,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 12.0,
                 ),
                 decoration: BoxDecoration(
                   color: isTutor
-                      ? AppTheme.surfaceVariant
-                      : AppTheme.accentPrimary,
+                      ? Theme.of(context).colorScheme.surfaceContainerHigh
+                      : Theme.of(context).colorScheme.primary,
                   borderRadius:
-                      BorderRadius.circular(AppTheme.chatBubbleRadius),
+                      BorderRadius.circular(24.0),
                 ),
                 child: Stack(
                   children: [
@@ -51,9 +49,9 @@ class ChatMessageBubble extends StatelessWidget {
                       child: Text(
                         message.message,
                         style: TextStyle(
-                          fontSize: AppTheme.fontSize16,
+                          fontSize: 16.0,
                           color: isTutor
-                              ? AppTheme.textPrimary
+                              ? Theme.of(context).colorScheme.onSurface
                               : Colors.white,
                           height: 1.6,
                         ),
@@ -66,7 +64,7 @@ class ChatMessageBubble extends StatelessWidget {
                         child: Icon(
                           Icons.favorite,
                           size: 18,
-                          color: AppTheme.error,
+                          color: Theme.of(context).colorScheme.error,
                         ),
                       ),
                   ],

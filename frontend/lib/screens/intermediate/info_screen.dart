@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class InfoScreen extends StatelessWidget {
   final IconData icon;
   final String descriptionText;
@@ -9,7 +7,7 @@ class InfoScreen extends StatelessWidget {
   final VoidCallback onButtonPressed;
   final String? title;
 
-  const InfoScreen({
+  InfoScreen({
     super.key,
     required this.icon,
     required this.descriptionText,
@@ -21,10 +19,10 @@ class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.edgePadding),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
               Expanded(
@@ -35,37 +33,37 @@ class InfoScreen extends StatelessWidget {
                       Text(
                         title!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                           fontSize: 32,
                         ),
                       ),
-                      const SizedBox(height: AppTheme.spacing24),
+                      SizedBox(height: 24.0),
                     ],
                     Icon(
                       icon,
-                      color: AppTheme.accentSecondary,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 140,
                     ),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.spacing24,
-                        vertical: AppTheme.spacing12,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 12.0,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.textTertiary.withValues(alpha: 0.12),
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(
-                            AppTheme.cardRadius),
+                            20.0),
                       ),
                       child: Text(
                         descriptionText,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
-                          fontSize: AppTheme.fontSize20,
+                          fontSize: 20.0,
                         ),
                       ),
                     ),
@@ -77,18 +75,18 @@ class InfoScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onButtonPressed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: AppTheme.spacing16),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 16.0),
                     shape: RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(AppTheme.cardRadius),
+                          BorderRadius.circular(20.0),
                     ),
                   ),
                   child: Text(
                     buttonText,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -96,7 +94,7 @@ class InfoScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing8),
+              SizedBox(height: 8.0),
             ],
           ),
         ),

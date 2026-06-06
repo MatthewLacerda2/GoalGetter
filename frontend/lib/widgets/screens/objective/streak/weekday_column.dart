@@ -7,7 +7,7 @@ class WeekdayColumn extends StatelessWidget {
   final bool? isCompleted;
   final double width;
 
-  const WeekdayColumn({
+  WeekdayColumn({
     super.key,
     required this.dayLabel,
     required this.isCompleted,
@@ -19,13 +19,13 @@ class WeekdayColumn extends StatelessWidget {
     final Color circleColor;
     final IconData circleIcon;
     if (isCompleted == null) {
-      circleColor = AppTheme.textTertiary;
+      circleColor = Theme.of(context).colorScheme.outline;
       circleIcon = Icons.remove;
     } else if (isCompleted == true) {
-      circleColor = AppTheme.success;
+      circleColor = Theme.of(context).extension<CustomColors>()!.success;
       circleIcon = Icons.check;
     } else {
-      circleColor = AppTheme.error;
+      circleColor = Theme.of(context).colorScheme.error;
       circleIcon = Icons.close;
     }
 
@@ -36,13 +36,13 @@ class WeekdayColumn extends StatelessWidget {
         children: [
           Text(
             dayLabel,
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold,
-              fontSize: AppTheme.fontSize16,
+              fontSize: 16.0,
             ),
           ),
-          const SizedBox(height: AppTheme.spacing16),
+          SizedBox(height: 16.0),
           Container(
             width: 32,
             height: 32,

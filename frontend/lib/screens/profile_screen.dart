@@ -5,14 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/providers.dart';
-import '../theme/app_theme.dart';
 import '../utils/settings_storage.dart';
 import 'list_goals_screen.dart';
 import 'onboarding/goal_prompt_screen.dart';
 import 'onboarding/start_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({super.key});
+  ProfileScreen({super.key});
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -28,7 +27,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.edgePadding),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -38,7 +37,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   '${AppLocalizations.of(context)!.language}:',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(width: AppTheme.spacing12),
+                SizedBox(width: 12.0),
                 _buildLanguageButton(
                   'US',
                   SettingsStorage.english,
@@ -72,7 +71,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             _buildSectionTile(
               AppLocalizations.of(context)!.goals,
@@ -81,13 +80,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ListGoalsScreen(),
+                    builder: (context) => ListGoalsScreen(),
                   ),
                 );
               },
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             _buildSectionTile(
               AppLocalizations.of(context)!.createNewGoal,
@@ -96,13 +95,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const GoalPromptScreen(),
+                    builder: (context) => GoalPromptScreen(),
                   ),
                 );
               },
             ),
 
-            const SizedBox(height: AppTheme.spacing32),
+            SizedBox(height: 32.0),
 
             _buildSignOutButton(),
           ],
@@ -122,12 +121,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return GestureDetector(
       onTap: () => ref.read(localeProvider.notifier).setLanguage(language),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppTheme.spacing4),
+          borderRadius: BorderRadius.circular(4.0),
         ),
         child: SizedBox(
           width: 44,
@@ -142,7 +141,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.spacing8),
+        borderRadius: BorderRadius.circular(8.0),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
           width: 1,
@@ -154,9 +153,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           title,
           style: Theme.of(context).textTheme.labelLarge,
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right,
-          color: AppTheme.textSecondary,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         onTap: onTap,
       ),
@@ -169,15 +168,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: ElevatedButton(
         onPressed: _handleSignOut,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.error.withValues(alpha: 0.2),
-          foregroundColor: AppTheme.error,
-          side: const BorderSide(
-            color: AppTheme.error,
+          backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
+          foregroundColor: Theme.of(context).colorScheme.error,
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.error,
             width: 2,
           ),
-          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacing24),
+          padding: EdgeInsets.symmetric(vertical: 24.0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.spacing8),
+            borderRadius: BorderRadius.circular(8.0),
           ),
         ),
         child: Text(
@@ -204,7 +203,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: AppTheme.error),
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
               child: Text(AppLocalizations.of(context)!.signOut),
             ),
           ],
@@ -222,7 +221,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       // Navigate to start screen
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const StartScreen()),
+          MaterialPageRoute(builder: (context) => StartScreen()),
           (route) => false,
         );
       }

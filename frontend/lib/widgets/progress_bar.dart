@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
-
 class ProgressBar extends StatelessWidget {
   final String title;
   final double progress;
   final double end;
   final Color color;
 
-  const ProgressBar({
+  ProgressBar({
     super.key,
     required this.title,
     required this.progress,
@@ -22,15 +20,15 @@ class ProgressBar extends StatelessWidget {
     
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacing12,
-        vertical: AppTheme.spacing8,
+      padding: EdgeInsets.symmetric(
+        horizontal: 12.0,
+        vertical: 8.0,
       ),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+        borderRadius: BorderRadius.circular(20.0),
         border: Border.all(
-          color: AppTheme.textTertiary.withValues(alpha: 0.4),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
           width: 1.6,
         ),
       ),
@@ -39,23 +37,23 @@ class ProgressBar extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: AppTheme.fontSize18,
+            style: TextStyle(
+              fontSize: 18.0,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: AppTheme.spacing8),
+          SizedBox(height: 8.0),
           LinearProgressIndicator(
             value: percentage.clamp(0.0, 1.0),
-            backgroundColor: AppTheme.textTertiary.withValues(alpha: 0.33),
+            backgroundColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.33),
             valueColor: const AlwaysStoppedAnimation<Color>(
-              AppTheme.accentPrimary,
+              Theme.of(context).colorScheme.primary,
             ),
-            minHeight: AppTheme.spacing12,
-            borderRadius: BorderRadius.circular(AppTheme.spacing12),
+            minHeight: 12.0,
+            borderRadius: BorderRadius.circular(12.0),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
         ],
       ),
     );

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../theme/app_theme.dart';
-
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSendMessage;
   final bool isSending;
 
-  const ChatInput({
+  ChatInput({
     super.key,
     required this.controller,
     required this.onSendMessage,
@@ -18,41 +16,41 @@ class ChatInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppTheme.spacing12),
+      padding: EdgeInsets.all(12.0),
       color: Colors.transparent,
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: controller,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
-                fontSize: AppTheme.fontSize16,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16.0,
               ),
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.typeYourMessage,
-                hintStyle: const TextStyle(color: AppTheme.textSecondary),
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 filled: true,
-                fillColor: AppTheme.cardBackground,
+                fillColor: Theme.of(context).colorScheme.surfaceContainer,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide(
-                    color: AppTheme.textTertiary.withValues(alpha: 0.4),
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide: const BorderSide(
-                    color: AppTheme.accentPrimary,
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
                     width: 1.5,
                   ),
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacing16,
-                  vertical: AppTheme.spacing12,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 12.0,
                 ),
               ),
               minLines: 1,
@@ -69,11 +67,11 @@ class ChatInput extends StatelessWidget {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppTheme.accentPrimary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   )
-                : const Icon(Icons.send),
-            color: AppTheme.accentPrimary,
+                : Icon(Icons.send),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ],
       ),

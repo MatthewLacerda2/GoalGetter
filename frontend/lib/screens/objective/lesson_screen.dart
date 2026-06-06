@@ -13,7 +13,7 @@ import 'lesson_controller.dart';
 class LessonScreen extends ConsumerStatefulWidget {
   final List<LessonQuestionData>? questions;
 
-  const LessonScreen({super.key, this.questions});
+  LessonScreen({super.key, this.questions});
 
   @override
   ConsumerState<LessonScreen> createState() => _LessonScreenState();
@@ -56,7 +56,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             return SlideTransition(
               position: animation.drive(
                 Tween(
-                  begin: const Offset(1.0, 0.0),
+                  begin: Offset(1.0, 0.0),
                   end: Offset.zero,
                 ).chain(CurveTween(curve: Curves.easeInOut)),
               ),
@@ -79,7 +79,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                       Duration(seconds: state.evaluationResponse!.totalSecondsSpent),
                     )
                   : _formatDuration(state.totalTimeSpent),
-              color: AppTheme.accentPrimary,
+              color: Theme.of(context).colorScheme.primary,
             ),
             accuracy: StatData(
               title: "Accuracy",
@@ -87,20 +87,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               text: state.evaluationResponse != null
                   ? "${state.evaluationResponse!.studentAccuracy.toStringAsFixed(2)}%"
                   : "${(state.questions.where((q) => q.status == LessonQuestionStatus.correct).length / state.questions.length * 100).toStringAsFixed(2)}%",
-              color: AppTheme.success,
+              color: Theme.of(context).extension<CustomColors>()!.success,
             ),
             combo: StatData(
               title: "Combo",
               icon: Icons.star,
               text: "${ref.read(lessonControllerProvider.notifier).calculateLongestStreak()}",
-              color: AppTheme.accentSecondary,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
               position: animation.drive(
                 Tween(
-                  begin: const Offset(1.0, 0.0),
+                  begin: Offset(1.0, 0.0),
                   end: Offset.zero,
                 ).chain(CurveTween(curve: Curves.easeInOut)),
               ),
@@ -115,8 +115,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   Color getChoiceFillColor(LessonState state, int index) {
     if (!state.isAnswerRevealed) {
       return state.selectedChoiceIndex == index
-          ? AppTheme.accentPrimary.withValues(alpha: 0.2)
-          : AppTheme.textTertiary.withValues(alpha: 0.12);
+          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+          : Theme.of(context).colorScheme.outline.withValues(alpha: 0.12);
     }
 
     final currentQuestion = state.questions[state.currentQuestionIndex];
@@ -125,26 +125,26 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final isSelectedAnswer = state.selectedChoiceIndex == index;
 
     if (isCorrectAnswer) {
-      return AppTheme.success.withValues(alpha: 0.2);
+      return Theme.of(context).extension<CustomColors>()!.success.withValues(alpha: 0.2);
     }
     if (isSelectedAnswer && !isCorrectAnswer) {
-      return AppTheme.error.withValues(alpha: 0.2);
+      return Theme.of(context).colorScheme.error.withValues(alpha: 0.2);
     }
-    return AppTheme.textTertiary.withValues(alpha: 0.12);
+    return Theme.of(context).colorScheme.outline.withValues(alpha: 0.12);
   }
 
   Color getButtonColor(LessonState state) {
     if (state.selectedChoiceIndex == null) {
-      return AppTheme.textTertiary;
+      return Theme.of(context).colorScheme.outline;
     }
 
     if (!state.isAnswerRevealed) {
-      return AppTheme.accentPrimary;
+      return Theme.of(context).colorScheme.primary;
     }
     final currentQuestion = state.questions[state.currentQuestionIndex];
     final isCorrect =
         state.selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
-    return isCorrect ? AppTheme.success : AppTheme.error;
+    return isCorrect ? Theme.of(context).extension<CustomColors>()!.success : Theme.of(context).colorScheme.error;
   }
 
   @override
@@ -158,12 +158,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     });
 
     if (state.isLoading) {
-      return const Scaffold(
-        backgroundColor: AppTheme.background,
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Center(
             child: CircularProgressIndicator(
-              color: AppTheme.accentPrimary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -172,7 +172,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
     if (state.errorMessage != null) {
       return Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: ErrorRetryWidget(
             errorMessage: state.errorMessage!,
@@ -189,13 +189,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
 
     if (state.questions.isEmpty) {
-      return const Scaffold(
-        backgroundColor: AppTheme.background,
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Center(
             child: Text(
               'No questions available',
-              style: TextStyle(color: AppTheme.textPrimary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
         ),
@@ -205,81 +205,81 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final currentQuestion = state.questions[state.currentQuestionIndex];
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.edgePadding),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
               Row(
                 children: [
                   Text(
                     '${state.currentQuestionIndex + 1} / ${state.questions.length}',
-                    style: const TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: AppTheme.fontSize16,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(width: AppTheme.spacing16),
+                  SizedBox(width: 16.0),
                   Expanded(
                     child: LinearProgressIndicator(
                       value: (state.currentQuestionIndex + 1) /
                           state.questions.length,
-                      backgroundColor: AppTheme.surfaceVariant,
+                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppTheme.accentPrimary,
+                        Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(AppTheme.edgePadding),
+                padding: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: AppTheme.textTertiary.withValues(alpha: 0.12),
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12),
                   borderRadius:
-                      BorderRadius.circular(AppTheme.cardRadius),
+                      BorderRadius.circular(20.0),
                 ),
                 child: Text(
                   currentQuestion.apiQuestion.question,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontSize: AppTheme.fontSize20,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 20.0,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.left,
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               Expanded(
                 child: ListView.builder(
                   itemCount: currentQuestion.apiQuestion.choices.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
+                      padding: EdgeInsets.only(bottom: 20),
                       child: InkWell(
                         onTap: () => ref
                             .read(lessonControllerProvider.notifier)
                             .selectChoice(index),
                         borderRadius: BorderRadius.circular(
-                            AppTheme.cardRadius),
+                            20.0),
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(
-                              AppTheme.spacing16),
+                          padding: EdgeInsets.all(
+                              16.0),
                           decoration: BoxDecoration(
                             color: getChoiceFillColor(state, index),
                             borderRadius: BorderRadius.circular(
-                                AppTheme.cardRadius),
+                                20.0),
                           ),
                           child: Text(
                             currentQuestion.apiQuestion.choices[index],
-                            style: const TextStyle(
-                              color: AppTheme.textPrimary,
-                              fontSize: AppTheme.fontSize18,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 18.0,
                             ),
                             textAlign: TextAlign.left,
                           ),
@@ -289,7 +289,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing16),
+              SizedBox(height: 16.0),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -300,26 +300,26 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: getButtonColor(state),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: AppTheme.spacing16),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 16.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
-                          AppTheme.cardRadius),
+                          20.0),
                     ),
                   ),
                   child: Text(
                     state.isAnswerRevealed
                         ? AppLocalizations.of(context)!.continuate
                         : AppLocalizations.of(context)!.enter,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: AppTheme.fontSize20,
+                      fontSize: 20.0,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: AppTheme.spacing8),
+              SizedBox(height: 8.0),
             ],
           ),
         ),

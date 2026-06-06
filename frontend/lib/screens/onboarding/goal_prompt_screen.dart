@@ -4,11 +4,10 @@ import 'package:openapi/api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
-import '../../theme/app_theme.dart';
 import 'goal_questions_screen.dart';
 
 class GoalPromptScreen extends StatefulWidget {
-  const GoalPromptScreen({super.key});
+  GoalPromptScreen({super.key});
 
   @override
   State<GoalPromptScreen> createState() => _GoalPromptScreenState();
@@ -74,7 +73,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
               SnackBar(
                 content: Text(
                   'Error: No questions received',
-                  style: const TextStyle(color: Colors.black),
+                  style: TextStyle(color: Colors.black),
                 ),
               ),
             );
@@ -86,7 +85,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
             SnackBar(
               content: Text(
                 'Error: $e',
-                style: const TextStyle(color: Colors.black),
+                style: TextStyle(color: Colors.black),
               ),
             ),
           );
@@ -103,7 +102,7 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         SnackBar(
           content: Text(
             AppLocalizations.of(context)!.beDetailedOfYourGoal,
-            style: const TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.black),
           ),
         ),
       );
@@ -121,24 +120,24 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.edgePadding),
+        padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 AppLocalizations.of(context)!.tellWhatYourGoalIs,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _promptController,
                 focusNode: _promptFocusNode,
                 enabled: !_isLoading,
                 decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.grey[800],
                   hintStyle: Theme.of(context).textTheme.bodySmall,
