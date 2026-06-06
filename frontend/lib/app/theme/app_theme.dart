@@ -34,8 +34,8 @@ class AppTheme {
   AppTheme._();
 
   // --- Primitive Color Tokens (Private to this file only) ---
-  static const _charcoal = Color(0xFF121212);
-  static const _darkGrey = Color(0xFF1E1E1E);
+  static const _charcoal = Color(0xFF0F1412);
+  static const _darkGrey = Color(0xFF161E1A);
   static const _mediumGrey = Color(0xFF252525);
   static const _lithium = Color(0xFFE8E8E8);
   static const _coolGrey = Color(0xFFA0A0A0);
@@ -45,7 +45,7 @@ class AppTheme {
   static const _gold = Color(0xFFC49450);
   static const _mint = Color(0xFF5A8B7A);
   
-  static const _green = Color(0xFF3DA872);
+  static const _green = Color(0xFF4ADE80);
   static const _red = Color(0xFFC75C5C);
   static const _roseMuted = Color(0xFF8B5A5A);
 
@@ -68,7 +68,7 @@ class AppTheme {
   static const double _fontSize20 = 20;
 
   static const double _notesHeadingSize = 20;
-  static const String _fontFamily = 'Roboto';
+  static const String _fontFamily = 'Nunito';
 
   static ThemeData get dark {
     // --- Semantic Color Tokens (Material 3 ColorScheme) ---
@@ -108,21 +108,21 @@ class AppTheme {
           fontFamily: _fontFamily,
           fontSize: _fontSize16,
           fontWeight: FontWeight.normal,
-          color: _coolGrey,
+          color: _lithium,
           height: 1.5,
         ),
         bodyMedium: const TextStyle(
           fontFamily: _fontFamily,
           fontSize: _fontSize14,
           fontWeight: FontWeight.normal,
-          color: _coolGrey,
+          color: _lithium,
           height: 1.5,
         ),
         bodySmall: const TextStyle(
           fontFamily: _fontFamily,
           fontSize: _fontSize12,
           fontWeight: FontWeight.normal,
-          color: _coolGrey,
+          color: _lithium,
           height: 1.4,
         ),
         titleLarge: const TextStyle(
@@ -221,6 +221,14 @@ class AppTheme {
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_cardRadius),
+          ),
+          overlayColor: WidgetStateProperty.resolveWith<Color?>(
+            (states) {
+              if (states.contains(WidgetState.pressed)) {
+                return Colors.white.withValues(alpha: 0.1);
+              }
+              return null;
+            },
           ),
         ),
       ),
