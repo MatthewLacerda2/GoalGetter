@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 /// Simulates loading mock resources for the user's active learning goal.
 Future<Map<String, List<Map<String, String>>>> getMockResources() async {

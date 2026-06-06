@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:goal_getter/features/goals/debug/mock_resources_screen.dart';
+import 'package:goal_getter/features/resources/debug/mock_resources_screen.dart';
 
 part 'resources_controller.g.dart';
 

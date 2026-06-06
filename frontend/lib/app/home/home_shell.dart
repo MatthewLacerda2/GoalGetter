@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/features/missions/presentation/screens/missions_screen.dart';
 import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
-import 'package:goal_getter/features/goals/presentation/screens/resources_screen.dart';
+import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/core/widgets/main_screen_icon.dart';
 

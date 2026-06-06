@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/goals/presentation/widgets/resource_tab.dart';
-import 'package:goal_getter/features/goals/presentation/controllers/resources_controller.dart';
+import 'package:goal_getter/features/resources/presentation/widgets/resource_tab.dart';
+import 'package:goal_getter/features/resources/presentation/controllers/resources_controller.dart';
 
 class ResourcesScreen extends ConsumerStatefulWidget {
   const ResourcesScreen({super.key});
@@ -101,15 +101,15 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
               tabs: [
                 Tab(
                   icon: const Icon(Icons.play_circle, size: 28),
-                  text: AppLocalizations.of(context)!.youtube,
+                  text: AppLocalizations.of(context).youtube,
                 ),
                 Tab(
                   icon: const Icon(Icons.language, size: 28),
-                  text: AppLocalizations.of(context)!.sites,
+                  text: AppLocalizations.of(context).sites,
                 ),
                 Tab(
                   icon: const Icon(Icons.book, size: 24),
-                  text: AppLocalizations.of(context)!.book,
+                  text: AppLocalizations.of(context).book,
                 ),
               ],
             ),
