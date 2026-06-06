@@ -1,8 +1,8 @@
 import 'package:openapi/api.dart';
 
-import '../../services/auth_service.dart';
-import '../../services/openapi_client_factory.dart';
-import '../../utils/settings_storage.dart';
+import 'package:goal_getter/core/services/auth_service.dart';
+import 'package:goal_getter/core/services/openapi_client_factory.dart';
+import 'package:goal_getter/core/utils/settings_storage.dart';
 
 enum AppStartDestination {
   unauthenticated,

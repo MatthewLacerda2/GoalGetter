@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import '../theme/app_theme.dart';
-import '../screens/onboarding/goal_prompt_screen.dart';
-import '../screens/onboarding/start_screen.dart';
-import '../services/providers.dart';
-import 'home/home_shell.dart';
-import 'startup/auth_gate.dart';
+import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
+import 'package:goal_getter/services/providers.dart';
+import 'package:goal_getter/app/home/home_shell.dart';
+import 'package:goal_getter/features/auth/presentation/screens/auth_gate.dart';
 
 class AppRoutes {
   static const root = '/';

@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../utils/settings_storage.dart';
-import 'auth_service.dart';
-import 'openapi_client_factory.dart';
+import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/core/services/auth_service.dart';
+import 'package:goal_getter/core/services/openapi_client_factory.dart';
 
 /// Provider for SharedPreferences. Must be overridden in main.dart at startup.
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
