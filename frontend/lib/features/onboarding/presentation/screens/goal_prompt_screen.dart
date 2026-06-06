@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
@@ -7,19 +8,19 @@ import 'package:goal_getter/core/services/openapi_client_factory.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_goal_prompt_screen.dart';
 
-class GoalPromptScreen extends StatefulWidget {
-  GoalPromptScreen({super.key});
+class GoalPromptScreen extends ConsumerStatefulWidget {
+  const GoalPromptScreen({super.key});
 
   @override
-  State<GoalPromptScreen> createState() => _GoalPromptScreenState();
+  ConsumerState<GoalPromptScreen> createState() => _GoalPromptScreenState();
 }
 
-class _GoalPromptScreenState extends State<GoalPromptScreen> {
+class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
   final _formKey = GlobalKey<FormState>();
   final _promptController = TextEditingController();
 
   final _promptFocusNode = FocusNode();
-  final _authService = AuthService();
+  late final _authService = ref.read(authServiceProvider);
 
   bool _isLoading = false;
 

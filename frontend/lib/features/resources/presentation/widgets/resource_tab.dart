@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ResourceTab extends StatelessWidget {
   final List<Map<String, String>> resources;
 
-  ResourceTab({super.key, required this.resources});
+  const ResourceTab({super.key, required this.resources});
 
   @override
   Widget build(BuildContext context) {

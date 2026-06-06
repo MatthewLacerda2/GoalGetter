@@ -8,12 +8,13 @@ part 'locale_provider.g.dart';
 class LocaleNotifier extends _$LocaleNotifier {
   @override
   Locale build() {
-    final initialLang = SettingsStorage.getUserLanguageSync();
-    return Locale(initialLang);
+    final storage = ref.watch(settingsStorageProvider);
+    return Locale(storage.readUserLanguageSync());
   }
 
   Future<void> setLanguage(String languageCode) async {
-    final success = await SettingsStorage.setUserLanguage(languageCode);
+    final storage = ref.read(settingsStorageProvider);
+    final success = await storage.writeUserLanguage(languageCode);
     if (success) {
       state = Locale(languageCode);
     }

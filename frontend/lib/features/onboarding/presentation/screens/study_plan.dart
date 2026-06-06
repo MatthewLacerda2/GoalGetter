@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/app/app.dart';
@@ -11,17 +12,17 @@ import 'package:goal_getter/core/widgets/info_card.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_study_plan.dart';
 
-class StudyPlanScreen extends StatefulWidget {
+class StudyPlanScreen extends ConsumerStatefulWidget {
   final GoalStudyPlanResponse plan;
 
-  StudyPlanScreen({super.key, required this.plan});
+  const StudyPlanScreen({super.key, required this.plan});
 
   @override
-  State<StudyPlanScreen> createState() => _StudyPlanScreenState();
+  ConsumerState<StudyPlanScreen> createState() => _StudyPlanScreenState();
 }
 
-class _StudyPlanScreenState extends State<StudyPlanScreen> {
-  final _authService = AuthService();
+class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
+  late final _authService = ref.read(authServiceProvider);
   bool _isLoading = false;
 
   Future<void> _submitFullCreation() async {
@@ -30,7 +31,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
     });
 
     try {
-      await submitMockFullCreation(context, widget.plan);
+      await submitMockFullCreation(context, widget.plan, _authService);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(

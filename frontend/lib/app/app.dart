@@ -7,7 +7,7 @@ import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt
 import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
 import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/app/home/home_shell.dart';
-import 'package:goal_getter/features/auth/presentation/screens/auth_gate.dart';
+import 'package:goal_getter/app/startup/auth_gate.dart';
 
 class AppRoutes {
   static const root = '/';
@@ -23,9 +23,7 @@ class HomeRouteArgs {
 }
 
 class GoalGetterApp extends ConsumerWidget {
-  const GoalGetterApp({super.key, required this.initialLocale});
-
-  final Locale initialLocale;
+  const GoalGetterApp({super.key});
 
   Route<dynamic> _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {

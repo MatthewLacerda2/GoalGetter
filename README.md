@@ -79,4 +79,4 @@ To generate the OpenAPI schema and rebuild the Dart client SDK, run the helper s
 ./generate_sdk.sh
 ```
 
-The system was made with Linux as the OS in mind.
+The system was made with Linux as the OS for development and deployment.

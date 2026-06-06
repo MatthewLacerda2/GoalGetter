@@ -18,7 +18,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  final AuthService _authService = AuthService();
+  late final AuthService _authService = ref.read(authServiceProvider);
 
   @override
   Widget build(BuildContext context) {

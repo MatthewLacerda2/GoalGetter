@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:openapi/api.dart';
@@ -13,15 +14,15 @@ import 'package:goal_getter/core/services/openapi_client_factory.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/pre_onboarding_carousel.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_start_screen.dart';
 
-class StartScreen extends StatefulWidget {
-  StartScreen({super.key});
+class StartScreen extends ConsumerStatefulWidget {
+  const StartScreen({super.key});
 
   @override
-  State<StartScreen> createState() => _StartScreenState();
+  ConsumerState<StartScreen> createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> {
-  final AuthService _authService = AuthService();
+class _StartScreenState extends ConsumerState<StartScreen> {
+  late final AuthService _authService = ref.read(authServiceProvider);
   bool _isLoading = false;
   bool _isGoogleInit = false;
 

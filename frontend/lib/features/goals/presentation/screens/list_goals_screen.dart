@@ -1,63 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/core/services/openapi_client_factory.dart';
 import 'package:goal_getter/core/widgets/error_retry_widget.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
+import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
 
-class ListGoalsScreen extends StatefulWidget {
-  ListGoalsScreen({super.key});
-
-  @override
-  State<ListGoalsScreen> createState() => _ListGoalsScreenState();
-}
-
-class _ListGoalsScreenState extends State<ListGoalsScreen> {
-  final AuthService _authService = AuthService();
-  bool _isLoading = true;
-  List<GoalListItem> _goals = [];
-  String? _errorMessage;
+class ListGoalsScreen extends ConsumerWidget {
+  const ListGoalsScreen({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    _loadGoals();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final goalsAsync = ref.watch(goalsListControllerProvider);
 
-  Future<void> _loadGoals() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final apiClient = await OpenApiClientFactory(
-        authService: _authService,
-      ).createAuthorized();
-
-      final goalsApi = GoalsApi(apiClient);
-      final goalsResponse = await goalsApi.listGoalsApiV1GoalsGet();
-
-      setState(() {
-        _goals = goalsResponse?.goals ?? [];
-        _isLoading = false;
-      });
-
-      if (goalsResponse == null) {
-        throw Exception('Failed to load goals: No response received');
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -65,85 +21,82 @@ class _ListGoalsScreenState extends State<ListGoalsScreen> {
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
+      body: goalsAsync.when(
+        loading: () => Center(
+          child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        error: (err, stack) => ErrorRetryWidget(
+          errorMessage: err.toString(),
+          onRetry: () => ref.read(goalsListControllerProvider.notifier).refresh(),
+        ),
+        data: (goals) {
+          if (goals.isEmpty) {
+            return Center(
+              child: Text(
+                AppLocalizations.of(context)!.noGoalsFound,
+                style: TextStyle(
+                  fontSize: 18.0,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-            )
-          : _errorMessage != null
-              ? ErrorRetryWidget(
-                  errorMessage: _errorMessage!,
-                  onRetry: _loadGoals,
-                )
-              : _goals.isEmpty
-                  ? Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.noGoalsFound,
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: Theme.of(context).colorScheme.onSurface,
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView.builder(
+              itemCount: goals.length,
+              itemBuilder: (context, index) {
+                final goal = goals[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final result = await Navigator.of(context).push<GoalsDetailResult>(
+                        MaterialPageRoute(
+                          builder: (context) => GoalsDetailScreen(goal: goal),
                         ),
+                      );
+
+                      if (result == GoalsDetailResult.deleted) {
+                        ref.read(goalsListControllerProvider.notifier).refresh();
+                      }
+
+                      if (result == GoalsDetailResult.activated) {
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 16.0,
                       ),
-                    )
-                  : Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: ListView.builder(
-                        itemCount: _goals.length,
-                        itemBuilder: (context, index) {
-                          final goal = _goals[index];
-                          return Padding(
-                            padding: EdgeInsets.only(
-                                bottom: 12.0),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                final result = await Navigator.of(context)
-                                    .push<GoalsDetailResult>(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            GoalsDetailScreen(goal: goal),
-                                      ),
-                                    );
-
-                                if (result == GoalsDetailResult.deleted) {
-                                  await _loadGoals();
-                                }
-
-                                if (result == GoalsDetailResult.activated) {
-                                  if (!context.mounted) {
-                                    return;
-                                  }
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primary,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 20,
-                                  horizontal: 16.0,
-                                ),
-                                minimumSize: Size(double.infinity, 60),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      8.0),
-                                ),
-                              ),
-                              child: Text(
-                                goal.name.isNotEmpty
-                                    ? goal.name
-                                    : AppLocalizations.of(context)!
-                                        .untitledGoal,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                      minimumSize: const Size(double.infinity, 60),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
+                    child: Text(
+                      goal.name.isNotEmpty
+                          ? goal.name
+                          : AppLocalizations.of(context)!.untitledGoal,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }

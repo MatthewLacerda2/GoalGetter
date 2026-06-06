@@ -1,8 +1,11 @@
 import 'package:openapi/api.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/services/openapi_client_factory.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
+
+part 'app_start_controller.g.dart';
 
 enum AppStartDestination {
   unauthenticated,
@@ -17,17 +20,12 @@ class AppStartResult {
 }
 
 /// Decides which screen the app should show at launch.
-///
-/// This consolidates the startup auth/onboarding orchestration that used to live
-/// directly inside a widget state object.
 class AppStartController {
-  AppStartController({
-    AuthService? authService,
-    OpenApiClientFactory? openApiClientFactory,
-  }) : _authService = authService ?? AuthService(),
-       _openApiClientFactory =
-           openApiClientFactory ??
-           OpenApiClientFactory(authService: authService ?? AuthService());
+  const AppStartController({
+    required AuthService authService,
+    required OpenApiClientFactory openApiClientFactory,
+  }) : _authService = authService,
+       _openApiClientFactory = openApiClientFactory;
 
   final AuthService _authService;
   final OpenApiClientFactory _openApiClientFactory;
@@ -41,9 +39,7 @@ class AppStartController {
       return const AppStartResult(AppStartDestination.unauthenticated);
     }
 
-    // We have an access token: user has completed signup.
-    // Decide if we can land in the main app or we must go to goal onboarding.
-    final storedGoalId = await SettingsStorage.getCurrentGoalId();
+    final storedGoalId = SettingsStorage.instance.readCurrentGoalId();
 
     if (storedGoalId != null && storedGoalId.isNotEmpty) {
       return const AppStartResult(AppStartDestination.authenticatedReady);
@@ -71,4 +67,14 @@ class AppStartController {
       return const AppStartResult(AppStartDestination.authenticatedReady);
     }
   }
+}
+
+@riverpod
+AppStartController appStartController(AppStartControllerRef ref) {
+  final authService = ref.watch(authServiceProvider);
+  final openApiClientFactory = ref.watch(openApiClientFactoryProvider);
+  return AppStartController(
+    authService: authService,
+    openApiClientFactory: openApiClientFactory,
+  );
 }

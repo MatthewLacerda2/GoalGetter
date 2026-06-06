@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/features/tutor/domain/chat_message.dart';
 import 'package:goal_getter/core/services/api_client_provider.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/mock_tutor_controller.dart';
+
+part 'tutor_controller.g.dart';
 
 class TutorState {
   final List<ChatMessage> messages;
@@ -42,12 +44,14 @@ class TutorState {
   }
 }
 
-class TutorNotifier extends StateNotifier<TutorState> {
-  TutorNotifier(this._ref) : super(TutorState()) {
-    fetchMessages();
+@riverpod
+class TutorController extends _$TutorController {
+  @override
+  TutorState build() {
+    Future.microtask(() => fetchMessages());
+    return TutorState();
   }
 
-  final Ref _ref;
   String? _studentId;
   String? _oldestMessageId;
   final List<String> _pendingMessages = [];
@@ -166,7 +170,3 @@ class TutorNotifier extends StateNotifier<TutorState> {
     state = state.copyWith(messages: updatedList);
   }
 }
-
-final tutorControllerProvider = StateNotifierProvider.autoDispose<TutorNotifier, TutorState>((ref) {
-  return TutorNotifier(ref);
-});

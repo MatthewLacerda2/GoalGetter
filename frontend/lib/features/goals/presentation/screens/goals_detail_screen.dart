@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/api.dart';
 
@@ -9,17 +10,17 @@ import 'package:goal_getter/core/utils/settings_storage.dart';
 
 enum GoalsDetailResult { deleted, activated }
 
-class GoalsDetailScreen extends StatefulWidget {
-  GoalsDetailScreen({super.key, required this.goal});
+class GoalsDetailScreen extends ConsumerStatefulWidget {
+  const GoalsDetailScreen({super.key, required this.goal});
 
   final GoalListItem goal;
 
   @override
-  State<GoalsDetailScreen> createState() => _GoalsDetailScreenState();
+  ConsumerState<GoalsDetailScreen> createState() => _GoalsDetailScreenState();
 }
 
-class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
-  final AuthService _authService = AuthService();
+class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
+  late final AuthService _authService = ref.read(authServiceProvider);
   bool _isDeleting = false;
   bool _isSettingActive = false;
 

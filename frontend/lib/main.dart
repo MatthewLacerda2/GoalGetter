@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,8 +13,9 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   SettingsStorage.initialize(prefs);
 
-  final initialLanguage = await SettingsStorage.getOrInitUserLanguage(
-    preferredLanguageCodes: WidgetsBinding.instance.platformDispatcher.locales
+  // Pre-initialize default language choice reactively based on device locale list
+  SettingsStorage.instance.initUserLanguage(
+    preferredLanguageCodes: PlatformDispatcher.instance.locales
         .map((locale) => locale.languageCode),
   );
 
@@ -22,7 +24,7 @@ Future<void> main() async {
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
-      child: GoalGetterApp(initialLocale: Locale(initialLanguage)),
+      child: const GoalGetterApp(),
     ),
   );
 }

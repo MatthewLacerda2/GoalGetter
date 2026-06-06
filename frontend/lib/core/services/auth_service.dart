@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:openapi/api.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:goal_getter/core/utils/settings_storage.dart';
 
 import 'package:goal_getter/core/config/app_config.dart';
 
@@ -17,9 +18,7 @@ class AuthService {
   factory AuthService() => _instance;
   AuthService._internal();
 
-  static const String _tokenKey = 'access_token';
-  static const String _userInfoKey = 'user_info';
-  static const String _googleTokenKey = 'google_token';
+  // Storage and keys are managed by SettingsStorage
 
   // Google Sign-In client ID
   static const String _clientId = AppConfig.googleClientId;
@@ -220,9 +219,9 @@ class AuthService {
     String accessToken,
     Map<String, dynamic> userInfo,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, accessToken);
-    await prefs.setString(_userInfoKey, jsonEncode(userInfo));
+    final storage = SettingsStorage.instance;
+    await storage.setAccessToken(accessToken);
+    await storage.setUserInfo(userInfo);
 
     // Clear temporary data
     _tempGoogleToken = null;
@@ -231,19 +230,12 @@ class AuthService {
 
   // Get stored access token (after onboarding completion)
   Future<String?> getStoredAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return SettingsStorage.instance.getAccessToken();
   }
 
   // Get stored user info (after onboarding completion)
   Future<Map<String, dynamic>?> getStoredUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userInfoString = prefs.getString(_userInfoKey);
-
-    if (userInfoString != null) {
-      return jsonDecode(userInfoString);
-    }
-    return null;
+    return SettingsStorage.instance.getUserInfo();
   }
 
   // Check if user has completed onboarding and is signed in
@@ -255,11 +247,7 @@ class AuthService {
   // Sign out (clear both memory and storage)
   Future<void> signOut() async {
     await GoogleSignIn.instance.signOut();
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
-    await prefs.remove(_userInfoKey);
-    await prefs.remove(_googleTokenKey);
+    await SettingsStorage.instance.clearAuthData();
 
     // Clear temporary data
     _tempGoogleToken = null;
@@ -274,14 +262,12 @@ class AuthService {
 
   // Store Google token in SharedPreferences
   Future<void> storeGoogleToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_googleTokenKey, token);
+    await SettingsStorage.instance.setGoogleToken(token);
   }
 
   // Get stored Google token from SharedPreferences
   Future<String?> getStoredGoogleToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_googleTokenKey);
+    return SettingsStorage.instance.getGoogleToken();
   }
 
   // Sign up with Google (creates account if doesn't exist, or returns existing account)
