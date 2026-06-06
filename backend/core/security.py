@@ -55,9 +55,6 @@ async def verify_google_token(token: str) -> dict:
             requests.Request(),
             GOOGLE_CLIENT_ID
         )
-        # Check if the token was issued to our client
-        if idinfo['aud'] != GOOGLE_CLIENT_ID:
-            raise ValueError("Token was not issued for this client")
         return {
             "sub": idinfo["sub"],  # Google's unique user ID
             "email": idinfo["email"],

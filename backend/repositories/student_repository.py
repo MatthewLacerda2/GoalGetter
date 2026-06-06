@@ -21,10 +21,6 @@ class StudentRepository(BaseRepository[Student]):
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
     
-    async def get_by_email(self, email: str) -> Optional[Student]:
-        stmt = select(Student).where(Student.email == email)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
     
     async def update(self, entity: Student) -> Student:
         await self.db.flush()
