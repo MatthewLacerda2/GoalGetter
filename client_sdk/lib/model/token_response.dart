@@ -54,10 +54,10 @@ class TokenResponse {
       // Note 1: the values aren't checked for validity beyond being non-null.
       // Note 2: this code is stripped in release mode!
       assert(() {
-        requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "TokenResponse[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "TokenResponse[$key]" has a null value in JSON.');
-        });
+        assert(json.containsKey(r'access_token'), 'Required key "TokenResponse[access_token]" is missing from JSON.');
+        assert(json[r'access_token'] != null, 'Required key "TokenResponse[access_token]" has a null value in JSON.');
+        assert(json.containsKey(r'student'), 'Required key "TokenResponse[student]" is missing from JSON.');
+        assert(json[r'student'] != null, 'Required key "TokenResponse[student]" has a null value in JSON.');
         return true;
       }());
 

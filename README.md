@@ -9,8 +9,7 @@ What makes this app viable is the use of AI to generate custom-tailored lessons,
 
 ## How It Works
 
-- **Micro-Lessons (2–3 Minutes)**:
-  Instead of wading through hours of lectures, users can start a quick daily lesson. Each lesson consists of a series of multiple-choice questions. Any question answered incorrectly is repeated until the student gets it right. At the end, the user receives a completion percentage and XP—just like Duolingo.
+- **Micro-Lessons**: Users do at least one lesson a day. Each lesson has a series of multiple-choice questions. At the end the user receives XP and guarantees the daily streak. Inspired by Duolingo.
 - **Microlearning Content**:
   Small, easy-to-read, non-technical text for the user to quickly learn a small bit of knowledge.
 - **Daily Streak Mechanic**:
@@ -75,7 +74,9 @@ You will need a Gemini API Key. You can obtain one on the free tier at [Google A
    flutter run -d chrome --web-port=8080
    ```
 
-Whenever you update backend API paths/models, you can view the openapi specification at `http://127.0.0.1:8000/api/v1/openapi.json` and regenerate the Dart client SDK using:
+To generate the OpenAPI schema and rebuild the Dart client SDK, run the helper script:
 ```bash
-openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk
+./generate_sdk.sh
 ```
+
+The system was made with Linux as the OS in mind.

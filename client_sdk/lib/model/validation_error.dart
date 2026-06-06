@@ -18,7 +18,7 @@ class ValidationError {
     required this.type,
   });
 
-  List<ValidationErrorLocInner> loc;
+  List<LocationInner> loc;
 
   String msg;
 
@@ -59,15 +59,17 @@ class ValidationError {
       // Note 1: the values aren't checked for validity beyond being non-null.
       // Note 2: this code is stripped in release mode!
       assert(() {
-        requiredKeys.forEach((key) {
-          assert(json.containsKey(key), 'Required key "ValidationError[$key]" is missing from JSON.');
-          assert(json[key] != null, 'Required key "ValidationError[$key]" has a null value in JSON.');
-        });
+        assert(json.containsKey(r'loc'), 'Required key "ValidationError[loc]" is missing from JSON.');
+        assert(json[r'loc'] != null, 'Required key "ValidationError[loc]" has a null value in JSON.');
+        assert(json.containsKey(r'msg'), 'Required key "ValidationError[msg]" is missing from JSON.');
+        assert(json[r'msg'] != null, 'Required key "ValidationError[msg]" has a null value in JSON.');
+        assert(json.containsKey(r'type'), 'Required key "ValidationError[type]" is missing from JSON.');
+        assert(json[r'type'] != null, 'Required key "ValidationError[type]" has a null value in JSON.');
         return true;
       }());
 
       return ValidationError(
-        loc: ValidationErrorLocInner.listFromJson(json[r'loc']),
+        loc: LocationInner.listFromJson(json[r'loc']),
         msg: mapValueOfType<String>(json, r'msg')!,
         type: mapValueOfType<String>(json, r'type')!,
       );

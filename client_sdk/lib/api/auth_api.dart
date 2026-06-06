@@ -19,7 +19,7 @@ class AuthApi {
   /// Delete Account
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> deleteAccountApiV1AuthAccountDeleteWithHttpInfo() async {
+  Future<Response> deleteAccountApiV1AuthAccountDeleteWithHttpInfo({ Future<void>? abortTrigger, }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/auth/account';
 
@@ -41,12 +41,13 @@ class AuthApi {
       headerParams,
       formParams,
       contentTypes.isEmpty ? null : contentTypes.first,
+      abortTrigger: abortTrigger,
     );
   }
 
   /// Delete Account
-  Future<void> deleteAccountApiV1AuthAccountDelete() async {
-    final response = await deleteAccountApiV1AuthAccountDeleteWithHttpInfo();
+  Future<void> deleteAccountApiV1AuthAccountDelete({ Future<void>? abortTrigger, }) async {
+    final response = await deleteAccountApiV1AuthAccountDeleteWithHttpInfo(abortTrigger: abortTrigger,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -61,7 +62,7 @@ class AuthApi {
   /// Parameters:
   ///
   /// * [OAuth2Request] oAuth2Request (required):
-  Future<Response> loginApiV1AuthLoginPostWithHttpInfo(OAuth2Request oAuth2Request,) async {
+  Future<Response> loginApiV1AuthLoginPostWithHttpInfo(OAuth2Request oAuth2Request, { Future<void>? abortTrigger, }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/auth/login';
 
@@ -83,6 +84,7 @@ class AuthApi {
       headerParams,
       formParams,
       contentTypes.isEmpty ? null : contentTypes.first,
+      abortTrigger: abortTrigger,
     );
   }
 
@@ -93,8 +95,8 @@ class AuthApi {
   /// Parameters:
   ///
   /// * [OAuth2Request] oAuth2Request (required):
-  Future<TokenResponse?> loginApiV1AuthLoginPost(OAuth2Request oAuth2Request,) async {
-    final response = await loginApiV1AuthLoginPostWithHttpInfo(oAuth2Request,);
+  Future<TokenResponse?> loginApiV1AuthLoginPost(OAuth2Request oAuth2Request, { Future<void>? abortTrigger, }) async {
+    final response = await loginApiV1AuthLoginPostWithHttpInfo(oAuth2Request, abortTrigger: abortTrigger,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -113,7 +115,7 @@ class AuthApi {
   /// Sign up or sign in using Google OAuth2 token. Creates a new account if the user doesn't exist, or returns existing account info.
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> signupApiV1AuthSignupPostWithHttpInfo() async {
+  Future<Response> signupApiV1AuthSignupPostWithHttpInfo({ Future<void>? abortTrigger, }) async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/auth/signup';
 
@@ -135,14 +137,15 @@ class AuthApi {
       headerParams,
       formParams,
       contentTypes.isEmpty ? null : contentTypes.first,
+      abortTrigger: abortTrigger,
     );
   }
 
   /// Signup
   ///
   /// Sign up or sign in using Google OAuth2 token. Creates a new account if the user doesn't exist, or returns existing account info.
-  Future<TokenResponse?> signupApiV1AuthSignupPost() async {
-    final response = await signupApiV1AuthSignupPostWithHttpInfo();
+  Future<TokenResponse?> signupApiV1AuthSignupPost({ Future<void>? abortTrigger, }) async {
+    final response = await signupApiV1AuthSignupPostWithHttpInfo(abortTrigger: abortTrigger,);
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

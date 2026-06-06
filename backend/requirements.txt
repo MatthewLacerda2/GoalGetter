@@ -103,7 +103,7 @@ python-dotenv==1.1.0
 python-jose==3.4.0
 python-multipart==0.0.20
 pytz==2025.2
-#pywin32==311
+#pywin32 is excluded for Linux compatibility
 PyYAML==6.0.2
 referencing==0.36.2
 regex==2024.11.6
