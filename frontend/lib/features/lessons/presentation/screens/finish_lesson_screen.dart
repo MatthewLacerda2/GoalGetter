@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/screens/objective/streak_screen.dart';
+import 'package:goal_getter/features/lessons/presentation/screens/streak_screen.dart';
 
 import 'package:goal_getter/features/lessons/presentation/widgets/stat.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';

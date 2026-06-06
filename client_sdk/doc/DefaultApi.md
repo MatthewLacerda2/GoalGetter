@@ -75,7 +75,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-**Object**
+[**Object**](Object.md)
 
 ### Authorization
 

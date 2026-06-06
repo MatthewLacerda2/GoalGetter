@@ -19,7 +19,7 @@ class DefaultApi {
   /// Llms Txt
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> llmsTxtLlmsTxtGetWithHttpInfo({ Future<void>? abortTrigger, }) async {
+  Future<Response> llmsTxtLlmsTxtGetWithHttpInfo() async {
     // ignore: prefer_const_declarations
     final path = r'/llms.txt';
 
@@ -41,13 +41,12 @@ class DefaultApi {
       headerParams,
       formParams,
       contentTypes.isEmpty ? null : contentTypes.first,
-      abortTrigger: abortTrigger,
     );
   }
 
   /// Llms Txt
-  Future<String?> llmsTxtLlmsTxtGet({ Future<void>? abortTrigger, }) async {
-    final response = await llmsTxtLlmsTxtGetWithHttpInfo(abortTrigger: abortTrigger,);
+  Future<String?> llmsTxtLlmsTxtGet() async {
+    final response = await llmsTxtLlmsTxtGetWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -64,7 +63,7 @@ class DefaultApi {
   /// Root
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> rootApiV1CheckGetWithHttpInfo({ Future<void>? abortTrigger, }) async {
+  Future<Response> rootApiV1CheckGetWithHttpInfo() async {
     // ignore: prefer_const_declarations
     final path = r'/api/v1/check';
 
@@ -86,13 +85,12 @@ class DefaultApi {
       headerParams,
       formParams,
       contentTypes.isEmpty ? null : contentTypes.first,
-      abortTrigger: abortTrigger,
     );
   }
 
   /// Root
-  Future<Object?> rootApiV1CheckGet({ Future<void>? abortTrigger, }) async {
-    final response = await rootApiV1CheckGetWithHttpInfo(abortTrigger: abortTrigger,);
+  Future<Object?> rootApiV1CheckGet() async {
+    final response = await rootApiV1CheckGetWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
@@ -109,7 +107,7 @@ class DefaultApi {
   /// Security Txt Fallback
   ///
   /// Note: This method returns the HTTP [Response].
-  Future<Response> securityTxtFallbackSecurityTxtGetWithHttpInfo({ Future<void>? abortTrigger, }) async {
+  Future<Response> securityTxtFallbackSecurityTxtGetWithHttpInfo() async {
     // ignore: prefer_const_declarations
     final path = r'/security.txt';
 
@@ -131,13 +129,12 @@ class DefaultApi {
       headerParams,
       formParams,
       contentTypes.isEmpty ? null : contentTypes.first,
-      abortTrigger: abortTrigger,
     );
   }
 
   /// Security Txt Fallback
-  Future<String?> securityTxtFallbackSecurityTxtGet({ Future<void>? abortTrigger, }) async {
-    final response = await securityTxtFallbackSecurityTxtGetWithHttpInfo(abortTrigger: abortTrigger,);
+  Future<String?> securityTxtFallbackSecurityTxtGet() async {
+    final response = await securityTxtFallbackSecurityTxtGetWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

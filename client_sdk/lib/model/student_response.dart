@@ -65,14 +65,10 @@ class StudentResponse {
       // Note 1: the values aren't checked for validity beyond being non-null.
       // Note 2: this code is stripped in release mode!
       assert(() {
-        assert(json.containsKey(r'id'), 'Required key "StudentResponse[id]" is missing from JSON.');
-        assert(json[r'id'] != null, 'Required key "StudentResponse[id]" has a null value in JSON.');
-        assert(json.containsKey(r'google_id'), 'Required key "StudentResponse[google_id]" is missing from JSON.');
-        assert(json[r'google_id'] != null, 'Required key "StudentResponse[google_id]" has a null value in JSON.');
-        assert(json.containsKey(r'email'), 'Required key "StudentResponse[email]" is missing from JSON.');
-        assert(json[r'email'] != null, 'Required key "StudentResponse[email]" has a null value in JSON.');
-        assert(json.containsKey(r'name'), 'Required key "StudentResponse[name]" is missing from JSON.');
-        assert(json[r'name'] != null, 'Required key "StudentResponse[name]" has a null value in JSON.');
+        requiredKeys.forEach((key) {
+          assert(json.containsKey(key), 'Required key "StudentResponse[$key]" is missing from JSON.');
+          assert(json[key] != null, 'Required key "StudentResponse[$key]" has a null value in JSON.');
+        });
         return true;
       }());
 

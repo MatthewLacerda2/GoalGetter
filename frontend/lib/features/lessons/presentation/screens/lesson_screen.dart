@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
-import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
+import 'package:goal_getter/features/lessons/presentation/screens/finish_lesson_screen.dart';
+import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 
 import 'package:goal_getter/features/lessons/domain/lesson_question_data.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
@@ -87,7 +87,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               text: state.evaluationResponse != null
                   ? "${state.evaluationResponse!.studentAccuracy.toStringAsFixed(2)}%"
                   : "${(state.questions.where((q) => q.status == LessonQuestionStatus.correct).length / state.questions.length * 100).toStringAsFixed(2)}%",
-              color: Theme.of(context).extension<CustomColors>()!.success,
+              color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green,
             ),
             combo: StatData(
               title: "Combo",
@@ -125,7 +125,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final isSelectedAnswer = state.selectedChoiceIndex == index;
 
     if (isCorrectAnswer) {
-      return Theme.of(context).extension<CustomColors>()!.success.withValues(alpha: 0.2);
+      return (Theme.of(context).extension<CustomColors>()?.success ?? Colors.green).withValues(alpha: 0.2);
     }
     if (isSelectedAnswer && !isCorrectAnswer) {
       return Theme.of(context).colorScheme.error.withValues(alpha: 0.2);
@@ -144,7 +144,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final currentQuestion = state.questions[state.currentQuestionIndex];
     final isCorrect =
         state.selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
-    return isCorrect ? Theme.of(context).extension<CustomColors>()!.success : Theme.of(context).colorScheme.error;
+    return isCorrect ? (Theme.of(context).extension<CustomColors>()?.success ?? Colors.green) : Theme.of(context).colorScheme.error;
   }
 
   @override
@@ -227,7 +227,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                       value: (state.currentQuestionIndex + 1) /
                           state.questions.length,
                       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
+                      valueColor: AlwaysStoppedAnimation<Color>(
                         Theme.of(context).colorScheme.primary,
                       ),
                     ),

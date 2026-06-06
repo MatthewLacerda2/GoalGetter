@@ -48,8 +48,10 @@ class OAuth2Request {
       // Note 1: the values aren't checked for validity beyond being non-null.
       // Note 2: this code is stripped in release mode!
       assert(() {
-        assert(json.containsKey(r'access_token'), 'Required key "OAuth2Request[access_token]" is missing from JSON.');
-        assert(json[r'access_token'] != null, 'Required key "OAuth2Request[access_token]" has a null value in JSON.');
+        requiredKeys.forEach((key) {
+          assert(json.containsKey(key), 'Required key "OAuth2Request[$key]" is missing from JSON.');
+          assert(json[key] != null, 'Required key "OAuth2Request[$key]" has a null value in JSON.');
+        });
         return true;
       }());
 
