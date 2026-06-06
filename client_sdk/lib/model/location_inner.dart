@@ -12,15 +12,13 @@ part of openapi.api;
 
 class LocationInner {
   /// Returns a new [LocationInner] instance.
-  LocationInner({
-  });
+  LocationInner();
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is LocationInner &&
+  bool operator ==(Object other) => identical(this, other) || other is LocationInner;
 
   @override
-  int get hashCode =>
-    // ignore: unnecessary_parenthesis
+  int get hashCode => 0;
 
   @override
   String toString() => 'LocationInner[]';

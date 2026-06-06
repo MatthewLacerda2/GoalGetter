@@ -1,8 +1,8 @@
 import 'package:openapi/api.dart';
 
-import '../../services/auth_service.dart';
-import '../../services/openapi_client_factory.dart';
-import '../../utils/settings_storage.dart';
+import 'package:goal_getter/core/services/auth_service.dart';
+import 'package:goal_getter/core/services/openapi_client_factory.dart';
+import 'package:goal_getter/core/utils/settings_storage.dart';
 
 enum AppStartDestination {
   unauthenticated,
@@ -44,16 +44,12 @@ class AppStartController {
     // We have an access token: user has completed signup.
     // Decide if we can land in the main app or we must go to goal onboarding.
     final storedGoalId = await SettingsStorage.getCurrentGoalId();
-    final storedObjectiveId = await SettingsStorage.getCurrentObjectiveId();
 
-    if (storedGoalId != null &&
-        storedGoalId.isNotEmpty &&
-        storedObjectiveId != null &&
-        storedObjectiveId.isNotEmpty) {
+    if (storedGoalId != null && storedGoalId.isNotEmpty) {
       return const AppStartResult(AppStartDestination.authenticatedReady);
     }
 
-    // Missing cached IDs: fetch status and best-effort persist IDs.
+    // Missing cached Goal ID: fetch status and persist it.
     try {
       final apiClient = await _openApiClientFactory.createWithAccessToken();
 
@@ -67,17 +63,6 @@ class AppStartController {
       }
 
       await SettingsStorage.setCurrentGoalId(goalId);
-
-      // Best-effort objective cache.
-      try {
-        final objectiveApi = ObjectiveApi(apiClient);
-        final objective = await objectiveApi.getObjectiveApiV1ObjectiveGet();
-        if (objective != null && objective.id.isNotEmpty) {
-          await SettingsStorage.setCurrentObjectiveId(objective.id);
-        }
-      } catch (_) {
-        // Best-effort only.
-      }
 
       return const AppStartResult(AppStartDestination.authenticatedReady);
     } catch (_) {

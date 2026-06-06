@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../l10n/app_localizations.dart';
-import '../theme/app_theme.dart';
-import '../screens/onboarding/goal_prompt_screen.dart';
-import '../screens/onboarding/start_screen.dart';
-import '../services/providers.dart';
-import 'home/home_shell.dart';
-import 'startup/auth_gate.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
+import 'package:goal_getter/core/utils/locale_provider.dart';
+import 'package:goal_getter/app/home/home_shell.dart';
+import 'package:goal_getter/features/auth/presentation/screens/auth_gate.dart';
 
 class AppRoutes {
   static const root = '/';
@@ -32,19 +32,19 @@ class GoalGetterApp extends ConsumerWidget {
       case AppRoutes.root:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const AuthGate(),
+          builder: (_) => AuthGate(),
         );
 
       case AppRoutes.start:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const StartScreen(),
+          builder: (_) => StartScreen(),
         );
 
       case AppRoutes.goalPrompt:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const GoalPromptScreen(),
+          builder: (_) => GoalPromptScreen(),
         );
 
       case AppRoutes.home:
@@ -62,7 +62,7 @@ class GoalGetterApp extends ConsumerWidget {
       default:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const StartScreen(),
+          builder: (_) => StartScreen(),
         );
     }
   }

@@ -1,0 +1,323 @@
+import 'dart:convert';
+import 'dart:developer' as developer;
+
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'package:openapi/api.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:goal_getter/core/config/app_config.dart';
+
+part 'auth_service.g.dart';
+
+class AuthService {
+  static final AuthService _instance = AuthService._internal();
+  factory AuthService() => _instance;
+  AuthService._internal();
+
+  static const String _tokenKey = 'access_token';
+  static const String _userInfoKey = 'user_info';
+  static const String _googleTokenKey = 'google_token';
+
+  // Google Sign-In client ID
+  static const String _clientId = AppConfig.googleClientId;
+
+  // Scopes for Google Sign-In
+  static const List<String> _scopes = ['email', 'profile', 'openid'];
+
+  // Track initialization state
+  bool _isInitialized = false;
+
+  // Ensure GoogleSignIn is initialized before use
+  Future<void> _ensureInitialized() async {
+    if (!_isInitialized) {
+      await GoogleSignIn.instance.initialize(clientId: _clientId);
+      _isInitialized = true;
+    }
+  }
+
+  // Public method to ensure GoogleSignIn is initialized (needed for Web button rendering)
+  Future<void> ensureInitialized() async {
+    await _ensureInitialized();
+  }
+
+  // Sign in with Google and return the ID token or access token
+  Future<Map<String, dynamic>?> signInWithGoogle() async {
+    developer.log("EA SPORTS, its in the game");
+    try {
+      await _ensureInitialized();
+      developer.log('Starting Google Sign-In...');
+
+      if (kIsWeb) {
+        throw UnsupportedError('Programmatic sign-in is not supported on Web. Use the Google sign-in button instead.');
+      }
+
+      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance
+          .authenticate(scopeHint: _scopes);
+
+      if (googleUser == null) {
+        developer.log('Google user is null (cancelled)');
+        return null;
+      }
+
+      developer.log('Google user: ${googleUser.email}');
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      developer.log(
+        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
+      );
+
+      final String? idToken = googleAuth.idToken;
+
+      // Get access token via authorization client as fallback
+      String? accessToken;
+      try {
+        final authorization = await googleUser.authorizationClient
+            .authorizeScopes(_scopes);
+        accessToken = authorization.accessToken;
+        developer.log('Access Token: Present');
+      } catch (e) {
+        developer.log('Failed to get access token: $e');
+        // Try to get existing authorization without prompting
+        final existingAuth = await googleUser.authorizationClient
+            .authorizationForScopes(_scopes);
+        accessToken = existingAuth?.accessToken;
+        developer.log(
+          'Access Token (existing): ${accessToken != null ? "Present" : "NULL"}',
+        );
+      }
+
+      // Use ID token if available, otherwise fall back to access token
+      // Backend supports both ID tokens and access tokens
+      final String? tokenToUse = idToken ?? accessToken;
+
+      if (tokenToUse == null) {
+        developer.log('Both ID token and access token are null');
+        throw Exception(
+          'Failed to get token from Google. Please try signing in again.',
+        );
+      }
+
+      if (idToken == null) {
+        developer.log('ID Token is null, using access token instead');
+      }
+
+      // Store token temporarily and persistently
+      _tempGoogleToken = tokenToUse;
+      await storeGoogleToken(tokenToUse);
+
+      _tempUserInfo = {
+        'sub': googleUser.id,
+        'email': googleUser.email,
+        'name': googleUser.displayName,
+        'picture': googleUser.photoUrl,
+      };
+
+      developer.log('Successfully authenticated user: ${googleUser.email}');
+      return {'token': tokenToUse, 'user': _tempUserInfo};
+    } on GoogleSignInException catch (e) {
+      // Handle cancellation or other Google Sign-In specific errors
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        developer.log('User cancelled sign-in');
+        return null;
+      }
+      developer.log('Google Sign-In error: ${e.code} - ${e.description}');
+      rethrow;
+    } catch (error) {
+      developer.log('Error signing in to your app with Google: $error');
+      rethrow;
+    }
+  }
+
+  // Handle GoogleSignInAccount directly (e.g. from the stream on Web)
+  Future<Map<String, dynamic>?> handleGoogleSignInAccount(GoogleSignInAccount? googleUser) async {
+    try {
+      if (googleUser == null) {
+        developer.log('Google user is null');
+        return null;
+      }
+
+      developer.log('Google user: ${googleUser.email}');
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      developer.log(
+        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
+      );
+
+      final String? idToken = googleAuth.idToken;
+
+      // Get access token via authorization client as fallback
+      String? accessToken;
+      try {
+        final authorization = await googleUser.authorizationClient
+            .authorizeScopes(_scopes);
+        accessToken = authorization.accessToken;
+        developer.log('Access Token: Present');
+      } catch (e) {
+        developer.log('Failed to get access token: $e');
+        // Try to get existing authorization without prompting
+        final existingAuth = await googleUser.authorizationClient
+            .authorizationForScopes(_scopes);
+        accessToken = existingAuth?.accessToken;
+        developer.log(
+          'Access Token (existing): ${accessToken != null ? "Present" : "NULL"}',
+        );
+      }
+
+      final String? tokenToUse = idToken ?? accessToken;
+
+      if (tokenToUse == null) {
+        developer.log('Both ID token and access token are null');
+        throw Exception(
+          'Failed to get token from Google. Please try signing in again.',
+        );
+      }
+
+      // Store token temporarily and persistently
+      _tempGoogleToken = tokenToUse;
+      await storeGoogleToken(tokenToUse);
+
+      _tempUserInfo = {
+        'sub': googleUser.id,
+        'email': googleUser.email,
+        'name': googleUser.displayName,
+        'picture': googleUser.photoUrl,
+      };
+
+      developer.log('Successfully authenticated user: ${googleUser.email}');
+      return {'token': tokenToUse, 'user': _tempUserInfo};
+    } catch (error) {
+      developer.log('Error handling Google sign-in account: $error');
+      rethrow;
+    }
+  }
+
+  // In-memory storage for OAuth data during onboarding
+  String? _tempGoogleToken;
+  Map<String, dynamic>? _tempUserInfo;
+
+  // Get temporary Google token (in memory)
+  String? getTempGoogleToken() {
+    return _tempGoogleToken;
+  }
+
+  // Get temporary user info (in memory)
+  Map<String, dynamic>? getTempUserInfo() {
+    return _tempUserInfo;
+  }
+
+  // Check if we have temporary OAuth data (for onboarding)
+  bool hasTempAuthData() {
+    return _tempGoogleToken != null && _tempUserInfo != null;
+  }
+
+  // Store final credentials after successful onboarding
+  Future<void> storeFinalCredentials(
+    String accessToken,
+    Map<String, dynamic> userInfo,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, accessToken);
+    await prefs.setString(_userInfoKey, jsonEncode(userInfo));
+
+    // Clear temporary data
+    _tempGoogleToken = null;
+    _tempUserInfo = null;
+  }
+
+  // Get stored access token (after onboarding completion)
+  Future<String?> getStoredAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
+
+  // Get stored user info (after onboarding completion)
+  Future<Map<String, dynamic>?> getStoredUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userInfoString = prefs.getString(_userInfoKey);
+
+    if (userInfoString != null) {
+      return jsonDecode(userInfoString);
+    }
+    return null;
+  }
+
+  // Check if user has completed onboarding and is signed in
+  Future<bool> isSignedIn() async {
+    final token = await getStoredAccessToken();
+    return token != null && token.isNotEmpty;
+  }
+
+  // Sign out (clear both memory and storage)
+  Future<void> signOut() async {
+    await GoogleSignIn.instance.signOut();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userInfoKey);
+    await prefs.remove(_googleTokenKey);
+
+    // Clear temporary data
+    _tempGoogleToken = null;
+    _tempUserInfo = null;
+  }
+
+  // Clear temporary OAuth data (if user cancels onboarding)
+  void clearTempAuthData() {
+    _tempGoogleToken = null;
+    _tempUserInfo = null;
+  }
+
+  // Store Google token in SharedPreferences
+  Future<void> storeGoogleToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_googleTokenKey, token);
+  }
+
+  // Get stored Google token from SharedPreferences
+  Future<String?> getStoredGoogleToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_googleTokenKey);
+  }
+
+  // Sign up with Google (creates account if doesn't exist, or returns existing account)
+  Future<Map<String, dynamic>?> signupWithGoogle(String googleToken) async {
+    try {
+      developer.log('Calling /signup endpoint via OpenAPI client...');
+
+      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
+      apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+
+      final authApi = AuthApi(apiClient);
+      final tokenResponse = await authApi.signupApiV1AuthSignupPost();
+
+      if (tokenResponse != null) {
+        final accessToken = tokenResponse.accessToken;
+        final studentResponse = tokenResponse.student;
+        
+        final studentData = studentResponse.toJson();
+
+        // Store both Google token and JWT access token
+        await storeGoogleToken(googleToken);
+        await storeFinalCredentials(accessToken, studentData);
+
+        developer.log('Successfully signed up: ${studentResponse.email}');
+        return {'access_token': accessToken, 'student': studentData};
+      } else {
+        throw Exception('Signup failed: Empty response from server');
+      }
+    } catch (error) {
+      developer.log('Error in signupWithGoogle: $error');
+      rethrow;
+    }
+  }
+}
+
+@riverpod
+AuthService authService(AuthServiceRef ref) {
+  return AuthService();
+}

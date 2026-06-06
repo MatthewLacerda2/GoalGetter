@@ -31,26 +31,14 @@
     "enter": "Eingeben",
     "@enter": {
         "description": "Label for enter button"
-    },    
+    },
     "questions": "Fragen",
     "@questions": {
         "description": "Label for questions screen"
-    },    
+    },
     "send": "Senden",
     "@send": {
         "description": "Label for send button"
-    },
-    "beforeYouStart": "Bevor du anfängst...",
-    "@beforeYouStart": {
-        "description": "Label for before you start"
-    },
-    "goalStarted": "Ziel gestartet!",
-    "@goalStarted": {
-        "description": "Label for goal started"
-    },
-    "letSGo": "LOS GEHT'S!",
-    "@letSGo": {
-        "description": "Label for let's go button"
     },
     "yourAnswer": "Deine Antwort...",
     "@yourAnswer": {
@@ -68,34 +56,6 @@
     "@continuate": {
         "description": "Label para botão continuar"
     },
-    "sunday": "Sonntag",
-    "@sunday": {
-        "description": "Label for sunday"
-    },
-    "monday": "Montag",
-    "@monday": {
-        "description": "Label for monday"
-    },
-    "tuesday": "Dienstag",
-    "@tuesday": {
-        "description": "Label for tuesday"
-    },
-    "wednesday": "Mittwoch",
-    "@wednesday": {
-        "description": "Label for wednesday"
-    },
-    "thursday": "Donnerstag",
-    "@thursday": {
-        "description": "Label for thursday"
-    },
-    "friday": "Freitag",
-    "@friday": {
-        "description": "Label for friday"
-    },
-    "saturday": "Samstag",
-    "@saturday": {
-        "description": "Label for saturday"
-    },
     "sundayShort": "So",
     "@sundayShort": {
         "description": "Label for sunday short"
@@ -103,7 +63,7 @@
     "mondayShort": "Mo",
     "@mondayShort": {
         "description": "Label for monday short"
-    },    
+    },
     "tuesdayShort": "Di",
     "@tuesdayShort": {
         "description": "Label for tuesday short"
@@ -111,7 +71,7 @@
     "wednesdayShort": "Mi",
     "@wednesdayShort": {
         "description": "Label for wednesday short"
-    },    
+    },
     "thursdayShort": "Do",
     "@thursdayShort": {
         "description": "Label for thursday short"
@@ -119,7 +79,7 @@
     "fridayShort": "Fr",
     "@fridayShort": {
         "description": "Label for friday short"
-    },    
+    },
     "saturdayShort": "Sa",
     "@saturdayShort": {
         "description": "Label for saturday short"
@@ -136,14 +96,6 @@
     "@sites": {
         "description": "Label for sites"
     },
-    "lessonSession": "Lerneinheit",
-    "@lessonSession": {
-        "description": "Label for lesson session"
-    },
-    "showMeWhatYouGot": "Zeig mir, was du draufhast",
-    "@showMeWhatYouGot": {
-        "description": "Label for show me what you got"
-    },
     "notes": "Notizen",
     "@notes": {
         "description": "Label for notes"
@@ -151,10 +103,6 @@
     "progress": "Fortschritt",
     "@progress": {
         "description": "Label for progress"
-    },
-    "achievements": "Erfolge",
-    "@achievements": {
-        "description": "Label for achievements"
     },
     "typeYourMessage": "Tippe deine Nachricht...",
     "@typeYourMessage": {
@@ -164,21 +112,9 @@
     "@keepThePressureOn": {
         "description": "Label for keep the pressure on"
     },
-    "wellDone": "Gut gemacht!",
-    "@wellDone": {
-        "description": "Label for well done"
-    },
-    "opsNotQuite": "Ups! Nicht ganz...",
-    "@opsNotQuite": {
-        "description": "Label for ops not quite"
-    },
     "objective": "Ziel",
     "@objective": {
         "description": "Label for objective"
-    },
-    "objectives": "Ziele",
-    "@objectives": {
-        "description": "Label for objectives"
     },
     "tutor": "Tutor",
     "@tutor": {
@@ -195,14 +131,6 @@
     "profile": "Profil",
     "@profile": {
         "description": "Label for profile"
-    },
-    "startLesson": "Lektion starten",
-    "@startLesson": {
-        "description": "Label for start lesson"
-    },
-    "startAssessment": "Bewertung starten",
-    "@startAssessment": {
-        "description": "Label for start assessment"
     },
     "trailwayToYourGoal": "Ein vorgegebener Weg zu deinem Ziel",
     "@trailwayToYourGoal": {
@@ -240,10 +168,6 @@
     "@nowLetSCorrectYourMistakes": {
         "description": "Label for now let's correct your mistakes"
     },
-    "noCompletedObjectives": "Keine Ziele erreicht",
-    "@noCompletedObjectives": {
-        "description": "Label for no completed objectives"
-    },
     "createdAt": "Erstellt am",
     "@createdAt": {
         "description": "Label for created at"
@@ -251,14 +175,6 @@
     "goals": "Meine Ziele",
     "@goals": {
         "description": "Label for goals"
-    },
-    "showObjectives": "Liste der Ziele",
-    "@showObjectives": {
-        "description": "Label for show objectives"
-    },
-    "listMemories": "Erinnerungen",
-    "@listMemories": {
-        "description": "Label for list memories"
     },
     "createNewGoal": "Erstelle ein neues Ziel",
     "@createNewGoal": {
@@ -283,18 +199,6 @@
     "comingSoon": "Bald verfügbar",
     "@comingSoon": {
         "description": "Label for coming soon"
-    },
-    "deleteMemory": "Erinnerung löschen",
-    "@deleteMemory": {
-        "description": "Label for delete memory"
-    },
-    "noMemories": "Keine Erinnerungen",
-    "@noMemories": {
-        "description": "Label for no memories"
-    },
-    "deleteMemoryDescription": "Bist du sicher, dass du diese Erinnerung löschen möchtest?",
-    "@deleteMemoryDescription": {
-        "description": "Label for delete memory description"
     },
     "untitledGoal": "Unbenanntes Ziel",
     "@untitledGoal": {
@@ -360,18 +264,6 @@
     "@agreeToTermsAndPrivacyPolicy": {
         "description": "Label for agree to terms and privacy policy"
     },
-    "exampleCourse1": "“Studiengang Internationale Beziehungen”",
-    "@exampleCourse1": {
-        "description": "Example course text 1 shown on pre-onboarding tutorial"
-    },
-    "exampleCourse2": "“Ich benötige Grundlagen der Finanzwirtschaft”",
-    "@exampleCourse2": {
-        "description": "Example course text 2 shown on pre-onboarding tutorial"
-    },
-    "exampleCourse3": "“Ich möchte Maschinenbau lernen”",
-    "@exampleCourse3": {
-        "description": "Example course text 3 shown on pre-onboarding tutorial"
-    },
     "preOnboardingYourCoursesTitle": "Deine Kurse",
     "@preOnboardingYourCoursesTitle": {
         "description": "Pre-onboarding tutorial page title: Your courses"
@@ -403,10 +295,6 @@
     "preOnboardingAiThatKnowsYouBody": "Dein Tutor kennt dich und ist bereit, dich zu unterstützen und zu führen",
     "@preOnboardingAiThatKnowsYouBody": {
         "description": "Pre-onboarding tutorial page body: Your Tutor knows you and is ready to talk and guide you"
-    },
-    "writeYourMemory": "Schreibe deine Erinnerung...",
-    "@writeYourMemory": {
-        "description": "Label for write your memory"
     },
     "noDescription": "Keine Beschreibung",
     "@noDescription": {
