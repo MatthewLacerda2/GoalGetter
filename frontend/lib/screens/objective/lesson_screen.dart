@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:goal_getter/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:goal_getter/screens/objective/finish_lesson_screen.dart';
 import 'package:goal_getter/widgets/screens/objective/lesson/stat_data.dart';
 

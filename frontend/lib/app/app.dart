@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../screens/onboarding/goal_prompt_screen.dart';
 import '../screens/onboarding/start_screen.dart';
@@ -32,19 +32,19 @@ class GoalGetterApp extends ConsumerWidget {
       case AppRoutes.root:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const AuthGate(),
+          builder: (_) => AuthGate(),
         );
 
       case AppRoutes.start:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const StartScreen(),
+          builder: (_) => StartScreen(),
         );
 
       case AppRoutes.goalPrompt:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const GoalPromptScreen(),
+          builder: (_) => GoalPromptScreen(),
         );
 
       case AppRoutes.home:
@@ -62,7 +62,7 @@ class GoalGetterApp extends ConsumerWidget {
       default:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const StartScreen(),
+          builder: (_) => StartScreen(),
         );
     }
   }

@@ -27,7 +27,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get beDetailedOfYourGoal => 'Sei detailliert bei deinem Ziel!';
 
   @override
-  String get tellWhatYourGoalIs => 'Erzähle dein Ziel, was du bereits kannst und was der Zweck ist';
+  String get tellWhatYourGoalIs =>
+      'Erzähle dein Ziel, was du bereits kannst und was der Zweck ist';
 
   @override
   String get enter => 'Eingeben';
@@ -37,9 +38,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get send => 'Senden';
-
-
-
 
   @override
   String get yourAnswer => 'Deine Antwort...';
@@ -52,13 +50,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get continuate => 'Weiter!';
-
-
-
-
-
-
-
 
   @override
   String get sundayShort => 'So';
@@ -90,14 +81,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get sites => 'Websites';
 
-
-
   @override
   String get notes => 'Notizen';
 
   @override
   String get progress => 'Fortschritt';
-
 
   @override
   String get typeYourMessage => 'Tippe deine Nachricht...';
@@ -105,11 +93,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get keepThePressureOn => 'Ja, bleib dran!!!';
 
-
-
   @override
   String get objective => 'Ziel';
-
 
   @override
   String get tutor => 'Tutor';
@@ -123,25 +108,27 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get profile => 'Profil';
 
-
-
   @override
   String get trailwayToYourGoal => 'Ein vorgegebener Weg zu deinem Ziel';
 
   @override
-  String get yourNextTarget => 'Dein nächstes Ziel. Nimm die Materialien und Übungen, die wir für dich haben';
+  String get yourNextTarget =>
+      'Dein nächstes Ziel. Nimm die Materialien und Übungen, die wir für dich haben';
 
   @override
   String get evaluation => 'Bewertung';
 
   @override
-  String get evaluationDescription => 'Einige Übungen für dich zum Lernen und um zu zeigen, was du gelernt hast';
+  String get evaluationDescription =>
+      'Einige Übungen für dich zum Lernen und um zu zeigen, was du gelernt hast';
 
   @override
-  String get tutorDescription => 'Wir haben jemanden, der dir Ratschläge gibt, Fragen beantwortet und dich begleitet';
+  String get tutorDescription =>
+      'Wir haben jemanden, der dir Ratschläge gibt, Fragen beantwortet und dich begleitet';
 
   @override
-  String get awardsDescription => 'Deine Meilensteine und Fortschritte aufgelistet! Mach es zu deiner Galerie!';
+  String get awardsDescription =>
+      'Deine Meilensteine und Fortschritte aufgelistet! Mach es zu deiner Galerie!';
 
   @override
   String get goGetEmTiger => 'Los geht\'s!';
@@ -150,16 +137,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get goGetEmTigerDescription => 'Erkunde. Träume. Entdecke.';
 
   @override
-  String get nowLetSCorrectYourMistakes => 'Jetzt lass uns deine Fehler korrigieren';
-
+  String get nowLetSCorrectYourMistakes =>
+      'Jetzt lass uns deine Fehler korrigieren';
 
   @override
   String get createdAt => 'Erstellt am';
 
   @override
   String get goals => 'Meine Ziele';
-
-
 
   @override
   String get createNewGoal => 'Erstelle ein neues Ziel';
@@ -179,20 +164,19 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get comingSoon => 'Bald verfügbar';
 
-
-
-
   @override
   String get untitledGoal => 'Unbenanntes Ziel';
 
   @override
-  String get areYouSureYouWantToDeleteThisGoal => 'Bist du sicher, dass du dieses Ziel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.';
+  String get areYouSureYouWantToDeleteThisGoal =>
+      'Bist du sicher, dass du dieses Ziel löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.';
 
   @override
   String get warning => 'Warnung';
 
   @override
-  String get deleteGoalWarningDescription => 'Dies wird das Ziel und alle seine Ziele endgültig löschen. Diese Aktion kann nicht rückgängig gemacht werden. Bist du absolut sicher?';
+  String get deleteGoalWarningDescription =>
+      'Dies wird das Ziel und alle seine Ziele endgültig löschen. Diese Aktion kann nicht rückgängig gemacht werden. Bist du absolut sicher?';
 
   @override
   String get selectGoal => 'Ziel auswählen';
@@ -228,35 +212,36 @@ class AppLocalizationsDe extends AppLocalizations {
   String get yourMentor => 'Ein Mentor für dich';
 
   @override
-  String get agreeToTermsAndPrivacyPolicy => 'Durch die Fortfahrt erklärst du dich mit unseren Nutzungsbedingungen und Datenschutzrichtlinien einverstanden';
-
-
-
+  String get agreeToTermsAndPrivacyPolicy =>
+      'Durch die Fortfahrt erklärst du dich mit unseren Nutzungsbedingungen und Datenschutzrichtlinien einverstanden';
 
   @override
   String get preOnboardingYourCoursesTitle => 'Deine Kurse';
 
   @override
-  String get preOnboardingYourCoursesBody => 'GoalGetter ist eine Kursplattform, wo jeder Kurs speziell für dich generiert wird';
+  String get preOnboardingYourCoursesBody =>
+      'GoalGetter ist eine Kursplattform, wo jeder Kurs speziell für dich generiert wird';
 
   @override
   String get preOnboardingTellUsYourGoalTitle => 'Erzähle uns dein Ziel';
 
   @override
-  String get preOnboardingTellUsYourGoalBody => 'Erzähle uns, was du lernen, erreichen oder erreichen möchtest';
+  String get preOnboardingTellUsYourGoalBody =>
+      'Erzähle uns, was du lernen, erreichen oder erreichen möchtest';
 
   @override
   String get preOnboardingDailyLessonTitle => 'Tägliche Lektion';
 
   @override
-  String get preOnboardingDailyLessonBody => 'Übe jeden Tag, halte deinen Fortschritt bei deinem Ziel';
+  String get preOnboardingDailyLessonBody =>
+      'Übe jeden Tag, halte deinen Fortschritt bei deinem Ziel';
 
   @override
   String get preOnboardingAiThatKnowsYouTitle => 'Chat mit deinem AI';
 
   @override
-  String get preOnboardingAiThatKnowsYouBody => 'Dein Tutor kennt dich und ist bereit, dich zu unterstützen und zu führen';
-
+  String get preOnboardingAiThatKnowsYouBody =>
+      'Dein Tutor kennt dich und ist bereit, dich zu unterstützen und zu führen';
 
   @override
   String get noDescription => 'Keine Beschreibung';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'mock-goal_prompt_screen.dart';
 import 'mock-goal_questions_screen.dart';
 import 'study_plan.dart';

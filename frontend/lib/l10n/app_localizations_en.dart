@@ -27,7 +27,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get beDetailedOfYourGoal => 'Be detailed of your goal!';
 
   @override
-  String get tellWhatYourGoalIs => 'Tell your goal, what can you do so far, and what is the purpose';
+  String get tellWhatYourGoalIs =>
+      'Tell your goal, what can you do so far, and what is the purpose';
 
   @override
   String get enter => 'Enter';
@@ -37,9 +38,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get send => 'Send';
-
-
-
 
   @override
   String get yourAnswer => 'Your answer...';
@@ -52,13 +50,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continuate => 'Continue!';
-
-
-
-
-
-
-
 
   @override
   String get sundayShort => 'Sun';
@@ -90,14 +81,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sites => 'Sites';
 
-
-
   @override
   String get notes => 'Notes';
 
   @override
   String get progress => 'Progress';
-
 
   @override
   String get typeYourMessage => 'Type your message...';
@@ -105,11 +93,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get keepThePressureOn => 'Yeah, keep the pressure on !!!';
 
-
-
   @override
   String get objective => 'Objective';
-
 
   @override
   String get tutor => 'Tutor';
@@ -123,25 +108,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profile => 'Profile';
 
-
-
   @override
   String get trailwayToYourGoal => 'A given pathway to your goal';
 
   @override
-  String get yourNextTarget => 'Your next target. Take the materials and exercises we got for you';
+  String get yourNextTarget =>
+      'Your next target. Take the materials and exercises we got for you';
 
   @override
   String get evaluation => 'Evaluation';
 
   @override
-  String get evaluationDescription => 'Some exercises for you to learn and show you\'ve learned';
+  String get evaluationDescription =>
+      'Some exercises for you to learn and show you\'ve learned';
 
   @override
-  String get tutorDescription => 'We got someone to give you advice, answer questions and guide you through';
+  String get tutorDescription =>
+      'We got someone to give you advice, answer questions and guide you through';
 
   @override
-  String get awardsDescription => 'Your milestones and progress listed! Make it your gallery!';
+  String get awardsDescription =>
+      'Your milestones and progress listed! Make it your gallery!';
 
   @override
   String get goGetEmTiger => 'Go get \'em, tiger!';
@@ -152,14 +139,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nowLetSCorrectYourMistakes => 'Now let\'s correct your mistakes';
 
-
   @override
   String get createdAt => 'Created at';
 
   @override
   String get goals => 'My Goals';
-
-
 
   @override
   String get createNewGoal => 'Create new goal';
@@ -179,20 +163,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get comingSoon => 'Coming soon';
 
-
-
-
   @override
   String get untitledGoal => 'Untitled goal';
 
   @override
-  String get areYouSureYouWantToDeleteThisGoal => 'Are you sure you want to delete this goal? This action cannot be undone.';
+  String get areYouSureYouWantToDeleteThisGoal =>
+      'Are you sure you want to delete this goal? This action cannot be undone.';
 
   @override
   String get warning => 'Warning';
 
   @override
-  String get deleteGoalWarningDescription => 'This will permanently delete the goal and all its objectives. This action cannot be reversed. Are you absolutely sure?';
+  String get deleteGoalWarningDescription =>
+      'This will permanently delete the goal and all its objectives. This action cannot be reversed. Are you absolutely sure?';
 
   @override
   String get selectGoal => 'Select Goal';
@@ -228,35 +211,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourMentor => 'Your personal mentor!';
 
   @override
-  String get agreeToTermsAndPrivacyPolicy => 'By continuing, you agree to our Terms of Service and Privacy Policy';
-
-
-
+  String get agreeToTermsAndPrivacyPolicy =>
+      'By continuing, you agree to our Terms of Service and Privacy Policy';
 
   @override
   String get preOnboardingYourCoursesTitle => 'Your courses';
 
   @override
-  String get preOnboardingYourCoursesBody => 'GoalGetter is a courses platform, where every course is generated specifically for you';
+  String get preOnboardingYourCoursesBody =>
+      'GoalGetter is a courses platform, where every course is generated specifically for you';
 
   @override
   String get preOnboardingTellUsYourGoalTitle => 'Tell us your Goal';
 
   @override
-  String get preOnboardingTellUsYourGoalBody => 'Say what you want to learn, achieve or accomplish';
+  String get preOnboardingTellUsYourGoalBody =>
+      'Say what you want to learn, achieve or accomplish';
 
   @override
   String get preOnboardingDailyLessonTitle => 'Daily lesson';
 
   @override
-  String get preOnboardingDailyLessonBody => 'Practice every day, keep progressing to your goal';
+  String get preOnboardingDailyLessonBody =>
+      'Practice every day, keep progressing to your goal';
 
   @override
   String get preOnboardingAiThatKnowsYouTitle => 'Chat with your AI';
 
   @override
-  String get preOnboardingAiThatKnowsYouBody => 'Your Tutor knows you and is ready to talk and guide you';
-
+  String get preOnboardingAiThatKnowsYouBody =>
+      'Your Tutor knows you and is ready to talk and guide you';
 
   @override
   String get noDescription => 'No description';

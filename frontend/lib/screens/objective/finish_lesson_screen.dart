@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:goal_getter/screens/objective/streak_screen.dart';
 
 import '../../widgets/screens/objective/lesson/stat.dart';

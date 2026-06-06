@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import '../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
 import '../widgets/screens/resource/resource_tab.dart';

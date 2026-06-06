@@ -27,7 +27,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get beDetailedOfYourGoal => 'Seja detalhado sobre sua meta!';
 
   @override
-  String get tellWhatYourGoalIs => 'Diga sua meta, o que você sabe fazer e qual sua motivação';
+  String get tellWhatYourGoalIs =>
+      'Diga sua meta, o que você sabe fazer e qual sua motivação';
 
   @override
   String get enter => 'Enter';
@@ -37,9 +38,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get send => 'Enviar';
-
-
-
 
   @override
   String get yourAnswer => 'Sua resposta...';
@@ -52,13 +50,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get continuate => 'Continue!';
-
-
-
-
-
-
-
 
   @override
   String get sundayShort => 'Dom';
@@ -90,14 +81,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get sites => 'Sites';
 
-
-
   @override
   String get notes => 'Notas';
 
   @override
   String get progress => 'Progresso';
-
 
   @override
   String get typeYourMessage => 'Mensagem...';
@@ -105,11 +93,8 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get keepThePressureOn => 'Continue sendo um orgulho!';
 
-
-
   @override
   String get objective => 'Objetivo';
-
 
   @override
   String get tutor => 'Tutor';
@@ -123,22 +108,23 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get profile => 'Perfil';
 
-
-
   @override
   String get trailwayToYourGoal => 'Um plano de estudo pronto para você';
 
   @override
-  String get yourNextTarget => 'Seu próximo objetivo. Aqui tem uns materiais e exercícios pra você';
+  String get yourNextTarget =>
+      'Seu próximo objetivo. Aqui tem uns materiais e exercícios pra você';
 
   @override
   String get evaluation => 'Avaliação';
 
   @override
-  String get evaluationDescription => 'Exercícios para você aprender e mostrar que aprendeu';
+  String get evaluationDescription =>
+      'Exercícios para você aprender e mostrar que aprendeu';
 
   @override
-  String get tutorDescription => 'Alguém para lhe dar conselhos, responder perguntas e guiá-lo';
+  String get tutorDescription =>
+      'Alguém para lhe dar conselhos, responder perguntas e guiá-lo';
 
   @override
   String get awardsDescription => 'Seus marcos! Faça uma galeria só deles!';
@@ -152,14 +138,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get nowLetSCorrectYourMistakes => 'Agora vamos corrigir seus erros';
 
-
   @override
   String get createdAt => 'Criado em';
 
   @override
   String get goals => 'Minhas metas';
-
-
 
   @override
   String get createNewGoal => 'Criar nova meta';
@@ -179,20 +162,19 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get comingSoon => 'Em breve';
 
-
-
-
   @override
   String get untitledGoal => 'Meta sem nome';
 
   @override
-  String get areYouSureYouWantToDeleteThisGoal => 'Tem certeza que deseja deletar esta meta? Esta ação não pode ser desfeita.';
+  String get areYouSureYouWantToDeleteThisGoal =>
+      'Tem certeza que deseja deletar esta meta? Esta ação não pode ser desfeita.';
 
   @override
   String get warning => 'Aviso';
 
   @override
-  String get deleteGoalWarningDescription => 'Isso deletará a meta e todos os seus objetivos permanentemente. Esta ação não pode ser desfeita. Tem certeza?';
+  String get deleteGoalWarningDescription =>
+      'Isso deletará a meta e todos os seus objetivos permanentemente. Esta ação não pode ser desfeita. Tem certeza?';
 
   @override
   String get selectGoal => 'Selecionar Meta';
@@ -228,35 +210,36 @@ class AppLocalizationsPt extends AppLocalizations {
   String get yourMentor => 'Um mentor para você!';
 
   @override
-  String get agreeToTermsAndPrivacyPolicy => 'Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade';
-
-
-
+  String get agreeToTermsAndPrivacyPolicy =>
+      'Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade';
 
   @override
   String get preOnboardingYourCoursesTitle => 'Seus cursos';
 
   @override
-  String get preOnboardingYourCoursesBody => 'GoalGetter é uma plataforma de cursos, onde cada curso é gerado especificamente para você';
+  String get preOnboardingYourCoursesBody =>
+      'GoalGetter é uma plataforma de cursos, onde cada curso é gerado especificamente para você';
 
   @override
   String get preOnboardingTellUsYourGoalTitle => 'Diga-nos sua Meta';
 
   @override
-  String get preOnboardingTellUsYourGoalBody => 'Diga o que você quer aprender, alcançar ou realizar';
+  String get preOnboardingTellUsYourGoalBody =>
+      'Diga o que você quer aprender, alcançar ou realizar';
 
   @override
   String get preOnboardingDailyLessonTitle => 'Lição diária';
 
   @override
-  String get preOnboardingDailyLessonBody => 'Pratique todos os dias, mantenha seu progresso em sua meta';
+  String get preOnboardingDailyLessonBody =>
+      'Pratique todos os dias, mantenha seu progresso em sua meta';
 
   @override
   String get preOnboardingAiThatKnowsYouTitle => 'Chat com sua I.A.';
 
   @override
-  String get preOnboardingAiThatKnowsYouBody => 'Um Tutor que conhece você e está pronto para conversar e guiá-lo';
-
+  String get preOnboardingAiThatKnowsYouBody =>
+      'Um Tutor que conhece você e está pronto para conversar e guiá-lo';
 
   @override
   String get noDescription => 'Deletar Meta';

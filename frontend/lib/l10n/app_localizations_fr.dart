@@ -27,7 +27,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get beDetailedOfYourGoal => 'Soyez détaillé dans votre objectif !';
 
   @override
-  String get tellWhatYourGoalIs => 'Dites votre objectif, ce que vous pouvez faire déjà, et quel est le but';
+  String get tellWhatYourGoalIs =>
+      'Dites votre objectif, ce que vous pouvez faire déjà, et quel est le but';
 
   @override
   String get enter => 'Entrer';
@@ -37,9 +38,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get send => 'Envoyer';
-
-
-
 
   @override
   String get yourAnswer => 'Votre réponse...';
@@ -52,13 +50,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get continuate => 'Continuez !';
-
-
-
-
-
-
-
 
   @override
   String get sundayShort => 'Dim';
@@ -90,14 +81,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get sites => 'Sites';
 
-
-
   @override
   String get notes => 'Notes';
 
   @override
   String get progress => 'Progrès';
-
 
   @override
   String get typeYourMessage => 'Tapez votre message...';
@@ -105,11 +93,8 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get keepThePressureOn => 'Oui, continuez la pression !!!';
 
-
-
   @override
   String get objective => 'Objectif';
-
 
   @override
   String get tutor => 'Tuteur';
@@ -123,25 +108,27 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get profile => 'Profil';
 
-
-
   @override
   String get trailwayToYourGoal => 'Un chemin donné vers votre objectif';
 
   @override
-  String get yourNextTarget => 'Votre prochaine cible. Prenez les matériaux et exercices que nous avons pour vous';
+  String get yourNextTarget =>
+      'Votre prochaine cible. Prenez les matériaux et exercices que nous avons pour vous';
 
   @override
   String get evaluation => 'Évaluation';
 
   @override
-  String get evaluationDescription => 'Quelques exercices pour vous apprendre et montrer que vous avez appris';
+  String get evaluationDescription =>
+      'Quelques exercices pour vous apprendre et montrer que vous avez appris';
 
   @override
-  String get tutorDescription => 'Nous avons quelqu\'un pour vous donner des conseils, répondre aux questions et vous guider';
+  String get tutorDescription =>
+      'Nous avons quelqu\'un pour vous donner des conseils, répondre aux questions et vous guider';
 
   @override
-  String get awardsDescription => 'Vos étapes et progrès listés ! Faites-en votre galerie !';
+  String get awardsDescription =>
+      'Vos étapes et progrès listés ! Faites-en votre galerie !';
 
   @override
   String get goGetEmTiger => 'C\'est parti !';
@@ -152,14 +139,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get nowLetSCorrectYourMistakes => 'Maintenant, corrigeons vos erreurs';
 
-
   @override
   String get createdAt => 'Créé le';
 
   @override
   String get goals => 'Mes objectifs';
-
-
 
   @override
   String get createNewGoal => 'Créer un nouvel objectif';
@@ -179,20 +163,19 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get comingSoon => 'Bientôt disponible';
 
-
-
-
   @override
   String get untitledGoal => 'Objectif sans nom';
 
   @override
-  String get areYouSureYouWantToDeleteThisGoal => 'Êtes-vous sûr de vouloir supprimer cet objectif? Cette action ne peut pas être annulée.';
+  String get areYouSureYouWantToDeleteThisGoal =>
+      'Êtes-vous sûr de vouloir supprimer cet objectif? Cette action ne peut pas être annulée.';
 
   @override
   String get warning => 'Avertissement';
 
   @override
-  String get deleteGoalWarningDescription => 'Cela supprimera l\'objectif et tous ses objectifs de façon permanente. Cette action ne peut pas être annulée. Êtes-vous absolument sûr?';
+  String get deleteGoalWarningDescription =>
+      'Cela supprimera l\'objectif et tous ses objectifs de façon permanente. Cette action ne peut pas être annulée. Êtes-vous absolument sûr?';
 
   @override
   String get selectGoal => 'Sélectionner un Objectif';
@@ -228,35 +211,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get yourMentor => 'Votre mentor personnalisé!';
 
   @override
-  String get agreeToTermsAndPrivacyPolicy => 'En continuant, vous acceptez nos Conditions d\'Utilisation et Politique de Confidentialité';
-
-
-
+  String get agreeToTermsAndPrivacyPolicy =>
+      'En continuant, vous acceptez nos Conditions d\'Utilisation et Politique de Confidentialité';
 
   @override
   String get preOnboardingYourCoursesTitle => 'Vos cours';
 
   @override
-  String get preOnboardingYourCoursesBody => 'GoalGetter est une plateforme de cours, où chaque cours est généré spécifiquement pour vous';
+  String get preOnboardingYourCoursesBody =>
+      'GoalGetter est une plateforme de cours, où chaque cours est généré spécifiquement pour vous';
 
   @override
   String get preOnboardingTellUsYourGoalTitle => 'Dites-nous votre objectif';
 
   @override
-  String get preOnboardingTellUsYourGoalBody => 'Dites-nous ce que vous voulez apprendre, atteindre ou accomplir';
+  String get preOnboardingTellUsYourGoalBody =>
+      'Dites-nous ce que vous voulez apprendre, atteindre ou accomplir';
 
   @override
   String get preOnboardingDailyLessonTitle => 'Leçon quotidienne';
 
   @override
-  String get preOnboardingDailyLessonBody => 'Pratiquez chaque jour, maintenez votre progression vers votre objectif';
+  String get preOnboardingDailyLessonBody =>
+      'Pratiquez chaque jour, maintenez votre progression vers votre objectif';
 
   @override
   String get preOnboardingAiThatKnowsYouTitle => 'Chat avec votre AI';
 
   @override
-  String get preOnboardingAiThatKnowsYouBody => 'Votre tuteur vous connaît et est prêt à parler et vous guider';
-
+  String get preOnboardingAiThatKnowsYouBody =>
+      'Votre tuteur vous connaît et est prêt à parler et vous guider';
 
   @override
   String get noDescription => 'Supprimer l\'Objectif';

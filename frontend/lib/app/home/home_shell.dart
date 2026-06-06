@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../screens/missions_screen.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/resources_screen.dart';
@@ -34,10 +34,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _tabPages = [
-      const MissionsScreen(),
-      const TutorScreen(),
-      const ResourcesScreen(),
-      const ProfileScreen(),
+      MissionsScreen(),
+      TutorScreen(),
+      ResourcesScreen(),
+      ProfileScreen(),
     ];
 
     _selectedIndex = widget.selectedIndex.clamp(0, _tabPages.length - 1);

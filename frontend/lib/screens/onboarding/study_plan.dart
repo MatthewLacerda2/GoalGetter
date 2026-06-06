@@ -3,7 +3,7 @@ import 'package:openapi/api.dart';
 
 import '../../app/app.dart';
 import '../../config/app_config.dart';
-import '../../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../utils/settings_storage.dart';

@@ -65,15 +65,17 @@ import 'app_localizations_pt.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -85,12 +87,13 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -98,7 +101,7 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('fr'),
-    Locale('pt')
+    Locale('pt'),
   ];
 
   /// The current language
@@ -161,9 +164,6 @@ abstract class AppLocalizations {
   /// **'Send'**
   String get send;
 
-
-
-
   /// Label for your answer
   ///
   /// In en, this message translates to:
@@ -187,13 +187,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue!'**
   String get continuate;
-
-
-
-
-
-
-
 
   /// Label for sunday short
   ///
@@ -255,8 +248,6 @@ abstract class AppLocalizations {
   /// **'Sites'**
   String get sites;
 
-
-
   /// Label for notes
   ///
   /// In en, this message translates to:
@@ -268,7 +259,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Progress'**
   String get progress;
-
 
   /// Label for type your message
   ///
@@ -282,14 +272,11 @@ abstract class AppLocalizations {
   /// **'Yeah, keep the pressure on !!!'**
   String get keepThePressureOn;
 
-
-
   /// Label for objective
   ///
   /// In en, this message translates to:
   /// **'Objective'**
   String get objective;
-
 
   /// Label for tutor
   ///
@@ -314,8 +301,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get profile;
-
-
 
   /// Label for trailway to your goal
   ///
@@ -371,7 +356,6 @@ abstract class AppLocalizations {
   /// **'Now let\'s correct your mistakes'**
   String get nowLetSCorrectYourMistakes;
 
-
   /// Label for created at
   ///
   /// In en, this message translates to:
@@ -383,8 +367,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My Goals'**
   String get goals;
-
-
 
   /// Label for create new goal
   ///
@@ -421,9 +403,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get comingSoon;
-
-
-
 
   /// Label for untitled goal
   ///
@@ -521,9 +500,6 @@ abstract class AppLocalizations {
   /// **'By continuing, you agree to our Terms of Service and Privacy Policy'**
   String get agreeToTermsAndPrivacyPolicy;
 
-
-
-
   /// Pre-onboarding tutorial page title: Your courses
   ///
   /// In en, this message translates to:
@@ -572,7 +548,6 @@ abstract class AppLocalizations {
   /// **'Your Tutor knows you and is ready to talk and guide you'**
   String get preOnboardingAiThatKnowsYouBody;
 
-
   /// Label for no description
   ///
   /// In en, this message translates to:
@@ -586,7 +561,8 @@ abstract class AppLocalizations {
   String get setAsCurrentGoal;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -595,28 +571,32 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['de', 'en', 'es', 'fr', 'pt'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['de', 'en', 'es', 'fr', 'pt'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'de': return AppLocalizationsDe();
-    case 'en': return AppLocalizationsEn();
-    case 'es': return AppLocalizationsEs();
-    case 'fr': return AppLocalizationsFr();
-    case 'pt': return AppLocalizationsPt();
+    case 'de':
+      return AppLocalizationsDe();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
+    case 'fr':
+      return AppLocalizationsFr();
+    case 'pt':
+      return AppLocalizationsPt();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

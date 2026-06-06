@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
 import '../../app/app.dart';
-import '../../l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';

@@ -77,7 +77,7 @@ class InfoCard extends StatelessWidget {
               description!,
               style: theme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.normal,
-                fontSize: AppTheme.notesHeadingSize * 0.8,
+                fontSize: (theme.bodyMedium?.fontSize ?? 14.0) * 0.9,
                 color: Theme.of(context).colorScheme.onSurface,
                 height: 1.6,
               ),
