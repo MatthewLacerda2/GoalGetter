@@ -47,11 +47,15 @@ dependencies:
     sdk: flutter
   country_flags: ^4.1.2
   flutter_riverpod: ^2.5.1
-  
+  riverpod_annotation: ^2.3.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  riverpod_generator: ^2.4.0
+  build_runner: ^2.4.9
+  riverpod_lint: ^2.3.9
+  custom_lint: ^0.6.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
