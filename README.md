@@ -11,8 +11,8 @@ What makes this app viable is the use of AI to generate custom-tailored lessons,
 
 - **Micro-Lessons (2–3 Minutes)**:
   Instead of wading through hours of lectures, users can start a quick daily lesson. Each lesson consists of a series of multiple-choice questions. Any question answered incorrectly is repeated until the student gets it right. At the end, the user receives a completion percentage and XP—just like Duolingo.
-- **Multi-Goal Tracking**:
-  Users can define and pursue multiple goals at the same time.
+- **Microlearning Content**:
+  Small, easy-to-read, non-technical text for the user to quickly learn a small bit of knowledge.
 - **Daily Streak Mechanic**:
   To encourage daily consistency, users earn a daily streak. The streak is tied to the *user*, not a specific goal—meaning you can study Goal X today and Goal Y tomorrow to maintain a 2-day consecutive streak.
 - **Off-the-Hook Days**:
@@ -21,6 +21,8 @@ What makes this app viable is the use of AI to generate custom-tailored lessons,
   Each goal tracks a user's `rating` (similar to a chess rating). As the user answers questions correctly, their rating increases. The AI generates and presents questions suited for someone at that rating level, serving as a reflection of their actual experience in the subject and motivating them to progress.
 - **Resources Screen**:
   Curated suggestions of YouTube channels/videos, PDF guides, and external websites matching the active goals.
+- **Multi-Goal Tracking**:
+  Users can define and pursue multiple goals at the same time.
 
 ---
 
