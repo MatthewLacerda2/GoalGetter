@@ -45,12 +45,10 @@ backend/tests/
 *.log
 *.pyc
 *.swp
-*.lock
 .history/
 .buildlog/
 
 # Analysis and linting
-**/analysis_options.yaml
 
 # Docker files (exclude to avoid recursive copying)
 Dockerfile
