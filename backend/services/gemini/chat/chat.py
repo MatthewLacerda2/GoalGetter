@@ -5,16 +5,25 @@ from backend.services.gemini.chat.schema import StudentContextToChat, GeminiChat
 from backend.utils.envs import GEMINI_FAST_MODEL
 
 def gemini_messages_generator(
-    messages: list[GeminiChatMessage], contexts: list[StudentContextToChat], objective_name: str, objective_description: str, goal_name: str
+    messages: list[GeminiChatMessage], 
+    contexts: list[StudentContextToChat], 
+    goal_name: str,
+    goal_description: str
 ) -> GeminiChatResponse:
-    
     client = get_client()
     model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiChatResponse.model_json_schema())
-    full_prompt = chat_system_prompt(objective_name, objective_description, goal_name, contexts)    
-    messages.append(GeminiChatMessage(message=full_prompt, role="user", time="10:00:29"))
     
-    gemini_messages = []
+    # Generate system prompt
+    system_instruction = chat_system_prompt(goal_name, goal_description, contexts)    
+    
+    gemini_messages = [
+        {
+            "role": "user",
+            "parts": [{"text": system_instruction}]
+        }
+    ]
+    
     for msg in messages:
         role = msg.role if msg.role == "user" else "model"
         gemini_messages.append({
@@ -26,10 +35,5 @@ def gemini_messages_generator(
         model=model, contents=gemini_messages, config=config
     )
     
-    #print("Total tokens:", response.usage_metadata.total_token_count)
-    #print("Total tokens:", response.usage_metadata.prompt_token_count)
-    #print("Total tokens:", response.usage_metadata.candidates_token_count)
-    
     json_response = response.text
-    
     return GeminiChatResponse.model_validate_json(json_response)

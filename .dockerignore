@@ -34,6 +34,7 @@ terraform/
 # Test files
 **/test/
 **/tests/
+backend/tests/
 **/coverage/
 
 # Generated files

@@ -2,11 +2,10 @@ import uuid
 from datetime import datetime
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Index
+from sqlalchemy import Column, String, DateTime, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID
 from backend.utils.envs import NUM_DIMENSIONS
 from backend.models.base import Base
-from backend.services.gemini.chat.schema import GeminiChatMessage
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
@@ -16,22 +15,10 @@ class ChatMessage(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     student_id = Column(UUID(as_uuid=True), ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
-    sender_id = Column(String(36), nullable=False)  #Who sent this message? If student, this'll be == student_id. If AI, this'll be model's name
-    array_id = Column(String(36), nullable=True, unique=False)
-    message = Column(String, nullable=False)
-    is_liked = Column(Boolean, nullable=False, default=False)
+    prompt = Column(String, nullable=False)
+    prompt_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    tutor_response = Column(String, nullable=False)
+    tutor_response_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
-    message_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     
     student = relationship("Student", back_populates="chat_messages")
-    
-    def to_gemini_message(self) -> GeminiChatMessage:
-        """Convert ChatMessage to ChatMessageWithGemini format"""
-        role = "user" if self.student_id == self.sender_id else "assistant"
-        time_str = self.created_at.strftime("%H:%M:%S")
-        
-        return GeminiChatMessage(
-            message=self.message,
-            role=role,
-            time=time_str
-        )
