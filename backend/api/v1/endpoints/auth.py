@@ -44,7 +44,7 @@ async def signup(
         user = Student(
             email=user_info["email"],
             google_id=user_info["sub"],
-            name=user_info.get("name", ""),
+            name=user_info.get("name", "")
         )
         user = await student_repo.create(user)
         await db.flush()
@@ -59,25 +59,18 @@ async def signup(
     refresh_token_str = generate_refresh_token_string()
     
     refresh_token_obj = RefreshToken(
-        student_id=user.id,
-        token=refresh_token_str,
-        expires_at=datetime.now() + timedelta(days=30)
+        student_id=user.id, token=refresh_token_str, expires_at=datetime.now() + timedelta(days=30)
     )
     await refresh_token_repo.create(refresh_token_obj)
     await db.commit()
     await db.refresh(user)
     
     student_response = StudentResponse(
-        id=str(user.id),
-        google_id=user.google_id,
-        email=user.email,
-        name=user.name
+        id=str(user.id), google_id=user.google_id, email=user.email, name=user.name
     )
     
     return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token_str,
-        student=student_response
+        access_token=access_token, refresh_token=refresh_token_str, student=student_response
     )
 
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
