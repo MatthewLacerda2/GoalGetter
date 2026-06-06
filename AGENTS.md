@@ -4,6 +4,8 @@ We use Fastapi, sqlalchemy, alembic, gemini sdk in the backend.
 The DB is in postgres with pg vector for vector embeddings.
 We use Riverpod for state management in Flutter.
 
+We have a backend/tests/backend_linter.py file, which keeps endpoints and .py files under a reasonable line count. If you're gonna run backend tests, run this file first. If it fails, you have things to fix. If it passes, you may go and run the tests.
+
 We have a 400 line limit for .dart files that are created non-programatically.
 We have a 350 line limit for .py files.
 If lines grow bigger than this, either we dont have a clear vision for what we are trying to achieve, in which case clap back at the user (asking questions or pointing out what is wrong, clear or not well defined), or the feature is growing big enough that needs to be split across files, in which case we split by responsability and organization.
