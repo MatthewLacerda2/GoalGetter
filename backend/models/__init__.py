@@ -8,3 +8,4 @@ from backend.models.onboarding_question import OnboardingQuestion
 from backend.models.resource import Resource
 from backend.models.chat_message import ChatMessage
 from backend.models.microlearning_content import MicrolearningContent
+from backend.models.refresh_token import RefreshToken

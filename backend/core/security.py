@@ -1,11 +1,12 @@
 import json
 import logging
+import secrets
+import httpx
+from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from fastapi import HTTPException, status, Depends
-import urllib.request
-import urllib.error
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.config import settings
@@ -16,20 +17,25 @@ from backend.utils.envs import JWT_ISSUER, JWT_AUDIENCE, GOOGLE_CLIENT_ID
 
 logger = logging.getLogger(__name__)
 
-def create_access_token(data: dict) -> str:
+def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     """
     Create a JWT access token with the given data and expiration time.
     """
     to_encode = data.copy()
-    
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=30))
     to_encode.update({
         "iss": JWT_ISSUER,  # Add issuer claim
-        "aud": JWT_AUDIENCE  # Add audience claim
+        "aud": JWT_AUDIENCE,  # Add audience claim
+        "exp": expire
     })
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
     return encoded_jwt
 
-def verify_google_token(token: str) -> dict:
+def generate_refresh_token_string() -> str:
+    """Generates a secure random refresh token string"""
+    return secrets.token_urlsafe(64)
+
+async def verify_google_token(token: str) -> dict:
     """
     Verify a Google OAuth2 token (ID token or access token) and return the user information.
     
@@ -64,11 +70,12 @@ def verify_google_token(token: str) -> dict:
         # Access tokens start with "ya29." or similar prefixes
         if token.startswith("ya29.") or "Wrong number of segments" in str(e):
             try:
-                # Verify access token by calling Google's userinfo endpoint
-                import urllib.request
+                # Verify access token asynchronously by calling Google's userinfo endpoint
                 userinfo_url = f"https://www.googleapis.com/oauth2/v2/userinfo?access_token={token}"
-                with urllib.request.urlopen(userinfo_url) as response:
-                    userinfo = json.loads(response.read().decode())
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(userinfo_url)
+                    response.raise_for_status()
+                    userinfo = response.json()
                     
                 return {
                     "sub": userinfo["id"],  # Google's unique user ID
@@ -177,7 +184,7 @@ async def verify_google_token_header(
                 detail="Google token is empty"
             )
         logger.info(f"Verifying Google token (length: {len(google_token.strip())})")
-        return verify_google_token(google_token.strip())
+        return await verify_google_token(google_token.strip())
     except HTTPException:
         # Re-raise HTTPException directly to preserve the original error message
         raise

@@ -13,4 +13,12 @@ class StudentResponse(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str = Field(..., description="JWT access token")
+    refresh_token: str = Field(..., description="Rotated long-lived refresh token")
     student: StudentResponse
+
+class TokenRefreshRequest(BaseModel):
+    refresh_token: str = Field(..., description="Active refresh token")
+
+class TokenRefreshResponse(BaseModel):
+    access_token: str = Field(..., description="New JWT access token")
+    refresh_token: str = Field(..., description="New rotated refresh token")
