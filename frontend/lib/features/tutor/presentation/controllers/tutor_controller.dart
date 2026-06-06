@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/features/tutor/domain/chat_message.dart';
-import 'package:goal_getter/services/providers.dart';
+import 'package:goal_getter/core/services/api_client_provider.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/mock_tutor_controller.dart';
 
 class TutorState {

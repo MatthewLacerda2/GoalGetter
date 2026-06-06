@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/services/providers.dart';
+import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';

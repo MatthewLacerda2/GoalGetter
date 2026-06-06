@@ -5,7 +5,7 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
-import 'package:goal_getter/services/providers.dart';
+import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/app/home/home_shell.dart';
 import 'package:goal_getter/features/auth/presentation/screens/auth_gate.dart';
 

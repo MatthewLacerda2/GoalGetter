@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/features/lessons/domain/lesson_question_data.dart';
-import 'package:goal_getter/services/providers.dart';
+import 'package:goal_getter/core/services/api_client_provider.dart';
 
 class LessonQuestionState {
   final MultipleChoiceQuestionResponse apiQuestion;

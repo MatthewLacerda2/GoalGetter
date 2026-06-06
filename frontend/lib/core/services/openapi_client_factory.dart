@@ -1,7 +1,10 @@
 import 'package:openapi/api.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
+
+part 'openapi_client_factory.g.dart';
 
 /// Small helper to build an authorized OpenAPI [ApiClient] for this project.
 ///
@@ -50,4 +53,10 @@ class OpenApiClientFactory {
     apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
     return apiClient;
   }
+}
+
+@riverpod
+OpenApiClientFactory openApiClientFactory(OpenApiClientFactoryRef ref) {
+  final authService = ref.watch(authServiceProvider);
+  return OpenApiClientFactory(authService: authService);
 }

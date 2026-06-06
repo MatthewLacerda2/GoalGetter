@@ -5,9 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:openapi/api.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:goal_getter/core/config/app_config.dart';
+
+part 'auth_service.g.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -312,4 +315,9 @@ class AuthService {
       rethrow;
     }
   }
+}
+
+@riverpod
+AuthService authService(AuthServiceRef ref) {
+  return AuthService();
 }
