@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/objective/streak/weekday_column.dart';
+import 'mock-streak_screen.dart';
 
 class StreakScreen extends StatefulWidget {
   final String descriptionText;
@@ -44,102 +45,26 @@ class _StreakScreenState extends State<StreakScreen> {
     });
 
     try {
-      final apiClient = await OpenApiClientFactory(
-        authService: _authService,
-      ).createWithAccessToken();
-
-      // Fetch student status to get student_id if not already fetched
-      if (_studentId == null) {
-        final studentApi = StudentApi(apiClient);
-        final studentResponse = await studentApi
-            .getStudentCurrentStatusApiV1StudentGet();
-
-        if (studentResponse == null) {
-          throw Exception('Failed to fetch student status');
-        }
-
-        _studentId = studentResponse.studentId;
-      }
-
-      // Fetch week streak data
-      final streakApi = StreakApi(apiClient);
-      final streakResponse = await streakApi
-          .getWeekStreakApiV1StreakStudentIdWeekGet(_studentId!);
-
-      if (mounted && streakResponse != null) {
+      final mockData = await getMockStreakData();
+      if (mounted) {
         setState(() {
-          _streakCount = streakResponse.currentStreak;
-
-          // Parse streak days to determine weekday completion
-          final streakDays = streakResponse.streakDays;
-          final completedDays = <int>{};
-
-          for (final streakDay in streakDays) {
-            // DateTime.weekday returns 1-7 (Monday=1, Sunday=7)
-            completedDays.add(streakDay.dateTime.weekday);
-          }
-
-          // Get today's date (normalized to start of day for comparison)
-          final now = DateTime.now();
-          final today = DateTime(now.year, now.month, now.day);
-          final todayWeekday = today.weekday;
-          final yesterday = today.subtract(Duration(days: 1));
-          final dayBeforeYesterday = today.subtract(Duration(days: 2));
-
-          bool hasDay(DateTime targetDay) {
-            for (final streakDay in streakDays) {
-              final dt = streakDay.dateTime.toLocal();
-              final normalized = DateTime(dt.year, dt.month, dt.day);
-              if (normalized == targetDay) return true;
-            }
-            return false;
-          }
-
-          if (hasDay(today)) {
+          _streakCount = mockData.currentStreak;
+          _monday = mockData.monday;
+          _tuesday = mockData.tuesday;
+          _wednesday = mockData.wednesday;
+          _thursday = mockData.thursday;
+          _friday = mockData.friday;
+          _saturday = mockData.saturday;
+          _sunday = mockData.sunday;
+          
+          // Color coding for fire streak icon
+          if (mockData.friday == true) {
             _streakIconBackgroundColor = Theme.of(context).colorScheme.secondary;
-          } else if (hasDay(yesterday) || hasDay(dayBeforeYesterday)) {
-            _streakIconBackgroundColor = Theme.of(context).colorScheme.outline;
           } else {
             _streakIconBackgroundColor = Colors.transparent;
           }
-
-          // Calculate start of current week (Monday)
-          // DateTime.weekday returns 1-7 (Monday=1, Sunday=7)
-          final daysFromMonday = todayWeekday - 1;
-          final startOfWeek = today.subtract(Duration(days: daysFromMonday));
-
-          // Helper function to determine if a weekday has passed
-          // Only set to true/false if the day has passed (or is today), otherwise null (grey for future days)
-          bool? getWeekdayStatus(int weekday) {
-            // Calculate the date for this weekday in the current week
-            // weekday: 1=Monday, 2=Tuesday, ..., 7=Sunday
-            final dayDate = startOfWeek.add(Duration(days: weekday - 1));
-
-            // Check if this day has passed (is before or equal to today)
-            if (dayDate.isBefore(today) || dayDate.isAtSameMomentAs(today)) {
-              // Day has passed (or is today) - show true if completed, false if not
-              return completedDays.contains(weekday);
-            } else {
-              // Day hasn't passed yet - show as null (grey)
-              return null;
-            }
-          }
-
-          // Map weekdays: 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday
-          _monday = getWeekdayStatus(1);
-          _tuesday = getWeekdayStatus(2);
-          _wednesday = getWeekdayStatus(3);
-          _thursday = getWeekdayStatus(4);
-          _friday = getWeekdayStatus(5);
-          _saturday = getWeekdayStatus(6);
-          _sunday = getWeekdayStatus(7);
-
+          
           _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Failed to fetch streak data';
         });
       }
     } catch (e) {

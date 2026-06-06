@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/openapi_client_factory.dart';
 import '../widgets/screens/resource/resource_tab.dart';
+import 'mock-resources_screen.dart';
 
 class ResourcesScreen extends StatefulWidget {
   ResourcesScreen({super.key});
@@ -44,61 +45,12 @@ class _ResourcesScreenState extends State<ResourcesScreen>
     });
 
     try {
-      final apiClient = await OpenApiClientFactory(
-        authService: _authService,
-      ).createWithAccessToken();
-
-      // Get student status to get goalId
-      final studentApi = StudentApi(apiClient);
-      final studentResponse = await studentApi
-          .getStudentCurrentStatusApiV1StudentGet();
-
-      if (studentResponse == null || studentResponse.goalId == null) {
-        throw Exception('Failed to fetch student status');
-      }
-
-      // Fetch resources
-      final resourcesApi = ResourcesApi(apiClient);
-      final resourcesResponse = await resourcesApi
-          .getResourcesApiV1ResourcesGet(studentResponse.goalId!);
-
-      if (resourcesResponse != null && mounted) {
-        // Group resources by type and convert to Map format
-        final books = <Map<String, String>>[];
-        final youtube = <Map<String, String>>[];
-        final sites = <Map<String, String>>[];
-
-        for (final resource in resourcesResponse.resources) {
-          final resourceMap = <String, String>{
-            'title': resource.name,
-            'description': resource.description,
-            'link': resource.link,
-          };
-
-          if (resource.imageUrl != null && resource.imageUrl!.isNotEmpty) {
-            resourceMap['image'] = resource.imageUrl!;
-          }
-
-          if (resource.resourceType == StudyResourceType.pdf) {
-            books.add(resourceMap);
-          } else if (resource.resourceType == StudyResourceType.youtube) {
-            youtube.add(resourceMap);
-          } else if (resource.resourceType == StudyResourceType.webpage) {
-            sites.add(resourceMap);
-          }
-        }
-
+      final mockData = await getMockResources();
+      if (mounted) {
         setState(() {
-          _books = books;
-          _youtube = youtube;
-          _sites = sites;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _books = [];
-          _youtube = [];
-          _sites = [];
+          _youtube = mockData['youtube'] ?? [];
+          _sites = mockData['sites'] ?? [];
+          _books = mockData['books'] ?? [];
           _isLoading = false;
         });
       }

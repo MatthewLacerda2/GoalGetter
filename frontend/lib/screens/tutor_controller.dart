@@ -4,6 +4,7 @@ import 'package:openapi/api.dart';
 
 import '../models/chat_message.dart';
 import '../services/providers.dart';
+import 'mock-tutor_controller.dart';
 
 class TutorState {
   final List<ChatMessage> messages;
@@ -73,67 +74,23 @@ class TutorNotifier extends StateNotifier<TutorState> {
   }
 
   Future<void> fetchMessages({bool loadMore = false}) async {
-    if (loadMore && (state.isLoadingMore || !state.hasMoreMessages || _oldestMessageId == null)) {
-      return;
-    }
+    if (loadMore) return;
 
     state = state.copyWith(
-      isLoading: !loadMore,
-      isLoadingMore: loadMore,
+      isLoading: true,
+      errorMessage: null,
     );
 
     try {
-      final apiClient = await _ref.read(apiClientProvider.future);
-      
-      if (_studentId == null) {
-        final studentApi = StudentApi(apiClient);
-        final studentResponse = await studentApi.getStudentCurrentStatusApiV1StudentGet();
-        if (studentResponse == null) {
-          throw Exception('Failed to fetch student status');
-        }
-        _studentId = studentResponse.studentId;
-      }
-
-      final chatApi = ChatApi(apiClient);
-      final chatResponse = await chatApi.getChatMessagesApiV1ChatGet(
-        messageId: loadMore ? _oldestMessageId : null,
-        limit: 20,
+      final mockMsgs = await getMockChatMessages();
+      state = state.copyWith(
+        messages: mockMsgs,
+        isLoading: false,
+        hasMoreMessages: false,
       );
-
-      if (chatResponse != null) {
-        final newMessages = chatResponse.messages.reversed.toList();
-        if (newMessages.isEmpty) {
-          state = state.copyWith(
-            isLoading: false,
-            isLoadingMore: false,
-            hasMoreMessages: false,
-          );
-          return;
-        }
-
-        final convertedList = newMessages.map((msg) => _convertToChatMessage(msg)).toList();
-        final List<ChatMessage> updatedMessages;
-        if (loadMore) {
-          updatedMessages = [...convertedList, ...state.messages];
-        } else {
-          updatedMessages = convertedList;
-        }
-
-        if (updatedMessages.isNotEmpty) {
-          _oldestMessageId = updatedMessages.first.id;
-        }
-
-        state = state.copyWith(
-          messages: updatedMessages,
-          isLoading: false,
-          isLoadingMore: false,
-          hasMoreMessages: newMessages.length == 20,
-        );
-      }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        isLoadingMore: false,
         errorMessage: e.toString(),
       );
     }
@@ -164,47 +121,25 @@ class TutorNotifier extends StateNotifier<TutorState> {
   Future<void> _sendPendingMessages() async {
     if (_pendingMessages.isEmpty || state.isSending) return;
 
-    final messagesToSend = List<String>.from(_pendingMessages);
+    final userMsgText = _pendingMessages.first;
     _pendingMessages.clear();
 
     state = state.copyWith(isSending: true);
 
     try {
-      final apiClient = await _ref.read(apiClientProvider.future);
-      final chatApi = ChatApi(apiClient);
+      final tutorReply = await getMockTutorResponse(userMsgText);
+      final cleanedMessages = state.messages.where((msg) => !msg.id.startsWith('temp_')).toList();
 
-      final request = CreateMessageRequest(
-        messagesList: messagesToSend
-            .map((msg) => CreateMessageRequestItem(
-                  message: msg,
-                  datetime: DateTime.now(),
-                ))
-            .toList(),
+      final userMsg = ChatMessage(
+        id: 'user_${DateTime.now().millisecondsSinceEpoch}',
+        message: userMsgText,
+        sender: ChatMessageSender.user,
       );
 
-      final response = await chatApi.createMessageApiV1ChatPost(request);
-
-      if (response != null && response.messages.isNotEmpty) {
-        final cleanedMessages = state.messages.where((msg) => !msg.id.startsWith('temp_')).toList();
-
-        final responseMessages = response.messages
-            .map((item) => _convertResponseItemToChatMessage(item))
-            .toList();
-
-        state = state.copyWith(
-          messages: [...cleanedMessages, responseMessages.first],
-          isSending: false,
-        );
-
-        for (int i = 1; i < responseMessages.length; i++) {
-          await Future.delayed(const Duration(milliseconds: 500));
-          state = state.copyWith(
-            messages: [...state.messages, responseMessages[i]],
-          );
-        }
-      } else {
-        await fetchMessages();
-      }
+      state = state.copyWith(
+        messages: [...cleanedMessages, userMsg, tutorReply],
+        isSending: false,
+      );
     } catch (e) {
       final cleanedMessages = state.messages.where((msg) => !msg.id.startsWith('temp_')).toList();
       state = state.copyWith(
@@ -216,8 +151,6 @@ class TutorNotifier extends StateNotifier<TutorState> {
   }
 
   Future<void> toggleLikeMessage(String messageId, bool currentLikeStatus) async {
-    if (messageId.startsWith('temp_')) return;
-
     final updatedList = state.messages.map((msg) {
       if (msg.id == messageId) {
         return ChatMessage(
@@ -231,48 +164,6 @@ class TutorNotifier extends StateNotifier<TutorState> {
     }).toList();
 
     state = state.copyWith(messages: updatedList);
-
-    try {
-      final apiClient = await _ref.read(apiClientProvider.future);
-      final chatApi = ChatApi(apiClient);
-
-      final request = LikeMessageRequest(
-        messageId: messageId,
-        like: !currentLikeStatus,
-      );
-
-      final response = await chatApi.likeMessageApiV1ChatLikesPatch(request);
-      if (response != null) {
-        final syncedList = state.messages.map((msg) {
-          if (msg.id == messageId) {
-            return ChatMessage(
-              id: msg.id,
-              message: msg.message,
-              sender: msg.sender,
-              isLiked: response.isLiked,
-            );
-          }
-          return msg;
-        }).toList();
-        state = state.copyWith(messages: syncedList);
-      }
-    } catch (e) {
-      final revertedList = state.messages.map((msg) {
-        if (msg.id == messageId) {
-          return ChatMessage(
-            id: msg.id,
-            message: msg.message,
-            sender: msg.sender,
-            isLiked: currentLikeStatus,
-          );
-        }
-        return msg;
-      }).toList();
-      state = state.copyWith(
-        messages: revertedList,
-        errorMessage: 'Failed to like message: $e',
-      );
-    }
   }
 }
 
