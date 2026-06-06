@@ -54,21 +54,6 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
 
       await SettingsStorage.setCurrentGoalId(response.goalId!);
 
-      // Only try to fetch objective if we have a JWT access token (same as prior behavior).
-      if (accessToken != null && accessToken.isNotEmpty) {
-        try {
-          final objectiveApi = ObjectiveApi(apiClient);
-          final objectiveResponse = await objectiveApi
-              .getObjectiveApiV1ObjectiveGet();
-
-          if (objectiveResponse != null) {
-            await SettingsStorage.setCurrentObjectiveId(objectiveResponse.id);
-          }
-        } catch (_) {
-          // If we can't fetch objective ID, continue anyway.
-        }
-      }
-
       if (!mounted) {
         return;
       }
@@ -134,7 +119,7 @@ class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
 
       final currentGoalId = await SettingsStorage.getCurrentGoalId();
       if (currentGoalId == widget.goal.id) {
-        await SettingsStorage.clearCurrentGoalAndObjective();
+        await SettingsStorage.clearCurrentGoal();
       }
 
       if (!mounted) {

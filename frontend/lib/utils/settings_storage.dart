@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsStorage {
   static const String _languageKey = 'user_language';
   static const String _currentGoalIdKey = 'current_goal_id';
-  static const String _currentObjectiveIdKey = 'current_objective_id';
 
   static const String english = 'en';
   static const String portuguese = 'pt';
@@ -114,26 +113,14 @@ class SettingsStorage {
     return await prefs.setString(_currentGoalIdKey, goalId);
   }
 
-  static Future<String?> getCurrentObjectiveId() async {
-    final prefs = await _instance;
-    return prefs.getString(_currentObjectiveIdKey);
-  }
-
-  static Future<bool> setCurrentObjectiveId(String objectiveId) async {
-    final prefs = await _instance;
-    return await prefs.setString(_currentObjectiveIdKey, objectiveId);
-  }
-
-  static Future<void> clearCurrentGoalAndObjective() async {
+  static Future<void> clearCurrentGoal() async {
     final prefs = await _instance;
     await prefs.remove(_currentGoalIdKey);
-    await prefs.remove(_currentObjectiveIdKey);
   }
 
   static Future<void> clearAllUserData() async {
     final prefs = await _instance;
     await prefs.remove(_currentGoalIdKey);
-    await prefs.remove(_currentObjectiveIdKey);
     // Note: Language preference is kept, but other user data is cleared
   }
 }

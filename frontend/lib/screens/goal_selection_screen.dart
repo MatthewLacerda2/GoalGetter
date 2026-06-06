@@ -78,21 +78,6 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
           await SettingsStorage.setCurrentGoalId(response.goalId!);
         }
 
-        // Fetch objective ID from objective endpoint
-        if (accessToken != null) {
-          try {
-            final objectiveApi = ObjectiveApi(apiClient);
-            final objectiveResponse = await objectiveApi
-                .getObjectiveApiV1ObjectiveGet();
-
-            if (objectiveResponse != null) {
-              await SettingsStorage.setCurrentObjectiveId(objectiveResponse.id);
-            }
-          } catch (e) {
-            // If we can't fetch objective ID, continue anyway - main screen will handle it
-          }
-        }
-
         // Navigate to main screen
         if (mounted) {
           // Check if user has access token (completed onboarding)
@@ -196,7 +181,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
 
       // If no goals left, navigate to goal prompt screen
       if (_goals.isEmpty && mounted) {
-        await SettingsStorage.clearCurrentGoalAndObjective();
+        await SettingsStorage.clearCurrentGoal();
         if (!mounted) {
           return;
         }

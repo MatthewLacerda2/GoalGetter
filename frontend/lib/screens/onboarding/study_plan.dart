@@ -65,7 +65,6 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
           );
 
           final studentApi = StudentApi(jwtClient);
-          final objectiveApi = ObjectiveApi(jwtClient);
 
           final studentStatus = await studentApi
               .getStudentCurrentStatusApiV1StudentGet();
@@ -73,16 +72,6 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
           if (studentStatus?.goalId != null &&
               studentStatus!.goalId!.isNotEmpty) {
             await SettingsStorage.setCurrentGoalId(studentStatus.goalId!);
-          }
-
-          try {
-            final objectiveResponse = await objectiveApi
-                .getObjectiveApiV1ObjectiveGet();
-            if (objectiveResponse != null && objectiveResponse.id.isNotEmpty) {
-              await SettingsStorage.setCurrentObjectiveId(objectiveResponse.id);
-            }
-          } catch (_) {
-            // Best-effort only.
           }
         } catch (_) {
           // Best-effort only.
