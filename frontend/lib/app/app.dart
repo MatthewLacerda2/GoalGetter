@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../screens/onboarding/goal_prompt_screen.dart';
 import '../screens/onboarding/start_screen.dart';

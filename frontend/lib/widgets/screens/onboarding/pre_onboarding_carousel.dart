@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 class PreOnboardingCarousel extends StatefulWidget {
   PreOnboardingCarousel({super.key, this.height = 170});
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import 'goal_questions_screen.dart';

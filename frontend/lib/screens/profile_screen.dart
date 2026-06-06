@@ -2,7 +2,7 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/providers.dart';
 import '../utils/settings_storage.dart';

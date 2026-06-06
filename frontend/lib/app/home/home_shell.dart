@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import '../../screens/missions_screen.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/resources_screen.dart';
