@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../services/auth_service.dart';
-import '../../services/openapi_client_factory.dart';
-import '../../widgets/screens/onboarding/goal_questions.dart';
+import 'mock-goal_prompt_screen.dart';
+import 'mock-goal_questions_screen.dart';
 import 'study_plan.dart';
 
 class GoalQuestionsScreen extends StatefulWidget {
-  final List<String> questions;
+  final List<MockMultipleChoiceQuestion> questions;
   final String prompt;
 
   const GoalQuestionsScreen({
@@ -24,13 +23,12 @@ class GoalQuestionsScreen extends StatefulWidget {
 class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
     with TickerProviderStateMixin {
   List<String> _answers = [];
-  bool _showErrors = false;
   int _currentQuestionIndex = 0;
+  bool _isLoading = false;
 
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  final _authService = AuthService();
 
   @override
   void initState() {
@@ -38,17 +36,19 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
     _answers = List.filled(widget.questions.length, '');
 
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
-        );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.3, 0.0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+    );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
     );
 
     _slideController.forward();
@@ -60,157 +60,249 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
     super.dispose();
   }
 
-  void _onAnswerSubmitted(String answer) {
+  void _onOptionSelected(String option) {
+    if (_isLoading) return;
+
     setState(() {
-      _answers[_currentQuestionIndex] = answer;
-      _showErrors = false;
+      _answers[_currentQuestionIndex] = option;
     });
 
-    if (_currentQuestionIndex < widget.questions.length - 1) {
-      _showNextQuestion();
-    } else {
-      _onSendPressed();
-    }
+    // Brief delay to allow the user to see their selection before auto-advancing
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      if (_currentQuestionIndex < widget.questions.length - 1) {
+        _showNextQuestion();
+      } else {
+        _onSendPressed();
+      }
+    });
   }
 
   void _showNextQuestion() {
     _slideController.reverse().then((_) {
-      setState(() {
-        _currentQuestionIndex++;
-      });
-      _slideController.forward();
+      if (mounted) {
+        setState(() {
+          _currentQuestionIndex++;
+        });
+        _slideController.forward();
+      }
     });
   }
 
-  bool get _allAnswered =>
-      _answers.length == widget.questions.length &&
-      _answers.every((a) => a.trim().isNotEmpty);
+  void _showPreviousQuestion() {
+    if (_currentQuestionIndex > 0) {
+      _slideController.reverse().then((_) {
+        if (mounted) {
+          setState(() {
+            _currentQuestionIndex--;
+          });
+          _slideController.forward();
+        }
+      });
+    }
+  }
 
   void _onSendPressed() async {
-    if (_allAnswered) {
-      try {
-        final apiClient = await OpenApiClientFactory(
-          authService: _authService,
-        ).createWithGoogleToken();
+    setState(() {
+      _isLoading = true;
+    });
 
-        // Build request
-        final api = OnboardingApi(apiClient);
-        final qa = <GoalFollowUpQuestionAndAnswer>[];
-        for (var i = 0; i < widget.questions.length; i++) {
-          qa.add(
-            GoalFollowUpQuestionAndAnswer(
-              question: widget.questions[i],
-              answer: _answers[i],
-            ),
-          );
-        }
-        final request = GoalStudyPlanRequest(
-          prompt: widget.prompt,
-          questionsAnswers: qa,
-        );
+    try {
+      final plan = await generateMockStudyPlan(
+        context,
+        widget.prompt,
+        _answers,
+      );
 
-        // Call API
-        final plan = await api.generateStudyPlanApiV1OnboardingStudyPlanPost(
-          request,
-        );
-
-        if (!mounted) return;
-        if (plan == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Error: empty study plan response',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          );
-        } else {
-          // Navigate to Study Plan screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => StudyPlanScreen(plan: plan),
-            ),
-          );
-        }
-      } catch (e) {
-        if (!mounted) return;
-        String errorMessage = 'Error: $e';
-        if (e.toString().contains('403')) {
-          errorMessage =
-              'Authentication failed (403). Please ensure you are signed in with Google. Error: $e';
-        } else if (e.toString().contains('401')) {
-          errorMessage =
-              'Unauthorized (401). Your Google token may have expired. Please sign in again. Error: $e';
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              errorMessage,
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            duration: const Duration(seconds: 5),
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudyPlanScreen(plan: plan),
           ),
         );
       }
-    } else {
-      setState(() {
-        _showErrors = true;
-      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error generating study plan: $e',
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final question = widget.questions[_currentQuestionIndex];
+    final progress = (widget.questions.isNotEmpty)
+        ? (_currentQuestionIndex + 1) / widget.questions.length
+        : 0.0;
+
     return Scaffold(
-      // Prevent white flash during SlideTransition+FadeTransition.
-      backgroundColor: const Color.fromARGB(255, 43, 43, 43),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.questions),
         centerTitle: true,
+        leading: _currentQuestionIndex > 0
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: _isLoading ? null : _showPreviousQuestion,
+                tooltip: 'Back to previous question',
+              )
+            : null,
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Text(
                 '${_currentQuestionIndex + 1}/${widget.questions.length}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(6),
+          child: LinearProgressIndicator(
+            value: progress,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).colorScheme.primary,
+            ),
+            minHeight: 6,
+          ),
+        ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: GoalQuestions(
-                  question: widget.questions[_currentQuestionIndex],
-                  initialAnswer: _answers[_currentQuestionIndex].isNotEmpty
-                      ? _answers[_currentQuestionIndex]
-                      : null,
-                  onAnswerSubmitted: _onAnswerSubmitted,
-                  isActive: true,
-                  showError: _showErrors,
+      body: _isLoading
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Generating your study plan...',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                  ),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Question text card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          question.questionText,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(height: 24.0),
+                      // Options list
+                      ...question.options.map((option) {
+                        final isSelected =
+                            _answers[_currentQuestionIndex] == option;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: InkWell(
+                            onTap: () => _onOptionSelected(option),
+                            borderRadius: BorderRadius.circular(16),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                                vertical: 18.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.08)
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainer,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .outline
+                                          .withOpacity(0.2),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      option,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            fontWeight: isSelected
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: isSelected
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                          ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
     );
   }
 }

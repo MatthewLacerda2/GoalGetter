@@ -9,6 +9,7 @@ import '../../services/openapi_client_factory.dart';
 import '../../utils/settings_storage.dart';
 import '../../widgets/info_card.dart';
 import 'goal_prompt_screen.dart';
+import 'mock-study_plan.dart';
 
 class StudyPlanScreen extends StatefulWidget {
   final GoalStudyPlanResponse plan;
@@ -29,62 +30,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
     });
 
     try {
-      final apiClient = await OpenApiClientFactory(
-        authService: _authService,
-      ).createWithGoogleToken();
-
-      final onboardingApi = OnboardingApi(apiClient);
-      final request = GoalFullCreationRequest(
-        goalName: widget.plan.goalName,
-        goalDescription: widget.plan.goalDescription,
-        firstObjectiveName: widget.plan.firstObjectiveName,
-        firstObjectiveDescription: widget.plan.firstObjectiveDescription,
-      );
-
-      final response = await onboardingApi
-          .generateFullCreationApiV1OnboardingFullCreationPost(request);
-
-      if (response != null && mounted) {
-        final student = response.student;
-
-        // Store/update access token from response (account already exists from signup)
-        await _authService.storeFinalCredentials(response.accessToken, {
-          'id': student.id,
-          'email': student.email,
-          'name': student.name,
-          'google_id': student.googleId,
-        });
-
-        // Use the JWT access token to persist the active goal/objective IDs.
-        try {
-          final jwtClient = ApiClient(basePath: AppConfig.baseUrl);
-          jwtClient.addDefaultHeader(
-            'Authorization',
-            'Bearer ${response.accessToken}',
-          );
-
-          final studentApi = StudentApi(jwtClient);
-
-          final studentStatus = await studentApi
-              .getStudentCurrentStatusApiV1StudentGet();
-
-          if (studentStatus?.goalId != null &&
-              studentStatus!.goalId!.isNotEmpty) {
-            await SettingsStorage.setCurrentGoalId(studentStatus.goalId!);
-          }
-        } catch (_) {
-          // Best-effort only.
-        }
-
-        if (!mounted) return;
-
-        // Navigate straight into the app (same end state as first-goal flow).
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          AppRoutes.home,
-          (route) => false,
-          arguments: HomeRouteArgs(selectedIndex: 0),
-        );
-      }
+      await submitMockFullCreation(context, widget.plan);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(

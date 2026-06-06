@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import 'goal_questions_screen.dart';
+import 'mock-goal_prompt_screen.dart';
 
 class GoalPromptScreen extends StatefulWidget {
   GoalPromptScreen({super.key});
@@ -35,16 +36,8 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
     super.dispose();
   }
 
-  Future<List<String>?> _fetchObjectiveQuestions(String prompt) async {
-    final apiClient = await OpenApiClientFactory(
-      authService: _authService,
-    ).createWithGoogleToken();
-
-    final goalApi = OnboardingApi(apiClient);
-    final request = GoalCreationFollowUpQuestionsRequest(prompt: prompt);
-    final response = await goalApi
-        .generateFollowUpQuestionsApiV1OnboardingFollowUpQuestionsPost(request);
-    return response?.questions;
+  Future<List<MockMultipleChoiceQuestion>> _fetchObjectiveQuestions(String prompt) async {
+    return await fetchMockObjectiveQuestions(context, prompt);
   }
 
   void _onEnterPressed() async {
@@ -58,26 +51,15 @@ class _GoalPromptScreenState extends State<GoalPromptScreen> {
           _promptController.text,
         );
         if (mounted) {
-          if (questions != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GoalQuestionsScreen(
-                  prompt: _promptController.text,
-                  questions: questions,
-                ),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GoalQuestionsScreen(
+                prompt: _promptController.text,
+                questions: questions,
               ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Error: No questions received',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            );
-          }
+            ),
+          );
         }
       } catch (e) {
         if (mounted) {

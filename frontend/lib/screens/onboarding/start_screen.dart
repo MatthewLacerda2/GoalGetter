@@ -13,6 +13,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/openapi_client_factory.dart';
 import '../../widgets/screens/onboarding/pre_onboarding_carousel.dart';
+import 'mock-start_screen.dart';
 
 class StartScreen extends StatefulWidget {
   StartScreen({super.key});
@@ -141,29 +142,7 @@ class _StartScreenState extends State<StartScreen> {
     });
 
     try {
-      final googleAuthResult = await _authService.signInWithGoogle();
-
-      if (googleAuthResult != null) {
-        final googleToken = googleAuthResult['token'] as String;
-
-        // Call signup endpoint to create/fetch account
-        final signupResult = await _authService.signupWithGoogle(googleToken);
-
-        if (signupResult != null && mounted) {
-          // Check student status to see if user has goals
-          await _routeAfterSignIn();
-        }
-      } else {
-        // User cancelled sign-in
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Sign-in cancelled'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-      }
+      await handleMockGoogleSignIn(context);
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -229,55 +208,38 @@ class _StartScreenState extends State<StartScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: kIsWeb
-                      ? (_isGoogleInit && GoogleSignInPlatform.instance is web.GoogleSignInPlugin
-                          ? Center(
-                              child: SizedBox(
-                                width: 320,
-                                child: (GoogleSignInPlatform.instance as web.GoogleSignInPlugin).renderButton(
-                                  configuration: web.GSIButtonConfiguration(
-                                    type: web.GSIButtonType.standard,
-                                    shape: web.GSIButtonShape.rectangular,
-                                    size: web.GSIButtonSize.large,
-                                  ),
-                                ),
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                    icon: _isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
                               ),
-                            )
-                          : Center(
-                              child: CircularProgressIndicator(),
-                            ))
-                      : ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _handleGoogleSignIn,
-                          icon: _isLoading
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : FaIcon(
-                                  FontAwesomeIcons.google,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                          label: Text(
-                            _isLoading ? 'Signing in...' : 'Start with Google',
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF4285F4),
-                            foregroundColor: Colors.white,
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(20.0),
                             ),
+                          )
+                        : FaIcon(
+                            FontAwesomeIcons.google,
+                            color: Colors.white,
+                            size: 20,
                           ),
-                        ),
+                    label: Text(
+                      _isLoading ? 'Signing in...' : 'Start with Google',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF4285F4),
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
                 ),
 
                 // Terms and Privacy
