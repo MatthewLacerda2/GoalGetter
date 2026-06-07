@@ -303,5 +303,25 @@
     "setAsCurrentGoal": "Definir como meta atual",
     "@setAsCurrentGoal": {
         "description": "Label for set as current goal"
-    }
+    },
+    "home": "Início",
+    "@home": { "description": "Bottom nav label for the home tab" },
+    "elo": "Elo",
+    "@elo": { "description": "Label for the elo rating" },
+    "startLesson": "Iniciar lição",
+    "@startLesson": { "description": "Label for the start lesson button" },
+    "recentLessons": "Lições recentes",
+    "@recentLessons": { "description": "Heading for the recent lessons list" },
+    "noLessonsYet": "Nenhuma lição ainda",
+    "@noLessonsYet": { "description": "Empty state for lessons and chart" },
+    "yourProgress": "Seu progresso",
+    "@yourProgress": { "description": "Heading for the elo progress chart" },
+    "last7Days": "7 dias",
+    "@last7Days": { "description": "7 day chart filter" },
+    "last30Days": "30 dias",
+    "@last30Days": { "description": "30 day chart filter" },
+    "last90Days": "90 dias",
+    "@last90Days": { "description": "90 day chart filter" },
+    "noActiveGoal": "Nenhuma meta ativa ainda",
+    "@noActiveGoal": { "description": "Home empty state when no active goal" }
 }

@@ -10,7 +10,7 @@ class FinishLessonScreen extends StatelessWidget {
   final IconData icon;
   final StatData timeSpent;
   final StatData accuracy;
-  final StatData combo;
+  final StatData elo;
 
   FinishLessonScreen({
     super.key,
@@ -18,7 +18,7 @@ class FinishLessonScreen extends StatelessWidget {
     required this.icon,
     required this.timeSpent,
     required this.accuracy,
-    required this.combo,
+    required this.elo,
   });
 
   @override
@@ -56,7 +56,7 @@ class FinishLessonScreen extends StatelessWidget {
                         SizedBox(width: 12.0),
                         Expanded(child: StatWidget(statData: accuracy)),
                         SizedBox(width: 12.0),
-                        Expanded(child: StatWidget(statData: combo)),
+                        Expanded(child: StatWidget(statData: elo)),
                       ],
                     ),
                   ],

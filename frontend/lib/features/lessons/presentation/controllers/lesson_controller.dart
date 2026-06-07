@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:openapi/api.dart';
 
 import 'package:goal_getter/features/lessons/domain/lesson_question_data.dart';
-import 'package:goal_getter/core/services/api_client_provider.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
+import 'package:goal_getter/features/lessons/debug/mock_lesson_controller.dart';
 
 part 'lesson_controller.g.dart';
 
 class LessonQuestionState {
-  final MultipleChoiceQuestionResponse apiQuestion;
+  final MultipleChoiceQuestion apiQuestion;
   final LessonQuestionStatus status;
   final DateTime? startTime;
   final int? studentAnswerIndex;
@@ -47,7 +47,7 @@ class LessonState {
   final bool isLoading;
   final String? errorMessage;
   final Duration totalTimeSpent;
-  final MultipleChoiceActivityEvaluationResponse? evaluationResponse;
+  final LessonEvaluation? evaluationResponse;
   final bool isCompleted;
 
   LessonState({
@@ -72,7 +72,7 @@ class LessonState {
     bool? isLoading,
     String? errorMessage,
     Duration? totalTimeSpent,
-    MultipleChoiceActivityEvaluationResponse? evaluationResponse,
+    LessonEvaluation? evaluationResponse,
     bool? isCompleted,
   }) {
     return LessonState(
@@ -126,14 +126,14 @@ class LessonController extends _$LessonController {
 
   void _initializeFromQuestions(List<LessonQuestionData> legacy) {
     final list = legacy.map((q) {
-      final dummyApiQuestion = MultipleChoiceQuestionResponse(
+      final question = MultipleChoiceQuestion(
         id: '',
         question: q.question,
         choices: q.choices,
         correctAnswerIndex: q.choices.indexOf(q.correctAnswer),
       );
       return LessonQuestionState(
-        apiQuestion: dummyApiQuestion,
+        apiQuestion: question,
       );
     }).toList();
 
@@ -151,15 +151,13 @@ class LessonController extends _$LessonController {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final apiClient = await ref.read(apiClientProvider.future);
-      final activitiesApi = ActivitiesApi(apiClient);
-      final response = await activitiesApi.takeMultipleChoiceActivityApiV1ActivitiesPost();
+      final questions = await getMockLessonQuestions();
 
-      if (response == null || response.questions.isEmpty) {
+      if (questions.isEmpty) {
         throw Exception('No questions available');
       }
 
-      final list = response.questions.map((q) {
+      final list = questions.map((q) {
         return LessonQuestionState(apiQuestion: q);
       }).toList();
 
@@ -244,28 +242,32 @@ class LessonController extends _$LessonController {
     state = state.copyWith(isLoading: true);
 
     try {
-      final apiClient = await ref.read(apiClientProvider.future);
-      final activitiesApi = ActivitiesApi(apiClient);
-
-      final answers = state.questions
+      final answered = state.questions
           .where((q) => q.studentAnswerIndex != null && q.secondsSpent != null)
-          .map((q) => MultipleChoiceQuestionAnswer(
-                id: q.apiQuestion.id,
-                studentAnswerIndex: q.studentAnswerIndex!,
-                secondsSpent: q.secondsSpent!,
-              ))
           .toList();
 
-      if (answers.isEmpty) {
+      if (answered.isEmpty) {
         throw Exception('No answers to submit');
       }
 
-      final request = MultipleChoiceActivityEvaluationRequest(answers: answers);
-      final response = await activitiesApi.takeMultipleChoiceActivityApiV1ActivitiesEvaluatePost(request);
+      await Future.delayed(const Duration(milliseconds: 400));
+
+      final correct = answered
+          .where((q) => q.studentAnswerIndex == q.apiQuestion.correctAnswerIndex)
+          .length;
+      final accuracy = correct / answered.length * 100;
+      final totalSeconds = answered.fold<int>(
+        0,
+        (sum, q) => sum + (q.secondsSpent ?? 0),
+      );
 
       _hasSubmittedAnswers = true;
       state = state.copyWith(
-        evaluationResponse: response,
+        evaluationResponse: LessonEvaluation(
+          totalSecondsSpent: totalSeconds,
+          studentAccuracy: accuracy,
+          elo: mockEloForAccuracy(accuracy),
+        ),
         isLoading: false,
         isCompleted: true,
       );

@@ -65,63 +65,9 @@ const List<MockMultipleChoiceQuestion> mockQuestions = [
       "Self-paced without active tracking"
     ],
   ),
-  MockMultipleChoiceQuestion(
-    questionText: "What is your target timeline for this goal?",
-    options: [
-      "Less than 2 weeks",
-      "2 to 4 weeks",
-      "1 to 3 months",
-      "More than 3 months"
-    ],
-  ),
-  MockMultipleChoiceQuestion(
-    questionText: "Which environment do you prefer for learning?",
-    options: [
-      "Local setup on my computer",
-      "Cloud-based sandboxes or online editors",
-      "Mobile-friendly reading / apps on the go",
-      "Pen and paper planning first, then digital"
-    ],
-  ),
-  MockMultipleChoiceQuestion(
-    questionText: "What is your main motivation to stay consistent?",
-    options: [
-      "Gamification (points, badges, streaks)",
-      "Public accountability (sharing progress)",
-      "Peer accountability (study groups)",
-      "Intrinsic focus / self-discipline"
-    ],
-  ),
-  MockMultipleChoiceQuestion(
-    questionText: "How deep do you want to go into the theoretical aspects?",
-    options: [
-      "Practical only (just show me how to build/do it)",
-      "Balanced (application with essential core concepts)",
-      "Deep dive (patterns, architecture, best practices)",
-      "Academic (comprehensive theory and math/history)"
-    ],
-  ),
-  MockMultipleChoiceQuestion(
-    questionText: "What kind of project do you want to build by the end?",
-    options: [
-      "A simple clone of a popular service",
-      "A fully custom portfolio project",
-      "A utility tool to automate my daily work",
-      "No specific project, just coding exercises"
-    ],
-  ),
-  MockMultipleChoiceQuestion(
-    questionText: "What has stopped you from achieving this goal in the past?",
-    options: [
-      "Lack of a structured roadmap or direction",
-      "Time constraints / busy schedule",
-      "Losing motivation or interest quickly",
-      "Hitting complex issues and getting stuck"
-    ],
-  ),
 ];
 
-/// Simulates fetching the 12 static multiple-choice questions with a brief delay.
+/// Simulates fetching the 6 static multiple-choice questions with a brief delay.
 Future<List<MockMultipleChoiceQuestion>> fetchMockObjectiveQuestions(
   BuildContext context,
   String prompt,

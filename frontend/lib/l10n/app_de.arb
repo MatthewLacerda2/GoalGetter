@@ -303,5 +303,25 @@
     "setAsCurrentGoal": "Als aktuelles Ziel setzen",
     "@setAsCurrentGoal": {
         "description": "Label for set as current goal"
-    }
+    },
+    "home": "Start",
+    "@home": { "description": "Bottom nav label for the home tab" },
+    "elo": "Elo",
+    "@elo": { "description": "Label for the elo rating" },
+    "startLesson": "Lektion starten",
+    "@startLesson": { "description": "Label for the start lesson button" },
+    "recentLessons": "Letzte Lektionen",
+    "@recentLessons": { "description": "Heading for the recent lessons list" },
+    "noLessonsYet": "Noch keine Lektionen",
+    "@noLessonsYet": { "description": "Empty state for lessons and chart" },
+    "yourProgress": "Dein Fortschritt",
+    "@yourProgress": { "description": "Heading for the elo progress chart" },
+    "last7Days": "7 Tage",
+    "@last7Days": { "description": "7 day chart filter" },
+    "last30Days": "30 Tage",
+    "@last30Days": { "description": "30 day chart filter" },
+    "last90Days": "90 Tage",
+    "@last90Days": { "description": "90 day chart filter" },
+    "noActiveGoal": "Noch kein aktives Ziel",
+    "@noActiveGoal": { "description": "Home empty state when no active goal" }
 }

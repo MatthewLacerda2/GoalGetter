@@ -89,10 +89,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   : "${(state.questions.where((q) => q.status == LessonQuestionStatus.correct).length / state.questions.length * 100).toStringAsFixed(2)}%",
               color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green,
             ),
-            combo: StatData(
-              title: "Combo",
-              icon: Icons.star,
-              text: "${ref.read(lessonControllerProvider.notifier).calculateLongestStreak()}",
+            elo: StatData(
+              title: "Elo",
+              icon: Icons.trending_up,
+              text: "${(state.evaluationResponse?.elo ?? 0) >= 0 ? '+' : ''}${state.evaluationResponse?.elo ?? 0}",
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),

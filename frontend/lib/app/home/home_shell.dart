@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/missions/presentation/screens/missions_screen.dart';
+import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
 import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
@@ -34,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _tabPages = [
-      MissionsScreen(),
+      const HomeScreen(),
       TutorScreen(),
       ResourcesScreen(),
       ProfileScreen(),
@@ -53,10 +53,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return [
       BottomNavigationBarItem(
         icon: MainScreenIcon(
-          icon: Icons.flag,
+          icon: Icons.home,
           isSelected: _selectedIndex == 0,
         ),
-        label: 'Missions',
+        label: AppLocalizations.of(context)!.home,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
