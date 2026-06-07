@@ -60,8 +60,9 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 
 - **`POST /goals/objective-questions`** ⚙️ — step 1 of creation: validate the
   prompt is a real goal, then generate clarifying multiple-choice questions.
-  request: `{ "prompt": "..." }` · response: `{ "questions": objective_question[] }`
+  request: `{ "prompt": "..." }` · response: `objective_question[]`
   - services: goal validation (reject non-goals) + question generation (LLM).
+  - each question has exactly 4 options.
 
 - **`POST /goals/study-plan`** ⚙️ — step 2: generate a short study-plan preview.
   request: `{ "prompt": "...", "answers": objective_answer[] }`
@@ -155,8 +156,8 @@ user_profile            { "id": "...", "name": "...", "email": "...", "current_s
 goal                    { "id": "...", "name": "...", "description": "...",
                           "current_elo": 920, "is_active": true, "created_at": "2026-05-31T00:00:00Z" }
 
-objective_question      { "question_text": "...", "options": ["...", "..."] }
-objective_answer        { "question_text": "...", "answer": "..." }
+objective_question      { "question": "...", "options": ["a","b","c","d"] }  // exactly 4
+objective_answer        { "question": "...", "answer": "<the selected option>" }  // unselected options omitted
 
 home_dashboard          { "goal_name": "...", "current_elo": 920, "current_streak": 7,
                           "recent_lessons": [ recent_lesson ],   // newest first
@@ -180,8 +181,10 @@ resource_item           { "name": "...", "description": "...", "url": "https://.
 ---
 
 ## Cross-cutting notes
-- **elo** everywhere (the old SDK used `xp`); `lesson_evaluation.elo` is the
-  signed change for that lesson.
+- **elo** everywhere (the old SDK used `xp`). Elo is **per-goal**, stored as
+  `goals.elo` (the user's rating *for that goal*); `goal.current_elo` and
+  `home_dashboard.current_elo` read from it. `lesson_evaluation.elo` is the
+  signed change applied to it for that lesson. Streak stays **per-user**.
 - **`students.current_goal_id`** is the single source of truth for the active
   goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.
 - **Streak** is just `current_streak` (a number) on `/me` and `/home`. No streak
