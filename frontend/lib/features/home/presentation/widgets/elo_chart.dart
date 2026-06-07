@@ -71,14 +71,53 @@ class _EloChartState extends State<EloChart> {
 
   LineChartData _buildChartData(List<MockEloPoint> points) {
     final primary = Theme.of(context).colorScheme.primary;
+    final outline = Theme.of(context).colorScheme.outline;
+    final mutedText = Theme.of(context).colorScheme.onSurfaceVariant;
     final spots = <FlSpot>[
       for (var i = 0; i < points.length; i++)
         FlSpot(i.toDouble(), points[i].elo.toDouble()),
     ];
 
+    // Round the elo range to "nice" bounds so the Y-axis labels are tidy.
+    final elos = points.map((p) => p.elo);
+    final rawMin = elos.reduce((a, b) => a < b ? a : b);
+    final rawMax = elos.reduce((a, b) => a > b ? a : b);
+    final minY = ((rawMin - 1) / 50).floor() * 50.0;
+    final maxY = ((rawMax + 1) / 50).ceil() * 50.0;
+    final interval = ((maxY - minY) / 2).clamp(1, double.infinity).toDouble();
+
     return LineChartData(
-      gridData: FlGridData(show: false),
-      titlesData: FlTitlesData(show: false),
+      minY: minY,
+      maxY: maxY,
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        horizontalInterval: interval,
+        getDrawingHorizontalLine: (_) => FlLine(
+          color: outline.withValues(alpha: 0.6),
+          strokeWidth: 1,
+        ),
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 38,
+            interval: interval,
+            getTitlesWidget: (value, meta) => Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Text(
+                value.toInt().toString(),
+                style: TextStyle(fontSize: 11, color: mutedText),
+              ),
+            ),
+          ),
+        ),
+      ),
       borderData: FlBorderData(show: false),
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(

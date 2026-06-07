@@ -1,3 +1,4 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,6 +29,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     SettingsStorage.spanish: 'Español',
     SettingsStorage.french: 'Français',
     SettingsStorage.german: 'Deutsch',
+  };
+
+  static const _languageFlags = {
+    SettingsStorage.english: 'US',
+    SettingsStorage.portuguese: 'BR',
+    SettingsStorage.spanish: 'ES',
+    SettingsStorage.french: 'FR',
+    SettingsStorage.german: 'DE',
   };
 
   @override
@@ -292,6 +301,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: _languageNames.entries.map((e) {
               return ListTile(
+                leading: SizedBox(
+                  width: 32,
+                  height: 24,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: CountryFlag.fromCountryCode(
+                      _languageFlags[e.key] ?? 'US',
+                    ),
+                  ),
+                ),
                 title: Text(e.value),
                 onTap: () {
                   ref.read(localeProvider.notifier).setLanguage(e.key);

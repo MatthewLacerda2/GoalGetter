@@ -65,9 +65,6 @@ class _RecentLessonRow extends StatelessWidget {
 
   const _RecentLessonRow({required this.lesson});
 
-  String _formatDate(DateTime date) =>
-      '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
-
   String _formatTime(int seconds) {
     final m = seconds ~/ 60;
     final s = (seconds % 60).toString().padLeft(2, '0');
@@ -80,13 +77,6 @@ class _RecentLessonRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
       child: Row(
         children: [
-          Text(
-            _formatDate(lesson.date),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(width: 16.0),
           Text(
             '${lesson.accuracy.toStringAsFixed(0)}%',
             style: Theme.of(context).textTheme.titleSmall,
