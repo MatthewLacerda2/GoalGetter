@@ -1,82 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:openapi/api.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/core/services/openapi_client_factory.dart';
-import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/features/goals/domain/goal.dart';
 
 enum GoalsDetailResult { deleted, activated }
 
-class GoalsDetailScreen extends ConsumerStatefulWidget {
+class GoalsDetailScreen extends StatefulWidget {
   const GoalsDetailScreen({super.key, required this.goal});
 
-  final GoalListItem goal;
+  final Goal goal;
 
   @override
-  ConsumerState<GoalsDetailScreen> createState() => _GoalsDetailScreenState();
+  State<GoalsDetailScreen> createState() => _GoalsDetailScreenState();
 }
 
-class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
-  late final AuthService _authService = ref.read(authServiceProvider);
+class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
   bool _isDeleting = false;
   bool _isSettingActive = false;
 
-  String _formatCreatedAt(BuildContext context, DateTime createdAt) {
+  String _formatCreatedAt(DateTime createdAt) {
     try {
-      return DateFormat.yMMMd().add_jm().format(createdAt.toLocal());
+      return DateFormat.yMMMd().format(createdAt.toLocal());
     } catch (_) {
       return createdAt.toLocal().toIso8601String();
     }
   }
 
+  // MOCK: no backend yet — simulate setting the active goal.
   Future<void> _setAsCurrentGoal() async {
-    setState(() {
-      _isSettingActive = true;
-    });
-
-    try {
-      final accessToken = await _authService.getStoredAccessToken();
-      final apiClient = await OpenApiClientFactory(
-        authService: _authService,
-      ).createAuthorized();
-
-      final goalsApi = GoalsApi(apiClient);
-      final response = await goalsApi.setActiveGoalApiV1GoalsGoalIdSetActivePut(
-        widget.goal.id,
-      );
-
-      if (response == null || response.goalId == null) {
-        throw Exception('Failed to set active goal: No response received');
-      }
-
-      await SettingsStorage.setCurrentGoalId(response.goalId!);
-
-      if (!mounted) {
-        return;
-      }
-
-      Navigator.of(context).pop(GoalsDetailResult.activated);
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _isSettingActive = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error setting active goal: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-    }
+    setState(() => _isSettingActive = true);
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+    context.pop(GoalsDetailResult.activated);
   }
 
+  // MOCK: no backend yet — simulate deleting the goal.
   Future<void> _deleteGoal() async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -101,48 +62,12 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
       },
     );
 
-    if (confirm != true) {
-      return;
-    }
+    if (confirm != true) return;
 
-    setState(() {
-      _isDeleting = true;
-    });
-
-    try {
-      final apiClient = await OpenApiClientFactory(
-        authService: _authService,
-      ).createAuthorized();
-
-      final goalsApi = GoalsApi(apiClient);
-      await goalsApi.deleteGoalApiV1GoalsGoalIdDelete(widget.goal.id);
-
-      final currentGoalId = await SettingsStorage.getCurrentGoalId();
-      if (currentGoalId == widget.goal.id) {
-        await SettingsStorage.clearCurrentGoal();
-      }
-
-      if (!mounted) {
-        return;
-      }
-
-      Navigator.of(context).pop(GoalsDetailResult.deleted);
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _isDeleting = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error deleting goal: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-    }
+    setState(() => _isDeleting = true);
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+    context.pop(GoalsDetailResult.deleted);
   }
 
   @override
@@ -150,6 +75,8 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
     final goalTitle = widget.goal.name.isNotEmpty
         ? widget.goal.name
         : AppLocalizations.of(context)!.untitledGoal;
+    final successColor =
+        Theme.of(context).extension<CustomColors>()?.success ?? Colors.green;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -160,19 +87,53 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      goalTitle,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  if (widget.goal.isActive)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0,
+                        vertical: 4.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: successColor.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Text(
+                        'Active',
+                        style: TextStyle(
+                          color: successColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8.0),
               Text(
-                goalTitle,
+                '${AppLocalizations.of(context)!.elo} ${widget.goal.currentElo}',
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              SizedBox(height: 12.0),
+              const SizedBox(height: 12.0),
               Text(
                 widget.goal.description.isNotEmpty
                     ? widget.goal.description
@@ -183,36 +144,32 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
                   height: 1.3,
                 ),
               ),
-              SizedBox(height: 12.0),
+              const SizedBox(height: 12.0),
               Text(
-                _formatCreatedAt(context, widget.goal.createdAt),
+                _formatCreatedAt(widget.goal.createdAt),
                 style: TextStyle(
                   fontSize: 14.0,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (_isDeleting || _isSettingActive)
+                  onPressed: (_isDeleting || _isSettingActive || widget.goal.isActive)
                       ? null
                       : _setAsCurrentGoal,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 16.0,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          20.0),
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                     elevation: 0,
                   ),
                   child: _isSettingActive
-                      ? SizedBox(
+                      ? const SizedBox(
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(
@@ -222,14 +179,14 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
                         )
                       : Text(
                           AppLocalizations.of(context)!.setAsCurrentGoal,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                 ),
               ),
-              SizedBox(height: 12.0),
+              const SizedBox(height: 12.0),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -239,18 +196,14 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 16.0,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          20.0),
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                     elevation: 0,
                   ),
                   child: _isDeleting
-                      ? SizedBox(
+                      ? const SizedBox(
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(
@@ -260,7 +213,7 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
                         )
                       : Text(
                           AppLocalizations.of(context)!.deleteGoal,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w600,
                           ),

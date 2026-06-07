@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:openapi/api.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:goal_getter/app/app.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 
 /// Bypasses the backend call to finalize goal creation,
 /// stores dummy credentials in local storage, and routes to Home screen.
 Future<void> submitMockFullCreation(
   BuildContext context,
-  GoalStudyPlanResponse plan,
+  StudyPlan plan,
   AuthService authService,
 ) async {
-
   // Store mock JWT access token and student credentials
   await authService.storeFinalCredentials(
     "mock_access_token_jwt_123456",
@@ -27,12 +27,8 @@ Future<void> submitMockFullCreation(
   // Store a mock active goal ID to satisfy storage checks
   await SettingsStorage.setCurrentGoalId("mock_goal_id_888");
 
-  if (Navigator.of(context).mounted) {
+  if (context.mounted) {
     // Navigate straight into the app dashboard.
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.home,
-      (route) => false,
-      arguments: HomeRouteArgs(selectedIndex: 0),
-    );
+    context.go(AppRoutes.home);
   }
 }

@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:openapi/api.dart';
 
 import 'package:goal_getter/features/tutor/domain/chat_message.dart';
-import 'package:goal_getter/core/services/api_client_provider.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/mock_tutor_controller.dart';
 
 part 'tutor_controller.g.dart';
@@ -52,30 +50,8 @@ class TutorController extends _$TutorController {
     return TutorState();
   }
 
-  String? _studentId;
-  String? _oldestMessageId;
   final List<String> _pendingMessages = [];
   int _temporaryMessageCounter = 0;
-
-  ChatMessage _convertToChatMessage(ChatMessageItem item) {
-    final isUser = _studentId != null && item.senderId == _studentId;
-    return ChatMessage(
-      id: item.id,
-      message: item.message,
-      sender: isUser ? ChatMessageSender.user : ChatMessageSender.tutor,
-      isLiked: item.isLiked,
-    );
-  }
-
-  ChatMessage _convertResponseItemToChatMessage(ChatMessageResponseItem item) {
-    final isUser = _studentId != null && item.senderId == _studentId;
-    return ChatMessage(
-      id: item.id,
-      message: item.message,
-      sender: isUser ? ChatMessageSender.user : ChatMessageSender.tutor,
-      isLiked: item.isLiked,
-    );
-  }
 
   Future<void> fetchMessages({bool loadMore = false}) async {
     if (loadMore) return;

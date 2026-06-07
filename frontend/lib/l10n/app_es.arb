@@ -108,10 +108,6 @@
     "@typeYourMessage": {
         "description": "Label for type your message"
     },
-    "keepThePressureOn": "¡Sí, mantén la presión!",
-    "@keepThePressureOn": {
-        "description": "Label for keep the pressure on"
-    },
     "objective": "Objetivo",
     "@objective": {
         "description": "Label for objective"
@@ -172,7 +168,7 @@
     "@createdAt": {
         "description": "Label for created at"
     },
-    "goals": "Mis objetivos",
+    "goals": "Objetivos",
     "@goals": {
         "description": "Label for goals"
     },
@@ -303,5 +299,43 @@
     "setAsCurrentGoal": "Definir como objetivo actual",
     "@setAsCurrentGoal": {
         "description": "Label for set as current goal"
-    }
+    },
+    "home": "Inicio",
+    "@home": { "description": "Bottom nav label for the home tab" },
+    "elo": "Elo",
+    "@elo": { "description": "Label for the elo rating" },
+    "startLesson": "Empezar lección",
+    "@startLesson": { "description": "Label for the start lesson button" },
+    "recentLessons": "Lecciones recientes",
+    "@recentLessons": { "description": "Heading for the recent lessons list" },
+    "noLessonsYet": "Aún no hay lecciones",
+    "@noLessonsYet": { "description": "Empty state for lessons and chart" },
+    "yourProgress": "Tu progreso",
+    "@yourProgress": { "description": "Heading for the elo progress chart" },
+    "last7Days": "7 días",
+    "@last7Days": { "description": "7 day chart filter" },
+    "last30Days": "30 días",
+    "@last30Days": { "description": "30 day chart filter" },
+    "last90Days": "90 días",
+    "@last90Days": { "description": "90 day chart filter" },
+    "noActiveGoal": "Aún no hay meta activa",
+    "@noActiveGoal": { "description": "Home empty state when no active goal" },
+    "manageGoals": "Gestionar objetivos",
+    "@manageGoals": { "description": "Profile: manage goals tile" },
+    "manageGoalsSubtitle": "Ver, cambiar y eliminar",
+    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
+    "notifications": "Notificaciones",
+    "@notifications": { "description": "Profile: notifications tile" },
+    "preferences": "Preferencias",
+    "@preferences": { "description": "Profile: preferences section header" },
+    "videos": "Vídeos",
+    "@videos": { "description": "Resources tab: videos" },
+    "guides": "Guías",
+    "@guides": { "description": "Resources tab: guides" },
+    "studyPlanIntro": "TU PLAN DE ESTUDIO",
+    "@studyPlanIntro": { "description": "Study plan: eyebrow label above the goal name" },
+    "startOver": "Empezar de nuevo",
+    "@startOver": { "description": "Study plan: reject and return to the goal prompt" },
+    "startLearning": "Empezar a aprender",
+    "@startLearning": { "description": "Study plan: confirm and begin" }
 }

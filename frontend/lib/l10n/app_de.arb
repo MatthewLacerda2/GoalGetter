@@ -108,10 +108,6 @@
     "@typeYourMessage": {
         "description": "Label for type your message"
     },
-    "keepThePressureOn": "Ja, bleib dran!!!",
-    "@keepThePressureOn": {
-        "description": "Label for keep the pressure on"
-    },
     "objective": "Ziel",
     "@objective": {
         "description": "Label for objective"
@@ -172,7 +168,7 @@
     "@createdAt": {
         "description": "Label for created at"
     },
-    "goals": "Meine Ziele",
+    "goals": "Ziele",
     "@goals": {
         "description": "Label for goals"
     },
@@ -303,5 +299,43 @@
     "setAsCurrentGoal": "Als aktuelles Ziel setzen",
     "@setAsCurrentGoal": {
         "description": "Label for set as current goal"
-    }
+    },
+    "home": "Start",
+    "@home": { "description": "Bottom nav label for the home tab" },
+    "elo": "Elo",
+    "@elo": { "description": "Label for the elo rating" },
+    "startLesson": "Lektion starten",
+    "@startLesson": { "description": "Label for the start lesson button" },
+    "recentLessons": "Letzte Lektionen",
+    "@recentLessons": { "description": "Heading for the recent lessons list" },
+    "noLessonsYet": "Noch keine Lektionen",
+    "@noLessonsYet": { "description": "Empty state for lessons and chart" },
+    "yourProgress": "Dein Fortschritt",
+    "@yourProgress": { "description": "Heading for the elo progress chart" },
+    "last7Days": "7 Tage",
+    "@last7Days": { "description": "7 day chart filter" },
+    "last30Days": "30 Tage",
+    "@last30Days": { "description": "30 day chart filter" },
+    "last90Days": "90 Tage",
+    "@last90Days": { "description": "90 day chart filter" },
+    "noActiveGoal": "Noch kein aktives Ziel",
+    "@noActiveGoal": { "description": "Home empty state when no active goal" },
+    "manageGoals": "Ziele verwalten",
+    "@manageGoals": { "description": "Profile: manage goals tile" },
+    "manageGoalsSubtitle": "Ansehen, wechseln und löschen",
+    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
+    "notifications": "Benachrichtigungen",
+    "@notifications": { "description": "Profile: notifications tile" },
+    "preferences": "Einstellungen",
+    "@preferences": { "description": "Profile: preferences section header" },
+    "videos": "Videos",
+    "@videos": { "description": "Resources tab: videos" },
+    "guides": "Anleitungen",
+    "@guides": { "description": "Resources tab: guides" },
+    "studyPlanIntro": "DEIN LERNPLAN",
+    "@studyPlanIntro": { "description": "Study plan: eyebrow label above the goal name" },
+    "startOver": "Neu beginnen",
+    "@startOver": { "description": "Study plan: reject and return to the goal prompt" },
+    "startLearning": "Loslegen",
+    "@startLearning": { "description": "Study plan: confirm and begin" }
 }

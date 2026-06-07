@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// A tab of curated resources. Each item is a clean white card with an optional
+/// thumbnail/logo, a title + description, and a trailing open-in-new link icon
+/// (to read as clickable). Tapping opens the link.
 class ResourceTab extends StatelessWidget {
   final List<Map<String, String>> resources;
 
@@ -13,7 +16,7 @@ class ResourceTab extends StatelessWidget {
         child: Text(
           'No resources here',
           style: TextStyle(
-            fontSize: 18.0,
+            fontSize: 16.0,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
@@ -21,120 +24,103 @@ class ResourceTab extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
       itemCount: resources.length,
       itemBuilder: (context, index) {
         final resource = resources[index];
-        final hasImage =
-            resource['image'] != null && resource['image']!.isNotEmpty;
+        return _ResourceCard(resource: resource);
+      },
+    );
+  }
+}
 
-        return Container(
-          margin: EdgeInsets.only(bottom: 12.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(20.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 8,
-                offset: Offset(0, 2),
+class _ResourceCard extends StatelessWidget {
+  final Map<String, String> resource;
+
+  const _ResourceCard({required this.resource});
+
+  @override
+  Widget build(BuildContext context) {
+    final image = resource['image'];
+    final hasImage = image != null && image.isNotEmpty;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => launchUrl(Uri.parse(resource['link'] ?? '')),
+        child: Padding(
+          padding: const EdgeInsets.all(14.0),
+          child: Row(
+            children: [
+              if (hasImage) ...[
+                _Thumb(url: image),
+                const SizedBox(width: 14.0),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      resource['title'] ?? '',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      resource['description'] ?? '',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Icon(
+                Icons.open_in_new,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ],
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: hasImage
-                ? InkWell(
-                    onTap: () {
-                      launchUrl(Uri.parse(resource['link'] ?? ''));
-                    },
-                    borderRadius:
-                        BorderRadius.circular(20.0),
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius:
-                                BorderRadius.circular(8.0),
-                            child: Image.network(
-                              resource['image']!,
-                              width: 68,
-                              height: 68,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 68,
-                                  height: 68,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(
-                                      8.0,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.broken_image_outlined,
-                                    color: Theme.of(context).colorScheme.outline,
-                                    size: 28,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 16.0),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  resource['title'] ?? '',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                SizedBox(height: 4.0),
-                                Text(
-                                  resource['description'] ?? '',
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    fontSize: 14.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : ListTile(
-                    title: Text(
-                      resource['title'] ?? '',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 24.0,
-                      vertical: 8.0,
-                    ),
-                    subtitle: Text(
-                      resource['description'] ?? '',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontSize: 14.0,
-                      ),
-                    ),
-                    onTap: () {
-                      launchUrl(Uri.parse(resource['link'] ?? ''));
-                    },
-                  ),
-          ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+}
+
+class _Thumb extends StatelessWidget {
+  final String url;
+
+  const _Thumb({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = Container(
+      width: 56,
+      height: 56,
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      child: Icon(
+        Icons.link,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        size: 24,
+      ),
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10.0),
+      child: Image.network(
+        url,
+        width: 56,
+        height: 56,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => fallback,
+        loadingBuilder: (context, child, progress) =>
+            progress == null ? child : fallback,
+      ),
     );
   }
 }

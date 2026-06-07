@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:openapi/api.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_goal_questions_screen.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
 
 class GoalQuestionsScreen extends StatefulWidget {
   final List<MockMultipleChoiceQuestion> questions;
@@ -115,12 +115,7 @@ class _GoalQuestionsScreenState extends State<GoalQuestionsScreen>
       );
 
       if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => StudyPlanScreen(plan: plan),
-          ),
-        );
+        context.push(AppRoutes.studyPlan, extra: plan);
       }
     } catch (e) {
       if (mounted) {

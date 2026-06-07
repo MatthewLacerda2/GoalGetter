@@ -1,81 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/missions/presentation/screens/missions_screen.dart';
-import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
-import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
-import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/core/widgets/main_screen_icon.dart';
 
-/// The main authenticated area of the app.
+/// The authenticated area's bottom-navigation scaffold.
 ///
-/// NOTE: This is extracted from `main.dart` as a first refactor step.
-/// A later step will rename this to `HomeShell` and migrate call sites to
-/// named routes.
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({
-    super.key,
-    required this.title,
-    this.selectedIndex = 0,
-  });
+/// Hosts the [StatefulNavigationShell] from go_router's
+/// `StatefulShellRoute.indexedStack`, which preserves each tab's own navigation
+/// stack and state. Tabs: Home, Tutor, Resources, Profile.
+class ScaffoldWithNavBar extends StatelessWidget {
+  const ScaffoldWithNavBar({super.key, required this.navigationShell});
 
-  final String title;
-  final int selectedIndex;
+  final StatefulNavigationShell navigationShell;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  late int _selectedIndex;
-  late final List<Widget> _tabPages;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabPages = [
-      MissionsScreen(),
-      TutorScreen(),
-      ResourcesScreen(),
-      ProfileScreen(),
-    ];
-
-    _selectedIndex = widget.selectedIndex.clamp(0, _tabPages.length - 1);
+  void _onTap(int index) {
+    navigationShell.goBranch(
+      index,
+      // Re-tapping the active tab returns it to its initial route.
+      initialLocation: index == navigationShell.currentIndex,
+    );
   }
 
-  void _onTabTapped(int index) {
-    setState(() {
-      _selectedIndex = index.clamp(0, _tabPages.length - 1);
-    });
-  }
-
-  List<BottomNavigationBarItem> get _bottomNavItems {
+  List<BottomNavigationBarItem> _navItems(BuildContext context) {
+    final current = navigationShell.currentIndex;
     return [
       BottomNavigationBarItem(
-        icon: MainScreenIcon(
-          icon: Icons.flag,
-          isSelected: _selectedIndex == 0,
-        ),
-        label: 'Missions',
+        icon: MainScreenIcon(icon: Icons.home_outlined, isSelected: current == 0),
+        label: AppLocalizations.of(context)!.home,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
-          icon: Icons.graphic_eq,
-          isSelected: _selectedIndex == 1,
+          icon: Icons.chat_bubble_outline,
+          isSelected: current == 1,
         ),
         label: AppLocalizations.of(context)!.tutor,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
-          icon: Icons.school,
-          isSelected: _selectedIndex == 2,
+          icon: Icons.menu_book_outlined,
+          isSelected: current == 2,
         ),
         label: AppLocalizations.of(context)!.resources,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
-          icon: Icons.person,
-          isSelected: _selectedIndex == 3,
+          icon: Icons.person_outline,
+          isSelected: current == 3,
         ),
         label: AppLocalizations.of(context)!.profile,
       ),
@@ -85,9 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: IndexedStack(index: _selectedIndex, children: _tabPages),
-      ),
+      body: SafeArea(child: navigationShell),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         showSelectedLabels: true,
@@ -96,9 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
         unselectedFontSize: 10,
         iconSize: 28,
         enableFeedback: false,
-        items: _bottomNavItems,
-        currentIndex: _selectedIndex,
-        onTap: _onTabTapped,
+        items: _navItems(context),
+        currentIndex: navigationShell.currentIndex,
+        onTap: _onTap,
       ),
     );
   }

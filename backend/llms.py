@@ -9,7 +9,7 @@ An educational app with a custom-tailored AI-Tutor designed to help people learn
 ## How it works
 
 - **Multi-Goal Tracking**: Users can define and pursue multiple goals at the same time.
-- **Micro-Lessons**: Quick 2-3 minute daily lessons consisting of multiple-choice questions. Incorrect answers are repeated until mastered. Completion percentage and XP are awarded.
+- **Micro-Lessons**: Quick 2-3 minute daily lessons consisting of multiple-choice questions. Incorrect answers are repeated until mastered. Completion percentage and Elo are awarded.
 - **Chess-like Rating System**: Each goal tracks a user's `rating` representing their mastery. The AI generates and presents questions suited for the student's current rating level.
 - **AI Tutoring**: A chatbot with deep, personalized context about the student's progress and onboarding profile.
 - **Daily Streak & Off-the-Hook Days**: A streak mechanic tied to the user (not a specific goal). Users are allowed up to two "off the hook" days per week to prevent burnout.

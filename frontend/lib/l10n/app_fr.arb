@@ -108,10 +108,6 @@
     "@typeYourMessage": {
         "description": "Label for type your message"
     },
-    "keepThePressureOn": "Oui, continuez la pression !!!",
-    "@keepThePressureOn": {
-        "description": "Label for keep the pressure on"
-    },
     "objective": "Objectif",
     "@objective": {
         "description": "Label for objective"
@@ -172,7 +168,7 @@
     "@createdAt": {
         "description": "Label for created at"
     },
-    "goals": "Mes objectifs",
+    "goals": "Objectifs",
     "@goals": {
         "description": "Label for goals"
     },
@@ -303,5 +299,43 @@
     "setAsCurrentGoal": "Définir comme objectif actuel",
     "@setAsCurrentGoal": {
         "description": "Label for set as current goal"
-    }
+    },
+    "home": "Accueil",
+    "@home": { "description": "Bottom nav label for the home tab" },
+    "elo": "Elo",
+    "@elo": { "description": "Label for the elo rating" },
+    "startLesson": "Commencer la leçon",
+    "@startLesson": { "description": "Label for the start lesson button" },
+    "recentLessons": "Leçons récentes",
+    "@recentLessons": { "description": "Heading for the recent lessons list" },
+    "noLessonsYet": "Pas encore de leçons",
+    "@noLessonsYet": { "description": "Empty state for lessons and chart" },
+    "yourProgress": "Votre progression",
+    "@yourProgress": { "description": "Heading for the elo progress chart" },
+    "last7Days": "7 jours",
+    "@last7Days": { "description": "7 day chart filter" },
+    "last30Days": "30 jours",
+    "@last30Days": { "description": "30 day chart filter" },
+    "last90Days": "90 jours",
+    "@last90Days": { "description": "90 day chart filter" },
+    "noActiveGoal": "Aucun objectif actif",
+    "@noActiveGoal": { "description": "Home empty state when no active goal" },
+    "manageGoals": "Gérer les objectifs",
+    "@manageGoals": { "description": "Profile: manage goals tile" },
+    "manageGoalsSubtitle": "Voir, changer et supprimer",
+    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
+    "notifications": "Notifications",
+    "@notifications": { "description": "Profile: notifications tile" },
+    "preferences": "Préférences",
+    "@preferences": { "description": "Profile: preferences section header" },
+    "videos": "Vidéos",
+    "@videos": { "description": "Resources tab: videos" },
+    "guides": "Guides",
+    "@guides": { "description": "Resources tab: guides" },
+    "studyPlanIntro": "TON PLAN D'ÉTUDE",
+    "@studyPlanIntro": { "description": "Study plan: eyebrow label above the goal name" },
+    "startOver": "Recommencer",
+    "@startOver": { "description": "Study plan: reject and return to the goal prompt" },
+    "startLearning": "Commencer",
+    "@startLearning": { "description": "Study plan: confirm and begin" }
 }

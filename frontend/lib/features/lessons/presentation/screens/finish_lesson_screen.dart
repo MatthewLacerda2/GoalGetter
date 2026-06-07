@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/lessons/presentation/screens/streak_screen.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 
 import 'package:goal_getter/features/lessons/presentation/widgets/stat.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
@@ -10,7 +11,7 @@ class FinishLessonScreen extends StatelessWidget {
   final IconData icon;
   final StatData timeSpent;
   final StatData accuracy;
-  final StatData combo;
+  final StatData elo;
 
   FinishLessonScreen({
     super.key,
@@ -18,7 +19,7 @@ class FinishLessonScreen extends StatelessWidget {
     required this.icon,
     required this.timeSpent,
     required this.accuracy,
-    required this.combo,
+    required this.elo,
   });
 
   @override
@@ -56,7 +57,7 @@ class FinishLessonScreen extends StatelessWidget {
                         SizedBox(width: 12.0),
                         Expanded(child: StatWidget(statData: accuracy)),
                         SizedBox(width: 12.0),
-                        Expanded(child: StatWidget(statData: combo)),
+                        Expanded(child: StatWidget(statData: elo)),
                       ],
                     ),
                   ],
@@ -65,19 +66,7 @@ class FinishLessonScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => StreakScreen(
-                          descriptionText: AppLocalizations.of(
-                            context,
-                          )!.keepThePressureOn,
-                        ),
-                      ),
-                      (route) => false,
-                    );
-                  },
+                  onPressed: () => context.go(AppRoutes.home),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,

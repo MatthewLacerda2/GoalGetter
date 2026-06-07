@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:openapi/api.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:goal_getter/app/app.dart';
-import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/core/services/openapi_client_factory.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/pre_onboarding_carousel.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_start_screen.dart';
 
@@ -97,42 +95,17 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   Future<void> _routeAfterSignIn() async {
-    try {
-      // Get stored access token (JWT)
-      final accessToken = await _authService.getStoredAccessToken();
-      if (accessToken == null) {
-        // If no token, go to goal prompt screen
-        if (mounted) {
-          Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
-        }
-        return;
-      }
-
-      // Check student status to see if user has goals
-      final apiClient = await OpenApiClientFactory(
-        authService: _authService,
-      ).createWithAccessToken();
-      final studentApi = StudentApi(apiClient);
-      final studentStatus = await studentApi
-          .getStudentCurrentStatusApiV1StudentGet();
-
-      if (mounted) {
-        if (studentStatus != null &&
-            studentStatus.goalId != null &&
-            studentStatus.goalId!.isNotEmpty) {
-          // User has goals, go to main screen
-          Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-        } else {
-          // User has no goals, go to goal prompt screen
-          Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
-        }
-      }
-    } catch (e) {
-      // On error, go to goal prompt screen
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
-      }
-    }
+    // Mock: the backend doesn't exist yet, so we skip the real "does this
+    // student have a goal?" check. A signed-in user goes home; otherwise to the
+    // goal prompt. The endpoint this replaces (GET student status → goalId) is
+    // represented by the mock_* files.
+    final accessToken = await _authService.getStoredAccessToken();
+    if (!mounted) return;
+    context.go(
+      (accessToken != null && accessToken.isNotEmpty)
+          ? AppRoutes.home
+          : AppRoutes.goalPrompt,
+    );
   }
 
   Future<void> _handleGoogleSignIn() async {

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:openapi/api.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/widgets/error_retry_widget.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
@@ -29,7 +30,7 @@ class ListGoalsScreen extends ConsumerWidget {
         ),
         error: (err, stack) => ErrorRetryWidget(
           errorMessage: err.toString(),
-          onRetry: () => ref.read(goalsListControllerProvider.notifier).refresh(),
+          onRetry: () => ref.invalidate(goalsListControllerProvider),
         ),
         data: (goals) {
           if (goals.isEmpty) {
@@ -54,19 +55,18 @@ class ListGoalsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: ElevatedButton(
                     onPressed: () async {
-                      final result = await Navigator.of(context).push<GoalsDetailResult>(
-                        MaterialPageRoute(
-                          builder: (context) => GoalsDetailScreen(goal: goal),
-                        ),
+                      final result = await context.push<GoalsDetailResult>(
+                        AppRoutes.goalDetail(goal.id),
+                        extra: goal,
                       );
 
                       if (result == GoalsDetailResult.deleted) {
-                        ref.read(goalsListControllerProvider.notifier).refresh();
+                        ref.invalidate(goalsListControllerProvider);
                       }
 
                       if (result == GoalsDetailResult.activated) {
                         if (!context.mounted) return;
-                        Navigator.of(context).pop();
+                        context.pop();
                       }
                     },
                     style: ElevatedButton.styleFrom(
