@@ -63,12 +63,7 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Error: $e',
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
+            SnackBar(content: Text('Error: $e')),
           );
         }
       } finally {
@@ -81,10 +76,7 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.beDetailedOfYourGoal,
-            style: TextStyle(color: Colors.black),
-          ),
+          content: Text(AppLocalizations.of(context)!.beDetailedOfYourGoal),
         ),
       );
     }
@@ -92,53 +84,100 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.createGoal),
-        backgroundColor: Colors.grey[800],
-        elevation: 0,
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 2),
-              Text(
-                AppLocalizations.of(context)!.tellWhatYourGoalIs,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _promptController,
-                focusNode: _promptFocusNode,
-                enabled: !_isLoading,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  hintStyle: Theme.of(context).textTheme.bodySmall,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    tooltip: AppLocalizations.of(context)!.enter,
-                    onPressed: _isLoading ? null : _onEnterPressed,
+      appBar: AppBar(title: Text(l10n.createGoal)),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Text(
+                  l10n.tellWhatYourGoalIs,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
                   ),
                 ),
-                maxLength: 500,
-                maxLines: 8,
-                style: Theme.of(context).textTheme.bodyLarge,
-                onChanged: (value) => setState(() {}),
-                textInputAction: TextInputAction.send,
-                onFieldSubmitted: (_) => _onEnterPressed(),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  l10n.beDetailedOfYourGoal,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _promptController,
+                  focusNode: _promptFocusNode,
+                  enabled: !_isLoading,
+                  decoration: InputDecoration(
+                    hintText: l10n.yourAnswer,
+                    filled: true,
+                    fillColor: theme.colorScheme.surfaceContainerHigh,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                      borderSide:
+                          BorderSide(color: theme.colorScheme.outline),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.primary,
+                        width: 2.0,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.all(18.0),
+                  ),
+                  maxLength: 500,
+                  maxLines: 7,
+                  minLines: 5,
+                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                  onChanged: (value) => setState(() {}),
+                  textInputAction: TextInputAction.newline,
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _isLoading ? null : _onEnterPressed,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14.0),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            l10n.next,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

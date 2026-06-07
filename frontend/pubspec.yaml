@@ -52,6 +52,7 @@ dependencies:
   go_router: ^14.6.2
   flutter_web_plugins:
     sdk: flutter
+  flutter_markdown_plus: ^1.0.7
 
 dev_dependencies:
   flutter_test:

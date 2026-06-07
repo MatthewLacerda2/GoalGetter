@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:openapi/api.dart';
 
-/// Generates a mock study plan response based on the user's prompt and answers.
-Future<GoalStudyPlanResponse> generateMockStudyPlan(
+import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
+
+/// Generates a mock study plan based on the user's prompt and answers.
+///
+/// The description is intentionally short and markdown-formatted so it fits the
+/// screen and reads well in the app's type scale. In production this comes from
+/// the AI; here it's a static blurb tailored to the prompt.
+Future<StudyPlan> generateMockStudyPlan(
   BuildContext context,
   String prompt,
   List<String> answers,
 ) async {
-  // Simulate network/AI delay
+  // Simulate network/AI delay.
   await Future.delayed(const Duration(milliseconds: 1200));
 
-  return GoalStudyPlanResponse(
-    goalName: "Goal: $prompt",
-    goalDescription: "A comprehensive roadmap tailored to your objective: '$prompt'. Based on your answers, we have prioritized hands-on project work and structured resources for efficient learning.",
-    firstObjectiveName: "Orientation and Foundation Building",
-    firstObjectiveDescription: "Establish your local/development environment, understand the key core concepts, and build a simple foundation project to build momentum.",
-    milestones: [
-      "Milestone 1: Environment configuration and baseline setups",
-      "Milestone 2: Fundamentals, core syntax, and structure exercises",
-      "Milestone 3: Building your first functional prototype",
-      "Milestone 4: Integrating persistent data, APIs, or advanced states",
-      "Milestone 5: Testing, code refactoring, and project release",
-    ],
+  final goalName = prompt.trim();
+
+  return StudyPlan(
+    goalName: goalName,
+    description: 'To reach this goal, here is what we will work on:\n\n'
+        '- Build a steady **daily practice** habit with short, focused lessons\n'
+        '- Strengthen your **core fundamentals** so the basics feel effortless\n'
+        '- Grow confidence with **real, practical exercises** you can use\n\n'
+        'Each lesson adapts to you, and your **Elo** tracks your progress.',
   );
 }

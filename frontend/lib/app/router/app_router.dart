@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:openapi/api.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
@@ -10,6 +9,7 @@ import 'package:goal_getter/features/onboarding/presentation/screens/start_scree
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
+import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
@@ -55,7 +55,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.studyPlan,
         builder: (_, state) {
-          final plan = state.extra as GoalStudyPlanResponse;
+          final plan = state.extra as StudyPlan;
           return StudyPlanScreen(plan: plan);
         },
       ),

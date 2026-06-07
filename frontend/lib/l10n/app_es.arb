@@ -331,5 +331,11 @@
     "videos": "Vídeos",
     "@videos": { "description": "Resources tab: videos" },
     "guides": "Guías",
-    "@guides": { "description": "Resources tab: guides" }
+    "@guides": { "description": "Resources tab: guides" },
+    "studyPlanIntro": "TU PLAN DE ESTUDIO",
+    "@studyPlanIntro": { "description": "Study plan: eyebrow label above the goal name" },
+    "startOver": "Empezar de nuevo",
+    "@startOver": { "description": "Study plan: reject and return to the goal prompt" },
+    "startLearning": "Empezar a aprender",
+    "@startLearning": { "description": "Study plan: confirm and begin" }
 }
