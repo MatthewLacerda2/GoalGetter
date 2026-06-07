@@ -30,7 +30,7 @@ class ListGoalsScreen extends ConsumerWidget {
         ),
         error: (err, stack) => ErrorRetryWidget(
           errorMessage: err.toString(),
-          onRetry: () => ref.read(goalsListControllerProvider.notifier).refresh(),
+          onRetry: () => ref.invalidate(goalsListControllerProvider),
         ),
         data: (goals) {
           if (goals.isEmpty) {
@@ -61,7 +61,7 @@ class ListGoalsScreen extends ConsumerWidget {
                       );
 
                       if (result == GoalsDetailResult.deleted) {
-                        ref.read(goalsListControllerProvider.notifier).refresh();
+                        ref.invalidate(goalsListControllerProvider);
                       }
 
                       if (result == GoalsDetailResult.activated) {

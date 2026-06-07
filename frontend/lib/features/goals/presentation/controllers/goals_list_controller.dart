@@ -1,43 +1,11 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:openapi/api.dart';
-import 'package:goal_getter/core/services/openapi_client_factory.dart';
-import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-part 'goals_list_controller.g.dart';
+import 'package:goal_getter/features/goals/domain/goal.dart';
+import 'package:goal_getter/features/goals/debug/mock_goals.dart';
 
-@riverpod
-class GoalsListController extends _$GoalsListController {
-  @override
-  FutureOr<List<GoalListItem>> build() async {
-    return _fetchGoals();
-  }
-
-  Future<List<GoalListItem>> _fetchGoals() async {
-    final apiClient = await ref.read(openApiClientFactoryProvider).createAuthorized();
-    final goalsApi = GoalsApi(apiClient);
-    final goalsResponse = await goalsApi.listGoalsApiV1GoalsGet();
-    return goalsResponse?.goals ?? [];
-  }
-
-  Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchGoals());
-  }
-
-  Future<void> deleteGoal(String goalId) async {
-    final apiClient = await ref.read(openApiClientFactoryProvider).createAuthorized();
-    final goalsApi = GoalsApi(apiClient);
-    await goalsApi.deleteGoalApiV1GoalsGoalIdDelete(goalId);
-    await refresh();
-  }
-
-  Future<dynamic> selectGoal(GoalListItem goal) async {
-    final apiClient = await ref.read(openApiClientFactoryProvider).createAuthorized();
-    final goalsApi = GoalsApi(apiClient);
-    final response = await goalsApi.setActiveGoalApiV1GoalsGoalIdSetActivePut(goal.id);
-    if (response != null && response.goalId != null) {
-      await SettingsStorage.setCurrentGoalId(response.goalId!);
-    }
-    return response;
-  }
-}
+/// Provides the user's goals. Mock-backed (plain FutureProvider, no codegen)
+/// while the backend doesn't exist; refresh via `ref.invalidate`.
+/// See docs/backend_contract.md (GET /goals).
+final goalsListControllerProvider = FutureProvider<List<Goal>>((ref) async {
+  return getMockGoals();
+});

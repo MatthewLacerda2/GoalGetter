@@ -21,18 +21,20 @@ class MockStreakData {
 }
 
 /// Simulates fetching current week streak data from the database.
+///
+/// Demo user: 7 days into the app — a full 7-day streak (every day this week
+/// completed). See docs/backend_contract.md (GET /streak).
 Future<MockStreakData> getMockStreakData() async {
   await Future.delayed(const Duration(milliseconds: 600));
-  
-  // Return a sample streak with some days active (e.g. Mon-Fri)
+
   return MockStreakData(
-    currentStreak: 5,
+    currentStreak: 7,
     monday: true,
     tuesday: true,
     wednesday: true,
     thursday: true,
-    friday: true, // Assuming today is Friday and completed
-    saturday: null, // Future days are null (not colored yet)
-    sunday: null,
+    friday: true,
+    saturday: true,
+    sunday: true,
   );
 }

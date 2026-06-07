@@ -1,10 +1,10 @@
 /// Mock data source for the Home dashboard.
 ///
 /// Mirrors the existing debug fixtures (see `mock_streak_screen.dart`,
-/// `mock_resources_screen.dart`). The Home screen runs against this while the
-/// app has no authenticated user during the refactor. Replace `getMockHomeData`
-/// with a real API-backed fetch (active goal, elo history, lesson history) once
-/// the backend endpoints exist.
+/// `mock_resources_screen.dart`). Models a user 7 days into the app, learning
+/// Italian. The elo history and recent lessons are consistent: each day's lesson
+/// delta accumulates into that day's elo point (ending at `currentElo`).
+/// See docs/backend_contract.md (GET /goals/{id}/dashboard).
 
 /// A single completed lesson in the recent-lessons list.
 class MockRecentLesson {
@@ -48,24 +48,32 @@ class MockHomeData {
 Future<MockHomeData> getMockHomeData() async {
   await Future.delayed(const Duration(milliseconds: 600));
 
-  final now = DateTime(2026, 6, 6);
+  // 7 days of usage: one lesson per day, May 31 -> Jun 6, 2026.
+  // (date, accuracy, eloDelta) — listed oldest first.
+  final daily = <(DateTime, double, int)>[
+    (DateTime(2026, 5, 31), 90, 16),
+    (DateTime(2026, 6, 1), 80, 12),
+    (DateTime(2026, 6, 2), 100, 20),
+    (DateTime(2026, 6, 3), 50, -8),
+    (DateTime(2026, 6, 4), 80, 14),
+    (DateTime(2026, 6, 5), 100, 18),
+    (DateTime(2026, 6, 6), 90, 10),
+  ];
 
-  // ~90 days of elo history so the 7/30/90 filters all have data.
+  const startingElo = 838;
+  var elo = startingElo;
   final history = <MockEloPoint>[];
-  var elo = 820;
-  for (var i = 90; i >= 0; i--) {
-    // Gentle upward drift with some wobble (deterministic, no RNG).
-    elo += ((i % 5) - 2) * 4 + 2;
-    history.add(MockEloPoint(date: now.subtract(Duration(days: i)), elo: elo));
+  final lessons = <MockRecentLesson>[];
+  for (final (date, accuracy, delta) in daily) {
+    elo += delta;
+    history.add(MockEloPoint(date: date, elo: elo));
+    lessons.add(
+      MockRecentLesson(date: date, accuracy: accuracy, eloDelta: delta),
+    );
   }
 
-  final recent = <MockRecentLesson>[
-    MockRecentLesson(date: now, accuracy: 90, eloDelta: 14),
-    MockRecentLesson(date: now.subtract(const Duration(days: 1)), accuracy: 70, eloDelta: 6),
-    MockRecentLesson(date: now.subtract(const Duration(days: 2)), accuracy: 100, eloDelta: 18),
-    MockRecentLesson(date: now.subtract(const Duration(days: 3)), accuracy: 50, eloDelta: -8),
-    MockRecentLesson(date: now.subtract(const Duration(days: 4)), accuracy: 80, eloDelta: 10),
-  ];
+  // Recent lessons are shown most-recent first.
+  final recent = lessons.reversed.toList();
 
   return MockHomeData(
     goalName: 'Learn Italian',

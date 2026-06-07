@@ -16,6 +16,7 @@ import 'package:goal_getter/features/resources/presentation/screens/resources_sc
 import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/finish_lesson_screen.dart';
+import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
 
@@ -82,7 +83,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '${AppRoutes.goals}/:id',
         builder: (_, state) {
-          final goal = state.extra as GoalListItem;
+          final goal = state.extra as Goal;
           return GoalsDetailScreen(goal: goal);
         },
       ),

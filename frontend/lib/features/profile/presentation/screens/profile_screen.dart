@@ -2,12 +2,15 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/features/profile/domain/user_profile.dart';
+import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key});
@@ -22,6 +25,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final currentLanguage = ref.watch(localeProvider).languageCode;
+    final profile = ref.watch(profileControllerProvider).valueOrNull;
 
     return Scaffold(
       body: SafeArea(
@@ -30,6 +34,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+            if (profile != null) ...[
+              _buildProfileHeader(profile),
+              SizedBox(height: 24),
+            ],
             Row(
               children: [
                 Text(
@@ -97,6 +105,70 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       ),
     ));
+  }
+
+  Widget _buildProfileHeader(UserProfile profile) {
+    final memberSince = DateFormat.yMMMM().format(profile.memberSince);
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 28,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: Text(
+            profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                profile.name,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              Text(
+                profile.email,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Member since $memberSince',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.local_fire_department,
+              color: Theme.of(context).colorScheme.secondary,
+              size: 24,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '${profile.currentStreak}',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildLanguageButton(
