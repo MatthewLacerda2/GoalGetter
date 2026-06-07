@@ -108,10 +108,6 @@
     "@typeYourMessage": {
         "description": "Label for type your message"
     },
-    "keepThePressureOn": "¡Sí, mantén la presión!",
-    "@keepThePressureOn": {
-        "description": "Label for keep the pressure on"
-    },
     "objective": "Objetivo",
     "@objective": {
         "description": "Label for objective"
