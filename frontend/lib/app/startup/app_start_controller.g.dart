@@ -7,7 +7,7 @@ part of 'app_start_controller.dart';
 // **************************************************************************
 
 String _$appStartControllerHash() =>
-    r'6e06eb7f33724cbc28ad01322cb5c2ae7614a860';
+    r'e880c90ac11d9ba2c990430a5b8bd7255fa8eba9';
 
 /// See also [appStartController].
 @ProviderFor(appStartController)

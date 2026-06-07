@@ -1,11 +1,13 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/debug/mock_goals.dart';
 
-/// Provides the user's goals. Mock-backed (plain FutureProvider, no codegen)
-/// while the backend doesn't exist; refresh via `ref.invalidate`.
-/// See docs/backend_contract.md (GET /goals).
-final goalsListControllerProvider = FutureProvider<List<Goal>>((ref) async {
+part 'goals_list_controller.g.dart';
+
+/// Provides the user's goals. Mock-backed while the backend doesn't exist;
+/// refresh via `ref.invalidate`. See docs/backend_contract.md (GET /goals).
+@riverpod
+Future<List<Goal>> goalsListController(GoalsListControllerRef ref) async {
   return getMockGoals();
-});
+}

@@ -1,12 +1,14 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
 
+part 'home_controller.g.dart';
+
 /// Provides the Home dashboard data for the active goal.
 ///
-/// Uses a plain [FutureProvider] (not Riverpod codegen) so the new feature
-/// compiles without a build_runner pass. Convert to `@riverpod` when wiring the
-/// real backend endpoints.
-final homeControllerProvider = FutureProvider<MockHomeData>((ref) async {
+/// Mock-backed for now; swap [getMockHomeData] for the generated API client
+/// when the backend exists. See docs/backend_contract.md.
+@riverpod
+Future<MockHomeData> homeController(HomeControllerRef ref) async {
   return getMockHomeData();
-});
+}
