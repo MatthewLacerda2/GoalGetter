@@ -8,7 +8,6 @@ import 'package:openapi/api.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/services/openapi_client_factory.dart';
