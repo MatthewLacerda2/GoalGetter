@@ -1,12 +1,8 @@
-import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
-import 'package:openapi/api.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 
 import 'package:goal_getter/core/config/app_config.dart';
@@ -270,36 +266,27 @@ class AuthService {
     return SettingsStorage.instance.getGoogleToken();
   }
 
-  // Sign up with Google (creates account if doesn't exist, or returns existing account)
+  // Sign up with Google.
+  //
+  // Mock: the backend doesn't exist yet, so instead of calling the real signup
+  // endpoint we fabricate a session and store it. The shape returned here mirrors
+  // what the future endpoint will give back (an access token + a student record);
+  // see the mock_* files for the data the backend needs to provide.
   Future<Map<String, dynamic>?> signupWithGoogle(String googleToken) async {
-    try {
-      developer.log('Calling /signup endpoint via OpenAPI client...');
+    developer.log('Mock signupWithGoogle (no backend call)');
 
-      final apiClient = ApiClient(basePath: AppConfig.baseUrl);
-      apiClient.addDefaultHeader('Authorization', 'Bearer $googleToken');
+    const accessToken = 'mock_access_token_jwt';
+    final studentData = {
+      'id': 'mock_student_id',
+      'email': _tempUserInfo?['email'] ?? 'mockuser@example.com',
+      'name': _tempUserInfo?['name'] ?? 'Mock GoalGetter Student',
+    };
 
-      final authApi = AuthApi(apiClient);
-      final tokenResponse = await authApi.signupApiV1AuthSignupPost();
+    // Store both the Google token and the (mock) JWT access token.
+    await storeGoogleToken(googleToken);
+    await storeFinalCredentials(accessToken, studentData);
 
-      if (tokenResponse != null) {
-        final accessToken = tokenResponse.accessToken;
-        final studentResponse = tokenResponse.student;
-        
-        final studentData = studentResponse.toJson();
-
-        // Store both Google token and JWT access token
-        await storeGoogleToken(googleToken);
-        await storeFinalCredentials(accessToken, studentData);
-
-        developer.log('Successfully signed up: ${studentResponse.email}');
-        return {'access_token': accessToken, 'student': studentData};
-      } else {
-        throw Exception('Signup failed: Empty response from server');
-      }
-    } catch (error) {
-      developer.log('Error in signupWithGoogle: $error');
-      rethrow;
-    }
+    return {'access_token': accessToken, 'student': studentData};
   }
 }
 
