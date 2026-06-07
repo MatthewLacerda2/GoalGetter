@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/lessons/presentation/screens/streak_screen.dart';
+import 'package:goal_getter/app/app.dart';
 
 import 'package:goal_getter/features/lessons/presentation/widgets/stat.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
@@ -66,15 +66,8 @@ class FinishLessonScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => StreakScreen(
-                          descriptionText: AppLocalizations.of(
-                            context,
-                          )!.keepThePressureOn,
-                        ),
-                      ),
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.home,
                       (route) => false,
                     );
                   },
