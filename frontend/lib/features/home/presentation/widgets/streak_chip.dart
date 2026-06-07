@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:goal_getter/features/lessons/presentation/controllers/streak_controller.dart';
 
-/// Streak indicator in the top-right of the Home screen: a flame icon and the
-/// current streak count. Purely informational (not interactive, no background).
-/// The streak is a user-wide, Duolingo-style return mechanic, independent of the
-/// active goal.
+/// Streak indicator (top-right of Home): a flame pill with the current streak
+/// count — the counterpart to the elo chip on the left. The streak is a
+/// user-wide, Duolingo-style return mechanic, independent of the active goal.
 class StreakChip extends ConsumerWidget {
   const StreakChip({super.key});
 
@@ -17,25 +16,29 @@ class StreakChip extends ConsumerWidget {
       data: (data) => data.currentStreak as int,
       orElse: () => 0,
     );
+    final orange = Theme.of(context).colorScheme.secondary;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.local_fire_department,
-          color: Theme.of(context).colorScheme.secondary,
-          size: 26,
-        ),
-        const SizedBox(width: 6.0),
-        Text(
-          '$count',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 7.0),
+      decoration: BoxDecoration(
+        color: orange.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.local_fire_department, color: orange, size: 18),
+          const SizedBox(width: 6.0),
+          Text(
+            '$count',
+            style: TextStyle(
+              color: orange,
+              fontSize: 15.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

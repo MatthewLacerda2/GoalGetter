@@ -168,7 +168,7 @@
     "@createdAt": {
         "description": "Label for created at"
     },
-    "goals": "Meine Ziele",
+    "goals": "Ziele",
     "@goals": {
         "description": "Label for goals"
     },
@@ -319,5 +319,17 @@
     "last90Days": "90 Tage",
     "@last90Days": { "description": "90 day chart filter" },
     "noActiveGoal": "Noch kein aktives Ziel",
-    "@noActiveGoal": { "description": "Home empty state when no active goal" }
+    "@noActiveGoal": { "description": "Home empty state when no active goal" },
+    "manageGoals": "Ziele verwalten",
+    "@manageGoals": { "description": "Profile: manage goals tile" },
+    "manageGoalsSubtitle": "Ansehen, wechseln und löschen",
+    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
+    "notifications": "Benachrichtigungen",
+    "@notifications": { "description": "Profile: notifications tile" },
+    "preferences": "Einstellungen",
+    "@preferences": { "description": "Profile: preferences section header" },
+    "videos": "Videos",
+    "@videos": { "description": "Resources tab: videos" },
+    "guides": "Anleitungen",
+    "@guides": { "description": "Resources tab: guides" }
 }

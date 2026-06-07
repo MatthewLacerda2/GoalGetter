@@ -16,7 +16,7 @@ class GoalGetterApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'GoalGetter',
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,

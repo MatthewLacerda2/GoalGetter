@@ -11,11 +11,13 @@ class MockRecentLesson {
   final DateTime date;
   final double accuracy; // 0..100
   final int eloDelta; // signed elo change for that lesson
+  final int durationSeconds; // time the user took
 
   MockRecentLesson({
     required this.date,
     required this.accuracy,
     required this.eloDelta,
+    required this.durationSeconds,
   });
 }
 
@@ -49,26 +51,31 @@ Future<MockHomeData> getMockHomeData() async {
   await Future.delayed(const Duration(milliseconds: 600));
 
   // 7 days of usage: one lesson per day, May 31 -> Jun 6, 2026.
-  // (date, accuracy, eloDelta) — listed oldest first.
-  final daily = <(DateTime, double, int)>[
-    (DateTime(2026, 5, 31), 90, 16),
-    (DateTime(2026, 6, 1), 80, 12),
-    (DateTime(2026, 6, 2), 100, 20),
-    (DateTime(2026, 6, 3), 50, -8),
-    (DateTime(2026, 6, 4), 80, 14),
-    (DateTime(2026, 6, 5), 100, 18),
-    (DateTime(2026, 6, 6), 90, 10),
+  // (date, accuracy, eloDelta, durationSeconds) — listed oldest first.
+  final daily = <(DateTime, double, int, int)>[
+    (DateTime(2026, 5, 31), 90, 16, 154),
+    (DateTime(2026, 6, 1), 80, 12, 132),
+    (DateTime(2026, 6, 2), 100, 20, 121),
+    (DateTime(2026, 6, 3), 50, -8, 188),
+    (DateTime(2026, 6, 4), 80, 14, 143),
+    (DateTime(2026, 6, 5), 100, 18, 109),
+    (DateTime(2026, 6, 6), 90, 10, 137),
   ];
 
   const startingElo = 838;
   var elo = startingElo;
   final history = <MockEloPoint>[];
   final lessons = <MockRecentLesson>[];
-  for (final (date, accuracy, delta) in daily) {
+  for (final (date, accuracy, delta, seconds) in daily) {
     elo += delta;
     history.add(MockEloPoint(date: date, elo: elo));
     lessons.add(
-      MockRecentLesson(date: date, accuracy: accuracy, eloDelta: delta),
+      MockRecentLesson(
+        date: date,
+        accuracy: accuracy,
+        eloDelta: delta,
+        durationSeconds: seconds,
+      ),
     );
   }
 

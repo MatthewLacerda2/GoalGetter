@@ -95,21 +95,22 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
               controller: _tabController,
               labelColor: Theme.of(context).colorScheme.primary,
               unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              dividerHeight: 4,
-              dividerColor: Theme.of(context).colorScheme.primary,
+              dividerHeight: 1,
+              dividerColor: Theme.of(context).colorScheme.outline,
               indicatorColor: Theme.of(context).colorScheme.primary,
+              indicatorSize: TabBarIndicatorSize.tab,
               tabs: [
                 Tab(
-                  icon: const Icon(Icons.play_circle, size: 28),
-                  text: AppLocalizations.of(context).youtube,
+                  icon: const Icon(Icons.play_circle_outline, size: 22),
+                  text: AppLocalizations.of(context).videos,
                 ),
                 Tab(
-                  icon: const Icon(Icons.language, size: 28),
+                  icon: const Icon(Icons.menu_book_outlined, size: 22),
+                  text: AppLocalizations.of(context).guides,
+                ),
+                Tab(
+                  icon: const Icon(Icons.public, size: 22),
                   text: AppLocalizations.of(context).sites,
-                ),
-                Tab(
-                  icon: const Icon(Icons.book, size: 24),
-                  text: AppLocalizations.of(context).book,
                 ),
               ],
             ),
@@ -118,8 +119,8 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
             controller: _tabController,
             children: [
               ResourceTab(resources: youtube),
-              ResourceTab(resources: sites),
               ResourceTab(resources: books),
+              ResourceTab(resources: sites),
             ],
           ),
         );

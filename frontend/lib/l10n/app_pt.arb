@@ -168,7 +168,7 @@
     "@createdAt": {
         "description": "Label for created at"
     },
-    "goals": "Minhas metas",
+    "goals": "Metas",
     "@goals": {
         "description": "Label for goals"
     },
@@ -319,5 +319,17 @@
     "last90Days": "90 dias",
     "@last90Days": { "description": "90 day chart filter" },
     "noActiveGoal": "Nenhuma meta ativa ainda",
-    "@noActiveGoal": { "description": "Home empty state when no active goal" }
+    "@noActiveGoal": { "description": "Home empty state when no active goal" },
+    "manageGoals": "Gerenciar metas",
+    "@manageGoals": { "description": "Profile: manage goals tile" },
+    "manageGoalsSubtitle": "Ver, trocar e excluir",
+    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
+    "notifications": "Notificações",
+    "@notifications": { "description": "Profile: notifications tile" },
+    "preferences": "Preferências",
+    "@preferences": { "description": "Profile: preferences section header" },
+    "videos": "Vídeos",
+    "@videos": { "description": "Resources tab: videos" },
+    "guides": "Guias",
+    "@guides": { "description": "Resources tab: guides" }
 }

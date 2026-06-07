@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
 
-/// Elo progress over time for the active goal, with 7 / 30 / 90-day filter tabs
-/// above the line chart (chess.com / lichess rating-graph style).
+/// Elo progress over time for the active goal, inside a card with a 7d/30d/90d
+/// range selector and a compact line chart (chess.com / lichess style).
 class EloChart extends StatefulWidget {
   final List<MockEloPoint> history;
 
@@ -28,45 +28,44 @@ class _EloChartState extends State<EloChart> {
     final l10n = AppLocalizations.of(context)!;
     final points = _visiblePoints;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.yourProgress,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.yourProgress,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+              _RangeSelector(
+                selected: _rangeDays,
+                onChanged: (v) => setState(() => _rangeDays = v),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 12.0),
-        SegmentedButton<int>(
-          segments: [
-            ButtonSegment(value: 7, label: Text(l10n.last7Days)),
-            ButtonSegment(value: 30, label: Text(l10n.last30Days)),
-            ButtonSegment(value: 90, label: Text(l10n.last90Days)),
-          ],
-          selected: {_rangeDays},
-          showSelectedIcon: false,
-          onSelectionChanged: (selection) {
-            setState(() => _rangeDays = selection.first);
-          },
-        ),
-        const SizedBox(height: 16.0),
-        SizedBox(
-          height: 200,
-          child: points.length < 2
-              ? Center(
-                  child: Text(
-                    l10n.noLessonsYet,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+          const SizedBox(height: 16.0),
+          SizedBox(
+            height: 150,
+            child: points.length < 2
+                ? Center(
+                    child: Text(
+                      l10n.noLessonsYet,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                  ),
-                )
-              : LineChart(_buildChartData(points)),
-        ),
-      ],
+                  )
+                : LineChart(_buildChartData(points)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -103,10 +102,59 @@ class _EloChartState extends State<EloChart> {
           dotData: FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
-            color: primary.withValues(alpha: 0.15),
+            color: primary.withValues(alpha: 0.12),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Compact 7d / 30d / 90d selector: a grey track with a dark selected pill.
+class _RangeSelector extends StatelessWidget {
+  final int selected;
+  final ValueChanged<int> onChanged;
+
+  const _RangeSelector({required this.selected, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    const options = [7, 30, 90];
+    return Container(
+      padding: const EdgeInsets.all(3.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: options.map((days) {
+          final isSelected = days == selected;
+          return GestureDetector(
+            onTap: () => onChanged(days),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              child: Text(
+                '${days}d',
+                style: TextStyle(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.surface
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

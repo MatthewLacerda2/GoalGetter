@@ -5,16 +5,20 @@
 Future<Map<String, List<Map<String, String>>>> getMockResources() async {
   await Future.delayed(const Duration(milliseconds: 700));
 
+  // Video thumbnails use a stable placeholder image service; site logos use
+  // Google's favicon service. (Mock only — see docs/backend_contract.md.)
   final youtube = [
     {
       'title': 'Learn Italian with Lucrezia',
       'description': 'Native-speaker lessons on everyday Italian, pronunciation, and culture.',
       'link': 'https://youtube.com',
+      'image': 'https://picsum.photos/seed/italian-lucrezia/200/200',
     },
     {
       'title': 'Italy Made Easy — Beginner Course',
       'description': 'Structured beginner-to-intermediate series focused on speaking from day one.',
       'link': 'https://youtube.com',
+      'image': 'https://picsum.photos/seed/italy-made-easy/200/200',
     },
   ];
 
@@ -23,11 +27,13 @@ Future<Map<String, List<Map<String, String>>>> getMockResources() async {
       'title': 'News in Slow Italian',
       'description': 'Current-events audio spoken slowly, with transcripts — great for listening practice.',
       'link': 'https://newsinslowitalian.com',
+      'image': 'https://www.google.com/s2/favicons?domain=newsinslowitalian.com&sz=128',
     },
     {
       'title': 'Reverso Context (IT)',
       'description': 'See real-world Italian sentences and translations in context for any word or phrase.',
       'link': 'https://context.reverso.net',
+      'image': 'https://www.google.com/s2/favicons?domain=reverso.net&sz=128',
     },
   ];
 

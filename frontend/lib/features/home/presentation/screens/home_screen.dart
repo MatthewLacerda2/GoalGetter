@@ -8,6 +8,7 @@ import 'package:goal_getter/core/widgets/error_retry_widget.dart';
 import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/home/presentation/widgets/elo_chart.dart';
+import 'package:goal_getter/features/home/presentation/widgets/elo_chip.dart';
 import 'package:goal_getter/features/home/presentation/widgets/recent_lessons_list.dart';
 import 'package:goal_getter/features/home/presentation/widgets/start_lesson_button.dart';
 import 'package:goal_getter/features/home/presentation/widgets/streak_chip.dart';
@@ -53,50 +54,36 @@ class _Dashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Top row: elo (left) · goal name (centered) · streak (right).
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              EloChip(elo: data.currentElo),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      data.goalName!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 26.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4.0),
-                    Text(
-                      '${l10n.elo} ${data.currentElo}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    data.goalName!,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
               ),
-              const SizedBox(width: 12.0),
               const StreakChip(),
             ],
           ),
-          const SizedBox(height: 28.0),
+          const SizedBox(height: 20.0),
           const StartLessonButton(),
-          const SizedBox(height: 32.0),
-          RecentLessonsList(lessons: data.recentLessons),
-          const SizedBox(height: 32.0),
+          const SizedBox(height: 20.0),
           EloChart(history: data.eloHistory),
+          const SizedBox(height: 20.0),
+          RecentLessonsList(lessons: data.recentLessons),
         ],
       ),
     );

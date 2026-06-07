@@ -4,103 +4,144 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
 import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
 
-/// Shows the user's most recent lessons for the active goal: accuracy plus the
-/// elo gained or lost (chess.com / lichess style).
+/// The user's most recent lessons for the active goal. Each row shows accuracy,
+/// time taken, and an elo badge (green = gained, grey = even, blue = lost).
+/// Capped so the dashboard fits the screen.
 class RecentLessonsList extends StatelessWidget {
   final List<MockRecentLesson> lessons;
+
+  /// Max rows to display (keeps the dashboard compact).
+  static const _maxRows = 4;
 
   const RecentLessonsList({super.key, required this.lessons});
 
   @override
   Widget build(BuildContext context) {
+    final shown = lessons.take(_maxRows).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           AppLocalizations.of(context)!.recentLessons,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-        const SizedBox(height: 12.0),
-        if (lessons.isEmpty)
+        const SizedBox(height: 10.0),
+        if (shown.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Text(
               AppLocalizations.of(context)!.noLessonsYet,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 14.0,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           )
         else
-          ...lessons.map((lesson) => _RecentLessonTile(lesson: lesson)),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16.0),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
+            ),
+            child: Column(
+              children: [
+                for (var i = 0; i < shown.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 1,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  _RecentLessonRow(lesson: shown[i]),
+                ],
+              ],
+            ),
+          ),
       ],
     );
   }
 }
 
-class _RecentLessonTile extends StatelessWidget {
+class _RecentLessonRow extends StatelessWidget {
   final MockRecentLesson lesson;
 
-  const _RecentLessonTile({required this.lesson});
+  const _RecentLessonRow({required this.lesson});
 
   String _formatDate(DateTime date) =>
       '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
 
+  String _formatTime(int seconds) {
+    final m = seconds ~/ 60;
+    final s = (seconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isGain = lesson.eloDelta >= 0;
-    final successColor =
-        Theme.of(context).extension<CustomColors>()?.success ?? Colors.green;
-    final deltaColor = isGain ? successColor : Theme.of(context).colorScheme.error;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10.0),
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(16.0),
-      ),
       child: Row(
         children: [
           Text(
             _formatDate(lesson.date),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 14.0,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           const SizedBox(width: 16.0),
-          Expanded(
-            child: Text(
-              '${lesson.accuracy.toStringAsFixed(0)}%',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Icon(
-            isGain ? Icons.arrow_upward : Icons.arrow_downward,
-            color: deltaColor,
-            size: 16,
-          ),
-          const SizedBox(width: 2.0),
           Text(
-            '${isGain ? '+' : ''}${lesson.eloDelta}',
-            style: TextStyle(
-              color: deltaColor,
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-            ),
+            '${lesson.accuracy.toStringAsFixed(0)}%',
+            style: Theme.of(context).textTheme.titleSmall,
           ),
+          const SizedBox(width: 12.0),
+          Icon(
+            Icons.schedule,
+            size: 14,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 3.0),
+          Text(
+            _formatTime(lesson.durationSeconds),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const Spacer(),
+          _EloBadge(delta: lesson.eloDelta),
         ],
+      ),
+    );
+  }
+}
+
+/// Elo delta pill: green if gained, grey if even, blue if lost.
+class _EloBadge extends StatelessWidget {
+  final int delta;
+
+  const _EloBadge({required this.delta});
+
+  @override
+  Widget build(BuildContext context) {
+    final custom = Theme.of(context).extension<CustomColors>();
+    final Color color;
+    if (delta > 0) {
+      color = custom?.success ?? Colors.green;
+    } else if (delta < 0) {
+      color = custom?.lost ?? Colors.blue;
+    } else {
+      color = Theme.of(context).colorScheme.onSurfaceVariant;
+    }
+    final label = delta > 0 ? '+$delta' : '$delta';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 13.0,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
