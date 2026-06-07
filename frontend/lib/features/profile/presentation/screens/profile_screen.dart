@@ -1,14 +1,13 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
-import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key});
@@ -77,12 +76,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               AppLocalizations.of(context)!.goals,
               Icons.list,
               () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ListGoalsScreen(),
-                  ),
-                );
+                context.push(AppRoutes.goals);
               },
             ),
 
@@ -92,12 +86,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               AppLocalizations.of(context)!.createNewGoal,
               Icons.map,
               () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GoalPromptScreen(),
-                  ),
-                );
+                context.push(AppRoutes.goalPrompt);
               },
             ),
 
@@ -220,10 +209,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
       // Navigate to start screen
       if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => StartScreen()),
-          (route) => false,
-        );
+        context.go(AppRoutes.start);
       }
     }
   }

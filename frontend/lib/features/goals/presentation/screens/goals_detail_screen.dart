@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:openapi/api.dart';
 
@@ -58,7 +59,7 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
         return;
       }
 
-      Navigator.of(context).pop(GoalsDetailResult.activated);
+      context.pop(GoalsDetailResult.activated);
     } catch (e) {
       if (!mounted) {
         return;
@@ -126,7 +127,7 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
         return;
       }
 
-      Navigator.of(context).pop(GoalsDetailResult.deleted);
+      context.pop(GoalsDetailResult.deleted);
     } catch (e) {
       if (!mounted) {
         return;

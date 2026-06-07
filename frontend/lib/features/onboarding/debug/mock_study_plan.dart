@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openapi/api.dart';
 
-import 'package:goal_getter/app/app.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 
@@ -27,12 +28,8 @@ Future<void> submitMockFullCreation(
   // Store a mock active goal ID to satisfy storage checks
   await SettingsStorage.setCurrentGoalId("mock_goal_id_888");
 
-  if (Navigator.of(context).mounted) {
+  if (context.mounted) {
     // Navigate straight into the app dashboard.
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.home,
-      (route) => false,
-      arguments: HomeRouteArgs(selectedIndex: 0),
-    );
+    context.go(AppRoutes.home);
   }
 }

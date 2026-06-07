@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/app.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 
 import 'package:goal_getter/features/lessons/presentation/widgets/stat.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
@@ -65,12 +66,7 @@ class FinishLessonScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      AppRoutes.home,
-                      (route) => false,
-                    );
-                  },
+                  onPressed: () => context.go(AppRoutes.home),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:openapi/api.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/services/openapi_client_factory.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_goal_prompt_screen.dart';
 
 class GoalPromptScreen extends ConsumerStatefulWidget {
@@ -52,13 +54,11 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
           _promptController.text,
         );
         if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => GoalQuestionsScreen(
-                prompt: _promptController.text,
-                questions: questions,
-              ),
+          context.push(
+            AppRoutes.goalQuestions,
+            extra: GoalQuestionsArgs(
+              prompt: _promptController.text,
+              questions: questions,
             ),
           );
         }

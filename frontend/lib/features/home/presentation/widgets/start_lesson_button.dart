@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 
 /// Primary call-to-action on the Home screen: starts the daily lesson.
 ///
-/// Launches [LessonScreen] with no questions, so the lesson controller fetches
-/// a fresh activity for the active goal.
+/// Navigates to the lesson route; the lesson controller fetches a fresh activity
+/// for the active goal.
 class StartLessonButton extends StatelessWidget {
   const StartLessonButton({super.key});
 
@@ -15,11 +16,7 @@ class StartLessonButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => LessonScreen()),
-          );
-        },
+        onPressed: () => context.push(AppRoutes.lesson),
         icon: const Icon(Icons.play_arrow, color: Colors.white, size: 26),
         label: Text(
           AppLocalizations.of(context)!.startLesson,

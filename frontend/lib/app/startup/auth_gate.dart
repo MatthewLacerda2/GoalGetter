@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:goal_getter/app/app.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/startup/app_start_controller.dart';
 
 /// Startup gate that decides the initial screen.
@@ -45,17 +46,17 @@ class _AuthGateState extends ConsumerState<AuthGate> {
           _hasNavigated = true;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            final String routeName;
+            final String location;
             if (destination == AppStartDestination.authenticatedReady) {
-              routeName = AppRoutes.home;
+              location = AppRoutes.home;
             } else if (destination ==
                 AppStartDestination.authenticatedNeedsGoal) {
-              routeName = AppRoutes.goalPrompt;
+              location = AppRoutes.goalPrompt;
             } else {
-              routeName = AppRoutes.start;
+              location = AppRoutes.start;
             }
 
-            Navigator.of(context).pushReplacementNamed(routeName);
+            if (context.mounted) context.go(location);
           });
         }
 

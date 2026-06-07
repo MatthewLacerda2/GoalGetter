@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/app.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/widgets/error_retry_widget.dart';
 import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
@@ -132,8 +133,7 @@ class _EmptyState extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.of(context)
-                    .pushNamed(AppRoutes.goalPrompt),
+                onPressed: () => context.push(AppRoutes.goalPrompt),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,

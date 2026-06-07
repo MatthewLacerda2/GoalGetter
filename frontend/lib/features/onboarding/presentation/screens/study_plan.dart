@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openapi/api.dart';
 
-import 'package:goal_getter/app/app.dart';
+import 'package:go_router/go_router.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/services/openapi_client_factory.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/core/widgets/info_card.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_study_plan.dart';
 
 class StudyPlanScreen extends ConsumerStatefulWidget {
@@ -132,14 +132,7 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (context) => GoalPromptScreen(),
-                        ),
-                        (route) => false,
-                      );
-                    },
+                    onPressed: () => context.go(AppRoutes.goalPrompt),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.error,
                       foregroundColor: Colors.white,

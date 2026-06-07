@@ -5,8 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:openapi/api.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:goal_getter/app/app.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
@@ -103,7 +104,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
       if (accessToken == null) {
         // If no token, go to goal prompt screen
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
+          context.go(AppRoutes.goalPrompt);
         }
         return;
       }
@@ -121,16 +122,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             studentStatus.goalId != null &&
             studentStatus.goalId!.isNotEmpty) {
           // User has goals, go to main screen
-          Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+          context.go(AppRoutes.home);
         } else {
           // User has no goals, go to goal prompt screen
-          Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
+          context.go(AppRoutes.goalPrompt);
         }
       }
     } catch (e) {
       // On error, go to goal prompt screen
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.goalPrompt);
+        context.go(AppRoutes.goalPrompt);
       }
     }
   }

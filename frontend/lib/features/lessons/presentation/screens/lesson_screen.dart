@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/lessons/presentation/screens/finish_lesson_screen.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 
 import 'package:goal_getter/features/lessons/domain/lesson_question_data.dart';
@@ -66,47 +68,35 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         ),
       );
     } else {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => FinishLessonScreen(
-            title: "Finish lesson screen",
-            icon: Icons.check_circle,
-            timeSpent: StatData(
-              title: "Time",
-              icon: Icons.timer,
-              text: state.evaluationResponse != null
-                  ? _formatDuration(
-                      Duration(seconds: state.evaluationResponse!.totalSecondsSpent),
-                    )
-                  : _formatDuration(state.totalTimeSpent),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            accuracy: StatData(
-              title: "Accuracy",
-              icon: Icons.check_circle,
-              text: state.evaluationResponse != null
-                  ? "${state.evaluationResponse!.studentAccuracy.toStringAsFixed(2)}%"
-                  : "${(state.questions.where((q) => q.status == LessonQuestionStatus.correct).length / state.questions.length * 100).toStringAsFixed(2)}%",
-              color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green,
-            ),
-            elo: StatData(
-              title: "Elo",
-              icon: Icons.trending_up,
-              text: "${(state.evaluationResponse?.elo ?? 0) >= 0 ? '+' : ''}${state.evaluationResponse?.elo ?? 0}",
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+      context.pushReplacement(
+        AppRoutes.lessonFinish,
+        extra: FinishLessonArgs(
+          title: "Finish lesson screen",
+          icon: Icons.check_circle,
+          timeSpent: StatData(
+            title: "Time",
+            icon: Icons.timer,
+            text: state.evaluationResponse != null
+                ? _formatDuration(
+                    Duration(seconds: state.evaluationResponse!.totalSecondsSpent),
+                  )
+                : _formatDuration(state.totalTimeSpent),
+            color: Theme.of(context).colorScheme.primary,
           ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return SlideTransition(
-              position: animation.drive(
-                Tween(
-                  begin: Offset(1.0, 0.0),
-                  end: Offset.zero,
-                ).chain(CurveTween(curve: Curves.easeInOut)),
-              ),
-              child: child,
-            );
-          },
+          accuracy: StatData(
+            title: "Accuracy",
+            icon: Icons.check_circle,
+            text: state.evaluationResponse != null
+                ? "${state.evaluationResponse!.studentAccuracy.toStringAsFixed(2)}%"
+                : "${(state.questions.where((q) => q.status == LessonQuestionStatus.correct).length / state.questions.length * 100).toStringAsFixed(2)}%",
+            color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green,
+          ),
+          elo: StatData(
+            title: "Elo",
+            icon: Icons.trending_up,
+            text: "${(state.evaluationResponse?.elo ?? 0) >= 0 ? '+' : ''}${state.evaluationResponse?.elo ?? 0}",
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
       );
     }
@@ -180,7 +170,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               if (widget.questions == null) {
                 ref.read(lessonControllerProvider.notifier).init(null);
               } else {
-                Navigator.of(context).pop();
+                context.pop();
               }
             },
           ),

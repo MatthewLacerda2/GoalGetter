@@ -1,8 +1,23 @@
-# go_router Migration Plan (Draft)
+# go_router Migration (Implemented)
 
-> Status: **not started** — design note to keep in mind for a future pass.
-> Audience: AI agents / contributors. Captures the target navigation
-> architecture and an incremental path to get there without breaking the app.
+> Status: **done** — the app now uses go_router. Routes live in
+> `lib/app/router/` (`app_routes.dart` paths, `app_router.dart` config,
+> `route_args.dart` typed `extra` payloads). The notes below are the original
+> plan, kept for context.
+>
+> Two tweaks were made vs. the original plan, for reliability:
+> 1. **Auth entry uses the `AuthGate` splash** (the `/` route, which resolves
+>    `AppStartController` and `context.go`s to the destination) instead of an
+>    async `redirect`. Redirect-based route guards (blocking deep links to
+>    protected routes when signed out) remain a **follow-up**.
+> 2. **The lesson "correct your mistakes" interstitial** (`InfoScreen`) stays an
+>    imperative `Navigator.push`/`pop` pair — it's an ephemeral overlay with a
+>    callback that returns to the same screen. Everything else (incl. the finish
+>    screen at `/lesson/finish`) is a real go_router route.
+>
+> Known limitation: routes that pass rich objects via `extra` (goal detail,
+> study plan, goal questions, lesson finish) are not restored on a web refresh
+> (`extra` is not serialized). Make them refetch-by-id if deep-linking matters.
 
 ## Why
 

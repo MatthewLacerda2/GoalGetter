@@ -49,6 +49,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
   fl_chart: ^0.69.2
+  go_router: ^14.6.2
 
 dev_dependencies:
   flutter_test:
