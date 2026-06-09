@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch
+from google.genai.errors import APIError
 from backend.services.gemini.onboarding.schema import (
     GeminiGoalValidation,
     GeminiOnboardingQuestionsResponse,
@@ -46,3 +47,15 @@ async def test_objective_questions_missing_prompt(client):
     """Missing prompt field -> 422 validation error"""
     response = await client.post(ENDPOINT, json={})
     assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_objective_questions_gemini_error_passthrough(client):
+    """A Gemini API error is surfaced with its own status code, not a raw 500"""
+    err = APIError.__new__(APIError)
+    err.code = 429
+    err.message = "RESOURCE_EXHAUSTED"
+    with patch(VALIDATE, side_effect=err):
+        response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
+    assert response.status_code == 429
+    assert "RESOURCE_EXHAUSTED" in response.json()["detail"]

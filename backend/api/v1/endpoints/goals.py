@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.concurrency import run_in_threadpool
 from backend.core.rate_limiter import limiter
 from backend.schemas.goal import (
     ObjectiveQuestionsRequest,
@@ -10,6 +9,7 @@ from backend.schemas.goal import (
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, is_goal_validated
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
+from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
 
@@ -30,11 +30,11 @@ async def objective_questions(request: Request, payload: ObjectiveQuestionsReque
     Step 1: validate the prompt is a real goal, then generate clarifying
     multiple-choice questions. Blocking Gemini calls run off the event loop.
     """
-    validation = await run_in_threadpool(get_prompt_validation, payload.prompt)
+    validation = await run_gemini(get_prompt_validation, payload.prompt)
     if not is_goal_validated(validation):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=validation.reasoning)
 
-    generated = await run_in_threadpool(
+    generated = await run_gemini(
         generate_onboarding_questions, payload.prompt, validation.reasoning
     )
     return [
@@ -51,5 +51,5 @@ async def study_plan(request: Request, payload: GoalCreationRequest):
     Step 2: generate a stateless study-plan preview (goal name + markdown
     description) from the prompt and the user's onboarding answers. Not persisted.
     """
-    plan = await run_in_threadpool(generate_study_plan, payload.prompt, payload.answers)
+    plan = await run_gemini(generate_study_plan, payload.prompt, payload.answers)
     return StudyPlanResponse(goal_name=plan.goal_name, description=plan.description)
