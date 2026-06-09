@@ -6,6 +6,10 @@ class GeminiGoalValidation(BaseModel):
     is_achievable: bool = Field(description="Possible to achieve if the user dedicates to it")
     reasoning: str = Field(description="Succinct: what the user wants, or why it was not validated")
 
+class GeminiStudyPlan(BaseModel):
+    goal_name: str = Field(description="Short, clear name for what the user will learn")
+    description: str = Field(description="Markdown explanation of the next thing to study and why")
+
 class OnboardingQuestionItem(BaseModel):
     question: str = Field(description="The text of the onboarding question")
     option_a: str = Field(description="Option A")

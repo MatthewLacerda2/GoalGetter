@@ -20,10 +20,10 @@ GENERATE = "backend.api.v1.endpoints.goals.generate_onboarding_questions"
 
 
 @pytest.mark.asyncio
-async def test_objective_questions_valid_goal(auth_client):
-    """Valid goal -> 4-option questions mapped from the onboarding service"""
+async def test_objective_questions_valid_goal(client):
+    """Public endpoint (no auth): valid goal -> 4-option questions"""
     with patch(VALIDATE, return_value=VALID), patch(GENERATE, return_value=QUESTIONS):
-        response = await auth_client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
+        response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 200
     body = response.json()
     assert len(body) == 5
@@ -32,24 +32,17 @@ async def test_objective_questions_valid_goal(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_objective_questions_invalid_goal(auth_client):
+async def test_objective_questions_invalid_goal(client):
     """Invalid goal -> 400 with the validation reasoning, questions never generated"""
     with patch(VALIDATE, return_value=INVALID), patch(GENERATE) as gen:
-        response = await auth_client.post(ENDPOINT, json={"prompt": "asdfgh"})
+        response = await client.post(ENDPOINT, json={"prompt": "asdfgh"})
     assert response.status_code == 400
     assert response.json()["detail"] == "that is not a goal"
     gen.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_objective_questions_requires_auth(client):
-    """No Authorization header -> 403 (HTTPBearer)"""
-    response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
-    assert response.status_code == 403
-
-
-@pytest.mark.asyncio
-async def test_objective_questions_missing_prompt(auth_client):
+async def test_objective_questions_missing_prompt(client):
     """Missing prompt field -> 422 validation error"""
-    response = await auth_client.post(ENDPOINT, json={})
+    response = await client.post(ENDPOINT, json={})
     assert response.status_code == 422
