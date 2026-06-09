@@ -240,9 +240,21 @@ class AuthService {
     return token != null && token.isNotEmpty;
   }
 
-  // Sign out (clear both memory and storage)
+  // Sign out (clear both memory and storage).
+  //
+  // The Google sign-out is best-effort: a returning user goes straight from the
+  // AuthGate to /home (see auth_gate.dart) without ever initializing
+  // GoogleSignIn, so calling signOut() on it throws a StateError. Guard it so a
+  // failure there never blocks clearing local data — the part that actually
+  // signs the user out of this app.
   Future<void> signOut() async {
-    await GoogleSignIn.instance.signOut();
+    try {
+      await _ensureInitialized();
+      await GoogleSignIn.instance.signOut();
+    } catch (error) {
+      developer.log('Google sign-out skipped (not initialized / failed): $error');
+    }
+
     await SettingsStorage.instance.clearAuthData();
 
     // Clear temporary data
