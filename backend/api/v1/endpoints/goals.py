@@ -1,14 +1,26 @@
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from backend.core.database import get_db
 from backend.core.rate_limiter import limiter
+from backend.core.security import get_current_user
+from backend.models.goal import Goal
+from backend.models.student import Student
+from backend.repositories.goal_repository import GoalRepository
+from backend.repositories.student_repository import StudentRepository
 from backend.schemas.goal import (
     ObjectiveQuestionsRequest,
     ObjectiveQuestion,
     GoalCreationRequest,
     StudyPlanResponse,
+    GoalCommitRequest,
+    GoalCreationResponse,
+    IntroductionScreenData,
 )
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, is_goal_validated
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
+from backend.services.gemini.onboarding.introduction import generate_introduction_screens
+from backend.services.jobs.goal_jobs import kickoff_resource_scraping, kickoff_lessons_generation
 from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
@@ -53,3 +65,38 @@ async def study_plan(request: Request, payload: GoalCreationRequest):
     """
     plan = await run_gemini(generate_study_plan, payload.prompt, payload.answers)
     return StudyPlanResponse(goal_name=plan.goal_name, description=plan.description)
+
+@router.post("", response_model=GoalCreationResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("20/minute")
+async def create_goal(
+    request: Request,
+    payload: GoalCommitRequest,
+    current_user: Student = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Step 3 (AUTHED): persist the goal the user approved in the preview, make it the
+    active goal, generate the introduction screens (the only synchronous Gemini call),
+    then fire the slow setup jobs (resources, lessons) in the background — those are
+    what the introduction screens buy time for.
+    """
+    intro = await run_gemini(generate_introduction_screens, payload.goal_name, payload.description)
+
+    goal = await GoalRepository(db).create(
+        Goal(student_id=current_user.id, name=payload.goal_name, description=payload.description)
+    )
+    current_user.current_goal_id = goal.id
+    await StudentRepository(db).update(current_user)
+    await db.commit()
+
+    kickoff_resource_scraping(str(goal.id))
+    kickoff_lessons_generation(str(goal.id))
+
+    return GoalCreationResponse(
+        id=str(goal.id),
+        name=goal.name,
+        introduction_screen_data=[
+            IntroductionScreenData(icon=s.icon.value, title=s.title, text=s.text)
+            for s in intro.screens
+        ],
+    )

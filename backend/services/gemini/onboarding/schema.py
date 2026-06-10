@@ -1,4 +1,33 @@
+from enum import Enum
 from pydantic import BaseModel, Field
+
+class IntroIcon(str, Enum):
+    """Fixed vocabulary of icons Gemini may pick for an introduction screen. Each
+    value is a Flutter Material icon name, so the frontend maps it with a single
+    const lookup (no hallucinated names possible)."""
+    rocket_launch = "rocket_launch"
+    flag = "flag"
+    lightbulb = "lightbulb"
+    menu_book = "menu_book"
+    emoji_events = "emoji_events"
+    explore = "explore"
+    school = "school"
+    psychology = "psychology"
+    trending_up = "trending_up"
+    star = "star"
+    track_changes = "track_changes"
+    calendar_today = "calendar_today"
+    extension = "extension"
+    local_fire_department = "local_fire_department"
+    map = "map"
+
+class GeminiIntroductionScreen(BaseModel):
+    icon: IntroIcon = Field(description="One icon from the fixed set that fits this screen")
+    title: str = Field(description="Short, punchy title (a few words)")
+    text: str = Field(description="One or two encouraging sentences about the goal")
+
+class GeminiIntroductionScreens(BaseModel):
+    screens: list[GeminiIntroductionScreen] = Field(description="3 to 5 introduction screens shown while the goal is being set up")
 
 class GeminiGoalValidation(BaseModel):
     makes_sense: bool = Field(description="Can we infer what the user said or wants?")
