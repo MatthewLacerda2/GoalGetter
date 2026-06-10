@@ -18,7 +18,7 @@ class Goal(Base):
     rating = Column(Integer, nullable=False, default=1200)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     
-    student = relationship("Student", back_populates="goals")
+    student = relationship("Student", back_populates="goals", foreign_keys=[student_id])
     student_contexts = relationship("StudentContext", back_populates="goal", cascade="all, delete-orphan")
     lesson_questions = relationship("LessonQuestion", back_populates="goal", cascade="all, delete-orphan")
     onboarding_questions = relationship("OnboardingQuestion", back_populates="goal", cascade="all, delete-orphan")
