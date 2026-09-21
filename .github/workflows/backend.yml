@@ -1,0 +1,57 @@
+name: backend
+
+# PRs only, and only when the backend is touched. Drafts are skipped: a draft
+# is unfinished work parked off one machine, not something to spend CI on.
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+    paths:
+      - "backend/**"
+      - "docker-compose.yml"
+      - "Makefile"
+      - ".github/workflows/backend.yml"
+
+jobs:
+  backend:
+    name: lint · pytest
+    # `synchronize` also fires for pushes to a draft, so guard here too.
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    services:
+      # pgvector, matching docker-compose. Tests connect on 5435 (see the
+      # port mapping) because that is what the local test database uses.
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: goalgetter_test
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # Matches backend/Dockerfile, so CI tests the interpreter we ship.
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r backend/requirements.txt
+
+      # The house rules (file/endpoint/test length, repository pattern). Pure
+      # stdlib, so it needs nothing installed - run it first, it is instant.
+      - name: House lint
+        run: make back-lint
+
+      - name: Pytest
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
+          TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
+          # Tests mock Gemini; these exist only so settings can load.
+          GEMINI_API_KEY: test-key
+          SECRET_KEY: test-secret
+          GOOGLE_REDIRECT_URI: http://localhost/callback
+        run: python -m pytest backend/tests -o addopts="" -q
