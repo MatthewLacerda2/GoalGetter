@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 
 class ObjectiveQuestionsRequest(BaseModel):
@@ -53,3 +54,18 @@ class GoalCreationResponse(BaseModel):
     id: str = Field(..., description="The created goal's id")
     name: str = Field(..., description="The goal name")
     introduction_screen_data: list[IntroductionScreenData] = Field(..., description="Screens to display while setup runs")
+
+class GoalResponse(BaseModel):
+    """One goal in GET /goals. Carries every field the goals list and the goal detail
+    screen show, so the detail screen needs no fetch of its own."""
+    id: str
+    name: str
+    description: str
+    current_elo: int = Field(..., description="The student's rating for this goal (goals.rating)")
+    is_active: bool = Field(..., description="Whether this is the student's active goal (students.current_goal_id)")
+    created_at: datetime
+    updated_at: datetime = Field(..., description="Bumped whenever the goal row changes, e.g. the rating after a lesson")
+
+class SetActiveGoalResponse(BaseModel):
+    """PUT /goals/{goal_id}/set-active: the goal that is now active."""
+    goal_id: str
