@@ -339,5 +339,13 @@
     "startLearning": "Empezar a aprender",
     "@startLearning": { "description": "Study plan: confirm and begin" },
     "continueAsFictitiousUser": "Continuar como usuario ficticio",
-    "signInFailed": "No se pudo iniciar sesión: {detail}"
+    "signInFailed": "No se pudo iniciar sesión: {detail}",
+    "tutorEmptyChat": "Saluda a tu tutor",
+    "tutorNoActiveGoal": "Elige un objetivo activo para chatear con tu tutor",
+    "tutorNotSent": "No enviado: {detail}",
+    "tutorUnreachable": "No se pudo conectar con el servidor",
+    "tutorOlderFailed": "No se pudieron cargar los mensajes anteriores",
+    "tutorRetry": "Reintentar",
+    "tutorLikeFailed": "No se pudo guardar tu me gusta",
+    "tutorLikeReply": "Me gusta esta respuesta"
 }
