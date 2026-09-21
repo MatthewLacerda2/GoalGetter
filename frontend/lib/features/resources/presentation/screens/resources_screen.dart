@@ -1,130 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/utils/error_text.dart';
+import 'package:goal_getter/core/widgets/state_message.dart';
+import 'package:goal_getter/features/resources/data/resources_api.dart';
+import 'package:goal_getter/features/resources/domain/resource_item.dart';
 import 'package:goal_getter/features/resources/presentation/widgets/resource_tab.dart';
 import 'package:goal_getter/features/resources/presentation/controllers/resources_controller.dart';
 
-class ResourcesScreen extends ConsumerStatefulWidget {
+/// The active goal's resources (`GET /resources`), one tab per kind.
+///
+/// Four states, never confused: loading; failed, with a retry; no active goal
+/// (404 `No active goal`), with a way to pick one, since a retry would get the
+/// same answer; and loaded, where three empty lists mean the background search
+/// is still running, which is said as such rather than shown as an error.
+class ResourcesScreen extends ConsumerWidget {
   const ResourcesScreen({super.key});
 
+  static bool isNoActiveGoal(Object error) =>
+      error is ApiException &&
+      error.status == 404 &&
+      error.detail == ResourcesApi.noActiveGoalDetail;
+
   @override
-  ConsumerState<ResourcesScreen> createState() => _ResourcesScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final resourcesAsync = ref.watch(resourcesProvider);
+    void reload() => ref.invalidate(resourcesProvider);
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SafeArea(
+        child: resourcesAsync.when(
+          skipLoadingOnRefresh: false,
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, _) => isNoActiveGoal(err)
+              ? StateMessage(
+                  icon: Icons.flag_outlined,
+                  title: l10n.resourcesNoActiveGoal,
+                  body: l10n.resourcesNoActiveGoalBody,
+                  actionLabel: l10n.pickAGoal,
+                  onAction: () => context.push(AppRoutes.goals),
+                )
+              : StateMessage(
+                  icon: Icons.error_outline,
+                  isError: true,
+                  title: l10n.resourcesLoadFailed,
+                  body: errorText(err, l10n),
+                  actionLabel: l10n.retry,
+                  onAction: reload,
+                ),
+          data: (resources) => resources.isEmpty
+              ? StateMessage(
+                  icon: Icons.travel_explore,
+                  title: l10n.resourcesStillLooking,
+                  body: l10n.resourcesStillLookingBody,
+                  actionLabel: l10n.checkAgain,
+                  onAction: reload,
+                )
+              : _ResourceTabs(resources: resources),
+        ),
+      ),
+    );
+  }
 }
 
-class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ResourceTabs extends StatelessWidget {
+  const _ResourceTabs({required this.resources});
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  final GoalResources resources;
 
   @override
   Widget build(BuildContext context) {
-    final resourcesAsync = ref.watch(resourcesProvider);
-
-    return resourcesAsync.when(
-      loading: () => Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(
-          child: CircularProgressIndicator(
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ),
-      error: (err, stack) => Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: Theme.of(context).colorScheme.error,
-                size: 48,
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          TabBar(
+            labelColor: scheme.primary,
+            unselectedLabelColor: scheme.onSurfaceVariant,
+            dividerHeight: 1,
+            dividerColor: scheme.outline,
+            indicatorColor: scheme.primary,
+            indicatorSize: TabBarIndicatorSize.tab,
+            tabs: [
+              Tab(
+                icon: const Icon(Icons.play_circle_outline, size: 22),
+                text: '${l10n.videos} (${resources.youtube.length})',
               ),
-              const SizedBox(height: 16.0),
-              Text(
-                'Error loading resources',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 18.0,
-                ),
+              Tab(
+                icon: const Icon(Icons.menu_book_outlined, size: 22),
+                text: '${l10n.guides} (${resources.books.length})',
               ),
-              const SizedBox(height: 8.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  err.toString(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 14.0,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: () => ref.refresh(resourcesProvider),
-                child: const Text('Retry'),
+              Tab(
+                icon: const Icon(Icons.public, size: 22),
+                text: '${l10n.sites} (${resources.websites.length})',
               ),
             ],
           ),
-        ),
-      ),
-      data: (mockData) {
-        final youtube = mockData['youtube'] ?? [];
-        final sites = mockData['sites'] ?? [];
-        final books = mockData['books'] ?? [];
-
-        return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          appBar: AppBar(
-            toolbarHeight: 0,
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            bottom: TabBar(
-              controller: _tabController,
-              labelColor: Theme.of(context).colorScheme.primary,
-              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              dividerHeight: 1,
-              dividerColor: Theme.of(context).colorScheme.outline,
-              indicatorColor: Theme.of(context).colorScheme.primary,
-              indicatorSize: TabBarIndicatorSize.tab,
-              tabs: [
-                Tab(
-                  icon: const Icon(Icons.play_circle_outline, size: 22),
-                  text: AppLocalizations.of(context).videos,
-                ),
-                Tab(
-                  icon: const Icon(Icons.menu_book_outlined, size: 22),
-                  text: AppLocalizations.of(context).guides,
-                ),
-                Tab(
-                  icon: const Icon(Icons.public, size: 22),
-                  text: AppLocalizations.of(context).sites,
-                ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                ResourceTab(resources: resources.youtube),
+                ResourceTab(resources: resources.books),
+                ResourceTab(resources: resources.websites),
               ],
             ),
           ),
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              ResourceTab(resources: youtube),
-              ResourceTab(resources: books),
-              ResourceTab(resources: sites),
-            ],
-          ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

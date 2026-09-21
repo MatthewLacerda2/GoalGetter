@@ -50,8 +50,18 @@ void main() {
     expect(destination, AppStartDestination.authenticatedNeedsActiveGoal);
   });
 
-  test('GET /goals missing (before #52) falls back to home', () async {
-    final destination = await launch(_token, goalsBody: '', status: 405);
+  test('a failed GET /goals with a stored active goal goes home', () async {
+    final destination = await launch(
+      {..._token, 'current_goal_id': 'g1'},
+      goalsBody: '{"detail": "boom"}',
+      status: 500,
+    );
     expect(destination, AppStartDestination.authenticatedReady);
+  });
+
+  test('a failed GET /goals without one goes to the goals list', () async {
+    final destination =
+        await launch(_token, goalsBody: '{"detail": "boom"}', status: 500);
+    expect(destination, AppStartDestination.authenticatedNeedsActiveGoal);
   });
 }
