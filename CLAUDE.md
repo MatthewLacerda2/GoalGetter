@@ -146,9 +146,12 @@ user and the PR is a draft that names it.
 **Wait for CI to exist before reading it.** GitHub takes a few seconds to create a
 run after a push, and in that gap `gh pr checks` answers "no checks reported" —
 the same words it uses for a PR with genuinely no CI (workflows are path-filtered,
-and drafts are skipped). A new workflow file may also not fire on the push that adds
-it. Poll `gh run list --commit <sha>` until the run appears. On a draft the runs
-come back `skipped`, which is not a pass.
+and drafts are skipped). A run can take **more than two minutes** to appear, and a
+new workflow file may not fire on the push that adds it — so silence proves nothing.
+Poll `gh run list --commit <sha>` until the run appears; if it never does, close and
+reopen the PR (the workflows listen for `reopened`). Path filters compare the whole
+PR against its base, not the last commit, so a docs-only push to a PR that touches
+code still runs CI. On a draft the runs come back `skipped`, which is not a pass.
 
 A PR description opens with a short **preface** — why the PR exists and what was
 done — then is shaped to the change (Context / Solution / Result is a sound default,
