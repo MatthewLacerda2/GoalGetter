@@ -1,183 +1,100 @@
 import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:goal_getter/features/lessons/domain/lesson_question_data.dart';
+import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
+import 'package:goal_getter/features/lessons/data/lessons_api.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
-import 'package:goal_getter/features/lessons/debug/mock_lesson_controller.dart';
+import 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
+import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
+
+export 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
 
 part 'lesson_controller.g.dart';
 
-class LessonQuestionState {
-  final MultipleChoiceQuestion apiQuestion;
-  final LessonQuestionStatus status;
-  final DateTime? startTime;
-  final int? studentAnswerIndex;
-  final int? secondsSpent;
-
-  LessonQuestionState({
-    required this.apiQuestion,
-    this.status = LessonQuestionStatus.notAnswered,
-    this.startTime,
-    this.studentAnswerIndex,
-    this.secondsSpent,
-  });
-
-  LessonQuestionState copyWith({
-    LessonQuestionStatus? status,
-    DateTime? startTime,
-    int? studentAnswerIndex,
-    int? secondsSpent,
-  }) {
-    return LessonQuestionState(
-      apiQuestion: this.apiQuestion,
-      status: status ?? this.status,
-      startTime: startTime ?? this.startTime,
-      studentAnswerIndex: studentAnswerIndex ?? this.studentAnswerIndex,
-      secondsSpent: secondsSpent ?? this.secondsSpent,
-    );
-  }
-}
-
-class LessonState {
-  final List<LessonQuestionState> questions;
-  final int currentQuestionIndex;
-  final int? selectedChoiceIndex;
-  final bool isAnswerRevealed;
-  final bool isReviewMode;
-  final bool isLoading;
-  final String? errorMessage;
-  final Duration totalTimeSpent;
-  final LessonEvaluation? evaluationResponse;
-  final bool isCompleted;
-
-  LessonState({
-    this.questions = const [],
-    this.currentQuestionIndex = 0,
-    this.selectedChoiceIndex,
-    this.isAnswerRevealed = false,
-    this.isReviewMode = false,
-    this.isLoading = true,
-    this.errorMessage,
-    this.totalTimeSpent = Duration.zero,
-    this.evaluationResponse,
-    this.isCompleted = false,
-  });
-
-  LessonState copyWith({
-    List<LessonQuestionState>? questions,
-    int? currentQuestionIndex,
-    int? selectedChoiceIndex,
-    bool? isAnswerRevealed,
-    bool? isReviewMode,
-    bool? isLoading,
-    String? errorMessage,
-    Duration? totalTimeSpent,
-    LessonEvaluation? evaluationResponse,
-    bool? isCompleted,
-  }) {
-    return LessonState(
-      questions: questions ?? this.questions,
-      currentQuestionIndex: currentQuestionIndex ?? this.currentQuestionIndex,
-      selectedChoiceIndex: selectedChoiceIndex,
-      isAnswerRevealed: isAnswerRevealed ?? this.isAnswerRevealed,
-      isReviewMode: isReviewMode ?? this.isReviewMode,
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage,
-      totalTimeSpent: totalTimeSpent ?? this.totalTimeSpent,
-      evaluationResponse: evaluationResponse ?? this.evaluationResponse,
-      isCompleted: isCompleted ?? this.isCompleted,
-    );
-  }
-}
-
+/// Runs one lesson on the active goal: open it, answer each question once
+/// (graded inline for feedback), submit those first attempts, then a review
+/// round of the wrong ones that is never submitted.
 @riverpod
 class LessonController extends _$LessonController {
   @override
   LessonState build() {
     ref.onDispose(() {
+      _disposed = true;
       _timer?.cancel();
     });
-    return LessonState();
+    return const LessonState();
   }
 
   Timer? _timer;
-  late DateTime _startTime;
+  DateTime _startTime = DateTime.now();
+  bool _disposed = false;
+  String? _goalId;
+  String? _lessonId;
   bool _hasSubmittedAnswers = false;
 
-  void init(List<LessonQuestionData>? legacyQuestions) {
+  /// Opens a new lesson; also the retry after a failed start.
+  Future<void> start() async {
+    _timer?.cancel();
+    _hasSubmittedAnswers = false;
+    state = const LessonState(isLoading: true);
+
+    final goalId = ref.read(settingsStorageProvider).readCurrentGoalId();
+    if (goalId == null || goalId.isEmpty) {
+      state = const LessonState(
+        isLoading: false,
+        startFailure: LessonFailure(LessonStartFailureKind.noActiveGoal),
+      );
+      return;
+    }
+
+    final LessonSession session;
+    try {
+      session = await ref.read(lessonsApiProvider).start(goalId);
+    } on ApiException catch (e) {
+      if (_disposed) return;
+      final kind = e.status == LessonsApi.notReadyStatus
+          ? LessonStartFailureKind.notReady
+          : LessonStartFailureKind.failed;
+      state = LessonState(isLoading: false, startFailure: LessonFailure(kind, e.detail));
+      return;
+    } on Exception {
+      if (_disposed) return;
+      state = const LessonState(
+        isLoading: false,
+        startFailure: LessonFailure(LessonStartFailureKind.failed),
+      );
+      return;
+    }
+    if (_disposed) return;
+    if (session.questions.isEmpty) {
+      // The backend answers 409 for an empty bank; treat an empty 201 the same.
+      state = const LessonState(
+        isLoading: false,
+        startFailure: LessonFailure(LessonStartFailureKind.notReady),
+      );
+      return;
+    }
+
+    _goalId = goalId;
+    _lessonId = session.lessonId;
     _startTime = DateTime.now();
     _startTimer();
-
-    if (legacyQuestions != null && legacyQuestions.isNotEmpty) {
-      _initializeFromQuestions(legacyQuestions);
-    } else {
-      _fetchQuestions();
-    }
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      state = state.copyWith(
-        totalTimeSpent: DateTime.now().difference(_startTime),
-      );
-    });
-  }
-
-  void _initializeFromQuestions(List<LessonQuestionData> legacy) {
-    final list = legacy.map((q) {
-      final question = MultipleChoiceQuestion(
-        id: '',
-        question: q.question,
-        choices: q.choices,
-        correctAnswerIndex: q.choices.indexOf(q.correctAnswer),
-      );
-      return LessonQuestionState(
-        apiQuestion: question,
-      );
-    }).toList();
-
-    if (list.isNotEmpty) {
-      list[0] = list[0].copyWith(startTime: DateTime.now());
-    }
-
-    state = state.copyWith(
-      questions: list,
+    state = LessonState(
       isLoading: false,
+      questions: [
+        for (final (i, q) in session.questions.indexed)
+          LessonQuestionState(apiQuestion: q, startTime: i == 0 ? _startTime : null),
+      ],
     );
   }
 
-  Future<void> _fetchQuestions() async {
-    try {
-      // Inside the try: a throw here (e.g. writing to the provider at a
-      // disallowed moment) would otherwise escape this unawaited async call
-      // and strand the screen on its loading spinner.
-      state = state.copyWith(isLoading: true, errorMessage: null);
-
-      final questions = await getMockLessonQuestions();
-
-      if (questions.isEmpty) {
-        throw Exception('No questions available');
-      }
-
-      final list = questions.map((q) {
-        return LessonQuestionState(apiQuestion: q);
-      }).toList();
-
-      if (list.isNotEmpty) {
-        list[0] = list[0].copyWith(startTime: DateTime.now());
-      }
-
-      state = state.copyWith(
-        questions: list,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        errorMessage: e.toString(),
-        isLoading: false,
-      );
-    }
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      state = state.copyWith(totalTimeSpent: DateTime.now().difference(_startTime));
+    });
   }
 
   void selectChoice(int index) {
@@ -187,136 +104,118 @@ class LessonController extends _$LessonController {
   }
 
   void submitAnswer() {
-    if (state.selectedChoiceIndex == null) return;
+    final selected = state.selectedChoiceIndex;
+    if (selected == null) return;
 
     final currentIdx = state.currentQuestionIndex;
     final currentQuestion = state.questions[currentIdx];
+    final startedAt = currentQuestion.startTime;
+    final secondsSpent = startedAt == null
+        ? 2
+        : DateTime.now().difference(startedAt).inSeconds.clamp(2, 3600);
 
-    // Calculate time spent
-    final int secondsSpent;
-    if (currentQuestion.startTime != null) {
-      secondsSpent = DateTime.now().difference(currentQuestion.startTime!).inSeconds.clamp(2, 3600);
-    } else {
-      secondsSpent = 2;
-    }
-
-    final isCorrect = state.selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
-    final newStatus = isCorrect ? LessonQuestionStatus.correct : LessonQuestionStatus.incorrect;
-
+    final isCorrect = selected == currentQuestion.apiQuestion.correctAnswerIndex;
     final updatedQuestions = List<LessonQuestionState>.from(state.questions);
     updatedQuestions[currentIdx] = currentQuestion.copyWith(
-      status: newStatus,
-      studentAnswerIndex: state.selectedChoiceIndex,
+      status: isCorrect ? LessonQuestionStatus.correct : LessonQuestionStatus.incorrect,
+      studentAnswerIndex: selected,
       secondsSpent: secondsSpent,
     );
 
-    state = state.copyWith(
-      questions: updatedQuestions,
-      isAnswerRevealed: true,
-    );
+    state = state.copyWith(questions: updatedQuestions, isAnswerRevealed: true);
   }
 
   Future<void> nextQuestion() async {
     final currentIdx = state.currentQuestionIndex;
     if (currentIdx < state.questions.length - 1) {
-      // Go to next question
       final updatedQuestions = List<LessonQuestionState>.from(state.questions);
-      updatedQuestions[currentIdx + 1] = updatedQuestions[currentIdx + 1].copyWith(
-        startTime: DateTime.now(),
-      );
+      updatedQuestions[currentIdx + 1] =
+          updatedQuestions[currentIdx + 1].copyWith(startTime: DateTime.now());
 
       state = state.copyWith(
         questions: updatedQuestions,
         currentQuestionIndex: currentIdx + 1,
-        selectedChoiceIndex: null,
+        clearSelection: true,
         isAnswerRevealed: false,
       );
+    } else if (!state.isReviewMode && !_hasSubmittedAnswers) {
+      await _submitEvaluation();
     } else {
-      // Completed last question
-      if (!state.isReviewMode && !_hasSubmittedAnswers) {
-        await _submitEvaluation();
-      } else {
-        state = state.copyWith(isCompleted: true);
-      }
+      state = state.copyWith(isCompleted: true);
     }
   }
 
+  /// Sends the answers again after a failed submit. They were kept in state.
+  Future<void> retrySubmit() => _submitEvaluation();
+
   Future<void> _submitEvaluation() async {
-    state = state.copyWith(isLoading: true);
+    if (state.isSubmitting || _hasSubmittedAnswers) return;
+    final answers = [
+      for (final q in state.questions.where((q) => q.isAnswered))
+        LessonAnswer(
+          questionId: q.apiQuestion.id,
+          choiceIndex: q.studentAnswerIndex!,
+          secondsSpent: q.secondsSpent!,
+        ),
+    ];
+    state = state.copyWith(isSubmitting: true, clearSubmitFailure: true);
 
     try {
-      final answered = state.questions
-          .where((q) => q.studentAnswerIndex != null && q.secondsSpent != null)
-          .toList();
-
-      if (answered.isEmpty) {
-        throw Exception('No answers to submit');
+      final evaluation = await ref
+          .read(lessonsApiProvider)
+          .submit(_goalId!, _lessonId!, answers);
+      if (!_disposed) _finish(evaluation);
+    } on ApiException catch (e) {
+      if (_disposed) return;
+      if (e.status == LessonsApi.alreadyAnsweredStatus) {
+        // An earlier submit landed but its answer was lost: the lesson is
+        // graded server-side; only the elo change is unknown here.
+        _finish(_localEvaluation(answers));
+        return;
       }
-
-      await Future.delayed(const Duration(milliseconds: 400));
-
-      final correct = answered
-          .where((q) => q.studentAnswerIndex == q.apiQuestion.correctAnswerIndex)
-          .length;
-      final accuracy = correct / answered.length * 100;
-      final totalSeconds = answered.fold<int>(
-        0,
-        (sum, q) => sum + (q.secondsSpent ?? 0),
-      );
-
-      _hasSubmittedAnswers = true;
-      state = state.copyWith(
-        evaluationResponse: LessonEvaluation(
-          totalSecondsSpent: totalSeconds,
-          studentAccuracy: accuracy,
-          elo: mockEloForAccuracy(accuracy),
-        ),
-        isLoading: false,
-        isCompleted: true,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        errorMessage: e.toString(),
-        isLoading: false,
-      );
+      state = state.copyWith(isSubmitting: false, submitFailure: LessonFailure(null, e.detail));
+    } on Exception {
+      if (_disposed) return;
+      state = state.copyWith(isSubmitting: false, submitFailure: const LessonFailure(null));
     }
+  }
+
+  void _finish(LessonEvaluation evaluation) {
+    _hasSubmittedAnswers = true;
+    _timer?.cancel();
+    // Home's rating, streak and recent lessons, and Profile's streak, moved.
+    ref.invalidate(homeControllerProvider);
+    ref.invalidate(profileControllerProvider);
+    state = state.copyWith(
+      evaluationResponse: evaluation,
+      isSubmitting: false,
+      isCompleted: true,
+    );
+  }
+
+  LessonEvaluation _localEvaluation(List<LessonAnswer> answers) {
+    final correct = state.questions
+        .where((q) => q.status == LessonQuestionStatus.correct)
+        .length;
+    return LessonEvaluation(
+      totalSecondsSpent: answers.fold(0, (sum, a) => sum + a.secondsSpent),
+      studentAccuracy: answers.isEmpty ? 0 : correct / answers.length * 100,
+      elo: null,
+    );
   }
 
   void startReviewMode(List<LessonQuestionState> incorrectQuestions) {
-    final list = incorrectQuestions.map((q) {
-      return LessonQuestionState(
-        apiQuestion: q.apiQuestion,
-      );
-    }).toList();
-
-    if (list.isNotEmpty) {
-      list[0] = list[0].copyWith(startTime: DateTime.now());
-    }
-
+    final now = DateTime.now();
     state = state.copyWith(
-      questions: list,
+      questions: [
+        for (final (i, q) in incorrectQuestions.indexed)
+          LessonQuestionState(apiQuestion: q.apiQuestion, startTime: i == 0 ? now : null),
+      ],
       currentQuestionIndex: 0,
-      selectedChoiceIndex: null,
+      clearSelection: true,
       isAnswerRevealed: false,
       isReviewMode: true,
       isCompleted: false,
     );
   }
-
-  int calculateLongestStreak() {
-    int longestStreak = 0;
-    int currentStreak = 0;
-
-    for (var question in state.questions) {
-      if (question.status == LessonQuestionStatus.correct) {
-        currentStreak++;
-        longestStreak = currentStreak > longestStreak ? currentStreak : longestStreak;
-      } else {
-        currentStreak = 0;
-      }
-    }
-    return longestStreak;
-  }
-
-
 }

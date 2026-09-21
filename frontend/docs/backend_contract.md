@@ -56,7 +56,7 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 
 ---
 
-## User — backend ✅ (#56; the app still runs on the mock)
+## User — ✅ implemented & tested (#56, backend and app)
 
 - **`GET /me`** — the signed-in user's profile + streak (drives the Profile header).
   request: none · response: `user_profile`
@@ -129,7 +129,7 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Home — backend ✅ (#56; the app still runs on the mock)
+## Home — ✅ implemented & tested (#56, backend and app)
 
 - **`GET /home`** — dashboard for the active goal: rating, streak, recent
   lessons, and the elo-over-time series.
@@ -145,7 +145,7 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Lessons — backend ✅ (#55; the app still runs on the mock)
+## Lessons — ✅ implemented & tested (#55, backend and app)
 
 - **`POST /goals/{goal_id}/lessons`** — open a lesson from the goal's question
   bank. 201.

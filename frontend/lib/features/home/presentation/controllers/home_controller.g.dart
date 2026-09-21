@@ -6,16 +6,15 @@ part of 'home_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$homeControllerHash() => r'974febc3b3b6271d15e6e0807268bdce24165dc9';
+String _$homeControllerHash() => r'6b80a13d924e300fc8d79069b7ecd839e388249f';
 
-/// Provides the Home dashboard data for the active goal.
-///
-/// Mock-backed for now; swap [getMockHomeData] for the generated API client
-/// when the backend exists. See docs/backend_contract.md.
+/// The Home dashboard for the active goal; null when there is none. A finished
+/// lesson invalidates it (LessonController), so Home shows the new rating.
 ///
 /// Copied from [homeController].
 @ProviderFor(homeController)
-final homeControllerProvider = AutoDisposeFutureProvider<MockHomeData>.internal(
+final homeControllerProvider =
+    AutoDisposeFutureProvider<HomeDashboard?>.internal(
   homeController,
   name: r'homeControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -25,6 +24,6 @@ final homeControllerProvider = AutoDisposeFutureProvider<MockHomeData>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef HomeControllerRef = AutoDisposeFutureProviderRef<MockHomeData>;
+typedef HomeControllerRef = AutoDisposeFutureProviderRef<HomeDashboard?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
