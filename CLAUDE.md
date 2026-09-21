@@ -14,7 +14,7 @@ We follow TDD for the endpoints:
 - We define what we need to do, define the schemas for requests and response, then the appropriate tests
 - Implement/edit fixtures if needed, implement the tests, we implement the endpoint to pass the test
 - The tests are made to be reliable. If the endpoint doesn't pass the test than it's not ready for production
-When all that is done, we may get the openapi.json from the /api/v1/openapi.json endpoint, then save the openapi.json to generate the client_sdk with `openapi-generator-cli generate -i ./openapi.json -g dart -o ./client_sdk` (be mindful of relative paths). If we need to edit an endpoint, we follow the same process.
+When all that is done, the Flutter side is updated by hand to match. We do NOT generate a client SDK anymore (the generated `client_sdk/` was deleted 2026-09-21: it duplicated the frontend's domain models and went stale the moment the API changed). The `/api/v1/openapi.json` endpoint is still the source of truth — read it and write the API layer under `frontend/lib/core/api/` to match, reusing the existing domain models. If we edit an endpoint, we follow the same process.
 
 We have a 50 line limit for endpoints and tests in pytest.
 If the endpoint is too big, either the feature is too big and we need a better structure/architecture, in which case inform the user and plan/organize this together.

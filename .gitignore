@@ -20,7 +20,6 @@ eggs/
 lib/
 lib64/
 # Exception: don't ignore Dart package lib directories
-!client_sdk/lib/
 !frontend/lib/
 parts/
 sdist/
