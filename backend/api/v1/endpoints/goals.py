@@ -90,7 +90,7 @@ async def create_goal(
     await db.commit()
 
     kickoff_resource_scraping(str(goal.id))
-    kickoff_lessons_generation(str(goal.id))
+    kickoff_lessons_generation(str(goal.id), payload.prompt, [(a.question, a.answer) for a in payload.answers])
 
     return GoalCreationResponse(
         id=str(goal.id),
