@@ -365,5 +365,15 @@
     "tutorOlderFailed": "No se pudieron cargar los mensajes anteriores",
     "tutorRetry": "Reintentar",
     "tutorLikeFailed": "No se pudo guardar tu me gusta",
-    "tutorLikeReply": "Me gusta esta respuesta"
+    "tutorLikeReply": "Me gusta esta respuesta",
+    "onboardingUnreachable": "No se pudo conectar con el servidor",
+    "onboardingTooManyTries": "Demasiados intentos. Espera un minuto y vuelve a intentarlo.",
+    "onboardingRetry": "Intentar de nuevo",
+    "onboardingGeneratingPlan": "Generando tu plan de estudio...",
+    "onboardingPreviousQuestion": "Volver a la pregunta anterior",
+    "onboardingPlanFailed": "No se pudo generar tu plan de estudio",
+    "onboardingReviewAnswers": "Revisar mis respuestas",
+    "onboardingIntroContinue": "Empecemos",
+    "startWithGoogle": "Empezar con Google",
+    "signingIn": "Iniciando sesión..."
 }

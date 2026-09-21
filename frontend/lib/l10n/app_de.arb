@@ -365,5 +365,15 @@
     "tutorOlderFailed": "Ältere Nachrichten konnten nicht geladen werden",
     "tutorRetry": "Erneut versuchen",
     "tutorLikeFailed": "Dein Like konnte nicht gespeichert werden",
-    "tutorLikeReply": "Diese Antwort liken"
+    "tutorLikeReply": "Diese Antwort liken",
+    "onboardingUnreachable": "Der Server ist nicht erreichbar",
+    "onboardingTooManyTries": "Zu viele Versuche. Warte eine Minute und versuche es erneut.",
+    "onboardingRetry": "Erneut versuchen",
+    "onboardingGeneratingPlan": "Dein Lernplan wird erstellt...",
+    "onboardingPreviousQuestion": "Zurück zur vorherigen Frage",
+    "onboardingPlanFailed": "Dein Lernplan konnte nicht erstellt werden",
+    "onboardingReviewAnswers": "Meine Antworten ansehen",
+    "onboardingIntroContinue": "Los geht's",
+    "startWithGoogle": "Mit Google starten",
+    "signingIn": "Anmeldung..."
 }

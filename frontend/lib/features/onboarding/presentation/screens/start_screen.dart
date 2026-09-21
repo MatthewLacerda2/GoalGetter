@@ -6,13 +6,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:goal_getter/app/startup/app_start_controller.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/dev_login_button.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/pre_onboarding_carousel.dart';
-import 'package:goal_getter/features/onboarding/debug/mock_start_screen.dart';
+import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   const StartScreen({super.key});
@@ -73,8 +73,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error signing in: $error'),
-            backgroundColor: Colors.red,
+            content: Text(
+              AppLocalizations.of(context).signInFailed(error.toString()),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -87,35 +89,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     }
   }
 
-  Future<void> _routeAfterSignIn() async {
-    final result = await ref.read(appStartControllerProvider).evaluate();
-    if (mounted) context.go(result.destination.location);
-  }
+  Future<void> _routeAfterSignIn() => routeAfterSignIn(ref, context);
 
-  Future<void> _handleGoogleSignIn() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await handleMockGoogleSignIn(context);
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error signing in: $error'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
+  /// Goal creation's first two steps are public (backend_contract.md, Goals):
+  /// the button starts them, and the Google sign-in (the listener above) is
+  /// needed only to commit the goal.
+  void _handleGoogleSignIn() => context.go(AppRoutes.goalPrompt);
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +126,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
                 // Subtitle
                 Text(
-                  AppLocalizations.of(context)!.yourMentor,
+                  AppLocalizations.of(context).yourMentor,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w300,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -184,7 +163,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             size: 20,
                           ),
                     label: Text(
-                      _isLoading ? 'Signing in...' : 'Start with Google',
+                      _isLoading
+                          ? AppLocalizations.of(context).signingIn
+                          : AppLocalizations.of(context).startWithGoogle,
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                     style: ElevatedButton.styleFrom(
@@ -201,7 +182,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
                 // Terms and Privacy
                 Text(
-                  AppLocalizations.of(context)!.agreeToTermsAndPrivacyPolicy,
+                  AppLocalizations.of(context).agreeToTermsAndPrivacyPolicy,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),

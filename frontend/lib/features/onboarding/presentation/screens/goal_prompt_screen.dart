@@ -5,9 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
-import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/features/onboarding/debug/mock_goal_prompt_screen.dart';
+import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/step_error.dart';
 
+/// Step 1 of goal creation: what the student wants to learn. Sends it to
+/// `POST /goals/objective-questions`; a 400 there is Gemini saying it is not a
+/// goal, and its reasoning is shown here so the student can rephrase.
 class GoalPromptScreen extends ConsumerStatefulWidget {
   const GoalPromptScreen({super.key});
 
@@ -20,9 +24,9 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
   final _promptController = TextEditingController();
 
   final _promptFocusNode = FocusNode();
-  late final _authService = ref.read(authServiceProvider);
 
   bool _isLoading = false;
+  Object? _error;
 
   @override
   void initState() {
@@ -37,54 +41,44 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
     super.dispose();
   }
 
-  Future<List<MockMultipleChoiceQuestion>> _fetchObjectiveQuestions(String prompt) async {
-    return await fetchMockObjectiveQuestions(context, prompt);
-  }
-
-  void _onEnterPressed() async {
-    if (_promptController.text.length >= 16) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      try {
-        final questions = await _fetchObjectiveQuestions(
-          _promptController.text,
-        );
-        if (mounted) {
-          context.push(
-            AppRoutes.goalQuestions,
-            extra: GoalQuestionsArgs(
-              prompt: _promptController.text,
-              questions: questions,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      }
-    } else {
+  Future<void> _onEnterPressed() async {
+    final prompt = _promptController.text.trim();
+    if (prompt.length < 16) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.beDetailedOfYourGoal),
+          content: Text(AppLocalizations.of(context).beDetailedOfYourGoal),
         ),
       );
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final questions = await ref
+          .read(onboardingApiProvider)
+          .objectiveQuestions(prompt);
+      if (mounted) {
+        context.push(
+          AppRoutes.goalQuestions,
+          extra: GoalQuestionsArgs(prompt: prompt, questions: questions),
+        );
+      }
+    } on Exception catch (e) {
+      if (mounted) setState(() => _error = e);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  /// A rejected prompt wants rephrasing, not the same request again.
+  bool get _isRejection =>
+      _error is ApiException && (_error as ApiException).status == 400;
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -127,8 +121,7 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16.0),
-                      borderSide:
-                          BorderSide(color: theme.colorScheme.outline),
+                      borderSide: BorderSide(color: theme.colorScheme.outline),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16.0),
@@ -146,6 +139,15 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
                   onChanged: (value) => setState(() {}),
                   textInputAction: TextInputAction.newline,
                 ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  StepError(
+                    error: _error!,
+                    onRetry: _isRejection || _isLoading
+                        ? null
+                        : _onEnterPressed,
+                  ),
+                ],
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -163,8 +165,9 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : Text(
