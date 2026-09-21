@@ -16,6 +16,12 @@ class GoalRepository(BaseRepository[Goal]):
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def list_by_student(self, student_id) -> list[Goal]:
+        """The student's goals, newest first."""
+        stmt = select(Goal).where(Goal.student_id == student_id).order_by(Goal.created_at.desc())
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def update(self, entity: Goal) -> Goal:
         await self.db.flush()
         return entity
