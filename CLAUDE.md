@@ -115,6 +115,12 @@ gates prove the code runs; they do not prove it is the right change.
 - **Screens**: `DEV_MENU=true` opens a dev index of every screen, including the
   ones that need route arguments, all running on mocks.
 - **Endpoints**: Swagger is at `/api/v1/docs` (e.g. `http://localhost:8001/api/v1/docs`).
+- **Signed-in screens, headless**: `make preview` builds the integrated app and serves
+  it with its own backend on `:8093` (loopback and the tailnet only). `make claude-token`
+  signs Claude in as a fictitious student, then `make shot ROUTES="/home /goals"` writes a
+  phone-sized PNG per route to `shots/` — read them. Flutter web draws to a canvas, so
+  the PNG, not the DOM, is the evidence. The preview's backend drops its schema on
+  every start: re-run `make claude-token` after a rebuild.
 - **Gemini and YouTube behaviour**: the services are plain functions — call them
   directly to see what the model actually returns.
 
@@ -229,6 +235,10 @@ remind him and ask.
 - **Analyzer backlog: 60 warnings, 635 infos** (2026-09-21), so CI runs `flutter
   analyze` with `--no-fatal-warnings --no-fatal-infos`. Next step: clear the
   warnings (mostly mechanical) and let them block.
+- **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the
+  tailnet name) is not enabled on this tailnet yet; the user enables it once from the
+  admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google
+  sign-in will need that HTTPS origin.
 - **Gemini model names drift.** They are defined once in `backend/utils/envs.py` and
   need a bump roughly monthly.
 
