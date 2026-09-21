@@ -6,9 +6,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/app/startup/app_start_controller.dart';
+import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/dev_login_button.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/pre_onboarding_carousel.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_start_screen.dart';
 
@@ -27,7 +29,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   @override
   void initState() {
     super.initState();
-    _initGoogleSignIn();
+    // A DEV_LOGIN build signs in without Google, so it never loads it.
+    if (!AppConfig.devLogin) _initGoogleSignIn();
   }
 
   Future<void> _initGoogleSignIn() async {
@@ -62,19 +65,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     });
 
     try {
-      final googleAuthResult = await _authService.handleGoogleSignInAccount(account);
-
-      if (googleAuthResult != null) {
-        final googleToken = googleAuthResult['token'] as String;
-
-        // Call signup endpoint to create/fetch account
-        final signupResult = await _authService.signupWithGoogle(googleToken);
-
-        if (signupResult != null && mounted) {
-          // Check student status to see if user has goals
-          await _routeAfterSignIn();
-        }
-      }
+      final googleToken = await _authService.googleTokenFor(account);
+      await _authService.signupWithGoogle(googleToken);
+      if (mounted) await _routeAfterSignIn();
     } catch (error) {
       developer.log('Error handling Google web sign-in event: $error');
       if (mounted) {
@@ -95,17 +88,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   Future<void> _routeAfterSignIn() async {
-    // Mock: the backend doesn't exist yet, so we skip the real "does this
-    // student have a goal?" check. A signed-in user goes home; otherwise to the
-    // goal prompt. The endpoint this replaces (GET student status → goalId) is
-    // represented by the mock_* files.
-    final accessToken = await _authService.getStoredAccessToken();
-    if (!mounted) return;
-    context.go(
-      (accessToken != null && accessToken.isNotEmpty)
-          ? AppRoutes.home
-          : AppRoutes.goalPrompt,
-    );
+    final result = await ref.read(appStartControllerProvider).evaluate();
+    if (mounted) context.go(result.destination.location);
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -176,8 +160,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
                 Spacer(flex: 2),
 
-                // Google Sign In Button
-                SizedBox(
+                // A DEV_LOGIN build offers the fictitious sign-in in place of
+                // Google; everything else gets the Google button.
+                if (AppConfig.devLogin) const DevLoginButton() else SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton.icon(

@@ -337,5 +337,12 @@
     "startOver": "Start over",
     "@startOver": { "description": "Study plan: reject and return to the goal prompt" },
     "startLearning": "Start learning",
-    "@startLearning": { "description": "Study plan: confirm and begin" }
+    "@startLearning": { "description": "Study plan: confirm and begin" },
+    "continueAsFictitiousUser": "Continue as a fictitious user",
+    "@continueAsFictitiousUser": { "description": "Start screen, DEV_LOGIN builds only: sign in as a fictitious student instead of Google" },
+    "signInFailed": "Could not sign in: {detail}",
+    "@signInFailed": {
+        "description": "Start screen: sign-in error snackbar",
+        "placeholders": { "detail": { "type": "String" } }
+    }
 }

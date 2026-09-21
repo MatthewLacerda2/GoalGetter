@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'shared_preferences_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 SharedPreferences sharedPreferences(SharedPreferencesRef ref) {
   throw UnimplementedError('sharedPreferencesProvider was not overridden');
 }

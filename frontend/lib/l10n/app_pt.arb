@@ -337,5 +337,7 @@
     "startOver": "Recomeçar",
     "@startOver": { "description": "Study plan: reject and return to the goal prompt" },
     "startLearning": "Começar a aprender",
-    "@startLearning": { "description": "Study plan: confirm and begin" }
+    "@startLearning": { "description": "Study plan: confirm and begin" },
+    "continueAsFictitiousUser": "Continuar como usuário fictício",
+    "signInFailed": "Não foi possível entrar: {detail}"
 }

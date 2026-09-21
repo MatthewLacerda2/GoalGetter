@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/features/onboarding/debug/mock_study_plan.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 
@@ -22,13 +21,12 @@ class StudyPlanScreen extends ConsumerStatefulWidget {
 }
 
 class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
-  late final _authService = ref.read(authServiceProvider);
   bool _isLoading = false;
 
   Future<void> _confirm() async {
     setState(() => _isLoading = true);
     try {
-      await submitMockFullCreation(context, widget.plan, _authService);
+      await submitMockFullCreation(context, widget.plan);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)

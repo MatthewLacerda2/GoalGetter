@@ -21,7 +21,7 @@ DOCKER_RUN    := docker run --rm --network host --user "$$(id -u):$$(id -g)" \
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-test front-lint front-test setup hooks env test-db
+.PHONY: help check backend frontend back-lint back-test front-lint front-test setup hooks env test-db claude-token
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -72,3 +72,18 @@ setup: hooks env test-db ## One-time per checkout/worktree: git hooks + .env + o
 hooks: ## Point git at the versioned hooks in .githooks
 	@git config core.hooksPath .githooks
 	@echo "core.hooksPath -> .githooks"
+
+# A bearer for "Fictitious Claude", so Claude can drive the API without Google.
+# Needs a running backend started with DEV_LOGIN=true (off, the route is a 404).
+# Only the access token is written, with no trailing newline, so
+# `$(cat .claude/token)` drops straight into an Authorization header.
+BACKEND_PORT ?= 8001
+claude-token: ## Sign in as "Fictitious Claude" on the running backend and write .claude/token
+	@url="http://127.0.0.1:$(BACKEND_PORT)/api/v1/auth/dev-login"; \
+	body="$$(curl -fsS -X POST "$$url" -H 'Content-Type: application/json' -d '{"name": "Claude"}')" \
+	  || { echo "claude-token: POST $$url failed. Is the backend up on $(BACKEND_PORT) (BACKEND_PORT=...) with DEV_LOGIN=true?" >&2; exit 1; }; \
+	mkdir -p .claude; umask 077; \
+	printf '%s' "$$body" | python3 -c 'import json,sys; sys.stdout.write(json.load(sys.stdin)["access_token"])' > .claude/token; \
+	echo "claude-token: wrote .claude/token for Fictitious Claude."; \
+	echo "  It expires in 30 minutes, and dies with any backend restart (the database is dropped on start): re-run then."; \
+	echo "  curl -H \"Authorization: Bearer \$$(cat .claude/token)\" http://127.0.0.1:$(BACKEND_PORT)/api/v1/..."
