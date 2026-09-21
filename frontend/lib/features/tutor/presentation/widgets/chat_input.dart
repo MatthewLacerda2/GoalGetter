@@ -28,7 +28,7 @@ class ChatInput extends StatelessWidget {
                 fontSize: 16.0,
               ),
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.typeYourMessage,
+                hintText: AppLocalizations.of(context).typeYourMessage,
                 hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surfaceContainer,

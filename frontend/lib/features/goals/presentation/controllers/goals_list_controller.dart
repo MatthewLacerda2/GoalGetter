@@ -1,13 +1,13 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:goal_getter/features/goals/data/goals_api.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
-import 'package:goal_getter/features/goals/debug/mock_goals.dart';
 
 part 'goals_list_controller.g.dart';
 
-/// Provides the user's goals. Mock-backed while the backend doesn't exist;
-/// refresh via `ref.invalidate`. See docs/backend_contract.md (GET /goals).
+/// The student's goals (`GET /goals`). The list and the detail screen both read
+/// it: there is no per-goal GET. Refresh with `ref.invalidate`.
 @riverpod
-Future<List<Goal>> goalsListController(GoalsListControllerRef ref) async {
-  return getMockGoals();
+Future<List<Goal>> goalsListController(GoalsListControllerRef ref) {
+  return ref.watch(goalsApiProvider).list();
 }

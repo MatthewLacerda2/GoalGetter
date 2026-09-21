@@ -36,10 +36,11 @@ class AppStartResult {
 /// ⇒ home, goals but none active ⇒ the goals list, no goals ⇒ goal creation.
 /// A 401 the client could not refresh has already cleared the session, so it
 /// reads as signed out.
-// TODO(MatthewLacerda2): GET /goals is built in #52. Until it is on the
-// backend the call fails (405), and any failure other than a 401 falls back to
-// home, which #51 accepted; offline, home is still the right answer for a
-// returning student.
+///
+/// Any other failure (offline, a 5xx) lands where the last known state points,
+/// and that screen's own load shows the failure with a retry (decided in
+/// #52): a stored active goal id ⇒ home, the returning student's usual screen;
+/// none ⇒ the goals list, whose `GET /goals` retries this very call.
 class AppStartController {
   const AppStartController(this._storage, this._api);
 
@@ -58,11 +59,18 @@ class AppStartController {
       if (e.status == 401) {
         return const AppStartResult(AppStartDestination.unauthenticated);
       }
-      developer.log('GET /goals failed at startup, going home: $e');
+      developer.log('GET /goals failed at startup: $e');
     } on Exception catch (e) {
-      developer.log('GET /goals unreachable at startup, going home: $e');
+      developer.log('GET /goals unreachable at startup: $e');
     }
-    return const AppStartResult(AppStartDestination.authenticatedReady);
+    return AppStartResult(_offlineDestination());
+  }
+
+  AppStartDestination _offlineDestination() {
+    final goalId = _storage.readCurrentGoalId();
+    return goalId == null || goalId.isEmpty
+        ? AppStartDestination.authenticatedNeedsActiveGoal
+        : AppStartDestination.authenticatedReady;
   }
 
   Future<AppStartDestination> _decide(List<Map<String, dynamic>> goals) async {

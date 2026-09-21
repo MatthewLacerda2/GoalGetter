@@ -1,229 +1,211 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/core/utils/error_text.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
+import 'package:goal_getter/features/goals/presentation/controllers/goal_actions.dart';
+import 'package:goal_getter/features/goals/presentation/widgets/goal_card.dart';
 
-enum GoalsDetailResult { deleted, activated }
+enum _Busy { none, activating, deleting }
 
-class GoalsDetailScreen extends StatefulWidget {
+/// One goal, with the actions on it. It shows the goal it is given (an item of
+/// `GET /goals`) and never fetches one: there is no per-goal GET.
+class GoalsDetailScreen extends ConsumerStatefulWidget {
   const GoalsDetailScreen({super.key, required this.goal});
 
   final Goal goal;
 
   @override
-  State<GoalsDetailScreen> createState() => _GoalsDetailScreenState();
+  ConsumerState<GoalsDetailScreen> createState() => _GoalsDetailScreenState();
 }
 
-class _GoalsDetailScreenState extends State<GoalsDetailScreen> {
-  bool _isDeleting = false;
-  bool _isSettingActive = false;
+class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
+  _Busy _busy = _Busy.none;
+  String? _error;
 
-  String _formatCreatedAt(DateTime createdAt) {
+  Future<void> _run(
+    _Busy busy,
+    Future<String> Function(GoalActions actions) action,
+    String Function(String detail) describeFailure,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final actions = ref.read(goalActionsProvider);
+    setState(() {
+      _busy = busy;
+      _error = null;
+    });
     try {
-      return DateFormat.yMMMd().format(createdAt.toLocal());
-    } catch (_) {
-      return createdAt.toLocal().toIso8601String();
+      final location = await action(actions);
+      if (mounted) context.go(location);
+    } on Exception catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _busy = _Busy.none;
+        _error = describeFailure(errorText(e, l10n));
+      });
     }
   }
 
-  // MOCK: no backend yet — simulate setting the active goal.
-  Future<void> _setAsCurrentGoal() async {
-    setState(() => _isSettingActive = true);
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
-    context.pop(GoalsDetailResult.activated);
-  }
+  Future<void> _setActive() => _run(
+        _Busy.activating,
+        (actions) => actions.setActive(widget.goal),
+        AppLocalizations.of(context).setActiveGoalFailed,
+      );
 
-  // MOCK: no backend yet — simulate deleting the goal.
-  Future<void> _deleteGoal() async {
+  Future<void> _delete() async {
+    final l10n = AppLocalizations.of(context);
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.deleteGoal),
-          content: Text(
-            AppLocalizations.of(context)!.areYouSureYouWantToDeleteThisGoal,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteGoal),
+        content: Text(l10n.areYouSureYouWantToDeleteThisGoal),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(AppLocalizations.of(context)!.cancel),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: Text(AppLocalizations.of(context)!.delete),
-            ),
-          ],
-        );
-      },
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
     );
-
-    if (confirm != true) return;
-
-    setState(() => _isDeleting = true);
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
-    context.pop(GoalsDetailResult.deleted);
+    if (confirm != true || !mounted) return;
+    await _run(
+      _Busy.deleting,
+      (actions) => actions.delete(widget.goal),
+      l10n.deleteGoalFailed,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final goalTitle = widget.goal.name.isNotEmpty
-        ? widget.goal.name
-        : AppLocalizations.of(context)!.untitledGoal;
-    final successColor =
-        Theme.of(context).extension<CustomColors>()?.success ?? Colors.green;
+    // Watched so the actions' provider outlives an in-flight call.
+    ref.watch(goalActionsProvider);
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final goal = widget.goal;
+    final title = goal.name.isNotEmpty ? goal.name : l10n.untitledGoal;
+    final idle = _busy == _Busy.none;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: scheme.surface,
       appBar: AppBar(
-        title: Text(goalTitle),
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        title: Text(title),
+        backgroundColor: scheme.surfaceContainerHigh,
+        foregroundColor: scheme.onSurface,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
                 children: [
-                  Expanded(
-                    child: Text(
-                      goalTitle,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(title, style: theme.textTheme.headlineSmall),
                       ),
-                    ),
+                      if (goal.isActive) const ActiveGoalBadge(),
+                    ],
                   ),
-                  if (widget.goal.isActive)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: successColor.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Text(
-                        'Active',
-                        style: TextStyle(
-                          color: successColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${l10n.elo} ${goal.currentElo}',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(color: scheme.secondary),
+                  ),
+                  const SizedBox(height: 4),
+                  GoalDates(goal: goal),
+                  const SizedBox(height: 16),
+                  if (goal.description.isNotEmpty)
+                    MarkdownBody(data: goal.description)
+                  else
+                    Text(l10n.noDescription),
                 ],
               ),
-              const SizedBox(height: 8.0),
-              Text(
-                '${AppLocalizations.of(context)!.elo} ${widget.goal.currentElo}',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              const SizedBox(height: 12.0),
-              Text(
-                widget.goal.description.isNotEmpty
-                    ? widget.goal.description
-                    : AppLocalizations.of(context)!.noDescription,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  height: 1.3,
-                ),
-              ),
-              const SizedBox(height: 12.0),
-              Text(
-                _formatCreatedAt(widget.goal.createdAt),
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: (_isDeleting || _isSettingActive || widget.goal.isActive)
-                      ? null
-                      : _setAsCurrentGoal,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_error != null) ...[
+                    Text(
+                      _error!,
+                      key: const Key('goalActionError'),
+                      style: TextStyle(color: scheme.error),
+                      textAlign: TextAlign.center,
                     ),
-                    elevation: 0,
+                    const SizedBox(height: 12),
+                  ],
+                  _ActionButton(
+                    label: l10n.setAsCurrentGoal,
+                    color: scheme.primary,
+                    busy: _busy == _Busy.activating,
+                    onPressed: idle && !goal.isActive ? _setActive : null,
                   ),
-                  child: _isSettingActive
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          AppLocalizations.of(context)!.setAsCurrentGoal,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                ),
-              ),
-              const SizedBox(height: 12.0),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: (_isDeleting || _isSettingActive)
-                      ? null
-                      : _deleteGoal,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    elevation: 0,
+                  const SizedBox(height: 12),
+                  _ActionButton(
+                    label: l10n.deleteGoal,
+                    color: scheme.error.withValues(alpha: 0.8),
+                    busy: _busy == _Busy.deleting,
+                    onPressed: idle ? _delete : null,
                   ),
-                  child: _isDeleting
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          AppLocalizations.of(context)!.deleteGoal,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.label,
+    required this.color,
+    required this.busy,
+    required this.onPressed,
+  });
+
+  final String label;
+  final Color color;
+  final bool busy;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 0,
+      ),
+      child: busy
+          ? const SizedBox(
+              height: 18,
+              width: 18,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            )
+          : Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
     );
   }
 }
