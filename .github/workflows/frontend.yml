@@ -28,9 +28,14 @@ jobs:
       - name: Dart line limits
         run: dart run tool/frontend_linter.dart
 
-      # Errors and warnings fail the build; the repo carries a large backlog of
-      # pre-existing style infos, so those do not. Tighten when the backlog is
-      # cleared - see the tech-debt note in docs/backend_contract.md.
+      # Staged strictness: only errors fail the build for now. The repo carries a
+      # pre-existing backlog (2026-09-21: 0 errors, 60 warnings, 635 infos), so
+      # warnings and infos are reported but do not block.
+      #   next: clear the 60 warnings (mostly mechanical - 42 redundant `!`,
+      #         14 untyped Future.delayed, 4 dead fields/imports), then drop
+      #         --no-fatal-warnings so warnings block too.
+      #   infos: most are very_good_analysis style rules; pick the ones worth
+      #         enforcing and disable the rest rather than zeroing all 635.
       - name: Analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
