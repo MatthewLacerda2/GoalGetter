@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/app/dev/dev_fixtures.dart';
+import 'package:goal_getter/app/dev/dev_menu_screen.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/app/home/home_shell.dart';
@@ -16,6 +20,7 @@ import 'package:goal_getter/features/resources/presentation/screens/resources_sc
 import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/finish_lesson_screen.dart';
+import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
@@ -28,7 +33,7 @@ import 'package:goal_getter/features/goals/presentation/screens/goals_detail_scr
 /// (see route_args.dart); paths in [AppRoutes] are the single source of truth.
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: AppRoutes.splash,
+    initialLocation: AppConfig.devMenu ? AppRoutes.dev : AppRoutes.splash,
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -45,7 +50,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.goalQuestions,
         builder: (_, state) {
-          final args = state.extra as GoalQuestionsArgs;
+          // `extra` is lost on a web refresh; in dev fall back to fixtures so
+          // reloading the page shows the screen instead of a null-cast crash.
+          final args = state.extra as GoalQuestionsArgs? ??
+              DevFixtures.goalQuestions;
           return GoalQuestionsScreen(
             prompt: args.prompt,
             questions: args.questions,
@@ -55,7 +63,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.studyPlan,
         builder: (_, state) {
-          final plan = state.extra as StudyPlan;
+          final plan = state.extra as StudyPlan? ?? DevFixtures.studyPlan;
           return StudyPlanScreen(plan: plan);
         },
       ),
@@ -66,7 +74,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.lessonFinish,
         builder: (_, state) {
-          final args = state.extra as FinishLessonArgs;
+          final args =
+              state.extra as FinishLessonArgs? ?? DevFixtures.finishLesson;
           return FinishLessonScreen(
             title: args.title,
             icon: args.icon,
@@ -83,10 +92,36 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '${AppRoutes.goals}/:id',
         builder: (_, state) {
-          final goal = state.extra as Goal;
+          final goal = state.extra as Goal? ?? DevFixtures.goalDetail;
           return GoalsDetailScreen(goal: goal);
         },
       ),
+      // Dev-only screen index. Registered only for --dart-define=DEV_MENU=true
+      // builds so these paths do not exist in production.
+      if (AppConfig.devMenu) ...[
+        GoRoute(
+          path: AppRoutes.dev,
+          builder: (_, __) => const DevMenuScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.devGoalDetail,
+          builder: (_, state) => GoalsDetailScreen(
+            goal: (state.extra as Goal?) ?? DevFixtures.goalDetail,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.devInfoScreen,
+          builder: (context, __) => InfoScreen(
+            icon: Icons.local_fire_department,
+            title: 'Nice streak!',
+            descriptionText:
+                'You have studied 7 days in a row. Keep it up and you will '
+                'hit your first milestone this week.',
+            buttonText: 'Continue',
+            onButtonPressed: () => context.pop(),
+          ),
+        ),
+      ],
       StatefulShellRoute.indexedStack(
         builder: (_, __, navigationShell) =>
             ScaffoldWithNavBar(navigationShell: navigationShell),

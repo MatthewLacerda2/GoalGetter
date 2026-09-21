@@ -25,7 +25,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   @override
   void initState() {
     super.initState();
-    ref.read(lessonControllerProvider.notifier).init(widget.questions);
+    // Deferred to after the first frame: init() writes to the provider, and
+    // Riverpod forbids modifying a provider while the widget tree is building.
+    // Calling it directly here threw, and because init() -> _fetchQuestions()
+    // is an unawaited async call the error was swallowed, leaving isLoading
+    // true forever (the lesson screen spun and never loaded).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(lessonControllerProvider.notifier).init(widget.questions);
+    });
   }
 
   String _formatDuration(Duration duration) {
