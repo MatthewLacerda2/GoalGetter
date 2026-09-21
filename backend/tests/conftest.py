@@ -6,6 +6,7 @@ pytest_plugins = [
     "backend.tests.fixtures.auth",
     "backend.tests.fixtures.users",
     "backend.tests.fixtures.clients",
+    "backend.tests.fixtures.goals",
 ]
 
 @pytest.fixture(autouse=True)
