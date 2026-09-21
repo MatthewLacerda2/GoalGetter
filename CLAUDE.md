@@ -229,8 +229,6 @@ remind him and ask.
 - **Analyzer backlog: 60 warnings, 635 infos** (2026-09-21), so CI runs `flutter
   analyze` with `--no-fatal-warnings --no-fatal-infos`. Next step: clear the
   warnings (mostly mechanical) and let them block.
-- **`SECRET_KEY` hardcoded in `backend/utils/envs.py` is dead code** — JWTs are
-  signed with `settings.SECRET_KEY` from `.env`. Delete the constant.
 - **Gemini model names drift.** They are defined once in `backend/utils/envs.py` and
   need a bump roughly monthly.
 
