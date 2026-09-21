@@ -24,6 +24,7 @@ import 'package:goal_getter/features/lessons/presentation/screens/info_screen.da
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goal_detail_route.dart';
 
 /// The app's go_router configuration.
 ///
@@ -91,10 +92,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '${AppRoutes.goals}/:id',
-        builder: (_, state) {
-          final goal = state.extra as Goal? ?? DevFixtures.goalDetail;
-          return GoalsDetailScreen(goal: goal);
-        },
+        builder: (_, state) => GoalDetailRoute(
+          goalId: state.pathParameters['id']!,
+          goal: state.extra as Goal?,
+        ),
       ),
       // Dev-only screen index. Registered only for --dart-define=DEV_MENU=true
       // builds so these paths do not exist in production.
