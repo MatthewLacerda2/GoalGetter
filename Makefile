@@ -11,8 +11,13 @@ FLUTTER ?= $(shell command -v flutter 2>/dev/null || echo $$HOME/development/flu
 DART    ?= $(dir $(FLUTTER))dart
 
 # Backend deps live in the image, not a local venv (see CLAUDE.md).
+# Run as the invoking user, and write no bytecode or pytest cache: as root, the
+# container left root-owned __pycache__/.pytest_cache in the mounted worktree,
+# which then could not be removed without sudo.
 BACKEND_IMAGE ?= goalgetter-backend-planning-backend
-DOCKER_RUN    := docker run --rm --network host -v "$(CURDIR)":/app -w /app $(BACKEND_IMAGE)
+DOCKER_RUN    := docker run --rm --network host --user "$$(id -u):$$(id -g)" \
+                 -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1 \
+                 -v "$(CURDIR)":/app -w /app $(BACKEND_IMAGE)
 
 .DEFAULT_GOAL := help
 
@@ -32,7 +37,7 @@ back-lint: ## Backend house rules (file/endpoint/test length, repository pattern
 	@python3 backend/tests/backend_linter.py
 
 back-test: env ## Backend pytest (needs the test database: docker compose up -d postgres_test)
-	@$(DOCKER_RUN) python -m pytest backend/tests -o addopts="" -q
+	@$(DOCKER_RUN) python -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
 
 front-lint: ## Frontend dart line limits + flutter analyze
 	@cd frontend && $(DART) run tool/frontend_linter.dart
