@@ -13,6 +13,7 @@ GEMINI_FAST_MODEL = "gemini-3.1-flash-lite"
 GEMINI_PREMIUM_MODEL = "gemini-3.5-flash"
 GOOGLE_PROJECT_ID = settings.GOOGLE_PROJECT_ID
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+YOUTUBE_API_KEY = settings.YOUTUBE_API_KEY
 
 JWT_ISSUER = "https://goalsgetter.org/api/v1"
 JWT_AUDIENCE = "https://goalsgetter.org/api/v1"

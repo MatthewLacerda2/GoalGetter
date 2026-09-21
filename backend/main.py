@@ -4,7 +4,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.logging_middleware import LoggingMiddleware
-# from backend.core.scheduler import setup_scheduler_jobs, start_scheduler, stop_scheduler
 from backend.llms import get_llms_txt
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware

@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_PROJECT_ID: str = ""
+    # YouTube Data API v3 key, used to confirm that recommended channels/videos
+    # really exist and have a profile picture. Empty = YouTube links are dropped.
+    YOUTUBE_API_KEY: str = ""
     
     DATABASE_URL: str
     TEST_DATABASE_URL: str | None = None  # Optional, only needed for tests
