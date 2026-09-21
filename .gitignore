@@ -194,3 +194,5 @@ terraform.tfvars
 *.tfstate
 *.tfstate.backup
 .terraform/
+# Headless screenshots (make shot)
+shots/

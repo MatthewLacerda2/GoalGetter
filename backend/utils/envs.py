@@ -5,7 +5,10 @@
 
 from backend.core.config import settings
 
+# Deprecated: nothing reads it. Use QUESTIONS_PER_LESSON.
 NUM_QUESTIONS_PER_LESSON = 12 #TODO: deprecated
+# How many questions POST /goals/{goal_id}/lessons serves; 5 matches the lesson screens.
+QUESTIONS_PER_LESSON = 5
 NUM_QUESTIONS_PER_EVALUATION = 8
 NUM_DIMENSIONS = 3072
 EMBEDDING_MODEL = "gemini-embedding-2"

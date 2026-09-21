@@ -56,21 +56,27 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 
 ---
 
-## User — ⬜
+## User — backend ✅ (#56; the app still runs on the mock)
 
 - **`GET /me`** — the signed-in user's profile + streak (drives the Profile header).
   request: none · response: `user_profile`
-  - caveat: `current_streak` is user-wide; computed from lesson activity (no
-    streak table needed unless we decide to cache it).
+  - `member_since` is `students.created_at`.
+  - `current_streak` is user-wide; computed from lesson activity, no streak
+    table (see **Streak** under the cross-cutting notes).
 
 ---
 
-## Goals — partly ✅ (creation done; reads still ⬜)
+## Goals — ✅ implemented & tested
 
-- **`GET /goals`** — all of the user's goals, full info (the Goals list screen
+- **`GET /goals`** ✅ — all of the user's goals, full info (the Goals list screen
   reads everything at once; there is no per-goal GET).
-  request: none · response: `goal[]`
-  - `is_active` = `goal.id == students.current_goal_id`.
+  request: none · response: `goal[]`, **newest first** (`created_at`)
+  - `is_active` = `goal.id == students.current_goal_id`. It is the only goal
+    "status" there is.
+  - `current_elo` reads `goals.rating`. `updated_at` is bumped by any change to
+    the goal row (SQLAlchemy `onupdate`), the rating after a lesson included, so
+    it reads as "last studied". Activating a goal changes `students`, not the
+    goal, so it does not move `updated_at`.
 
 - **`POST /goals/objective-questions`** ⚙️ ✅ — step 1 of creation: validate the
   prompt is a real goal, then generate clarifying multiple-choice questions.
@@ -108,66 +114,108 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     is a fixed 15-value enum so Gemini cannot hallucinate an icon name.
   - sets `students.current_goal_id`, then fires the background jobs below.
 
-- **`PUT /goals/{goal_id}/set-active`** — set `students.current_goal_id`.
+- **`PUT /goals/{goal_id}/set-active`** ✅ — set `students.current_goal_id`.
   request: none · response: `{ "goal_id": "..." }`
 
-- **`DELETE /goals/{goal_id}`** — delete a goal and its data.
-  request: none · response: none
+- **`DELETE /goals/{goal_id}`** ✅ — delete a goal and its data.
+  request: none · response: 204, no body
+  - the database cascades: `ON DELETE CASCADE` takes the goal's rows
+    (resources, lessons, contexts…), `SET NULL` clears `current_goal_id` when the
+    active goal goes. No goal becomes active in its place; the client decides
+    where to land.
+
+Both `{goal_id}` routes answer **404** for a missing goal *and* for someone
+else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Home — ⬜
+## Home — backend ✅ (#56; the app still runs on the mock)
 
 - **`GET /home`** — dashboard for the active goal: rating, streak, recent
   lessons, and the elo-over-time series.
   request: none (uses `current_goal_id`) · response: `home_dashboard`
-  - caveat: `elo_history` is one point per day, oldest first; the client filters
-    to 7/30/90 days. `recent_lessons` newest first.
+  - **404** `No active goal` without one (`get_active_goal`, as `/resources`);
+    the app shows its empty state with a way to create a goal.
+  - `recent_lessons`: finished lessons only, newest first, at most **10** (the
+    screen shows 4).
+  - `elo_history`: one point per day that had a finished lesson, oldest first,
+    the `elo_after` of that day's last lesson; the whole history, the client
+    filters to 7/30/90 days.
+  - Dates are the server's local date of `lessons.finished_at`.
 
 ---
 
-## Lessons — ⬜
+## Lessons — backend ✅ (#55; the app still runs on the mock)
 
-- **`POST /goals/{goal_id}/lessons`** — open a lesson; returns a pre-built set of
-  questions.
+- **`POST /goals/{goal_id}/lessons`** — open a lesson from the goal's question
+  bank. 201.
   request: none · response: `{ "lesson_id": "...", "questions": multiple_choice_question[] }`
-  - caveat: questions are **not** generated on request. A background/cron job
-    pre-generates a per-goal question bank based on the user's performance
-    (how many to make, and whether to reuse questions from the user or similar
-    goals). This endpoint just allocates the next set and opens an attempt.
+  - questions are **not** generated on request: the bank is built by the lesson
+    job (see Background jobs). This endpoint picks the next set and opens a
+    lesson (`lessons` row, served ids in order).
+  - **selection**, in this order until the lesson is full
+    (`QUESTIONS_PER_LESSON` = 5, `utils/envs.py`): 1. questions whose **latest**
+    answer was wrong, most recent first; 2. questions never answered, oldest
+    first; 3. everything else, least recently answered first. Written once, in
+    `services/lessons/selection.py`. Embeddings (reuse across students) unused yet.
+  - empty bank ⇒ **409** `"Lessons are still being prepared"`. Not the
+    student's goal ⇒ 404.
+  - every call opens a new lesson; an unanswered one is simply left open.
   - `correct_answer_index` **is** included (the frontend grades inline; we accept
-    that a determined user could read it via devtools).
+    that a determined user could read it via devtools). The server re-grades.
 
-- **`POST /goals/{goal_id}/lessons/{lesson_id}/answers`** ⚙️ — submit answers;
-  returns the result.
-  request: `{ "answers": lesson_answer[] }` · response: `lesson_evaluation`
-  - services: score the attempt, update the goal's elo, update the streak.
-
----
-
-## Tutor — ⬜
-Scoped to the active goal (`current_goal_id`).
-
-- **`GET /tutor/messages`** — chat history, paginated, ordered by `created_at`
-  **descending** (client reverses for display).
-  params: `cursor` (or `page`), `limit` · request: none · response: `chat_message[]`
-
-- **`POST /tutor/messages`** ⚙️ — send a user message; get the tutor's reply.
-  request: `{ "message": "..." }` · response: `chat_message` (the reply)
-  - service: LLM chat completion. Persists both the user message and the reply.
-
-- **`POST /tutor/messages/{message_id}/like`** — toggle the "liked" flag on a
-  message.
-  request: `{ "is_liked": true }` · response: `chat_message` (updated)
+- **`POST /goals/{goal_id}/lessons/{lesson_id}/answers`** — submit the answers
+  all at once; returns the result.
+  request: `{ "answers": lesson_answer[] }` (at least one) · response: `lesson_evaluation`
+  - graded **server-side** from the stored correct index; nothing the client
+    says about correctness is read. `student_accuracy` is over every question
+    **served**: one left out counts as wrong. Time is self-reported.
+  - stores one `lesson_answers` row per question (the first attempt; the
+    review round is never submitted), then the lesson's `finished_at`,
+    `total_seconds`, `accuracy`, `elo_delta`, `elo_after`.
+  - `elo` is **random** (±20) until the elo design (#62): one function,
+    `services/lessons/elo.py`. It is added to `goals.rating`.
+  - lesson already answered ⇒ **409**. A question not served in this lesson, or
+    the same one twice ⇒ **422**. Lesson not in this goal ⇒ 404. Streak: #56.
 
 ---
 
-## Resources — read endpoint ⬜ · generation ✅
+## Tutor — ✅ implemented & tested
+Scoped to the active goal (`current_goal_id`); no active goal ⇒ 404 `No active goal`.
+The API speaks in **exchanges**, not single messages: one row of `chat_messages`
+is the student's prompt plus the tutor's reply, and the reply is Gemini's array
+of short strings (WhatsApp-style bubbles). The client expands one exchange into a
+user bubble plus one tutor bubble per `responses` entry.
 
-- **`GET /resources`** — curated resources for the active goal, grouped by kind.
+- **`GET /tutor/messages`** ✅ — the active goal's exchanges, **newest first**
+  (client reverses for display).
+  params: `before` (a `created_at`; only older exchanges), `limit` (default 20,
+  max 50) · request: none · response: `chat_exchange[]`. Next page: pass the last
+  item's `created_at` as `before`.
+
+- **`POST /tutor/messages`** ⚙️ ✅ — send a message; get the stored exchange (201).
+  request: `{ "message": "..." }` · response: `chat_exchange`
+  - service: `services/gemini/chat/` via `run_gemini` (a Gemini `APIError` keeps its
+    status code). Gemini gets the goal's name and description, the student's
+    still-valid contexts for the goal, and the last `HISTORY_WINDOW` (10) exchanges
+    oldest first as alternating user/model turns, then the new message. Older
+    memory is the student contexts' job, not the window's.
+
+- **`PUT /tutor/messages/{message_id}/like`** ✅ — set (not toggle) the like on the
+  tutor's reply; the heart sits on the reply's last bubble.
+  request: `{ "is_liked": true }` · response: `chat_exchange` (updated). An
+  exchange outside the active goal (someone else's, or another goal's) ⇒ 404.
+
+---
+
+## Resources — ✅ implemented & tested
+
+- **`GET /resources`** ✅ — curated resources for the active goal, grouped by kind.
   request: none (uses `current_goal_id`) · response:
   `{ "youtube": resource_item[], "books": resource_item[], "websites": resource_item[] }`
-  - not built yet. The rows it will read **are** now generated (below).
+  - `pdf` → `books`, `webpage` → `websites`. `url` is the stored `link`.
+  - no active goal ⇒ **404 `No active goal`** (`get_active_goal`). A goal whose
+    background job has not finished yet has three empty lists, not an error.
 
 ### Resource generation (background job) — ✅
 
@@ -204,7 +252,7 @@ Fire-and-forget, spawned on the running loop, errors logged not raised.
 | Job | Trigger | State |
 | --- | --- | --- |
 | **Resource scraping** | goal created; later on skill jump / monthly | ✅ built |
-| **Lesson generation** | goal created; later a daily check that skips users who did no lessons | ⬜ stub |
+| **Lesson generation** | goal created (first student context, then the first question bank from it); later a nightly job (#63) | ✅ first bank · ⬜ nightly |
 | **Student context ("memories")** | after onboarding, then periodically | ⬜ services written, nothing calls them |
 
 **Scheduling rule for memories** (user's intent, not yet implemented): check every
@@ -292,10 +340,12 @@ token_refresh_request   { "refresh_token": "..." }
 token_refresh_response  { "access_token": "<jwt>", "refresh_token": "..." }
 
 // ── To build ──
-user_profile            { "id": "...", "name": "...", "email": "...", "current_streak": 7 }
+user_profile            { "id": "...", "name": "...", "email": "...",
+                          "member_since": "2026-05-31T00:00:00Z", "current_streak": 7 }
 
 goal                    { "id": "...", "name": "...", "description": "...",
-                          "current_elo": 920, "is_active": true, "created_at": "2026-05-31T00:00:00Z" }
+                          "current_elo": 920, "is_active": true, "created_at": "2026-05-31T00:00:00Z",
+                          "updated_at": "2026-06-06T09:00:00Z" }
 
 objective_question      { "question": "...", "options": ["a","b","c","d"] }  // exactly 4
 objective_answer        { "question": "...", "answer": "<the selected option>" }  // unselected options omitted
@@ -312,26 +362,31 @@ multiple_choice_question{ "id": "q1", "question": "...", "choices": ["...","..."
 lesson_answer           { "question_id": "q1", "choice_index": 0, "seconds_spent": 12 }
 lesson_evaluation       { "total_seconds_spent": 142, "student_accuracy": 80.0, "elo": 14 }
 
-chat_message            { "id": "...", "message": "...", "sender": "tutor",  // "user" | "tutor"
+chat_exchange           { "id": "...", "prompt": "...", "responses": ["...", "..."],
                           "is_liked": false, "created_at": "2026-06-06T09:00:00Z" }
 
 resource_item           { "name": "...", "description": "...", "url": "https://...",
-                          "image_url": "https://..." }
+                          "image_url": "https://..." }   // image_url null except on youtube
 ```
 
 ---
 
 ## Cross-cutting notes
 - **elo** everywhere (the old SDK used `xp`). Elo is **per-goal**, stored as
-  `goals.elo` (the user's rating *for that goal*); `goal.current_elo` and
+  `goals.rating` (the user's rating *for that goal*); `goal.current_elo` and
   `home_dashboard.current_elo` read from it. `lesson_evaluation.elo` is the
-  signed change applied to it for that lesson. Streak stays **per-user**.
+  signed change applied to it for that lesson, in one atomic `UPDATE`
+  (`GoalRepository.add_to_rating`, #72), whose result is `lessons.elo_after`.
+  Streak stays **per-user**.
 - **`students.current_goal_id`** is the single source of truth for the active
   goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.
 - **Streak** is just `current_streak` (a number) on `/me` and `/home`. No streak
-  table/endpoint, no weekly breakdown.
-- **`chat_message`** gains `is_liked` and `created_at` (the frontend model needs
-  both — like toggle + descending-time pagination).
+  table/endpoint, no weekly breakdown. The rule (`services/lessons/streak.py`):
+  consecutive days with at least one finished lesson on any goal, counted back
+  from today, or from yesterday when there is none today yet. Days are the
+  server's local date; time zones can come later.
+- **`chat_exchange`** replaced the mock-derived per-message `chat_message`
+  (#54): one exchange = prompt + reply bubbles, with `is_liked` and `created_at`.
 - **LLM-backed** (⚙️ via `llms.py`): objective-questions, study-plan, create
   goal, tutor reply. The lesson question bank is built by a separate background
   job, not at request time.
