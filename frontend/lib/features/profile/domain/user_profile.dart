@@ -1,7 +1,5 @@
-/// Frontend domain model for the signed-in user.
-///
-/// `currentStreak` is user-wide (not per goal). See docs/backend_contract.md
-/// (GET /me).
+/// Frontend domain model for the signed-in user (GET /me,
+/// `backend/schemas/me.py`). `currentStreak` is user-wide, not per goal.
 class UserProfile {
   final String id;
   final String name;
@@ -16,4 +14,12 @@ class UserProfile {
     required this.memberSince,
     required this.currentStreak,
   });
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        email: json['email'] as String,
+        memberSince: DateTime.parse(json['member_since'] as String),
+        currentStreak: json['current_streak'] as int,
+      );
 }
