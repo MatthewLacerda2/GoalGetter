@@ -36,6 +36,8 @@ targets; `make help` lists them. `make setup` once per checkout or worktree
 installs the git hooks, seeds `.env`, and fetches the Flutter deps (which also
 generates the l10n files — a fresh checkout shows ~69 analyzer errors until it
 runs).
+It also gives the worktree its **own test database** (`make test-db`): the fixtures drop
+every table, so two worktrees sharing one would wipe each other mid-run.
 
 Run `make backend` or `make frontend` for the side you touched, or `make check`
 for both, and see it pass **before pushing**.
