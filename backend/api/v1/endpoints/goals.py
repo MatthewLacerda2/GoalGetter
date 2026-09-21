@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.core.database import get_db
 from backend.core.rate_limiter import limiter
 from backend.core.security import get_current_user
@@ -15,6 +16,8 @@ from backend.schemas.goal import (
     GoalCommitRequest,
     GoalCreationResponse,
     IntroductionScreenData,
+    GoalResponse,
+    SetActiveGoalResponse,
 )
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, is_goal_validated
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
@@ -100,3 +103,52 @@ async def create_goal(
             for s in intro.screens
         ],
     )
+
+
+@router.get("", response_model=list[GoalResponse])
+async def list_goals(
+    current_user: Student = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Every goal of the student, newest first, with all the fields the goals list and
+    the goal detail screen show (there is no per-goal GET)."""
+    goals = await GoalRepository(db).list_by_student(current_user.id)
+    return [
+        GoalResponse(
+            id=str(goal.id),
+            name=goal.name,
+            description=goal.description,
+            current_elo=goal.rating,
+            is_active=goal.id == current_user.current_goal_id,
+            created_at=goal.created_at,
+            updated_at=goal.updated_at,
+        )
+        for goal in goals
+    ]
+
+@router.put("/{goal_id}/set-active", response_model=SetActiveGoalResponse)
+async def set_active_goal(
+    goal: Goal = Depends(get_owned_goal),
+    current_user: Student = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Make one of the student's goals the active one (students.current_goal_id).
+    Someone else's goal, or a missing one, is 404 (see get_owned_goal)."""
+    goal_id = goal.id  # read before commit: the production session expires on commit
+    current_user.current_goal_id = goal_id
+    await StudentRepository(db).update(current_user)
+    await db.commit()
+    return SetActiveGoalResponse(goal_id=str(goal_id))
+
+@router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_goal(
+    goal: Goal = Depends(get_owned_goal),
+    current_user: Student = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a goal and everything under it. The database does the cascading
+    (ON DELETE CASCADE on the goal's rows, SET NULL on students.current_goal_id), so
+    the in-memory student is refreshed afterwards: it may still hold the old id."""
+    await GoalRepository(db).delete(goal.id)
+    await db.commit()
+    await db.refresh(current_user)

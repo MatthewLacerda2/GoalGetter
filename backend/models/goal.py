@@ -17,6 +17,9 @@ class Goal(Base):
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     rating = Column(Integer, nullable=False, default=1200)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    # onupdate: any change to the row (the rating after a lesson, too) moves it, so
+    # the goals list can read it as "last studied".
+    updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now, onupdate=datetime.now)
     
     student = relationship("Student", back_populates="goals", foreign_keys=[student_id])
     student_contexts = relationship("StudentContext", back_populates="goal", cascade="all, delete-orphan")
