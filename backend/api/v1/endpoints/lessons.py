@@ -84,12 +84,11 @@ async def submit_lesson_answers(
     await LessonAnswerRepository(db).create_many(graded.answers)
 
     delta = lesson_elo_delta(goal.rating, graded.accuracy)
-    goal.rating += delta
-    await GoalRepository(db).update(goal)
+    new_rating = await GoalRepository(db).add_to_rating(goal.id, delta)
 
     lesson.finished_at = datetime.now()
     lesson.total_seconds, lesson.accuracy = graded.total_seconds, graded.accuracy
-    lesson.elo_delta, lesson.elo_after = delta, goal.rating
+    lesson.elo_delta, lesson.elo_after = delta, new_rating
     await lessons.update(lesson)
     await db.commit()
     return LessonEvaluation(

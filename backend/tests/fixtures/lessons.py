@@ -45,3 +45,25 @@ def answer_factory(test_db):
         await test_db.flush()
         return answer
     return _create
+
+
+def days_ago(days: int, hour: int = 12) -> datetime:
+    """A server-local, aware moment `days` days before today, at `hour`. Noon by
+    default, far from midnight, so the local date is never ambiguous."""
+    today = datetime.now().replace(hour=hour, minute=0, second=0, microsecond=0)
+    return (today - timedelta(days=days)).astimezone()
+
+
+@pytest.fixture
+def finished_lesson_factory(test_db):
+    """A lesson of `goal` answered at `finished_at`, with its result columns set.
+    `finished_at=None` leaves it unanswered."""
+    async def _create(goal, finished_at, elo_after=1200, elo_delta=5, accuracy=80.0, seconds=60):
+        lesson = Lesson(
+            goal_id=goal.id, question_ids=[], finished_at=finished_at, accuracy=accuracy,
+            total_seconds=seconds, elo_delta=elo_delta, elo_after=elo_after,
+        )
+        test_db.add(lesson)
+        await test_db.flush()
+        return lesson
+    return _create

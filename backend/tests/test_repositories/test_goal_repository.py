@@ -33,3 +33,20 @@ async def test_list_by_student_is_newest_first(test_db, test_user, student_facto
     goals = await GoalRepository(test_db).list_by_student(test_user.id)
 
     assert [g.name for g in goals] == ["New", "Old"]
+
+
+@pytest.mark.asyncio
+async def test_add_to_rating_is_one_update_that_returns_the_new_rating(test_db, test_user, goal_factory):
+    past = datetime.now(timezone.utc) - timedelta(days=3)
+    goal = await goal_factory(test_user, rating=1200, created_at=past, updated_at=past)
+    goals = GoalRepository(test_db)
+
+    assert await goals.add_to_rating(goal.id, 7) == 1207
+    assert await goals.add_to_rating(goal.id, -3) == 1204
+
+    # The session's copy is in step: nothing stale is left to flush back.
+    assert goal.rating == 1204
+    await test_db.flush()
+    await test_db.refresh(goal)
+    assert goal.rating == 1204
+    assert goal.updated_at > past + timedelta(days=2)
