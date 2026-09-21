@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/utils/error_text.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
-/// The sentence for a failed goal-creation call: the backend's `detail` (for a
-/// 400 from objective-questions, Gemini's reasoning), a localized line for the
-/// rate limit (slowapi's 429 body has no `detail`), or "could not reach the
-/// server" when nothing answered.
-// TODO(MatthewLacerda2): switch to core/utils/error_text.dart once #78 lands on backend-planning.
+/// The sentence for a failed goal-creation call: [errorText] (the backend's
+/// `detail`; for a 400 from objective-questions, Gemini's reasoning), except
+/// for the rate limit, whose slowapi body has no `detail` to show.
 String onboardingErrorText(Object error, AppLocalizations l10n) {
-  if (error is ApiException) {
-    if (error.status == 429) return l10n.onboardingTooManyTries;
-    return error.detail;
+  if (error is ApiException && error.status == 429) {
+    return l10n.onboardingTooManyTries;
   }
-  return l10n.onboardingUnreachable;
+  return errorText(error, l10n);
 }
 
 /// An inline error for a goal-creation step, with a retry when one helps.

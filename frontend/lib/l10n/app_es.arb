@@ -366,7 +366,6 @@
     "tutorRetry": "Reintentar",
     "tutorLikeFailed": "No se pudo guardar tu me gusta",
     "tutorLikeReply": "Me gusta esta respuesta",
-    "onboardingUnreachable": "No se pudo conectar con el servidor",
     "onboardingTooManyTries": "Demasiados intentos. Espera un minuto y vuelve a intentarlo.",
     "onboardingRetry": "Intentar de nuevo",
     "onboardingGeneratingPlan": "Generando tu plan de estudio...",

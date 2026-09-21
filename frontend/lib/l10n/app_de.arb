@@ -366,7 +366,6 @@
     "tutorRetry": "Erneut versuchen",
     "tutorLikeFailed": "Dein Like konnte nicht gespeichert werden",
     "tutorLikeReply": "Diese Antwort liken",
-    "onboardingUnreachable": "Der Server ist nicht erreichbar",
     "onboardingTooManyTries": "Zu viele Versuche. Warte eine Minute und versuche es erneut.",
     "onboardingRetry": "Erneut versuchen",
     "onboardingGeneratingPlan": "Dein Lernplan wird erstellt...",

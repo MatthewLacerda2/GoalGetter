@@ -366,7 +366,6 @@
     "tutorRetry": "Tentar de novo",
     "tutorLikeFailed": "Não foi possível salvar sua curtida",
     "tutorLikeReply": "Curtir esta resposta",
-    "onboardingUnreachable": "Não foi possível conectar ao servidor",
     "onboardingTooManyTries": "Muitas tentativas. Espere um minuto e tente de novo.",
     "onboardingRetry": "Tentar de novo",
     "onboardingGeneratingPlan": "Gerando seu plano de estudos...",

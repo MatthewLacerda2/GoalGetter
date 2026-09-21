@@ -412,8 +412,6 @@
     "@tutorLikeFailed": { "description": "Tutor chat: snackbar when saving a like failed" },
     "tutorLikeReply": "Like this reply",
     "@tutorLikeReply": { "description": "Tutor chat: tooltip of the heart on a tutor reply" },
-    "onboardingUnreachable": "Could not reach the server",
-    "@onboardingUnreachable": { "description": "Goal creation: error when the server could not be reached at all" },
     "onboardingTooManyTries": "Too many tries. Wait a minute and try again.",
     "@onboardingTooManyTries": { "description": "Goal creation: the backend rate limit (429) was hit" },
     "onboardingRetry": "Try again",
