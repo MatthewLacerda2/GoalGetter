@@ -158,8 +158,33 @@ changed: screens by route, endpoints, tables, services.
 Any defect found along the way gets **reported** in the closing message, not
 silently fixed out of scope and not silently ignored.
 
-The `task-flow` skill (`.claude/skills/task-flow`) is the full procedure; the
-`cleanup-local` skill tidies merged worktrees and branches.
+A PR that closes an issue opens with `Closes #<number>` — check the number; a typo
+closes the wrong issue, or none, silently.
+
+## Issues
+
+Work lives in **GitHub issues** — there is no other tracker. An issue is the agreed
+purpose and direction of a piece of work, written before it: an intention, not a spec.
+When the work diverges, the **pull request is the source of truth**.
+
+- **Title** starts with a scope tag — `[FE]` (Flutter), `[BE]` (FastAPI), `[FS]` (both),
+  `[OT]` (Docker, CI, root files, Terraform, docs) — then a sentence saying the outcome.
+- **One type label**: `architecture`, `infrastructure`, `bug`, `documentation`,
+  `foundation`, `feature`.
+- **At most one stage label**, `planning` or `human`. Both mean **do not start**,
+  absolutely; their absence means ready, including on an issue filed a minute ago. The
+  judgement lives in the label, so put it on honestly.
+- **`minor`** is a size marker (~30 lines or fewer), not a type.
+
+**Priority — `architecture` → `infrastructure` → `bug` → `foundation` → `feature`;
+`documentation` never waits its turn.** That is "foundations come first" as an order,
+and it governs what gets **merged**, not what gets **worked**.
+
+The same nine labels are used across the user's repos. **`issue-write` and
+`issue-batch` hold the procedures** (`.claude/skills/`) — invoke them rather than
+reconstructing one from memory, and name them when briefing a subagent. Where they
+disagree with this file, this file wins. `cleanup-local` tidies merged worktrees and
+branches afterwards.
 
 ## Documentation
 
