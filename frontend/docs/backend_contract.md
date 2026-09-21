@@ -254,7 +254,7 @@ Decided in conversation; recorded here so they survive the session.
 6. **Model split.** Fast-lite for high-volume/low-stakes (validation, questions,
    intro screens, lesson generation, chat); premium for what the user reads
    (goal description, resource search). Model names live in one file and need a
-   bump roughly monthly — currently two versions behind.
+   bump roughly monthly — last bumped 2026-09-21 to `gemini-3.5-flash-lite` / `gemini-3.8-flash`.
 
 ### Build order agreed
 1. Backend correct & tested (mocked Gemini) ← we are here
