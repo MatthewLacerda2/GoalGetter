@@ -1,5 +1,4 @@
 import logging
-import re
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status, Response
@@ -24,6 +23,7 @@ from backend.schemas.student import (
 )
 from backend.repositories.student_repository import StudentRepository
 from backend.repositories.refresh_token_repository import RefreshTokenRepository
+from backend.services.fictitious.identity import fictitious_identity
 
 logger = logging.getLogger(__name__)
 
@@ -87,8 +87,6 @@ async def login(
     await student_repo.update(user)
     return await _token_response(db, user)
 
-FICTITIOUS_PREFIX = "Fictitious "
-
 def require_dev_login():
     """404 unless DEV_LOGIN is on, so production answers as if the route did not
     exist. Read per request (not at import) so tests can flip the setting."""
@@ -102,18 +100,14 @@ def require_dev_login():
 async def dev_login(payload: DevLoginRequest, db: AsyncSession = Depends(get_db)):
     """
     Dev only: sign in as a fictitious student, no Google involved. Creates or
-    reuses the student named `Fictitious <name>`; the name prefix is the only
-    marker that a student is fictitious (decided in #51, no database flag).
+    reuses the student named `Fictitious <name>` (services/fictitious/identity.py).
     """
-    name = payload.name.strip()
-    if not name.startswith(FICTITIOUS_PREFIX):
-        name = FICTITIOUS_PREFIX + name
-    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    identity = fictitious_identity(payload.name)
     student_repo = StudentRepository(db)
-    student = await student_repo.get_by_google_id(slug)
+    student = await student_repo.get_by_google_id(identity.google_id)
     if not student:
         student = await student_repo.create(Student(
-            email=f"{slug}@fictitious.invalid", google_id=slug, name=name
+            email=identity.email, google_id=identity.google_id, name=identity.name
         ))
     else:
         student.last_login = datetime.now()
