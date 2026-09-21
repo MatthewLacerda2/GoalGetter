@@ -119,8 +119,11 @@ gates prove the code runs; they do not prove it is the right change.
   it with its own backend on `:8093` (loopback and the tailnet only). `make claude-token`
   signs Claude in as a fictitious student, then `make shot ROUTES="/home /goals"` writes a
   phone-sized PNG per route to `shots/` — read them. Flutter web draws to a canvas, so
-  the PNG, not the DOM, is the evidence. The preview's backend drops its schema on
-  every start: re-run `make claude-token` after a rebuild.
+  the PNG, not the DOM, is the evidence. `make claude` does what `make claude-token`
+  does after giving that student a lived-in history (three goals, two weeks of lessons,
+  a tutor chat, resources) written straight to the dev database, so every screen has
+  data; `ARGS=--fresh` rebuilds it. The preview's backend drops its schema on every
+  start: re-run `make claude` (or `make claude-token`) after a rebuild.
 - **Gemini and YouTube behaviour**: the services are plain functions — call them
   directly to see what the model actually returns.
 

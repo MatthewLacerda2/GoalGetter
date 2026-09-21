@@ -21,7 +21,7 @@ DOCKER_RUN    := docker run --rm --network host --user "$$(id -u):$$(id -g)" \
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-test front-lint front-test setup hooks env test-db claude-token shot preview preview-down
+.PHONY: help check backend frontend back-lint back-test front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -127,3 +127,15 @@ ROUTES ?= /
 shot: ## Headless phone screenshots of ROUTES from the preview, into shots/
 	@node tools/shot.mjs --url http://127.0.0.1:$(PREVIEW_PORT) --out shots \
 	  $(if $(wildcard .claude/token),--token .claude/token) $(ROUTES)
+
+# `make claude`: "Fictitious Claude" with a lived-in history, so every signed-in
+# screen has data (backend/services/fictitious/, hardcoded, no Gemini/YouTube),
+# then its token through `claude-token`. It writes to DATABASE_URL: the
+# environment's if set (forwarded by name, never echoed), else .env's, which is
+# the dev database the preview backend uses. The schema must exist (a backend
+# creates it on start), and every backend start drops it: re-run after one.
+# Idempotent; ARGS=--fresh deletes the student and rebuilds it.
+CLAUDE_RUN = $(subst --network host,--network host $(if $(DATABASE_URL),-e DATABASE_URL),$(DOCKER_RUN))
+claude: env ## Seed "Fictitious Claude" with a lived-in history, then write .claude/token (ARGS=--fresh)
+	@$(CLAUDE_RUN) python -m backend.services.fictitious $(ARGS)
+	@$(MAKE) --no-print-directory claude-token
