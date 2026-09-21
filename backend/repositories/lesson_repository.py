@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import select, delete as sql_delete
 
+from backend.models.goal import Goal
 from backend.models.lesson import Lesson
 from backend.repositories.base import BaseRepository
 
@@ -32,6 +34,43 @@ class LessonRepository(BaseRepository[Lesson]):
         )
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def list_finished_by_goal(self, goal_id) -> list[Lesson]:
+        """The goal's answered lessons, oldest first (Home's elo history)."""
+        stmt = (
+            select(Lesson)
+            .where(Lesson.goal_id == goal_id, Lesson.finished_at.is_not(None))
+            .order_by(Lesson.finished_at.asc())
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def list_recent_finished_by_goal(self, goal_id, limit: int) -> list[Lesson]:
+        """The goal's last `limit` answered lessons, newest first."""
+        stmt = (
+            select(Lesson)
+            .where(Lesson.goal_id == goal_id, Lesson.finished_at.is_not(None))
+            .order_by(Lesson.finished_at.desc())
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def list_finished_at_by_student(self, student_id) -> list[datetime]:
+        """When each of the student's lessons was answered, on any goal, newest first.
+
+        Timestamps, not dates: the streak buckets them by the server's local
+        date in Python (services/lessons/streak.py), so the rule does not
+        depend on the database session's time zone.
+        """
+        stmt = (
+            select(Lesson.finished_at)
+            .join(Goal, Goal.id == Lesson.goal_id)
+            .where(Goal.student_id == student_id, Lesson.finished_at.is_not(None))
+            .order_by(Lesson.finished_at.desc())
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
 
     async def update(self, entity: Lesson) -> Lesson:
         await self.db.flush()

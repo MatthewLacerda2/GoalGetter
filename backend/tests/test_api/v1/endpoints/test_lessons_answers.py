@@ -51,6 +51,24 @@ async def test_answers_are_graded_server_side_and_move_the_rating(auth_client, t
 
 
 @pytest.mark.asyncio
+async def test_a_submit_bumps_the_goals_updated_at_and_records_the_new_rating(
+    auth_client, test_db, test_user, goal_factory, question_factory
+):
+    """#72: the rating moves in one UPDATE, which must still move `updated_at`"""
+    goal = await goal_factory(test_user, rating=1000, created_at=at(0), updated_at=at(0))
+    question = await question_factory(goal, "only", correct=0)
+    lesson_id = (await auth_client.post(f"/api/v1/goals/{goal.id}/lessons")).json()["lesson_id"]
+
+    with patch(DELTA, return_value=-4):
+        await auth_client.post(url(goal.id, lesson_id), json={"answers": [answer(question, 0)]})
+
+    await test_db.refresh(goal)
+    lesson = await LessonRepository(test_db).get_by_id(lesson_id)
+    assert (goal.rating, lesson.elo_after) == (996, 996)
+    assert goal.updated_at > at(60)
+
+
+@pytest.mark.asyncio
 async def test_an_unanswered_question_counts_as_wrong(auth_client, opened):
     goal, lesson_id, first, _ = opened
     response = await auth_client.post(url(goal.id, lesson_id), json={"answers": [answer(first, 1)]})

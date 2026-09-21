@@ -42,12 +42,13 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 
 ---
 
-## User — ⬜
+## User — backend ✅ (#56; the app still runs on the mock)
 
 - **`GET /me`** — the signed-in user's profile + streak (drives the Profile header).
   request: none · response: `user_profile`
-  - caveat: `current_streak` is user-wide; computed from lesson activity (no
-    streak table needed unless we decide to cache it).
+  - `member_since` is `students.created_at`.
+  - `current_streak` is user-wide; computed from lesson activity, no streak
+    table (see **Streak** under the cross-cutting notes).
 
 ---
 
@@ -114,13 +115,19 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Home — ⬜
+## Home — backend ✅ (#56; the app still runs on the mock)
 
 - **`GET /home`** — dashboard for the active goal: rating, streak, recent
   lessons, and the elo-over-time series.
   request: none (uses `current_goal_id`) · response: `home_dashboard`
-  - caveat: `elo_history` is one point per day, oldest first; the client filters
-    to 7/30/90 days. `recent_lessons` newest first.
+  - **404** `No active goal` without one (`get_active_goal`, as `/resources`);
+    the app shows its empty state with a way to create a goal.
+  - `recent_lessons`: finished lessons only, newest first, at most **10** (the
+    screen shows 4).
+  - `elo_history`: one point per day that had a finished lesson, oldest first,
+    the `elo_after` of that day's last lesson; the whole history, the client
+    filters to 7/30/90 days.
+  - Dates are the server's local date of `lessons.finished_at`.
 
 ---
 
@@ -319,7 +326,8 @@ token_refresh_request   { "refresh_token": "..." }
 token_refresh_response  { "access_token": "<jwt>", "refresh_token": "..." }
 
 // ── To build ──
-user_profile            { "id": "...", "name": "...", "email": "...", "current_streak": 7 }
+user_profile            { "id": "...", "name": "...", "email": "...",
+                          "member_since": "2026-05-31T00:00:00Z", "current_streak": 7 }
 
 goal                    { "id": "...", "name": "...", "description": "...",
                           "current_elo": 920, "is_active": true, "created_at": "2026-05-31T00:00:00Z",
@@ -351,13 +359,18 @@ resource_item           { "name": "...", "description": "...", "url": "https://.
 
 ## Cross-cutting notes
 - **elo** everywhere (the old SDK used `xp`). Elo is **per-goal**, stored as
-  `goals.elo` (the user's rating *for that goal*); `goal.current_elo` and
+  `goals.rating` (the user's rating *for that goal*); `goal.current_elo` and
   `home_dashboard.current_elo` read from it. `lesson_evaluation.elo` is the
-  signed change applied to it for that lesson. Streak stays **per-user**.
+  signed change applied to it for that lesson, in one atomic `UPDATE`
+  (`GoalRepository.add_to_rating`, #72), whose result is `lessons.elo_after`.
+  Streak stays **per-user**.
 - **`students.current_goal_id`** is the single source of truth for the active
   goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.
 - **Streak** is just `current_streak` (a number) on `/me` and `/home`. No streak
-  table/endpoint, no weekly breakdown.
+  table/endpoint, no weekly breakdown. The rule (`services/lessons/streak.py`):
+  consecutive days with at least one finished lesson on any goal, counted back
+  from today, or from yesterday when there is none today yet. Days are the
+  server's local date; time zones can come later.
 - **`chat_exchange`** replaced the mock-derived per-message `chat_message`
   (#54): one exchange = prompt + reply bubbles, with `is_liked` and `created_at`.
 - **LLM-backed** (⚙️ via `llms.py`): objective-questions, study-plan, create
