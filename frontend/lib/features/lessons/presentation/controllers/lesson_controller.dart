@@ -148,9 +148,12 @@ class LessonController extends _$LessonController {
   }
 
   Future<void> _fetchQuestions() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
     try {
+      // Inside the try: a throw here (e.g. writing to the provider at a
+      // disallowed moment) would otherwise escape this unawaited async call
+      // and strand the screen on its loading spinner.
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
       final questions = await getMockLessonQuestions();
 
       if (questions.isEmpty) {
