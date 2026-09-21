@@ -124,22 +124,38 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Lessons — ⬜
+## Lessons — backend ✅ (#55; the app still runs on the mock)
 
-- **`POST /goals/{goal_id}/lessons`** — open a lesson; returns a pre-built set of
-  questions.
+- **`POST /goals/{goal_id}/lessons`** — open a lesson from the goal's question
+  bank. 201.
   request: none · response: `{ "lesson_id": "...", "questions": multiple_choice_question[] }`
-  - caveat: questions are **not** generated on request. A background/cron job
-    pre-generates a per-goal question bank based on the user's performance
-    (how many to make, and whether to reuse questions from the user or similar
-    goals). This endpoint just allocates the next set and opens an attempt.
+  - questions are **not** generated on request: the bank is built by the lesson
+    job (see Background jobs). This endpoint picks the next set and opens a
+    lesson (`lessons` row, served ids in order).
+  - **selection**, in this order until the lesson is full
+    (`QUESTIONS_PER_LESSON` = 5, `utils/envs.py`): 1. questions whose **latest**
+    answer was wrong, most recent first; 2. questions never answered, oldest
+    first; 3. everything else, least recently answered first. Written once, in
+    `services/lessons/selection.py`. Embeddings (reuse across students) unused yet.
+  - empty bank ⇒ **409** `"Lessons are still being prepared"`. Not the
+    student's goal ⇒ 404.
+  - every call opens a new lesson; an unanswered one is simply left open.
   - `correct_answer_index` **is** included (the frontend grades inline; we accept
-    that a determined user could read it via devtools).
+    that a determined user could read it via devtools). The server re-grades.
 
-- **`POST /goals/{goal_id}/lessons/{lesson_id}/answers`** ⚙️ — submit answers;
-  returns the result.
-  request: `{ "answers": lesson_answer[] }` · response: `lesson_evaluation`
-  - services: score the attempt, update the goal's elo, update the streak.
+- **`POST /goals/{goal_id}/lessons/{lesson_id}/answers`** — submit the answers
+  all at once; returns the result.
+  request: `{ "answers": lesson_answer[] }` (at least one) · response: `lesson_evaluation`
+  - graded **server-side** from the stored correct index; nothing the client
+    says about correctness is read. `student_accuracy` is over every question
+    **served**: one left out counts as wrong. Time is self-reported.
+  - stores one `lesson_answers` row per question (the first attempt; the
+    review round is never submitted), then the lesson's `finished_at`,
+    `total_seconds`, `accuracy`, `elo_delta`, `elo_after`.
+  - `elo` is **random** (±20) until the elo design (#62): one function,
+    `services/lessons/elo.py`. It is added to `goals.rating`.
+  - lesson already answered ⇒ **409**. A question not served in this lesson, or
+    the same one twice ⇒ **422**. Lesson not in this goal ⇒ 404. Streak: #56.
 
 ---
 
@@ -215,7 +231,7 @@ Fire-and-forget, spawned on the running loop, errors logged not raised.
 | Job | Trigger | State |
 | --- | --- | --- |
 | **Resource scraping** | goal created; later on skill jump / monthly | ✅ built |
-| **Lesson generation** | goal created; later a daily check that skips users who did no lessons | ⬜ stub |
+| **Lesson generation** | goal created (first student context, then the first question bank from it); later a nightly job (#63) | ✅ first bank · ⬜ nightly |
 | **Student context ("memories")** | after onboarding, then periodically | ⬜ services written, nothing calls them |
 
 **Scheduling rule for memories** (user's intent, not yet implemented): check every

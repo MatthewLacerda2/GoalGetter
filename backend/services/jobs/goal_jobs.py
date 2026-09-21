@@ -12,9 +12,15 @@ import asyncio
 import logging
 
 from backend.core.database import AsyncSessionLocal
+from backend.models.lesson_question import LessonQuestion
+from backend.models.student_context import StudentContext
 from backend.repositories.goal_repository import GoalRepository
+from backend.repositories.lesson_question_repository import LessonQuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
+from backend.repositories.student_context_repository import StudentContextRepository
+from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.resources.search_resources import search_resources
+from backend.services.gemini.student_context import gemini_generate_student_context
 from backend.services.resources.link_validation import validate_resources
 
 logger = logging.getLogger(__name__)
@@ -48,11 +54,51 @@ async def scrape_resources(goal_id: str) -> int:
     return len(fresh)
 
 
-async def generate_lessons(goal_id: str) -> int:
-    """Generate the initial lesson bank for the goal."""
-    # TODO: not built yet. Left as a no-op so the create flow stays wired.
-    logger.info("TODO: lessons generation for goal %s", goal_id)
-    return 0
+async def generate_lessons(
+    goal_id: str, prompt: str, answers: list[tuple[str, str]]
+) -> int:
+    """Build the goal's first lesson bank from the onboarding. Returns how many
+    questions were stored.
+
+    First the student context (the app's first impression of the learner, from
+    the onboarding prompt and answers), then questions generated from it. The
+    context is committed on its own: it is worth keeping even if question
+    generation fails. The nightly regeneration (#63) is not this job.
+    """
+    async with AsyncSessionLocal() as session:
+        goal = await GoalRepository(session).get_by_id(goal_id)
+        if goal is None:
+            logger.warning("Lessons generation: goal %s no longer exists", goal_id)
+            return 0
+
+        context = await asyncio.to_thread(
+            gemini_generate_student_context, goal.name, goal.description, prompt, answers
+        )
+        await StudentContextRepository(session).create(StudentContext(
+            student_id=goal.student_id, goal_id=goal.id,
+            state=context.state, metacognition=context.metacognition,
+        ))
+        await session.commit()
+
+        generated = await asyncio.to_thread(
+            generate_lesson_questions, goal.name, goal.description, goal.rating,
+            context.state, context.metacognition,
+        )
+        # A question whose correct index is out of range would fail the table's
+        # check constraint and take the whole batch with it: drop just that one.
+        questions = [
+            LessonQuestion(
+                goal_id=goal.id, question=q.question,
+                option_a=q.option_a, option_b=q.option_b, option_c=q.option_c, option_d=q.option_d,
+                correct_option_index=q.correct_option_index,
+            )
+            for q in generated.questions if 0 <= q.correct_option_index <= 3
+        ]
+        await LessonQuestionRepository(session).create_many(questions)
+        await session.commit()
+
+    logger.info("Stored %d lesson questions for goal %s", len(questions), goal_id)
+    return len(questions)
 
 
 async def _run_safely(name: str, coroutine) -> None:
@@ -77,5 +123,5 @@ def kickoff_resource_scraping(goal_id: str) -> None:
     _spawn("resource scraping", scrape_resources(goal_id))
 
 
-def kickoff_lessons_generation(goal_id: str) -> None:
-    _spawn("lessons generation", generate_lessons(goal_id))
+def kickoff_lessons_generation(goal_id: str, prompt: str, answers: list[tuple[str, str]]) -> None:
+    _spawn("lessons generation", generate_lessons(goal_id, prompt, answers))

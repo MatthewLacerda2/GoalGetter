@@ -45,7 +45,7 @@ async def test_create_goal_persists_and_returns_intro(auth_client, test_db, test
     await test_db.refresh(test_user)
     assert str(test_user.current_goal_id) == body["id"]
     resources.assert_called_once_with(body["id"])
-    lessons.assert_called_once_with(body["id"])
+    lessons.assert_called_once_with(body["id"], BODY["prompt"], [("Experience?", "None")])
 
 
 @pytest.mark.asyncio
