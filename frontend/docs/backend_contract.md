@@ -143,20 +143,31 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Tutor — ⬜
-Scoped to the active goal (`current_goal_id`).
+## Tutor — ✅ implemented & tested
+Scoped to the active goal (`current_goal_id`); no active goal ⇒ 404 `No active goal`.
+The API speaks in **exchanges**, not single messages: one row of `chat_messages`
+is the student's prompt plus the tutor's reply, and the reply is Gemini's array
+of short strings (WhatsApp-style bubbles). The client expands one exchange into a
+user bubble plus one tutor bubble per `responses` entry.
 
-- **`GET /tutor/messages`** — chat history, paginated, ordered by `created_at`
-  **descending** (client reverses for display).
-  params: `cursor` (or `page`), `limit` · request: none · response: `chat_message[]`
+- **`GET /tutor/messages`** ✅ — the active goal's exchanges, **newest first**
+  (client reverses for display).
+  params: `before` (a `created_at`; only older exchanges), `limit` (default 20,
+  max 50) · request: none · response: `chat_exchange[]`. Next page: pass the last
+  item's `created_at` as `before`.
 
-- **`POST /tutor/messages`** ⚙️ — send a user message; get the tutor's reply.
-  request: `{ "message": "..." }` · response: `chat_message` (the reply)
-  - service: LLM chat completion. Persists both the user message and the reply.
+- **`POST /tutor/messages`** ⚙️ ✅ — send a message; get the stored exchange (201).
+  request: `{ "message": "..." }` · response: `chat_exchange`
+  - service: `services/gemini/chat/` via `run_gemini` (a Gemini `APIError` keeps its
+    status code). Gemini gets the goal's name and description, the student's
+    still-valid contexts for the goal, and the last `HISTORY_WINDOW` (10) exchanges
+    oldest first as alternating user/model turns, then the new message. Older
+    memory is the student contexts' job, not the window's.
 
-- **`POST /tutor/messages/{message_id}/like`** — toggle the "liked" flag on a
-  message.
-  request: `{ "is_liked": true }` · response: `chat_message` (updated)
+- **`PUT /tutor/messages/{message_id}/like`** ✅ — set (not toggle) the like on the
+  tutor's reply; the heart sits on the reply's last bubble.
+  request: `{ "is_liked": true }` · response: `chat_exchange` (updated). An
+  exchange outside the active goal (someone else's, or another goal's) ⇒ 404.
 
 ---
 
@@ -313,7 +324,7 @@ multiple_choice_question{ "id": "q1", "question": "...", "choices": ["...","..."
 lesson_answer           { "question_id": "q1", "choice_index": 0, "seconds_spent": 12 }
 lesson_evaluation       { "total_seconds_spent": 142, "student_accuracy": 80.0, "elo": 14 }
 
-chat_message            { "id": "...", "message": "...", "sender": "tutor",  // "user" | "tutor"
+chat_exchange           { "id": "...", "prompt": "...", "responses": ["...", "..."],
                           "is_liked": false, "created_at": "2026-06-06T09:00:00Z" }
 
 resource_item           { "name": "...", "description": "...", "url": "https://...",
@@ -331,8 +342,8 @@ resource_item           { "name": "...", "description": "...", "url": "https://.
   goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.
 - **Streak** is just `current_streak` (a number) on `/me` and `/home`. No streak
   table/endpoint, no weekly breakdown.
-- **`chat_message`** gains `is_liked` and `created_at` (the frontend model needs
-  both — like toggle + descending-time pagination).
+- **`chat_exchange`** replaced the mock-derived per-message `chat_message`
+  (#54): one exchange = prompt + reply bubbles, with `is_liked` and `created_at`.
 - **LLM-backed** (⚙️ via `llms.py`): objective-questions, study-plan, create
   goal, tutor reply. The lesson question bank is built by a separate background
   job, not at request time.
