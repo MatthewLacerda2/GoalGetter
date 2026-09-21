@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Scoped pre-commit: run only the gates for the side that actually changed.
+#
+# The previous hook ran every gate in every worktree, so committing backend-only
+# work from a worktree that never ran `flutter pub get` failed on missing Dart
+# packages - which is what made `--no-verify` the habit. A gate that always
+# fails is a gate nobody runs.
+set -uo pipefail
+
+repo="$(git rev-parse --show-toplevel)"
+cd "$repo" || exit 1
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+[ -z "$staged" ] && exit 0
+
+fail=0
+
+if grep -q '^backend/' <<<"$staged"; then
+  echo "→ backend house lint"
+  python3 backend/tests/backend_linter.py || fail=1
+fi
+
+if grep -q '^frontend/' <<<"$staged"; then
+  flutter_bin="$(command -v flutter 2>/dev/null || echo "$HOME/development/flutter/bin/flutter")"
+  if [ ! -x "$flutter_bin" ]; then
+    echo "→ frontend gates skipped (flutter not found)"
+  elif [ ! -d frontend/.dart_tool ]; then
+    # Deps were never installed here; `make setup` fixes it. Skipping beats
+    # blocking the commit on a missing package error.
+    echo "→ frontend gates skipped (run 'make setup' in this worktree)"
+  else
+    echo "→ frontend line limits"
+    (cd frontend && "$(dirname "$flutter_bin")/dart" run tool/frontend_linter.dart) || fail=1
+    echo "→ flutter analyze"
+    (cd frontend && "$flutter_bin" analyze --no-fatal-infos --no-fatal-warnings) || fail=1
+  fi
+fi
+
+[ "$fail" -ne 0 ] && { echo "commit aborted - fix the above, or use --no-verify deliberately"; exit 1; }
+echo "pre-commit checks passed"
+exit 0

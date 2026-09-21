@@ -1,0 +1,43 @@
+name: frontend
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+    paths:
+      - "frontend/**"
+      - "Makefile"
+      - ".github/workflows/frontend.yml"
+
+jobs:
+  frontend:
+    name: lint · analyze · test
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+
+      # House rule: the 400-line limit on hand-written .dart files.
+      - name: Dart line limits
+        run: dart run tool/frontend_linter.dart
+
+      # Staged strictness: only errors fail the build for now. The repo carries a
+      # pre-existing backlog (2026-09-21: 0 errors, 60 warnings, 635 infos), so
+      # warnings and infos are reported but do not block.
+      #   next: clear the 60 warnings (mostly mechanical - 42 redundant `!`,
+      #         14 untyped Future.delayed, 4 dead fields/imports), then drop
+      #         --no-fatal-warnings so warnings block too.
+      #   infos: most are very_good_analysis style rules; pick the ones worth
+      #         enforcing and disable the rest rather than zeroing all 635.
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Test
+        run: flutter test
