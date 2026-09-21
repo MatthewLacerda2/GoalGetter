@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/widgets/error_retry_widget.dart';
-import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
+import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/widgets/state_message.dart';
+import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/home/presentation/widgets/elo_chart.dart';
 import 'package:goal_getter/features/home/presentation/widgets/elo_chip.dart';
@@ -34,13 +35,19 @@ class HomeScreen extends ConsumerWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-          error: (err, _) => ErrorRetryWidget(
-            errorMessage: err.toString(),
-            onRetry: () => ref.invalidate(homeControllerProvider),
+          error: (err, _) => StateMessage(
+            icon: Icons.cloud_off,
+            isError: true,
+            title: AppLocalizations.of(context)!.homeLoadFailed,
+            body: err is ApiException
+                ? err.detail
+                : AppLocalizations.of(context)!.couldNotReachServer,
+            actionLabel: AppLocalizations.of(context)!.homeRetry,
+            onAction: () => ref.invalidate(homeControllerProvider),
           ),
-          data: (data) => data.goalName == null
-              ? _EmptyState()
-              : _Dashboard(data: data),
+          // null: 404 No active goal.
+          data: (data) =>
+              data == null ? _EmptyState() : _Dashboard(data: data),
         ),
       ),
     );
@@ -48,7 +55,7 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _Dashboard extends StatelessWidget {
-  final MockHomeData data;
+  final HomeDashboard data;
 
   const _Dashboard({required this.data});
 
@@ -67,7 +74,7 @@ class _Dashboard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text(
-                    data.goalName!,
+                    data.goalName,
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -75,7 +82,7 @@ class _Dashboard extends StatelessWidget {
                   ),
                 ),
               ),
-              const StreakChip(),
+              StreakChip(count: data.currentStreak),
             ],
           ),
           const SizedBox(height: 20.0),

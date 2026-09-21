@@ -1,0 +1,141 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/features/profile/domain/user_profile.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
+
+/// The Profile header from GET /me: avatar, name, email, goal count, streak
+/// and member-since. A failed load says so, with a retry, in its place.
+class ProfileHeader extends StatelessWidget {
+  const ProfileHeader({
+    super.key,
+    required this.profile,
+    required this.goalsCount,
+    required this.onRetry,
+  });
+
+  final AsyncValue<UserProfile> profile;
+  final int goalsCount;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return profile.when(
+      skipLoadingOnRefresh: true,
+      loading: () => const SizedBox(
+        height: 60,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => _HeaderError(error: error, onRetry: onRetry),
+      data: (p) => _Header(profile: p, goalsCount: goalsCount),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({required this.profile, required this.goalsCount});
+
+  final UserProfile profile;
+  final int goalsCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final muted = theme.textTheme.bodyMedium;
+    return Row(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [scheme.primary, scheme.secondary],
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(profile.name, style: theme.textTheme.titleLarge),
+              Text(
+                profile.email,
+                style: theme.textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Text('$goalsCount ${l10n.goals.toLowerCase()}', style: muted),
+                  Text('  ·  ', style: muted),
+                  Icon(
+                    Icons.local_fire_department,
+                    size: 15,
+                    color: scheme.secondary,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    '${profile.currentStreak}',
+                    style: muted?.copyWith(
+                      color: scheme.secondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                l10n.profileMemberSince(profile.memberSince.toLocal()),
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HeaderError extends StatelessWidget {
+  const _HeaderError({required this.error, required this.onRetry});
+
+  final Object error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final detail =
+        error is ApiException ? (error as ApiException).detail : l10n.couldNotReachServer;
+    return Row(
+      children: [
+        Icon(Icons.cloud_off, color: scheme.error),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            '${l10n.profileLoadFailed}: $detail',
+            style: TextStyle(color: scheme.error),
+          ),
+        ),
+        TextButton(onPressed: onRetry, child: Text(l10n.profileRetry)),
+      ],
+    );
+  }
+}

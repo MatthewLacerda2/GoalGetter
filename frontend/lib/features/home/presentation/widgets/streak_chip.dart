@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:goal_getter/features/lessons/presentation/controllers/streak_controller.dart';
 
 /// Streak indicator (top-right of Home): a flame pill with the current streak
 /// count — the counterpart to the elo chip on the left. The streak is a
 /// user-wide, Duolingo-style return mechanic, independent of the active goal.
-class StreakChip extends ConsumerWidget {
-  const StreakChip({super.key});
+class StreakChip extends StatelessWidget {
+  const StreakChip({super.key, required this.count});
+
+  final int count;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final streakAsync = ref.watch(streakProvider);
-    final count = streakAsync.maybeWhen(
-      data: (data) => data.currentStreak as int,
-      orElse: () => 0,
-    );
+  Widget build(BuildContext context) {
     final orange = Theme.of(context).colorScheme.secondary;
 
     return Container(

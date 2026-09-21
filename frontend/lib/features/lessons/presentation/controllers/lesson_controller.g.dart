@@ -6,9 +6,13 @@ part of 'lesson_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$lessonControllerHash() => r'cda1f05411ae111a0c032281b9ce23066d737e94';
+String _$lessonControllerHash() => r'e0272f84fd72618b1d1b61e8ff36dbcb9394d598';
 
-/// See also [LessonController].
+/// Runs one lesson on the active goal: open it, answer each question once
+/// (graded inline for feedback), submit those first attempts, then a review
+/// round of the wrong ones that is never submitted.
+///
+/// Copied from [LessonController].
 @ProviderFor(LessonController)
 final lessonControllerProvider =
     AutoDisposeNotifierProvider<LessonController, LessonState>.internal(
