@@ -384,5 +384,14 @@
     "tutorOlderFailed": "Impossible de charger les messages précédents",
     "tutorRetry": "Réessayer",
     "tutorLikeFailed": "Impossible d'enregistrer votre j'aime",
-    "tutorLikeReply": "Aimer cette réponse"
+    "tutorLikeReply": "Aimer cette réponse",
+    "onboardingTooManyTries": "Trop de tentatives. Attendez une minute et réessayez.",
+    "onboardingRetry": "Réessayer",
+    "onboardingGeneratingPlan": "Création de votre plan d'étude...",
+    "onboardingPreviousQuestion": "Revenir à la question précédente",
+    "onboardingPlanFailed": "Impossible de créer votre plan d'étude",
+    "onboardingReviewAnswers": "Revoir mes réponses",
+    "onboardingIntroContinue": "C'est parti",
+    "startWithGoogle": "Commencer avec Google",
+    "signingIn": "Connexion..."
 }

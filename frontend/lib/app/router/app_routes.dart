@@ -13,6 +13,7 @@ class AppRoutes {
   static const goalPrompt = '/onboarding/goal';
   static const goalQuestions = '/onboarding/questions';
   static const studyPlan = '/onboarding/plan';
+  static const goalIntro = '/onboarding/intro';
 
   // Bottom-nav shell tabs
   static const home = '/home';

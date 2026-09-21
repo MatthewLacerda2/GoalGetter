@@ -22,6 +22,8 @@ class DevMenuScreen extends StatelessWidget {
           needsArgs: true),
       _DevEntry('Study plan', Icons.description_outlined, AppRoutes.studyPlan,
           needsArgs: true),
+      _DevEntry('Goal introduction', Icons.slideshow, AppRoutes.goalIntro,
+          needsArgs: true),
     ]),
     _DevSection('Main tabs', [
       _DevEntry('Home dashboard', Icons.home_outlined, AppRoutes.home),
@@ -49,7 +51,9 @@ class DevMenuScreen extends StatelessWidget {
       case AppRoutes.goalQuestions:
         return DevFixtures.goalQuestions;
       case AppRoutes.studyPlan:
-        return DevFixtures.studyPlan;
+        return DevFixtures.goalDraft;
+      case AppRoutes.goalIntro:
+        return DevFixtures.introScreens;
       case AppRoutes.lessonFinish:
         return DevFixtures.finishLesson;
       case AppRoutes.devGoalDetail:
