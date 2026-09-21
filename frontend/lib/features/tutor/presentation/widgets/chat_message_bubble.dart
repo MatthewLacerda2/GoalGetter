@@ -1,75 +1,115 @@
 import 'package:flutter/material.dart';
 
-import 'package:goal_getter/features/tutor/domain/chat_message.dart';
-class ChatMessageBubble extends StatelessWidget {
-  final ChatMessage message;
-  final VoidCallback? onDoubleTap;
+import 'package:goal_getter/features/tutor/presentation/chat_bubbles.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
-  ChatMessageBubble({super.key, required this.message, this.onDoubleTap});
+/// One chat bubble. A tutor bubble likes its exchange on a double tap; the
+/// reply's last bubble also shows the heart, which toggles the like on a tap.
+/// A pending user bubble is faded; a failed one says why underneath.
+class ChatMessageBubble extends StatelessWidget {
+  const ChatMessageBubble({super.key, required this.bubble, this.onToggleLike});
+
+  final ChatBubbleData bubble;
+  final VoidCallback? onToggleLike;
 
   @override
   Widget build(BuildContext context) {
-    final isTutor = message.sender == ChatMessageSender.tutor;
+    final colors = Theme.of(context).colorScheme;
+    final fromTutor = bubble.fromTutor;
 
-    return Container(
-      margin: EdgeInsets.symmetric(
-        vertical: 4.0,
-        horizontal: 12.0,
+    final body = Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.7,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: isTutor
-            ? MainAxisAlignment.start
-            : MainAxisAlignment.end,
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: fromTutor ? colors.surfaceContainerHigh : colors.primary,
+        borderRadius: BorderRadius.circular(24.0),
+      ),
+      child: Text(
+        bubble.text,
+        style: TextStyle(
+          fontSize: 16.0,
+          color: fromTutor ? colors.onSurface : colors.onPrimary,
+          height: 1.6,
+        ),
+      ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+      child: Column(
+        crossAxisAlignment: fromTutor
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.end,
         children: [
-          Flexible(
-            child: GestureDetector(
-              onDoubleTap: onDoubleTap,
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.7,
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 12.0,
-                ),
-                decoration: BoxDecoration(
-                  color: isTutor
-                      ? Theme.of(context).colorScheme.surfaceContainerHigh
-                      : Theme.of(context).colorScheme.primary,
-                  borderRadius:
-                      BorderRadius.circular(24.0),
-                ),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        bottom: message.isLiked ? 18.0 : 0.0,
-                      ),
-                      child: Text(
-                        message.message,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: isTutor
-                              ? Theme.of(context).colorScheme.onSurface
-                              : Colors.white,
-                          height: 1.6,
-                        ),
-                      ),
-                    ),
-                    if (message.isLiked)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Icon(
-                          Icons.favorite,
-                          size: 18,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                  ],
+          Row(
+            mainAxisAlignment: fromTutor
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Flexible(
+                child: GestureDetector(
+                  onDoubleTap: fromTutor ? onToggleLike : null,
+                  child: Opacity(
+                    opacity: bubble.status == BubbleStatus.sent ? 1 : 0.6,
+                    child: body,
+                  ),
                 ),
               ),
+              if (bubble.carriesHeart) _Heart(bubble.isLiked, onToggleLike),
+            ],
+          ),
+          if (bubble.status == BubbleStatus.failed) _NotSent(bubble.error),
+        ],
+      ),
+    );
+  }
+}
+
+class _Heart extends StatelessWidget {
+  const _Heart(this.isLiked, this.onTap);
+
+  final bool isLiked;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return IconButton(
+      onPressed: onTap,
+      iconSize: 18,
+      visualDensity: VisualDensity.compact,
+      tooltip: AppLocalizations.of(context).tutorLikeReply,
+      icon: Icon(
+        isLiked ? Icons.favorite : Icons.favorite_border,
+        color: isLiked ? colors.error : colors.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+class _NotSent extends StatelessWidget {
+  const _NotSent(this.error);
+
+  final String? error;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final color = Theme.of(context).colorScheme.error;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, size: 16, color: color),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              l10n.tutorNotSent(error ?? l10n.tutorUnreachable),
+              style: TextStyle(color: color, fontSize: 13),
             ),
           ),
         ],

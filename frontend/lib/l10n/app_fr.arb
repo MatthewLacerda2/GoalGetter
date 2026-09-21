@@ -357,5 +357,13 @@
     "resourcesStillLooking": "Recherche de ressources en cours",
     "resourcesStillLookingBody": "Nous cherchons des vidéos, des livres et des sites adaptés à votre objectif. Revenez dans quelques minutes.",
     "checkAgain": "Vérifier à nouveau",
-    "noResourcesOfThisKind": "Rien de ce type pour votre objectif pour l'instant"
+    "noResourcesOfThisKind": "Rien de ce type pour votre objectif pour l'instant",
+    "tutorEmptyChat": "Dites bonjour à votre tuteur",
+    "tutorNoActiveGoal": "Choisissez un objectif actif pour discuter avec votre tuteur",
+    "tutorNotSent": "Non envoyé : {detail}",
+    "tutorUnreachable": "Impossible de joindre le serveur",
+    "tutorOlderFailed": "Impossible de charger les messages précédents",
+    "tutorRetry": "Réessayer",
+    "tutorLikeFailed": "Impossible d'enregistrer votre j'aime",
+    "tutorLikeReply": "Aimer cette réponse"
 }

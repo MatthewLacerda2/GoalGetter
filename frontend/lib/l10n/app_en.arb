@@ -392,5 +392,24 @@
     "checkAgain": "Check again",
     "@checkAgain": { "description": "Resources: reload while the search runs" },
     "noResourcesOfThisKind": "Nothing of this kind for your goal yet",
-    "@noResourcesOfThisKind": { "description": "Resources: one tab is empty" }
+    "@noResourcesOfThisKind": { "description": "Resources: one tab is empty" },
+    "tutorEmptyChat": "Say hi to your tutor",
+    "@tutorEmptyChat": { "description": "Tutor chat: empty state before the first message" },
+    "tutorNoActiveGoal": "Choose an active goal to chat with your tutor",
+    "@tutorNoActiveGoal": { "description": "Tutor chat: the student has no active goal (404 No active goal)" },
+    "tutorNotSent": "Not sent: {detail}",
+    "@tutorNotSent": {
+        "description": "Tutor chat: under a user bubble whose send failed; detail is the server's reason",
+        "placeholders": { "detail": { "type": "String" } }
+    },
+    "tutorUnreachable": "Could not reach the server",
+    "@tutorUnreachable": { "description": "Error detail when the server could not be reached at all" },
+    "tutorOlderFailed": "Could not load older messages",
+    "@tutorOlderFailed": { "description": "Tutor chat: loading older messages failed" },
+    "tutorRetry": "Retry",
+    "@tutorRetry": { "description": "Tutor chat: retry loading older messages" },
+    "tutorLikeFailed": "Could not save your like",
+    "@tutorLikeFailed": { "description": "Tutor chat: snackbar when saving a like failed" },
+    "tutorLikeReply": "Like this reply",
+    "@tutorLikeReply": { "description": "Tutor chat: tooltip of the heart on a tutor reply" }
 }

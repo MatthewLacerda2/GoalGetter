@@ -357,5 +357,13 @@
     "resourcesStillLooking": "Todavía buscando recursos",
     "resourcesStillLookingBody": "Estamos buscando videos, libros y sitios que encajen con tu objetivo. Vuelve a mirar en unos minutos.",
     "checkAgain": "Volver a comprobar",
-    "noResourcesOfThisKind": "Todavía nada de este tipo para tu objetivo"
+    "noResourcesOfThisKind": "Todavía nada de este tipo para tu objetivo",
+    "tutorEmptyChat": "Saluda a tu tutor",
+    "tutorNoActiveGoal": "Elige un objetivo activo para chatear con tu tutor",
+    "tutorNotSent": "No enviado: {detail}",
+    "tutorUnreachable": "No se pudo conectar con el servidor",
+    "tutorOlderFailed": "No se pudieron cargar los mensajes anteriores",
+    "tutorRetry": "Reintentar",
+    "tutorLikeFailed": "No se pudo guardar tu me gusta",
+    "tutorLikeReply": "Me gusta esta respuesta"
 }

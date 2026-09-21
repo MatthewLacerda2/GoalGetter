@@ -357,5 +357,13 @@
     "resourcesStillLooking": "Wir suchen noch nach Ressourcen",
     "resourcesStillLookingBody": "Wir suchen Videos, Bücher und Seiten, die zu deinem Ziel passen. Schau in ein paar Minuten wieder vorbei.",
     "checkAgain": "Erneut prüfen",
-    "noResourcesOfThisKind": "Noch nichts dieser Art für dein Ziel"
+    "noResourcesOfThisKind": "Noch nichts dieser Art für dein Ziel",
+    "tutorEmptyChat": "Sag deinem Tutor Hallo",
+    "tutorNoActiveGoal": "Wähle ein aktives Ziel, um mit deinem Tutor zu chatten",
+    "tutorNotSent": "Nicht gesendet: {detail}",
+    "tutorUnreachable": "Server nicht erreichbar",
+    "tutorOlderFailed": "Ältere Nachrichten konnten nicht geladen werden",
+    "tutorRetry": "Erneut versuchen",
+    "tutorLikeFailed": "Dein Like konnte nicht gespeichert werden",
+    "tutorLikeReply": "Diese Antwort liken"
 }
