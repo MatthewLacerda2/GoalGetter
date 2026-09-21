@@ -5,6 +5,13 @@ import 'package:goal_getter/core/services/shared_preferences_provider.dart';
 
 part 'settings_storage.g.dart';
 
+/// Everything the app keeps on the device, in shared_preferences: the session
+/// (access token, refresh token, user info, Google token), the active goal id,
+/// and the preferences (language, notifications).
+///
+/// Two ways out: [clearSession] when the backend refuses the session (the
+/// preferences survive), and [clearAll] on sign-out, which deletes every key,
+/// preferences included (decided in #51).
 class SettingsStorage {
   final SharedPreferences _prefs;
 
@@ -29,6 +36,8 @@ class SettingsStorage {
   static const String _languageKey = 'user_language';
   static const String _currentGoalIdKey = 'current_goal_id';
   static const String _tokenKey = 'access_token';
+  static const String _refreshTokenKey = 'refresh_token';
+  static const String _notificationsKey = 'notifications_on';
   static const String _googleTokenKey = 'google_token';
   static const String _userInfoKey = 'user_info';
 
@@ -122,6 +131,14 @@ class SettingsStorage {
     return await _prefs.setString(_tokenKey, token);
   }
 
+  String? getRefreshToken() {
+    return _prefs.getString(_refreshTokenKey);
+  }
+
+  Future<bool> setRefreshToken(String token) async {
+    return await _prefs.setString(_refreshTokenKey, token);
+  }
+
   String? getGoogleToken() {
     return _prefs.getString(_googleTokenKey);
   }
@@ -146,17 +163,32 @@ class SettingsStorage {
     return await _prefs.setString(_userInfoKey, jsonEncode(userInfo));
   }
 
-  // --- Cleardown Methods ---
+  // --- Notifications Preference ---
 
-  Future<void> clearAuthData() async {
-    await _prefs.remove(_tokenKey);
-    await _prefs.remove(_googleTokenKey);
-    await _prefs.remove(_userInfoKey);
+  /// Off until the student turns it on.
+  bool readNotificationsOn() {
+    return _prefs.getBool(_notificationsKey) ?? false;
   }
 
-  Future<void> deleteAllUserData() async {
-    await clearAuthData();
+  Future<bool> writeNotificationsOn({required bool on}) async {
+    return await _prefs.setBool(_notificationsKey, on);
+  }
+
+  // --- Cleardown Methods ---
+
+  /// Drops the session and the active goal, which belongs to that student.
+  /// Language and notifications stay: the device's owner has not changed.
+  Future<void> clearSession() async {
+    await _prefs.remove(_tokenKey);
+    await _prefs.remove(_refreshTokenKey);
+    await _prefs.remove(_googleTokenKey);
+    await _prefs.remove(_userInfoKey);
     await _prefs.remove(_currentGoalIdKey);
+  }
+
+  /// Sign-out: every key goes, preferences included.
+  Future<void> clearAll() async {
+    await _prefs.clear();
   }
 
   // ================= STATIC BACKWARD COMPATIBILITY WRAPPERS =================
@@ -177,11 +209,9 @@ class SettingsStorage {
   static Future<bool> setCurrentGoalId(String goalId) => instance.writeCurrentGoalId(goalId);
 
   static Future<void> clearCurrentGoal() => instance.deleteCurrentGoal();
-
-  static Future<void> clearAllUserData() => instance.deleteAllUserData();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 SettingsStorage settingsStorage(SettingsStorageRef ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
   return SettingsStorage(prefs);

@@ -1,308 +1,144 @@
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
+import 'package:goal_getter/core/api/api_client.dart';
+import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:goal_getter/core/utils/settings_storage.dart';
-
-import 'package:goal_getter/core/config/app_config.dart';
 
 part 'auth_service.g.dart';
 
+/// Signs the student in and out of the backend.
+///
+/// Every sign-in ends in [storeSession] with the backend's `token_response`
+/// (access token, refresh token, student). Two ways in: Google (the token goes
+/// to POST /auth/signup) and, in DEV_LOGIN builds, POST /auth/dev-login.
 class AuthService {
-  static final AuthService _instance = AuthService._internal();
-  factory AuthService() => _instance;
-  AuthService._internal();
+  AuthService({required ApiClient api, required SettingsStorage storage})
+      : _api = api,
+        _storage = storage;
 
-  // Storage and keys are managed by SettingsStorage
+  final ApiClient _api;
+  final SettingsStorage _storage;
 
-  // Google Sign-In client ID
-  static const String _clientId = AppConfig.googleClientId;
-
-  // Scopes for Google Sign-In
   static const List<String> _scopes = ['email', 'profile', 'openid'];
 
-  // Track initialization state
-  bool _isInitialized = false;
+  // GoogleSignIn.instance is process-wide and may be initialized only once, so
+  // the flag is too.
+  static bool _isGoogleInitialized = false;
 
-  // Ensure GoogleSignIn is initialized before use
-  Future<void> _ensureInitialized() async {
-    if (!_isInitialized) {
-      await GoogleSignIn.instance.initialize(clientId: _clientId);
-      _isInitialized = true;
-    }
-  }
-
-  // Public method to ensure GoogleSignIn is initialized (needed for Web button rendering)
+  /// Initializes GoogleSignIn; needed before the web button renders.
   Future<void> ensureInitialized() async {
-    await _ensureInitialized();
+    if (_isGoogleInitialized) return;
+    await GoogleSignIn.instance.initialize(clientId: AppConfig.googleClientId);
+    _isGoogleInitialized = true;
   }
 
-  // Sign in with Google and return the ID token or access token
-  Future<Map<String, dynamic>?> signInWithGoogle() async {
-    developer.log("EA SPORTS, its in the game");
-    try {
-      await _ensureInitialized();
-      developer.log('Starting Google Sign-In...');
+  /// Persists a `token_response` the way the rest of the app reads it.
+  Future<void> storeSession(Map<String, dynamic> tokenResponse) async {
+    await _storage.setAccessToken(tokenResponse['access_token'] as String);
+    await _storage.setRefreshToken(tokenResponse['refresh_token'] as String);
+    await _storage.setUserInfo(
+      tokenResponse['student'] as Map<String, dynamic>,
+    );
+  }
 
-      if (kIsWeb) {
-        throw UnsupportedError('Programmatic sign-in is not supported on Web. Use the Google sign-in button instead.');
-      }
+  /// Dev only: signs in as the backend's `Fictitious <name>` student.
+  Future<void> signInAsFictitious(String name) async {
+    final response = await _api.post('/auth/dev-login', body: {'name': name});
+    await storeSession(response! as Map<String, dynamic>);
+  }
 
-      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance
-          .authenticate(scopeHint: _scopes);
+  /// Creates or fetches the student for a Google token (POST /auth/signup is
+  /// idempotent) and stores the session.
+  Future<void> signupWithGoogle(String googleToken) async {
+    final response = await _api.post(
+      '/auth/signup',
+      headers: {'Authorization': 'Bearer $googleToken'},
+    );
+    await _storage.setGoogleToken(googleToken);
+    await storeSession(response! as Map<String, dynamic>);
+  }
 
-      if (googleUser == null) {
-        developer.log('Google user is null (cancelled)');
-        return null;
-      }
-
-      developer.log('Google user: ${googleUser.email}');
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      developer.log(
-        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
+  /// Native Google sign-in. Returns the Google token, or null if cancelled.
+  Future<String?> signInWithGoogle() async {
+    await ensureInitialized();
+    if (kIsWeb) {
+      throw UnsupportedError(
+        'Programmatic sign-in is not supported on Web. '
+        'Use the Google sign-in button instead.',
       );
-
-      final String? idToken = googleAuth.idToken;
-
-      // Get access token via authorization client as fallback
-      String? accessToken;
-      try {
-        final authorization = await googleUser.authorizationClient
-            .authorizeScopes(_scopes);
-        accessToken = authorization.accessToken;
-        developer.log('Access Token: Present');
-      } catch (e) {
-        developer.log('Failed to get access token: $e');
-        // Try to get existing authorization without prompting
-        final existingAuth = await googleUser.authorizationClient
-            .authorizationForScopes(_scopes);
-        accessToken = existingAuth?.accessToken;
-        developer.log(
-          'Access Token (existing): ${accessToken != null ? "Present" : "NULL"}',
-        );
-      }
-
-      // Use ID token if available, otherwise fall back to access token
-      // Backend supports both ID tokens and access tokens
-      final String? tokenToUse = idToken ?? accessToken;
-
-      if (tokenToUse == null) {
-        developer.log('Both ID token and access token are null');
-        throw Exception(
-          'Failed to get token from Google. Please try signing in again.',
-        );
-      }
-
-      if (idToken == null) {
-        developer.log('ID Token is null, using access token instead');
-      }
-
-      // Store token temporarily and persistently
-      _tempGoogleToken = tokenToUse;
-      await storeGoogleToken(tokenToUse);
-
-      _tempUserInfo = {
-        'sub': googleUser.id,
-        'email': googleUser.email,
-        'name': googleUser.displayName,
-        'picture': googleUser.photoUrl,
-      };
-
-      developer.log('Successfully authenticated user: ${googleUser.email}');
-      return {'token': tokenToUse, 'user': _tempUserInfo};
+    }
+    try {
+      final account =
+          await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
+      return googleTokenFor(account);
     } on GoogleSignInException catch (e) {
-      // Handle cancellation or other Google Sign-In specific errors
-      if (e.code == GoogleSignInExceptionCode.canceled) {
-        developer.log('User cancelled sign-in');
-        return null;
-      }
-      developer.log('Google Sign-In error: ${e.code} - ${e.description}');
-      rethrow;
-    } catch (error) {
-      developer.log('Error signing in to your app with Google: $error');
+      if (e.code == GoogleSignInExceptionCode.canceled) return null;
       rethrow;
     }
   }
 
-  // Handle GoogleSignInAccount directly (e.g. from the stream on Web)
-  Future<Map<String, dynamic>?> handleGoogleSignInAccount(GoogleSignInAccount? googleUser) async {
+  /// The token the backend accepts for [account]: the ID token, else an
+  /// access token (the backend verifies both).
+  Future<String> googleTokenFor(GoogleSignInAccount account) async {
+    final idToken = account.authentication.idToken;
+    if (idToken != null) return idToken;
+    String? accessToken;
     try {
-      if (googleUser == null) {
-        developer.log('Google user is null');
-        return null;
-      }
-
-      developer.log('Google user: ${googleUser.email}');
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      developer.log(
-        'ID Token: ${googleAuth.idToken != null ? "Present" : "NULL"}',
-      );
-
-      final String? idToken = googleAuth.idToken;
-
-      // Get access token via authorization client as fallback
-      String? accessToken;
-      try {
-        final authorization = await googleUser.authorizationClient
-            .authorizeScopes(_scopes);
-        accessToken = authorization.accessToken;
-        developer.log('Access Token: Present');
-      } catch (e) {
-        developer.log('Failed to get access token: $e');
-        // Try to get existing authorization without prompting
-        final existingAuth = await googleUser.authorizationClient
-            .authorizationForScopes(_scopes);
-        accessToken = existingAuth?.accessToken;
-        developer.log(
-          'Access Token (existing): ${accessToken != null ? "Present" : "NULL"}',
-        );
-      }
-
-      final String? tokenToUse = idToken ?? accessToken;
-
-      if (tokenToUse == null) {
-        developer.log('Both ID token and access token are null');
-        throw Exception(
-          'Failed to get token from Google. Please try signing in again.',
-        );
-      }
-
-      // Store token temporarily and persistently
-      _tempGoogleToken = tokenToUse;
-      await storeGoogleToken(tokenToUse);
-
-      _tempUserInfo = {
-        'sub': googleUser.id,
-        'email': googleUser.email,
-        'name': googleUser.displayName,
-        'picture': googleUser.photoUrl,
-      };
-
-      developer.log('Successfully authenticated user: ${googleUser.email}');
-      return {'token': tokenToUse, 'user': _tempUserInfo};
-    } catch (error) {
-      developer.log('Error handling Google sign-in account: $error');
-      rethrow;
+      accessToken =
+          (await account.authorizationClient.authorizeScopes(_scopes))
+              .accessToken;
+    } on Exception catch (e) {
+      developer.log('Google authorizeScopes failed: $e');
+      accessToken = (await account.authorizationClient
+              .authorizationForScopes(_scopes))
+          ?.accessToken;
     }
+    if (accessToken == null) {
+      throw Exception('Failed to get a token from Google. Please try again.');
+    }
+    return accessToken;
   }
 
-  // In-memory storage for OAuth data during onboarding
-  String? _tempGoogleToken;
-  Map<String, dynamic>? _tempUserInfo;
-
-  // Get temporary Google token (in memory)
-  String? getTempGoogleToken() {
-    return _tempGoogleToken;
-  }
-
-  // Get temporary user info (in memory)
-  Map<String, dynamic>? getTempUserInfo() {
-    return _tempUserInfo;
-  }
-
-  // Check if we have temporary OAuth data (for onboarding)
-  bool hasTempAuthData() {
-    return _tempGoogleToken != null && _tempUserInfo != null;
-  }
-
-  // Store final credentials after successful onboarding
-  Future<void> storeFinalCredentials(
-    String accessToken,
-    Map<String, dynamic> userInfo,
-  ) async {
-    final storage = SettingsStorage.instance;
-    await storage.setAccessToken(accessToken);
-    await storage.setUserInfo(userInfo);
-
-    // Clear temporary data
-    _tempGoogleToken = null;
-    _tempUserInfo = null;
-  }
-
-  // Get stored access token (after onboarding completion)
-  Future<String?> getStoredAccessToken() async {
-    return SettingsStorage.instance.getAccessToken();
-  }
-
-  // Get stored user info (after onboarding completion)
-  Future<Map<String, dynamic>?> getStoredUserInfo() async {
-    return SettingsStorage.instance.getUserInfo();
-  }
-
-  // Check if user has completed onboarding and is signed in
-  Future<bool> isSignedIn() async {
-    final token = await getStoredAccessToken();
+  bool isSignedIn() {
+    final token = _storage.getAccessToken();
     return token != null && token.isNotEmpty;
   }
 
-  // Sign out (clear both memory and storage).
-  //
-  // The Google sign-out is best-effort: a returning user goes straight from the
-  // AuthGate to /home (see auth_gate.dart) without ever initializing
-  // GoogleSignIn, so calling signOut() on it throws a StateError. Guard it so a
-  // failure there never blocks clearing local data — the part that actually
-  // signs the user out of this app.
+  /// Sign-out: revoke the refresh token server-side (best effort: a dead
+  /// network or an already-revoked token must not keep the student signed
+  /// in), sign out of Google if it was ever initialized, then delete every
+  /// stored key. The caller navigates to the start screen.
   Future<void> signOut() async {
-    try {
-      await _ensureInitialized();
-      await GoogleSignIn.instance.signOut();
-    } catch (error) {
-      developer.log('Google sign-out skipped (not initialized / failed): $error');
+    final refreshToken = _storage.getRefreshToken();
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      try {
+        await _api.post(
+          '/auth/logout',
+          body: {'refresh_token': refreshToken},
+        );
+      } on Exception catch (e) {
+        developer.log('Logout call failed, clearing locally anyway: $e');
+      }
     }
-
-    await SettingsStorage.instance.clearAuthData();
-
-    // Clear temporary data
-    _tempGoogleToken = null;
-    _tempUserInfo = null;
-  }
-
-  // Clear temporary OAuth data (if user cancels onboarding)
-  void clearTempAuthData() {
-    _tempGoogleToken = null;
-    _tempUserInfo = null;
-  }
-
-  // Store Google token in SharedPreferences
-  Future<void> storeGoogleToken(String token) async {
-    await SettingsStorage.instance.setGoogleToken(token);
-  }
-
-  // Get stored Google token from SharedPreferences
-  Future<String?> getStoredGoogleToken() async {
-    return SettingsStorage.instance.getGoogleToken();
-  }
-
-  // Sign up with Google.
-  //
-  // Mock: the backend doesn't exist yet, so instead of calling the real signup
-  // endpoint we fabricate a session and store it. The shape returned here mirrors
-  // what the future endpoint will give back (an access token + a student record);
-  // see the mock_* files for the data the backend needs to provide.
-  Future<Map<String, dynamic>?> signupWithGoogle(String googleToken) async {
-    developer.log('Mock signupWithGoogle (no backend call)');
-
-    const accessToken = 'mock_access_token_jwt';
-    final studentData = {
-      'id': 'mock_student_id',
-      'email': _tempUserInfo?['email'] ?? 'mockuser@example.com',
-      'name': _tempUserInfo?['name'] ?? 'Mock GoalGetter Student',
-    };
-
-    // Store both the Google token and the (mock) JWT access token.
-    await storeGoogleToken(googleToken);
-    await storeFinalCredentials(accessToken, studentData);
-
-    return {'access_token': accessToken, 'student': studentData};
+    if (_isGoogleInitialized) {
+      try {
+        await GoogleSignIn.instance.signOut();
+      } on Exception catch (e) {
+        developer.log('Google sign-out failed: $e');
+      }
+    }
+    await _storage.clearAll();
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 AuthService authService(AuthServiceRef ref) {
-  return AuthService();
+  return AuthService(
+    api: ref.watch(apiClientProvider),
+    storage: ref.watch(settingsStorageProvider),
+  );
 }

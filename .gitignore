@@ -183,6 +183,7 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 
 # Project-specific
+.claude/token
 auxpy.py
 auxmd.md
 debug.txt

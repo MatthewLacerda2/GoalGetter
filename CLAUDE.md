@@ -226,12 +226,14 @@ remind him and ask.
 - **Line endings are mixed** — roughly 20 files CRLF, the rest LF. Preserve a file's
   existing endings when editing: a tool that rewrites them turns a one-line change
   into a whole-file diff.
-- **The frontend is fully mocked.** `AppStartController` is hardcoded to a
-  returning user with an active goal, and every feature reads its `debug/mock_*.dart`.
-  Integration replaces these one endpoint at a time.
-- **Authed endpoints need a real Google token.** There is no test-token mint, so
-  `POST /goals` and the auth routes can only be driven through the tests or a real
-  sign-in.
+- **The feature screens are still mocked.** The session is real (#51): the API
+  client is `frontend/lib/core/api/`, and `AppStartController` decides from the
+  stored token and `GET /goals`. Every feature still reads its `debug/mock_*.dart`;
+  integration replaces these one endpoint at a time.
+- **Dev sign-in without Google.** A backend started with `DEV_LOGIN=true` serves
+  `POST /auth/dev-login`; `make claude-token` (honours `BACKEND_PORT`) writes a
+  bearer for "Fictitious Claude" to `.claude/token`, and a Flutter build with
+  `--dart-define=DEV_LOGIN=true` offers the same sign-in on the start screen.
 - **Analyzer backlog: 60 warnings, 635 infos** (2026-09-21), so CI runs `flutter
   analyze` with `--no-fatal-warnings --no-fatal-infos`. Next step: clear the
   warnings (mostly mechanical) and let them block.

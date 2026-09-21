@@ -9,7 +9,7 @@
 
 - Prefix: `/api/v1` (e.g. `GET /me` → `GET /api/v1/me`).
 - Auth: `Authorization: Bearer <access_token>` on everything **except**
-  `/auth/signup`, `/auth/login`, `/auth/refresh`.
+  `/auth/signup`, `/auth/login`, `/auth/dev-login`, `/auth/refresh`.
 - Field names are snake_case (the Dart client generator maps them to camelCase).
 - Times are ISO-8601. Status codes and error shapes are intentionally **omitted**
   (we'll pin those down when writing tests).
@@ -36,9 +36,23 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   request: `token_refresh_request` · response: none
 - **`DELETE /auth/account`** — delete the signed-in user's account.
   request: none · response: none
+- **`POST /auth/dev-login`** ✅ — **dev only** (#51): sign in as a fictitious
+  student, no Google. request: `{ "name": "Claude" }` · response: `token_response`
+  - creates or reuses the student `Fictitious <name>` (the prefix is not doubled),
+    with `google_id` = the slug (`fictitious-claude`) and email
+    `<slug>@fictitious.invalid`. **The name prefix is the only fictitious
+    marker** — no database flag (decided).
+  - only when the `DEV_LOGIN` setting is true (default false); off ⇒ 404, and the
+    route is left out of the OpenAPI schema.
+  - `make claude-token` calls it for `Claude` on the running backend
+    (`BACKEND_PORT`, default 8001) and writes the access token to the gitignored
+    `.claude/token`. The token lasts 30 min and dies with any backend restart.
+  - `DEV_LOGIN` also widens CORS to loopback and Tailscale origins on any port
+    (`backend/core/cors.py`); production stays on the exact origin list.
 
-> Note: a real `logout` exists server-side even though the frontend currently
-> just discards its token. Refresh tokens live 30 days.
+> Note: the frontend calls `logout` on sign-out (best effort), then deletes
+> every stored key. Access tokens live 30 minutes, refresh tokens 30 days; the
+> app's `ApiClient` refreshes once on a 401 and replays the request.
 
 ---
 

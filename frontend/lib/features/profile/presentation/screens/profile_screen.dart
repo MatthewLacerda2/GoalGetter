@@ -21,7 +21,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late final AuthService _authService = ref.read(authServiceProvider);
-  bool _notificationsOn = false;
+  late final SettingsStorage _storage = ref.read(settingsStorageProvider);
+  late bool _notificationsOn = _storage.readNotificationsOn();
 
   static const _languageNames = {
     SettingsStorage.english: 'English',
@@ -97,9 +98,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 title: l10n.notifications,
                 trailing: Switch(
                   value: _notificationsOn,
-                  onChanged: (v) => setState(() => _notificationsOn = v),
+                  onChanged: _setNotifications,
                 ),
-                onTap: () => setState(() => _notificationsOn = !_notificationsOn),
+                onTap: () => _setNotifications(!_notificationsOn),
               ),
               const SizedBox(height: 28),
 
@@ -288,6 +289,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  /// Persisted, so the switch survives a restart. Nothing reads it yet: the
+  /// app sends no notifications.
+  void _setNotifications(bool on) {
+    setState(() => _notificationsOn = on);
+    _storage.writeNotificationsOn(on: on);
+  }
+
   void _showLanguagePicker() {
     showModalBottomSheet<void>(
       context: context,
@@ -349,8 +357,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
 
     if (confirmed == true && mounted) {
+      // Best-effort logout, then every stored key goes (see AuthService).
       await _authService.signOut();
-      await SettingsStorage.clearAllUserData();
       if (mounted) {
         context.go(AppRoutes.start);
       }

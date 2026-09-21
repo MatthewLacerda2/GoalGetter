@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.v1.endpoints import router as api_v1_router
+from backend.core.config import settings
+from backend.core.cors import PRODUCTION_ORIGINS, cors_origin_regex
 from backend.core.logging_middleware import LoggingMiddleware
 from backend.llms import get_llms_txt
 from slowapi.errors import RateLimitExceeded
@@ -48,7 +50,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://goalsgetter.org", "http://localhost:8080"],
+    allow_origins=PRODUCTION_ORIGINS,
+    allow_origin_regex=cors_origin_regex(settings.DEV_LOGIN),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type", "Accept"],

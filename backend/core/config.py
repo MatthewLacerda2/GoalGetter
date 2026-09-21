@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     # YouTube Data API v3 key, used to confirm that recommended channels/videos
     # really exist and have a profile picture. Empty = YouTube links are dropped.
     YOUTUBE_API_KEY: str = ""
+    # Dev only: turns on POST /auth/dev-login (a fictitious sign-in, no Google)
+    # and lets loopback/Tailscale dev origins through CORS. Off in production:
+    # the route then answers 404 as if it did not exist. See backend/core/cors.py.
+    DEV_LOGIN: bool = False
     
     DATABASE_URL: str
     TEST_DATABASE_URL: str | None = None  # Optional, only needed for tests
