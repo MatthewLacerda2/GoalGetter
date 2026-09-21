@@ -339,5 +339,13 @@
     "startLearning": "Commencer",
     "@startLearning": { "description": "Study plan: confirm and begin" },
     "continueAsFictitiousUser": "Continuer en tant qu'utilisateur fictif",
-    "signInFailed": "Connexion impossible : {detail}"
+    "signInFailed": "Connexion impossible : {detail}",
+    "tutorEmptyChat": "Dites bonjour à votre tuteur",
+    "tutorNoActiveGoal": "Choisissez un objectif actif pour discuter avec votre tuteur",
+    "tutorNotSent": "Non envoyé : {detail}",
+    "tutorUnreachable": "Impossible de joindre le serveur",
+    "tutorOlderFailed": "Impossible de charger les messages précédents",
+    "tutorRetry": "Réessayer",
+    "tutorLikeFailed": "Impossible d'enregistrer votre j'aime",
+    "tutorLikeReply": "Aimer cette réponse"
 }
