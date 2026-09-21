@@ -2,7 +2,7 @@ name: frontend
 
 on:
   pull_request:
-    types: [opened, ready_for_review, synchronize]
+    types: [opened, reopened, ready_for_review, synchronize]
     paths:
       - "frontend/**"
       - "Makefile"

@@ -4,7 +4,7 @@ name: backend
 # is unfinished work parked off one machine, not something to spend CI on.
 on:
   pull_request:
-    types: [opened, ready_for_review, synchronize]
+    types: [opened, reopened, ready_for_review, synchronize]
     paths:
       - "backend/**"
       - "docker-compose.yml"
