@@ -28,7 +28,6 @@ WORKDIR /app
 
 # Copy dependency files first for better caching
 COPY frontend/pubspec.yaml ./frontend/
-COPY client_sdk/pubspec.yaml ./client_sdk/
 
 WORKDIR /app/frontend
 
@@ -39,7 +38,6 @@ RUN find / -name "*very_good_analysis*" || true
 # Copy the rest of the code
 WORKDIR /app
 COPY frontend/ ./frontend/
-COPY client_sdk/ ./client_sdk/
 
 WORKDIR /app/frontend
 

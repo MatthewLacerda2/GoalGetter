@@ -1,4 +1,4 @@
-//INFO: this is just a placeholder model. Once we get the client_sdk, this'll be deleted
+//INFO: placeholder model. To be replaced by the hand-written API layer (core/api).
 
 enum LessonQuestionStatus{
   correct,
