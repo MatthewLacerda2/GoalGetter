@@ -27,4 +27,10 @@ class AppRoutes {
   // Goals management
   static const goals = '/goals';
   static String goalDetail(String id) => '/goals/$id';
+
+  // Dev-only screen index (see app/dev/dev_menu_screen.dart). Registered in the
+  // router only when the app is built with --dart-define=DEV_MENU=true.
+  static const dev = '/dev';
+  static const devInfoScreen = '/dev/info-screen';
+  static const devGoalDetail = '/dev/goal-detail';
 }
