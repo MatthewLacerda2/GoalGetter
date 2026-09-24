@@ -1,5 +1,5 @@
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.utils.envs import GEMINI_FAST_MODEL
+from backend.utils.envs import GEMINI_PREMIUM_MODEL
 from backend.services.gemini.student_context.schema import GeminiStudentContext, GeminiStudentContextResponse
 from backend.services.gemini.student_context.prompt import get_student_context_prompt, get_periodic_student_context_prompt
 
@@ -11,7 +11,7 @@ def gemini_generate_student_context(
 ) -> GeminiStudentContextResponse:
     """Generate initial student context from onboarding data."""
     client = get_client()
-    model = GEMINI_FAST_MODEL
+    model = GEMINI_PREMIUM_MODEL
     config = get_gemini_config(GeminiStudentContext.model_json_schema())
     
     full_prompt = get_student_context_prompt(
@@ -42,7 +42,7 @@ def gemini_generate_periodic_student_context(
 ) -> GeminiStudentContextResponse:
     """Generate updated student context periodically based on performance and chat history."""
     client = get_client()
-    model = GEMINI_FAST_MODEL
+    model = GEMINI_PREMIUM_MODEL
     config = get_gemini_config(GeminiStudentContext.model_json_schema())
     
     full_prompt = get_periodic_student_context_prompt(
