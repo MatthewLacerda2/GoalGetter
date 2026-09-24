@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// A whole-screen message: an icon, a title, an optional body and an optional
 /// button. Used for the states a list can be in besides "has items": failed
@@ -27,7 +28,10 @@ class StateMessage extends StatelessWidget {
     final scheme = theme.colorScheme;
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xxl,
+          vertical: AppSpacing.xl,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

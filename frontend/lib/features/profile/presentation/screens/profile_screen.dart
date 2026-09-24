@@ -11,6 +11,7 @@ import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
 import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:goal_getter/features/profile/presentation/widgets/profile_header.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key});
@@ -51,7 +52,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -63,49 +64,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 28),
 
-              _sectionLabel(l10n.goals),
-              const SizedBox(height: 10),
-              _tile(
-                icon: Icons.flag_outlined,
-                title: l10n.manageGoals,
-                subtitle: l10n.manageGoalsSubtitle,
-                trailing: _chevron(),
-                onTap: () => context.push(AppRoutes.goals),
-              ),
-              const SizedBox(height: 12),
-              _tile(
-                icon: Icons.add,
-                iconTinted: true,
-                title: l10n.createNewGoal,
-                trailing: _chevron(),
-                onTap: () => context.push(AppRoutes.goalPrompt),
-              ),
+              _goalsSection(l10n),
               const SizedBox(height: 28),
 
-              _sectionLabel(l10n.preferences),
-              const SizedBox(height: 10),
-              _tile(
-                icon: Icons.language,
-                title: l10n.language,
-                trailing: Text(
-                  _languageNames[currentLanguage] ?? currentLanguage,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-                onTap: _showLanguagePicker,
-              ),
-              const SizedBox(height: 12),
-              _tile(
-                icon: Icons.notifications_none,
-                title: l10n.notifications,
-                trailing: Switch(
-                  value: _notificationsOn,
-                  onChanged: _setNotifications,
-                ),
-                onTap: () => _setNotifications(!_notificationsOn),
-              ),
+              _preferencesSection(l10n, currentLanguage),
               const SizedBox(height: 28),
 
               _buildLogoutButton(),
@@ -124,6 +86,67 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// "Goals": manage the existing ones, or start another.
+  Widget _goalsSection(AppLocalizations l10n) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionLabel(l10n.goals),
+        const SizedBox(height: 10),
+        _tile(
+          icon: Icons.flag_outlined,
+          title: l10n.manageGoals,
+          subtitle: l10n.manageGoalsSubtitle,
+          trailing: _chevron(),
+          onTap: () => context.push(AppRoutes.goals),
+        ),
+        const SizedBox(height: 12),
+        _tile(
+          icon: Icons.add,
+          iconTinted: true,
+          title: l10n.createNewGoal,
+          trailing: _chevron(),
+          onTap: () => context.push(AppRoutes.goalPrompt),
+        ),
+      ],
+    );
+  }
+
+  /// "Preferences": the app language, and the notifications switch.
+  Widget _preferencesSection(AppLocalizations l10n, String currentLanguage) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionLabel(l10n.preferences),
+        const SizedBox(height: 10),
+        _tile(
+          icon: Icons.language,
+          title: l10n.language,
+          trailing: Text(
+            _languageNames[currentLanguage] ?? currentLanguage,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          onTap: _showLanguagePicker,
+        ),
+        const SizedBox(height: 12),
+        _tile(
+          icon: Icons.notifications_none,
+          title: l10n.notifications,
+          trailing: Switch(
+            value: _notificationsOn,
+            onChanged: _setNotifications,
+          ),
+          onTap: () => _setNotifications(!_notificationsOn),
+        ),
+      ],
     );
   }
 
@@ -159,14 +182,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(16.0),
+      borderRadius: BorderRadius.circular(AppRadius.card),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         child: Container(
-          padding: const EdgeInsets.all(14.0),
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(AppRadius.card),
             border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Row(
@@ -209,17 +232,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
         label: Text(
           AppLocalizations.of(context)!.signOut,
-          style: TextStyle(
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
             color: Theme.of(context).colorScheme.error,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
           ),
         ),
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 18.0),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           side: BorderSide(color: Theme.of(context).colorScheme.outline),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(AppRadius.card),
           ),
         ),
       ),
@@ -238,7 +259,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.chip)),
       ),
       builder: (context) {
         return SafeArea(
@@ -250,7 +271,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   width: 32,
                   height: 24,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(AppRadius.hairline),
                     child: CountryFlag.fromCountryCode(
                       _languageFlags[e.key] ?? 'US',
                     ),

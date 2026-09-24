@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 enum InfoCardVariant {
   normal,
@@ -33,20 +34,20 @@ class InfoCard extends StatelessWidget {
     final theme = Theme.of(context).textTheme;
     final effectiveBackgroundColor = backgroundColor ??
         (variant == InfoCardVariant.ghost
-            ? Colors.transparent
+            ? AppTheme.transparent
             : Theme.of(context).colorScheme.surfaceContainer);
     final hasShadow = variant != InfoCardVariant.ghost;
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
         color: effectiveBackgroundColor,
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
         boxShadow: hasShadow
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: AppTheme.scrim.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: Offset(0, 2),
                 ),
@@ -75,9 +76,8 @@ class InfoCard extends StatelessWidget {
           if (description != null)
             Text(
               description!,
-              style: theme.bodyMedium?.copyWith(
+              style: theme.bodySmall?.copyWith(
                 fontWeight: FontWeight.normal,
-                fontSize: (theme.bodyMedium?.fontSize ?? 14.0) * 0.9,
                 color: Theme.of(context).colorScheme.onSurface,
                 height: 1.6,
               ),

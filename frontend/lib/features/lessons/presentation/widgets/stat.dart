@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 class StatWidget extends StatelessWidget {
   final StatData statData;
@@ -14,7 +15,7 @@ class StatWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
         color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12),
         border: Border.all(color: statData.color, width: 2),
       ),
@@ -23,21 +24,20 @@ class StatWidget extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.symmetric(
-              vertical: 8.0,
-              horizontal: 12.0,
+              vertical: AppSpacing.xs,
+              horizontal: AppSpacing.sm,
             ),
             decoration: BoxDecoration(
               color: statData.color,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
+                topLeft: Radius.circular(AppRadius.chip),
+                topRight: Radius.circular(AppRadius.chip),
               ),
             ),
             child: Text(
               statData.title.toUpperCase(),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14.0,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.6,
               ),
@@ -45,7 +45,7 @@ class StatWidget extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(12.0),
+            padding: EdgeInsets.all(AppSpacing.sm),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -57,9 +57,8 @@ class StatWidget extends StatelessWidget {
                 SizedBox(width: 12.0),
                 Text(
                   statData.text,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 16.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

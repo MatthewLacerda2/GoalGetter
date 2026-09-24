@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Primary call-to-action on the Home screen: starts the daily lesson.
 ///
@@ -17,20 +18,22 @@ class StartLessonButton extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: () => context.push(AppRoutes.lesson),
-        icon: const Icon(Icons.play_arrow, color: Colors.white, size: 26),
+        icon: Icon(
+          Icons.play_arrow,
+          color: Theme.of(context).colorScheme.onPrimary,
+          size: 26,
+        ),
         label: Text(
           AppLocalizations.of(context)!.startLesson,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
-          padding: const EdgeInsets.symmetric(vertical: 18.0),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(AppRadius.chip),
           ),
         ),
       ),

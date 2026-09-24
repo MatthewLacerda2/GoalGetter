@@ -13,6 +13,8 @@ import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/dev_login_button.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/pre_onboarding_carousel.dart';
 import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/app/theme/app_theme.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   const StartScreen({super.key});
@@ -105,33 +107,20 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(255, 33, 33, 33),
-              Color.fromARGB(255, 11, 11, 11),
+              AppTheme.startGradientTop,
+              AppTheme.startGradientBottom,
             ],
           ),
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(AppSpacing.md),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Spacer(flex: 2),
 
-                // App Title
-                Text(
-                  'Goal Getter',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-
-                // Subtitle
-                Text(
-                  AppLocalizations.of(context).yourMentor,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w300,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
+                const _Wordmark(),
 
                 SizedBox(height: 28),
 
@@ -141,44 +130,13 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
                 // A DEV_LOGIN build offers the fictitious sign-in in place of
                 // Google; everything else gets the Google button.
-                if (AppConfig.devLogin) const DevLoginButton() else SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleGoogleSignIn,
-                    icon: _isLoading
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
-                        : FaIcon(
-                            FontAwesomeIcons.google,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                    label: Text(
-                      _isLoading
-                          ? AppLocalizations.of(context).signingIn
-                          : AppLocalizations.of(context).startWithGoogle,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF4285F4),
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(20.0),
-                      ),
-                    ),
+                if (AppConfig.devLogin)
+                  const DevLoginButton()
+                else
+                  _GoogleButton(
+                    isLoading: _isLoading,
+                    onPressed: _handleGoogleSignIn,
                   ),
-                ),
 
                 // Terms and Privacy
                 Text(
@@ -190,6 +148,72 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 Spacer(flex: 1),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The app's name over its one-line pitch.
+class _Wordmark extends StatelessWidget {
+  const _Wordmark();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Goal Getter', style: theme.textTheme.headlineMedium),
+        Text(
+          AppLocalizations.of(context).yourMentor,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w300,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// "Start with Google", in Google's own blue; a spinner while signing in.
+class _GoogleButton extends StatelessWidget {
+  const _GoogleButton({required this.isLoading, required this.onPressed});
+
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final onBlue = Theme.of(context).colorScheme.onPrimary;
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton.icon(
+        onPressed: isLoading ? null : onPressed,
+        icon: isLoading
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(onBlue),
+                ),
+              )
+            : FaIcon(FontAwesomeIcons.google, color: onBlue, size: 20),
+        label: Text(
+          isLoading ? l10n.signingIn : l10n.startWithGoogle,
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.googleBlue,
+          foregroundColor: onBlue,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.chip),
           ),
         ),
       ),

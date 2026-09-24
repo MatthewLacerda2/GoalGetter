@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/dev/dev_fixtures.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// A dev-only index of every screen in the app.
 ///
@@ -72,7 +73,11 @@ class DevMenuScreen extends StatelessWidget {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(28),
           child: Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8, right: 16),
+            padding: const EdgeInsets.only(
+              left: AppSpacing.md,
+              bottom: AppSpacing.xs,
+              right: AppSpacing.md,
+            ),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -84,11 +89,16 @@ class DevMenuScreen extends StatelessWidget {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: AppSpacing.xl),
         children: [
           for (final section in _entries) ...[
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.xs,
+              ),
               child: Text(
                 section.title.toUpperCase(),
                 style: theme.textTheme.labelMedium?.copyWith(

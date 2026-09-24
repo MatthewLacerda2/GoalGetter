@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// A tab of curated resources. Each item is a clean white card with an optional
 /// thumbnail/logo, a title + description, and a trailing open-in-new link icon
@@ -19,8 +20,7 @@ class ResourceTab extends StatelessWidget {
         child: Text(
           AppLocalizations.of(context).noResourcesOfThisKind,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16.0,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
@@ -28,7 +28,7 @@ class ResourceTab extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(AppSpacing.md),
       itemCount: resources.length,
       itemBuilder: (context, index) {
         final resource = resources[index];
@@ -48,17 +48,17 @@ class _ResourceCard extends StatelessWidget {
     final image = resource.imageUrl;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12.0),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => launchUrl(Uri.parse(resource.url)),
         child: Padding(
-          padding: const EdgeInsets.all(14.0),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             children: [
               if (image != null && image.isNotEmpty) ...[
@@ -114,7 +114,7 @@ class _Thumb extends StatelessWidget {
     );
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10.0),
+      borderRadius: BorderRadius.circular(AppRadius.control),
       child: Image.network(
         url,
         width: 56,

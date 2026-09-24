@@ -11,6 +11,8 @@ import 'package:goal_getter/app/theme/app_theme.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_failure_view.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/features/lessons/presentation/widgets/lesson_question_view.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
   const LessonScreen({super.key});
@@ -101,7 +103,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         title: l10n.lessonAccuracy,
         icon: Icons.check_circle,
         text: '${(evaluation?.studentAccuracy ?? 0).toStringAsFixed(0)}%',
-        color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green,
+        color:
+            Theme.of(context).extension<CustomColors>()?.success ??
+            AppTheme.success,
       ),
       elo: StatData(
         title: l10n.elo,
@@ -125,7 +129,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final isSelectedAnswer = state.selectedChoiceIndex == index;
 
     if (isCorrectAnswer) {
-      return (Theme.of(context).extension<CustomColors>()?.success ?? Colors.green).withValues(alpha: 0.2);
+      final success =
+          Theme.of(context).extension<CustomColors>()?.success ??
+          AppTheme.success;
+      return success.withValues(alpha: 0.2);
     }
     if (isSelectedAnswer && !isCorrectAnswer) {
       return Theme.of(context).colorScheme.error.withValues(alpha: 0.2);
@@ -144,7 +151,49 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final currentQuestion = state.questions[state.currentQuestionIndex];
     final isCorrect =
         state.selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
-    return isCorrect ? (Theme.of(context).extension<CustomColors>()?.success ?? Colors.green) : Theme.of(context).colorScheme.error;
+    final success =
+        Theme.of(context).extension<CustomColors>()?.success ??
+        AppTheme.success;
+    return isCorrect ? success : Theme.of(context).colorScheme.error;
+  }
+
+  /// What takes the whole screen instead of the question: the spinner while
+  /// the lesson loads or an answer is in flight, or a failure with its retry.
+  Widget? _blocker(LessonState state, LessonController controller) {
+    if (state.isLoading || state.isSubmitting) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      );
+    }
+    if (state.startFailure != null) {
+      return LessonStartFailureView(
+        failure: state.startFailure!,
+        onRetry: controller.start,
+      );
+    }
+    if (state.submitFailure != null) {
+      return LessonSubmitFailureView(
+        failure: state.submitFailure!,
+        onRetry: controller.retrySubmit,
+      );
+    }
+    return null;
+  }
+
+  /// The answers, one tile each; the fill colour says how each one stands.
+  Widget _choices(LessonState state, LessonQuestionState question) {
+    return ListView.builder(
+      itemCount: question.apiQuestion.choices.length,
+      itemBuilder: (context, index) => LessonChoiceTile(
+        label: question.apiQuestion.choices[index],
+        fill: getChoiceFillColor(state, index),
+        onTap: () => ref
+            .read(lessonControllerProvider.notifier)
+            .selectChoice(index),
+      ),
+    );
   }
 
   @override
@@ -158,26 +207,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     });
 
     final controller = ref.read(lessonControllerProvider.notifier);
-    final Widget? blocker;
-    if (state.isLoading || state.isSubmitting) {
-      blocker = Center(
-        child: CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      );
-    } else if (state.startFailure != null) {
-      blocker = LessonStartFailureView(
-        failure: state.startFailure!,
-        onRetry: controller.start,
-      );
-    } else if (state.submitFailure != null) {
-      blocker = LessonSubmitFailureView(
-        failure: state.submitFailure!,
-        onRetry: controller.retrySubmit,
-      );
-    } else {
-      blocker = null;
-    }
+    final blocker = _blocker(state, controller);
     if (blocker != null) {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -186,121 +216,34 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
 
     final currentQuestion = state.questions[state.currentQuestionIndex];
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(AppSpacing.md),
           child: Column(
             children: [
-              Row(
-                children: [
-                  Text(
-                    '${state.currentQuestionIndex + 1} / ${state.questions.length}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(width: 16.0),
-                  Expanded(
-                    child: LinearProgressIndicator(
-                      value: (state.currentQuestionIndex + 1) /
-                          state.questions.length,
-                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ],
+              LessonProgressRow(
+                index: state.currentQuestionIndex,
+                total: state.questions.length,
               ),
               SizedBox(height: 32),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12),
-                  borderRadius:
-                      BorderRadius.circular(20.0),
-                ),
-                child: Text(
-                  currentQuestion.apiQuestion.question,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
+              LessonQuestionCard(
+                question: currentQuestion.apiQuestion.question,
               ),
               SizedBox(height: 40),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: currentQuestion.apiQuestion.choices.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: InkWell(
-                        onTap: () => ref
-                            .read(lessonControllerProvider.notifier)
-                            .selectChoice(index),
-                        borderRadius: BorderRadius.circular(
-                            20.0),
-                        child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(
-                              16.0),
-                          decoration: BoxDecoration(
-                            color: getChoiceFillColor(state, index),
-                            borderRadius: BorderRadius.circular(
-                                20.0),
-                          ),
-                          child: Text(
-                            currentQuestion.apiQuestion.choices[index],
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 18.0,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              Expanded(child: _choices(state, currentQuestion)),
               SizedBox(height: 16.0),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: state.selectedChoiceIndex != null
-                      ? (state.isAnswerRevealed
-                          ? () => ref.read(lessonControllerProvider.notifier).nextQuestion()
-                          : () => ref.read(lessonControllerProvider.notifier).submitAnswer())
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: getButtonColor(state),
-                    padding: EdgeInsets.symmetric(
-                        vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          20.0),
-                    ),
-                  ),
-                  child: Text(
-                    state.isAnswerRevealed
-                        ? AppLocalizations.of(context)!.continuate
-                        : AppLocalizations.of(context)!.enter,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              LessonAnswerButton(
+                label: state.isAnswerRevealed ? l10n.continuate : l10n.enter,
+                color: getButtonColor(state),
+                onPressed: state.selectedChoiceIndex == null
+                    ? null
+                    : (state.isAnswerRevealed
+                          ? controller.nextQuestion
+                          : controller.submitAnswer),
               ),
               SizedBox(height: 8.0),
             ],

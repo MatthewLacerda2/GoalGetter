@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// A goal's date the way the goals screens print it, in the device's zone.
 String formatGoalDate(BuildContext context, DateTime date) {
@@ -34,10 +35,10 @@ class GoalCard extends StatelessWidget {
     final preview = plainPreview(goal.description);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         side: BorderSide(
           color: goal.isActive ? scheme.primary : scheme.outline,
           width: goal.isActive ? 2 : 1,
@@ -47,7 +48,7 @@ class GoalCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -111,19 +112,21 @@ class ActiveGoalBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final success =
-        Theme.of(context).extension<CustomColors>()?.success ?? Colors.green;
+        Theme.of(context).extension<CustomColors>()?.success ?? AppTheme.success;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: success.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.control),
       ),
       child: Text(
         AppLocalizations.of(context).activeGoalBadge,
-        style: TextStyle(
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
           color: success,
           fontWeight: FontWeight.bold,
-          fontSize: 12,
         ),
       ),
     );

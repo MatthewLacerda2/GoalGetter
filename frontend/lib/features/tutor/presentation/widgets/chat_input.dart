@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/app/theme/app_theme.dart';
+
+/// The composer at the bottom of the tutor chat: a rounded field and the send
+/// button, which turns into a spinner while a message is in flight.
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSendMessage;
@@ -16,65 +21,89 @@ class ChatInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(12.0),
-      color: Colors.transparent,
+      padding: EdgeInsets.all(AppSpacing.sm),
+      color: AppTheme.transparent,
       child: Row(
         children: [
           Expanded(
-            child: TextField(
+            child: _MessageField(
               controller: controller,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16.0,
-              ),
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context).typeYourMessage,
-                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 1.5,
-                  ),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 12.0,
-                ),
-              ),
-              minLines: 1,
-              maxLines: 4,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => onSendMessage(),
+              onSubmitted: onSendMessage,
             ),
           ),
-          IconButton(
-            onPressed: isSending ? null : onSendMessage,
-            icon: isSending
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  )
-                : Icon(Icons.send),
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          _SendButton(isSending: isSending, onSendMessage: onSendMessage),
         ],
       ),
+    );
+  }
+}
+
+/// The text field itself: rounded to [AppRadius.bubble], like the bubbles.
+class _MessageField extends StatelessWidget {
+  const _MessageField({required this.controller, required this.onSubmitted});
+
+  final TextEditingController controller;
+  final VoidCallback onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return TextField(
+      controller: controller,
+      style: Theme.of(
+        context,
+      ).textTheme.bodyLarge?.copyWith(color: scheme.onSurface),
+      decoration: InputDecoration(
+        hintText: AppLocalizations.of(context).typeYourMessage,
+        hintStyle: TextStyle(color: scheme.onSurfaceVariant),
+        filled: true,
+        fillColor: scheme.surfaceContainer,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.bubble),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.bubble),
+          borderSide: BorderSide(
+            color: scheme.outline.withValues(alpha: 0.4),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.bubble),
+          borderSide: BorderSide(color: scheme.primary, width: 1.5),
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+      ),
+      minLines: 1,
+      maxLines: 4,
+      textInputAction: TextInputAction.send,
+      onSubmitted: (_) => onSubmitted(),
+    );
+  }
+}
+
+/// Send, or the spinner that replaces it while the message is in flight.
+class _SendButton extends StatelessWidget {
+  const _SendButton({required this.isSending, required this.onSendMessage});
+
+  final bool isSending;
+  final VoidCallback onSendMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return IconButton(
+      onPressed: isSending ? null : onSendMessage,
+      icon: isSending
+          ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: primary),
+            )
+          : Icon(Icons.send),
+      color: primary,
     );
   }
 }

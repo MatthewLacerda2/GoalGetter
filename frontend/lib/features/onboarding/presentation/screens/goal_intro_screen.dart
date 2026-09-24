@@ -6,6 +6,7 @@ import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/intro_icons.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/pre_onboarding_carousel.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Right after `POST /goals`: the goal's introduction screens, while the
 /// backend prepares its resources and lessons, then home.
@@ -24,7 +25,7 @@ class GoalIntroScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             children: [
               const Spacer(),
@@ -36,9 +37,9 @@ class GoalIntroScreen extends StatelessWidget {
                 child: FilledButton(
                   onPressed: () => context.go(AppRoutes.home),
                   style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppRadius.card),
                     ),
                   ),
                   child: Text(l10n.onboardingIntroContinue),

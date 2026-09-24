@@ -8,6 +8,7 @@ import 'package:goal_getter/core/utils/error_text.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
 import 'package:goal_getter/features/goals/presentation/widgets/goal_card.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// The student's goals, from `GET /goals`. Each card already shows every field;
 /// tapping one opens the detail screen with that same goal (no second fetch).
@@ -50,7 +51,7 @@ class ListGoalsScreen extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(goalsListControllerProvider),
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: goals.length,
               itemBuilder: (context, index) {
                 final goal = goals[index];

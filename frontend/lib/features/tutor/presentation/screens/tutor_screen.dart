@@ -9,6 +9,7 @@ import 'package:goal_getter/features/tutor/presentation/controllers/tutor_contro
 import 'package:goal_getter/features/tutor/presentation/widgets/chat_input.dart';
 import 'package:goal_getter/features/tutor/presentation/widgets/chat_message_bubble.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// The chat with the tutor, on the active goal. The list is reversed: the
 /// newest bubble sits at the bottom, and scrolling up to the top loads older
@@ -103,10 +104,7 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
       return Center(
         child: Text(
           AppLocalizations.of(context).tutorEmptyChat,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: 14.0,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       );
     }
@@ -114,7 +112,7 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
     return ListView.builder(
       controller: _scrollController,
       reverse: true,
-      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      padding: const EdgeInsets.only(top: AppSpacing.xs, bottom: AppSpacing.xs),
       itemCount: bubbles.length + (showTop ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == bubbles.length) return _OlderStatus(state);
@@ -148,13 +146,13 @@ class _OlderStatus extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (state.isLoadingMore) {
       return const Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Center(child: CircularProgressIndicator()),
       );
     }
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(AppSpacing.xs),
       child: Column(
         children: [
           Text(
@@ -181,7 +179,7 @@ class _NoActiveGoal extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

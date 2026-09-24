@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Compact elo (rating) pill for the top-left of the Home screen — the
 /// counterpart to the streak chip on the top-right.
@@ -11,10 +12,13 @@ class EloChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 7.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -23,9 +27,8 @@ class EloChip extends StatelessWidget {
           const SizedBox(width: 6.0),
           Text(
             '$elo',
-            style: TextStyle(
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: primary,
-              fontSize: 15.0,
               fontWeight: FontWeight.bold,
             ),
           ),
