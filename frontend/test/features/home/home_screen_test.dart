@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 
 import '../api_fake.dart';
@@ -34,11 +36,17 @@ void main() {
     expect(find.text('Create Goal'), findsOneWidget);
   });
 
-  testWidgets('any other failure is an error with a retry', (tester) async {
+  // A screen that could not load says so where the screen would have been:
+  // a snackbar would fade and leave nothing to press (#98).
+  testWidgets('a failed load is an inline failure with a retry', (
+    tester,
+  ) async {
     await pumpHome(tester, (500, '{"detail": "boom"}'));
 
+    expect(find.byType(FailureView), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
     expect(find.text('Could not load your dashboard'), findsOneWidget);
     expect(find.text('boom'), findsOneWidget);
-    expect(find.text('Try again'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
   });
 }

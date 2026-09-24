@@ -7,7 +7,7 @@ import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
-import 'package:goal_getter/features/onboarding/presentation/widgets/step_error.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Step 2 of goal creation: one objective question at a time. The last answer
@@ -33,7 +33,6 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
   late final List<String> _answers = List.filled(widget.questions.length, '');
   int _currentQuestionIndex = 0;
   bool _isLoading = false;
-  Object? _error;
 
   late final AnimationController _slideController = AnimationController(
     duration: const Duration(milliseconds: 400),
@@ -85,13 +84,8 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
     });
   }
 
-  void _backToQuestions() => setState(() => _error = null);
-
   Future<void> _requestStudyPlan() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    setState(() => _isLoading = true);
     final answers = [
       for (var i = 0; i < widget.questions.length; i++)
         ObjectiveAnswer(
@@ -110,7 +104,15 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
         );
       }
     } on Exception catch (e) {
-      if (mounted) setState(() => _error = e);
+      // Every answer is still in `_answers`, so the retry sends the same ones.
+      if (mounted) {
+        showFailure(
+          context,
+          e,
+          title: AppLocalizations.of(context).onboardingPlanFailed,
+          onRetry: _requestStudyPlan,
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -129,7 +131,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
       appBar: AppBar(
         title: Text(l10n.questions),
         centerTitle: true,
-        leading: _currentQuestionIndex > 0 && _error == null
+        leading: _currentQuestionIndex > 0
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: _isLoading ? null : () => _moveBy(-1),
@@ -162,12 +164,6 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
       ),
       body: _isLoading
           ? _Generating(label: l10n.onboardingGeneratingPlan)
-          : _error != null
-          ? _PlanFailed(
-              error: _error!,
-              onRetry: _requestStudyPlan,
-              onBack: _backToQuestions,
-            )
           : _questionView(),
     );
   }
@@ -229,47 +225,6 @@ class _Generating extends StatelessWidget {
           const SizedBox(height: 24),
           Text(label, style: Theme.of(context).textTheme.titleMedium),
         ],
-      ),
-    );
-  }
-}
-
-/// The study plan could not be generated: why, a retry with the same
-/// answers, and a way back to change them.
-class _PlanFailed extends StatelessWidget {
-  const _PlanFailed({
-    required this.error,
-    required this.onRetry,
-    required this.onBack,
-  });
-
-  final Object error;
-  final VoidCallback onRetry;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              l10n.onboardingPlanFailed,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            StepError(error: error, onRetry: onRetry),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: onBack,
-              child: Text(l10n.onboardingReviewAnswers),
-            ),
-          ],
-        ),
       ),
     );
   }

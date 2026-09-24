@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
-/// A whole-screen message: an icon, a title, an optional body and an optional
-/// button. Used for the states a list can be in besides "has items": failed
-/// (with a retry), empty, or blocked on something the student must do first.
+/// A whole-screen message about a state that is not a failure: an empty list,
+/// a wait, or something the student has to do first. An icon, a title, an
+/// optional body and an optional button.
+///
+/// A failure is never one of these — it is a `FailureView` or a snackbar, both
+/// in `core/widgets/failure.dart`.
 class StateMessage extends StatelessWidget {
   const StateMessage({
     super.key,
@@ -12,7 +15,6 @@ class StateMessage extends StatelessWidget {
     this.body,
     this.actionLabel,
     this.onAction,
-    this.isError = false,
   });
 
   final IconData icon;
@@ -20,7 +22,6 @@ class StateMessage extends StatelessWidget {
   final String? body;
   final String? actionLabel;
   final VoidCallback? onAction;
-  final bool isError;
 
   @override
   Widget build(BuildContext context) {
@@ -35,24 +36,23 @@ class StateMessage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: isError ? scheme.error : scheme.primary),
-            const SizedBox(height: 16),
+            Icon(icon, size: AppSizes.stateIcon, color: scheme.primary),
+            const SizedBox(height: AppSpacing.md),
             Text(
               title,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (body != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 body!,
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(color: scheme.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
               ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],

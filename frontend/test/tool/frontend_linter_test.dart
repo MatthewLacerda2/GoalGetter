@@ -9,6 +9,7 @@ import '../../tool/frontend_linter.dart';
 const _screen = 'lib/features/home/presentation/screens/home_screen.dart';
 const _themeFile = 'lib/app/theme/app_theme.dart';
 const _devFile = 'lib/app/dev/dev_menu_screen.dart';
+const _coreFile = 'lib/core/widgets/failure.dart';
 
 /// One ARB file, as its raw text: the linter reads the files, not a model.
 String _arb(Map<String, String> messages) {
@@ -187,6 +188,36 @@ void main() {
 
     test('passes inside lib/app/dev/, the menu we run ourselves', () {
       expect(_rules("const t = Text('Dev menu');", path: _devFile), isEmpty);
+    });
+  });
+
+  group('own-failure-widget', () {
+    test('fails on a feature that grows its own error widget', () {
+      expect(
+        _rules('class StepError extends StatelessWidget {}'),
+        contains('own-failure-widget'),
+      );
+      expect(
+        _rules('class LessonSubmitFailureView extends ConsumerWidget {}'),
+        contains('own-failure-widget'),
+      );
+    });
+
+    test('passes in lib/core/, where the two shapes live', () {
+      expect(
+        _rules('class FailureView extends StatelessWidget {}',
+            path: _coreFile),
+        isEmpty,
+      );
+    });
+
+    test('passes on a model, which is not a widget', () {
+      expect(_rules('class LessonFailure {}'), isEmpty);
+      expect(_rules('class TutorError extends Exception {}'), isEmpty);
+    });
+
+    test('passes on a widget not named after a failure', () {
+      expect(_rules('class GoalCard extends StatelessWidget {}'), isEmpty);
     });
   });
 

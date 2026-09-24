@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
@@ -30,12 +30,11 @@ class _DevLoginButtonState extends ConsumerState<DevLoginButton> {
       if (mounted) await routeAfterSignIn(ref, context);
     } on Exception catch (e) {
       if (!mounted) return;
-      final detail = e is ApiException ? e.detail : e.toString();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).signInFailed(detail)),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
+      showFailure(
+        context,
+        e,
+        title: AppLocalizations.of(context).signInFailed,
+        onRetry: _signIn,
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);

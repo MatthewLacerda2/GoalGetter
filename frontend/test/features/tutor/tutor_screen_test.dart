@@ -46,14 +46,18 @@ void main() {
     expect(find.byIcon(Icons.favorite), findsOneWidget);
   });
 
-  testWidgets('a failed send shows why and gives the text back', (
+  // A failed send is an action: a snackbar over the chat, which keeps the
+  // bubble and gives the text back (#98).
+  testWidgets('a failed send is a snackbar that gives the text back', (
     tester,
   ) async {
     await pumpTutor(tester, FakeTutorApi([])..sendError = geminiDown);
     await tester.enterText(find.byType(TextField), 'ciao');
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsOneWidget);
     expect(find.textContaining('The model is overloaded'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
     final field = tester.widget<TextField>(find.byType(TextField));
     expect(field.controller!.text, 'ciao');
   });

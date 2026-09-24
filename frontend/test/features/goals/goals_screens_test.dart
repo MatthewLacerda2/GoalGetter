@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
@@ -77,7 +78,9 @@ void main() {
     expect(find.text('landed /home'), findsOneWidget);
   });
 
-  testWidgets('a failed set-active shows its error on the detail',
+  // An action that failed is a snackbar over the screen the student is still
+  // on, so the goal and its buttons stay where they were (#98).
+  testWidgets('a failed set-active is a snackbar over the detail',
       (tester) async {
     await open(tester, {
       'GET /goals': _twoGoals,
@@ -87,10 +90,11 @@ void main() {
     await tester.tap(find.text('Set as current goal'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Could not make this your active goal: Goal not found'),
-      findsOneWidget,
-    );
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.text('Could not make this your active goal'), findsOneWidget);
+    expect(find.text('Goal not found'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Set as current goal'), findsOneWidget);
   });
 
   testWidgets('delete asks first, then lands on the list', (tester) async {

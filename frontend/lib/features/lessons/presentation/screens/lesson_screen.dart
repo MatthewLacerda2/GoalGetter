@@ -8,7 +8,8 @@ import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart
 
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
-import 'package:goal_getter/features/lessons/presentation/widgets/lesson_failure_view.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
+import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
@@ -157,7 +158,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   /// What takes the whole screen instead of the question: the spinner while
-  /// the lesson loads or an answer is in flight, or a failure with its retry.
+  /// the lesson loads or an answer is in flight, or a lesson that never
+  /// opened. A failed submit is not here - the answers are still on screen,
+  /// so it is a snackbar (see [build]).
   Widget? _blocker(LessonState state, LessonController controller) {
     if (state.isLoading || state.isSubmitting) {
       return Center(
@@ -166,19 +169,50 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         ),
       );
     }
-    if (state.startFailure != null) {
-      return LessonStartFailureView(
-        failure: state.startFailure!,
-        onRetry: controller.start,
-      );
-    }
-    if (state.submitFailure != null) {
-      return LessonSubmitFailureView(
-        failure: state.submitFailure!,
-        onRetry: controller.retrySubmit,
-      );
-    }
+    final failure = state.startFailure;
+    if (failure != null) return _cannotStart(failure, controller.start);
     return null;
+  }
+
+  /// The lesson could not open: the question bank is still being built (409),
+  /// there is no active goal, or the call failed and can be tried again. The
+  /// first two are states, not failures; only the third is a [FailureView].
+  Widget _cannotStart(
+    LessonFailure<LessonStartFailureKind> failure,
+    VoidCallback onRetry,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    final Widget message = switch (failure.kind) {
+      LessonStartFailureKind.notReady => StateMessage(
+        icon: Icons.hourglass_top,
+        title: l10n.lessonsStillPreparing,
+        body: l10n.lessonsStillPreparingBody,
+        actionLabel: l10n.checkAgain,
+        onAction: onRetry,
+      ),
+      LessonStartFailureKind.noActiveGoal => StateMessage(
+        icon: Icons.flag_outlined,
+        title: l10n.noActiveGoal,
+        body: l10n.lessonNoActiveGoalBody,
+        actionLabel: l10n.lessonPickGoal,
+        onAction: () => context.go(AppRoutes.goals),
+      ),
+      LessonStartFailureKind.failed => FailureView(
+        error: failure.cause,
+        title: l10n.lessonStartFailed,
+        onRetry: onRetry,
+      ),
+    };
+    return Column(
+      children: [
+        Expanded(child: message),
+        TextButton(
+          onPressed: () => context.go(AppRoutes.home),
+          child: Text(l10n.lessonBackHome),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+      ],
+    );
   }
 
   /// The answers, one tile each; the fill colour says how each one stands.
@@ -195,17 +229,37 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     );
   }
 
+  /// The lesson ended, or the answers did not reach the server. The answers
+  /// stay on screen either way, so a failed submit is said over them.
+  void _onStateChanged(
+    LessonState? previous,
+    LessonState next,
+    LessonController controller,
+  ) {
+    if (next.isCompleted && !(previous?.isCompleted ?? false)) {
+      _handleCompletion(next);
+    }
+    final failed = next.submitFailure;
+    if (failed != null && previous?.submitFailure == null) {
+      showFailure(
+        context,
+        failed.cause,
+        title: AppLocalizations.of(context).lessonSubmitFailed,
+        onRetry: controller.retrySubmit,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(lessonControllerProvider);
-
-    ref.listen<LessonState>(lessonControllerProvider, (previous, next) {
-      if (next.isCompleted && !(previous?.isCompleted ?? false)) {
-        _handleCompletion(next);
-      }
-    });
-
     final controller = ref.read(lessonControllerProvider.notifier);
+
+    ref.listen<LessonState>(
+      lessonControllerProvider,
+      (previous, next) => _onStateChanged(previous, next, controller),
+    );
+
     final blocker = _blocker(state, controller);
     if (blocker != null) {
       return Scaffold(

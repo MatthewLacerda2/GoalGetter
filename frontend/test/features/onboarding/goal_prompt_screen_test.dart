@@ -22,7 +22,7 @@ void main() {
     await pumpFlow(tester, FakeOnboardingApi()..questionsError = notAGoal);
     await submit(tester);
     expect(find.text(notAGoal.detail), findsOneWidget);
-    expect(find.text('Try again'), findsNothing);
+    expect(find.text('Retry'), findsNothing);
     expect(fieldText(tester), _prompt);
     expect(find.text(question.question), findsNothing);
   });
@@ -35,7 +35,7 @@ void main() {
     expect(fieldText(tester), _prompt);
 
     api.questionsError = null;
-    await tester.tap(find.text('Try again'));
+    await tester.tap(find.text('Retry'));
     await tester.pumpAndSettle();
     expect(find.text(question.question), findsOneWidget);
     expect(api.lastPrompt, _prompt);

@@ -10,10 +10,6 @@ export 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.
 
 part 'tutor_controller.g.dart';
 
-/// The backend's detail for [error], or null when there is none to show (the
-/// server was not reached at all).
-String? _detail(Object error) => error is ApiException ? error.detail : null;
-
 @riverpod
 class TutorController extends _$TutorController {
   TutorApi get _api => ref.read(tutorApiProvider);
@@ -38,10 +34,10 @@ class TutorController extends _$TutorController {
       final noGoal = e.status == 404 && e.detail == TutorApi.noActiveGoal;
       state = TutorState(
         load: noGoal ? TutorLoad.noActiveGoal : TutorLoad.failed,
-        loadError: e.detail,
+        loadFailure: e,
       );
-    } on Exception {
-      state = const TutorState(load: TutorLoad.failed);
+    } on Exception catch (e) {
+      state = TutorState(load: TutorLoad.failed, loadFailure: e);
     }
   }
 
@@ -51,7 +47,7 @@ class TutorController extends _$TutorController {
     final s = state;
     if (s.load != TutorLoad.ready || !s.hasMore || s.isLoadingMore) return;
     if (s.loadMoreFailed && !retry) return;
-    state = s.copyWith(isLoadingMore: true, loadMoreFailed: false);
+    state = s.copyWith(isLoadingMore: true, loadMoreFailure: null);
     try {
       final page = await _api.list(before: s.exchanges.first.createdAt);
       state = state.copyWith(
@@ -59,17 +55,17 @@ class TutorController extends _$TutorController {
         hasMore: page.length == TutorApi.pageSize,
         isLoadingMore: false,
       );
-    } on Exception {
-      state = state.copyWith(isLoadingMore: false, loadMoreFailed: true);
+    } on Exception catch (e) {
+      state = state.copyWith(isLoadingMore: false, loadMoreFailure: e);
     }
   }
 
-  /// Sends [text], shown at once as a pending bubble. Returns false when the
-  /// send failed: the bubble stays, marked failed, and the caller gives the
-  /// text back to the student.
-  Future<bool> send(String text) async {
+  /// Sends [text], shown at once as a pending bubble. Returns what the call
+  /// threw, or null when it went through: the bubble stays, marked failed, and
+  /// the caller gives the text back to the student and says why.
+  Future<Object?> send(String text) async {
     final message = text.trim();
-    if (message.isEmpty || state.isSending) return true;
+    if (message.isEmpty || state.isSending) return null;
     state = state.copyWith(pending: PendingSend(message));
     try {
       final exchange = await _api.send(message);
@@ -77,26 +73,24 @@ class TutorController extends _$TutorController {
         exchanges: [...state.exchanges, exchange],
         pending: null,
       );
-      return true;
+      return null;
     } on Exception catch (e) {
-      state = state.copyWith(
-        pending: PendingSend(message, failed: true, error: _detail(e)),
-      );
-      return false;
+      state = state.copyWith(pending: PendingSend(message, failed: true));
+      return e;
     }
   }
 
-  /// Sets the like at once, then confirms it with the backend. Returns false,
-  /// with the like put back, when the backend refused it.
-  Future<bool> setLike(String exchangeId, bool isLiked) async {
+  /// Sets the like at once, then confirms it with the backend. Returns what
+  /// the backend threw, with the like put back, or null when it was saved.
+  Future<Object?> setLike(String exchangeId, bool isLiked) async {
     _replace(exchangeId, (e) => e.copyWith(isLiked: isLiked));
     try {
       final saved = await _api.setLike(exchangeId, isLiked);
       _replace(exchangeId, (_) => saved);
-      return true;
-    } on Exception {
+      return null;
+    } on Exception catch (error) {
       _replace(exchangeId, (e) => e.copyWith(isLiked: !isLiked));
-      return false;
+      return error;
     }
   }
 

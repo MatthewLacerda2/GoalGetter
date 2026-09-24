@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/widgets/error_retry_widget.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
+import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/tutor/presentation/chat_bubbles.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/tutor_controller.dart';
 import 'package:goal_getter/features/tutor/presentation/widgets/chat_input.dart';
@@ -46,21 +47,29 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
       return;
     }
     _textController.clear();
-    final sent = await _controller.send(text);
+    final failure = await _controller.send(text);
+    if (failure == null || !mounted) return;
     // Give the text back so the student can send it again, unless they have
     // already started typing something else.
-    if (!sent && mounted && _textController.text.isEmpty) {
-      _textController.text = text.trim();
-    }
+    if (_textController.text.isEmpty) _textController.text = text.trim();
+    // The composer is at the bottom: the snackbar goes above it, not over it.
+    showFailure(
+      context,
+      failure,
+      onRetry: _send,
+      position: FailurePosition.top,
+    );
   }
 
   Future<void> _toggleLike(String exchangeId, bool isLiked) async {
-    final saved = await _controller.setLike(exchangeId, !isLiked);
-    if (!saved && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).tutorLikeFailed)),
-      );
-    }
+    final failure = await _controller.setLike(exchangeId, !isLiked);
+    if (failure == null || !mounted) return;
+    showFailure(
+      context,
+      failure,
+      title: AppLocalizations.of(context).tutorLikeFailed,
+      onRetry: () => _toggleLike(exchangeId, isLiked),
+    );
   }
 
   @override
@@ -79,9 +88,9 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
       body: switch (state.load) {
         TutorLoad.loading => const Center(child: CircularProgressIndicator()),
         TutorLoad.noActiveGoal => const _NoActiveGoal(),
-        TutorLoad.failed => ErrorRetryWidget(
-          errorMessage:
-              state.loadError ?? AppLocalizations.of(context).tutorUnreachable,
+        TutorLoad.failed => FailureView(
+          error: state.loadFailure,
+          title: AppLocalizations.of(context).tutorLoadFailed,
           onRetry: _controller.load,
         ),
         TutorLoad.ready => Column(
@@ -150,23 +159,11 @@ class _OlderStatus extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       );
     }
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.xs),
-      child: Column(
-        children: [
-          Text(
-            l10n.tutorOlderFailed,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-          TextButton(
-            onPressed: () => ref
-                .read(tutorControllerProvider.notifier)
-                .loadOlder(retry: true),
-            child: Text(l10n.tutorRetry),
-          ),
-        ],
-      ),
+    return FailureView(
+      error: state.loadMoreFailure,
+      title: AppLocalizations.of(context).tutorOlderFailed,
+      onRetry: () =>
+          ref.read(tutorControllerProvider.notifier).loadOlder(retry: true),
     );
   }
 }
@@ -177,27 +174,11 @@ class _NoActiveGoal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.flag_outlined,
-              size: 48,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.tutorNoActiveGoal, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => context.go(AppRoutes.goals),
-              child: Text(l10n.manageGoals),
-            ),
-          ],
-        ),
-      ),
+    return StateMessage(
+      icon: Icons.flag_outlined,
+      title: l10n.tutorNoActiveGoal,
+      actionLabel: l10n.manageGoals,
+      onAction: () => context.go(AppRoutes.goals),
     );
   }
 }

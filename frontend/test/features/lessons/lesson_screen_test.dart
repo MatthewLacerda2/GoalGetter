@@ -25,7 +25,8 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
-  testWidgets('a failed submit is shown with a retry', (tester) async {
+  // The answers are still on screen, so the failure is said over them (#98).
+  testWidgets('a failed submit is a snackbar with a retry', (tester) async {
     final fake = ApiFake({
       startKey: [(201, lessonJson(1))],
       answersKey: [(500, '{"detail": "boom"}')],
@@ -38,7 +39,10 @@ void main() {
     await tester.tap(find.byType(ElevatedButton)); // Continue: submits
     await tester.pumpAndSettle();
 
+    expect(find.byType(SnackBar), findsOneWidget);
     expect(find.text('Your answers were not saved'), findsOneWidget);
-    expect(find.text('Try again'), findsOneWidget);
+    expect(find.text('boom'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Question 0?'), findsOneWidget);
   });
 }

@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
-import 'package:goal_getter/core/utils/error_text.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/resources/data/resources_api.dart';
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
@@ -46,13 +46,10 @@ class ResourcesScreen extends ConsumerWidget {
                   actionLabel: l10n.pickAGoal,
                   onAction: () => context.push(AppRoutes.goals),
                 )
-              : StateMessage(
-                  icon: Icons.error_outline,
-                  isError: true,
+              : FailureView(
+                  error: err,
                   title: l10n.resourcesLoadFailed,
-                  body: errorText(err, l10n),
-                  actionLabel: l10n.retry,
-                  onAction: reload,
+                  onRetry: reload,
                 ),
           data: (resources) => resources.isEmpty
               ? StateMessage(

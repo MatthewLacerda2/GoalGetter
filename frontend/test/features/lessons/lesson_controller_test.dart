@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
 
@@ -73,7 +74,7 @@ void main() {
     await answer(c, 0);
     await answer(c, 1);
 
-    expect(c.state.submitFailure?.detail, 'boom');
+    expect((c.state.submitFailure?.cause as ApiException?)?.detail, 'boom');
     expect(c.state.isCompleted, isFalse);
     final firstTry = sentAnswers(fake);
 

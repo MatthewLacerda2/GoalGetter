@@ -64,28 +64,27 @@ void main() {
 
   test('a sent message appends the stored exchange', () async {
     final c = await loaded(FakeTutorApi([exchange(1)]));
-    expect(await c.send('  ciao  '), isTrue);
+    expect(await c.send('  ciao  '), isNull);
     expect(ids(c), ['e1', 'new']);
     expect(c.state.exchanges.last.prompt, 'ciao');
     expect(c.state.pending, isNull);
   });
 
-  test('a failed send keeps the text, marked failed with the reason', () async {
+  test('a failed send keeps the text and hands back the reason', () async {
     final c = await loaded(FakeTutorApi([])..sendError = geminiDown);
-    expect(await c.send('ciao'), isFalse);
+    expect(await c.send('ciao'), same(geminiDown));
     expect(c.state.pending?.text, 'ciao');
     expect(c.state.pending?.failed, isTrue);
-    expect(c.state.pending?.error, geminiDown.detail);
     expect(c.state.isSending, isFalse);
   });
 
   test('a like is set, and put back when the backend refuses it', () async {
     final api = FakeTutorApi([exchange(1)]);
     final c = await loaded(api);
-    expect(await c.setLike('e1', true), isTrue);
+    expect(await c.setLike('e1', true), isNull);
     expect(c.state.exchanges.single.isLiked, isTrue);
     api.likeError = geminiDown;
-    expect(await c.setLike('e1', false), isFalse);
+    expect(await c.setLike('e1', false), same(geminiDown));
     expect(c.state.exchanges.single.isLiked, isTrue);
   });
 }

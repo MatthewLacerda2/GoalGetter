@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/profile/domain/user_profile.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
@@ -27,7 +27,11 @@ class ProfileHeader extends StatelessWidget {
         height: 60,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (error, _) => _HeaderError(error: error, onRetry: onRetry),
+      error: (error, _) => FailureView(
+        error: error,
+        title: AppLocalizations.of(context).profileLoadFailed,
+        onRetry: onRetry,
+      ),
       data: (p) => _Header(profile: p, goalsCount: goalsCount),
     );
   }
@@ -120,34 +124,6 @@ class _Avatar extends StatelessWidget {
           color: scheme.onPrimary,
         ),
       ),
-    );
-  }
-}
-
-class _HeaderError extends StatelessWidget {
-  const _HeaderError({required this.error, required this.onRetry});
-
-  final Object error;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final detail =
-        error is ApiException ? (error as ApiException).detail : l10n.couldNotReachServer;
-    return Row(
-      children: [
-        Icon(Icons.cloud_off, color: scheme.error),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            '${l10n.profileLoadFailed}: $detail',
-            style: TextStyle(color: scheme.error),
-          ),
-        ),
-        TextButton(onPressed: onRetry, child: Text(l10n.profileRetry)),
-      ],
     );
   }
 }

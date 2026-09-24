@@ -46,13 +46,13 @@ enum LessonStartFailureKind {
   failed,
 }
 
-/// A failed call, as the screen shows it. [detail] is the backend's sentence,
-/// or null when the server could not be reached (the screen localizes that).
+/// A failed call, as the screen shows it. [cause] is what the call threw, or
+/// null when there was nothing to throw; the screen turns it into a sentence.
 class LessonFailure<K> {
   final K kind;
-  final String? detail;
+  final Object? cause;
 
-  const LessonFailure(this.kind, [this.detail]);
+  const LessonFailure(this.kind, [this.cause]);
 }
 
 class LessonState {

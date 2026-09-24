@@ -6,7 +6,8 @@ import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// One chat bubble. A tutor bubble likes its exchange on a double tap; the
 /// reply's last bubble also shows the heart, which toggles the like on a tap.
-/// A pending user bubble is faded; a failed one says why underneath.
+/// A pending user bubble is faded, and a failed one is marked: why it failed,
+/// and the retry, are the snackbar's to say.
 class ChatMessageBubble extends StatelessWidget {
   const ChatMessageBubble({super.key, required this.bubble, this.onToggleLike});
 
@@ -64,7 +65,7 @@ class ChatMessageBubble extends StatelessWidget {
               if (bubble.carriesHeart) _Heart(bubble.isLiked, onToggleLike),
             ],
           ),
-          if (bubble.status == BubbleStatus.failed) _NotSent(bubble.error),
+          if (bubble.status == BubbleStatus.failed) const _NotSent(),
         ],
       ),
     );
@@ -94,28 +95,16 @@ class _Heart extends StatelessWidget {
 }
 
 class _NotSent extends StatelessWidget {
-  const _NotSent(this.error);
-
-  final String? error;
+  const _NotSent();
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final color = Theme.of(context).colorScheme.error;
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.xxs),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.error_outline, size: 16, color: color),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              l10n.tutorNotSent(error ?? l10n.tutorUnreachable),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
-            ),
-          ),
-        ],
+      child: Icon(
+        Icons.error_outline,
+        size: AppSizes.inlineIcon,
+        color: Theme.of(context).colorScheme.error,
       ),
     );
   }
