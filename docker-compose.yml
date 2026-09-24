@@ -67,10 +67,14 @@ services:
         max-size: "30m"
         max-file: "3"
 
-  # The nightly run (#89): one process, so 03:00 happens once. The API's four
+  # The night (#89, #96): one process, so each hour happens once. The API's four
   # uvicorn workers would each fire an in-process scheduler - see
   # backend/tools/nightly_run.py for why this is a service and not a cron entry.
   # It waits for the hour before it runs, so a restart never spends quota.
+  # Two jobs share it, one at a time: the embedding backfill at midnight and the
+  # per-student chain at 03:00. A second service for the backfill would have
+  # been a second container and a second image for one cron tick a night, and
+  # nothing would have stopped the two from calling Gemini at once.
   nightly:
     build:
       context: ./backend

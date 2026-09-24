@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
-"""The nightly run's entry point (#89): a process of its own, not a scheduler
+"""The night's entry point (#89, #96): a process of its own, not a scheduler
 inside the API.
+
+**Two jobs, one process, one at a time.** The night has two hours in it: the
+embedding backfill at `EMBEDDING_RUN_HOUR` (midnight) and the per-student chain
+at `NIGHTLY_RUN_HOUR` (03:00). The loop below sleeps to whichever comes first
+and runs that one job to completion before it looks at the clock again, so the
+two can never be talking to Gemini at the same time however long either takes.
+Two loops under one `gather` would have been fewer lines and would have put the
+backfill's calls on top of the chain's on any night the backfill ran long.
 
 **Why a process and not an in-process scheduler.** The API is served by four
 uvicorn workers (`docker-compose.yml`), and every one of them is a separate
@@ -25,16 +33,17 @@ this issue did not ask for.
 
 **It waits before it runs, never after.** `restart: unless-stopped` plus a run
 on startup would spend real quota on every deploy and every crash loop. So the
-loop sleeps to the next 03:00 first.
+loop sleeps to the next hour first - both of them.
 
 Usage::
 
-    python -m backend.tools.nightly_run                  # wait for 03:00, forever
+    python -m backend.tools.nightly_run                  # wait for the next hour, forever
     python -m backend.tools.nightly_run --once           # run every student now
     python -m backend.tools.nightly_run --student <id>   # one student, now
+    python -m backend.tools.nightly_run --embeddings     # fill every null embedding now
 
-The last two are how the behaviour is watched without waiting for 03:00: every
-decision the run takes is logged, including the ones that skip.
+The last three are how the behaviour is watched without waiting for the hour:
+every decision either job takes is logged, including the ones that skip.
 
 **It spends real quota**, exactly as the night would.
 """
@@ -45,33 +54,51 @@ import logging
 import sys
 
 from backend.core import clock
+from backend.services.jobs.embeddings import run_embeddings
 from backend.services.jobs.nightly import run_for_student, run_nightly
 
 logger = logging.getLogger("backend.tools.nightly_run")
 
 
-async def wait_for_the_hour() -> None:
-    """Sleep until the next NIGHTLY_RUN_HOUR. The hour itself is the clock's
-    (`backend/core/clock.py`), so the time zone is named in one place."""
-    fires = clock.next_nightly_run()
+async def wait_for_the_next_job():
+    """Sleep until the night's next hour and answer with the job it belongs to.
+
+    Both hours are the clock's (`backend/core/clock.py`), so the time zone and
+    the schedule are named in one place. The backfill wins a tie because it is
+    the cheap job: if the two hours were ever set to the same one, the vectors
+    should be in before the chain starts spending.
+    """
+    at_embeddings = clock.next_embedding_run()
+    at_chain = clock.next_nightly_run()
+    if at_embeddings <= at_chain:
+        name, job, fires = "embedding backfill", run_embeddings, at_embeddings
+    else:
+        name, job, fires = "nightly run", run_nightly, at_chain
+
     seconds = (fires - clock.now()).total_seconds()
-    logger.info("Next nightly run at %s (%.0f minutes from now)", fires.isoformat(), seconds / 60)
+    logger.info("Next %s at %s (%.0f minutes from now)", name, fires.isoformat(), seconds / 60)
     await asyncio.sleep(max(seconds, 0))
+    return name, job
 
 
 async def forever() -> None:
     while True:
-        await wait_for_the_hour()
+        name, job = await wait_for_the_next_job()
         try:
-            await run_nightly()
+            await job()
         except Exception:
-            # run_nightly already swallows a single student's failure, so this
-            # is the database being unreachable or worse. Log it and stay up:
-            # tomorrow night is still worth being here for.
-            logger.exception("Nightly run failed as a whole")
+            # Both jobs already swallow the failure of one student or one batch,
+            # so this is the database being unreachable or worse. Log it and
+            # stay up: tomorrow night is still worth being here for.
+            logger.exception("The %s failed as a whole", name)
 
 
 async def main_async(args) -> int:
+    if args.embeddings:
+        tallies = await run_embeddings()
+        filled = sum(tally.filled for tally in tallies)
+        print(f"{filled} embedding(s) filled, {sum(t.left for t in tallies)} left")
+        return 0
     if args.student:
         ran = await run_for_student(args.student)
         print(f"student {args.student}: {'chain ran' if ran else 'skipped'}")
@@ -88,6 +115,9 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--once", action="store_true", help="run every student now, then exit")
     parser.add_argument("--student", help="run for this student id now, then exit")
+    parser.add_argument(
+        "--embeddings", action="store_true", help="fill every null embedding now, then exit"
+    )
     args = parser.parse_args(argv[1:])
 
     logging.basicConfig(

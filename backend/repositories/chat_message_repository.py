@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import delete as sql_delete
-from sqlalchemy import select
+from sqlalchemy import or_, select
 
 from backend.models.chat_message import ChatMessage
 from backend.repositories.base import BaseRepository
@@ -41,6 +41,30 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
             select(ChatMessage)
             .where(ChatMessage.student_id == student_id)
             .order_by(ChatMessage.created_at.desc(), ChatMessage.id.desc())
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def list_missing_embeddings(self, limit: int) -> list[ChatMessage]:
+        """Exchanges with either embedding still null, oldest first (#96).
+
+        One query covers both columns: a row whose reply alone is missing is
+        fetched once, and the backfill fills only the column that is null.
+        Ordered oldest first so the queue drains in the order it formed, and
+        capped because the table only grows - a night that hits the cap leaves
+        the rest for the next one, which is exactly what "null is the queue"
+        buys us.
+        """
+        stmt = (
+            select(ChatMessage)
+            .where(
+                or_(
+                    ChatMessage.prompt_embedding.is_(None),
+                    ChatMessage.tutor_response_embedding.is_(None),
+                )
+            )
+            .order_by(ChatMessage.created_at, ChatMessage.id)
             .limit(limit)
         )
         result = await self.db.execute(stmt)

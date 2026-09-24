@@ -65,6 +65,23 @@ class LessonQuestionRepository(BaseRepository[LessonQuestion]):
             QuestionHistory(q, answered_at, correct) for q, answered_at, correct in result.all()
         ]
 
+    async def list_missing_embeddings(self, limit: int) -> list[LessonQuestion]:
+        """Bank questions whose embedding is still null, oldest first (#96).
+
+        The column with a use already named: reading a question's topic and
+        difficulty inside one student's own bank. Nothing reads it yet, and
+        nothing may start requiring it - selection still works on a bank of
+        nulls.
+        """
+        stmt = (
+            select(LessonQuestion)
+            .where(LessonQuestion.question_embedding.is_(None))
+            .order_by(LessonQuestion.created_at, LessonQuestion.id)
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def update(self, entity: LessonQuestion) -> LessonQuestion:
         await self.db.flush()
         return entity

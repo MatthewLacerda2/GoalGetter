@@ -31,7 +31,7 @@ PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly
+.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -183,6 +183,15 @@ gemini: env ## Run one Gemini use case for real (SPENDS QUOTA; no ARGS lists the
 # deployment the same entry point is the `nightly` compose service.
 nightly: env ## Run the nightly job by hand (SPENDS QUOTA; ARGS='--student <id>' or --once)
 	@$(DOCKER_RUN) python -m backend.tools.nightly_run $(ARGS)
+
+# `make embeddings`: the embedding backfill (#96) by hand, now, instead of at
+# midnight - every null vector in the seven columns, in batch, logging how many
+# rows each column had, how many it filled and how many it left. Same entry
+# point and same compose service as `nightly`, and it SPENDS REAL QUOTA (one
+# billed call per hundred texts). Safe to repeat: null is the only queue, so a
+# second run finds only what the first did not fill.
+embeddings: env ## Fill every null embedding by hand (SPENDS QUOTA)
+	@$(DOCKER_RUN) python -m backend.tools.nightly_run --embeddings
 
 # `make claude`: "Fictitious Claude" with a lived-in history, so every signed-in
 # screen has data (backend/services/fictitious/, hardcoded, no Gemini/YouTube),
