@@ -280,8 +280,8 @@ remind him and ask.
 - **The database drops its whole schema on every backend start.** The lifespan in
   `backend/main.py` runs `DROP SCHEMA public CASCADE` then `create_all`. Deliberate
   while the models settle; no data survives a restart. There are **no migrations**
-  yet — Alembic is scaffolded and `versions/` is empty. Plan: lock the schemas after
-  frontend integration, generate the first migration, and switch startup to it.
+  yet — Alembic is scaffolded and `versions/` is empty. Plan: lock the schemas when the
+  user says they have settled, generate the first migration, and switch startup to it.
 - **Line endings are mixed** — roughly 20 files CRLF, the rest LF. Preserve a file's
   existing endings when editing: a tool that rewrites them turns a one-line change
   into a whole-file diff.
@@ -293,9 +293,19 @@ remind him and ask.
   `POST /auth/dev-login`; `make claude-token` (honours `BACKEND_PORT`) writes a
   bearer for "Fictitious Claude" to `.claude/token`, and a Flutter build with
   `--dart-define=DEV_LOGIN=true` offers the same sign-in on the start screen.
-- **Analyzer backlog: 0 warnings, 412 infos** (2026-09-24, #101). A warning now
+- **Analyzer backlog: 0 warnings, 389 infos** (2026-09-24, after #124/#125). A warning now
   fails `make front-lint`; the infos are a separate, larger backlog and still
   only report (`--no-fatal-infos`). Next step: clear them and let them block too.
+- **The deploy now runs a job that spends money.** `docker-compose.yml` carries a
+  `nightly` service (#89, #96): one process that fills the null embeddings at **00:00**
+  and runs the context → questions → resources chain for each qualifying student at
+  **03:00**, America/Sao_Paulo. It waits for the hour before running, so a restart or a
+  crash loop never spends quota, and it skips any student who did no lesson that day.
+  `make nightly ARGS='--once'` and `make embeddings` run them by hand.
+- **The tailnet preview wipes the shared dev database** (#122). Its backend mounts the
+  main checkout's `.env`, so it points at the dev database and drops the schema on start;
+  `make claude` reseeds it. Fine when the user is looking at his phone, destructive while
+  anything else depends on that data.
 - **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the
   tailnet name) is not enabled on this tailnet yet; the user enables it once from the
   admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google
