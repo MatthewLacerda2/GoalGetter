@@ -40,8 +40,9 @@ if grep -q '^frontend/' <<<"$staged" && grep -qv '^frontend/docs/' <<<"$(grep '^
   else
     echo "→ frontend line limits"
     (cd frontend && "$(dirname "$flutter_bin")/dart" run tool/frontend_linter.dart) || fail=1
+    # A warning fails this gate (#101); the infos are a separate backlog.
     echo "→ flutter analyze"
-    (cd frontend && "$flutter_bin" analyze --no-fatal-infos --no-fatal-warnings) || fail=1
+    (cd frontend && "$flutter_bin" analyze --no-fatal-infos) || fail=1
   fi
 fi
 

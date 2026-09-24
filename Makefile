@@ -71,9 +71,12 @@ back-test: env ## Backend pytest (needs the test database: docker compose up -d 
 back-image: ## Rebuild the backend image the gates run in (after a requirements.txt change)
 	@docker build -t $(BACKEND_IMAGE) backend
 
+# A warning fails this gate (#101): the backlog that justified letting them
+# through is gone. The infos are a separate, larger backlog, so they still
+# only report.
 front-lint: ## Frontend dart line limits + flutter analyze
 	@cd frontend && $(DART) run tool/frontend_linter.dart
-	@cd frontend && $(FLUTTER) analyze --no-fatal-infos --no-fatal-warnings
+	@cd frontend && $(FLUTTER) analyze --no-fatal-infos
 
 front-test: ## Frontend widget/unit tests
 	@cd frontend && $(FLUTTER) test

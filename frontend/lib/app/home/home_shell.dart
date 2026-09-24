@@ -27,28 +27,28 @@ class ScaffoldWithNavBar extends StatelessWidget {
     return [
       BottomNavigationBarItem(
         icon: MainScreenIcon(icon: Icons.home_outlined, isSelected: current == 0),
-        label: AppLocalizations.of(context)!.home,
+        label: AppLocalizations.of(context).home,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.chat_bubble_outline,
           isSelected: current == 1,
         ),
-        label: AppLocalizations.of(context)!.tutor,
+        label: AppLocalizations.of(context).tutor,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.menu_book_outlined,
           isSelected: current == 2,
         ),
-        label: AppLocalizations.of(context)!.resources,
+        label: AppLocalizations.of(context).resources,
       ),
       BottomNavigationBarItem(
         icon: MainScreenIcon(
           icon: Icons.person_outline,
           isSelected: current == 3,
         ),
-        label: AppLocalizations.of(context)!.profile,
+        label: AppLocalizations.of(context).profile,
       ),
     ];
   }

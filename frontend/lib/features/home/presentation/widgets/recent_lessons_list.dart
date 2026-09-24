@@ -24,7 +24,7 @@ class RecentLessonsList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.recentLessons,
+          AppLocalizations.of(context).recentLessons,
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 10.0),
@@ -32,7 +32,7 @@ class RecentLessonsList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Text(
-              AppLocalizations.of(context)!.noLessonsYet,
+              AppLocalizations.of(context).noLessonsYet,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           )

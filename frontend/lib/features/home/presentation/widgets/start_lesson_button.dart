@@ -24,7 +24,7 @@ class StartLessonButton extends StatelessWidget {
           size: 26,
         ),
         label: Text(
-          AppLocalizations.of(context)!.startLesson,
+          AppLocalizations.of(context).startLesson,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             color: Theme.of(context).colorScheme.onPrimary,
           ),

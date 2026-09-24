@@ -49,13 +49,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
     if (incorrectQuestions.isNotEmpty && !state.isReviewMode) {
       Navigator.of(context).push(
-        PageRouteBuilder(
+        PageRouteBuilder<void>(
           pageBuilder: (context, animation, secondaryAnimation) => InfoScreen(
             icon: Icons.quiz,
-            descriptionText: AppLocalizations.of(
-              context,
-            )!.nowLetSCorrectYourMistakes,
-            buttonText: AppLocalizations.of(context)!.continuate,
+            descriptionText:
+                AppLocalizations.of(context).nowLetSCorrectYourMistakes,
+            buttonText: AppLocalizations.of(context).continuate,
             onButtonPressed: () {
               Navigator.of(context).pop();
               ref.read(lessonControllerProvider.notifier).startReviewMode(incorrectQuestions);
@@ -85,7 +84,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   /// The server's evaluation. When it was lost (LessonEvaluation.elo is null)
   /// the elo change is unknown and shows as a dash.
   FinishLessonArgs _finishArgs(LessonState state) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final evaluation = state.evaluationResponse;
     final elo = evaluation?.elo;
     return FinishLessonArgs(
@@ -216,7 +215,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
 
     final currentQuestion = state.questions[state.currentQuestionIndex];
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

@@ -117,7 +117,7 @@ class _ContinueButton extends StatelessWidget {
           ),
         ),
         child: Text(
-          AppLocalizations.of(context)!.continuate,
+          AppLocalizations.of(context).continuate,
           style: Theme.of(
             context,
           ).textTheme.headlineLarge?.copyWith(color: scheme.onPrimary),
