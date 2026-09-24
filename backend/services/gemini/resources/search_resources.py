@@ -16,13 +16,32 @@ logger = logging.getLogger(__name__)
 
 
 def search_resources(
-    goal_id: str, goal_name: str, goal_description: str, student_context: str | None = None
+    goal_id: str,
+    goal_name: str,
+    goal_description: str,
+    student_context: str | None = None,
+    existing_links: list[str] | None = None,
 ) -> list[Resource]:
+    """Nine resources for one goal, searched for this student.
+
+    `student_context` is the app's reading of the learner - the chain never
+    calls this without one ("no resources without memory", the user), and the
+    parameter stays optional only so `make gemini resource-search` can be run
+    against a goal alone. `existing_links` are the links the goal already
+    holds, so a second run is asked for something new; the caller still dedupes
+    what comes back, because asking is not obeying.
+    """
     client = get_client()
     model = GEMINI_FAST_MODEL
 
     context_str = (
         f"Student's background and level: {student_context}" if student_context else "None"
+    )
+    held = (
+        "The student already has these links. Do not recommend any of them again:\n"
+        + "\n".join(f"- {link}" for link in existing_links)
+        if existing_links
+        else "The student has no resources for this goal yet."
     )
 
     prompt = f"""
@@ -32,6 +51,8 @@ def search_resources(
     - 3 PDF guides, eBooks, or PDF cheatsheets relevant to learning "{goal_name}".
 
     Take into account the student's level and context: "{context_str}".
+
+    {held}
 
     You have the Google Search tool. Use it to find actual, existing, valid URLs for these resources.
     Format your response in plain text first, listing each resource's name, type, description, language, and exact URL link.

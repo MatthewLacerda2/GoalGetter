@@ -112,7 +112,9 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   - the only synchronous Gemini call here is the **introduction screens** (fast
     model): 3–5 `{icon, title, text}` shown while background setup runs. `icon`
     is a fixed 15-value enum so Gemini cannot hallucinate an icon name.
-  - sets `students.current_goal_id`, then fires the background jobs below.
+  - stores the prompt and the onboarding answers (`onboarding_questions`), sets
+    `students.current_goal_id`, then fires the **student chain** below with the
+    student's id — the chain reads the onboarding back, it is not handed it.
 
 - **`PUT /goals/{goal_id}/set-active`** ✅ — set `students.current_goal_id`.
   request: none · response: `{ "goal_id": "..." }`
@@ -221,11 +223,12 @@ user bubble plus one tutor bubble per `responses` entry.
   - no active goal ⇒ **404 `No active goal`** (`get_active_goal`). A goal whose
     background job has not finished yet has three empty lists, not an error.
 
-### Resource generation (background job) — ✅
+### Resource generation (the chain's third step) — ✅
 
-Kicked off fire-and-forget by `POST /goals`; the introduction screens exist to
-buy time for it. Never fails the request that started it. Also intended to re-run
-on its own schedule later (on a significant skill jump, or monthly).
+The last step of the student chain (see Background jobs), which `POST /goals`
+kicks off fire-and-forget; the introduction screens exist to buy time for it.
+Never fails the request that started it. It runs only after the student has a
+context, and it is the step #89 will run weekly rather than nightly.
 
 1. Ask Gemini (premium model, Google Search grounding) for 3 YouTube + 3
    webpages + 3 PDFs, then a second call reshapes that text into JSON.
@@ -253,16 +256,52 @@ a card we want to keep playable. Dedupe is **per-goal** only.
 
 Fire-and-forget, spawned on the running loop, errors logged not raised.
 
-| Job | Trigger | State |
-| --- | --- | --- |
-| **Resource scraping** | goal created; later on skill jump / monthly | ✅ built |
-| **Lesson generation** | goal created (first the student context, then the first question bank from the student's still-valid contexts + this goal); later a nightly job (#89) | ✅ first bank · ⬜ nightly |
-| **Student context ("memories")** | after onboarding, then periodically | ✅ initial, from every goal the student has · ⬜ periodic service written, nothing calls it |
+**There is one background job: the student chain** (`services/jobs/student_chain.py`,
+#88). `run_student_chain(student_id)` runs three steps for one student, in this
+order and never in parallel — Gemini is called one at a time, and each step reads
+what the one before it wrote:
 
-**Scheduling rule for memories** (user's intent, not yet implemented): check every
-student **daily**, but only regenerate if **≥3 days since the last generation**
-AND the student actually chatted or did a lesson in between. No activity ⇒ no
-job, no tokens spent.
+| Step | Reads | Writes |
+| --- | --- | --- |
+| **1. Context** | every goal of the student, plus either the stored onboarding or their recent lesson answers and tutor chats | one `student_contexts` row |
+| **2. Questions** (per goal) | the student's still-valid contexts, the goal, the questions of that goal whose latest answer was wrong | `lesson_questions` |
+| **3. Resources** (per goal) | the student's newest context, the goal, the links the goal already holds | `resources` |
+
+**Nothing tells a step whether this is the first run.** Each works out what it
+needs from what it finds: no lesson answered yet (or no context left standing)
+and step 1 writes the first impression from the onboarding, otherwise it revises
+the newest context. An empty list of recent mistakes is a normal input, not a
+special case. Goal creation's only particularity is that there is nothing to
+read yet.
+
+**The onboarding is stored, not passed.** `POST /goals` writes the student's
+prompt and their answers to `onboarding_questions` (see
+`repositories/onboarding_repository.py` for how a row encodes them) and fires the
+chain with the student's id alone. An input that lives only in a function
+argument dies with the call that carried it; these rows mean a chain that failed
+tonight can be run again tomorrow.
+
+**No resources without memory** (the user, 2026-09-23). Step 3 returns without
+calling Gemini when the student has no valid context: a search made with no
+reading of the learner returns what anyone would get.
+
+**A failed step stops the chain and keeps what was already written.** Each step
+commits its own work, so a context that cost a premium call survives a question
+bank that failed after it. The steps that had not run yet do not run — a Gemini
+failure is usually the rate limit or the quota, and firing the next calls
+straight at it turns one failed step into three. The next run picks up where
+this one stopped.
+
+Still open around it: the nightly run and who it skips (#89), Gemini saying
+which contexts went stale (#90), and generating questions only when tomorrow's
+lesson would run short (#91) — until #91, every goal of the student gets a
+generation on every run.
+
+**Superseded scheduling rule for memories** (the user's earlier intent, never
+implemented): check every student **daily**, but only regenerate if **≥3 days
+since the last generation** AND the student actually chatted or did a lesson in
+between. #90 replaced the three-day rule: the gate is the day's lesson, and
+Gemini itself says what is stale.
 
 **History — the old nightly schedule (deleted 2026-09-21).** `backend/core/scheduler.py`
 wired four APScheduler daily crons: lesson creation (04:30), lesson context
@@ -274,7 +313,8 @@ generation into **two** jobs (chats and lessons separately) and had a
 
 **Decided: collapse to two nightly jobs.** One updates context/memories, one
 creates lessons — in that order, because lesson creation consumes the memories.
-Four jobs was over-splitting. No scheduler runs today.
+Four jobs was over-splitting. That became the chain above, with resources as its
+third step. No scheduler runs today (#89).
 
 **Spirit: progression follows the student, not a syllabus.** Early prompting
 framed a goal as a fixed ladder of steps (chess: piece movement → endgames →
@@ -299,8 +339,8 @@ is generating for. Anything goal-specific reaches a prompt as the goal's own
 name and description, never through the context.
 
 Two services exist — one builds the first impression from the onboarding
-answers, one revises it from recent lesson results and chat history (written,
-not yet scheduled). `is_still_valid` retires a stale context **without
+answers, one revises it from recent lesson results and chat history. The chain's
+first step picks between them by what it finds (#88). `is_still_valid` retires a stale context **without
 deleting it**: kept for progression history and data science. The user is meant
 to be able to read what the app has written about them.
 

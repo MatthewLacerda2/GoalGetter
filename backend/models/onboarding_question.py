@@ -9,6 +9,15 @@ from backend.models.base import Base
 
 
 class OnboardingQuestion(Base):
+    """What the student told us while creating a goal, kept until the chain's
+    first step turns it into a student context (#88).
+
+    How a row is written - which of the four option columns is filled, and when
+    `selected_option_index` is NULL - is documented on
+    `repositories/onboarding_repository.py`, the only thing that reads or writes
+    this table.
+    """
+
     __tablename__ = "onboarding_questions"
     __table_args__ = (
         CheckConstraint(

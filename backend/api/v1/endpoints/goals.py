@@ -8,6 +8,7 @@ from backend.core.security import get_current_user
 from backend.models.goal import Goal
 from backend.models.student import Student
 from backend.repositories.goal_repository import GoalRepository
+from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.student_repository import StudentRepository
 from backend.schemas.goal import (
     GoalCommitRequest,
@@ -27,7 +28,7 @@ from backend.services.gemini.onboarding.goal_validation import (
 from backend.services.gemini.onboarding.introduction import generate_introduction_screens
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
-from backend.services.jobs.goal_jobs import kickoff_lessons_generation, kickoff_resource_scraping
+from backend.services.jobs.student_chain import kickoff_student_chain
 from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
@@ -85,24 +86,29 @@ async def create_goal(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Step 3 (AUTHED): persist the goal the user approved in the preview, make it the
-    active goal, generate the introduction screens (the only synchronous Gemini call),
-    then fire the slow setup jobs (resources, lessons) in the background — those are
-    what the introduction screens buy time for.
+    Step 3 (AUTHED): persist the goal the user approved in the preview, store the
+    onboarding it came from, make it the active goal, generate the introduction
+    screens (the only synchronous Gemini call), then fire the student chain in the
+    background — that is what the introduction screens buy time for.
+
+    The onboarding is *stored*, not handed to the chain: the chain's first step
+    reads it from the database, so a run that fails is one the nightly run can do
+    over (#88).
     """
     intro = await run_gemini(generate_introduction_screens, payload.goal_name, payload.description)
 
     goal = await GoalRepository(db).create(
         Goal(student_id=current_user.id, name=payload.goal_name, description=payload.description)
     )
+    await OnboardingRepository(db).save_onboarding(
+        goal.id, payload.prompt, [(a.question, a.answer) for a in payload.answers]
+    )
+    student_id = str(current_user.id)
     current_user.current_goal_id = goal.id
     await StudentRepository(db).update(current_user)
     await db.commit()
 
-    kickoff_resource_scraping(str(goal.id))
-    kickoff_lessons_generation(
-        str(goal.id), payload.prompt, [(a.question, a.answer) for a in payload.answers]
-    )
+    kickoff_student_chain(student_id)
 
     return GoalCreationResponse(
         id=str(goal.id),
