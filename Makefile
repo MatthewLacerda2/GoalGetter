@@ -31,7 +31,7 @@ PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude
+.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -64,6 +64,12 @@ back-build: ## Backend build smoke: import the app and generate the OpenAPI (no 
 
 back-test: env ## Backend pytest (needs the test database: docker compose up -d postgres_test)
 	@$(DOCKER_RUN) python -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
+
+# Every backend gate runs in this image, so an image older than
+# backend/requirements.txt fails with a bare "No module named ruff". Rebuilding
+# is a plain `docker build` - it starts nothing.
+back-image: ## Rebuild the backend image the gates run in (after a requirements.txt change)
+	@docker build -t $(BACKEND_IMAGE) backend
 
 front-lint: ## Frontend dart line limits + flutter analyze
 	@cd frontend && $(DART) run tool/frontend_linter.dart

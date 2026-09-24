@@ -71,7 +71,8 @@ since there is no venv here. CI has no image and overrides the interpreter
   Run the gate on its own line and read it.
 - Setup failures read as such: `back-test` failing on `DATABASE_URL` wants
   `make env`; a refused connection wants `docker compose up -d postgres_test`;
-  missing Dart packages want `make setup`.
+  missing Dart packages want `make setup`; `No module named ruff` (or vulture)
+  means the backend image predates `backend/requirements.txt` — `make back-image`.
 
 The pre-commit hook (`.githooks/pre-commit`) runs only the gates for the side
 whose files are staged. It is not a substitute for `make check`.
