@@ -5,9 +5,13 @@ standing from an earlier run), the goal itself, and the questions of that goal
 the student most recently got wrong. An empty list of errors is the normal case
 for a student who has answered nothing, not a special one.
 
-**How many questions to generate is not decided here.** Today every goal gets a
-generation; #91 is the issue that makes it look at what tomorrow could already
-be built from and generate nothing when the bank is deep enough.
+**It generates only when tomorrow would run short (#91).** A lesson is filled
+from the questions the student got wrong last time and the ones they have never
+seen (`services/lessons/selection.py`, #55), so a bank deep in either of those
+already has tomorrow covered. That is precisely the student who is struggling,
+and the user's rule is that struggling makes our job cheaper, not dearer: a
+question stays in rotation until it is answered right, so we do not buy new
+ones to sit behind it.
 """
 
 import logging
@@ -18,6 +22,7 @@ from backend.repositories.lesson_question_repository import LessonQuestionReposi
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.student_context import GeminiStudentContext
+from backend.utils.envs import QUESTIONS_PER_LESSON
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
@@ -27,10 +32,20 @@ logger = logging.getLogger(__name__)
 # *new* questions at where they keep slipping.
 RECENT_ERRORS = 10
 
+# What a generation tops the servable bank up to: two lessons.
+#
+# One lesson is tomorrow's, and it is the gap we are actually filling. The
+# second is the margin, and it is one lesson because a student who answers
+# tomorrow's questions correctly consumes all of them - so without it the bank
+# is short again the very next night, and the next night is the one that may
+# find Gemini down or the quota spent. One lesson of margin buys exactly one
+# missed night, which is the failure we can actually expect.
+TARGET_SERVABLE = 2 * QUESTIONS_PER_LESSON
+
 
 async def run_questions_step(session, student_id) -> int:
-    """Generate a bank for each of the student's goals. Returns how many
-    questions were stored across all of them.
+    """Top up the bank of each of the student's goals. Returns how many
+    questions were stored across all of them - zero is the common answer.
 
     Each goal commits on its own: a goal whose generation fails does not
     discard the banks written for the goals before it.
@@ -49,13 +64,32 @@ async def run_questions_step(session, student_id) -> int:
 
 async def _bank_for_goal(session, goal, contexts: list[GeminiStudentContext]) -> int:
     repository = LessonQuestionRepository(session)
+    history = await repository.list_bank_history(goal.id)
+    servable = [h for h in history if h.last_was_correct is False or h.last_answered_at is None]
+
+    if len(servable) >= QUESTIONS_PER_LESSON:
+        logger.info(
+            "Questions step: goal %s has %d servable questions, tomorrow is covered",
+            goal.id,
+            len(servable),
+        )
+        return 0
+
+    wanted = TARGET_SERVABLE - len(servable)
+    logger.info(
+        "Questions step: goal %s has %d servable questions, asking for %d",
+        goal.id,
+        len(servable),
+        wanted,
+    )
     generated = await run_gemini_background(
         generate_lesson_questions,
         goal.name,
         goal.description,
         goal.rating,
         contexts,
-        await _recent_errors(repository, goal.id),
+        _recent_errors(history),
+        wanted,
     )
     # A question whose correct index is out of range would fail the table's
     # check constraint and take the whole batch with it: drop just that one.
@@ -78,16 +112,12 @@ async def _bank_for_goal(session, goal, contexts: list[GeminiStudentContext]) ->
     return len(questions)
 
 
-async def _recent_errors(repository: LessonQuestionRepository, goal_id) -> list[str]:
+def _recent_errors(history) -> list[str]:
     """The questions of this goal whose *latest* answer was wrong, newest first.
 
     Same reading of the bank that lesson selection uses: a question the student
     has since got right is no longer a weakness.
     """
-    wrong = [
-        history
-        for history in await repository.list_bank_history(goal_id)
-        if history.last_was_correct is False
-    ]
-    wrong.sort(key=lambda history: history.last_answered_at, reverse=True)
-    return [history.question.question for history in wrong[:RECENT_ERRORS]]
+    wrong = [entry for entry in history if entry.last_was_correct is False]
+    wrong.sort(key=lambda entry: entry.last_answered_at, reverse=True)
+    return [entry.question.question for entry in wrong[:RECENT_ERRORS]]

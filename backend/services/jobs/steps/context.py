@@ -1,16 +1,23 @@
 """Step 1: the app's reading of the learner.
 
-What it reads is decided by what it finds, never by a flag:
+What it does is decided by what it finds, never by a flag:
 
-* nothing to revise - no lesson the student has answered, or no context left
+* nothing to review - no lesson the student has answered, or no context left
   standing - and it writes the **first impression**, from the onboarding rows
   goal creation stored and from every goal the student has;
-* otherwise it **revises** the newest context from the student's recent lesson
-  answers and tutor chats, across every goal.
+* otherwise it asks Gemini to **review** the readings that stand: which of them
+  have gone stale, and what is now missing (#90).
 
-Both generators already existed; until now only the first one was ever called
-(backend_contract.md, Background jobs). The context is committed on its own: it
-is worth keeping even if the steps after it fail.
+**The review is not a rewrite.** Regenerating the whole context every night
+paid a premium call to produce much the same paragraphs. So the prompt carries
+the standing readings numbered, and the answer points at them: an empty answer
+is a valid, normal and cheap outcome meaning nothing changed.
+
+**A stale reading is retired, never deleted** (`is_still_valid = False`): it is
+progression history the student is meant to be able to read.
+
+The step commits on its own: what it wrote is worth keeping even if the steps
+after it fail.
 """
 
 import logging
@@ -22,25 +29,27 @@ from backend.repositories.lesson_answer_repository import LessonAnswerRepository
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.student_context import (
+    GeminiStudentContext,
     StudentGoal,
-    gemini_generate_periodic_student_context,
     gemini_generate_student_context,
+    gemini_review_student_context,
 )
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 
-# How much history a revision reads. Enough to see a trend, small enough that
+# How much history a review reads. Enough to see a trend, small enough that
 # the prompt stays about the student rather than about a transcript.
 RECENT_ANSWERS = 30
 RECENT_CHATS = 10
 
 
 async def run_context_step(session, student_id) -> bool:
-    """Write one student context. Returns whether one was written.
+    """Bring the student's readings up to date. Returns whether anything moved.
 
-    A student with no goals has nothing to be written about, which is the one
-    case where the step spends nothing and returns False.
+    False is a normal outcome, and there are two of them: a student with no
+    goals, who has nothing to be written about and costs nothing; and a review
+    that found nothing stale and nothing to add, which is what #90 is for.
     """
     goals = await GoalRepository(session).list_by_student(student_id)
     if not goals:
@@ -54,22 +63,11 @@ async def run_context_step(session, student_id) -> bool:
     contexts = await StudentContextRepository(session).list_valid(student_id)
 
     if answers and contexts:
-        generated = await _revision(session, student_id, prompt_goals, contexts[0], answers)
-    else:
-        generated = await _first_impression(session, student_id, prompt_goals)
-
-    await StudentContextRepository(session).create(
-        StudentContext(
-            student_id=student_id,
-            state=generated.state,
-            metacognition=generated.metacognition,
-        )
-    )
-    await session.commit()
-    return True
+        return await _review(session, student_id, prompt_goals, contexts, answers)
+    return await _first_impression(session, student_id, prompt_goals)
 
 
-async def _first_impression(session, student_id, goals: list[StudentGoal]):
+async def _first_impression(session, student_id, goals: list[StudentGoal]) -> bool:
     """The reading of someone we have watched do nothing yet: their own words
     and the questions they answered while creating their goals.
 
@@ -86,26 +84,33 @@ async def _first_impression(session, student_id, goals: list[StudentGoal]):
         student_id,
         len(questions_answers),
     )
-    return await run_gemini_background(
+    generated = await run_gemini_background(
         gemini_generate_student_context, goals, None, questions_answers
     )
+    await _store(session, student_id, [generated])
+    await session.commit()
+    return True
 
 
-async def _revision(session, student_id, goals: list[StudentGoal], previous, answers):
-    """The reading of someone we have now watched study: the newest context,
-    revised against what they have been getting right, wrong and asking about."""
+async def _review(session, student_id, goals: list[StudentGoal], standing, answers) -> bool:
+    """Show the model what the app believes and let it say what no longer holds.
+
+    The chats are in the prompt even though the nightly run does not count them
+    as activity (#89): what a student asks the tutor is evidence about them,
+    and only the *gate* is lessons-only.
+    """
     chats = await ChatMessageRepository(session).list_recent_by_student(student_id, RECENT_CHATS)
     logger.info(
-        "Context step: revising student %s from %d answers and %d chats",
+        "Context step: reviewing %d standing contexts for student %s from %d answers and %d chats",
+        len(standing),
         student_id,
         len(answers),
         len(chats),
     )
-    return await run_gemini_background(
-        gemini_generate_periodic_student_context,
+    review = await run_gemini_background(
+        gemini_review_student_context,
         goals,
-        previous.state,
-        previous.metacognition,
+        [GeminiStudentContext(state=c.state, metacognition=c.metacognition) for c in standing],
         [_answer_seen(answer, question) for answer, question in answers],
         [
             {"prompt": chat.prompt, "tutor_response": " ".join(chat.tutor_responses)}
@@ -113,10 +118,60 @@ async def _revision(session, student_id, goals: list[StudentGoal], previous, ans
         ],
     )
 
+    retired = await _retire(session, standing, review.reviewed)
+    await _store(session, student_id, review.new_contexts)
+    await session.commit()
+    logger.info(
+        "Context step: student %s - %d retired, %d added",
+        student_id,
+        retired,
+        len(review.new_contexts),
+    )
+    return bool(retired or review.new_contexts)
+
+
+async def _retire(session, standing, verdicts) -> int:
+    """Mark the readings the model called outdated, and return how many.
+
+    An index it invented, or repeated, is dropped rather than failing the run:
+    the first verdict for an index is the one that counts, and an index outside
+    what was shown is a hallucination we log and ignore. The question bank
+    already tolerates a bad shape the same way.
+    """
+    repository = StudentContextRepository(session)
+    seen: set[int] = set()
+    retired = 0
+    for verdict in verdicts:
+        if not 0 <= verdict.index < len(standing) or verdict.index in seen:
+            logger.info("Context step: ignoring verdict on index %s", verdict.index)
+            continue
+        seen.add(verdict.index)
+        if not verdict.is_outdated:
+            continue
+        context = standing[verdict.index]
+        context.is_still_valid = False
+        await repository.update(context)
+        retired += 1
+    return retired
+
+
+async def _store(session, student_id, generated) -> None:
+    """Add the new readings. Never an update: a context row is never rewritten,
+    only added beside the ones before it or retired."""
+    repository = StudentContextRepository(session)
+    for item in generated:
+        await repository.create(
+            StudentContext(
+                student_id=student_id,
+                state=item.state,
+                metacognition=item.metacognition,
+            )
+        )
+
 
 def _answer_seen(answer, question) -> dict:
-    """One answer as the periodic prompt reads it: the question, the option the
-    student picked (its text, not its index), and how long they took."""
+    """One answer as the prompt reads it: the question, the option the student
+    picked (its text, not its index), and how long they took."""
     options = [question.option_a, question.option_b, question.option_c, question.option_d]
     index = answer.selected_option_index
     return {

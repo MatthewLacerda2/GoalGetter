@@ -1,8 +1,9 @@
 from backend.services.gemini.student_context.prompt import (
-    get_periodic_student_context_prompt,
+    get_context_review_prompt,
     get_student_context_prompt,
 )
 from backend.services.gemini.student_context.schema import (
+    GeminiContextReview,
     GeminiStudentContext,
     GeminiStudentContextResponse,
     StudentGoal,
@@ -36,30 +37,27 @@ def gemini_generate_student_context(
     )
 
 
-def gemini_generate_periodic_student_context(
+def gemini_review_student_context(
     goals: list[StudentGoal],
-    previous_state: str,
-    previous_metacognition: str,
+    contexts: list[GeminiStudentContext],
     recent_lesson_results: list[dict],
     recent_chat_history: list[dict],
-) -> GeminiStudentContextResponse:
-    """Revise the reading of a learner from their recent lessons and chats,
-    across every goal they study (#87)."""
+) -> GeminiContextReview:
+    """Ask which of the student's standing readings went stale, and what to add
+    (#90). Replaces the periodic rewrite: the model is already reading the
+    recent lessons, so it is the one that says what changed - and "nothing
+    changed" is an answer it is allowed to give cheaply."""
     client = get_client()
     model = GEMINI_PREMIUM_MODEL
-    config = get_gemini_config(GeminiStudentContext.model_json_schema())
+    config = get_gemini_config(GeminiContextReview.model_json_schema())
 
-    full_prompt = get_periodic_student_context_prompt(
+    full_prompt = get_context_review_prompt(
         goals=goals,
-        previous_state=previous_state,
-        previous_metacognition=previous_metacognition,
+        contexts=contexts,
         recent_lesson_results=recent_lesson_results,
         recent_chat_history=recent_chat_history,
     )
 
     response = client.models.generate_content(model=model, contents=full_prompt, config=config)
 
-    context = GeminiStudentContext.model_validate_json(response.text)
-    return GeminiStudentContextResponse(
-        state=context.state, metacognition=context.metacognition, ai_model=model
-    )
+    return GeminiContextReview.model_validate_json(response.text)

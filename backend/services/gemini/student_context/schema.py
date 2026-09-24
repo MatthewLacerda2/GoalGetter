@@ -28,3 +28,33 @@ class GeminiStudentContextResponse(BaseModel):
     state: str
     metacognition: str
     ai_model: str
+
+
+class ContextVerdict(BaseModel):
+    """What the model thinks of one context it was shown (#90): the number it
+    carried in the prompt, and whether it has gone stale.
+
+    An index that was never shown, or one repeated, is dropped by the caller
+    rather than failing the run - the same tolerance the question bank already
+    has for a correct-option index out of range."""
+
+    index: int = Field(..., description="The number this context carried in the prompt")
+    is_outdated: bool = Field(
+        ..., description="True if this reading of the student no longer holds"
+    )
+
+
+class GeminiContextReview(BaseModel):
+    """The whole answer to a review (#90), and an empty one is the normal,
+    cheap outcome: nothing went stale and nothing new needs saying.
+
+    A new context is two texts because that is what a context *is* - what the
+    student knows and how they think - and what the `student_contexts` row
+    holds."""
+
+    reviewed: list[ContextVerdict] = Field(
+        default_factory=list, description="One entry per context shown, in any order"
+    )
+    new_contexts: list[GeminiStudentContext] = Field(
+        default_factory=list, description="Readings to add. Empty means nothing changed."
+    )

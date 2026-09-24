@@ -67,6 +67,35 @@ services:
         max-size: "30m"
         max-file: "3"
 
+  # The nightly run (#89): one process, so 03:00 happens once. The API's four
+  # uvicorn workers would each fire an in-process scheduler - see
+  # backend/tools/nightly_run.py for why this is a service and not a cron entry.
+  # It waits for the hour before it runs, so a restart never spends quota.
+  nightly:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: goalgetter_nightly
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/goalgetter
+      TEST_DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_TEST_PASSWORD}@postgres_test:5432/goalgetter_test
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+      SECRET_KEY: ${SECRET_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: python -m backend.tools.nightly_run
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
   frontend:
     build:
       context: .

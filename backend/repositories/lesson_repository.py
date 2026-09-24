@@ -55,6 +55,24 @@ class LessonRepository(BaseRepository[Lesson]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
+    async def last_finished_at(self, student_id) -> datetime | None:
+        """When this student last answered a lesson, on any goal, or None.
+
+        The nightly run's whole gate (#89) is this one moment: it decides
+        whether the student studied in the day the run is closing out, and
+        whether they studied at all in the past week. Chat activity is
+        deliberately not part of it - only lessons count.
+        """
+        stmt = (
+            select(Lesson.finished_at)
+            .join(Goal, Goal.id == Lesson.goal_id)
+            .where(Goal.student_id == student_id, Lesson.finished_at.is_not(None))
+            .order_by(Lesson.finished_at.desc())
+            .limit(1)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def list_finished_at_by_student(self, student_id) -> list[datetime]:
         """When each of the student's lessons was answered, on any goal, newest first.
 
