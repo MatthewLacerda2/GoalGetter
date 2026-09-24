@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// The user's most recent lessons for the active goal. Each row shows accuracy,
 /// time taken, and an elo badge (green = gained, grey = even, blue = lost).
@@ -29,7 +30,7 @@ class RecentLessonsList extends StatelessWidget {
         const SizedBox(height: 10.0),
         if (shown.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Text(
               AppLocalizations.of(context)!.noLessonsYet,
               style: Theme.of(context).textTheme.bodyMedium,
@@ -39,7 +40,7 @@ class RecentLessonsList extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16.0),
+              borderRadius: BorderRadius.circular(AppRadius.card),
               border: Border.all(color: Theme.of(context).colorScheme.outline),
             ),
             child: Column(
@@ -74,7 +75,10 @@ class _RecentLessonRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.md,
+      ),
       child: Row(
         children: [
           Text(
@@ -111,25 +115,27 @@ class _EloBadge extends StatelessWidget {
     final custom = Theme.of(context).extension<CustomColors>();
     final Color color;
     if (delta > 0) {
-      color = custom?.success ?? Colors.green;
+      color = custom?.success ?? AppTheme.success;
     } else if (delta < 0) {
-      color = custom?.lost ?? Colors.blue;
+      color = custom?.lost ?? AppTheme.lost;
     } else {
       color = Theme.of(context).colorScheme.onSurfaceVariant;
     }
     final label = delta > 0 ? '+$delta' : '$delta';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(AppRadius.control),
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
           color: color,
-          fontSize: 13.0,
           fontWeight: FontWeight.bold,
         ),
       ),

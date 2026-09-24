@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Streak indicator (top-right of Home): a flame pill with the current streak
 /// count — the counterpart to the elo chip on the left. The streak is a
@@ -13,10 +14,13 @@ class StreakChip extends StatelessWidget {
     final orange = Theme.of(context).colorScheme.secondary;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 7.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: orange.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -25,9 +29,8 @@ class StreakChip extends StatelessWidget {
           const SizedBox(width: 6.0),
           Text(
             '$count',
-            style: TextStyle(
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: orange,
-              fontSize: 15.0,
               fontWeight: FontWeight.bold,
             ),
           ),

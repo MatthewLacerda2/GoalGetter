@@ -13,6 +13,7 @@ import 'package:goal_getter/features/home/presentation/widgets/elo_chip.dart';
 import 'package:goal_getter/features/home/presentation/widgets/recent_lessons_list.dart';
 import 'package:goal_getter/features/home/presentation/widgets/start_lesson_button.dart';
 import 'package:goal_getter/features/home/presentation/widgets/streak_chip.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// The landing dashboard shown to a logged-in user (the first bottom-nav tab).
 ///
@@ -62,7 +63,12 @@ class _Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.md,
+        AppSpacing.md,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -72,7 +78,7 @@ class _Dashboard extends StatelessWidget {
               EloChip(elo: data.currentElo),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                   child: Text(
                     data.goalName,
                     textAlign: TextAlign.center,
@@ -104,7 +110,7 @@ class _EmptyState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -117,10 +123,8 @@ class _EmptyState extends StatelessWidget {
             Text(
               l10n.noActiveGoal,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24.0),
@@ -130,16 +134,16 @@ class _EmptyState extends StatelessWidget {
                 onPressed: () => context.push(AppRoutes.goalPrompt),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
+                    borderRadius: BorderRadius.circular(AppRadius.chip),
                   ),
                 ),
                 child: Text(
                   l10n.createGoal,
-                  style: const TextStyle(
-                    fontSize: 18.0,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

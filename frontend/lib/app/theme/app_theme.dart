@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_dimens.dart';
+
 /// 1. CUSTOM SEMANTIC TOKENS (Tailwind-like custom design tokens)
 /// Retrieve via `Theme.of(context).extension<CustomColors>()!.success`
 class CustomColors extends ThemeExtension<CustomColors> {
@@ -43,6 +45,10 @@ class CustomColors extends ThemeExtension<CustomColors> {
 }
 
 /// 2. THE MAIN THEME CONFIGURATION
+///
+/// Radius and spacing live next door in `app_dimens.dart`; this file spends
+/// them. Nothing outside `lib/app/theme/` may write a colour, a font size, a
+/// radius or a padding as a literal — `tool/frontend_linter.dart` enforces it.
 class AppTheme {
   AppTheme._();
 
@@ -60,36 +66,190 @@ class AppTheme {
   static const _blue = Color(0xFF2563EB); // elo lost badge
   static const _red = Color(0xFFDC2626); // destructive / logout
 
-  // --- Private Primitive Spacing & Dimensions ---
-  static const double _spacing12 = 12;
-  static const double _spacing16 = 16;
-  static const double _spacing24 = 24;
+  // --- Colours a screen may name directly ---
+  // The colour scheme covers everything a layout decides for itself. These
+  // three are the exceptions: a foreign brand colour, and two values that are
+  // not really colours at all.
 
-  static const double _cardRadius = 16;
+  /// Google's brand blue, for the sign-in button that has to wear it.
+  static const googleBlue = Color(0xFF4285F4);
 
+  /// The scrim over an image or behind a sheet.
+  static const scrim = Colors.black;
+
+  /// "No fill", for a Material whose child paints its own background.
+  static const transparent = Colors.transparent;
+
+  /// The start screen's backdrop — the one dark surface in a light app.
+  static const startGradientTop = Color(0xFF212121);
+  static const startGradientBottom = Color(0xFF0B0B0B);
+
+  /// The three semantic colours [CustomColors] carries, as plain constants.
+  /// They exist for the two callers that cannot reach a [BuildContext]'s
+  /// theme: the dev fixtures, and the `??` fallback on an extension lookup.
+  static const success = _greenSuccess;
+  static const lost = _blue;
+  static const streak = _orange;
+
+  // --- Type scale ---
   static const double _fontSize12 = 12;
   static const double _fontSize14 = 14;
   static const double _fontSize16 = 16;
   static const double _fontSize18 = 18;
   static const double _fontSize20 = 20;
+  static const double _fontSize24 = 24;
+  static const double _fontSize32 = 32;
   static const String _fontFamily = 'Roboto';
 
+  static ColorScheme get _colorScheme => const ColorScheme.light().copyWith(
+    primary: _green,
+    onPrimary: Colors.white,
+    primaryContainer: _green,
+    secondary: _orange,
+    onSecondary: Colors.white,
+    surface: _surface,
+    surfaceContainer: _surfaceMuted, // card / chip fill
+    surfaceContainerHigh: _surfaceMutedHigh, // inputs / nav
+    onSurface: _ink, // primary text
+    onSurfaceVariant: _slateText, // secondary / muted text
+    outline: _hairline, // borders & dividers
+    error: _red,
+    onError: Colors.white,
+  );
+
+  /// --- Global Typography System ---
+  ///
+  /// Every piece of text in the app picks one of these and, at most,
+  /// `copyWith`s a colour or a weight onto it.
+  static const TextTheme _textTheme = TextTheme(
+    bodyLarge: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize16,
+      color: _slateText,
+      height: 1.5,
+    ),
+    bodyMedium: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize14,
+      color: _slateText,
+      height: 1.5,
+    ),
+    bodySmall: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize12,
+      color: _slateText,
+      height: 1.4,
+    ),
+    titleLarge: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize20,
+      fontWeight: FontWeight.w700,
+      color: _ink,
+      height: 1.3,
+    ),
+    titleMedium: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize18,
+      fontWeight: FontWeight.w600,
+      color: _ink,
+      height: 1.3,
+    ),
+    titleSmall: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize16,
+      fontWeight: FontWeight.w600,
+      color: _ink,
+      height: 1.3,
+    ),
+    labelLarge: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize14,
+      fontWeight: FontWeight.w600,
+      color: _ink,
+    ),
+    labelMedium: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize12,
+      fontWeight: FontWeight.w500,
+      color: _slateText,
+    ),
+    headlineSmall: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize20,
+      fontWeight: FontWeight.bold,
+      color: _ink,
+      height: 1.3,
+    ),
+    // The label on a full-width primary action, and the single letter in an
+    // avatar: the biggest type that is not a screen title.
+    headlineLarge: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize24,
+      fontWeight: FontWeight.bold,
+      color: _ink,
+    ),
+    headlineMedium: TextStyle(
+      fontFamily: _fontFamily,
+      fontSize: _fontSize32,
+      fontWeight: FontWeight.bold,
+      color: _ink,
+    ),
+  );
+
+  /// Lovable-style cards: white with a 1px hairline border, no shadow.
+  static CardThemeData get _cardTheme => CardThemeData(
+    color: _surface,
+    elevation: 0,
+    shape: const RoundedRectangleBorder(
+      borderRadius: AppRadius.cardBorder,
+      side: BorderSide(color: _hairline),
+    ),
+    margin: EdgeInsets.zero,
+    clipBehavior: Clip.antiAlias,
+  );
+
+  static InputDecorationTheme _inputTheme(ColorScheme colorScheme) =>
+      InputDecorationTheme(
+        filled: true,
+        fillColor: colorScheme.surfaceContainer,
+        hintStyle: const TextStyle(color: _slateText, fontSize: _fontSize14),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadius.cardBorder,
+          borderSide: BorderSide(color: _hairline),
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.cardBorder,
+          borderSide: BorderSide(color: _hairline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.cardBorder,
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+      );
+
+  static ElevatedButtonThemeData _elevatedButtonTheme(ColorScheme colorScheme) =>
+      ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          elevation: 0,
+          minimumSize: const Size(double.infinity, 56),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.md,
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppRadius.cardBorder,
+          ),
+        ),
+      );
+
   static ThemeData get light {
-    final colorScheme = const ColorScheme.light().copyWith(
-      primary: _green,
-      onPrimary: Colors.white,
-      primaryContainer: _green,
-      secondary: _orange,
-      onSecondary: Colors.white,
-      surface: _surface,
-      surfaceContainer: _surfaceMuted, // card / chip fill
-      surfaceContainerHigh: _surfaceMutedHigh, // inputs / nav
-      onSurface: _ink, // primary text
-      onSurfaceVariant: _slateText, // secondary / muted text
-      outline: _hairline, // borders & dividers
-      error: _red,
-      onError: Colors.white,
-    );
+    final colorScheme = _colorScheme;
 
     return ThemeData(
       useMaterial3: true,
@@ -105,124 +265,12 @@ class AppTheme {
         ),
       ],
 
-      // --- Global Typography System ---
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize16,
-          color: _slateText,
-          height: 1.5,
-        ),
-        bodyMedium: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize14,
-          color: _slateText,
-          height: 1.5,
-        ),
-        bodySmall: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize12,
-          color: _slateText,
-          height: 1.4,
-        ),
-        titleLarge: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize20,
-          fontWeight: FontWeight.w700,
-          color: _ink,
-          height: 1.3,
-        ),
-        titleMedium: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize18,
-          fontWeight: FontWeight.w600,
-          color: _ink,
-          height: 1.3,
-        ),
-        titleSmall: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize16,
-          fontWeight: FontWeight.w600,
-          color: _ink,
-          height: 1.3,
-        ),
-        labelLarge: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize14,
-          fontWeight: FontWeight.w600,
-          color: _ink,
-        ),
-        labelMedium: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize12,
-          fontWeight: FontWeight.w500,
-          color: _slateText,
-        ),
-        headlineSmall: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: _fontSize20,
-          fontWeight: FontWeight.bold,
-          color: _ink,
-          height: 1.3,
-        ),
-        headlineMedium: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: _ink,
-        ),
-      ),
+      textTheme: _textTheme,
 
       // --- Component Themes ---
-      // Lovable-style cards: white with a 1px hairline border, no shadow.
-      cardTheme: CardThemeData(
-        color: colorScheme.surface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_cardRadius),
-          side: const BorderSide(color: _hairline),
-        ),
-        margin: EdgeInsets.zero,
-        clipBehavior: Clip.antiAlias,
-      ),
-
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: colorScheme.surfaceContainer,
-        hintStyle: const TextStyle(color: _slateText, fontSize: _fontSize14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_cardRadius),
-          borderSide: const BorderSide(color: _hairline),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_cardRadius),
-          borderSide: const BorderSide(color: _hairline),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_cardRadius),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: _spacing16,
-          vertical: _spacing12,
-        ),
-      ),
-
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          elevation: 0,
-          minimumSize: const Size(double.infinity, 56),
-          padding: const EdgeInsets.symmetric(
-            horizontal: _spacing24,
-            vertical: _spacing16,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_cardRadius),
-          ),
-        ),
-      ),
+      cardTheme: _cardTheme,
+      inputDecorationTheme: _inputTheme(colorScheme),
+      elevatedButtonTheme: _elevatedButtonTheme(colorScheme),
 
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colorScheme.surface,

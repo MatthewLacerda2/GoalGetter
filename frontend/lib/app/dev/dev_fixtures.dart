@@ -5,6 +5,7 @@ import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
+import 'package:goal_getter/app/theme/app_theme.dart';
 
 /// Fixtures for the dev menu (see dev_menu_screen.dart).
 ///
@@ -97,19 +98,19 @@ class DevFixtures {
           title: 'Time',
           icon: Icons.timer_outlined,
           text: '4:32',
-          color: const Color(0xFF2563EB),
+          color: AppTheme.lost,
         ),
         accuracy: StatData(
           title: 'Accuracy',
           icon: Icons.check_circle_outline,
           text: '87%',
-          color: const Color(0xFF16A34A),
+          color: AppTheme.success,
         ),
         elo: StatData(
           title: 'Elo',
           icon: Icons.trending_up,
           text: '+24',
-          color: const Color(0xFFF1820A),
+          color: AppTheme.streak,
         ),
       );
 }

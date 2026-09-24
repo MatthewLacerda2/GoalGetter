@@ -8,6 +8,7 @@ import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/step_error.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Step 2 of goal creation: one objective question at a time. The last answer
 /// sends everything to `POST /goals/study-plan`; a failure there keeps every
@@ -138,7 +139,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
         actions: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.only(right: AppSpacing.md),
               child: Text(
                 '${_currentQuestionIndex + 1}/${widget.questions.length}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -175,7 +176,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
     final question = widget.questions[_currentQuestionIndex];
     final scheme = Theme.of(context).colorScheme;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: SlideTransition(
         position: _slideAnimation,
         child: FadeTransition(
@@ -185,10 +186,10 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadius.card),
                 ),
                 child: Text(
                   question.question,
@@ -251,7 +252,7 @@ class _PlanFailed extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

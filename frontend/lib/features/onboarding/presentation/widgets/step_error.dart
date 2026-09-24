@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/utils/error_text.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// The sentence for a failed goal-creation call: [errorText] (the backend's
 /// `detail`; for a 400 from objective-questions, Gemini's reasoning), except
@@ -27,10 +28,10 @@ class StepError extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: scheme.errorContainer,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

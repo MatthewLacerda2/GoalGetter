@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/app/theme/app_theme.dart';
 
 /// Elo progress over time for the active goal, inside a card with a 7d/30d/90d
 /// range selector and a compact line chart (chess.com / lichess style).
@@ -33,10 +35,10 @@ class _EloChartState extends State<EloChart> {
     final points = _visiblePoints;
 
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
@@ -75,8 +77,6 @@ class _EloChartState extends State<EloChart> {
 
   LineChartData _buildChartData(List<EloPoint> points) {
     final primary = Theme.of(context).colorScheme.primary;
-    final outline = Theme.of(context).colorScheme.outline;
-    final mutedText = Theme.of(context).colorScheme.onSurfaceVariant;
     final spots = <FlSpot>[
       for (var i = 0; i < points.length; i++)
         FlSpot(i.toDouble(), points[i].elo.toDouble()),
@@ -93,49 +93,10 @@ class _EloChartState extends State<EloChart> {
     return LineChartData(
       minY: minY,
       maxY: maxY,
-      gridData: FlGridData(
-        show: true,
-        drawVerticalLine: false,
-        horizontalInterval: interval,
-        getDrawingHorizontalLine: (_) => FlLine(
-          color: outline.withValues(alpha: 0.6),
-          strokeWidth: 1,
-        ),
-      ),
-      titlesData: FlTitlesData(
-        show: true,
-        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 38,
-            interval: interval,
-            getTitlesWidget: (value, meta) => Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: Text(
-                value.toInt().toString(),
-                style: TextStyle(fontSize: 11, color: mutedText),
-              ),
-            ),
-          ),
-        ),
-      ),
+      gridData: _gridData(interval),
+      titlesData: _titlesData(interval),
       borderData: FlBorderData(show: false),
-      lineTouchData: LineTouchData(
-        touchTooltipData: LineTouchTooltipData(
-          getTooltipItems: (touched) => touched
-              .map((t) => LineTooltipItem(
-                    '${t.y.toInt()}',
-                    const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ))
-              .toList(),
-        ),
-      ),
+      lineTouchData: _touchData(),
       lineBarsData: [
         LineChartBarData(
           spots: spots,
@@ -151,6 +112,57 @@ class _EloChartState extends State<EloChart> {
       ],
     );
   }
+
+  /// Horizontal hairlines only; the X axis carries no labels.
+  FlGridData _gridData(double interval) {
+    final outline = Theme.of(context).colorScheme.outline;
+    return FlGridData(
+      show: true,
+      drawVerticalLine: false,
+      horizontalInterval: interval,
+      getDrawingHorizontalLine: (_) =>
+          FlLine(color: outline.withValues(alpha: 0.6), strokeWidth: 1),
+    );
+  }
+
+  /// Elo values down the left edge, nothing anywhere else.
+  FlTitlesData _titlesData(double interval) {
+    final style = Theme.of(context).textTheme.bodySmall;
+    return FlTitlesData(
+      show: true,
+      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      leftTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 38,
+          interval: interval,
+          getTitlesWidget: (value, meta) => Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.xs),
+            child: Text(value.toInt().toString(), style: style),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The tooltip prints the elo on fl_chart's own dark bubble.
+  LineTouchData _touchData() {
+    final onTooltip = Theme.of(context).colorScheme.surface;
+    return LineTouchData(
+      touchTooltipData: LineTouchTooltipData(
+        getTooltipItems: (touched) => touched
+            .map(
+              (t) => LineTooltipItem(
+                '${t.y.toInt()}',
+                TextStyle(color: onTooltip, fontWeight: FontWeight.bold),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
 }
 
 /// Compact 7d / 30d / 90d selector: a grey track with a dark selected pill.
@@ -164,10 +176,10 @@ class _RangeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     const options = [7, 30, 90];
     return Container(
-      padding: const EdgeInsets.all(3.0),
+      padding: const EdgeInsets.all(AppSpacing.xxs),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -177,20 +189,22 @@ class _RangeSelector extends StatelessWidget {
             onTap: () => onChanged(days),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
+              ),
               decoration: BoxDecoration(
                 color: isSelected
                     ? Theme.of(context).colorScheme.onSurface
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(16.0),
+                    : AppTheme.transparent,
+                borderRadius: BorderRadius.circular(AppRadius.card),
               ),
               child: Text(
                 '${days}d',
-                style: TextStyle(
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: isSelected
                       ? Theme.of(context).colorScheme.surface
                       : Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 13.0,
                   fontWeight: FontWeight.w600,
                 ),
               ),

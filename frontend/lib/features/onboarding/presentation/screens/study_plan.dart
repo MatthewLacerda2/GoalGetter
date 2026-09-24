@@ -12,6 +12,7 @@ import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/step_error.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Step 3 of goal creation: the goal's name, a short AI-generated summary of
 /// what the student will study (markdown), and confirm / start over.
@@ -76,7 +77,12 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
       appBar: AppBar(title: Text(l10n.studyPlan)),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 24.0),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.xl,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -159,6 +165,8 @@ class _Actions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final label = Theme.of(context).textTheme.titleSmall;
 
     return Row(
       children: [
@@ -166,19 +174,16 @@ class _Actions extends StatelessWidget {
           child: FilledButton(
             onPressed: onDeny,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFF5A623),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              backgroundColor: scheme.secondary,
+              foregroundColor: scheme.onSecondary,
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14.0),
+                borderRadius: BorderRadius.circular(AppRadius.card),
               ),
             ),
             child: Text(
               l10n.startOver,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
-              ),
+              style: label?.copyWith(color: scheme.onSecondary),
             ),
           ),
         ),
@@ -188,24 +193,26 @@ class _Actions extends StatelessWidget {
           child: FilledButton(
             onPressed: onConfirm,
             style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14.0),
+                borderRadius: BorderRadius.circular(AppRadius.card),
               ),
             ),
             child: isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        scheme.onPrimary,
+                      ),
                     ),
                   )
                 : Text(
                     l10n.startLearning,
-                    style: const TextStyle(
-                      fontSize: 16.0,
+                    style: label?.copyWith(
+                      color: scheme.onPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

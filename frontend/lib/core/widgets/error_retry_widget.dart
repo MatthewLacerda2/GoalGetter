@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 class ErrorRetryWidget extends StatelessWidget {
   final String errorMessage;
   final VoidCallback onRetry;
@@ -16,7 +17,7 @@ class ErrorRetryWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Text(
               'Error: $errorMessage',
               style: TextStyle(color: Theme.of(context).colorScheme.error),

@@ -8,6 +8,7 @@ import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/step_error.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Step 1 of goal creation: what the student wants to learn. Sends it to
 /// `POST /goals/objective-questions`; a 400 there is Gemini saying it is not a
@@ -85,7 +86,12 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
       appBar: AppBar(title: Text(l10n.createGoal)),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 24.0),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.xl,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -107,38 +113,7 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                TextFormField(
-                  controller: _promptController,
-                  focusNode: _promptFocusNode,
-                  enabled: !_isLoading,
-                  decoration: InputDecoration(
-                    hintText: l10n.yourAnswer,
-                    filled: true,
-                    fillColor: theme.colorScheme.surfaceContainerHigh,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                      borderSide: BorderSide(color: theme.colorScheme.outline),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                      borderSide: BorderSide(
-                        color: theme.colorScheme.primary,
-                        width: 2.0,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.all(18.0),
-                  ),
-                  maxLength: 500,
-                  maxLines: 7,
-                  minLines: 5,
-                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-                  onChanged: (value) => setState(() {}),
-                  textInputAction: TextInputAction.newline,
-                ),
+                _promptField(l10n),
                 if (_error != null) ...[
                   const SizedBox(height: 8),
                   StepError(
@@ -149,40 +124,78 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
                   ),
                 ],
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _isLoading ? null : _onEnterPressed,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14.0),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            l10n.next,
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                  ),
-                ),
+                _nextButton(l10n),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// The prompt itself: a roomy multi-line field with a 500-character budget.
+  Widget _promptField(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    return TextFormField(
+      controller: _promptController,
+      focusNode: _promptFocusNode,
+      enabled: !_isLoading,
+      decoration: InputDecoration(
+        hintText: l10n.yourAnswer,
+        filled: true,
+        fillColor: theme.colorScheme.surfaceContainerHigh,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          borderSide: BorderSide(color: theme.colorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2.0),
+        ),
+        contentPadding: const EdgeInsets.all(AppSpacing.md),
+      ),
+      maxLength: 500,
+      maxLines: 7,
+      minLines: 5,
+      style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+      onChanged: (value) => setState(() {}),
+      textInputAction: TextInputAction.newline,
+    );
+  }
+
+  /// Sends the prompt; a spinner takes the label while the call is in flight.
+  Widget _nextButton(AppLocalizations l10n) {
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton(
+        onPressed: _isLoading ? null : _onEnterPressed,
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card),
+          ),
+        ),
+        child: _isLoading
+            ? SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(scheme.onPrimary),
+                ),
+              )
+            : Text(
+                l10n.next,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: scheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }

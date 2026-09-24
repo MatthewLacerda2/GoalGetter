@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:goal_getter/features/tutor/presentation/chat_bubbles.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// One chat bubble. A tutor bubble likes its exchange on a double tap; the
 /// reply's last bubble also shows the heart, which toggles the like on a tap.
@@ -21,15 +22,14 @@ class ChatMessageBubble extends StatelessWidget {
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width * 0.7,
       ),
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: fromTutor ? colors.surfaceContainerHigh : colors.primary,
-        borderRadius: BorderRadius.circular(24.0),
+        borderRadius: BorderRadius.circular(AppRadius.bubble),
       ),
       child: Text(
         bubble.text,
-        style: TextStyle(
-          fontSize: 16.0,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           color: fromTutor ? colors.onSurface : colors.onPrimary,
           height: 1.6,
         ),
@@ -37,7 +37,10 @@ class ChatMessageBubble extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpacing.xxs,
+        horizontal: AppSpacing.sm,
+      ),
       child: Column(
         crossAxisAlignment: fromTutor
             ? CrossAxisAlignment.start
@@ -100,7 +103,7 @@ class _NotSent extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final color = Theme.of(context).colorScheme.error;
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0),
+      padding: const EdgeInsets.only(top: AppSpacing.xxs),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -109,7 +112,7 @@ class _NotSent extends StatelessWidget {
           Flexible(
             child: Text(
               l10n.tutorNotSent(error ?? l10n.tutorUnreachable),
-              style: TextStyle(color: color, fontSize: 13),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
             ),
           ),
         ],
