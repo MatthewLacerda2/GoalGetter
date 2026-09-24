@@ -135,29 +135,31 @@ something looks or feels.
 
 **A PR is one of two things, and nothing else:**
 
-- **Draft** — the work did not finish: an environment failure, red gates, a
-  resource you do not have, or a decision you may not take (below). Push what you
-  have and comment the bottleneck. A draft is how unfinished work gets off one
-  machine; it is never where a finished change waits.
-- **Merged by Claude** — everything that did finish, once CI is green, unless the
-  user said beforehand to leave it. Database queries, refactors and CI changes
-  included: the user's call (2026-09-24) is *"pega issue, faz código, roda CI,
-  merge"*. That he will see the change later is not a reason to hold it — the gates
-  are what says it is ready, and the pull request is where the reasoning is written
-  down for when he reads it.
+- **Merged by Claude** — the normal case. The work finished, CI is green, so it
+  merges: database queries, refactors, CI changes, schema changes included. That
+  the user will read it later is not a reason to hold it. The code is young and
+  simple, the gates are what say it is ready, and the pull request is where the
+  reasoning waits for him.
+- **Draft** — two cases, and nothing else:
+  - **the work did not finish**: an environment failure, red gates, a resource you
+    do not have. Push what you have and comment the bottleneck. A draft is how
+    unfinished work gets off one machine; it is never where a finished change waits.
+  - **you hit a decision with no clear instruction, and how you decide changes what
+    the user finally receives.** Then the PR stays a draft until he takes that
+    decision *and* says how that kind of doubt is to be settled from then on — the
+    answer is written into `CLAUDE.md`, the issue, or a skill, so the next session
+    does not ask again. A decision that only changes how the code looks is yours.
 
-**The exception, and it is narrow: a change nobody can undo waits for him.** Not
-because the code is doubtful, but because a mistake there costs more than a night.
-Three kinds, and nothing else creeps onto this list:
+**The database.** Creating and dropping tables and columns is allowed — there is no
+production, and the schema is rebuilt on every backend start. Two conditions: the
+change was **agreed with the user in conversation before the issue was written**, so
+it is already decided when the work starts; and it is a **consequence of what the
+issue defines**, never something invented while writing the code. A schema change
+that surprises the user is the failure, not the schema change.
 
-- it **puts the app on, or takes it off, the internet** (the Cloudflare tunnel, the
-  deployed stack, DNS);
-- it **destroys data that is not ours to lose** — a migration that drops a column or
-  a table once real users exist, anything that wipes the production database;
-- it **turns a gate off**, rather than adding or fixing one: a check that stops
-  running is a check nobody notices is gone.
-
-Those carry the `human` label and wait. Everything else merges.
+**Deployment.** Once the app is online (the Cloudflare tunnel, Google OAuth, the
+first migration), it stays online. Every update to `main` rebuilds the containers and
+brings them up with the new code. There is no staging: CI is the gate.
 
 **A decision the plan did not cover** is yours to take when the information is at
 hand and something points the way — a rule, a convention the codebase already

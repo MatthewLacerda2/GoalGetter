@@ -79,21 +79,13 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
 
 ## What a batch must never touch
 
-- **The database.** The backend drops its whole schema on every start, and every
-  worktree shares the one dev database. A subagent that brings a backend up wipes the
-  data of whoever else is using it. Backend work is validated by `make back-test`, which
-  uses a test database of the worktree's own — `make setup` creates it; a worktree
-  that skipped it shares the main checkout's and wipes it.
-- **The compose stack and the tunnel.** Never let a subagent run `docker compose up`,
-  build, or deploy — say so in the brief, every time. The stack includes `cloudflared`,
-  and bringing it up opens the app to the internet. Ports 8000 and 8080 belong to other
-  projects on this machine.
-- **The dev servers.** The user may have the Flutter dev server on 8090 open on his
-  phone, served from a worktree. Nothing removes or rebuilds that worktree mid-batch.
-- **Money and quota.** Gemini is on a billed account and the YouTube Data API has a
-  daily quota. Tests mock both; a subagent **never** calls either for real. If a real
-  call is needed to check behaviour, the session does it once, deliberately.
-- **Secrets.** Never print, commit or copy a key out of `.env`.
+- **The shared dev database.** The backend drops its whole schema on every start, and
+  every worktree points at the same dev database. A subagent that brings a backend up
+  against it wipes the data of whoever else is using it — including the tailnet
+  preview the user may be looking at. Backend work is validated by `make back-test`,
+  which uses a test database of the worktree's own (`make setup` creates it). An agent
+  that needs a running backend gets a database of its own, named in its brief.
+  Changing the *schema* is fine when the issue says so; using that one database is not.
 
 ## Make the agent measure
 
@@ -135,9 +127,9 @@ Give it, in this order:
 Tell it to open a pull request and **not merge** — merging is the batch's job, because
 only the batch knows what else is in flight. The batch then merges in priority order,
 applying the PR rules in `CLAUDE.md`: everything that finished and is green merges,
-including database queries and refactors; only the three irreversible kinds (putting
-the app on or off the internet, destroying data, turning a gate off) wait for the
-user, and they carry `human`.
+database queries, schema changes and refactors included. A draft is unfinished work,
+or work that hit a decision nobody had made and which changes what the user finally
+receives — name that decision in the PR and move on to the next issue.
 
 **Merge on the sum, not on the branch.** A batch's PRs each passed alone; what ships
 is their merge. Merge them locally first, run the gate on the result, and only then
