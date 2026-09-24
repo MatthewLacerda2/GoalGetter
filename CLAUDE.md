@@ -206,13 +206,6 @@ Documentation is for AI agents navigating the code: record the decisions that ar
 not self-evident from it. Business logic is written by the user, or at their
 request.
 
-## Token optimization (RTK)
-
-RTK is installed globally. Prepend `rtk` to commands with large output — `rtk git
-diff`, `rtk git status`, `rtk run <command>` for verbose compiler output or logs.
-It strips ANSI codes and truncates repetitive walls of text; trust the compressed
-output.
-
 ---
 
 The sections below are heads-up so we remember issues and build with future changes

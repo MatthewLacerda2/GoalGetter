@@ -9,6 +9,23 @@ The user plans several issues during the day and hands the ready ones over at ni
 Claude works them while he sleeps. So a batch runs with **nobody to ask** — every rule
 below exists because there is no one to catch the mistake until morning.
 
+## One issue, one worktree, one agent
+
+The default shape: **an issue gets its own worktree and its own agent**. That is what
+keeps two branches from taking turns in one checkout, and what makes a red gate mean
+something.
+
+Folding several issues into one agent is **allowed, never required**. Fold when they
+touch the same files, or when one is too small to be worth a branch of its own — that
+is exactly what **`minor`** marks: a change of about thirty lines that may ride along
+in another issue's pull request. An agent that folds says so in the PR, which then
+closes each issue it finished.
+
+**An issue that carries a migration gets a database of its own**, not just the test one
+`make setup` creates: it is about to change a schema every other worktree is reading. There are no
+migrations yet — the schema is dropped and rebuilt on every backend start — so the
+first issue that carries one also builds the target that creates that database.
+
 ## What a batch is allowed to pick up
 
 Only **ready** issues: open, with **no** `planning` and **no** `human` label (see
@@ -103,7 +120,8 @@ line, or `set -o pipefail`.
 Give it, in this order:
 
 1. **Its own worktree**, created for it, with the exact command. Never two branches
-   taking turns in one checkout. Then `make setup` in it.
+   taking turns in one checkout. Then `make setup` in it, which also gives it its own
+   test database.
 2. **`CLAUDE.md` first**, then the issue, then the specific files it will touch.
 3. **What has landed recently** that it must build on, by name — `main` moves under
    long-running agents.
