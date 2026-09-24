@@ -53,6 +53,28 @@ void main() {
     expect(fake.count(answersKey), 1);
   });
 
+  test('a gap in the answers is returned to, never submitted', () async {
+    // #86: the API refuses an incomplete lesson with a 400, so the controller
+    // must not be able to build one. It used to drop the unanswered question
+    // from the payload and send the rest.
+    final fake = ApiFake({
+      startKey: [(201, lessonJson(2))],
+      answersKey: [(200, evaluationJson)],
+    });
+    final c = await controllerOver(fake);
+    await c.start();
+    await answer(c, 0);
+    await c.nextQuestion(); // the end of the lesson, question 2 untouched
+
+    expect(fake.count(answersKey), 0);
+    expect(c.state.currentQuestionIndex, 1);
+    expect(c.state.isAnswerRevealed, isFalse);
+    expect(c.state.isCompleted, isFalse);
+
+    await answer(c, 1);
+    expect(sentAnswers(fake).map((a) => a['question_id']), ['q0', 'q1']);
+  });
+
   test('a 409 on start is "still being prepared", not a spinner', () async {
     final fake = ApiFake({
       startKey: [(409, '{"detail": "Lessons are still being prepared"}')],

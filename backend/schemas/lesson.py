@@ -29,9 +29,15 @@ class LessonAnswerItem(BaseModel):
 
 
 class LessonAnswersRequest(BaseModel):
-    """POST /goals/{goal_id}/lessons/{lesson_id}/answers: all answers at once."""
+    """POST /goals/{goal_id}/lessons/{lesson_id}/answers: all answers at once.
 
-    answers: list[LessonAnswerItem] = Field(..., min_length=1)
+    How many there must be is not a schema rule: it is one per question the
+    lesson served, which only the lesson knows. The endpoint decides, so that
+    "you left one out" is always the same 400 (#86) and never a validation
+    error that happens to fire first.
+    """
+
+    answers: list[LessonAnswerItem]
 
 
 class LessonEvaluation(BaseModel):

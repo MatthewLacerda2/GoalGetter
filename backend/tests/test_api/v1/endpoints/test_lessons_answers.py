@@ -7,6 +7,7 @@ import pytest_asyncio
 from backend.repositories.lesson_answer_repository import LessonAnswerRepository
 from backend.repositories.lesson_repository import LessonRepository
 from backend.tests.fixtures.lessons import at
+from backend.utils.envs import QUESTIONS_PER_LESSON
 
 DELTA = "backend.api.v1.endpoints.lessons.lesson_elo_delta"
 
@@ -82,10 +83,47 @@ async def test_a_submit_bumps_the_goals_updated_at_and_records_the_new_rating(
 
 
 @pytest.mark.asyncio
-async def test_an_unanswered_question_counts_as_wrong(auth_client, opened):
+async def test_a_missing_answer_is_400_and_stores_nothing(auth_client, test_db, opened):
+    """#86: a lesson comes back complete or not at all"""
     goal, lesson_id, first, _ = opened
     response = await auth_client.post(url(goal.id, lesson_id), json={"answers": [answer(first, 1)]})
-    assert response.json()["student_accuracy"] == 50.0
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Every question this lesson served must be answered"
+    assert await LessonAnswerRepository(test_db).list_by_lesson(lesson_id) == []
+    lesson = await LessonRepository(test_db).get_by_id(lesson_id)
+    assert lesson.finished_at is None
+
+
+@pytest.mark.asyncio
+async def test_no_answers_at_all_is_400(auth_client, opened):
+    """An empty list leaves every question unanswered: the same 400, not a 422"""
+    goal, lesson_id, _, _ = opened
+    response = await auth_client.post(url(goal.id, lesson_id), json={"answers": []})
+    assert response.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_a_complete_submission_of_a_full_lesson_is_graded(
+    auth_client, test_db, test_user, goal_factory, question_factory
+):
+    """Eight questions served, eight answered: graded, nothing refused"""
+    goal = await goal_factory(test_user, rating=1200)
+    questions = [
+        await question_factory(goal, f"q{i}", correct=i % 4, created_at=at(i))
+        for i in range(QUESTIONS_PER_LESSON)
+    ]
+    lesson_id = (await auth_client.post(f"/api/v1/goals/{goal.id}/lessons")).json()["lesson_id"]
+    body = {"answers": [answer(q, q.correct_option_index, seconds=15) for q in questions]}
+
+    with patch(DELTA, return_value=3):
+        response = await auth_client.post(url(goal.id, lesson_id), json=body)
+
+    assert response.status_code == 200
+    assert response.json() == {"total_seconds_spent": 120, "student_accuracy": 100.0, "elo": 3}
+    stored = await LessonAnswerRepository(test_db).list_by_lesson(lesson_id)
+    assert len(stored) == QUESTIONS_PER_LESSON
+    assert [a.time_spent for a in stored] == [15] * QUESTIONS_PER_LESSON
 
 
 @pytest.mark.asyncio

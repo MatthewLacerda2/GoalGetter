@@ -8,6 +8,15 @@ class UnservedQuestionError(ValueError):
     """An answer names a question the lesson did not serve, or names one twice."""
 
 
+class IncompleteLessonError(ValueError):
+    """A question the lesson served came back without an answer.
+
+    Kept apart from UnservedQuestionError because the two say different things
+    about the client: one sent an answer we cannot place, the other stopped
+    early. The endpoint maps them to 422 and 400 (#86).
+    """
+
+
 @dataclass
 class GradedLesson:
     answers: list[LessonAnswer]
@@ -19,9 +28,12 @@ def grade_lesson(lesson_id, served: list[LessonQuestion], submitted: list) -> Gr
     """Grade a submission **server-side**, from the stored correct index.
 
     Nothing the client says about correctness is read: only which choice it
-    picked, and how long it took (time is self-reported by nature). Accuracy is
-    over every question served, so leaving out the wrong ones does not raise
-    it: an unanswered question counts as wrong.
+    picked, and how long it took (time is self-reported by nature).
+
+    A submission must name **every** question served, exactly once (#86): the
+    student answers each one before the next is shown, so a lesson missing an
+    answer is a broken client, not a student who gave up. Accuracy is therefore
+    over a complete set.
     """
     by_id = {q.id: q for q in served}
     ids = [a.question_id for a in submitted]
@@ -29,6 +41,8 @@ def grade_lesson(lesson_id, served: list[LessonQuestion], submitted: list) -> Gr
         raise UnservedQuestionError(
             "Every answer must name a distinct question served in this lesson"
         )
+    if set(ids) != set(by_id):
+        raise IncompleteLessonError("Every question this lesson served must be answered")
 
     answers = [
         LessonAnswer(

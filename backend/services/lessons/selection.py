@@ -14,6 +14,14 @@ def select_lesson_questions(bank: list[QuestionHistory], size: int) -> list[Less
     Ties fall back to the question's creation time, then its id, so the same
     bank always yields the same lesson. Question embeddings (reuse across
     students) are not used yet.
+
+    `size` is a **cap, not a floor** (#86): a bank shorter than a full lesson
+    serves what it has. The student whose bank is empty is the one who has just
+    created a goal, and the endpoint already tells them so with a 409; a bank
+    that is short but not empty means last night's generation came back thin,
+    and refusing would turn one bad night at Gemini into a lost day of study.
+    The bank only grows - questions are never deleted, and a generation tops it
+    up to two lessons - so a short lesson repairs itself.
     """
 
     def created(entry: QuestionHistory):

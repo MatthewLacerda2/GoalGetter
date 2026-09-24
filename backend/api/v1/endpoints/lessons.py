@@ -26,7 +26,11 @@ from backend.schemas.lesson import (
     LessonResponse,
 )
 from backend.services.lessons.elo import lesson_elo_delta
-from backend.services.lessons.grading import UnservedQuestionError, grade_lesson
+from backend.services.lessons.grading import (
+    IncompleteLessonError,
+    UnservedQuestionError,
+    grade_lesson,
+)
 from backend.services.lessons.selection import select_lesson_questions
 from backend.utils.envs import QUESTIONS_PER_LESSON
 
@@ -72,7 +76,11 @@ async def submit_lesson_answers(
     goal: Goal = Depends(get_owned_goal),
     db: AsyncSession = Depends(get_db),
 ):
-    """Grade the lesson server-side, store one answer per question, move the goal's rating."""
+    """Grade the lesson server-side, store one answer per question, move the goal's rating.
+
+    Every served question must come back answered exactly once: a missing one
+    is a 400, an unserved or repeated id a 422 (#86).
+    """
     lessons = LessonRepository(db)
     lesson = await lessons.get_in_goal_for_update(lesson_id, goal.id)
     if lesson is None:
@@ -87,6 +95,8 @@ async def submit_lesson_answers(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(err)
         ) from err
+    except IncompleteLessonError as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err)) from err
     await LessonAnswerRepository(db).create_many(graded.answers)
 
     delta = lesson_elo_delta(goal.rating, graded.accuracy)
