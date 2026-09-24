@@ -63,7 +63,7 @@ class _Header extends StatelessWidget {
               Row(
                 children: [
                   Text('$goalsCount ${l10n.goals.toLowerCase()}', style: muted),
-                  Text('  ·  ', style: muted),
+                  Text(l10n.statSeparator, style: muted),
                   Icon(
                     Icons.local_fire_department,
                     size: 15,

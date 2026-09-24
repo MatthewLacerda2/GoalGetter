@@ -26,7 +26,6 @@ class StartScreen extends ConsumerStatefulWidget {
 class _StartScreenState extends ConsumerState<StartScreen> {
   late final AuthService _authService = ref.read(authServiceProvider);
   bool _isLoading = false;
-  bool _isGoogleInit = false;
 
   @override
   void initState() {
@@ -39,11 +38,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     try {
       developer.log('Initializing Google Sign-In...');
       await _authService.ensureInitialized();
-      if (mounted) {
-        setState(() {
-          _isGoogleInit = true;
-        });
-      }
 
       // Listen to authentication changes
       if (kIsWeb) {
@@ -165,7 +159,10 @@ class _Wordmark extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Goal Getter', style: theme.textTheme.headlineMedium),
+        Text(
+          AppLocalizations.of(context).appWordmark,
+          style: theme.textTheme.headlineMedium,
+        ),
         Text(
           AppLocalizations.of(context).yourMentor,
           style: theme.textTheme.titleLarge?.copyWith(

@@ -1,24 +1,39 @@
 /// House rules for the Flutter side, the mirror of `backend/tests/backend_linter.py`.
 ///
-/// Five rules, all enforced on hand-written files under `lib/`:
+/// Six rules on every hand-written file under `lib/`:
 ///
 ///  1. a `.dart` file is at most 400 lines;
 ///  2. a function or method is at most 60 code lines (comments free, blanks count);
 ///  3. no colour literal (`Colors.*`, `Color(0x…)`, `Color.fromARGB(…)`);
 ///  4. no `fontSize:` — type comes from `Theme.of(context).textTheme`;
-///  5. no radius or padding literal — they come from `AppRadius` / `AppSpacing`.
+///  5. no radius or padding literal — they come from `AppRadius` / `AppSpacing`;
+///  6. no user-facing string written in Dart — it comes from the ARB files.
 ///
 /// Rules 3-5 exist so the theme is the only place a colour, a type size, a
 /// corner or a gap is decided. `lib/app/theme/` is where those values live, so
-/// it is the one directory exempt from them.
+/// it is the one directory exempt from them. Rule 6 exists so every sentence a
+/// student reads exists in all five locales; `lib/app/dev/` is exempt from it,
+/// because the dev menu and its fixtures are a tool for us, written in English
+/// like the code and the comments, and never shipped to a student.
 ///
-/// The checks run on *stripped* source: comments removed and string contents
-/// blanked, so a hex colour inside a doc comment or a literal string is not a
-/// violation. Everything is exposed as pure functions (`lintSource`) so each
-/// rule has a test in `test/tool/frontend_linter_test.dart`.
+/// Three more rules answer for the project rather than for one file — dead ARB
+/// keys, half-done translations and orphan files. They live in
+/// `tool/project_rules.dart` and run once, after the files.
+///
+/// The per-file checks run on *stripped* source: comments removed and string
+/// contents blanked, so a hex colour inside a doc comment or a literal string
+/// is not a violation. Everything is exposed as pure functions (`lintSource`,
+/// `projectViolations`) so each rule has a test in
+/// `test/tool/frontend_linter_test.dart`.
 library;
 
 import 'dart:io';
+
+import 'dart_source.dart';
+import 'project_rules.dart';
+
+export 'dart_source.dart';
+export 'project_rules.dart';
 
 /// A file is at most this many raw lines (CLAUDE.md, frontend house rules).
 const int maxFileLines = 400;
@@ -29,33 +44,13 @@ const int maxFunctionLines = 60;
 /// The one directory allowed to write raw design values.
 const String themeDir = 'lib/app/theme/';
 
-/// Keywords that look like a call followed by a block, but are not functions.
-const Set<String> _blockKeywords = {
-  'if',
-  'for',
-  'while',
-  'switch',
-  'catch',
-  'do',
-  'else',
-  'return',
-  'await',
-  'yield',
-  'assert',
-  'super',
-  'this',
-};
+/// The one directory allowed to write user-facing strings in Dart: the dev
+/// menu and its fixtures are a tool for us, not a screen for a student.
+const String devDir = 'lib/app/dev/';
 
-class Violation {
-  final int line;
-  final String rule;
-  final String message;
-
-  const Violation(this.line, this.rule, this.message);
-
-  @override
-  String toString() => 'Line $line: [$rule] $message';
-}
+/// The directories the linter reads: `lib/` is what it judges, the others are
+/// read so a file that only a test reaches does not look like an orphan.
+const List<String> sourceDirs = ['lib', 'test', 'tool', 'integration_test'];
 
 /// True when [path] is a hand-written file the rules apply to.
 bool isLintedPath(String path) {
@@ -69,193 +64,8 @@ bool isLintedPath(String path) {
 /// True when [path] may write raw colours, sizes, radii and spacing.
 bool isThemeFile(String path) => path.replaceAll('\\', '/').contains(themeDir);
 
-/// Blanks out comments and string contents, keeping every character position
-/// (and therefore every line number) intact.
-String stripSource(String source) {
-  final out = List<String>.from(source.split(''));
-  var i = 0;
-  final n = source.length;
-
-  void blank(int from, int to) {
-    for (var k = from; k < to && k < n; k++) {
-      if (out[k] != '\n' && out[k] != '\r') out[k] = ' ';
-    }
-  }
-
-  while (i < n) {
-    final c = source[i];
-    final next = i + 1 < n ? source[i + 1] : '';
-
-    if (c == '/' && next == '/') {
-      var end = source.indexOf('\n', i);
-      if (end < 0) end = n;
-      blank(i, end);
-      i = end;
-      continue;
-    }
-    if (c == '/' && next == '*') {
-      var end = source.indexOf('*/', i + 2);
-      end = end < 0 ? n : end + 2;
-      blank(i, end);
-      i = end;
-      continue;
-    }
-    if (c == "'" || c == '"') {
-      final triple = source.startsWith(c * 3, i);
-      final quote = triple ? c * 3 : c;
-      var j = i + quote.length;
-      while (j < n) {
-        if (source[j] == r'\') {
-          j += 2;
-          continue;
-        }
-        if (source.startsWith(quote, j)) break;
-        if (!triple && source[j] == '\n') break;
-        j++;
-      }
-      final end = j < n ? j + quote.length : n;
-      blank(i + quote.length, end - quote.length);
-      i = end;
-      continue;
-    }
-    i++;
-  }
-  return out.join();
-}
-
-/// 1-based line number of [index] in [source].
-int _lineAt(String source, int index) =>
-    '\n'.allMatches(source.substring(0, index)).length + 1;
-
-/// Code lines in the inclusive line range, the way the backend counts:
-/// comment-only lines are free, blank lines are not.
-int codeLineCount(String source, int startLine, int endLine) {
-  final lines = source.split('\n');
-  var count = 0;
-  var inBlockComment = false;
-  for (var n = startLine; n <= endLine && n <= lines.length; n++) {
-    final text = lines[n - 1].trim();
-    if (inBlockComment) {
-      if (text.contains('*/')) inBlockComment = false;
-      continue;
-    }
-    if (text.startsWith('/*')) {
-      if (!text.contains('*/')) inBlockComment = true;
-      continue;
-    }
-    if (text.startsWith('//') || text.startsWith('*')) continue;
-    count++;
-  }
-  return count;
-}
-
-/// Index of the character matching the bracket that opens at [open].
-int _matchBracket(String src, int open) {
-  final closer = {'(': ')', '{': '}', '[': ']'}[src[open]];
-  if (closer == null) return -1;
-  var depth = 0;
-  for (var i = open; i < src.length; i++) {
-    final c = src[i];
-    if (c == '(' || c == '{' || c == '[') depth++;
-    if (c == ')' || c == '}' || c == ']') {
-      depth--;
-      if (depth == 0) return i;
-    }
-  }
-  return -1;
-}
-
-int _skipSpace(String src, int i) {
-  while (i < src.length && src[i].trim().isEmpty) {
-    i++;
-  }
-  return i;
-}
-
-/// The identifier ending just before [index], or '' when there is none.
-String _identifierBefore(String src, int index) {
-  var end = index;
-  while (end > 0 && src[end - 1].trim().isEmpty) {
-    end--;
-  }
-  var start = end;
-  while (start > 0 && RegExp(r'[A-Za-z0-9_$]').hasMatch(src[start - 1])) {
-    start--;
-  }
-  if (start == end) return '';
-  if (start > 0 && src[start - 1] == '.') return '';
-  return src.substring(start, end);
-}
-
-class FunctionSpan {
-  final String name;
-  final int startLine;
-  final int endLine;
-  const FunctionSpan(this.name, this.startLine, this.endLine);
-}
-
-/// Every named function, method, constructor body and getter in [stripped].
-///
-/// Anonymous closures are deliberately not counted on their own: a builder
-/// closure is part of the function that writes it, and that function is what
-/// the rule is about.
-List<FunctionSpan> findFunctions(String stripped) {
-  final spans = <FunctionSpan>[];
-
-  /// End of the body that starts at [after]: a `{ … }` block or `=> …;`.
-  int? bodyEnd(int after) {
-    var i = _skipSpace(stripped, after);
-    for (final modifier in ['async*', 'async', 'sync*']) {
-      if (stripped.startsWith(modifier, i)) {
-        i = _skipSpace(stripped, i + modifier.length);
-        break;
-      }
-    }
-    if (i < stripped.length && stripped[i] == '{') {
-      final end = _matchBracket(stripped, i);
-      return end < 0 ? null : end;
-    }
-    if (stripped.startsWith('=>', i)) {
-      var depth = 0;
-      for (var k = i + 2; k < stripped.length; k++) {
-        final c = stripped[k];
-        if (c == '(' || c == '{' || c == '[') depth++;
-        if (c == ')' || c == '}' || c == ']') depth--;
-        if (c == ';' && depth <= 0) return k;
-      }
-    }
-    return null;
-  }
-
-  for (var i = 0; i < stripped.length; i++) {
-    if (stripped[i] != '(') continue;
-    final name = _identifierBefore(stripped, i);
-    if (name.isEmpty || _blockKeywords.contains(name)) continue;
-    final close = _matchBracket(stripped, i);
-    if (close < 0) continue;
-    final end = bodyEnd(close + 1);
-    if (end == null) continue;
-    spans.add(FunctionSpan(
-      name,
-      _lineAt(stripped, i),
-      _lineAt(stripped, end),
-    ));
-    i = close;
-  }
-
-  // Getters have no parameter list, so they need their own pass.
-  for (final m in RegExp(r'\bget\s+([A-Za-z_]\w*)\s*').allMatches(stripped)) {
-    final end = bodyEnd(m.end);
-    if (end == null) continue;
-    spans.add(FunctionSpan(
-      m.group(1)!,
-      _lineAt(stripped, m.start),
-      _lineAt(stripped, end),
-    ));
-  }
-
-  return spans;
-}
+/// True when [path] may write user-facing strings in Dart.
+bool isDevFile(String path) => path.replaceAll('\\', '/').contains(devDir);
 
 final RegExp _colorsDot = RegExp(r'\bColors\.[A-Za-z]');
 final RegExp _colorHex = RegExp(r'\bColor\s*\(\s*0x');
@@ -269,11 +79,56 @@ final RegExp _edgeInsetsCall = RegExp(
 );
 final RegExp _bareNumber = RegExp(r'(?<![A-Za-z0-9_$.])\d');
 
+/// The slots a sentence a student reads goes through.
+///
+/// Deliberately narrow: a `Text`, the `…Text:` fields of a form field, the
+/// tooltip and the semantic labels are slots that can hold nothing but prose.
+/// `title:`, `label:`, `text:`, `content:` and `message:` are not on the list
+/// — they are also the field names of our own models (the lesson stats, the
+/// dev fixtures) and of `MaterialApp.title`, which is the product name, so
+/// matching them would fail data that is not a sentence at all. A sentence
+/// reaching a screen through one of those fields is still caught, because it
+/// is a `Text` by the time it is drawn.
+final RegExp _textWidget = RegExp(
+  r'''\b(?:Text|SelectableText)\s*\(\s*['"]''',
+);
+final RegExp _textArgument = RegExp(
+  r'''\b(?:hintText|labelText|helperText|errorText|tooltip|semanticLabel'''
+  r'''|semanticsLabel)\s*:\s*['"]''',
+);
+
 /// Numeric literal anywhere in the balanced argument list opening at [open].
 bool _hasNumericArgument(String stripped, int open) {
-  final close = _matchBracket(stripped, open);
+  final close = matchBracket(stripped, open);
   if (close < 0) return false;
   return _bareNumber.hasMatch(stripped.substring(open + 1, close));
+}
+
+/// A letter in any of the five alphabets we ship.
+final RegExp _letter = RegExp(r'\p{L}', unicode: true);
+
+/// True when the literal whose quote is at [quote] is a string a student reads
+/// rather than a value a screen formats.
+///
+/// `stripSource` keeps the quotes and blanks what is between them, so the
+/// literal is read back out of the raw [source] at the same index. Two cases
+/// are a sentence:
+///
+///  * a literal that interpolates nothing and is not blank. Whatever it is,
+///    the screen draws exactly it — `'Retry'`, and the `'  ·  '` between two
+///    facts, which is as much a decision about the layout of a language as
+///    the words around it.
+///  * a literal that frames interpolated values *and spells a word of its
+///    own*: `'${days}d'` is a sentence, because the d of day is a t in German.
+///    `'$percent%'` and `'$index / $total'` are not: a percent sign, a slash
+///    and a space read the same in all five locales, and a key holding
+///    punctuation is a key nobody would keep in step.
+bool _isHardcodedText(String source, int quote) {
+  final literal = literalAt(source, quote);
+  if (literal == null) return false;
+  final own = ownText(literal);
+  if (!hasInterpolation(literal)) return own.trim().isNotEmpty;
+  return _letter.hasMatch(own);
 }
 
 /// Every violation in one file. [path] decides which rules apply.
@@ -303,19 +158,19 @@ List<Violation> lintSource(String path, String source) {
     }
   }
 
-  if (!isThemeFile(path)) {
-    void report(
-      RegExp pattern,
-      String rule,
-      String message, {
-      bool Function(int index)? when,
-    }) {
-      for (final match in pattern.allMatches(stripped)) {
-        if (when != null && !when(match.end - 1)) continue;
-        violations.add(Violation(_lineAt(stripped, match.start), rule, message));
-      }
+  void report(
+    RegExp pattern,
+    String rule,
+    String message, {
+    bool Function(int index)? when,
+  }) {
+    for (final match in pattern.allMatches(stripped)) {
+      if (when != null && !when(match.end - 1)) continue;
+      violations.add(Violation(lineAt(stripped, match.start), rule, message));
     }
+  }
 
+  if (!isThemeFile(path)) {
     const colourHelp = 'Colour literals belong in the theme: use '
         'Theme.of(context).colorScheme or the CustomColors extension';
     report(_colorsDot, 'no-color-literal', colourHelp);
@@ -342,44 +197,95 @@ List<Violation> lintSource(String path, String source) {
     );
   }
 
+  if (!isDevFile(path)) {
+    const stringHelp = 'User-facing strings belong in the ARB files: add a key '
+        'to lib/l10n/app_en.arb and the other locales, then read it through '
+        'AppLocalizations';
+    report(
+      _textWidget,
+      'hardcoded-string',
+      stringHelp,
+      when: (index) => _isHardcodedText(source, index),
+    );
+    report(
+      _textArgument,
+      'hardcoded-string',
+      stringHelp,
+      when: (index) => _isHardcodedText(source, index),
+    );
+  }
+
   violations.sort((a, b) => a.line.compareTo(b.line));
   return violations;
 }
 
+/// Every hand-written Dart file of the frontend, keyed by its path.
+Map<String, String> _readDartSources() {
+  final sources = <String, String>{};
+  for (final name in sourceDirs) {
+    final dir = Directory(name);
+    if (!dir.existsSync()) continue;
+    for (final file in dir.listSync(recursive: true).whereType<File>()) {
+      final path = file.path.replaceAll('\\', '/');
+      if (!isLintedPath(path)) continue;
+      sources[path] = file.readAsStringSync();
+    }
+  }
+  return sources;
+}
+
+/// The raw text of every `app_<locale>.arb`, keyed by its locale.
+Map<String, String> _readArbSources() {
+  final dir = Directory('lib/l10n');
+  final sources = <String, String>{};
+  if (!dir.existsSync()) return sources;
+  for (final file in dir.listSync().whereType<File>()) {
+    final name = file.path.replaceAll('\\', '/').split('/').last;
+    if (!name.startsWith('app_') || !name.endsWith('.arb')) continue;
+    sources[name.substring('app_'.length, name.length - '.arb'.length)] =
+        file.readAsStringSync();
+  }
+  return sources;
+}
+
 void main() {
-  final libDir = Directory('lib');
-  if (!libDir.existsSync()) {
+  if (!Directory('lib').existsSync()) {
     stdout.writeln('Error: Could not find lib directory.');
     exit(1);
   }
 
-  final files =
-      libDir
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((file) => isLintedPath(file.path))
-          .toList()
-        ..sort((a, b) => a.path.compareTo(b.path));
+  final sources = _readDartSources();
+  final paths = sources.keys.where((path) => path.startsWith('lib/')).toList()
+    ..sort();
 
   var total = 0;
-  for (final file in files) {
-    final violations = lintSource(file.path, file.readAsStringSync());
+  for (final path in paths) {
+    final violations = lintSource(path, sources[path]!);
     if (violations.isEmpty) continue;
-    stdout.writeln('  File: ${file.path}');
+    stdout.writeln('  File: $path');
     for (final violation in violations) {
       stdout.writeln('    $violation');
     }
     total += violations.length;
   }
 
+  final project = projectViolations(sources, _readArbSources());
+  if (project.isNotEmpty) {
+    stdout.writeln('  Project:');
+    for (final violation in project) {
+      stdout.writeln('    $violation');
+    }
+    total += project.length;
+  }
+
   if (total > 0) {
     stdout.writeln(
-      '\n[LINT FAILURE] $total violation(s) across ${files.length} files.',
+      '\n[LINT FAILURE] $total violation(s) across ${paths.length} files.',
     );
     exit(1);
   }
   stdout.writeln(
-    '[LINT SUCCESS] ${files.length} Dart files conform to the house rules.',
+    '[LINT SUCCESS] ${paths.length} Dart files conform to the house rules.',
   );
   exit(0);
 }
