@@ -228,7 +228,7 @@ user bubble plus one tutor bubble per `responses` entry.
 The last step of the student chain (see Background jobs), which `POST /goals`
 kicks off fire-and-forget; the introduction screens exist to buy time for it.
 Never fails the request that started it. It runs only after the student has a
-context, and it is the step #89 will run weekly rather than nightly.
+context, and the nightly run asks for it on Mondays only (#89).
 
 1. Ask Gemini (premium model, Google Search grounding) for 3 YouTube + 3
    webpages + 3 PDFs, then a second call reshapes that text into JSON.
@@ -263,9 +263,14 @@ what the one before it wrote:
 
 | Step | Reads | Writes |
 | --- | --- | --- |
-| **1. Context** | every goal of the student, plus either the stored onboarding or their recent lesson answers and tutor chats | one `student_contexts` row |
-| **2. Questions** (per goal) | the student's still-valid contexts, the goal, the questions of that goal whose latest answer was wrong | `lesson_questions` |
+| **1. Context** | every goal of the student, plus either the stored onboarding or their recent lesson answers and tutor chats | `student_contexts` rows added, stale ones retired — possibly neither |
+| **2. Questions** (per goal) | the goal's whole bank with its latest answers, the student's still-valid contexts, the goal | `lesson_questions`, and only when the bank is short |
 | **3. Resources** (per goal) | the student's newest context, the goal, the links the goal already holds | `resources` |
+
+`run_student_chain(student_id, with_resources=True)` — the one thing a caller
+decides is the third step, because it is the one that is not wanted every time:
+the nightly run buys resources once a week, goal creation wants them for a goal
+that has none. Everything else a step reads for itself.
 
 **Nothing tells a step whether this is the first run.** Each works out what it
 needs from what it finds: no lesson answered yet (or no context left standing)
@@ -292,15 +297,96 @@ failure is usually the rate limit or the quota, and firing the next calls
 straight at it turns one failed step into three. The next run picks up where
 this one stopped.
 
-Still open around it: the nightly run and who it skips (#89), Gemini saying
-which contexts went stale (#90), and generating questions only when tomorrow's
-lesson would run short (#91) — until #91, every goal of the student gets a
-generation on every run.
+### The nightly run — who gets a chain tonight (#89)
+
+**`backend/services/jobs/nightly.py`**, triggered by
+**`backend/tools/nightly_run.py`**, which runs as the `nightly` service in
+`docker-compose.yml`. It fires at **03:00 in `APP_TIMEZONE`**
+(`clock.NIGHTLY_RUN_HOUR`, #92), and for each student in turn:
+
+1. **skip unless they finished a lesson in the day the run is closing out** —
+   no chain, no Gemini call, nothing. Chat activity does not count; only
+   lessons do.
+2. run the chain's **context** step, then its **question** step;
+3. **on Mondays**, run the **resource** step as well.
+
+**"Today" is the 24 hours behind the run, not the calendar day**
+(`clock.previous_nightly_run`). The run fires three hours into a day nobody has
+studied yet, so reading the calendar date would skip every student who studied
+the evening before — which is every student. The window is
+`[previous 03:00, now]`. The rule "resources also need a lesson in the last
+seven days" is satisfied by construction: a student who reaches step 3 studied
+within the last 24 hours.
+
+**Students are processed one at a time**, so the Gemini calls stay serialized,
+and a student whose chain raises is logged and left behind — the next student
+still runs. That is where the chain's re-raise is caught.
+
+**Why a separate process and not a scheduler in the app.** The API runs four
+uvicorn workers, each its own process, so an in-process scheduler would fire
+the same night four times. Electing a leader among them means a lock table and
+a heartbeat. **Why a compose service and not the host's cron:** the deployment
+is this machine's `docker compose up`, rebuilt from `main` on every merge, so a
+service ships with the code that needs it and is reviewed with it; a cron entry
+lives outside the repository and has to be installed by hand on any machine the
+app is ever brought up on. The trade is that a **missed 03:00 is simply
+missed** — there is no catch-up, because remembering when the job last ran
+means a column, and none was asked for.
+
+It **waits for the hour before it runs, never on startup**: `restart:
+unless-stopped` plus a run on start would spend real quota on every deploy.
+
+**By hand, for one student:** `make nightly ARGS='--student <id>'`, or
+`--once` for the whole night. Same code, same decisions, every one of them
+logged — including the skips, with the reason.
+
+### What the context step asks for (#90)
+
+The nightly review is **not a rewrite**. Regenerating the whole context every
+night paid a premium call to produce much the same paragraphs. So
+`gemini_review_student_context` shows the model the student's **still-valid
+contexts, numbered**, their goals, their recent lesson answers and their recent
+chats, and asks two things back:
+
+- `reviewed` — one entry per context shown: its index and whether it is now
+  outdated;
+- `new_contexts` — readings to add, each a `state` and a `metacognition`.
+
+**Both lists empty is a valid, normal, cheap answer** meaning nothing changed,
+and the step then writes nothing. An outdated context is **retired**
+(`is_still_valid = false`), never deleted: it is progression history the
+student is meant to be able to read. An index the model invented, or repeated,
+is **dropped, not an error** — the same tolerance the question bank has for a
+correct-option index out of range.
+
+The first-impression path is unchanged: a student with no standing context, or
+no lesson answered, is introduced rather than reviewed.
+
+### When questions are generated (#91)
+
+Before generating, the step counts what tomorrow can be built from — the
+**selection rule** above: questions whose latest answer was **wrong**, plus
+questions **never answered**. Call that the servable bank.
+
+- servable ≥ `QUESTIONS_PER_LESSON` ⇒ **generate nothing**. That is the student
+  who is struggling, and struggling makes the job cheaper: a question stays in
+  rotation until it is answered right, so there is no reason to buy new ones to
+  sit behind it.
+- otherwise ask Gemini for `2 × QUESTIONS_PER_LESSON − servable`
+  (`TARGET_SERVABLE`). One lesson of that is tomorrow's gap; the second is the
+  **margin**, and it is one lesson because a student who answers tomorrow's
+  questions correctly consumes all of them — without it the bank is short again
+  the very next night, and that night is the one that may find Gemini down.
+  One lesson of margin buys exactly one missed night.
+
+`generate_lesson_questions(..., count)` takes how many to ask for, because the
+number is different every night. Counted **per goal**: a deep bank in law says
+nothing about tomorrow's history lesson.
 
 **Superseded scheduling rule for memories** (the user's earlier intent, never
 implemented): check every student **daily**, but only regenerate if **≥3 days
 since the last generation** AND the student actually chatted or did a lesson in
-between. #90 replaced the three-day rule: the gate is the day's lesson, and
+between. #90 replaced the three-day rule: the gate is the day's lesson (#89), and
 Gemini itself says what is stale.
 
 **History — the old nightly schedule (deleted 2026-09-21).** `backend/core/scheduler.py`
@@ -314,7 +400,7 @@ generation into **two** jobs (chats and lessons separately) and had a
 **Decided: collapse to two nightly jobs.** One updates context/memories, one
 creates lessons — in that order, because lesson creation consumes the memories.
 Four jobs was over-splitting. That became the chain above, with resources as its
-third step. No scheduler runs today (#89).
+third step, and the `nightly` service is what runs it.
 
 **Spirit: progression follows the student, not a syllabus.** Early prompting
 framed a goal as a fixed ladder of steps (chess: piece movement → endgames →

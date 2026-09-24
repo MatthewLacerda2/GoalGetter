@@ -1,4 +1,5 @@
 from backend.services.gemini.student_context.schema import GeminiStudentContext
+from backend.utils.envs import QUESTIONS_PER_LESSON
 
 
 def format_contexts(contexts: list[GeminiStudentContext]) -> str:
@@ -17,6 +18,7 @@ def get_lesson_generation_prompt(
     rating: int,
     contexts: list[GeminiStudentContext],
     recent_errors: list[str] | None = None,
+    count: int = QUESTIONS_PER_LESSON,
 ) -> str:
     recent_errors_formatted = ""
     if recent_errors:
@@ -41,7 +43,7 @@ def get_lesson_generation_prompt(
     </Context>
 
     <Task>
-    Generate a list of exactly 6 multiple-choice study questions customized to the student's current needs, skill rating, and weaknesses.
+    Generate a list of exactly {count} multiple-choice study questions customized to the student's current needs, skill rating, and weaknesses.
     </Task>
 
     <Guidelines>

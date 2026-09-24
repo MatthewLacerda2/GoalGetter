@@ -76,8 +76,8 @@ def app_moment(day: date, hour: int = 0, minute: int = 0) -> datetime:
 def next_nightly_run(after: datetime | None = None) -> datetime:
     """The next NIGHTLY_RUN_HOUR in APP_TIMEZONE strictly after `after`, in UTC.
 
-    The scheduler that will call this is #89; the schedule itself lives here so
-    that the hour is defined once and a test can pin it.
+    What waits on it is `backend/tools/nightly_run.py` (#89); the schedule
+    itself lives here so that the hour is defined once and a test can pin it.
     """
     after = as_utc(after if after is not None else now())
     day = app_date(after)
@@ -85,3 +85,26 @@ def next_nightly_run(after: datetime | None = None) -> datetime:
     if fires <= after:
         fires = app_moment(day + timedelta(days=1), NIGHTLY_RUN_HOUR)
     return fires
+
+
+def previous_nightly_run(before: datetime | None = None) -> datetime:
+    """The last NIGHTLY_RUN_HOUR in APP_TIMEZONE strictly before `before`, in UTC.
+
+    **This is what the nightly run means by "today" (#89).** The run fires at
+    03:00, three hours into a calendar day on which nobody has studied yet - so
+    reading `today()` there would skip every student who did their lesson the
+    evening before, which is every student. The day the run closes out is the
+    24 hours behind it, `[previous_nightly_run(at), at]`. The user's own
+    framing - "the student either did today's lesson or was not going to" - is
+    that day, not the calendar one.
+
+    Strictly before, so a run at exactly 03:00 looks back over the day that
+    just ended rather than at a window of zero width. Run by hand at any other
+    hour it reads as one expects: everything since 03:00 this morning.
+    """
+    before = as_utc(before if before is not None else now())
+    day = app_date(before)
+    fired = app_moment(day, NIGHTLY_RUN_HOUR)
+    if fired >= before:
+        fired = app_moment(day - timedelta(days=1), NIGHTLY_RUN_HOUR)
+    return fired

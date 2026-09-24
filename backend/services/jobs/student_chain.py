@@ -31,24 +31,30 @@ from backend.services.jobs.steps.resources import run_resources_step
 logger = logging.getLogger(__name__)
 
 
-async def run_student_chain(student_id: str) -> tuple[bool, int, int]:
+async def run_student_chain(student_id: str, with_resources: bool = True) -> tuple[bool, int, int]:
     """Run the whole chain for one student: what each step did, in order.
 
+    `with_resources` is the one thing a caller decides, because resources are
+    the one step that is not wanted every time: the nightly run buys them once
+    a week (#89), goal creation wants them for a goal that has none. Everything
+    else a step needs it reads for itself.
+
     Raises whatever a step raised, so the caller decides what a failure means:
-    goal creation logs it and moves on, the nightly run (#89) logs it and moves
-    on to the next student.
+    goal creation logs it and moves on, the nightly run logs it and moves on to
+    the next student.
     """
     async with AsyncSessionLocal() as session:
         wrote_context = await run_context_step(session, student_id)
         questions = await run_questions_step(session, student_id)
-        resources = await run_resources_step(session, student_id)
+        resources = await run_resources_step(session, student_id) if with_resources else 0
 
     logger.info(
-        "Chain for student %s: context %s, %d questions, %d resources",
+        "Chain for student %s: context %s, %d questions, %d resources%s",
         student_id,
-        "written" if wrote_context else "skipped",
+        "written" if wrote_context else "unchanged",
         questions,
         resources,
+        "" if with_resources else " (resources not asked for)",
     )
     return wrote_context, questions, resources
 

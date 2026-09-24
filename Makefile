@@ -31,7 +31,7 @@ PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini
+.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -175,6 +175,14 @@ shot: ## Headless phone screenshots of ROUTES from the preview, into shots/
 #   make gemini ARGS='tutor-reply "Chess" "Learn chess openings" "How do I start?"'
 gemini: env ## Run one Gemini use case for real (SPENDS QUOTA; no ARGS lists them)
 	@$(DOCKER_RUN) python -m backend.tools.gemini_cli $(ARGS)
+
+# `make nightly ARGS='--student <id>'`: the nightly run (#89) by hand, now,
+# instead of at 03:00, logging every decision it takes - which students it
+# skips and why, and which steps it asks for. `--once` does the whole night.
+# It runs the real job against DATABASE_URL and SPENDS REAL QUOTA; in the
+# deployment the same entry point is the `nightly` compose service.
+nightly: env ## Run the nightly job by hand (SPENDS QUOTA; ARGS='--student <id>' or --once)
+	@$(DOCKER_RUN) python -m backend.tools.nightly_run $(ARGS)
 
 # `make claude`: "Fictitious Claude" with a lived-in history, so every signed-in
 # screen has data (backend/services/fictitious/, hardcoded, no Gemini/YouTube),

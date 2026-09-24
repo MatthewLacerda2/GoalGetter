@@ -1,4 +1,4 @@
-from backend.services.gemini.student_context.schema import StudentGoal
+from backend.services.gemini.student_context.schema import GeminiStudentContext, StudentGoal
 
 
 def format_goals(goals: list[StudentGoal]) -> str:
@@ -56,13 +56,33 @@ def get_student_context_prompt(
     """
 
 
-def get_periodic_student_context_prompt(
+def format_numbered_contexts(contexts: list[GeminiStudentContext]) -> str:
+    """The readings the app is standing behind, numbered so the model can point
+    at one (#90). The number is the position in this list and nothing else - it
+    is never an id, and it means nothing after this call returns."""
+    if not contexts:
+        return "No reading of this student has been written yet."
+    return "\n".join(
+        [
+            f'[{i}] State: "{c.state}" - Metacognition: "{c.metacognition}"'
+            for i, c in enumerate(contexts)
+        ]
+    )
+
+
+def get_context_review_prompt(
     goals: list[StudentGoal],
-    previous_state: str,
-    previous_metacognition: str,
+    contexts: list[GeminiStudentContext],
     recent_lesson_results: list[dict],
     recent_chat_history: list[dict],
 ) -> str:
+    """Ask what went stale and what is missing, rather than for a rewrite (#90).
+
+    Rewriting the whole reading every night paid a premium call to produce much
+    the same paragraphs. Here the model reads what already stands and answers
+    about it: which of these no longer hold, and what would you add. Saying
+    "nothing" is explicitly allowed, and is the cheapest answer there is.
+    """
     lessons_formatted = (
         "\n".join(
             [
@@ -87,31 +107,39 @@ def get_periodic_student_context_prompt(
 
     return f"""
     <Context>
-    You are an AI Tutor evaluating a student's learning progress.
+    You are an AI Tutor keeping the app's reading of one student up to date.
     The goals they are studying:
     {format_goals(goals)}
 
-    Previous Student Context:
-    - State (Knowledge Level): "{previous_state}"
-    - Metacognition (Awareness/Motivations): "{previous_metacognition}"
+    What the app currently believes about this learner. Each reading is
+    numbered; the numbers are only for this reply:
+    {format_numbered_contexts(contexts)}
 
-    Recent Study Lesson Answers (Student's performance, across every goal):
+    Recent Study Lesson Answers (their performance, across every goal):
     {lessons_formatted}
 
-    Recent Chat Tutor Messages (Interactions showing conceptual understanding/questions):
+    Recent Chat Tutor Messages (what they asked and how they reasoned):
     {chat_formatted}
     </Context>
 
     <Task>
-    Analyze the student's recent performance and dialogue to generate an updated Student Context profile (State and Metacognition).
+    Decide which of the readings above no longer describe this student, and
+    write any reading that is now missing.
     </Task>
 
     <Guidelines>
-    - **State**: Update the student's knowledge level, identifying new concepts mastered, persistent errors, and current weaknesses or focus areas.
-    - **Metacognition**: Update their learning style, attitude, cognitive load, reactions, and focus based on their chat messages and time spent on questions.
-    - Write about the learner, not about any single goal: one reading of the person, covering everything they study.
-    - Keep both descriptions concise (under 100 words each).
-    - If no new study activity or chat is present, keep the state similar to the previous state but reflect their current stagnation.
+    - `reviewed`: one entry per numbered reading above, with its index and
+      is_outdated. A reading is outdated when the recent evidence contradicts
+      it or has made it obsolete - not merely because it could be worded better.
+    - `new_contexts`: readings to add, each with a State (what they know, their
+      gaps) and a Metacognition (how they think, react and motivate themselves),
+      under 100 words each.
+    - **Both lists may be empty, and that is a perfectly good answer.** If the
+      student is where the readings say they are, mark nothing outdated and add
+      nothing. Do not invent change to have something to report.
+    - Only add a reading when it says something the readings above do not.
+    - Write about the learner, not about any single goal: one reading of the
+      person, covering everything they study.
     - Write the response in the student's language.
     </Guidelines>
     """

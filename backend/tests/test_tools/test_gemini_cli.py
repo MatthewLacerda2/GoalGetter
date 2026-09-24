@@ -5,7 +5,10 @@ a fuse that fails the test if anything reaches it, because a test suite that
 calls this command for real spends the project's money.
 """
 
+import inspect
+
 import pytest
+from pydantic import TypeAdapter
 
 from backend.schemas.goal import ObjectiveAnswer
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation
@@ -20,6 +23,7 @@ EXPECTED = {
     "tutor-reply",
     "lesson-questions",
     "student-context",
+    "context-review",
     "resource-search",
 }
 
@@ -51,6 +55,33 @@ def test_an_unknown_use_case_is_refused():
 def test_missing_arguments_are_refused_before_any_call(capsys):
     assert gemini_cli.main(["gemini_cli", "lesson-questions", "Chess"]) == 2
     assert "<metacognition>" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("case", gemini_cli.USE_CASES, ids=lambda case: case.name)
+def test_the_arguments_an_entry_builds_are_the_ones_its_function_takes(case):
+    """The gate #120 asked for: every door opens.
+
+    Two entries had been broken for weeks because a use case's inputs changed
+    under them (#116) and nothing exercised the call site - the command may
+    never call Gemini from the suite, so the only thing left to check is the
+    *shape* of what it would have sent. Arity alone would not have caught
+    either one: both passed the right number of arguments, as strings, where
+    the function wanted a list of models. So each argument is validated against
+    its parameter's annotation, strictly, which is exactly the mismatch.
+
+    The alternative weighed in the issue - having the build smoke import the
+    registry - was not enough for the same reason: importing the module proves
+    the names resolve, and both bugs were in code that imported perfectly well
+    and only failed at the call.
+    """
+    arguments = case.build(list(case.sample))
+    signature = inspect.signature(case.call)
+    bound = signature.bind(*arguments)
+
+    for name, value in bound.arguments.items():
+        annotation = signature.parameters[name].annotation
+        assert annotation is not inspect.Parameter.empty, f"{case.name}: {name} is unannotated"
+        TypeAdapter(annotation).validate_python(value, strict=True)
 
 
 def test_command_line_pairs_become_objective_answers():

@@ -17,6 +17,7 @@ from backend.core.clock import (
     as_utc,
     next_nightly_run,
     now,
+    previous_nightly_run,
 )
 
 
@@ -56,3 +57,17 @@ def test_the_nightly_run_rolls_to_the_next_night_once_it_has_passed():
 
     assert fires == utc(2026, 9, 25, 6)
     assert fires.astimezone(APP_TIMEZONE).hour == NIGHTLY_RUN_HOUR
+
+
+def test_the_night_a_run_at_03_is_closing_out_started_at_03_the_day_before():
+    """What the nightly run means by "today" (#89): the 24 hours behind it, not
+    the three that have passed since midnight."""
+    assert previous_nightly_run(utc(2026, 9, 24, 6)) == utc(2026, 9, 23, 6)
+
+
+def test_run_by_hand_in_the_afternoon_the_night_started_this_morning():
+    assert previous_nightly_run(utc(2026, 9, 24, 17)) == utc(2026, 9, 24, 6)
+
+
+def test_run_by_hand_before_03_the_night_is_still_the_previous_one():
+    assert previous_nightly_run(utc(2026, 9, 24, 5)) == utc(2026, 9, 23, 6)

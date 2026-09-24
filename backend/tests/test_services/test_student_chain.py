@@ -1,99 +1,28 @@
 """The student chain: context, then questions, then resources (#88).
 
-Every Gemini call is replaced by `recorder`, which appends the call to one
-shared list before returning its canned answer. That list is the evidence: it
-says not only that a call happened but *when*, which is the whole point of a
-chain - a step that reads what the step before it wrote cannot be allowed to
-run first, or at the same time.
+The scaffolding is in `fixtures/jobs.py`; what this module asserts is the
+chain's own promises - the order of the steps, that each reads what the one
+before it wrote, that a failure stops the chain and keeps what was written, and
+that the caller decides whether resources are wanted at all (#89).
 """
 
 import asyncio
-from contextlib import contextmanager
-from unittest.mock import patch
 
 import pytest
 
-from backend.models.resource import Resource, StudyResourceType
 from backend.models.student_context import StudentContext
 from backend.repositories.lesson_question_repository import LessonQuestionRepository
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse, LessonQuestionItem
-from backend.services.gemini.student_context.schema import GeminiStudentContextResponse
 from backend.services.jobs import student_chain
 from backend.services.jobs.steps.resources import run_resources_step
 from backend.services.jobs.student_chain import kickoff_student_chain, run_student_chain
+from backend.tests.fixtures.jobs import chain_gemini, resource, review
 from backend.tests.fixtures.lessons import at
 
-CONTEXT = "backend.services.jobs.steps.context"
-QUESTIONS = "backend.services.jobs.steps.questions"
-RESOURCES = "backend.services.jobs.steps.resources"
-CHAIN = "backend.services.jobs.student_chain"
-
-FIRST = GeminiStudentContextResponse(state="Beginner", metacognition="Curious", ai_model="m")
-REVISED = GeminiStudentContextResponse(state="Improving", metacognition="Doubtful", ai_model="m")
 ANSWERS = [("Experience?", "None")]
 PROMPT_PAIR = ("What do you want to learn?", "I want Italian")
-
-
-def generated(*correct_indexes):
-    return GeminiLessonQuestionsResponse(
-        questions=[
-            LessonQuestionItem(
-                question=f"Q{i}",
-                option_a="a",
-                option_b="b",
-                option_c="c",
-                option_d="d",
-                correct_option_index=index,
-            )
-            for i, index in enumerate(correct_indexes)
-        ]
-    )
-
-
-GENERATED = generated(0, 3, 4)
-
-
-def resource(goal_id, link):
-    return Resource(
-        goal_id=str(goal_id),
-        resource_type=StudyResourceType.webpage,
-        name="Guide",
-        description="A guide",
-        language="en",
-        link=link,
-    )
-
-
-def recorder(calls: list, name: str, result):
-    """A stand-in for one Gemini call: record it, then answer (or blow up)."""
-
-    def record(*args):
-        calls.append((name, args))
-        if isinstance(result, Exception):
-            raise result
-        return result
-
-    return record
-
-
-@contextmanager
-def chain_gemini(test_db, calls, questions=GENERATED, found=()):
-    """The chain with every Gemini call mocked and every call recorded."""
-    with (
-        patch(CONTEXT + ".gemini_generate_student_context", recorder(calls, "context", FIRST)),
-        patch(
-            CONTEXT + ".gemini_generate_periodic_student_context",
-            recorder(calls, "revision", REVISED),
-        ),
-        patch(QUESTIONS + ".generate_lesson_questions", recorder(calls, "questions", questions)),
-        patch(RESOURCES + ".search_resources", recorder(calls, "resources", list(found))),
-        patch(RESOURCES + ".validate_resources", side_effect=lambda proposed: proposed),
-        patch(CHAIN + ".AsyncSessionLocal", return_value=_Session(test_db)),
-    ):
-        yield
 
 
 async def onboarded(test_db, goal, prompt="I want Italian", answers=ANSWERS):
@@ -149,7 +78,7 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
         await run_student_chain(str(test_user.id))
 
     seen = dict(calls)
-    name, description, rating, contexts, errors = seen["questions"]
+    name, description, rating, contexts, errors, _count = seen["questions"]
     assert (name, description, rating, errors) == (goal.name, goal.description, 1200, [])
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
     assert seen["resources"][1:] == (goal.name, goal.description, "Beginner Curious", [])
@@ -158,10 +87,10 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
 
 
 @pytest.mark.asyncio
-async def test_a_later_run_revises_the_context_and_aims_at_what_went_wrong(
+async def test_a_later_run_reviews_the_context_and_aims_at_what_went_wrong(
     test_db, test_user, goal_factory, question_factory, answer_factory, exchange_factory
 ):
-    """History exists, so the same entry point revises instead of introducing"""
+    """History exists, so the same entry point reviews instead of introducing"""
     goal = await goal_factory(test_user)
     await onboarded(test_db, goal)
     missed = await question_factory(goal, text="What is 'ciao'?")
@@ -173,12 +102,12 @@ async def test_a_later_run_revises_the_context_and_aims_at_what_went_wrong(
     await test_db.commit()
 
     calls = []
-    with chain_gemini(test_db, calls):
+    with chain_gemini(test_db, calls, reviewed=review(added=[("Improving", "Doubtful")])):
         await run_student_chain(str(test_user.id))
 
-    assert [name for name, _ in calls] == ["revision", "questions", "resources"]
-    _, state, metacognition, results, chats = dict(calls)["revision"]
-    assert (state, metacognition) == ("Beginner", "Curious")
+    assert [name for name, _ in calls] == ["review", "questions", "resources"]
+    _, standing, results, chats = dict(calls)["review"]
+    assert [(c.state, c.metacognition) for c in standing] == [("Beginner", "Curious")]
     assert [(r["question"], r["is_correct"]) for r in results] == [("What is 'ciao'?", False)]
     assert [c["prompt"] for c in chats] == ["q0"]
     assert dict(calls)["questions"][4] == ["What is 'ciao'?"]
@@ -215,6 +144,20 @@ async def test_resources_never_run_without_a_context(test_db, test_user, goal_fa
         assert await run_resources_step(test_db, str(test_user.id)) == 0
 
     assert calls == []
+
+
+@pytest.mark.asyncio
+async def test_the_caller_can_ask_for_a_chain_without_resources(test_db, test_user, goal_factory):
+    """What the nightly run does six nights a week (#89): resources are weekly"""
+    goal = await goal_factory(test_user)
+    await onboarded(test_db, goal)
+
+    calls = []
+    with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
+        assert await run_student_chain(str(test_user.id), with_resources=False) == (True, 2, 0)
+
+    assert [name for name, _ in calls] == ["context", "questions"]
+    assert await ResourceRepository(test_db).list_by_goal(goal.id) == []
 
 
 @pytest.mark.asyncio
@@ -284,16 +227,3 @@ async def test_a_student_with_no_goals_spends_nothing(test_db, test_user):
         assert await run_student_chain(str(test_user.id)) == (False, 0, 0)
 
     assert calls == []
-
-
-class _Session:
-    """Hands the chain the test's session and keeps it open afterwards."""
-
-    def __init__(self, session):
-        self.session = session
-
-    async def __aenter__(self):
-        return self.session
-
-    async def __aexit__(self, *exc):
-        return False
