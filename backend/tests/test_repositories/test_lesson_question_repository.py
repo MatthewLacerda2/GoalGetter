@@ -1,7 +1,9 @@
+import numpy as np
 import pytest
 
 from backend.repositories.lesson_question_repository import LessonQuestionRepository
 from backend.tests.fixtures.lessons import at
+from backend.utils.envs import NUM_DIMENSIONS
 
 
 @pytest.mark.asyncio
@@ -39,3 +41,38 @@ async def test_bank_history_is_scoped_to_the_goal(
 
     history = await LessonQuestionRepository(test_db).list_bank_history(goal.id)
     assert [h.question.id for h in history] == [mine.id]
+
+
+@pytest.mark.asyncio
+async def test_list_missing_embeddings_leaves_the_embedded_rows_in_the_database(
+    test_db, test_user, goal_factory, question_factory
+):
+    """The backfill's queue is a query, not a scan (#96).
+
+    The Python side already refuses to send a row whose column is filled, so
+    nothing breaks if this WHERE goes - it just drags the whole table through
+    memory and spends the per-run cap on rows there is no work for. That is
+    what this pins.
+    """
+    goal = await goal_factory(test_user)
+    done = await question_factory(goal, text="already embedded")
+    done.question_embedding = np.zeros(NUM_DIMENSIONS, dtype=np.float32)
+    pending = await question_factory(goal, text="still null")
+    await test_db.flush()
+
+    found = await LessonQuestionRepository(test_db).list_missing_embeddings(10)
+
+    assert [row.id for row in found] == [pending.id]
+
+
+@pytest.mark.asyncio
+async def test_list_missing_embeddings_stops_at_the_cap_it_is_given(
+    test_db, test_user, goal_factory, question_factory
+):
+    """What does not fit tonight is still null tomorrow, which is the queue"""
+    goal = await goal_factory(test_user)
+    for index in range(3):
+        await question_factory(goal, text=f"Q{index}")
+    await test_db.flush()
+
+    assert len(await LessonQuestionRepository(test_db).list_missing_embeddings(2)) == 2

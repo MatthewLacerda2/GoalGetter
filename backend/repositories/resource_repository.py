@@ -41,6 +41,22 @@ class ResourceRepository(BaseRepository[Resource]):
         result = await self.db.execute(stmt)
         return set(result.scalars().all())
 
+    async def list_missing_embeddings(self, limit: int) -> list[Resource]:
+        """Resources whose description embedding is still null, oldest first (#96).
+
+        The resource search already embeds what it stores, so this normally
+        finds only what that call could not finish - which is the whole point
+        of a backfill keyed on null.
+        """
+        stmt = (
+            select(Resource)
+            .where(Resource.description_embedding.is_(None))
+            .order_by(Resource.created_at, Resource.id)
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def update(self, entity: Resource) -> Resource:
         await self.db.flush()
         return entity

@@ -44,6 +44,22 @@ class GoalRepository(BaseRepository[Goal]):
         result = await self.db.execute(stmt)
         return result.scalar_one()
 
+    async def list_missing_embeddings(self, limit: int) -> list[Goal]:
+        """Goals whose description embedding is still null, oldest first (#96).
+
+        A goal may have no description at all (the column is nullable), and
+        such a row is returned like any other: deciding what an empty text
+        means is the backfill's job, not the query's.
+        """
+        stmt = (
+            select(Goal)
+            .where(Goal.description_embedding.is_(None))
+            .order_by(Goal.created_at, Goal.id)
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def update(self, entity: Goal) -> Goal:
         await self.db.flush()
         return entity

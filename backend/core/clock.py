@@ -39,6 +39,14 @@ APP_TIMEZONE = ZoneInfo("America/Sao_Paulo")
 # at which the nightly jobs run. What those jobs do is #89; this is only when.
 NIGHTLY_RUN_HOUR = 3
 
+# Midnight, in APP_TIMEZONE: the hour the embedding backfill runs (#96). The
+# user's own suggestion, and three hours of clearance before NIGHTLY_RUN_HOUR is
+# the point of it - the backfill is the cheap job and must be finished, not
+# competing for the same quota, when the chain starts asking for real
+# generation. What it fills is backend/services/jobs/embeddings.py; this is
+# only when.
+EMBEDDING_RUN_HOUR = 0
+
 
 def now() -> datetime:
     """The current moment, timezone-aware, in UTC. The default of every
@@ -73,18 +81,38 @@ def app_moment(day: date, hour: int = 0, minute: int = 0) -> datetime:
     return local.astimezone(UTC)
 
 
+def _next_run_at(hour: int, after: datetime | None) -> datetime:
+    """The next `hour` in APP_TIMEZONE strictly after `after`, in UTC.
+
+    Shared by the night's two schedules so that "the next time this hour comes
+    round" is written once: only the hours differ, and they are the constants
+    above.
+    """
+    after = as_utc(after if after is not None else now())
+    day = app_date(after)
+    fires = app_moment(day, hour)
+    if fires <= after:
+        fires = app_moment(day + timedelta(days=1), hour)
+    return fires
+
+
 def next_nightly_run(after: datetime | None = None) -> datetime:
     """The next NIGHTLY_RUN_HOUR in APP_TIMEZONE strictly after `after`, in UTC.
 
     What waits on it is `backend/tools/nightly_run.py` (#89); the schedule
     itself lives here so that the hour is defined once and a test can pin it.
     """
-    after = as_utc(after if after is not None else now())
-    day = app_date(after)
-    fires = app_moment(day, NIGHTLY_RUN_HOUR)
-    if fires <= after:
-        fires = app_moment(day + timedelta(days=1), NIGHTLY_RUN_HOUR)
-    return fires
+    return _next_run_at(NIGHTLY_RUN_HOUR, after)
+
+
+def next_embedding_run(after: datetime | None = None) -> datetime:
+    """The next EMBEDDING_RUN_HOUR in APP_TIMEZONE strictly after `after`, in UTC.
+
+    The same process waits on both hours (#96): `backend/tools/nightly_run.py`
+    sleeps to whichever comes first and runs that one job, so the two never
+    overlap however long either takes.
+    """
+    return _next_run_at(EMBEDDING_RUN_HOUR, after)
 
 
 def previous_nightly_run(before: datetime | None = None) -> datetime:
