@@ -74,7 +74,9 @@ class AuthService {
     try {
       final account =
           await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
-      return googleTokenFor(account);
+      // Awaited inside the try so a failure here is caught below, not thrown
+      // to the caller past the catch.
+      return await googleTokenFor(account);
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) return null;
       rethrow;

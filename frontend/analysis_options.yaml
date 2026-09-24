@@ -3,6 +3,16 @@ include: package:very_good_analysis/analysis_options.yaml
 analyzer:
   plugins:
     - custom_lint
+  errors:
+    # custom_lint (and riverpod_lint through it) is a legacy analyzer plugin
+    # and Dart deprecated that system, so a newer analyzer warns about the two
+    # lines above. The warning is about the plugin, not about our code, and
+    # since #101 a warning fails `make front-lint` - on CI, which tracks stable
+    # Flutter, before it fails on a machine one release behind. That machine's
+    # analyzer does not know the code yet and warns about *that*, so both are
+    # silenced here. Drop the pair when custom_lint speaks the new protocol.
+    unrecognized_error_code: ignore
+    analysis_options_deprecated_plugins: ignore
   exclude:
     - "lib/**/*.g.dart"
     - "lib/**/*.freezed.dart"
