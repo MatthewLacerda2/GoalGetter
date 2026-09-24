@@ -4,13 +4,13 @@ Mounted at `/goals` next to `goals.router`. The bank is built by the goal jobs
 (services/jobs/goal_jobs.py), never at request time: an empty bank is a 409.
 """
 
-from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_owned_goal
+from backend.core import clock
 from backend.core.database import get_db
 from backend.models.goal import Goal
 from backend.models.lesson import Lesson
@@ -91,7 +91,7 @@ async def submit_lesson_answers(
     delta = lesson_elo_delta(goal.rating, graded.accuracy)
     new_rating = await GoalRepository(db).add_to_rating(goal.id, delta)
 
-    lesson.finished_at = datetime.now()
+    lesson.finished_at = clock.now()
     lesson.total_seconds, lesson.accuracy = graded.total_seconds, graded.accuracy
     lesson.elo_delta, lesson.elo_after = delta, new_rating
     await lessons.update(lesson)

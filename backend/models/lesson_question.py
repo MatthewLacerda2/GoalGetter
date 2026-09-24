@@ -1,11 +1,11 @@
 import uuid
-from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+from backend.core import clock
 from backend.models.base import Base
 from backend.utils.envs import NUM_DIMENSIONS
 
@@ -31,7 +31,7 @@ class LessonQuestion(Base):
     option_d = Column(String, nullable=False)
 
     correct_option_index = Column(Integer, nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
 
     goal = relationship("Goal", back_populates="lesson_questions")
     answers = relationship("LessonAnswer", back_populates="question", cascade="all, delete-orphan")

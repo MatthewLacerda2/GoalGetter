@@ -1,6 +1,6 @@
 import logging
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 import httpx
 from fastapi import Depends, HTTPException, status
@@ -10,6 +10,7 @@ from google.oauth2 import id_token
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core import clock
 from backend.core.config import settings
 from backend.core.database import get_db
 from backend.models.student import Student
@@ -24,7 +25,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     Create a JWT access token with the given data and expiration time.
     """
     to_encode = data.copy()
-    expire = datetime.now(UTC) + (expires_delta or timedelta(minutes=30))
+    expire = clock.now() + (expires_delta or timedelta(minutes=30))
     to_encode.update(
         {
             "iss": JWT_ISSUER,  # Add issuer claim

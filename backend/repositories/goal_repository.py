@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from sqlalchemy import delete as sql_delete
 from sqlalchemy import select
 from sqlalchemy import update as sql_update
 
+from backend.core import clock
 from backend.models.goal import Goal
 from backend.repositories.base import BaseRepository
 
@@ -38,7 +37,7 @@ class GoalRepository(BaseRepository[Goal]):
         stmt = (
             sql_update(Goal)
             .where(Goal.id == goal_id)
-            .values(rating=Goal.rating + delta, updated_at=datetime.now())
+            .values(rating=Goal.rating + delta, updated_at=clock.now())
             .returning(Goal.rating)
             .execution_options(synchronize_session="fetch")
         )

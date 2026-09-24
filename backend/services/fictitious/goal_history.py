@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core import clock
 from backend.models.chat_message import ChatMessage
 from backend.models.goal import Goal
 from backend.models.lesson import Lesson
@@ -26,14 +27,15 @@ from backend.services.fictitious.history_data import LESSON_SIZE, START_RATING
 
 
 def moment(now: datetime, days_ago: int, hour: int | None, minute: int = 0) -> datetime:
-    """A local, aware moment `days_ago` days before `now`, at `hour:minute`.
-    `hour=None` means "today, a moment ago": `30 - minute` minutes before now, so
-    a lesson (minute 0) lands before the chat about it (minute 20)."""
+    """An aware moment `days_ago` days before `now`, at `hour:minute` on the
+    app's wall clock (#92) - the hours in history_data are the student's, so
+    22:00 has to be 22:00 in APP_TIMEZONE and not in whatever zone the seeder
+    happens to run in. `hour=None` means "today, a moment ago": `30 - minute`
+    minutes before now, so a lesson (minute 0) lands before the chat about it
+    (minute 20)."""
     if hour is None:
         return now - timedelta(minutes=30 - minute)
-    return (now - timedelta(days=days_ago)).replace(
-        hour=hour, minute=minute, second=0, microsecond=0
-    )
+    return clock.app_moment(clock.app_date(now) - timedelta(days=days_ago), hour, minute)
 
 
 def elo_delta(accuracy: float) -> int:

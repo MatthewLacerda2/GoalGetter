@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core import clock
 from backend.models.goal import Goal
 from backend.models.student import Student
 from backend.repositories.goal_repository import GoalRepository
@@ -34,7 +35,7 @@ async def seed_fictitious_student(
     db: AsyncSession, name: str = CLAUDE, fresh: bool = False, now: datetime | None = None
 ) -> SeedResult:
     """Ensure the fictitious student `name` exists with its history, and commit."""
-    now = now or datetime.now().astimezone()
+    now = now or clock.now()
     identity = fictitious_identity(name)
     students, goals = StudentRepository(db), GoalRepository(db)
     student = await students.get_by_google_id(identity.google_id)

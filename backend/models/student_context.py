@@ -1,11 +1,11 @@
 import uuid
-from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+from backend.core import clock
 from backend.models.base import Base
 from backend.utils.envs import NUM_DIMENSIONS
 
@@ -24,7 +24,7 @@ class StudentContext(Base):
     metacognition = Column(String, nullable=False)
     metacognition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     is_still_valid = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
 
     student = relationship("Student", back_populates="student_contexts")
     goal = relationship("Goal", back_populates="student_contexts")

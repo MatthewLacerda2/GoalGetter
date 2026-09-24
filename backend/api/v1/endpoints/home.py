@@ -4,12 +4,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_active_goal
+from backend.core.clock import app_date
 from backend.core.database import get_db
 from backend.models.goal import Goal
 from backend.repositories.lesson_repository import LessonRepository
 from backend.schemas.home import HomeDashboard, RecentLesson
 from backend.services.lessons.elo_history import daily_elo_history
-from backend.services.lessons.streak import local_date, student_streak
+from backend.services.lessons.streak import student_streak
 
 router = APIRouter()
 
@@ -30,7 +31,7 @@ async def get_home(goal: Goal = Depends(get_active_goal), db: AsyncSession = Dep
         recent_lessons=[
             RecentLesson(
                 lesson_id=str(lesson.id),
-                date=local_date(lesson.finished_at),
+                date=app_date(lesson.finished_at),
                 accuracy=lesson.accuracy,
                 elo_delta=lesson.elo_delta,
                 duration_seconds=lesson.total_seconds,

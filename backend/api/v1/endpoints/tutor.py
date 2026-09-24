@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_active_goal
+from backend.core import clock
 from backend.core.database import get_db
 from backend.models.chat_message import ChatMessage
 from backend.models.goal import Goal
@@ -34,7 +35,7 @@ def _history_turns(exchanges: list[ChatMessage]) -> list[GeminiChatMessage]:
     """Oldest first, alternating user / model turns."""
     turns = []
     for ex in sorted(exchanges, key=lambda e: e.created_at):
-        time = ex.created_at.isoformat()
+        time = clock.app_local(ex.created_at).isoformat()
         turns.append(GeminiChatMessage(role="user", message=ex.prompt, time=time))
         turns.append(
             GeminiChatMessage(role="model", message="\n".join(ex.tutor_responses), time=time)
@@ -65,7 +66,9 @@ async def send_message(
     repo = ChatMessageRepository(db)
     history = _history_turns(await repo.list_by_goal(goal.id, HISTORY_WINDOW))
     history.append(
-        GeminiChatMessage(role="user", message=payload.message, time=datetime.now().isoformat())
+        GeminiChatMessage(
+            role="user", message=payload.message, time=clock.app_local(clock.now()).isoformat()
+        )
     )
     contexts = [
         StudentContextToChat(state=c.state, metacognition=c.metacognition)
