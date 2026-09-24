@@ -13,7 +13,7 @@ on:
 
 jobs:
   backend:
-    name: lint · pytest
+    name: lint · dead code · build · pytest
     # `synchronize` also fires for pushes to a draft, so guard here too.
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
