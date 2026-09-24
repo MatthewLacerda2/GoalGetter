@@ -39,11 +39,11 @@ class HomeScreen extends ConsumerWidget {
           error: (err, _) => StateMessage(
             icon: Icons.cloud_off,
             isError: true,
-            title: AppLocalizations.of(context)!.homeLoadFailed,
+            title: AppLocalizations.of(context).homeLoadFailed,
             body: err is ApiException
                 ? err.detail
-                : AppLocalizations.of(context)!.couldNotReachServer,
-            actionLabel: AppLocalizations.of(context)!.homeRetry,
+                : AppLocalizations.of(context).couldNotReachServer,
+            actionLabel: AppLocalizations.of(context).homeRetry,
             onAction: () => ref.invalidate(homeControllerProvider),
           ),
           // null: 404 No active goal.
@@ -106,7 +106,7 @@ class _Dashboard extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Center(
       child: Padding(

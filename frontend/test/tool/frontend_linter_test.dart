@@ -8,6 +8,21 @@ import '../../tool/frontend_linter.dart';
 
 const _screen = 'lib/features/home/presentation/screens/home_screen.dart';
 const _themeFile = 'lib/app/theme/app_theme.dart';
+const _devFile = 'lib/app/dev/dev_menu_screen.dart';
+
+/// One ARB file, as its raw text: the linter reads the files, not a model.
+String _arb(Map<String, String> messages) {
+  final entries = messages.entries
+      .map((e) => '  "${e.key}": "${e.value}"')
+      .join(',\n');
+  return '{\n$entries\n}';
+}
+
+List<String> _projectRules(
+  Map<String, String> dart,
+  Map<String, String> arb,
+) =>
+    projectViolations(dart, arb).map((v) => v.rule).toList();
 
 List<String> _rules(String source, {String path = _screen}) =>
     lintSource(path, source).map((v) => v.rule).toList();
@@ -132,6 +147,131 @@ void main() {
     test('fails at 401 lines and passes at 400', () {
       expect(_rules('${'// line\n' * 401}'), contains('file-length'));
       expect(_rules('${'// line\n' * 400}'), isEmpty);
+    });
+  });
+
+  group('hardcoded-string', () {
+    test('fails on a sentence written in Dart', () {
+      expect(_rules("const t = Text('Retry');"), contains('hardcoded-string'));
+      expect(
+        _rules("const f = TextField(hintText: 'Your answer');"),
+        contains('hardcoded-string'),
+      );
+      expect(
+        _rules("const i = IconButton(tooltip: 'Go back');"),
+        contains('hardcoded-string'),
+      );
+    });
+
+    test('fails on a format that spells a word of its own', () {
+      expect(_rules(r"final t = Text('${days}d');"),
+          contains('hardcoded-string'));
+    });
+
+    test('fails on a literal the screen draws exactly, even punctuation', () {
+      expect(_rules(r"final t = Text('  \u00b7  ');"),
+          contains('hardcoded-string'));
+    });
+
+    test('passes on a string that came from the ARB files', () {
+      expect(_rules('final t = Text(l10n.retry);'), isEmpty);
+      expect(_rules('final t = Text(AppLocalizations.of(context).no);'),
+          isEmpty);
+    });
+
+    test('passes on a value a screen only formats', () {
+      expect(_rules(r"final t = Text('$percent%');"), isEmpty);
+      expect(_rules(r"final t = Text('$index / $total');"), isEmpty);
+      expect(_rules("final t = Text('');"), isEmpty);
+    });
+
+    test('passes inside lib/app/dev/, the menu we run ourselves', () {
+      expect(_rules("const t = Text('Dev menu');", path: _devFile), isEmpty);
+    });
+  });
+
+  group('unused-l10n-key', () {
+    test('fails on a key no Dart file names', () {
+      expect(
+        _projectRules(
+          {'lib/main.dart': 'final s = l10n.kept;'},
+          {'en': _arb({'kept': 'Kept', 'dead': 'Dead'})},
+        ),
+        ['unused-l10n-key'],
+      );
+    });
+
+    test('passes on a key read from code, even inside an interpolation', () {
+      expect(
+        _projectRules(
+          {'lib/main.dart': r"final s = '${l10n.kept} (1)';"},
+          {'en': _arb({'kept': 'Kept'})},
+        ),
+        isEmpty,
+      );
+    });
+
+    test('a key named only inside a string or a comment is dead', () {
+      expect(
+        _projectRules(
+          {'lib/main.dart': "// kept\nfinal s = 'a kept thing';"},
+          {'en': _arb({'kept': 'Kept'})},
+        ),
+        ['unused-l10n-key'],
+      );
+    });
+  });
+
+  group('missing-translation', () {
+    test('fails on a key the template has and another locale does not', () {
+      expect(
+        _projectRules(
+          {'lib/main.dart': 'final s = l10n.hello;'},
+          {'en': _arb({'hello': 'Hello'}), 'pt': _arb({})},
+        ),
+        ['missing-translation'],
+      );
+    });
+
+    test('passes when every locale has every key', () {
+      expect(
+        _projectRules(
+          {'lib/main.dart': 'final s = l10n.hello;'},
+          {'en': _arb({'hello': 'Hello'}), 'pt': _arb({'hello': 'Ola'})},
+        ),
+        isEmpty,
+      );
+    });
+  });
+
+  group('orphan-file', () {
+    test('fails on a file under lib/ that nothing imports', () {
+      expect(
+        _projectRules({'lib/a.dart': '', 'lib/main.dart': ''}, {}),
+        ['orphan-file'],
+      );
+    });
+
+    test('passes on a file a package: or a relative import reaches', () {
+      expect(
+        _projectRules({
+          'lib/a.dart': "import 'package:goal_getter/b.dart';",
+          'lib/b.dart': "import '../lib/c.dart';",
+          'lib/c.dart': '',
+          'lib/main.dart': "import 'a.dart';",
+        }, {}),
+        isEmpty,
+      );
+    });
+
+    test('a file only a test reaches is reached', () {
+      expect(
+        _projectRules({
+          'lib/a.dart': '',
+          'test/a_test.dart': "import 'package:goal_getter/a.dart';",
+        }, {}),
+        isEmpty,
+      );
     });
   });
 }

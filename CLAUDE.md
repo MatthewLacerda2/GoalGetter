@@ -103,7 +103,12 @@ the backend tests; if it fails, you have things to fix.
   easier to read — it keeps the exemption either way. No prompt needs the
   marker today: every one of them is far under 350 lines.
 - **50 lines** per endpoint and per test function.
-- **400 lines** per hand-written `.dart` file.
+- **400 lines** per hand-written `.dart` file, and **60 code lines** per
+  function. `make front-lint` (`frontend/tool/frontend_linter.dart`) enforces
+  those, that the theme is the only source of colour, type, radius and spacing,
+  and that every string a student reads comes from the ARB files — a key read
+  nowhere, a key missing from a locale, a sentence written in Dart and a file
+  under `lib/` nobody imports all fail it.
 - **Database access only through `backend/repositories/`.** No `select` /
   `insert` / `update` / `delete` imports and no `db.execute` / `db.add` /
   `db.delete` anywhere else.
@@ -288,9 +293,9 @@ remind him and ask.
   `POST /auth/dev-login`; `make claude-token` (honours `BACKEND_PORT`) writes a
   bearer for "Fictitious Claude" to `.claude/token`, and a Flutter build with
   `--dart-define=DEV_LOGIN=true` offers the same sign-in on the start screen.
-- **Analyzer backlog: 27 warnings, 533 infos** (2026-09-21, after integration), so CI runs `flutter
-  analyze` with `--no-fatal-warnings --no-fatal-infos`. Next step: clear the
-  warnings (mostly mechanical) and let them block.
+- **Analyzer backlog: 0 warnings, 412 infos** (2026-09-24, #101). A warning now
+  fails `make front-lint`; the infos are a separate, larger backlog and still
+  only report (`--no-fatal-infos`). Next step: clear them and let them block too.
 - **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the
   tailnet name) is not enabled on this tailnet yet; the user enables it once from the
   admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google

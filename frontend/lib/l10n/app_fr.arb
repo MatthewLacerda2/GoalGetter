@@ -4,10 +4,6 @@
     "@language": {
         "description": "The current language"
     },
-    "skip": "Passer",
-    "@skip": {
-        "description": "Label for skip button"
-    },
     "next": "Suivant",
     "@next": {
         "description": "Label for next button"
@@ -44,49 +40,9 @@
     "@yourAnswer": {
         "description": "Label for your answer"
     },
-    "pleaseAnswerThisQuestion": "Veuillez répondre à cette question",
-    "@pleaseAnswerThisQuestion": {
-        "description": "Validation message for empty answer"
-    },
-    "dayStreak": "jours de série !",
-    "@dayStreak": {
-        "description": "Label para dias de streak"
-    },
     "continuate": "Continuez !",
     "@continuate": {
         "description": "Label para botão continuar"
-    },
-    "sundayShort": "Dim",
-    "@sundayShort": {
-        "description": "Label for sunday short"
-    },
-    "mondayShort": "Lun",
-    "@mondayShort": {
-        "description": "Label for monday short"
-    },
-    "tuesdayShort": "Mar",
-    "@tuesdayShort": {
-        "description": "Label for tuesday short"
-    },
-    "wednesdayShort": "Mer",
-    "@wednesdayShort": {
-        "description": "Label for wednesday short"
-    },
-    "thursdayShort": "Jeu",
-    "@thursdayShort": {
-        "description": "Label for thursday short"
-    },
-    "fridayShort": "Ven",
-    "@fridayShort": {
-        "description": "Label for friday short"
-    },
-    "saturdayShort": "Sam",
-    "@saturdayShort": {
-        "description": "Label for saturday short"
-    },
-    "book": "Livre",
-    "@book": {
-        "description": "Label for book"
     },
     "youtube": "Youtube",
     "@youtube": {
@@ -96,10 +52,6 @@
     "@sites": {
         "description": "Label for sites"
     },
-    "notes": "Notes",
-    "@notes": {
-        "description": "Label for notes"
-    },
     "progress": "Progrès",
     "@progress": {
         "description": "Label for progress"
@@ -108,17 +60,9 @@
     "@typeYourMessage": {
         "description": "Label for type your message"
     },
-    "objective": "Objectif",
-    "@objective": {
-        "description": "Label for objective"
-    },
     "tutor": "Tuteur",
     "@tutor": {
         "description": "Label for tutor"
-    },
-    "awards": "Récompenses",
-    "@awards": {
-        "description": "Label for resources"
     },
     "resources": "Ressources",
     "@resources": {
@@ -128,37 +72,9 @@
     "@profile": {
         "description": "Label for profile"
     },
-    "trailwayToYourGoal": "Un chemin donné vers votre objectif",
-    "@trailwayToYourGoal": {
-        "description": "Label for trailway to your goal"
-    },
-    "yourNextTarget": "Votre prochaine cible. Prenez les matériaux et exercices que nous avons pour vous",
-    "@yourNextTarget": {
-        "description": "Label for your next target"
-    },
     "evaluation": "Évaluation",
     "@evaluation": {
         "description": "Label for evaluation"
-    },
-    "evaluationDescription": "Quelques exercices pour vous apprendre et montrer que vous avez appris",
-    "@evaluationDescription": {
-        "description": "Label for evaluation description"
-    },
-    "tutorDescription": "Nous avons quelqu'un pour vous donner des conseils, répondre aux questions et vous guider",
-    "@tutorDescription": {
-        "description": "Label for tutor description"
-    },
-    "awardsDescription": "Vos étapes et progrès listés ! Faites-en votre galerie !",
-    "@awardsDescription": {
-        "description": "Label for awards description"
-    },
-    "goGetEmTiger": "C'est parti !",
-    "@goGetEmTiger": {
-        "description": "Label for go get em tiger"
-    },
-    "goGetEmTigerDescription": "Explorez. Rêvez. Découvrez.",
-    "@goGetEmTigerDescription": {
-        "description": "Label for go get em tiger description"
     },
     "nowLetSCorrectYourMistakes": "Maintenant, corrigeons vos erreurs",
     "@nowLetSCorrectYourMistakes": {
@@ -192,10 +108,6 @@
     "@delete": {
         "description": "Label for delete"
     },
-    "comingSoon": "Bientôt disponible",
-    "@comingSoon": {
-        "description": "Label for coming soon"
-    },
     "untitledGoal": "Objectif sans nom",
     "@untitledGoal": {
         "description": "Label for untitled goal"
@@ -203,18 +115,6 @@
     "areYouSureYouWantToDeleteThisGoal": "Êtes-vous sûr de vouloir supprimer cet objectif? Cette action ne peut pas être annulée.",
     "@areYouSureYouWantToDeleteThisGoal": {
         "description": "Label for are you sure you want to delete this goal"
-    },
-    "warning": "Avertissement",
-    "@warning": {
-        "description": "Label for warning"
-    },
-    "deleteGoalWarningDescription": "Cela supprimera l'objectif et tous ses objectifs de façon permanente. Cette action ne peut pas être annulée. Êtes-vous absolument sûr?",
-    "@deleteGoalWarningDescription": {
-        "description": "Label for delete goal warning description"
-    },
-    "selectGoal": "Sélectionner un Objectif",
-    "@selectGoal": {
-        "description": "Label for select goal"
     },
     "noGoalsFound": "Aucun objectif trouvé",
     "@noGoalsFound": {
@@ -231,26 +131,6 @@
     "studyPlan": "Plan de étude",
     "@studyPlan": {
         "description": "Label for study plan"
-    },
-    "firstObjective": "Premier Objectif",
-    "@firstObjective": {
-        "description": "Label for first objective"
-    },
-    "milestones": "Étapes Importantes",
-    "@milestones": {
-        "description": "Label for milestones"
-    },
-    "confirmQuestion": "Êtes-vous sûr?",
-    "@confirmQuestion": {
-        "description": "Label for confirm question"
-    },
-    "no": "Non",
-    "@no": {
-        "description": "Label for no"
-    },
-    "yes": "Oui",
-    "@yes": {
-        "description": "Label for yes"
     },
     "yourMentor": "Votre mentor personnalisé!",
     "@yourMentor": {
@@ -312,12 +192,6 @@
     "@noLessonsYet": { "description": "Empty state for lessons and chart" },
     "yourProgress": "Votre progression",
     "@yourProgress": { "description": "Heading for the elo progress chart" },
-    "last7Days": "7 jours",
-    "@last7Days": { "description": "7 day chart filter" },
-    "last30Days": "30 jours",
-    "@last30Days": { "description": "30 day chart filter" },
-    "last90Days": "90 jours",
-    "@last90Days": { "description": "90 day chart filter" },
     "noActiveGoal": "Aucun objectif actif",
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Gérer les objectifs",
@@ -332,8 +206,6 @@
     "@videos": { "description": "Resources tab: videos" },
     "guides": "Guides",
     "@guides": { "description": "Resources tab: guides" },
-    "studyPlanIntro": "TON PLAN D'ÉTUDE",
-    "@studyPlanIntro": { "description": "Study plan: eyebrow label above the goal name" },
     "startOver": "Recommencer",
     "@startOver": { "description": "Study plan: reject and return to the goal prompt" },
     "startLearning": "Commencer",
@@ -393,5 +265,9 @@
     "onboardingReviewAnswers": "Revoir mes réponses",
     "onboardingIntroContinue": "C'est parti",
     "startWithGoogle": "Commencer avec Google",
-    "signingIn": "Connexion..."
+    "signingIn": "Connexion...",
+    "appWordmark": "Goal Getter",
+    "chartRangeDays": "{days}j",
+    "profileVersionTag": "ELO · v0.1 prototype",
+    "statSeparator": "  ·  "
 }

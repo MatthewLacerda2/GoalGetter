@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 class ErrorRetryWidget extends StatelessWidget {
   final String errorMessage;
   final VoidCallback onRetry;
@@ -19,7 +20,7 @@ class ErrorRetryWidget extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Text(
-              'Error: $errorMessage',
+              errorMessage,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
               textAlign: TextAlign.center,
             ),
@@ -32,7 +33,7 @@ class ErrorRetryWidget extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(150, 48),
               ),
-              child: Text('Retry'),
+              child: Text(AppLocalizations.of(context).retry),
             ),
           ),
         ],

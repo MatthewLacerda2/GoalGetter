@@ -31,7 +31,7 @@ class _EloChartState extends State<EloChart> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final points = _visiblePoints;
 
     return Container(
@@ -200,7 +200,7 @@ class _RangeSelector extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.card),
               ),
               child: Text(
-                '${days}d',
+                AppLocalizations.of(context).chartRangeDays(days),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: isSelected
                       ? Theme.of(context).colorScheme.surface

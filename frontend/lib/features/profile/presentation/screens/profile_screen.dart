@@ -43,7 +43,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final currentLanguage = ref.watch(localeProvider).languageCode;
     final profile = ref.watch(profileControllerProvider);
     final goalsCount =
@@ -74,7 +74,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const SizedBox(height: 20),
               Center(
                 child: Text(
-                  'ELO · v0.1 prototype',
+                  l10n.profileVersionTag,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         letterSpacing: 1.5,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -231,7 +231,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         onPressed: _handleSignOut,
         icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
         label: Text(
-          AppLocalizations.of(context)!.signOut,
+          AppLocalizations.of(context).signOut,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
             color: Theme.of(context).colorScheme.error,
           ),
@@ -295,19 +295,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.signOut),
-          content: Text(AppLocalizations.of(context)!.areYouSure),
+          title: Text(AppLocalizations.of(context).signOut),
+          content: Text(AppLocalizations.of(context).areYouSure),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: Text(AppLocalizations.of(context)!.signOut),
+              child: Text(AppLocalizations.of(context).signOut),
             ),
           ],
         );
