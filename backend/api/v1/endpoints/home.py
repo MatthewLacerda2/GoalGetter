@@ -1,4 +1,5 @@
 """GET /home: the dashboard for the active goal (students.current_goal_id)."""
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 

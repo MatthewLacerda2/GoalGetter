@@ -26,7 +26,9 @@ def grade_lesson(lesson_id, served: list[LessonQuestion], submitted: list) -> Gr
     by_id = {q.id: q for q in served}
     ids = [a.question_id for a in submitted]
     if len(set(ids)) != len(ids) or not set(ids) <= set(by_id):
-        raise UnservedQuestionError("Every answer must name a distinct question served in this lesson")
+        raise UnservedQuestionError(
+            "Every answer must name a distinct question served in this lesson"
+        )
 
     answers = [
         LessonAnswer(

@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from backend.services.gemini.onboarding.schema import GeminiStudyPlan
 
 PLAN = GeminiStudyPlan(

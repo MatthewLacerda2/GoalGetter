@@ -16,7 +16,12 @@ def url(goal_id, lesson_id):
 
 
 def answer(question, choice, seconds=10, **extra):
-    return {"question_id": str(question.id), "choice_index": choice, "seconds_spent": seconds, **extra}
+    return {
+        "question_id": str(question.id),
+        "choice_index": choice,
+        "seconds_spent": seconds,
+        **extra,
+    }
 
 
 @pytest_asyncio.fixture
@@ -44,9 +49,17 @@ async def test_answers_are_graded_server_side_and_move_the_rating(auth_client, t
     await test_db.refresh(goal)
     assert goal.rating == 1207
     lesson = await LessonRepository(test_db).get_by_id(lesson_id)
-    assert (lesson.accuracy, lesson.total_seconds, lesson.elo_delta, lesson.elo_after) == (50.0, 30, 7, 1207)
+    assert (lesson.accuracy, lesson.total_seconds, lesson.elo_delta, lesson.elo_after) == (
+        50.0,
+        30,
+        7,
+        1207,
+    )
     assert lesson.finished_at is not None
-    stored = {a.question_id: a.is_correct for a in await LessonAnswerRepository(test_db).list_by_lesson(lesson.id)}
+    stored = {
+        a.question_id: a.is_correct
+        for a in await LessonAnswerRepository(test_db).list_by_lesson(lesson.id)
+    }
     assert stored == {first.id: True, second.id: False}
 
 

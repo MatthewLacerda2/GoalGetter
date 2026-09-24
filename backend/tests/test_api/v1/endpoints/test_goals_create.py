@@ -1,17 +1,25 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 from sqlalchemy import select
+
 from backend.models.goal import Goal
 from backend.services.gemini.onboarding.schema import (
-    IntroIcon,
     GeminiIntroductionScreen,
     GeminiIntroductionScreens,
+    IntroIcon,
 )
 
-INTRO = GeminiIntroductionScreens(screens=[
-    GeminiIntroductionScreen(icon=IntroIcon.rocket_launch, title="Let's go", text="Your journey starts now."),
-    GeminiIntroductionScreen(icon=IntroIcon.lightbulb, title="Bite-sized", text="A little every day adds up."),
-])
+INTRO = GeminiIntroductionScreens(
+    screens=[
+        GeminiIntroductionScreen(
+            icon=IntroIcon.rocket_launch, title="Let's go", text="Your journey starts now."
+        ),
+        GeminiIntroductionScreen(
+            icon=IntroIcon.lightbulb, title="Bite-sized", text="A little every day adds up."
+        ),
+    ]
+)
 
 ENDPOINT = "/api/v1/goals"
 INTRO_GEN = "backend.api.v1.endpoints.goals.generate_introduction_screens"
@@ -28,8 +36,11 @@ BODY = {
 @pytest.mark.asyncio
 async def test_create_goal_persists_and_returns_intro(auth_client, test_db, test_user):
     """Authed commit: persists the goal, sets it active, fires async jobs, returns intro screens"""
-    with patch(INTRO_GEN, return_value=INTRO), \
-         patch(RESOURCES) as resources, patch(LESSONS) as lessons:
+    with (
+        patch(INTRO_GEN, return_value=INTRO),
+        patch(RESOURCES) as resources,
+        patch(LESSONS) as lessons,
+    ):
         response = await auth_client.post(ENDPOINT, json=BODY)
 
     assert response.status_code == 201
@@ -37,7 +48,9 @@ async def test_create_goal_persists_and_returns_intro(auth_client, test_db, test
     assert body["name"] == "Play guitar"
     assert len(body["introduction_screen_data"]) == 2
     assert body["introduction_screen_data"][0] == {
-        "icon": "rocket_launch", "title": "Let's go", "text": "Your journey starts now."
+        "icon": "rocket_launch",
+        "title": "Let's go",
+        "text": "Your journey starts now.",
     }
 
     goal = (await test_db.execute(select(Goal).where(Goal.id == body["id"]))).scalar_one()

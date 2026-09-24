@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from backend.api.v1.endpoints import auth, goals, home, lessons, me, resources, tutor
 
 router = APIRouter()

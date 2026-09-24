@@ -1,7 +1,9 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, Index
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
+
 from backend.models.base import Base
 
 
@@ -17,10 +19,9 @@ class Lesson(Base):
     to another change); deleting a goal removes its lessons through the
     database-level cascade on `goal_id`.
     """
+
     __tablename__ = "lessons"
-    __table_args__ = (
-        Index('idx_lesson_goal_id_created_at', 'goal_id', 'created_at'),
-    )
+    __table_args__ = (Index("idx_lesson_goal_id_created_at", "goal_id", "created_at"),)
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)

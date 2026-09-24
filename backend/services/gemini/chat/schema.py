@@ -1,12 +1,15 @@
 from pydantic import BaseModel
 
+
 class GeminiChatResponse(BaseModel):
     messages: list[str]
+
 
 class GeminiChatMessage(BaseModel):
     message: str
     role: str
     time: str
+
 
 class StudentContextToChat(BaseModel):
     state: str | None = None

@@ -1,6 +1,9 @@
 """POST /auth/dev-login: the fictitious sign-in behind the DEV_LOGIN setting."""
-import pytest
+
 from unittest.mock import patch
+
+import pytest
+
 from backend.core.config import settings
 from backend.schemas.student import TokenResponse
 

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.api.v1.goal_dependencies import get_active_goal
 from backend.core.database import get_db
 from backend.models.goal import Goal
@@ -26,10 +27,12 @@ async def list_resources(
     a goal whose background search has not finished yet has three empty lists."""
     groups: dict[str, list[ResourceItem]] = {group: [] for group in GROUP_BY_TYPE.values()}
     for resource in await ResourceRepository(db).list_by_goal(goal.id):
-        groups[GROUP_BY_TYPE[resource.resource_type]].append(ResourceItem(
-            name=resource.name,
-            description=resource.description,
-            url=resource.link,
-            image_url=resource.image_url,
-        ))
+        groups[GROUP_BY_TYPE[resource.resource_type]].append(
+            ResourceItem(
+                name=resource.name,
+                description=resource.description,
+                url=resource.link,
+                image_url=resource.image_url,
+            )
+        )
     return ResourcesResponse(**groups)

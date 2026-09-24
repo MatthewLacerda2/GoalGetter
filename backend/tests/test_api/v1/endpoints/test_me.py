@@ -14,8 +14,11 @@ async def test_me_is_the_signed_in_students_profile(auth_client, test_user):
     assert response.status_code == 200
     body = response.json()
     assert body == {
-        "id": str(test_user.id), "name": test_user.name, "email": test_user.email,
-        "member_since": body["member_since"], "current_streak": 0,
+        "id": str(test_user.id),
+        "name": test_user.name,
+        "email": test_user.email,
+        "member_since": body["member_since"],
+        "current_streak": 0,
     }
     assert datetime.fromisoformat(body["member_since"]) == test_user.created_at
 

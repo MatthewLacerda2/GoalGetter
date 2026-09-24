@@ -23,11 +23,13 @@ async def test_real_channel_is_kept_and_its_picture_stored(monkeypatch):
     """A channel the Data API knows survives, and its avatar lands on the resource"""
     monkeypatch.setattr(MODULE + ".YOUTUBE_API_KEY", "test-key")
     resource = make(StudyResourceType.youtube, CHANNEL_URL)
-    client = FakeClient({
-        "youtube/v3/channels": FakeResponse(
-            200, payload=youtube_payload({"high": {"url": AVATAR}})
-        )
-    })
+    client = FakeClient(
+        {
+            "youtube/v3/channels": FakeResponse(
+                200, payload=youtube_payload({"high": {"url": AVATAR}})
+            )
+        }
+    )
 
     kept = await validate_resources([resource], client=client)
 
@@ -40,9 +42,7 @@ async def test_channel_without_a_picture_is_dropped(monkeypatch):
     """The profile-picture rule: no avatar means we do not keep it"""
     monkeypatch.setattr(MODULE + ".YOUTUBE_API_KEY", "test-key")
     resource = make(StudyResourceType.youtube, CHANNEL_URL)
-    client = FakeClient({
-        "youtube/v3/channels": FakeResponse(200, payload=youtube_payload({}))
-    })
+    client = FakeClient({"youtube/v3/channels": FakeResponse(200, payload=youtube_payload({}))})
 
     assert await validate_resources([resource], client=client) == []
 
@@ -62,11 +62,13 @@ async def test_private_video_is_dropped(monkeypatch):
     """A video that exists but is not public is useless to a student"""
     monkeypatch.setattr(MODULE + ".YOUTUBE_API_KEY", "test-key")
     resource = make(StudyResourceType.youtube, "https://youtu.be/abcdefghijk")
-    client = FakeClient({
-        "youtube/v3/videos": FakeResponse(
-            200, payload=youtube_payload({"high": {"url": AVATAR}}, privacy="private")
-        )
-    })
+    client = FakeClient(
+        {
+            "youtube/v3/videos": FakeResponse(
+                200, payload=youtube_payload({"high": {"url": AVATAR}}, privacy="private")
+            )
+        }
+    )
 
     assert await validate_resources([resource], client=client) == []
 

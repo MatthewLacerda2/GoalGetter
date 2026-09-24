@@ -1,5 +1,6 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.core.database import AsyncSessionLocal
 from backend.models.student import Student
 from backend.tests.fixtures.database import test_engine

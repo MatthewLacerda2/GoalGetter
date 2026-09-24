@@ -3,6 +3,7 @@
 Mounted at `/goals` next to `goals.router`. The bank is built by the goal jobs
 (services/jobs/goal_jobs.py), never at request time: an empty bank is a 409.
 """
+
 from datetime import datetime
 from uuid import UUID
 
@@ -35,7 +36,9 @@ LESSON_NOT_FOUND = "Lesson not found"
 LESSON_ALREADY_ANSWERED = "Lesson already answered"
 
 
-@router.post("/{goal_id}/lessons", response_model=LessonResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{goal_id}/lessons", response_model=LessonResponse, status_code=status.HTTP_201_CREATED
+)
 async def start_lesson(goal: Goal = Depends(get_owned_goal), db: AsyncSession = Depends(get_db)):
     """Open a lesson: pick its questions from the bank (see select_lesson_questions)."""
     bank = await LessonQuestionRepository(db).list_bank_history(goal.id)
@@ -80,7 +83,9 @@ async def submit_lesson_answers(
     try:
         graded = grade_lesson(lesson.id, served, payload.answers)
     except UnservedQuestionError as err:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(err))
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(err)
+        ) from err
     await LessonAnswerRepository(db).create_many(graded.answers)
 
     delta = lesson_elo_delta(goal.rating, graded.accuracy)

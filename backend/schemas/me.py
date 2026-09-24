@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class UserProfile(BaseModel):
     """GET /me: the signed-in student's profile header."""
+
     id: str
     name: str
     email: str

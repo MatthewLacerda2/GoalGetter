@@ -4,6 +4,7 @@
 The name prefix is the only marker that a student is fictitious (decided in
 #51, no database flag).
 """
+
 import re
 from dataclasses import dataclass
 

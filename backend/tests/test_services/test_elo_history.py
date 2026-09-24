@@ -14,7 +14,8 @@ def test_one_point_per_day_with_that_days_last_rating_oldest_first():
     points = daily_elo_history(lessons)
 
     assert [(p.date.isoformat(), p.elo) for p in points] == [
-        ("2026-09-01", 1210), ("2026-09-03", 1190),
+        ("2026-09-01", 1210),
+        ("2026-09-03", 1190),
     ]
 
 

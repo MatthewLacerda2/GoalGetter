@@ -1,5 +1,6 @@
 from backend.schemas.goal import ObjectiveAnswer
 
+
 def get_study_plan_prompt(prompt: str, answers: list[ObjectiveAnswer]) -> str:
 
     answers_text = "\n".join([f"- {a.question}: {a.answer}" for a in answers])

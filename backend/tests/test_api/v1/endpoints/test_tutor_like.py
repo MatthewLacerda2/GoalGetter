@@ -1,6 +1,6 @@
 import uuid
+
 import pytest
-from backend.tests.fixtures.chat import exchange_factory  # noqa: F401
 
 
 def like_url(exchange_id):
@@ -33,7 +33,9 @@ async def test_like_someone_elses_exchange_is_404(
 
 
 @pytest.mark.asyncio
-async def test_like_without_active_goal_is_404(auth_client, test_user, goal_factory, exchange_factory):
+async def test_like_without_active_goal_is_404(
+    auth_client, test_user, goal_factory, exchange_factory
+):
     [exchange] = await exchange_factory(await goal_factory(test_user))
     response = await auth_client.put(like_url(exchange.id), json={"is_liked": True})
     assert response.status_code == 404

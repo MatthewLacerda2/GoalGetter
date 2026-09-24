@@ -1,9 +1,7 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -16,9 +14,10 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from backend.models.base import Base
-# Import all models so Alembic can discover them
-from backend.models import *
+# Importing the package registers every model on Base.metadata (see
+# backend/models/__init__.py), which is what autogenerate reads.
+from backend.models import Base  # noqa: E402 - must follow the config block above
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -41,14 +40,14 @@ def run_migrations_offline() -> None:
     """
     # Read DATABASE_URL from environment variables
     from backend.core.config import settings
-    
+
     # Use DATABASE_URL from settings (which reads from .env)
     url = settings.DATABASE_URL
-    
+
     # Convert asyncpg URL to psycopg2 URL for Alembic (Alembic needs sync driver)
     if url.startswith("postgresql+asyncpg://"):
         url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
-    
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -69,17 +68,17 @@ def run_migrations_online() -> None:
     """
     # Read DATABASE_URL from environment variables
     from backend.core.config import settings
-    
+
     # Use DATABASE_URL from settings (which reads from .env)
     database_url = settings.DATABASE_URL
-    
+
     # Convert asyncpg URL to psycopg2 URL for Alembic (Alembic needs sync driver)
     if database_url.startswith("postgresql+asyncpg://"):
         database_url = database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
-    
+
     # Override the config with the environment-based URL
     config.set_main_option("sqlalchemy.url", database_url)
-    
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -87,9 +86,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

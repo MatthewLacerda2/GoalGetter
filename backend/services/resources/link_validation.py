@@ -5,6 +5,7 @@ simply invented. Nothing here raises: a resource that fails its check is quietly
 dropped, because no user is waiting on the answer (this runs in the background
 job kicked off after goal creation).
 """
+
 import asyncio
 import logging
 import re
@@ -161,7 +162,7 @@ async def validate_resources(
             await client.aclose()
 
     kept = []
-    for resource, verdict in zip(resources, verdicts):
+    for resource, verdict in zip(resources, verdicts, strict=True):
         if isinstance(verdict, BaseException):
             logger.warning("Dropping %s: check errored (%s)", resource.link, verdict)
         elif verdict:

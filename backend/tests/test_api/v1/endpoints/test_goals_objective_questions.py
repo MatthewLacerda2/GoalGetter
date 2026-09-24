@@ -1,19 +1,29 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 from google.genai.errors import APIError
+
 from backend.services.gemini.onboarding.schema import (
     GeminiGoalValidation,
     GeminiOnboardingQuestionsResponse,
     OnboardingQuestionItem,
 )
 
-VALID = GeminiGoalValidation(makes_sense=True, is_harmless=True, is_achievable=True, reasoning="learn to play guitar")
-INVALID = GeminiGoalValidation(makes_sense=False, is_harmless=True, is_achievable=True, reasoning="that is not a goal")
+VALID = GeminiGoalValidation(
+    makes_sense=True, is_harmless=True, is_achievable=True, reasoning="learn to play guitar"
+)
+INVALID = GeminiGoalValidation(
+    makes_sense=False, is_harmless=True, is_achievable=True, reasoning="that is not a goal"
+)
 
-QUESTIONS = GeminiOnboardingQuestionsResponse(questions=[
-    OnboardingQuestionItem(question=f"Q{i}", option_a="a", option_b="b", option_c="c", option_d="d")
-    for i in range(5)
-])
+QUESTIONS = GeminiOnboardingQuestionsResponse(
+    questions=[
+        OnboardingQuestionItem(
+            question=f"Q{i}", option_a="a", option_b="b", option_c="c", option_d="d"
+        )
+        for i in range(5)
+    ]
+)
 
 ENDPOINT = "/api/v1/goals/objective-questions"
 VALIDATE = "backend.api.v1.endpoints.goals.get_prompt_validation"

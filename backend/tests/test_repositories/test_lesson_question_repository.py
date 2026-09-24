@@ -15,10 +15,18 @@ async def test_bank_history_reports_only_the_latest_answer(
     await answer_factory(redeemed, correct=False, answered_at=at(1))
     await answer_factory(redeemed, correct=True, answered_at=at(2))
 
-    history = {h.question.id: h for h in await LessonQuestionRepository(test_db).list_bank_history(goal.id)}
+    history = {
+        h.question.id: h for h in await LessonQuestionRepository(test_db).list_bank_history(goal.id)
+    }
 
-    assert (history[redeemed.id].last_was_correct, history[redeemed.id].last_answered_at) == (True, at(2))
-    assert (history[untouched.id].last_was_correct, history[untouched.id].last_answered_at) == (None, None)
+    assert (history[redeemed.id].last_was_correct, history[redeemed.id].last_answered_at) == (
+        True,
+        at(2),
+    )
+    assert (history[untouched.id].last_was_correct, history[untouched.id].last_answered_at) == (
+        None,
+        None,
+    )
 
 
 @pytest.mark.asyncio

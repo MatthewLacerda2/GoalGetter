@@ -15,6 +15,7 @@ def select_lesson_questions(bank: list[QuestionHistory], size: int) -> list[Less
     bank always yields the same lesson. Question embeddings (reuse across
     students) are not used yet.
     """
+
     def created(entry: QuestionHistory):
         return (entry.question.created_at, str(entry.question.id))
 

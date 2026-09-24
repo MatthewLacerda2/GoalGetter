@@ -1,14 +1,17 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Integer, CheckConstraint, ForeignKey
+
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from backend.models.base import Base
+
 
 class Student(Base):
     __tablename__ = "students"
     __table_args__ = (
-        CheckConstraint('progress_rating >= 0', name='check_progress_rating_non_negative'),
+        CheckConstraint("progress_rating >= 0", name="check_progress_rating_non_negative"),
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -30,9 +33,17 @@ class Student(Base):
     # foreign_keys is required now that two FKs join students<->goals, otherwise
     # SQLAlchemy can't tell which one this relationship rides on.
     goals = relationship(
-        "Goal", back_populates="student", cascade="all, delete-orphan",
+        "Goal",
+        back_populates="student",
+        cascade="all, delete-orphan",
         foreign_keys="Goal.student_id",
     )
-    chat_messages = relationship("ChatMessage", back_populates="student", cascade="all, delete-orphan")
-    student_contexts = relationship("StudentContext", back_populates="student", cascade="all, delete-orphan")
-    refresh_tokens = relationship("RefreshToken", back_populates="student", cascade="all, delete-orphan")
+    chat_messages = relationship(
+        "ChatMessage", back_populates="student", cascade="all, delete-orphan"
+    )
+    student_contexts = relationship(
+        "StudentContext", back_populates="student", cascade="all, delete-orphan"
+    )
+    refresh_tokens = relationship(
+        "RefreshToken", back_populates="student", cascade="all, delete-orphan"
+    )

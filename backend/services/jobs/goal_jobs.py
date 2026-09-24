@@ -8,6 +8,7 @@ lessons: a daily check that skips users who did no lessons).
 Nothing here is allowed to fail the request that started it, so every job is
 wrapped and its errors are logged rather than raised.
 """
+
 import asyncio
 import logging
 
@@ -54,9 +55,7 @@ async def scrape_resources(goal_id: str) -> int:
     return len(fresh)
 
 
-async def generate_lessons(
-    goal_id: str, prompt: str, answers: list[tuple[str, str]]
-) -> int:
+async def generate_lessons(goal_id: str, prompt: str, answers: list[tuple[str, str]]) -> int:
     """Build the goal's first lesson bank from the onboarding. Returns how many
     questions were stored.
 
@@ -74,25 +73,38 @@ async def generate_lessons(
         context = await asyncio.to_thread(
             gemini_generate_student_context, goal.name, goal.description, prompt, answers
         )
-        await StudentContextRepository(session).create(StudentContext(
-            student_id=goal.student_id, goal_id=goal.id,
-            state=context.state, metacognition=context.metacognition,
-        ))
+        await StudentContextRepository(session).create(
+            StudentContext(
+                student_id=goal.student_id,
+                goal_id=goal.id,
+                state=context.state,
+                metacognition=context.metacognition,
+            )
+        )
         await session.commit()
 
         generated = await asyncio.to_thread(
-            generate_lesson_questions, goal.name, goal.description, goal.rating,
-            context.state, context.metacognition,
+            generate_lesson_questions,
+            goal.name,
+            goal.description,
+            goal.rating,
+            context.state,
+            context.metacognition,
         )
         # A question whose correct index is out of range would fail the table's
         # check constraint and take the whole batch with it: drop just that one.
         questions = [
             LessonQuestion(
-                goal_id=goal.id, question=q.question,
-                option_a=q.option_a, option_b=q.option_b, option_c=q.option_c, option_d=q.option_d,
+                goal_id=goal.id,
+                question=q.question,
+                option_a=q.option_a,
+                option_b=q.option_b,
+                option_c=q.option_c,
+                option_d=q.option_d,
                 correct_option_index=q.correct_option_index,
             )
-            for q in generated.questions if 0 <= q.correct_option_index <= 3
+            for q in generated.questions
+            if 0 <= q.correct_option_index <= 3
         ]
         await LessonQuestionRepository(session).create_many(questions)
         await session.commit()
