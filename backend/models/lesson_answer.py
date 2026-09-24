@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 
 from sqlalchemy import (
     Boolean,
@@ -14,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+from backend.core import clock
 from backend.models.base import Base
 
 
@@ -43,6 +43,6 @@ class LessonAnswer(Base):
     selected_option_index = Column(Integer, nullable=False)
     is_correct = Column(Boolean, nullable=False)
     time_spent = Column(Integer, nullable=True)  # Time spent in seconds
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
 
     question = relationship("LessonQuestion", back_populates="answers")

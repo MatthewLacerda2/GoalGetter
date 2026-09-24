@@ -1,9 +1,10 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core import clock
 from backend.core.config import settings
 from backend.core.database import get_db
 from backend.core.security import (
@@ -40,7 +41,7 @@ async def _token_response(db: AsyncSession, student: Student) -> TokenResponse:
         RefreshToken(
             student_id=student.id,
             token=refresh_token_str,
-            expires_at=datetime.now() + timedelta(days=30),
+            expires_at=clock.now() + timedelta(days=30),
         )
     )
     await db.commit()
@@ -71,7 +72,7 @@ async def signup(
             )
         )
     else:
-        user.last_login = datetime.now()
+        user.last_login = clock.now()
         await student_repo.update(user)
     return await _token_response(db, user)
 
@@ -86,7 +87,7 @@ async def login(oauth_data: OAuth2Request, db: AsyncSession = Depends(get_db)):
     user = await student_repo.get_by_google_id(user_info["sub"])
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    user.last_login = datetime.now()
+    user.last_login = clock.now()
     await student_repo.update(user)
     return await _token_response(db, user)
 
@@ -118,7 +119,7 @@ async def dev_login(payload: DevLoginRequest, db: AsyncSession = Depends(get_db)
             Student(email=identity.email, google_id=identity.google_id, name=identity.name)
         )
     else:
-        student.last_login = datetime.now()
+        student.last_login = clock.now()
         await student_repo.update(student)
     return await _token_response(db, student)
 
@@ -131,7 +132,7 @@ async def refresh_tokens(payload: TokenRefreshRequest, db: AsyncSession = Depend
     repo = RefreshTokenRepository(db)
     token_obj = await repo.get_by_token(payload.refresh_token)
 
-    if not token_obj or token_obj.revoked or token_obj.expires_at < datetime.now():
+    if not token_obj or token_obj.revoked or clock.as_utc(token_obj.expires_at) < clock.now():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token"
         )
@@ -147,7 +148,7 @@ async def refresh_tokens(payload: TokenRefreshRequest, db: AsyncSession = Depend
 
     new_refresh_str = generate_refresh_token_string()
     new_refresh_obj = RefreshToken(
-        student_id=student.id, token=new_refresh_str, expires_at=datetime.now() + timedelta(days=30)
+        student_id=student.id, token=new_refresh_str, expires_at=clock.now() + timedelta(days=30)
     )
     await repo.create(new_refresh_obj)
     await db.commit()

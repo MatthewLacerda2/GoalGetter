@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 
+from backend.core import clock
 from backend.models.base import Base
 
 
@@ -25,7 +25,7 @@ class Lesson(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
     question_ids = Column(ARRAY(UUID(as_uuid=True)), nullable=False)
 
     finished_at = Column(DateTime(timezone=True), nullable=True)

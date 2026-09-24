@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime
 
 from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+from backend.core import clock
 from backend.models.base import Base
 
 
@@ -28,6 +28,6 @@ class OnboardingQuestion(Base):
     option_d = Column(String, nullable=False)
 
     selected_option_index = Column(Integer, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
 
     goal = relationship("Goal", back_populates="onboarding_questions")

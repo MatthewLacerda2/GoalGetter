@@ -1,8 +1,11 @@
-"""Home's elo chart: one point per day that had a finished lesson."""
+"""Home's elo chart: one point per day that had a finished lesson.
 
+The day is the app's calendar day (`core.clock`), not the server's (#92).
+"""
+
+from backend.core.clock import app_date
 from backend.models.lesson import Lesson
 from backend.schemas.home import EloPoint
-from backend.services.lessons.streak import local_date
 
 
 def daily_elo_history(finished_oldest_first: list[Lesson]) -> list[EloPoint]:
@@ -13,5 +16,5 @@ def daily_elo_history(finished_oldest_first: list[Lesson]) -> list[EloPoint]:
     """
     by_day: dict = {}
     for lesson in finished_oldest_first:
-        by_day[local_date(lesson.finished_at)] = lesson.elo_after
+        by_day[app_date(lesson.finished_at)] = lesson.elo_after
     return [EloPoint(date=day, elo=elo) for day, elo in by_day.items()]

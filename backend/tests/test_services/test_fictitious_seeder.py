@@ -1,7 +1,10 @@
 """`make claude`'s seeder: Fictitious Claude with a lived-in history (#60)."""
 
+from datetime import date
+
 import pytest
 
+from backend.core import clock
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.lesson_answer_repository import LessonAnswerRepository
 from backend.repositories.lesson_question_repository import LessonQuestionRepository
@@ -97,3 +100,19 @@ async def test_it_reuses_a_student_dev_login_made(test_db, student_factory):
     )
     result = await seed_fictitious_student(test_db)
     assert result.created and result.student.id == existing.id
+
+
+@pytest.mark.asyncio
+async def test_the_seeded_hours_are_the_students_wall_clock(test_db):
+    """#92: history_data's hours are the student's. The plan has a lesson 10
+    days ago at 22:00, which is 01:00 UTC the next day - it must read back at
+    22:00 app-local, on the day the student lived it and not the one after."""
+    seeded_at = clock.app_moment(date(2026, 9, 24), 12)
+    result = await seed_fictitious_student(test_db, now=seeded_at)
+    goal = await active_goal(test_db, result)
+    lessons = await LessonRepository(test_db).list_finished_by_goal(goal.id)
+
+    late = [lesson for lesson in lessons if clock.app_local(lesson.finished_at).hour == 22]
+    assert len(late) == 1
+    assert late[0].finished_at.tzinfo is not None
+    assert clock.app_date(late[0].finished_at) == date(2026, 9, 14)

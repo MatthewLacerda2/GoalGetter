@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime
 
 from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+from backend.core import clock
 from backend.models.base import Base
 
 
@@ -18,8 +18,8 @@ class Student(Base):
     email = Column(String, nullable=False, unique=True)
     google_id = Column(String, nullable=False, unique=True)
     name = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
-    last_login = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
+    last_login = Column(DateTime(timezone=True), nullable=False, default=clock.now)
     progress_rating = Column(Integer, nullable=False, default=1200)
     # The active goal. Nullable + use_alter because students<->goals reference each
     # other (goals.student_id and students.current_goal_id), a mutual FK Postgres can

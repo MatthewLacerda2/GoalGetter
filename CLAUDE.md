@@ -83,8 +83,14 @@ whose files are staged. It is not a substitute for `make check`.
 the backend tests; if it fails, you have things to fix.
 
 - **350 code lines** per `.py` file. Comment-only lines and docstrings are free;
-  blank lines count. A file that is data rather than logic (Gemini prompts,
-  hardcoded tables) opts out with a `# lint: data-file` header.
+  blank lines count. A file that is **data, not logic** opts out with a
+  `# lint: data-file` header: invented content, hardcoded tables, Gemini
+  prompts. Data is read, not reasoned about, so its length says nothing about
+  whether the file does too much. Anything carrying branching, queries or rules
+  does not qualify, however long it is, and the marker is never a way to keep a
+  file that outgrew the limit. Split a data file only where that makes it
+  easier to read — it keeps the exemption either way. No prompt needs the
+  marker today: every one of them is far under 350 lines.
 - **50 lines** per endpoint and per test function.
 - **400 lines** per hand-written `.dart` file.
 - **Database access only through `backend/repositories/`.** No `select` /

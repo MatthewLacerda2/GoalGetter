@@ -1,11 +1,11 @@
 import uuid
-from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import relationship
 
+from backend.core import clock
 from backend.models.base import Base
 from backend.utils.envs import NUM_DIMENSIONS
 
@@ -31,6 +31,6 @@ class ChatMessage(Base):
     tutor_responses = Column(ARRAY(String), nullable=False)
     tutor_response_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
     is_liked = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
 
     student = relationship("Student", back_populates="chat_messages")

@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+from backend.core import clock
 from backend.models.base import Base
 
 
@@ -17,6 +17,6 @@ class MicrolearningContent(Base):
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
     ai_model = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
 
     goal = relationship("Goal", back_populates="microlearning_contents")
