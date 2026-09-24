@@ -31,7 +31,7 @@ PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
+.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -74,11 +74,22 @@ back-image: ## Rebuild the backend image the gates run in (after a requirements.
 # A warning fails this gate (#101): the backlog that justified letting them
 # through is gone. The infos are a separate, larger backlog, so they still
 # only report.
-front-lint: ## Frontend dart line limits + flutter analyze
+# The ARB files generate lib/l10n/generated/, which is gitignored - so it is
+# whatever the last branch in this worktree left behind. A branch that adds or
+# renames a key leaves it stale, and then every frontend gate fails on getters
+# that do exist (seen on `main` 2026-09-24 after #119 and #124: 12 undefined_getter
+# errors, zero of them real). CI never sees it, because a fresh checkout's
+# `flutter pub get` regenerates - so the gate lies only on the machine where the
+# work happens. Regenerating first costs a couple of seconds and removes the
+# whole class.
+gen-l10n: ## Regenerate lib/l10n/generated/ from the ARB files
+	@cd frontend && $(FLUTTER) gen-l10n
+
+front-lint: gen-l10n ## Frontend dart line limits + flutter analyze
 	@cd frontend && $(DART) run tool/frontend_linter.dart
 	@cd frontend && $(FLUTTER) analyze --no-fatal-infos
 
-front-test: ## Frontend widget/unit tests
+front-test: gen-l10n ## Frontend widget/unit tests
 	@cd frontend && $(FLUTTER) test
 
 # On a runner there is no main checkout to copy from, and the settings arrive as
