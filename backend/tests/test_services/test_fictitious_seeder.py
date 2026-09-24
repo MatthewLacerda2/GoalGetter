@@ -1,4 +1,5 @@
 """`make claude`'s seeder: Fictitious Claude with a lived-in history (#60)."""
+
 import pytest
 
 from backend.repositories.chat_message_repository import ChatMessageRepository
@@ -38,7 +39,9 @@ async def test_it_creates_the_history(test_db):
     assert len(await LessonQuestionRepository(test_db).list_bank_history(goal.id)) == 15
     assert len(lessons) == 16
     for lesson in lessons:
-        assert len(await LessonAnswerRepository(test_db).list_by_lesson(lesson.id)) == len(lesson.question_ids)
+        assert len(await LessonAnswerRepository(test_db).list_by_lesson(lesson.id)) == len(
+            lesson.question_ids
+        )
     assert len(chat) == 8
     assert sum(ex.is_liked for ex in chat) == 1
     assert any(len(ex.tutor_responses) > 1 for ex in chat)
@@ -88,7 +91,9 @@ async def test_fresh_rebuilds_the_student(test_db):
 async def test_it_reuses_a_student_dev_login_made(test_db, student_factory):
     """`make claude-token` may have run first: the history goes on that row."""
     existing = await student_factory(
-        name="Fictitious Claude", google_id="fictitious-claude", email="fictitious-claude@fictitious.invalid",
+        name="Fictitious Claude",
+        google_id="fictitious-claude",
+        email="fictitious-claude@fictitious.invalid",
     )
     result = await seed_fictitious_student(test_db)
     assert result.created and result.student.id == existing.id

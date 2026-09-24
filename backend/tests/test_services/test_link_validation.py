@@ -1,7 +1,6 @@
 import pytest
 
 from backend.models.resource import Resource, StudyResourceType
-from backend.services.resources import link_validation
 from backend.services.resources.link_validation import validate_resources
 
 MODULE = "backend.services.resources.link_validation"
@@ -62,10 +61,12 @@ async def test_pdf_must_really_be_a_pdf():
     """An HTML page pretending to be an ebook is dropped; a real PDF is kept"""
     real = make(StudyResourceType.pdf, "https://host.dev/book.pdf")
     fake = make(StudyResourceType.pdf, "https://host.dev/landing-page")
-    client = FakeClient({
-        "book.pdf": FakeResponse(200, {"content-type": "application/pdf"}),
-        "landing-page": FakeResponse(200, {"content-type": "text/html"}),
-    })
+    client = FakeClient(
+        {
+            "book.pdf": FakeResponse(200, {"content-type": "application/pdf"}),
+            "landing-page": FakeResponse(200, {"content-type": "text/html"}),
+        }
+    )
 
     kept = await validate_resources([real, fake], client=client)
 

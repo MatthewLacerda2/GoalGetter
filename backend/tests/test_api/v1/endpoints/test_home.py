@@ -31,8 +31,11 @@ async def test_home_is_the_active_goals_dashboard(
     assert body["elo_history"] == [{"date": yesterday, "elo": 1215}]
     assert len(body["recent_lessons"]) == 2
     assert body["recent_lessons"][0] == {
-        "lesson_id": str(last.id), "date": yesterday, "accuracy": 100.0,
-        "elo_delta": 20, "duration_seconds": 90,
+        "lesson_id": str(last.id),
+        "date": yesterday,
+        "accuracy": 100.0,
+        "elo_delta": 20,
+        "duration_seconds": 90,
     }
 
 

@@ -1,7 +1,7 @@
 """The tutor chat, scoped to the student's active goal (404 `No active goal`
 without one). The API speaks in exchanges: one row per prompt + reply."""
+
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -36,13 +36,15 @@ def _history_turns(exchanges: list[ChatMessage]) -> list[GeminiChatMessage]:
     for ex in sorted(exchanges, key=lambda e: e.created_at):
         time = ex.created_at.isoformat()
         turns.append(GeminiChatMessage(role="user", message=ex.prompt, time=time))
-        turns.append(GeminiChatMessage(role="model", message="\n".join(ex.tutor_responses), time=time))
+        turns.append(
+            GeminiChatMessage(role="model", message="\n".join(ex.tutor_responses), time=time)
+        )
     return turns
 
 
 @router.get("/messages", response_model=list[ChatExchange])
 async def list_messages(
-    before: Optional[datetime] = Query(None, description="Only exchanges older than this created_at"),
+    before: datetime | None = Query(None, description="Only exchanges older than this created_at"),
     limit: int = Query(PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
     goal: Goal = Depends(get_active_goal),
     db: AsyncSession = Depends(get_db),
@@ -62,17 +64,25 @@ async def send_message(
     student's still-valid contexts; store and return the exchange."""
     repo = ChatMessageRepository(db)
     history = _history_turns(await repo.list_by_goal(goal.id, HISTORY_WINDOW))
-    history.append(GeminiChatMessage(role="user", message=payload.message, time=datetime.now().isoformat()))
+    history.append(
+        GeminiChatMessage(role="user", message=payload.message, time=datetime.now().isoformat())
+    )
     contexts = [
         StudentContextToChat(state=c.state, metacognition=c.metacognition)
         for c in await StudentContextRepository(db).list_valid(goal.student_id, goal.id)
     ]
-    reply = await run_gemini(gemini_messages_generator, history, contexts, goal.name, goal.description)
+    reply = await run_gemini(
+        gemini_messages_generator, history, contexts, goal.name, goal.description
+    )
 
-    exchange = await repo.create(ChatMessage(
-        student_id=goal.student_id, goal_id=goal.id,
-        prompt=payload.message, tutor_responses=reply.messages,
-    ))
+    exchange = await repo.create(
+        ChatMessage(
+            student_id=goal.student_id,
+            goal_id=goal.id,
+            prompt=payload.message,
+            tutor_responses=reply.messages,
+        )
+    )
     await db.commit()
     return exchange
 

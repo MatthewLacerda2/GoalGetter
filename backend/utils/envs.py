@@ -1,12 +1,12 @@
-#TODO: num_per_lesson is deprecated
-#Lessons will have mcq and subjective
-#Will count time_per_questions instead, and sum up to hit 2min lessons
-#Evaluations are just when user hits 95% mastery
+# TODO: num_per_lesson is deprecated
+# Lessons will have mcq and subjective
+# Will count time_per_questions instead, and sum up to hit 2min lessons
+# Evaluations are just when user hits 95% mastery
 
 from backend.core.config import settings
 
 # Deprecated: nothing reads it. Use QUESTIONS_PER_LESSON.
-NUM_QUESTIONS_PER_LESSON = 12 #TODO: deprecated
+NUM_QUESTIONS_PER_LESSON = 12  # TODO: deprecated
 # How many questions POST /goals/{goal_id}/lessons serves; 5 matches the lesson screens.
 QUESTIONS_PER_LESSON = 5
 NUM_QUESTIONS_PER_EVALUATION = 8

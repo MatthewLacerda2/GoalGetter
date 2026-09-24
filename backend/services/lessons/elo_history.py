@@ -1,4 +1,5 @@
 """Home's elo chart: one point per day that had a finished lesson."""
+
 from backend.models.lesson import Lesson
 from backend.schemas.home import EloPoint
 from backend.services.lessons.streak import local_date

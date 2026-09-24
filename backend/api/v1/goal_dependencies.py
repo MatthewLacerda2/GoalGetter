@@ -9,6 +9,7 @@ Two ways an endpoint names its goal:
 Both answer **404** when the goal is missing *or belongs to someone else*, so a
 goal's existence never leaks to another student.
 """
+
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status

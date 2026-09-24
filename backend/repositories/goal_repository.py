@@ -1,18 +1,21 @@
 from datetime import datetime
-from typing import Optional
-from sqlalchemy import select, update as sql_update, delete as sql_delete
+
+from sqlalchemy import delete as sql_delete
+from sqlalchemy import select
+from sqlalchemy import update as sql_update
+
 from backend.models.goal import Goal
 from backend.repositories.base import BaseRepository
 
-class GoalRepository(BaseRepository[Goal]):
 
+class GoalRepository(BaseRepository[Goal]):
     async def create(self, entity: Goal) -> Goal:
         self.db.add(entity)
         await self.db.flush()
         await self.db.refresh(entity)
         return entity
 
-    async def get_by_id(self, entity_id: str) -> Optional[Goal]:
+    async def get_by_id(self, entity_id: str) -> Goal | None:
         stmt = select(Goal).where(Goal.id == entity_id)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()

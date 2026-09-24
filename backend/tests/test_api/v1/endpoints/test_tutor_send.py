@@ -1,12 +1,13 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 from google.genai.errors import APIError
 from sqlalchemy import select
+
 from backend.api.v1.endpoints.tutor import HISTORY_WINDOW
 from backend.models.chat_message import ChatMessage
 from backend.models.student_context import StudentContext
 from backend.services.gemini.chat.schema import GeminiChatResponse
-from backend.tests.fixtures.chat import exchange_factory  # noqa: F401
 
 ENDPOINT = "/api/v1/tutor/messages"
 GEMINI = "backend.api.v1.endpoints.tutor.gemini_messages_generator"
@@ -24,7 +25,9 @@ async def test_send_persists_the_exchange(auth_client, test_db, test_user, goal_
     assert body["prompt"] == "How do I start?"
     assert body["responses"] == ["Short answer.", "Try it now."]
     assert body["is_liked"] is False
-    row = (await test_db.execute(select(ChatMessage).where(ChatMessage.id == body["id"]))).scalar_one()
+    row = (
+        await test_db.execute(select(ChatMessage).where(ChatMessage.id == body["id"]))
+    ).scalar_one()
     assert (row.goal_id, row.tutor_responses) == (goal.id, ["Short answer.", "Try it now."])
 
 
@@ -36,7 +39,11 @@ async def test_send_gives_gemini_the_window_oldest_first(
     other_goal = await goal_factory(test_user, name="Chess")
     await exchange_factory(goal, count=HISTORY_WINDOW + 2)
     await exchange_factory(other_goal)
-    test_db.add(StudentContext(student_id=test_user.id, goal_id=goal.id, state="beginner", metacognition="curious"))
+    test_db.add(
+        StudentContext(
+            student_id=test_user.id, goal_id=goal.id, state="beginner", metacognition="curious"
+        )
+    )
     await test_db.flush()
     with patch(GEMINI, return_value=REPLY) as gemini:
         await auth_client.post(ENDPOINT, json={"message": "next?"})

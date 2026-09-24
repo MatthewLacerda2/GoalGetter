@@ -1,4 +1,5 @@
 import uuid
+
 import pytest
 
 
@@ -20,7 +21,9 @@ async def test_set_active_switches_the_active_goal(auth_client, test_db, test_us
 
 
 @pytest.mark.asyncio
-async def test_set_active_someone_elses_goal_is_404(auth_client, test_db, test_user, student_factory, goal_factory):
+async def test_set_active_someone_elses_goal_is_404(
+    auth_client, test_db, test_user, student_factory, goal_factory
+):
     mine = await goal_factory(test_user, active=True)
     other = await student_factory(email="o@example.com", google_id="other")
     theirs = await goal_factory(other)

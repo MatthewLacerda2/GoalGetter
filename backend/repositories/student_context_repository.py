@@ -1,6 +1,5 @@
-from typing import Optional
-
-from sqlalchemy import select, delete as sql_delete
+from sqlalchemy import delete as sql_delete
+from sqlalchemy import select
 
 from backend.models.student_context import StudentContext
 from backend.repositories.base import BaseRepository
@@ -17,7 +16,7 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         await self.db.refresh(entity)
         return entity
 
-    async def get_by_id(self, entity_id: str) -> Optional[StudentContext]:
+    async def get_by_id(self, entity_id: str) -> StudentContext | None:
         stmt = select(StudentContext).where(StudentContext.id == entity_id)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()

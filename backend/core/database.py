@@ -1,14 +1,15 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from backend.core.config import settings
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+
+from backend.core.config import settings
 
 load_dotenv()
 
 engine = create_async_engine(
     settings.DATABASE_URL,  # Already has postgresql+asyncpg://
     pool_size=10,
-    max_overflow=100
+    max_overflow=100,
 )
 
 # expire_on_commit=False: endpoints read what they just committed (the new id,
@@ -23,6 +24,7 @@ AsyncSessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
 )
+
 
 async def get_db():
     async with AsyncSessionLocal() as session:

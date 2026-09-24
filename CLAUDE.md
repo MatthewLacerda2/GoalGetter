@@ -42,6 +42,28 @@ every table, so two worktrees sharing one would wipe each other mid-run.
 Run `make backend` or `make frontend` for the side you touched, or `make check`
 for both, and see it pass **before pushing**.
 
+`make backend` is four gates, cheapest first:
+
+- **`make back-lint`** — the house rules below (`backend/tests/backend_linter.py`),
+  then `ruff check` and `ruff format --check`. The rule set, and the reason for
+  each choice in it, is `backend/pyproject.toml`. **`make back-fix`** applies
+  exactly what this gate checks, so start there rather than editing by hand.
+- **`make back-deadcode`** — `vulture`: a function, class or method no other
+  module reaches. The whitelist for what only FastAPI, SQLAlchemy or `mock`
+  calls lives in `backend/tools/deadcode.py`, four names long, each naming its
+  caller. Growing it is how this gate stops working — delete the code instead,
+  and if it really is a framework entry point, say which framework.
+- **`make back-build`** — imports the app and generates the OpenAPI. It needs no
+  database: it pins placeholder settings before the import and runs with no
+  network at all, so a broken import or an unresolvable response model surfaces
+  in a second.
+- **`make back-test`** — pytest, the only one that needs the test database.
+
+Ruff and vulture are in `backend/requirements.txt`, so they live in the backend
+image the way pytest does: that image is where every Python tool runs locally,
+since there is no venv here. CI has no image and overrides the interpreter
+(`make back-lint PY=python`).
+
 - **A red gate is never handed off as "probably pre-existing."** Re-run that one
   target on `origin/main`; only if it is red there too, say so, with the output.
 - **Never pipe `make` into a chain that decides a push.** `make check | tail && git
@@ -49,7 +71,8 @@ for both, and see it pass **before pushing**.
   Run the gate on its own line and read it.
 - Setup failures read as such: `back-test` failing on `DATABASE_URL` wants
   `make env`; a refused connection wants `docker compose up -d postgres_test`;
-  missing Dart packages want `make setup`.
+  missing Dart packages want `make setup`; `No module named ruff` (or vulture)
+  means the backend image predates `backend/requirements.txt` — `make back-image`.
 
 The pre-commit hook (`.githooks/pre-commit`) runs only the gates for the side
 whose files are staged. It is not a substitute for `make check`.

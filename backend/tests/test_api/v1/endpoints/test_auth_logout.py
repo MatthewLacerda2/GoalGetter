@@ -1,6 +1,9 @@
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
 from backend.models.refresh_token import RefreshToken
+
 
 @pytest.mark.asyncio
 async def test_logout_success(client, test_db, test_user):
@@ -10,15 +13,12 @@ async def test_logout_success(client, test_db, test_user):
         student_id=test_user.id,
         token=token_str,
         expires_at=datetime.now() + timedelta(days=30),
-        revoked=False
+        revoked=False,
     )
     test_db.add(db_token)
     await test_db.commit()
 
-    response = await client.post(
-        "/api/v1/auth/logout",
-        json={"refresh_token": token_str}
-    )
+    response = await client.post("/api/v1/auth/logout", json={"refresh_token": token_str})
     assert response.status_code == 204
 
     # Verify token is indeed revoked in database

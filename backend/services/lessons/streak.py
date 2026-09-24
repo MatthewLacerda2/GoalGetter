@@ -4,8 +4,9 @@ The rule (#56): the run of consecutive days with at least one finished lesson
 on any goal, counted back from today, or from yesterday when there is none
 today yet. Days are the server's local date; time zones can come later.
 """
+
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
-from typing import Iterable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 

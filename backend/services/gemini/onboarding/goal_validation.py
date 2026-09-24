@@ -1,7 +1,8 @@
-from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
-from backend.utils.envs import GEMINI_PREMIUM_MODEL
-from backend.services.gemini.onboarding.schema import GeminiGoalValidation
 from backend.services.gemini.onboarding.goal_validation_prompt import get_goal_validation_prompt
+from backend.services.gemini.onboarding.schema import GeminiGoalValidation
+from backend.utils.envs import GEMINI_PREMIUM_MODEL
+from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+
 
 def get_prompt_validation(prompt: str) -> GeminiGoalValidation:
 
@@ -13,6 +14,7 @@ def get_prompt_validation(prompt: str) -> GeminiGoalValidation:
     )
 
     return GeminiGoalValidation.model_validate_json(response.text)
+
 
 def is_goal_validated(validation: GeminiGoalValidation) -> bool:
 

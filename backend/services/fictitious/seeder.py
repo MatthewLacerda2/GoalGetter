@@ -5,9 +5,9 @@ goal already has all of it, and a re-run leaves it untouched. `fresh=True`
 deletes the student first; the database cascades take everything under it
 (goals, lessons, answers, chat, contexts, refresh tokens).
 """
+
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,7 +31,7 @@ class SeedResult:
 
 
 async def seed_fictitious_student(
-    db: AsyncSession, name: str = CLAUDE, fresh: bool = False, now: Optional[datetime] = None
+    db: AsyncSession, name: str = CLAUDE, fresh: bool = False, now: datetime | None = None
 ) -> SeedResult:
     """Ensure the fictitious student `name` exists with its history, and commit."""
     now = now or datetime.now().astimezone()
@@ -48,9 +48,13 @@ async def seed_fictitious_student(
             return SeedResult(student=student, created=False, goals=existing)
     else:
         # A student dev-login already made is reused as is: same id, same tokens.
-        student = await students.create(Student(
-            name=identity.name, google_id=identity.google_id, email=identity.email,
-        ))
+        student = await students.create(
+            Student(
+                name=identity.name,
+                google_id=identity.google_id,
+                email=identity.email,
+            )
+        )
 
     student.created_at = now - timedelta(days=STUDENT_CREATED_DAYS_AGO)
     seeded = []

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.core.database import get_db
 from backend.core.rate_limiter import limiter
@@ -9,21 +10,24 @@ from backend.models.student import Student
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.student_repository import StudentRepository
 from backend.schemas.goal import (
-    ObjectiveQuestionsRequest,
-    ObjectiveQuestion,
-    GoalCreationRequest,
-    StudyPlanResponse,
     GoalCommitRequest,
+    GoalCreationRequest,
     GoalCreationResponse,
-    IntroductionScreenData,
     GoalResponse,
+    IntroductionScreenData,
+    ObjectiveQuestion,
+    ObjectiveQuestionsRequest,
     SetActiveGoalResponse,
+    StudyPlanResponse,
 )
-from backend.services.gemini.onboarding.goal_validation import get_prompt_validation, is_goal_validated
+from backend.services.gemini.onboarding.goal_validation import (
+    get_prompt_validation,
+    is_goal_validated,
+)
+from backend.services.gemini.onboarding.introduction import generate_introduction_screens
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
-from backend.services.gemini.onboarding.introduction import generate_introduction_screens
-from backend.services.jobs.goal_jobs import kickoff_resource_scraping, kickoff_lessons_generation
+from backend.services.jobs.goal_jobs import kickoff_lessons_generation, kickoff_resource_scraping
 from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
@@ -37,6 +41,7 @@ router = APIRouter()
 # in-memory storage is per-process, so this cap is enforced per worker (looser
 # than 20/min overall). Switch to a single worker or shared storage (Redis) if
 # an exact global cap is required.
+
 
 @router.post("/objective-questions", response_model=list[ObjectiveQuestion])
 @limiter.limit("20/minute")
@@ -59,6 +64,7 @@ async def objective_questions(request: Request, payload: ObjectiveQuestionsReque
         for q in generated.questions
     ]
 
+
 @router.post("/study-plan", response_model=StudyPlanResponse)
 @limiter.limit("20/minute")
 async def study_plan(request: Request, payload: GoalCreationRequest):
@@ -68,6 +74,7 @@ async def study_plan(request: Request, payload: GoalCreationRequest):
     """
     plan = await run_gemini(generate_study_plan, payload.prompt, payload.answers)
     return StudyPlanResponse(goal_name=plan.goal_name, description=plan.description)
+
 
 @router.post("", response_model=GoalCreationResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("20/minute")
@@ -93,7 +100,9 @@ async def create_goal(
     await db.commit()
 
     kickoff_resource_scraping(str(goal.id))
-    kickoff_lessons_generation(str(goal.id), payload.prompt, [(a.question, a.answer) for a in payload.answers])
+    kickoff_lessons_generation(
+        str(goal.id), payload.prompt, [(a.question, a.answer) for a in payload.answers]
+    )
 
     return GoalCreationResponse(
         id=str(goal.id),
@@ -126,6 +135,7 @@ async def list_goals(
         for goal in goals
     ]
 
+
 @router.put("/{goal_id}/set-active", response_model=SetActiveGoalResponse)
 async def set_active_goal(
     goal: Goal = Depends(get_owned_goal),
@@ -139,6 +149,7 @@ async def set_active_goal(
     await StudentRepository(db).update(current_user)
     await db.commit()
     return SetActiveGoalResponse(goal_id=str(goal_id))
+
 
 @router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_goal(

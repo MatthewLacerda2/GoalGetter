@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
-from sqlalchemy import select, delete as sql_delete
+from sqlalchemy import delete as sql_delete
+from sqlalchemy import select
 
 from backend.models.lesson_answer import LessonAnswer
 from backend.models.lesson_question import LessonQuestion
@@ -13,13 +13,13 @@ from backend.repositories.base import BaseRepository
 class QuestionHistory:
     """A bank question and its **latest** answer, if it was ever answered.
     Lesson selection (services/lessons/selection.py) orders on this."""
+
     question: LessonQuestion
-    last_answered_at: Optional[datetime]
-    last_was_correct: Optional[bool]
+    last_answered_at: datetime | None
+    last_was_correct: bool | None
 
 
 class LessonQuestionRepository(BaseRepository[LessonQuestion]):
-
     async def create(self, entity: LessonQuestion) -> LessonQuestion:
         self.db.add(entity)
         await self.db.flush()
@@ -33,7 +33,7 @@ class LessonQuestionRepository(BaseRepository[LessonQuestion]):
         await self.db.flush()
         return entities
 
-    async def get_by_id(self, entity_id: str) -> Optional[LessonQuestion]:
+    async def get_by_id(self, entity_id: str) -> LessonQuestion | None:
         stmt = select(LessonQuestion).where(LessonQuestion.id == entity_id)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
@@ -61,7 +61,9 @@ class LessonQuestionRepository(BaseRepository[LessonQuestion]):
             .where(LessonQuestion.goal_id == goal_id)
         )
         result = await self.db.execute(stmt)
-        return [QuestionHistory(q, answered_at, correct) for q, answered_at, correct in result.all()]
+        return [
+            QuestionHistory(q, answered_at, correct) for q, answered_at, correct in result.all()
+        ]
 
     async def update(self, entity: LessonQuestion) -> LessonQuestion:
         await self.db.flush()

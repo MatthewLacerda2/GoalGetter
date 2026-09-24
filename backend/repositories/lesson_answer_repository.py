@@ -1,13 +1,11 @@
-from typing import Optional
-
-from sqlalchemy import select, delete as sql_delete
+from sqlalchemy import delete as sql_delete
+from sqlalchemy import select
 
 from backend.models.lesson_answer import LessonAnswer
 from backend.repositories.base import BaseRepository
 
 
 class LessonAnswerRepository(BaseRepository[LessonAnswer]):
-
     async def create(self, entity: LessonAnswer) -> LessonAnswer:
         self.db.add(entity)
         await self.db.flush()
@@ -21,7 +19,7 @@ class LessonAnswerRepository(BaseRepository[LessonAnswer]):
         await self.db.flush()
         return entities
 
-    async def get_by_id(self, entity_id: str) -> Optional[LessonAnswer]:
+    async def get_by_id(self, entity_id: str) -> LessonAnswer | None:
         stmt = select(LessonAnswer).where(LessonAnswer.id == entity_id)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()

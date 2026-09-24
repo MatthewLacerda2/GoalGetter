@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional
 
-from sqlalchemy import select, delete as sql_delete
+from sqlalchemy import delete as sql_delete
+from sqlalchemy import select
 
 from backend.models.goal import Goal
 from backend.models.lesson import Lesson
@@ -9,19 +9,18 @@ from backend.repositories.base import BaseRepository
 
 
 class LessonRepository(BaseRepository[Lesson]):
-
     async def create(self, entity: Lesson) -> Lesson:
         self.db.add(entity)
         await self.db.flush()
         await self.db.refresh(entity)
         return entity
 
-    async def get_by_id(self, entity_id: str) -> Optional[Lesson]:
+    async def get_by_id(self, entity_id: str) -> Lesson | None:
         stmt = select(Lesson).where(Lesson.id == entity_id)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_in_goal_for_update(self, lesson_id, goal_id) -> Optional[Lesson]:
+    async def get_in_goal_for_update(self, lesson_id, goal_id) -> Lesson | None:
         """The lesson, if it belongs to this goal, row-locked until the commit.
 
         The lock is what makes a double submit a clean 409: the second request

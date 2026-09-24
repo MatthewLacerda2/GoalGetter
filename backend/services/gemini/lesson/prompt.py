@@ -4,7 +4,7 @@ def get_lesson_generation_prompt(
     rating: int,
     state: str,
     metacognition: str,
-    recent_errors: list[str] | None = None
+    recent_errors: list[str] | None = None,
 ) -> str:
     recent_errors_formatted = ""
     if recent_errors:
@@ -18,13 +18,13 @@ def get_lesson_generation_prompt(
     The student's goal: "{goal_name}"
     Description of the goal: "{goal_description}"
     The student's current skill rating: {rating} (like a chess rating; higher rating means more advanced/difficult questions are expected)
-    
+
     Current evaluation of the student's mastery/gaps (State):
     "{state}"
-    
+
     Current evaluation of how the student is thinking/reacting (Metacognition):
     "{metacognition}"
-    
+
     Recent concepts or questions the student got wrong:
     {recent_errors_formatted}
     </Context>

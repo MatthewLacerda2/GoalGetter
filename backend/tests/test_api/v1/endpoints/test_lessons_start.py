@@ -27,8 +27,10 @@ async def test_start_serves_recent_mistakes_first_and_records_the_lesson(
     body = response.json()
     assert [q["question"] for q in body["questions"]] == ["missed", "fresh"]
     assert body["questions"][1] == {
-        "id": str(fresh.id), "question": "fresh",
-        "choices": ["a", "b", "c", "d"], "correct_answer_index": 2,
+        "id": str(fresh.id),
+        "question": "fresh",
+        "choices": ["a", "b", "c", "d"],
+        "correct_answer_index": 2,
     }
     lesson = await LessonRepository(test_db).get_by_id(body["lesson_id"])
     assert lesson.question_ids == [missed.id, fresh.id]

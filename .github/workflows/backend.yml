@@ -13,7 +13,7 @@ on:
 
 jobs:
   backend:
-    name: lint · pytest
+    name: lint · dead code · build · pytest
     # `synchronize` also fires for pushes to a draft, so guard here too.
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
@@ -41,10 +41,27 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - run: pip install -r backend/requirements.txt
 
-      # The house rules (file/endpoint/test length, repository pattern). Pure
-      # stdlib, so it needs nothing installed - run it first, it is instant.
-      - name: House lint
-        run: make back-lint
+      # These gates run through the same `make` targets a developer runs. There
+      # is no backend image on a runner, so PY and PY_OFFLINE are overridden to
+      # the interpreter installed above; locally they default to
+      # `docker run ... goalgetter-backend-planning-backend python`.
+      #
+      # House rules (file/endpoint/test length, repository pattern), then
+      # ruff check + ruff format --check. First, because it is the cheapest.
+      - name: Lint
+        run: make back-lint PY=python
+
+      # vulture: a function, class or method that no other module reaches. The
+      # whitelist for what only FastAPI, SQLAlchemy or mock calls lives in
+      # backend/tools/deadcode.py.
+      - name: Dead code
+        run: make back-deadcode PY=python
+
+      # Import the app and generate the OpenAPI. Needs no database - it pins
+      # placeholder settings before the import - and catches a broken import,
+      # or a route whose response model no longer resolves, in about a second.
+      - name: Build smoke
+        run: make back-build PY_OFFLINE=python
 
       - name: Pytest
         env:

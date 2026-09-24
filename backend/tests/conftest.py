@@ -8,7 +8,9 @@ pytest_plugins = [
     "backend.tests.fixtures.clients",
     "backend.tests.fixtures.goals",
     "backend.tests.fixtures.lessons",
+    "backend.tests.fixtures.chat",
 ]
+
 
 @pytest.fixture(autouse=True)
 def disable_rate_limiter():
@@ -16,6 +18,7 @@ def disable_rate_limiter():
     otherwise trip the global per-second limit and flake. Rate limiting is
     verified against the running container, not in unit tests."""
     from backend.core.rate_limiter import limiter
+
     previous = limiter.enabled
     limiter.enabled = False
     yield

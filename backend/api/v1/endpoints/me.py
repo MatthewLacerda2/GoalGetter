@@ -1,4 +1,5 @@
 """GET /me: the signed-in student's profile and streak (the Profile header)."""
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,7 +13,9 @@ router = APIRouter()
 
 
 @router.get("", response_model=UserProfile)
-async def get_me(current_user: Student = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_me(
+    current_user: Student = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+):
     return UserProfile(
         id=str(current_user.id),
         name=current_user.name,

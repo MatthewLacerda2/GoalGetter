@@ -1,5 +1,6 @@
 """LLMs.txt content - AI version of robots.txt for GoalGetter."""
 
+
 def get_llms_txt() -> str:
     """Returns the llms.txt content as a markdown string."""
     return """# GoalGetter
@@ -25,4 +26,3 @@ All content is custom-tailored for the user. It's a frictionless, 1:1 tutor app!
 - **Chess-like Rating**: Adapting question difficulty to the student's rating for optimal challenge (not too easy, not too hard).
 - **1:1 Tutoring**: We record student context and onboarding data to dynamically customize lessons and resources.
 """
-
