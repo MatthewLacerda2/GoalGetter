@@ -133,20 +133,31 @@ something looks or feels.
 
 ## Pull requests
 
-**A PR is one of three things, and nothing else:**
+**A PR is one of two things, and nothing else:**
 
 - **Draft** — the work did not finish: an environment failure, red gates, a
   resource you do not have, or a decision you may not take (below). Push what you
   have and comment the bottleneck. A draft is how unfinished work gets off one
   machine; it is never where a finished change waits.
-- **Ready for review** — the change **creates or changes a database query** (touches
-  `backend/repositories/`), **carries a migration**, **is a refactor** (adds more
-  than 1100 lines, removals not counted), or **changes CI**. It waits for the user's
-  word; when it comes, carry it through: wait for CI, merge when green, stop and
-  report if it fails.
-- **Merged by Claude** — everything else, once CI is green, unless the user said
-  beforehand to leave it. That the user will see the change is not a reason to
-  hold it: the tests are the gate.
+- **Merged by Claude** — everything that did finish, once CI is green, unless the
+  user said beforehand to leave it. Database queries, refactors and CI changes
+  included: the user's call (2026-09-24) is *"pega issue, faz código, roda CI,
+  merge"*. That he will see the change later is not a reason to hold it — the gates
+  are what says it is ready, and the pull request is where the reasoning is written
+  down for when he reads it.
+
+**The exception, and it is narrow: a change nobody can undo waits for him.** Not
+because the code is doubtful, but because a mistake there costs more than a night.
+Three kinds, and nothing else creeps onto this list:
+
+- it **puts the app on, or takes it off, the internet** (the Cloudflare tunnel, the
+  deployed stack, DNS);
+- it **destroys data that is not ours to lose** — a migration that drops a column or
+  a table once real users exist, anything that wipes the production database;
+- it **turns a gate off**, rather than adding or fixing one: a check that stops
+  running is a check nobody notices is gone.
+
+Those carry the `human` label and wait. Everything else merges.
 
 **A decision the plan did not cover** is yours to take when the information is at
 hand and something points the way — a rule, a convention the codebase already

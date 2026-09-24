@@ -134,8 +134,15 @@ Give it, in this order:
 
 Tell it to open a pull request and **not merge** — merging is the batch's job, because
 only the batch knows what else is in flight. The batch then merges in priority order,
-applying the PR rules in `CLAUDE.md`: the ready-for-review kinds (DB query, migration,
-refactor, CI) wait for the user in the morning; the rest merge once CI is green.
+applying the PR rules in `CLAUDE.md`: everything that finished and is green merges,
+including database queries and refactors; only the three irreversible kinds (putting
+the app on or off the internet, destroying data, turning a gate off) wait for the
+user, and they carry `human`.
+
+**Merge on the sum, not on the branch.** A batch's PRs each passed alone; what ships
+is their merge. Merge them locally first, run the gate on the result, and only then
+merge for real — that is where the line-limit ceiling fires and where two branches
+that edited the same list collide.
 
 ## Reporting back
 
