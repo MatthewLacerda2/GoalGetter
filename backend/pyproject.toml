@@ -1,0 +1,60 @@
+# Backend tooling config. Ruff is the lint/format layer; the house rules Ruff
+# cannot express - file, endpoint and test length, and the repository pattern -
+# live in backend/tests/backend_linter.py. `make back-lint` runs all three.
+#
+# Ruff finds this file by walking up from each file it checks, so it governs
+# everything under backend/ no matter which directory the gate is invoked from.
+# The rule set is prototipo-atem's, minus what does not fit here (see below).
+
+[tool.ruff]
+# Matches backend/Dockerfile (python:3.11-slim) and the CI interpreter, so
+# pyupgrade never emits syntax the deployed interpreter lacks.
+target-version = "py311"
+line-length = 100
+# venv/__pycache__ are not ours. alembic IS linted here - only the dead-code
+# gate skips it, because alembic calls its modules by name convention.
+extend-exclude = ["venv", ".venv", "__pycache__"]
+
+# The package root is the repository, one level up: imports read
+# `from backend.core...`, so ruff has to look for `backend/` from there or
+# isort files every first-party import as third-party.
+src = [".."]
+
+[tool.ruff.lint]
+# F   - pyflakes: dead imports, unused locals, undefined names.
+# E/W - pycodestyle correctness (E501 line length is the formatter's job).
+# B   - flake8-bugbear: real footguns (mutable defaults, except-pass, ...).
+# I   - isort: one import order, so a diff never argues about it.
+# UP  - pyupgrade: modern syntax only (`list[str]`, `str | None`).
+select = ["F", "E", "W", "B", "I", "UP"]
+# E501: line length is enforced by the formatter, not as a lint error.
+# UP042: rewriting `class X(str, Enum)` as `StrEnum` is a behaviour change -
+#        `str(member)` and f-strings go from "Kind.MEMBER" to "member", which
+#        reaches responses and stored values. Off until someone migrates on
+#        purpose.
+ignore = ["E501", "UP042"]
+
+[tool.ruff.lint.isort]
+# See `src` above: without this, `backend.*` is sorted as a third-party import.
+known-first-party = ["backend"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency markers are meant to be called in argument defaults -
+# that is the framework idiom, not the B008 footgun.
+extend-immutable-calls = [
+  "fastapi.Depends",
+  "fastapi.Query",
+  "fastapi.Path",
+  "fastapi.Body",
+  "fastapi.Header",
+  "fastapi.Cookie",
+  "fastapi.Form",
+  "fastapi.File",
+  "fastapi.Security",
+]
+
+[tool.ruff.format]
+# atem pins "lf". Here that is wrong: ~15 backend files are CRLF (see
+# CLAUDE.md's known issues), and pinning lf would turn every future one-line
+# change in them into a whole-file diff. "auto" keeps each file's own endings.
+line-ending = "auto"

@@ -18,23 +18,49 @@ BACKEND_IMAGE ?= goalgetter-backend-planning-backend
 DOCKER_RUN    := docker run --rm --network host --user "$$(id -u):$$(id -g)" \
                  -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1 \
                  -v "$(CURDIR)":/app -w /app $(BACKEND_IMAGE)
+# The same container cut off from the network. `back-build` claims it needs no
+# database; with no network it could not reach one even if the claim were wrong.
+DOCKER_RUN_OFFLINE := $(subst --network host,--network none,$(DOCKER_RUN))
+
+# Every Python tool - ruff, vulture, the build smoke, pytest - runs inside the
+# backend image, because there is no local venv here. CI has no image: it
+# pip-installs backend/requirements.txt onto the runner and overrides these with
+# `make back-lint PY=python PY_OFFLINE=python`.
+PY         ?= $(DOCKER_RUN) python
+PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-test front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude
+.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
-	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
 check: backend frontend ## Run every gate (backend + frontend)
 
-backend: back-lint back-test ## Backend: house lint + pytest
+backend: back-lint back-deadcode back-build back-test ## Backend: lint + dead code + build smoke + pytest
 
 frontend: front-lint front-test ## Frontend: line limits + analyze + tests
 
-back-lint: ## Backend house rules (file/endpoint/test length, repository pattern)
+# Cheapest first: the house rules are stdlib and instant, ruff is a second, the
+# build smoke needs no database, and only pytest needs one.
+back-lint: ## Backend lint: house rules (file/endpoint/test length, repositories) + ruff check + ruff format --check
 	@python3 backend/tests/backend_linter.py
+	@$(PY) -m ruff check backend
+	@$(PY) -m ruff format --check backend
+
+# A fixer, not a gate: `ruff check --fix` exits non-zero when findings remain
+# that it cannot fix, and the formatter should still run. back-lint is the gate.
+back-fix: ## Auto-fix exactly what back-lint checks (ruff check --fix + ruff format)
+	@-$(PY) -m ruff check --fix backend
+	@$(PY) -m ruff format backend
+
+back-deadcode: ## Backend whole-program dead-code gate (vulture; whitelist in backend/tools/deadcode.py)
+	@$(PY) -m backend.tools.deadcode
+
+back-build: ## Backend build smoke: import the app and generate the OpenAPI (no database)
+	@$(PY_OFFLINE) -m backend.tools.build_smoke
 
 back-test: env ## Backend pytest (needs the test database: docker compose up -d postgres_test)
 	@$(DOCKER_RUN) python -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
