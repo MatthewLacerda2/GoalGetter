@@ -63,7 +63,7 @@ back-build: ## Backend build smoke: import the app and generate the OpenAPI (no 
 	@$(PY_OFFLINE) -m backend.tools.build_smoke
 
 back-test: env ## Backend pytest (needs the test database: docker compose up -d postgres_test)
-	@$(DOCKER_RUN) python -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
+	@$(PY) -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
 
 # Every backend gate runs in this image, so an image older than
 # backend/requirements.txt fails with a bare "No module named ruff". Rebuilding
@@ -78,8 +78,11 @@ front-lint: ## Frontend dart line limits + flutter analyze
 front-test: ## Frontend widget/unit tests
 	@cd frontend && $(FLUTTER) test
 
+# On a runner there is no main checkout to copy from, and the settings arrive as
+# real environment variables from the workflow - so having no .env is correct
+# there, not a warning.
 env: ## Seed this worktree's .env from the main checkout (never overwrites)
-	@if [ -f .env ]; then :; else \
+	@if [ -f .env ] || [ -n "$$DATABASE_URL" ]; then :; else \
 	  main="$$(git worktree list --porcelain | awk '/^worktree /{print $$2; exit}')"; \
 	  if [ -f "$$main/.env" ]; then cp "$$main/.env" .env && echo "seeded .env from $$main"; \
 	  else echo "no .env here and none in $$main - backend tests will fail"; fi; \

@@ -7,6 +7,13 @@
 # fails is a gate nobody runs.
 set -uo pipefail
 
+# Git exports GIT_DIR (and friends) to every hook. Flutter reads GIT_DIR as its
+# own SDK checkout, reports version `0.0.0-unknown`, and pub solving then fails
+# on fl_chart's Flutter constraint - so `flutter analyze` could not run from a
+# hook at all, in any worktree, and every frontend commit aborted. Clearing them
+# makes the hook's environment the same one a developer types into.
+unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX GIT_QUARANTINE_PATH
+
 repo="$(git rev-parse --show-toplevel)"
 cd "$repo" || exit 1
 
@@ -20,7 +27,9 @@ if grep -q '^backend/' <<<"$staged"; then
   python3 backend/tests/backend_linter.py || fail=1
 fi
 
-if grep -q '^frontend/' <<<"$staged"; then
+# frontend/docs/ is prose: the backend contract lives there and backend work
+# edits it, which must not pull the Flutter gates into a backend-only commit.
+if grep -q '^frontend/' <<<"$staged" && grep -qv '^frontend/docs/' <<<"$(grep '^frontend/' <<<"$staged")"; then
   flutter_bin="$(command -v flutter 2>/dev/null || echo "$HOME/development/flutter/bin/flutter")"
   if [ ! -x "$flutter_bin" ]; then
     echo "→ frontend gates skipped (flutter not found)"
