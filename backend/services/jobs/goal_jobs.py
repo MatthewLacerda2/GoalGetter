@@ -21,7 +21,11 @@ from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.resources.search_resources import search_resources
-from backend.services.gemini.student_context import gemini_generate_student_context
+from backend.services.gemini.student_context import (
+    GeminiStudentContext,
+    StudentGoal,
+    gemini_generate_student_context,
+)
 from backend.services.resources.link_validation import validate_resources
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
@@ -61,37 +65,47 @@ async def generate_lessons(goal_id: str, prompt: str, answers: list[tuple[str, s
     """Build the goal's first lesson bank from the onboarding. Returns how many
     questions were stored.
 
-    First the student context (the app's first impression of the learner, from
-    the onboarding prompt and answers), then questions generated from it. The
-    context is committed on its own: it is worth keeping even if question
-    generation fails. The nightly regeneration (#63) is not this job.
+    First the student context (the app's first impression of the learner, read
+    from the onboarding prompt and answers and from *every* goal they have,
+    because a context belongs to the student and not to a goal, #87), then
+    questions for this goal generated from the student's still-valid contexts.
+    The context is committed on its own: it is worth keeping even if question
+    generation fails. The nightly regeneration (#89) is not this job.
     """
     async with AsyncSessionLocal() as session:
-        goal = await GoalRepository(session).get_by_id(goal_id)
+        goal_repository = GoalRepository(session)
+        goal = await goal_repository.get_by_id(goal_id)
         if goal is None:
             logger.warning("Lessons generation: goal %s no longer exists", goal_id)
             return 0
 
+        goals = [
+            StudentGoal(name=g.name, description=g.description)
+            for g in await goal_repository.list_by_student(goal.student_id)
+        ]
+        context_repository = StudentContextRepository(session)
         context = await run_gemini_background(
-            gemini_generate_student_context, goal.name, goal.description, prompt, answers
+            gemini_generate_student_context, goals, prompt, answers
         )
-        await StudentContextRepository(session).create(
+        await context_repository.create(
             StudentContext(
                 student_id=goal.student_id,
-                goal_id=goal.id,
                 state=context.state,
                 metacognition=context.metacognition,
             )
         )
         await session.commit()
 
+        contexts = [
+            GeminiStudentContext(state=c.state, metacognition=c.metacognition)
+            for c in await context_repository.list_valid(goal.student_id)
+        ]
         generated = await run_gemini_background(
             generate_lesson_questions,
             goal.name,
             goal.description,
             goal.rating,
-            context.state,
-            context.metacognition,
+            contexts,
         )
         # A question whose correct index is out of range would fail the table's
         # check constraint and take the whole batch with it: drop just that one.

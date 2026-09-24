@@ -120,9 +120,10 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 - **`DELETE /goals/{goal_id}`** ✅ — delete a goal and its data.
   request: none · response: 204, no body
   - the database cascades: `ON DELETE CASCADE` takes the goal's rows
-    (resources, lessons, contexts…), `SET NULL` clears `current_goal_id` when the
+    (resources, lessons, questions…), `SET NULL` clears `current_goal_id` when the
     active goal goes. No goal becomes active in its place; the client decides
-    where to land.
+    where to land. **Student contexts survive**: they hang off the student, not
+    the goal (#87), and they are progression history.
 
 Both `{goal_id}` routes answer **404** for a missing goal *and* for someone
 else's (`get_owned_goal`), so a goal's existence never leaks.
@@ -157,7 +158,8 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
     (`QUESTIONS_PER_LESSON` = 5, `utils/envs.py`): 1. questions whose **latest**
     answer was wrong, most recent first; 2. questions never answered, oldest
     first; 3. everything else, least recently answered first. Written once, in
-    `services/lessons/selection.py`. Embeddings (reuse across students) unused yet.
+    `services/lessons/selection.py`. The embedding columns are unused, and
+    nothing will be shared between students (see **No reuse between students**).
   - empty bank ⇒ **409** `"Lessons are still being prepared"`. Not the
     student's goal ⇒ 404.
   - every call opens a new lesson; an unanswered one is simply left open.
@@ -196,10 +198,12 @@ user bubble plus one tutor bubble per `responses` entry.
 - **`POST /tutor/messages`** ⚙️ ✅ — send a message; get the stored exchange (201).
   request: `{ "message": "..." }` · response: `chat_exchange`
   - service: `services/gemini/chat/` via `run_gemini` (a Gemini `APIError` keeps its
-    status code). Gemini gets the goal's name and description, the student's
-    still-valid contexts for the goal, and the last `HISTORY_WINDOW` (10) exchanges
-    oldest first as alternating user/model turns, then the new message. Older
-    memory is the student contexts' job, not the window's.
+    status code). Gemini gets the goal's name and description, **the student's**
+    still-valid contexts (all of them — a context is not goal-scoped, #87; what is
+    specific to this goal already reaches the prompt as its name and description),
+    and the last `HISTORY_WINDOW` (10) exchanges oldest first as alternating
+    user/model turns, then the new message. Older memory is the student contexts'
+    job, not the window's.
 
 - **`PUT /tutor/messages/{message_id}/like`** ✅ — set (not toggle) the like on the
   tutor's reply; the heart sits on the reply's last bubble.
@@ -252,8 +256,8 @@ Fire-and-forget, spawned on the running loop, errors logged not raised.
 | Job | Trigger | State |
 | --- | --- | --- |
 | **Resource scraping** | goal created; later on skill jump / monthly | ✅ built |
-| **Lesson generation** | goal created (first student context, then the first question bank from it); later a nightly job (#63) | ✅ first bank · ⬜ nightly |
-| **Student context ("memories")** | after onboarding, then periodically | ⬜ services written, nothing calls them |
+| **Lesson generation** | goal created (first the student context, then the first question bank from the student's still-valid contexts + this goal); later a nightly job (#89) | ✅ first bank · ⬜ nightly |
+| **Student context ("memories")** | after onboarding, then periodically | ✅ initial, from every goal the student has · ⬜ periodic service written, nothing calls it |
 
 **Scheduling rule for memories** (user's intent, not yet implemented): check every
 student **daily**, but only regenerate if **≥3 days since the last generation**
@@ -280,13 +284,31 @@ calculus is not taught until they'd graduate, they are taught continuously, and
 progression is measured against **them**, not against a curriculum. This is a
 guiding spirit for prompt-writing, not a mechanically enforced rule.
 
-**Student context** is the app's memory of the learner, stored per
-student+goal as two texts: `state` (what they know / where they are) and
-`metacognition` (how they think). Two services already exist — one builds the
-first impression from the onboarding answers, one revises it from recent lesson
-results and chat history. `is_still_valid` retires a stale context **without
+**Student context** is the app's memory of the learner, stored **per student**
+as two texts: `state` (what they know / where they are) and `metacognition`
+(how they think). It carries no `goal_id` (#87): what the app knows about a
+person does not change when they switch from law to history, and one context per
+goal paid Gemini once per goal to say much the same thing. The generator reads
+**all** of the student's goals (name + description) — and, for the periodic
+revision, their recent lessons and chats across every goal — and writes one
+reading of the learner.
+
+Its readers pass it on whole: the **tutor** sends the student's still-valid
+contexts, and **question generation** takes the same contexts plus the goal it
+is generating for. Anything goal-specific reaches a prompt as the goal's own
+name and description, never through the context.
+
+Two services exist — one builds the first impression from the onboarding
+answers, one revises it from recent lesson results and chat history (written,
+not yet scheduled). `is_still_valid` retires a stale context **without
 deleting it**: kept for progression history and data science. The user is meant
 to be able to read what the app has written about them.
+
+**No reuse between students.** Nothing generated for one student is ever served
+to another — not questions, not resources, not contexts. Embedding columns exist
+for similarity work *within* a student, and the lesson-question embeddings that
+were once meant to share questions across students are not going to be used that
+way. The project has to be good without it (the user, 2026-09-23).
 
 ---
 
@@ -296,8 +318,9 @@ Decided in conversation; recorded here so they survive the session.
 
 1. **Study plan becomes a goal description.** Users can't judge a study plan;
    they can judge whether we understood the goal. Prompt change, pending.
-2. **`resources.link` is not unique** (see Resources). Reusing another student's
-   verified resources is a future card; per-goal dedupe only.
+2. **`resources.link` is not unique** (see Resources). Per-goal dedupe only;
+   reusing another student's verified resources is **closed** (#87) — nothing is
+   reused between students, resources included.
 3. **Store validation outcomes, pass *and* fail.** Cheap, and impossible to
    reconstruct later. Note what it actually measures: **how often Gemini invents
    links**, not user behaviour. Build it *before* switching to Google search, so
@@ -310,9 +333,10 @@ Decided in conversation; recorded here so they survive the session.
    way. ⬜ not built; `customsearch.googleapis.com` not yet enabled.
 5. **Embedding columns stay nullable** everywhere — generating them is never
    obligatory. Present on: chat messages (prompt + response), goals, resources,
-   student context (state + metacognition), lesson questions. The lesson-question
-   one exists to **reuse questions across students** (someone studying imperial
-   Europe and someone studying Napoleon can share questions).
+   student context (state + metacognition), lesson questions. ~~The
+   lesson-question one exists to **reuse questions across students**~~ —
+   **closed (#87, 2026-09-23): nothing is ever reused between students.** See
+   **No reuse between students** above.
 6. **Model split.** Two models, always: a **fast** one (cheaper, less sharp) and a
    **premium** one. They may be the same name when only one is worth using; the
    split is the rule, not the two names. Where each goes (the user, 2026-09-24):

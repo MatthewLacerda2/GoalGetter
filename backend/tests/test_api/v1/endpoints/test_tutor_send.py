@@ -39,11 +39,7 @@ async def test_send_gives_gemini_the_window_oldest_first(
     other_goal = await goal_factory(test_user, name="Chess")
     await exchange_factory(goal, count=HISTORY_WINDOW + 2)
     await exchange_factory(other_goal)
-    test_db.add(
-        StudentContext(
-            student_id=test_user.id, goal_id=goal.id, state="beginner", metacognition="curious"
-        )
-    )
+    test_db.add(StudentContext(student_id=test_user.id, state="beginner", metacognition="curious"))
     await test_db.flush()
     with patch(GEMINI, return_value=REPLY) as gemini:
         await auth_client.post(ENDPOINT, json={"message": "next?"})

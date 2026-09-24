@@ -179,7 +179,6 @@ async def seed_goal(db: AsyncSession, student: Student, spec: dict, now: datetim
         await StudentContextRepository(db).create(
             StudentContext(
                 student_id=student.id,
-                goal_id=goal.id,
                 state=state,
                 metacognition=metacognition,
                 created_at=moment(now, 1, 22),

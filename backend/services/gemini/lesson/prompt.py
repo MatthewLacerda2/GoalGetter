@@ -1,9 +1,21 @@
+from backend.services.gemini.student_context.schema import GeminiStudentContext
+
+
+def format_contexts(contexts: list[GeminiStudentContext]) -> str:
+    """The student's still-valid contexts, newest first. They are written about
+    the person and not about this goal (#87), so several may apply at once."""
+    if not contexts:
+        return "No reading of this student has been written yet."
+    return "\n".join(
+        [f'- State: "{c.state}" - Metacognition: "{c.metacognition}"' for c in contexts]
+    )
+
+
 def get_lesson_generation_prompt(
     goal_name: str,
     goal_description: str,
     rating: int,
-    state: str,
-    metacognition: str,
+    contexts: list[GeminiStudentContext],
     recent_errors: list[str] | None = None,
 ) -> str:
     recent_errors_formatted = ""
@@ -19,11 +31,10 @@ def get_lesson_generation_prompt(
     Description of the goal: "{goal_description}"
     The student's current skill rating: {rating} (like a chess rating; higher rating means more advanced/difficult questions are expected)
 
-    Current evaluation of the student's mastery/gaps (State):
-    "{state}"
-
-    Current evaluation of how the student is thinking/reacting (Metacognition):
-    "{metacognition}"
+    What the app knows about this learner - their mastery and gaps (State), and
+    how they think and react (Metacognition). It is written about the person,
+    so it covers everything they study, not only this goal:
+    {format_contexts(contexts)}
 
     Recent concepts or questions the student got wrong:
     {recent_errors_formatted}
@@ -38,6 +49,7 @@ def get_lesson_generation_prompt(
     - One option must be the correct option, and its index must be specified as correct_option_index (0 for A, 1 for B, 2 for C, 3 for D).
     - Match the difficulty of the questions to the student's skill rating ({rating}).
     - Target the questions directly at fixing the student's weaknesses/flaws described in their State, or challenging their cognitive style as noted in their Metacognition.
+    - The questions are about this goal only. The student's context may mention other subjects they study; use it to judge how they learn, never as a topic to ask about.
     - Keep questions educational and didactically sound.
     - Write the questions in the user's language.
     </Guidelines>

@@ -6,7 +6,7 @@ from backend.repositories.base import BaseRepository
 
 
 class StudentContextRepository(BaseRepository[StudentContext]):
-    """The app's memory of a learner, per student+goal. A stale context is
+    """The app's memory of a learner, per student (#87). A stale context is
     retired with `is_still_valid = False`, never deleted: it is progression
     history (see backend_contract.md, Student context)."""
 
@@ -21,13 +21,13 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def list_valid(self, student_id, goal_id) -> list[StudentContext]:
-        """Still-valid contexts for this student and goal, newest first."""
+    async def list_valid(self, student_id) -> list[StudentContext]:
+        """The student's still-valid contexts, newest first. Every goal of
+        theirs reads the same ones."""
         stmt = (
             select(StudentContext)
             .where(
                 StudentContext.student_id == student_id,
-                StudentContext.goal_id == goal_id,
                 StudentContext.is_still_valid.is_(True),
             )
             .order_by(StudentContext.created_at.desc())
