@@ -147,8 +147,13 @@ gates prove the code runs; they do not prove it is the right change.
   a tutor chat, resources) written straight to the dev database, so every screen has
   data; `ARGS=--fresh` rebuilds it. The preview's backend drops its schema on every
   start: re-run `make claude` (or `make claude-token`) after a rebuild.
-- **Gemini and YouTube behaviour**: the services are plain functions — call them
-  directly to see what the model actually returns.
+- **Gemini behaviour**: `make gemini` lists the use cases it can run; `make gemini
+  ARGS='tutor-reply "Chess" "Learn chess" "What is a fork?"'` runs one for real and
+  prints the raw text beside the parsed object, so a bad response format is visible
+  instead of swallowed by the parser. It **spends real quota** — one run, one billed
+  call — so never loop it, and never call it from a test.
+- **YouTube behaviour**: the services are plain functions — call them directly to
+  see what comes back.
 
 Unit and widget tests are still the validation for most changes. Ask the user to
 look only when they asked to, or when what is left is a judgement about how
