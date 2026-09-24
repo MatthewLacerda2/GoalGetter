@@ -62,7 +62,10 @@ async def send_message(
     db: AsyncSession = Depends(get_db),
 ):
     """Send the student's message with this goal's recent history and the
-    student's still-valid contexts; store and return the exchange."""
+    student's still-valid contexts; store and return the exchange.
+
+    The contexts are the student's, not the goal's (#87): what is specific to
+    this goal already reaches the prompt as its name and description."""
     repo = ChatMessageRepository(db)
     history = _history_turns(await repo.list_by_goal(goal.id, HISTORY_WINDOW))
     history.append(
@@ -72,7 +75,7 @@ async def send_message(
     )
     contexts = [
         StudentContextToChat(state=c.state, metacognition=c.metacognition)
-        for c in await StudentContextRepository(db).list_valid(goal.student_id, goal.id)
+        for c in await StudentContextRepository(db).list_valid(goal.student_id)
     ]
     reply = await run_gemini(
         gemini_messages_generator, history, contexts, goal.name, goal.description

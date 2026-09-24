@@ -29,9 +29,6 @@ class Goal(Base):
     )
 
     student = relationship("Student", back_populates="goals", foreign_keys=[student_id])
-    student_contexts = relationship(
-        "StudentContext", back_populates="goal", cascade="all, delete-orphan"
-    )
     lesson_questions = relationship(
         "LessonQuestion", back_populates="goal", cascade="all, delete-orphan"
     )

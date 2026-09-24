@@ -8,6 +8,7 @@ from backend.models.resource import Resource, StudyResourceType
 from backend.repositories.lesson_question_repository import LessonQuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
+from backend.services.gemini.chat.schema import GeminiChatResponse
 from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse, LessonQuestionItem
 from backend.services.gemini.student_context.schema import GeminiStudentContextResponse
 from backend.services.jobs import goal_jobs
@@ -18,6 +19,7 @@ from backend.services.jobs.goal_jobs import (
 )
 
 MODULE = "backend.services.jobs.goal_jobs"
+TUTOR = "backend.api.v1.endpoints.tutor.gemini_messages_generator"
 
 
 def resource(goal_id, link):
@@ -101,9 +103,14 @@ async def test_lessons_job_stores_one_context_and_the_questions(test_db, test_us
         stored = await generate_lessons(str(goal.id), "I want Italian", ANSWERS)
 
     assert stored == 2
-    context_call.assert_called_once_with(goal.name, goal.description, "I want Italian", ANSWERS)
-    questions_call.assert_called_once_with(goal.name, goal.description, 1200, "Beginner", "Curious")
-    contexts = await StudentContextRepository(test_db).list_valid(test_user.id, goal.id)
+    goals, onboarding, answers = context_call.call_args.args
+    assert ([(g.name, g.description) for g in goals], onboarding, answers) == (
+        [(goal.name, goal.description)],
+        "I want Italian",
+        ANSWERS,
+    )
+    assert questions_call.call_args.args[:3] == (goal.name, goal.description, 1200)
+    contexts = await StudentContextRepository(test_db).list_valid(test_user.id)
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
     bank = await LessonQuestionRepository(test_db).list_bank_history(goal.id)
     assert sorted(h.question.question for h in bank) == ["Q0", "Q1"]
@@ -132,8 +139,38 @@ async def test_lessons_job_never_raises(test_db, test_user, goal_factory):
         kickoff_lessons_generation(str(goal.id), "p", ANSWERS)
         await asyncio.gather(*goal_jobs._running)
 
-    assert len(await StudentContextRepository(test_db).list_valid(test_user.id, goal.id)) == 1
+    assert len(await StudentContextRepository(test_db).list_valid(test_user.id)) == 1
     assert await LessonQuestionRepository(test_db).list_bank_history(goal.id) == []
+
+
+@pytest.mark.asyncio
+async def test_two_goals_one_run_one_context_read_by_both(
+    auth_client, test_db, test_user, goal_factory
+):
+    """#87: a context belongs to the student. Two goals, one run of the
+    generation, one context - and question generation and the tutor read it."""
+    law = await goal_factory(test_user, name="Law", description="Roman law.")
+    history = await goal_factory(test_user, name="History", description="The 1800s.", active=True)
+
+    with (
+        patch(MODULE + ".gemini_generate_student_context", return_value=CONTEXT) as context_call,
+        patch(MODULE + ".generate_lesson_questions", return_value=generated(0)) as questions_call,
+        patch(MODULE + ".AsyncSessionLocal", return_value=_Session(test_db)),
+    ):
+        await generate_lessons(str(history.id), "I want history", ANSWERS)
+
+    seen_goals = sorted((g.name, g.description) for g in context_call.call_args.args[0])
+    assert seen_goals == [(history.name, history.description), (law.name, law.description)]
+    stored = await StudentContextRepository(test_db).list_valid(test_user.id)
+    assert [(c.state, c.metacognition) for c in stored] == [("Beginner", "Curious")]
+
+    with patch(TUTOR, return_value=GeminiChatResponse(messages=["Start here."])) as tutor_call:
+        await auth_client.post("/api/v1/tutor/messages", json={"message": "where do I start?"})
+
+    read = [questions_call.call_args.args[3], tutor_call.call_args.args[1]]
+    assert [[(c.state, c.metacognition) for c in r] for r in read] == [
+        [("Beginner", "Curious")]
+    ] * 2
 
 
 class _Session:

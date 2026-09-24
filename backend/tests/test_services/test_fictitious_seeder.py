@@ -49,7 +49,7 @@ async def test_it_creates_the_history(test_db):
     assert sum(ex.is_liked for ex in chat) == 1
     assert any(len(ex.tutor_responses) > 1 for ex in chat)
     assert sorted(kinds) == ["pdf"] * 3 + ["webpage"] * 3 + ["youtube"] * 3
-    assert len(await StudentContextRepository(test_db).list_valid(result.student.id, goal.id)) == 1
+    assert len(await StudentContextRepository(test_db).list_valid(result.student.id)) == 1
 
 
 @pytest.mark.asyncio
