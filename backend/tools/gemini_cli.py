@@ -46,10 +46,12 @@ from backend.services.gemini.onboarding.introduction import generate_introductio
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
 from backend.services.gemini.resources.search_resources import search_resources
+from backend.services.gemini.student_context.schema import GeminiStudentContext, StudentGoal
 from backend.services.gemini.student_context.student_context import (
     gemini_generate_student_context,
+    gemini_review_student_context,
 )
-from backend.utils.envs import GEMINI_FAST_MODEL, GEMINI_PREMIUM_MODEL
+from backend.utils.envs import GEMINI_FAST_MODEL, GEMINI_PREMIUM_MODEL, QUESTIONS_PER_LESSON
 from backend.utils.gemini import gemini_configs
 
 # A goal id is only a foreign key here: the resource search takes one to stamp
@@ -59,7 +61,15 @@ UNSAVED_GOAL_ID = "00000000-0000-0000-0000-000000000000"
 
 @dataclass(frozen=True)
 class UseCase:
-    """One entry in the menu: how to call it, and what it costs to call."""
+    """One entry in the menu: how to call it, and what it costs to call.
+
+    `sample` is a set of command-line arguments that works. It is printed as
+    the example in the menu, and it is what the gate calls `build` with: see
+    `backend/tests/test_tools/test_gemini_cli.py`, which type-checks the
+    arguments this entry builds against the signature of the function it
+    calls. Without it nothing catches a use case whose inputs changed (#120) -
+    the arity usually still matches, so only the types give it away.
+    """
 
     name: str
     model: str
@@ -67,6 +77,7 @@ class UseCase:
     least_args: int
     build: Callable[[list[str]], tuple]
     call: Callable[..., Any]
+    sample: tuple[str, ...]
     note: str = ""
 
 
@@ -83,6 +94,19 @@ def _turn(message: str) -> list[GeminiChatMessage]:
     return [GeminiChatMessage(role="user", message=message, time=datetime.now().isoformat())]
 
 
+def _goal(name: str, description: str) -> list[StudentGoal]:
+    """One goal, as the context generators read a student's goals (#116). They
+    take the list because a context is written about the person, not the goal;
+    from the command line one is enough to see the prompt work."""
+    return [StudentGoal(name=name, description=description)]
+
+
+def _context(state: str, metacognition: str) -> list[GeminiStudentContext]:
+    """One standing reading of the student, as the prompts that consume a
+    context read them (#116): a list, newest first."""
+    return [GeminiStudentContext(state=state, metacognition=metacognition)]
+
+
 USE_CASES: list[UseCase] = [
     UseCase(
         "goal-validation",
@@ -91,6 +115,7 @@ USE_CASES: list[UseCase] = [
         1,
         lambda a: (a[0],),
         get_prompt_validation,
+        sample=("Learn chess openings",),
     ),
     UseCase(
         "objective-questions",
@@ -99,6 +124,7 @@ USE_CASES: list[UseCase] = [
         2,
         lambda a: (a[0], a[1]),
         generate_onboarding_questions,
+        sample=("Chess", "Learn chess openings"),
     ),
     UseCase(
         "study-plan",
@@ -107,6 +133,7 @@ USE_CASES: list[UseCase] = [
         1,
         lambda a: (a[0], _answers(a[1:])),
         generate_study_plan,
+        sample=("Learn chess", "How often?=Daily"),
     ),
     UseCase(
         "introduction",
@@ -115,6 +142,7 @@ USE_CASES: list[UseCase] = [
         2,
         lambda a: (a[0], a[1]),
         generate_introduction_screens,
+        sample=("Chess", "Learn chess openings"),
     ),
     UseCase(
         "tutor-reply",
@@ -123,23 +151,46 @@ USE_CASES: list[UseCase] = [
         3,
         lambda a: (_turn(a[2]), [StudentContextToChat()], a[0], a[1]),
         gemini_messages_generator,
+        sample=("Chess", "Learn chess openings", "Where do I start?"),
         note="one turn, no history and an empty student context",
     ),
     UseCase(
         "lesson-questions",
         GEMINI_FAST_MODEL,
-        "<goal-name> <goal-description> <rating> <state> <metacognition>",
+        "<goal-name> <goal-description> <rating> <state> <metacognition> [how-many]",
         5,
-        lambda a: (a[0], a[1], int(a[2]), a[3], a[4]),
+        lambda a: (
+            a[0],
+            a[1],
+            int(a[2]),
+            _context(a[3], a[4]),
+            None,
+            int(a[5]) if len(a) > 5 else QUESTIONS_PER_LESSON,
+        ),
         generate_lesson_questions,
+        sample=("Chess", "Learn chess openings", "1200", "Knows the moves", "Impatient"),
+        note="no recent mistakes; how-many defaults to one lesson",
     ),
     UseCase(
         "student-context",
         GEMINI_PREMIUM_MODEL,
         "<goal-name> <goal-description> [onboarding-prompt]",
         2,
-        lambda a: (a[0], a[1], a[2] if len(a) > 2 else None),
+        lambda a: (_goal(a[0], a[1]), a[2] if len(a) > 2 else None, None),
         gemini_generate_student_context,
+        sample=("Chess", "Learn chess openings", "I keep losing to my brother"),
+        note="the first reading of a student: one goal, no onboarding answers",
+    ),
+    UseCase(
+        "context-review",
+        GEMINI_PREMIUM_MODEL,
+        "<goal-name> <goal-description> <state> <metacognition>",
+        4,
+        lambda a: (_goal(a[0], a[1]), _context(a[2], a[3]), [], []),
+        gemini_review_student_context,
+        sample=("Chess", "Learn chess openings", "Knows the moves", "Impatient"),
+        note="what went stale and what to add (#90); no lessons or chats, so "
+        "an empty answer is the right one",
     ),
     UseCase(
         "resource-search",
@@ -148,6 +199,7 @@ USE_CASES: list[UseCase] = [
         2,
         lambda a: (UNSAVED_GOAL_ID, a[0], a[1], a[2] if len(a) > 2 else None),
         search_resources,
+        sample=("Chess", "Learn chess openings"),
         note="three billed calls: a grounded search, a reformat, then one embedding "
         "per resource. Nothing is stored.",
     ),
@@ -220,6 +272,7 @@ def menu() -> str:
     for case in USE_CASES:
         lines.append(f"  {case.name:<21} {case.usage}")
         lines.append(f"  {'':<21} model: {case.model}")
+        lines.append(f"  {'':<21} e.g.: {' '.join(repr(arg) for arg in case.sample)}")
         if case.note:
             lines.append(f"  {'':<21} note: {case.note}")
     return "\n".join(lines)
