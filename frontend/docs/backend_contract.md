@@ -313,10 +313,16 @@ Decided in conversation; recorded here so they survive the session.
    student context (state + metacognition), lesson questions. The lesson-question
    one exists to **reuse questions across students** (someone studying imperial
    Europe and someone studying Napoleon can share questions).
-6. **Model split.** Fast-lite for high-volume/low-stakes (validation, questions,
-   intro screens, lesson generation, chat); premium for what the user reads
-   (goal description, resource search). Model names live in one file and need a
-   bump roughly monthly — last bumped 2026-09-21 to `gemini-3.5-flash-lite` / `gemini-3.8-flash`.
+6. **Model split.** Two models, always: a **fast** one (cheaper, less sharp) and a
+   **premium** one. They may be the same name when only one is worth using; the
+   split is the rule, not the two names. Where each goes (the user, 2026-09-24):
+   **premium** for onboarding end to end — goal validation, the objective
+   questions, the study plan, the introduction screens — and for the student
+   context, because both decide what the student gets for a long time;
+   **fast** for what is generated constantly: the tutor's replies, lesson
+   questions, and the resource search. Model names live in `backend/utils/envs.py`
+   and need a bump roughly monthly — last bumped 2026-09-21 to
+   `gemini-3.5-flash-lite` / `gemini-3.8-flash`.
 
 ### Build order agreed
 1. Backend correct & tested (mocked Gemini) ← we are here

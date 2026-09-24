@@ -2,7 +2,7 @@ import logging
 from google.genai import types
 from backend.models.resource import Resource
 from backend.utils.gemini.gemini_configs import get_client, get_gemini_config, get_gemini_embeddings, get_gemini_config_plain_text
-from backend.utils.envs import GEMINI_PREMIUM_MODEL
+from backend.utils.envs import GEMINI_FAST_MODEL
 from backend.services.gemini.resources.schema import GeminiResourceSearchResults
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ def search_resources(
     student_context: str | None = None
 ) -> list[Resource]:
     client = get_client()
-    model = GEMINI_PREMIUM_MODEL
+    model = GEMINI_FAST_MODEL
     
     context_str = f"Student's background and level: {student_context}" if student_context else "None"
     
