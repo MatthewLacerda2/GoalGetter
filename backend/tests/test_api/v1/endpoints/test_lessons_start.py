@@ -38,13 +38,30 @@ async def test_start_serves_recent_mistakes_first_and_records_the_lesson(
 
 
 @pytest.mark.asyncio
-async def test_start_caps_the_lesson_size(auth_client, test_user, goal_factory, question_factory):
+async def test_a_lesson_is_eight_questions(auth_client, test_user, goal_factory, question_factory):
+    """#86: the size the user decided on, spelled out and not only as the constant"""
+    assert QUESTIONS_PER_LESSON == 8
     goal = await goal_factory(test_user)
     for i in range(QUESTIONS_PER_LESSON + 2):
         await question_factory(goal, f"q{i}", created_at=at(i))
 
     response = await auth_client.post(url(goal.id))
-    assert len(response.json()["questions"]) == QUESTIONS_PER_LESSON
+    assert len(response.json()["questions"]) == 8
+
+
+@pytest.mark.asyncio
+async def test_a_bank_shorter_than_a_lesson_serves_what_it_has(
+    auth_client, test_user, goal_factory, question_factory
+):
+    """#86: the size is a cap, not a floor - a thin bank still opens a lesson"""
+    goal = await goal_factory(test_user)
+    for i in range(3):
+        await question_factory(goal, f"q{i}", created_at=at(i))
+
+    response = await auth_client.post(url(goal.id))
+
+    assert response.status_code == 201
+    assert len(response.json()["questions"]) == 3
 
 
 @pytest.mark.asyncio

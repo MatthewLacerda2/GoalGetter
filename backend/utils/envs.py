@@ -7,8 +7,12 @@ from backend.core.config import settings
 
 # Deprecated: nothing reads it. Use QUESTIONS_PER_LESSON.
 NUM_QUESTIONS_PER_LESSON = 12  # TODO: deprecated
-# How many questions POST /goals/{goal_id}/lessons serves; 5 matches the lesson screens.
-QUESTIONS_PER_LESSON = 5
+# How many questions POST /goals/{goal_id}/lessons serves. Eight, because a
+# lesson is meant to last about two minutes (#86) and the per-question time is
+# what makes that measurable. It is a cap, not a floor: a bank shorter than this
+# serves what it has. It also sets TARGET_SERVABLE, what a generation tops the
+# bank up to (services/jobs/steps/questions.py).
+QUESTIONS_PER_LESSON = 8
 NUM_QUESTIONS_PER_EVALUATION = 8
 NUM_DIMENSIONS = 3072
 EMBEDDING_MODEL = "gemini-embedding-2"

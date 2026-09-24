@@ -157,11 +157,18 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
     job (see Background jobs). This endpoint picks the next set and opens a
     lesson (`lessons` row, served ids in order).
   - **selection**, in this order until the lesson is full
-    (`QUESTIONS_PER_LESSON` = 5, `utils/envs.py`): 1. questions whose **latest**
+    (`QUESTIONS_PER_LESSON` = 8, `utils/envs.py`): 1. questions whose **latest**
     answer was wrong, most recent first; 2. questions never answered, oldest
     first; 3. everything else, least recently answered first. Written once, in
     `services/lessons/selection.py`. The embedding columns are unused, and
     nothing will be shared between students (see **No reuse between students**).
+  - **8 is a cap, not a floor** (#86). A lesson is meant to last about two
+    minutes, and eight questions is the user's measure of that. A bank shorter
+    than eight serves what it has: the empty bank is the student who has just
+    created a goal and is already answered with the 409 below, while a bank
+    that is short but not empty means last night's generation came back thin —
+    refusing there would turn one bad night at Gemini into a lost day of study.
+    The bank only grows, so a short lesson repairs itself.
   - empty bank ⇒ **409** `"Lessons are still being prepared"`. Not the
     student's goal ⇒ 404.
   - every call opens a new lesson; an unanswered one is simply left open.
@@ -170,17 +177,31 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 - **`POST /goals/{goal_id}/lessons/{lesson_id}/answers`** — submit the answers
   all at once; returns the result.
-  request: `{ "answers": lesson_answer[] }` (at least one) · response: `lesson_evaluation`
+  request: `{ "answers": lesson_answer[] }` · response: `lesson_evaluation`
+  - **every served question, answered exactly once** (#86). The student answers
+    each question before the next is shown, so a submission missing one is a
+    broken client, not a student who gave up — and the app is written so it
+    cannot build one (`lesson_controller.dart` returns to the gap instead of
+    sending it). How many answers there must be is **not** a schema rule: only
+    the lesson knows, so the endpoint decides and the shortfall is always the
+    same 400, never a validation error that fired first. An empty list is that
+    same 400.
   - graded **server-side** from the stored correct index; nothing the client
     says about correctness is read. `student_accuracy` is over every question
-    **served**: one left out counts as wrong. Time is self-reported.
+    served, which is now always every question answered. Time is self-reported,
+    per question (`lesson_answers.time_spent`) — that is what makes the
+    two-minute target measurable.
   - stores one `lesson_answers` row per question (the first attempt; the
     review round is never submitted), then the lesson's `finished_at`,
     `total_seconds`, `accuracy`, `elo_delta`, `elo_after`.
   - `elo` is **random** (±20) until the elo design (#62): one function,
     `services/lessons/elo.py`. It is added to `goals.rating`.
-  - lesson already answered ⇒ **409**. A question not served in this lesson, or
-    the same one twice ⇒ **422**. Lesson not in this goal ⇒ 404. Streak: #56.
+  - a served question left unanswered ⇒ **400** `"Every question this lesson
+    served must be answered"`. A question not served in this lesson, or the
+    same one twice ⇒ **422** — the two are kept apart because they say
+    different things about the client: one stopped early, the other sent an
+    answer we cannot place. Lesson already answered ⇒ **409**. Lesson not in
+    this goal ⇒ 404. Streak: #56.
 
 ---
 
@@ -368,12 +389,12 @@ Before generating, the step counts what tomorrow can be built from — the
 **selection rule** above: questions whose latest answer was **wrong**, plus
 questions **never answered**. Call that the servable bank.
 
-- servable ≥ `QUESTIONS_PER_LESSON` ⇒ **generate nothing**. That is the student
+- servable ≥ `QUESTIONS_PER_LESSON` (8) ⇒ **generate nothing**. That is the student
   who is struggling, and struggling makes the job cheaper: a question stays in
   rotation until it is answered right, so there is no reason to buy new ones to
   sit behind it.
 - otherwise ask Gemini for `2 × QUESTIONS_PER_LESSON − servable`
-  (`TARGET_SERVABLE`). One lesson of that is tomorrow's gap; the second is the
+  (`TARGET_SERVABLE` = 16). One lesson of that is tomorrow's gap; the second is the
   **margin**, and it is one lesson because a student who answers tomorrow's
   questions correctly consumes all of them — without it the bank is short again
   the very next night, and that night is the one that may find Gemini down.

@@ -17,6 +17,10 @@ part 'lesson_controller.g.dart';
 /// Runs one lesson on the active goal: open it, answer each question once
 /// (graded inline for feedback), submit those first attempts, then a review
 /// round of the wrong ones that is never submitted.
+///
+/// The submit is all-or-nothing: every served question, answered exactly once
+/// (#86). The API refuses anything less with a 400, so the controller never
+/// builds a partial payload - see [_resumeAt].
 @riverpod
 class LessonController extends _$LessonController {
   @override
@@ -148,10 +152,33 @@ class LessonController extends _$LessonController {
   /// Sends the answers again after a failed submit. They were kept in state.
   Future<void> retrySubmit() => _submitEvaluation();
 
+  /// Puts the student back on question [index], its clock restarted.
+  ///
+  /// The submit carries every question the lesson served, or the server
+  /// answers 400 (#86) and the student is stuck holding a lesson they did
+  /// answer. So a gap is never sent: it is returned to. The screen does not
+  /// let one open - a question is answered before the next is shown - and
+  /// this keeps that true of the controller itself.
+  void _resumeAt(int index) {
+    final questions = List<LessonQuestionState>.from(state.questions);
+    questions[index] = questions[index].copyWith(startTime: DateTime.now());
+    state = state.copyWith(
+      questions: questions,
+      currentQuestionIndex: index,
+      clearSelection: true,
+      isAnswerRevealed: false,
+    );
+  }
+
   Future<void> _submitEvaluation() async {
     if (state.isSubmitting || _hasSubmittedAnswers) return;
+    final unanswered = state.questions.indexWhere((q) => !q.isAnswered);
+    if (unanswered != -1) {
+      _resumeAt(unanswered);
+      return;
+    }
     final answers = [
-      for (final q in state.questions.where((q) => q.isAnswered))
+      for (final q in state.questions)
         LessonAnswer(
           questionId: q.apiQuestion.id,
           choiceIndex: q.studentAnswerIndex!,
