@@ -31,7 +31,7 @@ PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude
+.PHONY: help check backend frontend back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -159,6 +159,16 @@ ROUTES ?= /
 shot: ## Headless phone screenshots of ROUTES from the preview, into shots/
 	@node tools/shot.mjs --url http://127.0.0.1:$(PREVIEW_PORT) --out shots \
 	  $(if $(wildcard .claude/token),--token .claude/token) $(ROUTES)
+
+# `make gemini`: run ONE Gemini use case for real and print the raw text next to
+# the parsed object (backend/tools/gemini_cli.py). It SPENDS REAL QUOTA on the
+# project's key - one run, one billed call (the resource search: three) - so it
+# is never wired into a gate and never called from the tests. With no ARGS it
+# lists the use cases it knows and spends nothing.
+#   make gemini
+#   make gemini ARGS='tutor-reply "Chess" "Learn chess openings" "How do I start?"'
+gemini: env ## Run one Gemini use case for real (SPENDS QUOTA; no ARGS lists them)
+	@$(DOCKER_RUN) python -m backend.tools.gemini_cli $(ARGS)
 
 # `make claude`: "Fictitious Claude" with a lived-in history, so every signed-in
 # screen has data (backend/services/fictitious/, hardcoded, no Gemini/YouTube),

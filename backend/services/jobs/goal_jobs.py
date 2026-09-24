@@ -23,6 +23,7 @@ from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.services.gemini.student_context import gemini_generate_student_context
 from backend.services.resources.link_validation import validate_resources
+from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +37,9 @@ async def scrape_resources(goal_id: str) -> int:
             return 0
 
         # The Gemini client is synchronous and this is a slow, grounded search,
-        # so keep it off the event loop.
-        recommended = await asyncio.to_thread(
+        # so keep it off the event loop. Nobody is waiting on this job, so it
+        # retries on the background budget (backend/utils/gemini/gemini_retry.py).
+        recommended = await run_gemini_background(
             search_resources, goal_id, goal.name, goal.description
         )
         logger.info("Gemini recommended %d resources for goal %s", len(recommended), goal_id)
@@ -70,7 +72,7 @@ async def generate_lessons(goal_id: str, prompt: str, answers: list[tuple[str, s
             logger.warning("Lessons generation: goal %s no longer exists", goal_id)
             return 0
 
-        context = await asyncio.to_thread(
+        context = await run_gemini_background(
             gemini_generate_student_context, goal.name, goal.description, prompt, answers
         )
         await StudentContextRepository(session).create(
@@ -83,7 +85,7 @@ async def generate_lessons(goal_id: str, prompt: str, answers: list[tuple[str, s
         )
         await session.commit()
 
-        generated = await asyncio.to_thread(
+        generated = await run_gemini_background(
             generate_lesson_questions,
             goal.name,
             goal.description,
