@@ -7,7 +7,7 @@ import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
-import 'package:goal_getter/features/onboarding/presentation/widgets/step_error.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Step 1 of goal creation: what the student wants to learn. Sends it to
@@ -27,7 +27,6 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
   final _promptFocusNode = FocusNode();
 
   bool _isLoading = false;
-  Object? _error;
 
   @override
   void initState() {
@@ -52,10 +51,7 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
       );
       return;
     }
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    setState(() => _isLoading = true);
     try {
       final questions = await ref
           .read(onboardingApiProvider)
@@ -67,15 +63,16 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
         );
       }
     } on Exception catch (e) {
-      if (mounted) setState(() => _error = e);
+      // A rejected prompt (400: Gemini saying it is not a goal) wants
+      // rephrasing, not the same request again.
+      final rejected = e is ApiException && e.status == 400;
+      if (mounted) {
+        showFailure(context, e, onRetry: rejected ? null : _onEnterPressed);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
-  /// A rejected prompt wants rephrasing, not the same request again.
-  bool get _isRejection =>
-      _error is ApiException && (_error as ApiException).status == 400;
 
   @override
   Widget build(BuildContext context) {
@@ -114,15 +111,6 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
                 ),
                 const SizedBox(height: 24),
                 _promptField(l10n),
-                if (_error != null) ...[
-                  const SizedBox(height: 8),
-                  StepError(
-                    error: _error!,
-                    onRetry: _isRejection || _isLoading
-                        ? null
-                        : _onEnterPressed,
-                  ),
-                ],
                 const SizedBox(height: 16),
                 _nextButton(l10n),
               ],

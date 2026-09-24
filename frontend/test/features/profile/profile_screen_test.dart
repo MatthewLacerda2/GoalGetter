@@ -30,7 +30,8 @@ void main() {
   testWidgets('a failed GET /me says so, with a retry', (tester) async {
     await pumpProfile(tester, (500, '{"detail": "boom"}'));
 
-    expect(find.text('Could not load your profile: boom'), findsOneWidget);
+    expect(find.text('Could not load your profile'), findsOneWidget);
+    expect(find.text('boom'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
   });
 }

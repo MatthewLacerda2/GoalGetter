@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/utils/error_text.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
@@ -32,13 +32,10 @@ class GoalDetailRoute extends ConsumerWidget {
       skipLoadingOnRefresh: false,
       loading: () =>
           message(const Center(child: CircularProgressIndicator())),
-      error: (err, _) => message(StateMessage(
-        icon: Icons.error_outline,
-        isError: true,
+      error: (err, _) => message(FailureView(
+        error: err,
         title: l10n.goalsLoadFailed,
-        body: errorText(err, l10n),
-        actionLabel: l10n.retry,
-        onAction: () => ref.invalidate(goalsListControllerProvider),
+        onRetry: () => ref.invalidate(goalsListControllerProvider),
       )),
       data: (goals) {
         for (final candidate in goals) {

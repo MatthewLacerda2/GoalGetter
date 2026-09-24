@@ -212,47 +212,34 @@
     "@startLearning": { "description": "Study plan: confirm and begin" },
     "continueAsFictitiousUser": "Continue as a fictitious user",
     "@continueAsFictitiousUser": { "description": "Start screen, DEV_LOGIN builds only: sign in as a fictitious student instead of Google" },
-    "signInFailed": "Could not sign in: {detail}",
+    "signInFailed": "Could not sign in",
     "@signInFailed": {
-        "description": "Start screen: sign-in error snackbar",
-        "placeholders": { "detail": { "type": "String" } }
+        "description": "Start screen: sign-in error snackbar"
     },
     "lessonsStillPreparing": "Your lessons are still being prepared",
     "@lessonsStillPreparing": { "description": "Lesson: 409 on start, the goal's question bank is still empty (title)" },
     "lessonsStillPreparingBody": "We are writing the first questions for your goal. Check again in a few minutes.",
     "@lessonsStillPreparingBody": { "description": "Lesson: 409 on start (body)" },
-    "lessonCheckAgain": "Check again",
-    "@lessonCheckAgain": { "description": "Lesson: retry opening the lesson after a 409" },
     "lessonNoActiveGoalBody": "Choose an active goal to start a lesson.",
     "@lessonNoActiveGoalBody": { "description": "Lesson: no active goal id on the device" },
     "lessonPickGoal": "Pick a goal",
     "@lessonPickGoal": { "description": "Lesson: open the goals list" },
     "lessonStartFailed": "Could not start the lesson",
     "@lessonStartFailed": { "description": "Lesson: opening the lesson failed" },
-    "lessonTryAgain": "Try again",
-    "@lessonTryAgain": { "description": "Lesson: retry a failed call" },
     "lessonBackHome": "Back to home",
     "@lessonBackHome": { "description": "Lesson: leave a lesson that could not start" },
     "lessonSubmitFailed": "Your answers were not saved",
     "@lessonSubmitFailed": { "description": "Lesson: submitting the answers failed (title)" },
-    "lessonSubmitFailedBody": "Nothing is lost: try again to send them.",
-    "@lessonSubmitFailedBody": { "description": "Lesson: submitting the answers failed (body)" },
     "lessonFinishedTitle": "Lesson complete!",
     "@lessonFinishedTitle": { "description": "Finish lesson screen: title" },
     "lessonTime": "Time",
     "@lessonTime": { "description": "Finish lesson screen: time stat" },
     "lessonAccuracy": "Accuracy",
     "@lessonAccuracy": { "description": "Finish lesson screen: accuracy stat" },
-    "couldNotReachServer": "Could not reach the server",
-    "@couldNotReachServer": { "description": "Any failed call that got no answer (offline, DNS, CORS)" },
     "homeLoadFailed": "Could not load your dashboard",
     "@homeLoadFailed": { "description": "Home: GET /home failed" },
-    "homeRetry": "Try again",
-    "@homeRetry": { "description": "Home: retry GET /home" },
     "profileLoadFailed": "Could not load your profile",
     "@profileLoadFailed": { "description": "Profile: GET /me failed" },
-    "profileRetry": "Retry",
-    "@profileRetry": { "description": "Profile: retry GET /me" },
     "profileMemberSince": "Member since {date}",
     "@profileMemberSince": {
         "description": "Profile header: students.created_at",
@@ -276,15 +263,13 @@
         "description": "Goals: last update date",
         "placeholders": { "date": { "type": "String" } }
     },
-    "setActiveGoalFailed": "Could not make this your active goal: {detail}",
+    "setActiveGoalFailed": "Could not make this your active goal",
     "@setActiveGoalFailed": {
-        "description": "Goal detail: set-active failed",
-        "placeholders": { "detail": { "type": "String" } }
+        "description": "Goal detail: set-active failed"
     },
-    "deleteGoalFailed": "Could not delete this goal: {detail}",
+    "deleteGoalFailed": "Could not delete this goal",
     "@deleteGoalFailed": {
-        "description": "Goal detail: delete failed",
-        "placeholders": { "detail": { "type": "String" } }
+        "description": "Goal detail: delete failed"
     },
     "goalNotFound": "This goal no longer exists",
     "@goalNotFound": { "description": "Goal detail: deep-linked goal is not in GET /goals" },
@@ -310,33 +295,20 @@
     "@tutorEmptyChat": { "description": "Tutor chat: empty state before the first message" },
     "tutorNoActiveGoal": "Choose an active goal to chat with your tutor",
     "@tutorNoActiveGoal": { "description": "Tutor chat: the student has no active goal (404 No active goal)" },
-    "tutorNotSent": "Not sent: {detail}",
-    "@tutorNotSent": {
-        "description": "Tutor chat: under a user bubble whose send failed; detail is the server's reason",
-        "placeholders": { "detail": { "type": "String" } }
-    },
-    "tutorUnreachable": "Could not reach the server",
-    "@tutorUnreachable": { "description": "Error detail when the server could not be reached at all" },
     "tutorOlderFailed": "Could not load older messages",
     "@tutorOlderFailed": { "description": "Tutor chat: loading older messages failed" },
-    "tutorRetry": "Retry",
-    "@tutorRetry": { "description": "Tutor chat: retry loading older messages" },
     "tutorLikeFailed": "Could not save your like",
     "@tutorLikeFailed": { "description": "Tutor chat: snackbar when saving a like failed" },
     "tutorLikeReply": "Like this reply",
     "@tutorLikeReply": { "description": "Tutor chat: tooltip of the heart on a tutor reply" },
-    "onboardingTooManyTries": "Too many tries. Wait a minute and try again.",
+    "tooManyTries": "Too many tries. Wait a minute and try again.",
     "@onboardingTooManyTries": { "description": "Goal creation: the backend rate limit (429) was hit" },
-    "onboardingRetry": "Try again",
-    "@onboardingRetry": { "description": "Goal creation: retry a failed step with the same input" },
     "onboardingGeneratingPlan": "Generating your study plan...",
     "@onboardingGeneratingPlan": { "description": "Goal questions: progress while the study plan is generated" },
     "onboardingPreviousQuestion": "Back to previous question",
     "@onboardingPreviousQuestion": { "description": "Goal questions: tooltip of the back arrow" },
     "onboardingPlanFailed": "Could not generate your study plan",
     "@onboardingPlanFailed": { "description": "Goal questions: title when the study plan could not be generated" },
-    "onboardingReviewAnswers": "Review my answers",
-    "@onboardingReviewAnswers": { "description": "Goal questions: leave the error and go back to the answers" },
     "onboardingIntroContinue": "Let's start",
     "@onboardingIntroContinue": { "description": "Goal introduction screens: go to home" },
     "startWithGoogle": "Start with Google",
@@ -359,5 +331,9 @@
     "statSeparator": "  ·  ",
     "@statSeparator": {
         "description": "Profile header: between the goal count and the streak"
+    },
+    "tutorLoadFailed": "Could not load your chat",
+    "@tutorLoadFailed": {
+        "description": "Tutor: the first page of the history could not be loaded"
     }
 }

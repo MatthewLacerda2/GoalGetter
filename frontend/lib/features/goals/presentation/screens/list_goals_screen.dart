@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/utils/error_text.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
 import 'package:goal_getter/features/goals/presentation/widgets/goal_card.dart';
@@ -31,13 +31,10 @@ class ListGoalsScreen extends ConsumerWidget {
         // A retry keeps the old error on screen, so show the spinner instead.
         skipLoadingOnRefresh: false,
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => StateMessage(
-          icon: Icons.error_outline,
-          isError: true,
+        error: (err, _) => FailureView(
+          error: err,
           title: l10n.goalsLoadFailed,
-          body: errorText(err, l10n),
-          actionLabel: l10n.retry,
-          onAction: () => ref.invalidate(goalsListControllerProvider),
+          onRetry: () => ref.invalidate(goalsListControllerProvider),
         ),
         data: (goals) {
           if (goals.isEmpty) {

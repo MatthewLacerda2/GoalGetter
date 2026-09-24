@@ -7,7 +7,8 @@
 ///  3. no colour literal (`Colors.*`, `Color(0x…)`, `Color.fromARGB(…)`);
 ///  4. no `fontSize:` — type comes from `Theme.of(context).textTheme`;
 ///  5. no radius or padding literal — they come from `AppRadius` / `AppSpacing`;
-///  6. no user-facing string written in Dart — it comes from the ARB files.
+///  6. no user-facing string written in Dart — it comes from the ARB files;
+///  7. no widget named after a failure outside `lib/core/`.
 ///
 /// Rules 3-5 exist so the theme is the only place a colour, a type size, a
 /// corner or a gap is decided. `lib/app/theme/` is where those values live, so
@@ -48,6 +49,17 @@ const String themeDir = 'lib/app/theme/';
 /// menu and its fixtures are a tool for us, not a screen for a student.
 const String devDir = 'lib/app/dev/';
 
+/// The one directory allowed to define a widget named after a failure.
+const String coreDir = 'lib/core/';
+
+/// The name endings that say "this widget is how a failure is shown".
+const List<String> failureSuffixes = [
+  'Error',
+  'ErrorView',
+  'Failure',
+  'FailureView',
+];
+
 /// The directories the linter reads: `lib/` is what it judges, the others are
 /// read so a file that only a test reaches does not look like an orphan.
 const List<String> sourceDirs = ['lib', 'test', 'tool', 'integration_test'];
@@ -66,6 +78,9 @@ bool isThemeFile(String path) => path.replaceAll('\\', '/').contains(themeDir);
 
 /// True when [path] may write user-facing strings in Dart.
 bool isDevFile(String path) => path.replaceAll('\\', '/').contains(devDir);
+
+/// True when [path] may define a widget named after a failure.
+bool isCoreFile(String path) => path.replaceAll('\\', '/').contains(coreDir);
 
 final RegExp _colorsDot = RegExp(r'\bColors\.[A-Za-z]');
 final RegExp _colorHex = RegExp(r'\bColor\s*\(\s*0x');
@@ -96,6 +111,32 @@ final RegExp _textArgument = RegExp(
   r'''\b(?:hintText|labelText|helperText|errorText|tooltip|semanticLabel'''
   r'''|semanticsLabel)\s*:\s*['"]''',
 );
+
+/// A class declaration and what it extends: `class Foo extends Bar`.
+///
+/// A widget is a class extending something whose name ends in `Widget`
+/// (`StatelessWidget`, `ConsumerWidget`, …), which is every widget in this
+/// codebase and the one thing the rule needs to tell a widget from a model.
+final RegExp _classDeclaration = RegExp(
+  r'\bclass\s+([A-Za-z_$][\w$]*)[^{;]*?\bextends\s+([A-Za-z_$][\w$]*)',
+);
+
+/// Widgets in [stripped] whose name says they are how a failure is shown.
+List<Violation> failureWidgets(String stripped) {
+  const help = 'A failure is a snackbar or a FailureView, both in '
+      'lib/core/widgets/failure.dart: call one instead of writing a third '
+      'shape here';
+  return [
+    for (final match in _classDeclaration.allMatches(stripped))
+      if (match.group(2)!.endsWith('Widget') &&
+          failureSuffixes.any(match.group(1)!.endsWith))
+        Violation(
+          lineAt(stripped, match.start),
+          'own-failure-widget',
+          "'${match.group(1)}' is a feature's own error widget. $help",
+        ),
+  ];
+}
 
 /// Numeric literal anywhere in the balanced argument list opening at [open].
 bool _hasNumericArgument(String stripped, int open) {
@@ -214,6 +255,8 @@ List<Violation> lintSource(String path, String source) {
       when: (index) => _isHardcodedText(source, index),
     );
   }
+
+  if (!isCoreFile(path)) violations.addAll(failureWidgets(stripped));
 
   violations.sort((a, b) => a.line.compareTo(b.line));
   return violations;

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/core/utils/error_text.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goal_actions.dart';
 import 'package:goal_getter/features/goals/presentation/widgets/goal_card.dart';
@@ -25,28 +25,30 @@ class GoalsDetailScreen extends ConsumerStatefulWidget {
 
 class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
   _Busy _busy = _Busy.none;
-  String? _error;
 
+  /// The two buttons sit at the bottom of the screen, so the snackbar that
+  /// says one of them failed goes to the top, where it covers neither.
   Future<void> _run(
     _Busy busy,
     Future<String> Function(GoalActions actions) action,
-    String Function(String detail) describeFailure,
+    String title,
+    VoidCallback onRetry,
   ) async {
-    final l10n = AppLocalizations.of(context);
     final actions = ref.read(goalActionsProvider);
-    setState(() {
-      _busy = busy;
-      _error = null;
-    });
+    setState(() => _busy = busy);
     try {
       final location = await action(actions);
       if (mounted) context.go(location);
     } on Exception catch (e) {
       if (!mounted) return;
-      setState(() {
-        _busy = _Busy.none;
-        _error = describeFailure(errorText(e, l10n));
-      });
+      setState(() => _busy = _Busy.none);
+      showFailure(
+        context,
+        e,
+        title: title,
+        onRetry: onRetry,
+        position: FailurePosition.top,
+      );
     }
   }
 
@@ -54,6 +56,7 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
         _Busy.activating,
         (actions) => actions.setActive(widget.goal),
         AppLocalizations.of(context).setActiveGoalFailed,
+        _setActive,
       );
 
   Future<void> _delete() async {
@@ -83,6 +86,7 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
       _Busy.deleting,
       (actions) => actions.delete(widget.goal),
       l10n.deleteGoalFailed,
+      _delete,
     );
   }
 
@@ -110,7 +114,6 @@ class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
           children: [
             Expanded(child: _GoalSummary(goal: goal, title: title)),
             _GoalActions(
-              error: _error,
               busy: _busy,
               onSetActive: idle && !goal.isActive ? _setActive : null,
               onDelete: idle ? _delete : null,
@@ -163,16 +166,14 @@ class _GoalSummary extends StatelessWidget {
   }
 }
 
-/// The two buttons pinned under the goal, and the last failure over them.
+/// The two buttons pinned under the goal.
 class _GoalActions extends StatelessWidget {
   const _GoalActions({
-    required this.error,
     required this.busy,
     required this.onSetActive,
     required this.onDelete,
   });
 
-  final String? error;
   final _Busy busy;
   final VoidCallback? onSetActive;
   final VoidCallback? onDelete;
@@ -191,15 +192,6 @@ class _GoalActions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (error != null) ...[
-            Text(
-              error!,
-              key: const Key('goalActionError'),
-              style: TextStyle(color: scheme.error),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-          ],
           _ActionButton(
             label: l10n.setAsCurrentGoal,
             color: scheme.primary,

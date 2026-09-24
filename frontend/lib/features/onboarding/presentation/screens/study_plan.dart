@@ -11,7 +11,7 @@ import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
-import 'package:goal_getter/features/onboarding/presentation/widgets/step_error.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Step 3 of goal creation: the goal's name, a short AI-generated summary of
@@ -32,7 +32,6 @@ class StudyPlanScreen extends ConsumerStatefulWidget {
 
 class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
   bool _isLoading = false;
-  Object? _error;
 
   Future<void> _confirm() async {
     ref.read(pendingGoalDraftProvider.notifier).hold(widget.draft);
@@ -40,10 +39,7 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
       context.go(AppRoutes.start);
       return;
     }
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    setState(() => _isLoading = true);
     try {
       final created = await ref
           .read(onboardingApiProvider)
@@ -54,13 +50,22 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
     } on ApiException catch (e) {
       // A 401 the client could not refresh has already sent the student to
       // sign in; the held draft brings them back.
-      if (mounted && e.status != 401) setState(() => _error = e);
+      if (mounted && e.status != 401) _sayItFailed(e);
     } on Exception catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted) _sayItFailed(e);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
+  /// The plan is untouched on screen, so the failure goes over it - at the
+  /// top, where it does not cover the two buttons that failed.
+  void _sayItFailed(Object error) => showFailure(
+        context,
+        error,
+        onRetry: _confirm,
+        position: FailurePosition.top,
+      );
 
   void _deny() {
     ref.read(pendingGoalDraftProvider.notifier).clear();
@@ -105,13 +110,6 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
                   ),
                 ),
               ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                StepError(
-                  error: _error!,
-                  onRetry: _isLoading ? null : _confirm,
-                ),
-              ],
               const SizedBox(height: 20),
               _Actions(
                 isLoading: _isLoading,

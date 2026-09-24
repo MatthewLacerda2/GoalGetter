@@ -47,7 +47,7 @@ void main() {
     expect(find.text(geminiDown.detail), findsOneWidget);
 
     api.planError = null;
-    await tester.tap(find.text('Try again'));
+    await tester.tap(find.text('Retry'));
     await tester.pumpAndSettle();
     expect(find.text(plan.goalName), findsOneWidget);
     expect(api.lastAnswers!.single.answer, 'A few words');
@@ -82,7 +82,7 @@ void main() {
     expect(find.text(plan.goalName), findsOneWidget);
 
     api.createError = null;
-    await tester.tap(find.text('Try again'));
+    await tester.tap(find.text('Retry'));
     await tester.pumpAndSettle();
     expect(find.text('Ready?'), findsOneWidget);
   });

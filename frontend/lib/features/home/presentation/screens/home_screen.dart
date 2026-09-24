@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
@@ -36,19 +36,14 @@ class HomeScreen extends ConsumerWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-          error: (err, _) => StateMessage(
-            icon: Icons.cloud_off,
-            isError: true,
+          error: (err, _) => FailureView(
+            error: err,
             title: AppLocalizations.of(context).homeLoadFailed,
-            body: err is ApiException
-                ? err.detail
-                : AppLocalizations.of(context).couldNotReachServer,
-            actionLabel: AppLocalizations.of(context).homeRetry,
-            onAction: () => ref.invalidate(homeControllerProvider),
+            onRetry: () => ref.invalidate(homeControllerProvider),
           ),
           // null: 404 No active goal.
           data: (data) =>
-              data == null ? _EmptyState() : _Dashboard(data: data),
+              data == null ? const _EmptyState() : _Dashboard(data: data),
         ),
       ),
     );
@@ -104,54 +99,16 @@ class _Dashboard extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.flag_outlined,
-              size: 96,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 24.0),
-            Text(
-              l10n.noActiveGoal,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24.0),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => context.push(AppRoutes.goalPrompt),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.chip),
-                  ),
-                ),
-                child: Text(
-                  l10n.createGoal,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return StateMessage(
+      icon: Icons.flag_outlined,
+      title: l10n.noActiveGoal,
+      actionLabel: l10n.createGoal,
+      onAction: () => context.push(AppRoutes.goalPrompt),
     );
   }
 }

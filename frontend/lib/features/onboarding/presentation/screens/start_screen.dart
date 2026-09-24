@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/dev_login_button.dart';
@@ -67,13 +68,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     } catch (error) {
       developer.log('Error handling Google web sign-in event: $error');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).signInFailed(error.toString()),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
+        showFailure(
+          context,
+          error,
+          title: AppLocalizations.of(context).signInFailed,
         );
       }
     } finally {
@@ -94,57 +92,65 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.startGradientTop,
-              AppTheme.startGradientBottom,
-            ],
+    // The gradient is the app's one dark surface, so everything drawn on it
+    // reads from the theme of that surface and not from the light one (#85).
+    // Every child is its own widget, so each one sees this theme.
+    return Theme(
+      data: AppTheme.startBackdrop,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppTheme.startGradientTop, AppTheme.startGradientBottom],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Spacer(flex: 2),
-
-                const _Wordmark(),
-
-                SizedBox(height: 28),
-
-                PreOnboardingCarousel(height: 170),
-
-                Spacer(flex: 2),
-
-                // A DEV_LOGIN build offers the fictitious sign-in in place of
-                // Google; everything else gets the Google button.
-                if (AppConfig.devLogin)
-                  const DevLoginButton()
-                else
-                  _GoogleButton(
-                    isLoading: _isLoading,
-                    onPressed: _handleGoogleSignIn,
-                  ),
-
-                // Terms and Privacy
-                Text(
-                  AppLocalizations.of(context).agreeToTermsAndPrivacyPolicy,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-
-                Spacer(flex: 1),
-              ],
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(flex: 2),
+                  const _Wordmark(),
+                  const SizedBox(height: AppSpacing.xl),
+                  const PreOnboardingCarousel(height: _carouselHeight),
+                  const Spacer(flex: 2),
+                  // A DEV_LOGIN build offers the fictitious sign-in in place
+                  // of Google; everything else gets the Google button.
+                  if (AppConfig.devLogin)
+                    const DevLoginButton()
+                  else
+                    _GoogleButton(
+                      isLoading: _isLoading,
+                      onPressed: _handleGoogleSignIn,
+                    ),
+                  const _Terms(),
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// How tall the pitch carousel stands on the start screen.
+const double _carouselHeight = 170;
+
+/// The line under the sign-in button.
+class _Terms extends StatelessWidget {
+  const _Terms();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      AppLocalizations.of(context).agreeToTermsAndPrivacyPolicy,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodySmall,
     );
   }
 }
@@ -203,7 +209,9 @@ class _GoogleButton extends StatelessWidget {
             : FaIcon(FontAwesomeIcons.google, color: onBlue, size: 20),
         label: Text(
           isLoading ? l10n.signingIn : l10n.startWithGoogle,
-          style: Theme.of(context).textTheme.labelLarge,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: onBlue,
+          ),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.googleBlue,

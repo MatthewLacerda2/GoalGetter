@@ -13,7 +13,6 @@ class ChatBubbleData {
     this.carriesHeart = false,
     this.isLiked = false,
     this.status = BubbleStatus.sent,
-    this.error,
   });
 
   final String text;
@@ -24,7 +23,6 @@ class ChatBubbleData {
   final bool carriesHeart;
   final bool isLiked;
   final BubbleStatus status;
-  final String? error;
 }
 
 /// Newest first, the order a reversed ListView draws from the bottom up.
@@ -38,7 +36,6 @@ List<ChatBubbleData> chatBubbles(
         text: pending.text,
         fromTutor: false,
         status: pending.failed ? BubbleStatus.failed : BubbleStatus.sending,
-        error: pending.error,
       ),
   ];
   for (final exchange in exchanges.reversed) {

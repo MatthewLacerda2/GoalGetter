@@ -76,3 +76,20 @@ abstract final class AppSpacing {
   /// 32 — the space around a screen's hero block.
   static const double xxl = 32;
 }
+
+/// The few sizes that are neither a gap nor a corner: measures a layout has to
+/// know about a component it does not draw itself.
+abstract final class AppSizes {
+  /// The band a floating snackbar occupies, its gap included.
+  ///
+  /// A floating snackbar is positioned by the margin left *under* it, so
+  /// putting one at the top of the screen means reserving everything below it
+  /// — and that calculation has to know how tall the snackbar is.
+  static const double snackBarBand = 96;
+
+  /// The icon of a whole-screen state: a failure, an empty list, a wait.
+  static const double stateIcon = 48;
+
+  /// A small icon sitting inside a line of text.
+  static const double inlineIcon = 16;
+}

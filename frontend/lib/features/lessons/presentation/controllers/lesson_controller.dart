@@ -58,13 +58,13 @@ class LessonController extends _$LessonController {
       final kind = e.status == LessonsApi.notReadyStatus
           ? LessonStartFailureKind.notReady
           : LessonStartFailureKind.failed;
-      state = LessonState(isLoading: false, startFailure: LessonFailure(kind, e.detail));
+      state = LessonState(isLoading: false, startFailure: LessonFailure(kind, e));
       return;
-    } on Exception {
+    } on Exception catch (e) {
       if (_disposed) return;
-      state = const LessonState(
+      state = LessonState(
         isLoading: false,
-        startFailure: LessonFailure(LessonStartFailureKind.failed),
+        startFailure: LessonFailure(LessonStartFailureKind.failed, e),
       );
       return;
     }
@@ -173,10 +173,13 @@ class LessonController extends _$LessonController {
         _finish(_localEvaluation(answers));
         return;
       }
-      state = state.copyWith(isSubmitting: false, submitFailure: LessonFailure(null, e.detail));
-    } on Exception {
+      state = state.copyWith(isSubmitting: false, submitFailure: LessonFailure(null, e));
+    } on Exception catch (e) {
       if (_disposed) return;
-      state = state.copyWith(isSubmitting: false, submitFailure: const LessonFailure(null));
+      state = state.copyWith(
+        isSubmitting: false,
+        submitFailure: LessonFailure(null, e),
+      );
     }
   }
 
