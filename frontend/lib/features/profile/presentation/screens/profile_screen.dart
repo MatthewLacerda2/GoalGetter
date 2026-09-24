@@ -9,8 +9,8 @@ import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
-import 'package:goal_getter/features/profile/domain/user_profile.dart';
 import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:goal_getter/features/profile/presentation/widgets/profile_header.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key});
@@ -21,7 +21,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late final AuthService _authService = ref.read(authServiceProvider);
-  bool _notificationsOn = false;
+  late final SettingsStorage _storage = ref.read(settingsStorageProvider);
+  late bool _notificationsOn = _storage.readNotificationsOn();
 
   static const _languageNames = {
     SettingsStorage.english: 'English',
@@ -43,7 +44,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final currentLanguage = ref.watch(localeProvider).languageCode;
-    final profile = ref.watch(profileControllerProvider).valueOrNull;
+    final profile = ref.watch(profileControllerProvider);
     final goalsCount =
         ref.watch(goalsListControllerProvider).valueOrNull?.length ?? 0;
 
@@ -55,7 +56,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              if (profile != null) _buildHeader(profile, goalsCount),
+              ProfileHeader(
+                profile: profile,
+                goalsCount: goalsCount,
+                onRetry: () => ref.invalidate(profileControllerProvider),
+              ),
               const SizedBox(height: 28),
 
               _sectionLabel(l10n.goals),
@@ -97,9 +102,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 title: l10n.notifications,
                 trailing: Switch(
                   value: _notificationsOn,
-                  onChanged: (v) => setState(() => _notificationsOn = v),
+                  onChanged: _setNotifications,
                 ),
-                onTap: () => setState(() => _notificationsOn = !_notificationsOn),
+                onTap: () => _setNotifications(!_notificationsOn),
               ),
               const SizedBox(height: 28),
 
@@ -119,73 +124,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(UserProfile profile, int goalsCount) {
-    final l10n = AppLocalizations.of(context)!;
-    return Row(
-      children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.secondary,
-              ],
-            ),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(profile.name, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Text(
-                    '$goalsCount ${l10n.goals.toLowerCase()}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Text(
-                    '  ·  ',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Icon(
-                    Icons.local_fire_department,
-                    size: 15,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '${profile.currentStreak}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -288,6 +226,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  /// Persisted, so the switch survives a restart. Nothing reads it yet: the
+  /// app sends no notifications.
+  void _setNotifications(bool on) {
+    setState(() => _notificationsOn = on);
+    _storage.writeNotificationsOn(on: on);
+  }
+
   void _showLanguagePicker() {
     showModalBottomSheet<void>(
       context: context,
@@ -349,8 +294,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
 
     if (confirmed == true && mounted) {
+      // Best-effort logout, then every stored key goes (see AuthService).
       await _authService.signOut();
-      await SettingsStorage.clearAllUserData();
       if (mounted) {
         context.go(AppRoutes.start);
       }

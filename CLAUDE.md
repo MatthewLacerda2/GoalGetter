@@ -36,6 +36,8 @@ targets; `make help` lists them. `make setup` once per checkout or worktree
 installs the git hooks, seeds `.env`, and fetches the Flutter deps (which also
 generates the l10n files — a fresh checkout shows ~69 analyzer errors until it
 runs).
+It also gives the worktree its **own test database** (`make test-db`): the fixtures drop
+every table, so two worktrees sharing one would wipe each other mid-run.
 
 Run `make backend` or `make frontend` for the side you touched, or `make check`
 for both, and see it pass **before pushing**.
@@ -113,6 +115,15 @@ gates prove the code runs; they do not prove it is the right change.
 - **Screens**: `DEV_MENU=true` opens a dev index of every screen, including the
   ones that need route arguments, all running on mocks.
 - **Endpoints**: Swagger is at `/api/v1/docs` (e.g. `http://localhost:8001/api/v1/docs`).
+- **Signed-in screens, headless**: `make preview` builds the integrated app and serves
+  it with its own backend on `:8093` (loopback and the tailnet only). `make claude-token`
+  signs Claude in as a fictitious student, then `make shot ROUTES="/home /goals"` writes a
+  phone-sized PNG per route to `shots/` — read them. Flutter web draws to a canvas, so
+  the PNG, not the DOM, is the evidence. `make claude` does what `make claude-token`
+  does after giving that student a lived-in history (three goals, two weeks of lessons,
+  a tutor chat, resources) written straight to the dev database, so every screen has
+  data; `ARGS=--fresh` rebuilds it. The preview's backend drops its schema on every
+  start: re-run `make claude` (or `make claude-token`) after a rebuild.
 - **Gemini and YouTube behaviour**: the services are plain functions — call them
   directly to see what the model actually returns.
 
@@ -218,17 +229,21 @@ remind him and ask.
 - **Line endings are mixed** — roughly 20 files CRLF, the rest LF. Preserve a file's
   existing endings when editing: a tool that rewrites them turns a one-line change
   into a whole-file diff.
-- **The frontend is fully mocked.** `AppStartController` is hardcoded to a
-  returning user with an active goal, and every feature reads its `debug/mock_*.dart`.
-  Integration replaces these one endpoint at a time.
-- **Authed endpoints need a real Google token.** There is no test-token mint, so
-  `POST /goals` and the auth routes can only be driven through the tests or a real
-  sign-in.
-- **Analyzer backlog: 60 warnings, 635 infos** (2026-09-21), so CI runs `flutter
+- **Every screen runs on the real API** (2026-09-21, #51–#57). The only mocks left
+  are `app/dev/dev_fixtures.dart`, which the dev menu uses — and which routes taking
+  a go_router `extra` still fall back to in production builds when the `extra` is
+  missing (a web refresh), so those screens can show fixture data there.
+- **Dev sign-in without Google.** A backend started with `DEV_LOGIN=true` serves
+  `POST /auth/dev-login`; `make claude-token` (honours `BACKEND_PORT`) writes a
+  bearer for "Fictitious Claude" to `.claude/token`, and a Flutter build with
+  `--dart-define=DEV_LOGIN=true` offers the same sign-in on the start screen.
+- **Analyzer backlog: 27 warnings, 533 infos** (2026-09-21, after integration), so CI runs `flutter
   analyze` with `--no-fatal-warnings --no-fatal-infos`. Next step: clear the
   warnings (mostly mechanical) and let them block.
-- **`SECRET_KEY` hardcoded in `backend/utils/envs.py` is dead code** — JWTs are
-  signed with `settings.SECRET_KEY` from `.env`. Delete the constant.
+- **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the
+  tailnet name) is not enabled on this tailnet yet; the user enables it once from the
+  admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google
+  sign-in will need that HTTPS origin.
 - **Gemini model names drift.** They are defined once in `backend/utils/envs.py` and
   need a bump roughly monthly.
 

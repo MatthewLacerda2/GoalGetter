@@ -1,9 +1,8 @@
 # Ignore all files at root
 *
 
-# Allow frontend and client_sdk directories
+# Allow the frontend directory
 !frontend/
-!client_sdk/
 
 # Ignore platform-specific and build folders inside frontend
 frontend/build/

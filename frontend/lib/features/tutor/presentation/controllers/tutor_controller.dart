@@ -1,148 +1,108 @@
 import 'dart:async';
+
+import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/features/tutor/data/tutor_api.dart';
+import 'package:goal_getter/features/tutor/domain/chat_exchange.dart';
+import 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:goal_getter/features/tutor/domain/chat_message.dart';
-import 'package:goal_getter/features/tutor/presentation/controllers/mock_tutor_controller.dart';
+export 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.dart';
 
 part 'tutor_controller.g.dart';
 
-class TutorState {
-  final List<ChatMessage> messages;
-  final bool isLoading;
-  final bool isLoadingMore;
-  final bool isSending;
-  final bool hasMoreMessages;
-  final String? errorMessage;
-
-  TutorState({
-    this.messages = const [],
-    this.isLoading = true,
-    this.isLoadingMore = false,
-    this.isSending = false,
-    this.hasMoreMessages = true,
-    this.errorMessage,
-  });
-
-  TutorState copyWith({
-    List<ChatMessage>? messages,
-    bool? isLoading,
-    bool? isLoadingMore,
-    bool? isSending,
-    bool? hasMoreMessages,
-    String? errorMessage,
-  }) {
-    return TutorState(
-      messages: messages ?? this.messages,
-      isLoading: isLoading ?? this.isLoading,
-      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      isSending: isSending ?? this.isSending,
-      hasMoreMessages: hasMoreMessages ?? this.hasMoreMessages,
-      errorMessage: errorMessage,
-    );
-  }
-}
+/// The backend's detail for [error], or null when there is none to show (the
+/// server was not reached at all).
+String? _detail(Object error) => error is ApiException ? error.detail : null;
 
 @riverpod
 class TutorController extends _$TutorController {
+  TutorApi get _api => ref.read(tutorApiProvider);
+
   @override
   TutorState build() {
-    Future.microtask(() => fetchMessages());
-    return TutorState();
+    Future.microtask(load);
+    return const TutorState();
   }
 
-  final List<String> _pendingMessages = [];
-  int _temporaryMessageCounter = 0;
-
-  Future<void> fetchMessages({bool loadMore = false}) async {
-    if (loadMore) return;
-
-    state = state.copyWith(
-      isLoading: true,
-      errorMessage: null,
-    );
-
+  /// Loads the newest page, replacing whatever was there.
+  Future<void> load() async {
+    if (state.load != TutorLoad.loading) state = const TutorState();
     try {
-      final mockMsgs = await getMockChatMessages();
-      state = state.copyWith(
-        messages: mockMsgs,
-        isLoading: false,
-        hasMoreMessages: false,
+      final page = await _api.list();
+      state = TutorState(
+        load: TutorLoad.ready,
+        exchanges: page.reversed.toList(),
+        hasMore: page.length == TutorApi.pageSize,
       );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
+    } on ApiException catch (e) {
+      final noGoal = e.status == 404 && e.detail == TutorApi.noActiveGoal;
+      state = TutorState(
+        load: noGoal ? TutorLoad.noActiveGoal : TutorLoad.failed,
+        loadError: e.detail,
       );
+    } on Exception {
+      state = const TutorState(load: TutorLoad.failed);
     }
   }
 
-  void submitMessage(String messageText) {
-    final trimmed = messageText.trim();
-    if (trimmed.isEmpty) return;
-
-    _pendingMessages.add(trimmed);
-
-    // Optimistic user update
-    final tempId = 'temp_${_temporaryMessageCounter++}';
-    final optimisticMsg = ChatMessage(
-      id: tempId,
-      message: trimmed,
-      sender: ChatMessageSender.user,
-      isLiked: false,
-    );
-
-    state = state.copyWith(
-      messages: [...state.messages, optimisticMsg],
-    );
-
-    _sendPendingMessages();
-  }
-
-  Future<void> _sendPendingMessages() async {
-    if (_pendingMessages.isEmpty || state.isSending) return;
-
-    final userMsgText = _pendingMessages.first;
-    _pendingMessages.clear();
-
-    state = state.copyWith(isSending: true);
-
+  /// Loads the page before the oldest loaded exchange. After a failure only
+  /// an explicit [retry] tries again, so scrolling does not hammer the server.
+  Future<void> loadOlder({bool retry = false}) async {
+    final s = state;
+    if (s.load != TutorLoad.ready || !s.hasMore || s.isLoadingMore) return;
+    if (s.loadMoreFailed && !retry) return;
+    state = s.copyWith(isLoadingMore: true, loadMoreFailed: false);
     try {
-      final tutorReply = await getMockTutorResponse(userMsgText);
-      final cleanedMessages = state.messages.where((msg) => !msg.id.startsWith('temp_')).toList();
-
-      final userMsg = ChatMessage(
-        id: 'user_${DateTime.now().millisecondsSinceEpoch}',
-        message: userMsgText,
-        sender: ChatMessageSender.user,
-      );
-
+      final page = await _api.list(before: s.exchanges.first.createdAt);
       state = state.copyWith(
-        messages: [...cleanedMessages, userMsg, tutorReply],
-        isSending: false,
+        exchanges: [...page.reversed, ...state.exchanges],
+        hasMore: page.length == TutorApi.pageSize,
+        isLoadingMore: false,
       );
-    } catch (e) {
-      final cleanedMessages = state.messages.where((msg) => !msg.id.startsWith('temp_')).toList();
-      state = state.copyWith(
-        messages: cleanedMessages,
-        isSending: false,
-        errorMessage: 'Failed to send message: $e',
-      );
+    } on Exception {
+      state = state.copyWith(isLoadingMore: false, loadMoreFailed: true);
     }
   }
 
-  Future<void> toggleLikeMessage(String messageId, bool currentLikeStatus) async {
-    final updatedList = state.messages.map((msg) {
-      if (msg.id == messageId) {
-        return ChatMessage(
-          id: msg.id,
-          message: msg.message,
-          sender: msg.sender,
-          isLiked: !currentLikeStatus,
-        );
-      }
-      return msg;
-    }).toList();
+  /// Sends [text], shown at once as a pending bubble. Returns false when the
+  /// send failed: the bubble stays, marked failed, and the caller gives the
+  /// text back to the student.
+  Future<bool> send(String text) async {
+    final message = text.trim();
+    if (message.isEmpty || state.isSending) return true;
+    state = state.copyWith(pending: PendingSend(message));
+    try {
+      final exchange = await _api.send(message);
+      state = state.copyWith(
+        exchanges: [...state.exchanges, exchange],
+        pending: null,
+      );
+      return true;
+    } on Exception catch (e) {
+      state = state.copyWith(
+        pending: PendingSend(message, failed: true, error: _detail(e)),
+      );
+      return false;
+    }
+  }
 
-    state = state.copyWith(messages: updatedList);
+  /// Sets the like at once, then confirms it with the backend. Returns false,
+  /// with the like put back, when the backend refused it.
+  Future<bool> setLike(String exchangeId, bool isLiked) async {
+    _replace(exchangeId, (e) => e.copyWith(isLiked: isLiked));
+    try {
+      final saved = await _api.setLike(exchangeId, isLiked);
+      _replace(exchangeId, (_) => saved);
+      return true;
+    } on Exception {
+      _replace(exchangeId, (e) => e.copyWith(isLiked: !isLiked));
+      return false;
+    }
+  }
+
+  void _replace(String id, ChatExchange Function(ChatExchange) update) {
+    state = state.copyWith(
+      exchanges: [for (final e in state.exchanges) e.id == id ? update(e) : e],
+    );
   }
 }

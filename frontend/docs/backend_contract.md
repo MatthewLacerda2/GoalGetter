@@ -1,305 +1,392 @@
-# Backend endpoints (derived from the frontend mocks)
+# Backend endpoints
 
-> Status: **target for backend work** — the new-version backend does not exist
-> yet. The Flutter frontend runs entirely on mock fixtures
-> (`features/**/debug/mock_*.dart`); this document is the contract those mocks
-> imply, so the FastAPI backend can be built to match and the Dart client
-> regenerated from it (see `api_codegen_flow.md`).
+> Spec for the GoalGetter backend (FastAPI). Derived from the frontend mocks
+> (`frontend/lib/features/**/debug/mock_*.dart`) — the frontend currently runs
+> on those fixtures. We'll implement the services from this doc, then cover them
+> with tests (TDD).
 
 **Conventions**
 
-- All paths assume the `/api/v1` prefix (e.g. `GET /me` = `GET /api/v1/me`).
-- All endpoints require `Authorization: Bearer <accessToken>` **except**
-  `POST /auth/signup`, which carries the Google token.
-- Error responses (`401`, `403`, `404`) are intentionally **omitted** below —
-  only success shapes are listed.
-- Times are ISO-8601 strings. Field names are the frontend's expectation
-  (camelCase); the backend may use snake_case and let the generator map them.
-- Demo data models one user, **"Marco"**, **7 days** into the app, learning
-  **Italian**, with a **7-day streak**. All mocks are mutually consistent.
+- Prefix: `/api/v1` (e.g. `GET /me` → `GET /api/v1/me`).
+- Auth: `Authorization: Bearer <access_token>` on everything **except**
+  `/auth/signup`, `/auth/login`, `/auth/dev-login`, `/auth/refresh`.
+- Field names are snake_case (the Dart client generator maps them to camelCase).
+- Times are ISO-8601. Status codes and error shapes are intentionally **omitted**
+  (we'll pin those down when writing tests).
+- "Active goal" = `students.current_goal_id`. Goal-scoped reads (`/home`,
+  `/resources`, `/tutor/*`) use it implicitly — no `goal_id` in the URL.
+- ⚙️ marks an endpoint that kicks off a **service** (LLM / scoring) we'll build
+  separately.
 
-Shared object shapes are defined once in [Schemas](#schemas) and referenced by
-name below.
-
----
-
-## Auth
-
-### `POST /auth/signup`
-Sign up or log in with a Google token (creates the account if new). Returns the
-app session.
-- **Params:** none
-- **Request:** header `Authorization: Bearer <googleToken>`; no body
-- **Response `200`:**
-  ```jsonc
-  {
-    "accessToken": "jwt…",
-    "student": { "id": "user_marco", "name": "Marco Rossi", "email": "marco.rossi@example.com" }
-  }
-  ```
-- _Mock:_ `auth_service.signupWithGoogle`
+**Legend:** ✅ implemented & tested · ⬜ to build
 
 ---
 
-## User
+## Auth — ✅ implemented & tested
+Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 
-### `GET /me`
-The signed-in user's profile. Drives startup routing and the Profile header.
-- **Params:** none
-- **Request:** none
-- **Response `200`:** [`UserProfile`](#userprofile)
-- _Mock:_ `mock_profile.dart`
+- **`POST /auth/signup`** — sign up or sign in with a Google token (creates the
+  account if new).
+  request: Google token in `Authorization` header (no body) · response: `token_response`
+- **`POST /auth/login`** — log in an existing user with a Google token.
+  request: `oauth2_request` · response: `token_response`
+- **`POST /auth/refresh`** — rotate tokens (refresh-token rotation).
+  request: `token_refresh_request` · response: `token_refresh_response`
+- **`POST /auth/logout`** — revoke a refresh token.
+  request: `token_refresh_request` · response: none
+- **`DELETE /auth/account`** — delete the signed-in user's account.
+  request: none · response: none
+- **`POST /auth/dev-login`** ✅ — **dev only** (#51): sign in as a fictitious
+  student, no Google. request: `{ "name": "Claude" }` · response: `token_response`
+  - creates or reuses the student `Fictitious <name>` (the prefix is not doubled),
+    with `google_id` = the slug (`fictitious-claude`) and email
+    `<slug>@fictitious.invalid`. **The name prefix is the only fictitious
+    marker** — no database flag (decided).
+  - only when the `DEV_LOGIN` setting is true (default false); off ⇒ 404, and the
+    route is left out of the OpenAPI schema.
+  - `make claude-token` calls it for `Claude` on the running backend
+    (`BACKEND_PORT`, default 8001) and writes the access token to the gitignored
+    `.claude/token`. The token lasts 30 min and dies with any backend restart.
+  - `DEV_LOGIN` also widens CORS to loopback and Tailscale origins on any port
+    (`backend/core/cors.py`); production stays on the exact origin list.
 
----
-
-## Goals
-
-### `GET /goals`
-All of the user's goals. Exactly one has `isActive: true` (drives Home).
-- **Params:** none
-- **Request:** none
-- **Response `200`:** [`Goal`](#goal)`[]`
-- _Mock:_ `mock_goals.dart`
-
-### `POST /goals/objective-questions`
-Step 1 of goal creation: given the user's free-text prompt, return clarifying
-multiple-choice questions (currently 6).
-- **Params:** none
-- **Request:**
-  ```jsonc
-  { "prompt": "I want to learn Italian for a trip to Rome" }
-  ```
-- **Response `200`:**
-  ```jsonc
-  { "questions": [
-    { "questionText": "What is your primary learning goal?",
-      "options": ["Career advancement", "Personal interest", "School project", "Building a product"] }
-  ] }
-  ```
-- _Mock:_ `mock_goal_prompt_screen.dart` (`fetchMockObjectiveQuestions`)
-
-### `POST /goals/study-plan`
-Step 2: given the prompt + the answers to the objective questions, return a
-short, AI-generated study plan to confirm.
-- **Params:** none
-- **Request:**
-  ```jsonc
-  { "prompt": "I want to learn Italian…",
-    "answers": ["Personal interest", "Absolute beginner", "15 to 30 minutes", "…"] }
-  ```
-- **Response `200`:**
-  ```jsonc
-  { "goalName": "Learn Italian",
-    "description": "To reach this goal… - Build a **daily practice** habit…" }
-  ```
-  `description` is short markdown.
-- _Mock:_ `mock_goal_questions_screen.dart` (`generateMockStudyPlan`)
-
-### `POST /goals`
-Step 3: create the goal from the accepted plan. The new goal becomes the active
-one.
-- **Params:** none
-- **Request:**
-  ```jsonc
-  { "prompt": "I want to learn Italian…",
-    "answers": ["…"],
-    "studyPlan": { "goalName": "Learn Italian", "description": "…" } }
-  ```
-- **Response `200`:** [`Goal`](#goal) (the created goal, `isActive: true`)
-- _Mock:_ `mock_study_plan.dart` (`submitMockFullCreation`)
-
-### `PUT /goals/{goalId}/set-active`
-Make the given goal the active one (the only place the active goal is switched).
-- **Params:** path `goalId`
-- **Request:** none
-- **Response `200`:** `{ "goalId": "goal_italian" }`
-- _Mock:_ goals detail screen (mocked locally)
-
-### `DELETE /goals/{goalId}`
-Delete a goal and its data.
-- **Params:** path `goalId`
-- **Request:** none
-- **Response `204`:** no body
-- _Mock:_ goals detail screen (mocked locally)
+> Note: the frontend calls `logout` on sign-out (best effort), then deletes
+> every stored key. Access tokens live 30 minutes, refresh tokens 30 days; the
+> app's `ApiClient` refreshes once on a 401 and replays the request.
 
 ---
 
-## Home
+## User — ✅ implemented & tested (#56, backend and app)
 
-### `GET /goals/{goalId}/dashboard`
-Everything the Home dashboard needs for one goal: current rating, the recent
-lessons list, and the elo-over-time history.
-- **Params:** path `goalId`
-- **Request:** none
-- **Response `200`:**
-  ```jsonc
-  {
-    "goalName": "Learn Italian",
-    "currentElo": 920,
-    "recentLessons": [
-      // most-recent first
-      { "date": "2026-06-06", "accuracy": 90.0, "eloDelta": 10, "durationSeconds": 137 }
-    ],
-    "eloHistory": [
-      // one point per day, oldest first; client filters to 7/30/90 days
-      { "date": "2026-05-31", "elo": 854 }
-    ]
-  }
-  ```
-  Once lessons are persisted, each `recentLessons[*]` should also carry a
-  `lessonId`.
-- _Mock:_ `mock_home_screen.dart`
+- **`GET /me`** — the signed-in user's profile + streak (drives the Profile header).
+  request: none · response: `user_profile`
+  - `member_since` is `students.created_at`.
+  - `current_streak` is user-wide; computed from lesson activity, no streak
+    table (see **Streak** under the cross-cutting notes).
 
 ---
 
-## Lessons
+## Goals — ✅ implemented & tested
 
-### `POST /goals/{goalId}/lessons`
-Start a lesson for the active goal — returns a fresh set of multiple-choice
-questions (currently 5).
-- **Params:** path `goalId`
-- **Request:** none
-- **Response `200`:**
-  ```jsonc
-  { "lessonId": "lesson_123",
-    "questions": [ /* MultipleChoiceQuestion */ ] }
-  ```
-  See [`MultipleChoiceQuestion`](#multiplechoicequestion). `correctAnswerIndex`
-  may instead be withheld and returned only on evaluation, if you want
-  server-side grading.
-- _Mock:_ `mock_lesson_controller.dart` (`getMockLessonQuestions`)
+- **`GET /goals`** ✅ — all of the user's goals, full info (the Goals list screen
+  reads everything at once; there is no per-goal GET).
+  request: none · response: `goal[]`, **newest first** (`created_at`)
+  - `is_active` = `goal.id == students.current_goal_id`. It is the only goal
+    "status" there is.
+  - `current_elo` reads `goals.rating`. `updated_at` is bumped by any change to
+    the goal row (SQLAlchemy `onupdate`), the rating after a lesson included, so
+    it reads as "last studied". Activating a goal changes `students`, not the
+    goal, so it does not move `updated_at`.
 
-### `POST /goals/{goalId}/lessons/{lessonId}/evaluate`
-Submit the student's answers; returns the lesson result. Side effects: updates
-the goal's elo and the user's streak.
-- **Params:** path `goalId`, `lessonId`
-- **Request:**
-  ```jsonc
-  { "answers": [
-    { "questionId": "q1", "choiceIndex": 0, "secondsSpent": 12 }
-  ] }
-  ```
-- **Response `200`:** [`LessonEvaluation`](#lessonevaluation)
-- _Mock:_ computed client-side in `lesson_controller.dart` via `mockEloForAccuracy`
+- **`POST /goals/objective-questions`** ⚙️ ✅ — step 1 of creation: validate the
+  prompt is a real goal, then generate clarifying multiple-choice questions.
+  request: `{ "prompt": "..." }` · response: `objective_question[]`
+  - services: goal validation (reject non-goals) + question generation (LLM).
+  - validation is **one** Gemini call returning three booleans — makes_sense,
+    is_harmless, is_achievable — plus a `reasoning` string. Any false ⇒ 400 with
+    that reasoning (the app shows it to the user and stops). Only if all three
+    pass do we make the second call for the questions.
+  - **exactly 5 questions**, 4 options each, no correct answer. Each probes one
+    fixed dimension: familiarity, interests, hands-on practice, theory,
+    preferred learning style. (The frontend mock still shows 6 — mock is wrong.)
+  - **PUBLIC** (no auth) + rate-limited 20/min, so anyone can try the app.
+
+- **`POST /goals/study-plan`** ⚙️ ✅ — step 2: preview what the goal will be.
+  request: `{ "prompt": "...", "answers": objective_answer[] }`
+  response: `{ "goal_name": "...", "description": "...(markdown)" }`
+  - stateless preview — nothing is persisted here.
+  - **PUBLIC** + rate-limited, same as step 1.
+  - ⚠️ **decided, not yet done:** this should describe *what the goal covers* so
+    the user can say "yes, that's what I want" — NOT a study plan. Users are not
+    able to judge their own study plan; they can judge whether we understood
+    their goal. Endpoint name can stay; the prompt must change.
+
+- **`POST /goals`** ⚙️ ✅ — step 3: commit the goal the user approved.
+  request: `GoalCommitRequest` (prompt, answers, **and the approved goal_name +
+  description**) · response: `goal` + `introduction_screen_data`
+  - **AUTHED.** Steps 1–2 are public; on "Generate" the app signs in with Google,
+    calls `/auth/signup` (idempotent create-or-return ⇒ JWT) and replays this
+    request with the token. Ownership = the authenticated student.
+  - does **not** re-generate the goal: it persists exactly the text the user
+    approved, so what they said yes to is what they get (and it saves a call).
+  - the only synchronous Gemini call here is the **introduction screens** (fast
+    model): 3–5 `{icon, title, text}` shown while background setup runs. `icon`
+    is a fixed 15-value enum so Gemini cannot hallucinate an icon name.
+  - sets `students.current_goal_id`, then fires the background jobs below.
+
+- **`PUT /goals/{goal_id}/set-active`** ✅ — set `students.current_goal_id`.
+  request: none · response: `{ "goal_id": "..." }`
+
+- **`DELETE /goals/{goal_id}`** ✅ — delete a goal and its data.
+  request: none · response: 204, no body
+  - the database cascades: `ON DELETE CASCADE` takes the goal's rows
+    (resources, lessons, contexts…), `SET NULL` clears `current_goal_id` when the
+    active goal goes. No goal becomes active in its place; the client decides
+    where to land.
+
+Both `{goal_id}` routes answer **404** for a missing goal *and* for someone
+else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Streak
+## Home — ✅ implemented & tested (#56, backend and app)
 
-### `GET /streak`
-The user's current-week streak (user-wide, not per goal).
-- **Params:** none
-- **Request:** none
-- **Response `200`:** [`Streak`](#streak)
-- _Mock:_ `mock_streak_screen.dart`
-
----
-
-## Resources
-
-### `GET /resources`
-Curated learning resources for a goal, grouped by kind.
-- **Params:** query `goalId`
-- **Request:** none
-- **Response `200`:**
-  ```jsonc
-  {
-    "youtube": [ /* ResourceItem (with image) */ ],
-    "sites":   [ /* ResourceItem (with image) */ ],
-    "books":   [ /* ResourceItem (no image) */ ]
-  }
-  ```
-  See [`ResourceItem`](#resourceitem). (A flat `ResourceItem[]` with a `type`
-  field would also work.)
-- _Mock:_ `mock_resources_screen.dart`
+- **`GET /home`** — dashboard for the active goal: rating, streak, recent
+  lessons, and the elo-over-time series.
+  request: none (uses `current_goal_id`) · response: `home_dashboard`
+  - **404** `No active goal` without one (`get_active_goal`, as `/resources`);
+    the app shows its empty state with a way to create a goal.
+  - `recent_lessons`: finished lessons only, newest first, at most **10** (the
+    screen shows 4).
+  - `elo_history`: one point per day that had a finished lesson, oldest first,
+    the `elo_after` of that day's last lesson; the whole history, the client
+    filters to 7/30/90 days.
+  - Dates are the server's local date of `lessons.finished_at`.
 
 ---
 
-## Tutor (chat)
+## Lessons — ✅ implemented & tested (#55, backend and app)
 
-### `GET /tutor/messages`
-Chat history with the AI tutor, paginated (oldest→newest within a page; load
-older on scroll-up).
-- **Params:** query `goalId`, `cursor` (optional)
-- **Request:** none
-- **Response `200`:** [`ChatMessage`](#chatmessage)`[]`
-- _Mock:_ `mock_tutor_controller.dart` (`getMockChatMessages`)
+- **`POST /goals/{goal_id}/lessons`** — open a lesson from the goal's question
+  bank. 201.
+  request: none · response: `{ "lesson_id": "...", "questions": multiple_choice_question[] }`
+  - questions are **not** generated on request: the bank is built by the lesson
+    job (see Background jobs). This endpoint picks the next set and opens a
+    lesson (`lessons` row, served ids in order).
+  - **selection**, in this order until the lesson is full
+    (`QUESTIONS_PER_LESSON` = 5, `utils/envs.py`): 1. questions whose **latest**
+    answer was wrong, most recent first; 2. questions never answered, oldest
+    first; 3. everything else, least recently answered first. Written once, in
+    `services/lessons/selection.py`. Embeddings (reuse across students) unused yet.
+  - empty bank ⇒ **409** `"Lessons are still being prepared"`. Not the
+    student's goal ⇒ 404.
+  - every call opens a new lesson; an unanswered one is simply left open.
+  - `correct_answer_index` **is** included (the frontend grades inline; we accept
+    that a determined user could read it via devtools). The server re-grades.
 
-### `POST /tutor/messages`
-Send a user message; returns the tutor's reply.
-- **Params:** none
-- **Request:**
-  ```jsonc
-  { "goalId": "goal_italian", "message": "When do I use essere vs avere?" }
-  ```
-- **Response `200`:** [`ChatMessage`](#chatmessage) (the tutor's reply)
-- _Mock:_ `mock_tutor_controller.dart` (`getMockTutorResponse`)
+- **`POST /goals/{goal_id}/lessons/{lesson_id}/answers`** — submit the answers
+  all at once; returns the result.
+  request: `{ "answers": lesson_answer[] }` (at least one) · response: `lesson_evaluation`
+  - graded **server-side** from the stored correct index; nothing the client
+    says about correctness is read. `student_accuracy` is over every question
+    **served**: one left out counts as wrong. Time is self-reported.
+  - stores one `lesson_answers` row per question (the first attempt; the
+    review round is never submitted), then the lesson's `finished_at`,
+    `total_seconds`, `accuracy`, `elo_delta`, `elo_after`.
+  - `elo` is **random** (±20) until the elo design (#62): one function,
+    `services/lessons/elo.py`. It is added to `goals.rating`.
+  - lesson already answered ⇒ **409**. A question not served in this lesson, or
+    the same one twice ⇒ **422**. Lesson not in this goal ⇒ 404. Streak: #56.
 
-### `POST /tutor/messages/{messageId}/like`
-Toggle the "liked" state on a tutor message.
-- **Params:** path `messageId`
-- **Request:** `{ "isLiked": true }`
-- **Response `200`:** no body (or the updated [`ChatMessage`](#chatmessage))
-- _Mock:_ `tutor_controller.toggleLikeMessage` (local only)
+---
+
+## Tutor — ✅ implemented & tested
+Scoped to the active goal (`current_goal_id`); no active goal ⇒ 404 `No active goal`.
+The API speaks in **exchanges**, not single messages: one row of `chat_messages`
+is the student's prompt plus the tutor's reply, and the reply is Gemini's array
+of short strings (WhatsApp-style bubbles). The client expands one exchange into a
+user bubble plus one tutor bubble per `responses` entry.
+
+- **`GET /tutor/messages`** ✅ — the active goal's exchanges, **newest first**
+  (client reverses for display).
+  params: `before` (a `created_at`; only older exchanges), `limit` (default 20,
+  max 50) · request: none · response: `chat_exchange[]`. Next page: pass the last
+  item's `created_at` as `before`.
+
+- **`POST /tutor/messages`** ⚙️ ✅ — send a message; get the stored exchange (201).
+  request: `{ "message": "..." }` · response: `chat_exchange`
+  - service: `services/gemini/chat/` via `run_gemini` (a Gemini `APIError` keeps its
+    status code). Gemini gets the goal's name and description, the student's
+    still-valid contexts for the goal, and the last `HISTORY_WINDOW` (10) exchanges
+    oldest first as alternating user/model turns, then the new message. Older
+    memory is the student contexts' job, not the window's.
+
+- **`PUT /tutor/messages/{message_id}/like`** ✅ — set (not toggle) the like on the
+  tutor's reply; the heart sits on the reply's last bubble.
+  request: `{ "is_liked": true }` · response: `chat_exchange` (updated). An
+  exchange outside the active goal (someone else's, or another goal's) ⇒ 404.
+
+---
+
+## Resources — ✅ implemented & tested
+
+- **`GET /resources`** ✅ — curated resources for the active goal, grouped by kind.
+  request: none (uses `current_goal_id`) · response:
+  `{ "youtube": resource_item[], "books": resource_item[], "websites": resource_item[] }`
+  - `pdf` → `books`, `webpage` → `websites`. `url` is the stored `link`.
+  - no active goal ⇒ **404 `No active goal`** (`get_active_goal`). A goal whose
+    background job has not finished yet has three empty lists, not an error.
+
+### Resource generation (background job) — ✅
+
+Kicked off fire-and-forget by `POST /goals`; the introduction screens exist to
+buy time for it. Never fails the request that started it. Also intended to re-run
+on its own schedule later (on a significant skill jump, or monthly).
+
+1. Ask Gemini (premium model, Google Search grounding) for 3 YouTube + 3
+   webpages + 3 PDFs, then a second call reshapes that text into JSON.
+2. **Validate every link** (see below) — anything unconfirmed is dropped
+   silently. No 4xx: nobody is waiting on this.
+3. Drop links this goal already has, embed the descriptions, store the rest.
+
+**Link validation rules**
+- *webpage* — must answer a request at all.
+- *pdf* — must answer AND be a real PDF (`content-type: application/pdf`, or a
+  `.pdf` path as fallback since some hosts serve octet-stream).
+- *youtube* — must resolve through the **YouTube Data API v3** to a real item:
+  a video must be `public`, and the channel/video must have a picture, which we
+  store as `image_url`. Needs `YOUTUBE_API_KEY`; without it YouTube links are
+  dropped. Handles `/watch?v=`, `youtu.be/`, `/shorts/`, `/embed/`,
+  `/channel/UC…` and `/@handle`.
+
+**`resources.link` is deliberately NOT unique.** Two students may legitimately be
+recommended the same channel, and reusing another student's verified resources is
+a card we want to keep playable. Dedupe is **per-goal** only.
+
+---
+
+## Background jobs
+
+Fire-and-forget, spawned on the running loop, errors logged not raised.
+
+| Job | Trigger | State |
+| --- | --- | --- |
+| **Resource scraping** | goal created; later on skill jump / monthly | ✅ built |
+| **Lesson generation** | goal created (first student context, then the first question bank from it); later a nightly job (#63) | ✅ first bank · ⬜ nightly |
+| **Student context ("memories")** | after onboarding, then periodically | ⬜ services written, nothing calls them |
+
+**Scheduling rule for memories** (user's intent, not yet implemented): check every
+student **daily**, but only regenerate if **≥3 days since the last generation**
+AND the student actually chatted or did a lesson in between. No activity ⇒ no
+job, no tokens spent.
+
+**History — the old nightly schedule (deleted 2026-09-21).** `backend/core/scheduler.py`
+wired four APScheduler daily crons: lesson creation (04:30), lesson context
+(02:00), chat context (03:00), mastery evaluation (05:00). All four job modules
+had already been deleted in Major/refactor (#41), so every import was broken; the
+file has now been removed too. Kept here as design history — note it split memory
+generation into **two** jobs (chats and lessons separately) and had a
+**mastery evaluation** job the current plan does not mention.
+
+**Decided: collapse to two nightly jobs.** One updates context/memories, one
+creates lessons — in that order, because lesson creation consumes the memories.
+Four jobs was over-splitting. No scheduler runs today.
+
+**Spirit: progression follows the student, not a syllabus.** Early prompting
+framed a goal as a fixed ladder of steps (chess: piece movement → endgames →
+tactics → openings). That is the wrong frame. A goal names *what the student
+wants to learn about*, not a course with a finish line — someone learning
+calculus is not taught until they'd graduate, they are taught continuously, and
+progression is measured against **them**, not against a curriculum. This is a
+guiding spirit for prompt-writing, not a mechanically enforced rule.
+
+**Student context** is the app's memory of the learner, stored per
+student+goal as two texts: `state` (what they know / where they are) and
+`metacognition` (how they think). Two services already exist — one builds the
+first impression from the onboarding answers, one revises it from recent lesson
+results and chat history. `is_still_valid` retires a stale context **without
+deleting it**: kept for progression history and data science. The user is meant
+to be able to read what the app has written about them.
+
+---
+
+## Decisions (2026-09-21)
+
+Decided in conversation; recorded here so they survive the session.
+
+1. **Study plan becomes a goal description.** Users can't judge a study plan;
+   they can judge whether we understood the goal. Prompt change, pending.
+2. **`resources.link` is not unique** (see Resources). Reusing another student's
+   verified resources is a future card; per-goal dedupe only.
+3. **Store validation outcomes, pass *and* fail.** Cheap, and impossible to
+   reconstruct later. Note what it actually measures: **how often Gemini invents
+   links**, not user behaviour. Build it *before* switching to Google search, so
+   there's a baseline to compare against. ⬜ not built.
+4. **Move resource search to Google, keep Gemini for judgment.** Gemini writes
+   the search queries → Google Custom Search JSON API returns *real* URLs →
+   Gemini ranks and describes the results it gets back. Cheaper (results are
+   input tokens, not output), more deterministic, and no URL can be invented.
+   Validators stay as the safety net. YouTube still needs the Data API either
+   way. ⬜ not built; `customsearch.googleapis.com` not yet enabled.
+5. **Embedding columns stay nullable** everywhere — generating them is never
+   obligatory. Present on: chat messages (prompt + response), goals, resources,
+   student context (state + metacognition), lesson questions. The lesson-question
+   one exists to **reuse questions across students** (someone studying imperial
+   Europe and someone studying Napoleon can share questions).
+6. **Model split.** Fast-lite for high-volume/low-stakes (validation, questions,
+   intro screens, lesson generation, chat); premium for what the user reads
+   (goal description, resource search). Model names live in one file and need a
+   bump roughly monthly — last bumped 2026-09-21 to `gemini-3.5-flash-lite` / `gemini-3.8-flash`.
+
+### Build order agreed
+1. Backend correct & tested (mocked Gemini) ← we are here
+2. Integrate the screens against it
+3. Lock schemas, generate the **first** Alembic migration, stop dropping the DB
+4. Real Google OAuth, then the Cloudflare tunnel
+
+> Until step 3 the database **drops its whole schema on every backend start**.
+> There are no migrations yet (Alembic is scaffolded, `versions/` is empty).
 
 ---
 
 ## Schemas
 
-### UserProfile
 ```jsonc
-{ "id": "user_marco", "name": "Marco Rossi", "email": "marco.rossi@example.com",
-  "memberSince": "2026-05-31T00:00:00Z", "currentStreak": 7 }
-```
+// ── Auth (implemented) ──
+student_response        { "id": "...", "google_id": "...", "email": "...", "name": "..." }
+oauth2_request          { "access_token": "<google token>" }
+token_response          { "access_token": "<jwt>", "refresh_token": "...", "student": student_response }
+token_refresh_request   { "refresh_token": "..." }
+token_refresh_response  { "access_token": "<jwt>", "refresh_token": "..." }
 
-### Goal
-```jsonc
-{ "id": "goal_italian", "name": "Learn Italian", "description": "Reach conversational fluency…",
-  "createdAt": "2026-05-31T00:00:00Z", "currentElo": 920, "isActive": true }
-```
+// ── To build ──
+user_profile            { "id": "...", "name": "...", "email": "...",
+                          "member_since": "2026-05-31T00:00:00Z", "current_streak": 7 }
 
-### MultipleChoiceQuestion
-```jsonc
-{ "id": "q1", "question": "How do you say \"hello\" in Italian?",
-  "choices": ["Ciao", "Hola", "Bonjour", "Hallo"], "correctAnswerIndex": 0 }
-```
+goal                    { "id": "...", "name": "...", "description": "...",
+                          "current_elo": 920, "is_active": true, "created_at": "2026-05-31T00:00:00Z",
+                          "updated_at": "2026-06-06T09:00:00Z" }
 
-### LessonEvaluation
-```jsonc
-{ "totalSecondsSpent": 142, "studentAccuracy": 80.0, "elo": 14 }
-```
-`elo` is the signed rating change for this lesson (renamed from the old `xp`).
+objective_question      { "question": "...", "options": ["a","b","c","d"] }  // exactly 4
+objective_answer        { "question": "...", "answer": "<the selected option>" }  // unselected options omitted
 
-### Streak
-```jsonc
-{ "currentStreak": 7,
-  "week": { "monday": true, "tuesday": true, "wednesday": true, "thursday": true,
-            "friday": true, "saturday": true, "sunday": true } }
-```
-Each day is tri-state: `true` completed, `false` missed, `null` not-yet (future
-days this week).
+home_dashboard          { "goal_name": "...", "current_elo": 920, "current_streak": 7,
+                          "recent_lessons": [ recent_lesson ],   // newest first
+                          "elo_history":    [ elo_point ] }       // one/day, oldest first
+recent_lesson           { "lesson_id": "...", "date": "2026-06-06", "accuracy": 90.0,
+                          "elo_delta": 10, "duration_seconds": 137 }
+elo_point               { "date": "2026-05-31", "elo": 854 }
 
-### ResourceItem
-```jsonc
-{ "title": "Learn Italian with Lucrezia",
-  "description": "Native-speaker lessons on everyday Italian…",
-  "link": "https://youtube.com/…",
-  "image": "https://… (optional — present for videos/sites, absent for books)" }
-```
+multiple_choice_question{ "id": "q1", "question": "...", "choices": ["...","..."],
+                          "correct_answer_index": 0 }
+lesson_answer           { "question_id": "q1", "choice_index": 0, "seconds_spent": 12 }
+lesson_evaluation       { "total_seconds_spent": 142, "student_accuracy": 80.0, "elo": 14 }
 
-### ChatMessage
-```jsonc
-{ "id": "msg_1", "message": "Ciao Marco! …", "sender": "tutor", "isLiked": false }
+chat_exchange           { "id": "...", "prompt": "...", "responses": ["...", "..."],
+                          "is_liked": false, "created_at": "2026-06-06T09:00:00Z" }
+
+resource_item           { "name": "...", "description": "...", "url": "https://...",
+                          "image_url": "https://..." }   // image_url null except on youtube
 ```
-`sender` ∈ {`user`, `tutor`}. The backend may instead return `senderId` and let
-the client resolve it against the current user id.
 
 ---
 
-## Notes for implementers
-- Use **elo** everywhere (the old SDK used `xp`).
-- Anything deep-linkable (e.g. `/goals/{id}`) must be fetchable by id — rich
-  objects passed via go_router `extra` aren't restored on web refresh.
-- After endpoints land, regenerate the Dart client and replace the `mock_*.dart`
-  fixtures + domain models with generated calls, feature by feature. The thin
-  `*_controller.dart` providers are the swap point.
+## Cross-cutting notes
+- **elo** everywhere (the old SDK used `xp`). Elo is **per-goal**, stored as
+  `goals.rating` (the user's rating *for that goal*); `goal.current_elo` and
+  `home_dashboard.current_elo` read from it. `lesson_evaluation.elo` is the
+  signed change applied to it for that lesson, in one atomic `UPDATE`
+  (`GoalRepository.add_to_rating`, #72), whose result is `lessons.elo_after`.
+  Streak stays **per-user**.
+- **`students.current_goal_id`** is the single source of truth for the active
+  goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.
+- **Streak** is just `current_streak` (a number) on `/me` and `/home`. No streak
+  table/endpoint, no weekly breakdown. The rule (`services/lessons/streak.py`):
+  consecutive days with at least one finished lesson on any goal, counted back
+  from today, or from yesterday when there is none today yet. Days are the
+  server's local date; time zones can come later.
+- **`chat_exchange`** replaced the mock-derived per-message `chat_message`
+  (#54): one exchange = prompt + reply bubbles, with `is_liked` and `created_at`.
+- **LLM-backed** (⚙️ via `llms.py`): objective-questions, study-plan, create
+  goal, tutor reply. The lesson question bank is built by a separate background
+  job, not at request time.

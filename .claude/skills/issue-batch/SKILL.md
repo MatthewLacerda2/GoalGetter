@@ -65,7 +65,8 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
 - **The database.** The backend drops its whole schema on every start, and every
   worktree shares the one dev database. A subagent that brings a backend up wipes the
   data of whoever else is using it. Backend work is validated by `make back-test`, which
-  uses the separate test database.
+  uses a test database of the worktree's own — `make setup` creates it; a worktree
+  that skipped it shares the main checkout's and wipes it.
 - **The compose stack and the tunnel.** Never let a subagent run `docker compose up`,
   build, or deploy — say so in the brief, every time. The stack includes `cloudflared`,
   and bringing it up opens the app to the internet. Ports 8000 and 8080 belong to other

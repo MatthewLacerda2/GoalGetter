@@ -13,7 +13,9 @@ import 'package:goal_getter/features/onboarding/presentation/screens/start_scree
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
-import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
+import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/goal_intro_screen.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
@@ -24,6 +26,7 @@ import 'package:goal_getter/features/lessons/presentation/screens/info_screen.da
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goal_detail_route.dart';
 
 /// The app's go_router configuration.
 ///
@@ -63,9 +66,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.studyPlan,
         builder: (_, state) {
-          final plan = state.extra as StudyPlan? ?? DevFixtures.studyPlan;
-          return StudyPlanScreen(plan: plan);
+          // After a web refresh, the draft being committed (if any) still
+          // beats the dev fixture.
+          final draft = state.extra as GoalDraft? ??
+              ref.read(pendingGoalDraftProvider) ??
+              DevFixtures.goalDraft;
+          return StudyPlanScreen(draft: draft);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.goalIntro,
+        builder: (_, state) => GoalIntroScreen(
+          screens: state.extra as List<IntroScreenData>? ??
+              DevFixtures.introScreens,
+        ),
       ),
       GoRoute(
         path: AppRoutes.lesson,
@@ -91,10 +105,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '${AppRoutes.goals}/:id',
-        builder: (_, state) {
-          final goal = state.extra as Goal? ?? DevFixtures.goalDetail;
-          return GoalsDetailScreen(goal: goal);
-        },
+        builder: (_, state) => GoalDetailRoute(
+          goalId: state.pathParameters['id']!,
+          goal: state.extra as Goal?,
+        ),
       ),
       // Dev-only screen index. Registered only for --dart-define=DEV_MENU=true
       // builds so these paths do not exist in production.

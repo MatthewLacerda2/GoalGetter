@@ -7,10 +7,10 @@ part of 'goals_list_controller.dart';
 // **************************************************************************
 
 String _$goalsListControllerHash() =>
-    r'588453c602190e47eecf0450bd30cf0a0d668b3a';
+    r'e897d8c6177890b3a701f09778e89e35cdf0febc';
 
-/// Provides the user's goals. Mock-backed while the backend doesn't exist;
-/// refresh via `ref.invalidate`. See docs/backend_contract.md (GET /goals).
+/// The student's goals (`GET /goals`). The list and the detail screen both read
+/// it: there is no per-goal GET. Refresh with `ref.invalidate`.
 ///
 /// Copied from [goalsListController].
 @ProviderFor(goalsListController)

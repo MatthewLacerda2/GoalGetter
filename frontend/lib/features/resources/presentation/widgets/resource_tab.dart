@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:goal_getter/features/resources/domain/resource_item.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
+
 /// A tab of curated resources. Each item is a clean white card with an optional
 /// thumbnail/logo, a title + description, and a trailing open-in-new link icon
 /// (to read as clickable). Tapping opens the link.
 class ResourceTab extends StatelessWidget {
-  final List<Map<String, String>> resources;
+  final List<ResourceItem> resources;
 
   const ResourceTab({super.key, required this.resources});
 
@@ -14,7 +17,8 @@ class ResourceTab extends StatelessWidget {
     if (resources.isEmpty) {
       return Center(
         child: Text(
-          'No resources here',
+          AppLocalizations.of(context).noResourcesOfThisKind,
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16.0,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -35,14 +39,13 @@ class ResourceTab extends StatelessWidget {
 }
 
 class _ResourceCard extends StatelessWidget {
-  final Map<String, String> resource;
+  final ResourceItem resource;
 
   const _ResourceCard({required this.resource});
 
   @override
   Widget build(BuildContext context) {
-    final image = resource['image'];
-    final hasImage = image != null && image.isNotEmpty;
+    final image = resource.imageUrl;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
@@ -53,12 +56,12 @@ class _ResourceCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => launchUrl(Uri.parse(resource['link'] ?? '')),
+        onTap: () => launchUrl(Uri.parse(resource.url)),
         child: Padding(
           padding: const EdgeInsets.all(14.0),
           child: Row(
             children: [
-              if (hasImage) ...[
+              if (image != null && image.isNotEmpty) ...[
                 _Thumb(url: image),
                 const SizedBox(width: 14.0),
               ],
@@ -67,12 +70,12 @@ class _ResourceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      resource['title'] ?? '',
+                      resource.name,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     const SizedBox(height: 4.0),
                     Text(
-                      resource['description'] ?? '',
+                      resource.description,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

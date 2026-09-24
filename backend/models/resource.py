@@ -25,7 +25,9 @@ class Resource(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     language = Column(String, nullable=False)
-    link = Column(String, nullable=False, unique=True)
+    # Deliberately NOT unique: two students may be recommended the same channel,
+    # and sharing/reusing another student's resources is a road we want open.
+    link = Column(String, nullable=False)
     image_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now)
     description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)

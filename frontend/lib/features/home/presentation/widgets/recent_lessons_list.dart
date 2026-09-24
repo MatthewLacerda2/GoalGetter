@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
-import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
+import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 
 /// The user's most recent lessons for the active goal. Each row shows accuracy,
 /// time taken, and an elo badge (green = gained, grey = even, blue = lost).
 /// Capped so the dashboard fits the screen.
 class RecentLessonsList extends StatelessWidget {
-  final List<MockRecentLesson> lessons;
+  final List<RecentLesson> lessons;
 
   /// Max rows to display (keeps the dashboard compact).
   static const _maxRows = 4;
@@ -61,7 +61,7 @@ class RecentLessonsList extends StatelessWidget {
 }
 
 class _RecentLessonRow extends StatelessWidget {
-  final MockRecentLesson lesson;
+  final RecentLesson lesson;
 
   const _RecentLessonRow({required this.lesson});
 

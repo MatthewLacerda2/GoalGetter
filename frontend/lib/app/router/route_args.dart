@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:goal_getter/features/onboarding/debug/mock_goal_prompt_screen.dart';
+import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 
 /// Typed arguments passed via go_router's `extra` for routes that need rich
@@ -9,7 +9,7 @@ import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart
 /// Args for the goal-questions onboarding step.
 class GoalQuestionsArgs {
   final String prompt;
-  final List<MockMultipleChoiceQuestion> questions;
+  final List<ObjectiveQuestion> questions;
 
   const GoalQuestionsArgs({required this.prompt, required this.questions});
 }

@@ -6,11 +6,11 @@ part of 'auth_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authServiceHash() => r'e771c719cfb4bd87b7f15fc6722ef9f56a9844e4';
+String _$authServiceHash() => r'194fb8a3f6cf76d511ef17974ebd13338fe87f98';
 
 /// See also [authService].
 @ProviderFor(authService)
-final authServiceProvider = AutoDisposeProvider<AuthService>.internal(
+final authServiceProvider = Provider<AuthService>.internal(
   authService,
   name: r'authServiceProvider',
   debugGetCreateSourceHash:
@@ -19,6 +19,6 @@ final authServiceProvider = AutoDisposeProvider<AuthService>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef AuthServiceRef = AutoDisposeProviderRef<AuthService>;
+typedef AuthServiceRef = ProviderRef<AuthService>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

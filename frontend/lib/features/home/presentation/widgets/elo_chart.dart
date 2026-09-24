@@ -2,12 +2,12 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/features/home/debug/mock_home_screen.dart';
+import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 
 /// Elo progress over time for the active goal, inside a card with a 7d/30d/90d
 /// range selector and a compact line chart (chess.com / lichess style).
 class EloChart extends StatefulWidget {
-  final List<MockEloPoint> history;
+  final List<EloPoint> history;
 
   const EloChart({super.key, required this.history});
 
@@ -18,9 +18,13 @@ class EloChart extends StatefulWidget {
 class _EloChartState extends State<EloChart> {
   int _rangeDays = 30;
 
-  List<MockEloPoint> get _visiblePoints {
-    if (widget.history.length <= _rangeDays) return widget.history;
-    return widget.history.sublist(widget.history.length - _rangeDays);
+  /// The points of the last [_rangeDays] days. There is one point per day
+  /// that had a lesson, not per calendar day, so this filters by date.
+  List<EloPoint> get _visiblePoints {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final since = today.subtract(Duration(days: _rangeDays - 1));
+    return widget.history.where((p) => !p.date.isBefore(since)).toList();
   }
 
   @override
@@ -69,7 +73,7 @@ class _EloChartState extends State<EloChart> {
     );
   }
 
-  LineChartData _buildChartData(List<MockEloPoint> points) {
+  LineChartData _buildChartData(List<EloPoint> points) {
     final primary = Theme.of(context).colorScheme.primary;
     final outline = Theme.of(context).colorScheme.outline;
     final mutedText = Theme.of(context).colorScheme.onSurfaceVariant;

@@ -20,7 +20,6 @@ eggs/
 lib/
 lib64/
 # Exception: don't ignore Dart package lib directories
-!client_sdk/lib/
 !frontend/lib/
 parts/
 sdist/
@@ -184,6 +183,7 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 
 # Project-specific
+.claude/token
 auxpy.py
 auxmd.md
 debug.txt
@@ -194,3 +194,5 @@ terraform.tfvars
 *.tfstate
 *.tfstate.backup
 .terraform/
+# Headless screenshots (make shot)
+shots/

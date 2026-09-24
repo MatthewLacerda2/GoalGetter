@@ -6,16 +6,14 @@ import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 
-import 'package:goal_getter/features/lessons/domain/lesson_question_data.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
-import 'package:goal_getter/core/widgets/error_retry_widget.dart';
+import 'package:goal_getter/features/lessons/presentation/widgets/lesson_failure_view.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
-  final List<LessonQuestionData>? questions;
-
-  LessonScreen({super.key, this.questions});
+  const LessonScreen({super.key});
 
   @override
   ConsumerState<LessonScreen> createState() => _LessonScreenState();
@@ -25,14 +23,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   @override
   void initState() {
     super.initState();
-    // Deferred to after the first frame: init() writes to the provider, and
+    // Deferred to after the first frame: start() writes to the provider, and
     // Riverpod forbids modifying a provider while the widget tree is building.
-    // Calling it directly here threw, and because init() -> _fetchQuestions()
-    // is an unawaited async call the error was swallowed, leaving isLoading
-    // true forever (the lesson screen spun and never loaded).
+    // Calling it directly here threw, and because start() is an unawaited
+    // async call the error was swallowed, leaving the spinner forever.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(lessonControllerProvider.notifier).init(widget.questions);
+      ref.read(lessonControllerProvider.notifier).start();
     });
   }
 
@@ -78,36 +75,41 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     } else {
       context.pushReplacement(
         AppRoutes.lessonFinish,
-        extra: FinishLessonArgs(
-          title: "Finish lesson screen",
-          icon: Icons.check_circle,
-          timeSpent: StatData(
-            title: "Time",
-            icon: Icons.timer,
-            text: state.evaluationResponse != null
-                ? _formatDuration(
-                    Duration(seconds: state.evaluationResponse!.totalSecondsSpent),
-                  )
-                : _formatDuration(state.totalTimeSpent),
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          accuracy: StatData(
-            title: "Accuracy",
-            icon: Icons.check_circle,
-            text: state.evaluationResponse != null
-                ? "${state.evaluationResponse!.studentAccuracy.toStringAsFixed(2)}%"
-                : "${(state.questions.where((q) => q.status == LessonQuestionStatus.correct).length / state.questions.length * 100).toStringAsFixed(2)}%",
-            color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green,
-          ),
-          elo: StatData(
-            title: "Elo",
-            icon: Icons.trending_up,
-            text: "${(state.evaluationResponse?.elo ?? 0) >= 0 ? '+' : ''}${state.evaluationResponse?.elo ?? 0}",
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-        ),
+        extra: _finishArgs(state),
       );
     }
+  }
+
+  /// The server's evaluation. When it was lost (LessonEvaluation.elo is null)
+  /// the elo change is unknown and shows as a dash.
+  FinishLessonArgs _finishArgs(LessonState state) {
+    final l10n = AppLocalizations.of(context)!;
+    final evaluation = state.evaluationResponse;
+    final elo = evaluation?.elo;
+    return FinishLessonArgs(
+      title: l10n.lessonFinishedTitle,
+      icon: Icons.check_circle,
+      timeSpent: StatData(
+        title: l10n.lessonTime,
+        icon: Icons.timer,
+        text: _formatDuration(evaluation != null
+            ? Duration(seconds: evaluation.totalSecondsSpent)
+            : state.totalTimeSpent),
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      accuracy: StatData(
+        title: l10n.lessonAccuracy,
+        icon: Icons.check_circle,
+        text: '${(evaluation?.studentAccuracy ?? 0).toStringAsFixed(0)}%',
+        color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green,
+      ),
+      elo: StatData(
+        title: l10n.elo,
+        icon: Icons.trending_up,
+        text: elo == null ? '—' : '${elo >= 0 ? '+' : ''}$elo',
+        color: Theme.of(context).colorScheme.secondary,
+      ),
+    );
   }
 
   Color getChoiceFillColor(LessonState state, int index) {
@@ -155,48 +157,31 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       }
     });
 
-    if (state.isLoading) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Center(
-            child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
+    final controller = ref.read(lessonControllerProvider.notifier);
+    final Widget? blocker;
+    if (state.isLoading || state.isSubmitting) {
+      blocker = Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
         ),
       );
-    }
-
-    if (state.errorMessage != null) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: ErrorRetryWidget(
-            errorMessage: state.errorMessage!,
-            onRetry: () {
-              if (widget.questions == null) {
-                ref.read(lessonControllerProvider.notifier).init(null);
-              } else {
-                context.pop();
-              }
-            },
-          ),
-        ),
+    } else if (state.startFailure != null) {
+      blocker = LessonStartFailureView(
+        failure: state.startFailure!,
+        onRetry: controller.start,
       );
+    } else if (state.submitFailure != null) {
+      blocker = LessonSubmitFailureView(
+        failure: state.submitFailure!,
+        onRetry: controller.retrySubmit,
+      );
+    } else {
+      blocker = null;
     }
-
-    if (state.questions.isEmpty) {
+    if (blocker != null) {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Center(
-            child: Text(
-              'No questions available',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            ),
-          ),
-        ),
+        body: SafeArea(child: blocker),
       );
     }
 

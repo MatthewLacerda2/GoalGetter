@@ -4,10 +4,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+
+/// One page of the carousel.
+typedef CarouselItem = ({IconData icon, String title, String body});
+
+/// A looping, auto-sliding carousel of icon + title + body pages. Without
+/// [items] it shows the start screen's pitch; the introduction screens after a
+/// goal is created pass theirs.
 class PreOnboardingCarousel extends StatefulWidget {
-  PreOnboardingCarousel({super.key, this.height = 170});
+  const PreOnboardingCarousel({super.key, this.height = 170, this.items});
 
   final double height;
+  final List<CarouselItem>? items;
 
   @override
   State<PreOnboardingCarousel> createState() => _PreOnboardingCarouselState();
@@ -51,9 +59,9 @@ class _PreOnboardingCarouselState extends State<PreOnboardingCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
-    final items = <({IconData icon, String title, String body})>[
+    final items = widget.items ?? <CarouselItem>[
       (
         icon: Icons.auto_stories,
         title: l10n.preOnboardingYourCoursesTitle,

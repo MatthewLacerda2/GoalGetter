@@ -6,10 +6,10 @@ part of 'profile_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$profileControllerHash() => r'2f3f1de9cd2110c3d2e0d9ce57b84058482efc10';
+String _$profileControllerHash() => r'81c1170f1d038c65f42ad0640f4ecbda58e84ffc';
 
-/// Provides the signed-in user's profile. Mock-backed while the backend doesn't
-/// exist. See docs/backend_contract.md (GET /me).
+/// The signed-in user's profile header (GET /me). A finished lesson
+/// invalidates it (LessonController): the streak may have moved.
 ///
 /// Copied from [profileController].
 @ProviderFor(profileController)
