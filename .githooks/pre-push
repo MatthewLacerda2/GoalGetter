@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Scoped pre-push: run the gates for the side this push actually changes.
+#
+# The doctrine is that CI runs here before anything leaves the machine, so a pull
+# request is never opened on work whose gates were never seen green. The commit
+# hook is not that gate: it runs the house lints only, and a commit is not a push.
+#
+# Skipping is deliberate, not accidental: `git push --no-verify`.
+set -uo pipefail
+
+# Git exports GIT_DIR (and friends) to every hook. Flutter reads GIT_DIR as its
+# own SDK checkout, reports version `0.0.0-unknown`, and pub solving then fails
+# on fl_chart's Flutter constraint - so `flutter analyze` could not run from a
+# hook at all, in any worktree, and every frontend commit aborted. Clearing them
+# makes the hook's environment the same one a developer types into.
+unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX GIT_QUARANTINE_PATH
+
+repo="$(git rev-parse --show-toplevel)"
+cd "$repo" || exit 1
+
+zero='0000000000000000000000000000000000000000'
+
+# git feeds the hook one line per ref being pushed:
+#   <local ref> <local sha> <remote ref> <remote sha>
+# A deletion has a zero local sha; a brand-new branch has a zero remote sha, and
+# then there is no remote side to diff against - origin/main is what it will be
+# compared to in the pull request anyway.
+range_files() {
+  local local_sha="$1" remote_sha="$2"
+  [ "$local_sha" = "$zero" ] && return 0
+  if [ "$remote_sha" = "$zero" ]; then
+    local base
+    base="$(git merge-base origin/main "$local_sha" 2>/dev/null)" || base=''
+    [ -n "$base" ] || return 0
+    git diff --name-only "$base" "$local_sha"
+  else
+    git diff --name-only "$remote_sha" "$local_sha"
+  fi
+}
+
+changed=''
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  changed+="$(range_files "$local_sha" "$remote_sha")"$'\n'
+done
+
+# Nothing to push, or a deletion only.
+[ -z "${changed//[$'\n']/}" ] && exit 0
+
+# A change to the gates themselves - the Makefile, a workflow, a hook - is not
+# scoped to one side: it can break either. Both CI workflows list the Makefile in
+# their path filters for the same reason.
+if grep -qE '^(Makefile|\.githooks/|\.github/workflows/)' <<<"$changed"; then
+  changed+=$'\nbackend/\nfrontend/'
+fi
+
+fail=0
+
+if grep -q '^backend/' <<<"$changed"; then
+  if ! docker info >/dev/null 2>&1; then
+    # The backend gates run inside the image; there is no local venv here.
+    echo "→ backend gates skipped (docker is not available)"
+  else
+    echo "→ backend gates (make backend)"
+    make backend || fail=1
+  fi
+fi
+
+# frontend/docs/ is prose (the backend contract lives there), so a push that
+# only touches it is not a Flutter change.
+if grep '^frontend/' <<<"$changed" | grep -qv '^frontend/docs/'; then
+  flutter_bin="$(command -v flutter 2>/dev/null || echo "$HOME/development/flutter/bin/flutter")"
+  if [ ! -x "$flutter_bin" ]; then
+    echo "→ frontend gates skipped (flutter not found)"
+  elif [ ! -d frontend/.dart_tool ]; then
+    # Deps were never installed here; `make setup` fixes it. Skipping beats
+    # blocking the push on a missing package error - a gate that always fails
+    # is a gate nobody runs.
+    echo "→ frontend gates skipped (run 'make setup' in this worktree)"
+  else
+    echo "→ frontend gates (make frontend)"
+    make frontend || fail=1
+  fi
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo "push aborted - the gates above are red. Fix them, or use --no-verify deliberately."
+  exit 1
+fi
+echo "pre-push checks passed"
+exit 0

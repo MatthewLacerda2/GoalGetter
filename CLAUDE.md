@@ -74,8 +74,19 @@ since there is no venv here. CI has no image and overrides the interpreter
   missing Dart packages want `make setup`; `No module named ruff` (or vulture)
   means the backend image predates `backend/requirements.txt` — `make back-image`.
 
-The pre-commit hook (`.githooks/pre-commit`) runs only the gates for the side
-whose files are staged. It is not a substitute for `make check`.
+Two hooks make that mechanical, both scoped to the side that changed and both
+installed by `make hooks`:
+
+- `.githooks/pre-commit` runs the house lints on the staged files — fast, and not
+  a substitute for the gates.
+- `.githooks/pre-push` runs `make backend` and/or `make frontend` for the sides the
+  push contains. **This is the gate that matters**: nothing leaves the machine on a
+  red gate, so a pull request is never opened on work whose gates were never seen
+  green. Skipping it is `git push --no-verify`, deliberately.
+
+Both skip a side they cannot run (no Docker, no Flutter, no `flutter pub get` here)
+with a printed reason rather than blocking: a gate that always fails is a gate
+nobody runs.
 
 ## House rules
 

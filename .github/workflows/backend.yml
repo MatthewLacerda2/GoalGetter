@@ -63,6 +63,9 @@ jobs:
       - name: Build smoke
         run: make back-build PY_OFFLINE=python
 
+      # `make back-test PY=python` - the same target, and the same pytest
+      # invocation, a developer runs. The settings arrive as real environment
+      # variables here, so the target's `env` prerequisite finds nothing to seed.
       - name: Pytest
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
@@ -71,4 +74,4 @@ jobs:
           GEMINI_API_KEY: test-key
           SECRET_KEY: test-secret
           GOOGLE_REDIRECT_URI: http://localhost/callback
-        run: python -m pytest backend/tests -o addopts="" -q
+        run: make back-test PY=python
