@@ -1,7 +1,8 @@
 """Lessons: serve a lesson from the goal's question bank, then grade its answers.
 
-Mounted at `/goals` next to `goals.router`. The bank is built by the goal jobs
-(services/jobs/goal_jobs.py), never at request time: an empty bank is a 409.
+Mounted at `/goals` next to `goals.router`. The bank is built by the student
+chain (services/jobs/student_chain.py), never at request time: an empty bank is
+a 409.
 """
 
 from uuid import UUID

@@ -1,7 +1,9 @@
 from sqlalchemy import delete as sql_delete
 from sqlalchemy import select
 
+from backend.models.goal import Goal
 from backend.models.lesson_answer import LessonAnswer
+from backend.models.lesson_question import LessonQuestion
 from backend.repositories.base import BaseRepository
 
 
@@ -28,6 +30,26 @@ class LessonAnswerRepository(BaseRepository[LessonAnswer]):
         stmt = select(LessonAnswer).where(LessonAnswer.lesson_id == lesson_id)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+
+    async def list_recent_by_student(
+        self, student_id, limit: int
+    ) -> list[tuple[LessonAnswer, LessonQuestion]]:
+        """The student's most recent answers on any goal, newest first, each
+        paired with the question it answered.
+
+        Across goals on purpose: the chain's context step is writing about the
+        person, and someone who is careless in law is careless in history.
+        """
+        stmt = (
+            select(LessonAnswer, LessonQuestion)
+            .join(LessonQuestion, LessonQuestion.id == LessonAnswer.question_id)
+            .join(Goal, Goal.id == LessonQuestion.goal_id)
+            .where(Goal.student_id == student_id)
+            .order_by(LessonAnswer.created_at.desc())
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return [(answer, question) for answer, question in result.all()]
 
     async def update(self, entity: LessonAnswer) -> LessonAnswer:
         await self.db.flush()

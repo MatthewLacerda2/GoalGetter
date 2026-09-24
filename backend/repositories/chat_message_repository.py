@@ -33,6 +33,19 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
+    async def list_recent_by_student(self, student_id, limit: int) -> list[ChatMessage]:
+        """The student's last exchanges on any goal, newest first. The chain's
+        context step reads them the way it reads lesson answers: what the
+        person asks about is a reading of the person, not of one subject."""
+        stmt = (
+            select(ChatMessage)
+            .where(ChatMessage.student_id == student_id)
+            .order_by(ChatMessage.created_at.desc(), ChatMessage.id.desc())
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def update(self, entity: ChatMessage) -> ChatMessage:
         await self.db.flush()
         return entity
