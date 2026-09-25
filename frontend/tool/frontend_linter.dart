@@ -1,6 +1,6 @@
 /// House rules for the Flutter side, the mirror of `backend/tests/backend_linter.py`.
 ///
-/// Six rules on every hand-written file under `lib/`:
+/// Eight rules on every hand-written file under `lib/`:
 ///
 ///  1. a `.dart` file is at most 400 lines;
 ///  2. a function or method is at most 60 code lines (comments free, blanks count);
@@ -8,14 +8,16 @@
 ///  4. no `fontSize:` — type comes from `Theme.of(context).textTheme`;
 ///  5. no radius or padding literal — they come from `AppRadius` / `AppSpacing`;
 ///  6. no user-facing string written in Dart — it comes from the ARB files;
-///  7. no widget named after a failure outside `lib/core/`.
+///  7. no widget named after a failure outside `lib/core/`;
+///  8. no `DevFixtures` named outside `lib/app/dev/`.
 ///
 /// Rules 3-5 exist so the theme is the only place a colour, a type size, a
 /// corner or a gap is decided. `lib/app/theme/` is where those values live, so
-/// it is the one directory exempt from them. Rule 6 exists so every sentence a
-/// student reads exists in all five locales; `lib/app/dev/` is exempt from it,
-/// because the dev menu and its fixtures are a tool for us, written in English
-/// like the code and the comments, and never shipped to a student.
+/// it is the one directory exempt from them. Rules 6 and 8 are both about
+/// `lib/app/dev/`, the one directory exempt from them: the dev menu and its
+/// fixtures are a tool for us, written in English like the code and never
+/// shipped to a student. Rule 6 keeps every sentence a student reads in all
+/// five locales; rule 8 keeps the invented student out of the app entirely.
 ///
 /// Three more rules answer for the project rather than for one file — dead ARB
 /// keys, half-done translations and orphan files. They live in
@@ -45,8 +47,8 @@ const int maxFunctionLines = 60;
 /// The one directory allowed to write raw design values.
 const String themeDir = 'lib/app/theme/';
 
-/// The one directory allowed to write user-facing strings in Dart: the dev
-/// menu and its fixtures are a tool for us, not a screen for a student.
+/// The one directory allowed to write user-facing strings in Dart and to name
+/// the fixtures: the dev menu is a tool for us, not a screen for a student.
 const String devDir = 'lib/app/dev/';
 
 /// The one directory allowed to define a widget named after a failure.
@@ -76,7 +78,7 @@ bool isLintedPath(String path) {
 /// True when [path] may write raw colours, sizes, radii and spacing.
 bool isThemeFile(String path) => path.replaceAll('\\', '/').contains(themeDir);
 
-/// True when [path] may write user-facing strings in Dart.
+/// True when [path] may write user-facing strings in Dart and name a fixture.
 bool isDevFile(String path) => path.replaceAll('\\', '/').contains(devDir);
 
 /// True when [path] may define a widget named after a failure.
@@ -93,6 +95,11 @@ final RegExp _edgeInsetsCall = RegExp(
   r'\bEdgeInsets(?:Directional)?\.[A-Za-z]+\s*\(',
 );
 final RegExp _bareNumber = RegExp(r'(?<![A-Za-z0-9_$.])\d');
+
+/// The invented student. A fixture reaching a build a student runs is how
+/// someone gets shown another student's questions, plan or lesson result
+/// (#139), so the name may only be written where the fixtures live.
+final RegExp _devFixtures = RegExp(r'\bDevFixtures\b');
 
 /// The slots a sentence a student reads goes through.
 ///
@@ -253,6 +260,14 @@ List<Violation> lintSource(String path, String source) {
       'hardcoded-string',
       stringHelp,
       when: (index) => _isHardcodedText(source, index),
+    );
+
+    report(
+      _devFixtures,
+      'no-dev-fixture',
+      'Invented data belongs to the dev menu, in lib/app/dev/: a screen whose '
+          'data did not reach it recovers it, or sends the student to a screen '
+          'where the state is real',
     );
   }
 
