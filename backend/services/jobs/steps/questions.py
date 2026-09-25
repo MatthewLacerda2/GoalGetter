@@ -1,8 +1,9 @@
 """Step 2: the question bank, one goal at a time.
 
 It reads the student's still-valid contexts (written by step 1 a moment ago, or
-standing from an earlier run), the goal itself, and the questions of that goal
-the student most recently got wrong. An empty list of errors is the normal case
+standing from an earlier run), the goal's current frontier - what the app is
+teaching him now, which step 1 may have moved a moment ago (#133) - and the
+questions of that goal the student most recently got wrong. An empty list of errors is the normal case
 for a student who has answered nothing, not a special one.
 
 **It generates only when tomorrow would run short (#91).** A lesson is filled
@@ -17,6 +18,7 @@ ones to sit behind it.
 import logging
 
 from backend.models.question import Question
+from backend.repositories.frontier_repository import FrontierRepository
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.student_context_repository import StudentContextRepository
@@ -82,10 +84,12 @@ async def _bank_for_goal(session, goal, contexts: list[GeminiStudentContext]) ->
         len(servable),
         wanted,
     )
+    current = await FrontierRepository(session).current(goal.id)
     generated = await run_gemini_background(
         generate_lesson_questions,
         goal.name,
         goal.description,
+        current.definition if current else (goal.description or ""),
         goal.rating,
         contexts,
         _recent_errors(history),

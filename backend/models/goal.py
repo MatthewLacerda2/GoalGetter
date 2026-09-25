@@ -30,6 +30,7 @@ class Goal(Base):
 
     student = relationship("Student", back_populates="goals", foreign_keys=[student_id])
     questions = relationship("Question", back_populates="goal", cascade="all, delete-orphan")
+    frontiers = relationship("Frontier", back_populates="goal", cascade="all, delete-orphan")
     onboarding_questions = relationship(
         "OnboardingQuestion", back_populates="goal", cascade="all, delete-orphan"
     )

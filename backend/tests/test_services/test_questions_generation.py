@@ -32,7 +32,7 @@ async def bank(test_db, goal, question_factory, answer_factory, never=0, wrong=0
 
 def asked_for(calls) -> int:
     """How many questions the one generation call asked Gemini for."""
-    return dict(calls)["questions"][5]
+    return dict(calls)["questions"][6]
 
 
 @pytest.mark.asyncio
@@ -119,7 +119,7 @@ async def test_the_mistakes_in_the_prompt_are_the_newest_first(
     with chain_gemini(test_db, calls):
         await run_questions_step(test_db, str(test_user.id))
 
-    assert dict(calls)["questions"][4] == ["wrong-1", "wrong-0"]
+    assert dict(calls)["questions"][5] == ["wrong-1", "wrong-0"]
     assert asked_for(calls) == TARGET_SERVABLE - 2
 
 

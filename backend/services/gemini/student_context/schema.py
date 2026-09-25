@@ -4,10 +4,18 @@ from pydantic import BaseModel, Field
 class StudentGoal(BaseModel):
     """One of the student's goals as a prompt sees it. The context generator
     reads all of them (#87): the reading is of the person, and a person who
-    studies law and history is one learner, not two."""
+    studies law and history is one learner, not two.
+
+    `description` is what he asked for on day one and never changes;
+    `frontier` is where we are taking him today (#133). They are the same
+    sentence on the first night and drift apart after that. The first
+    impression has no frontier to speak of - the goal was created a moment
+    ago - so it is empty there, and the prompt simply does not print the line.
+    """
 
     name: str
     description: str
+    frontier: str = ""
 
 
 class GeminiStudentContext(BaseModel):
@@ -44,6 +52,22 @@ class ContextVerdict(BaseModel):
     )
 
 
+class FrontierMove(BaseModel):
+    """A goal whose target the model says has moved on (#133).
+
+    `index` is the number the goal carried in this prompt and nothing else -
+    the same convention `ContextVerdict` uses, and it means nothing once the
+    call has returned. An index that was never shown is dropped by the caller.
+
+    The definition is a *threshold*, not a new subject: the next thing worth
+    teaching him now that he holds what the goal named. The caller checks that
+    against the goal's own embedding before it writes anything.
+    """
+
+    index: int = Field(..., description="The number this goal carried in the prompt")
+    definition: str = Field(..., description="The new frontier: what to teach him next")
+
+
 class GeminiContextReview(BaseModel):
     """The whole answer to a review (#90), and an empty one is the normal,
     cheap outcome: nothing went stale and nothing new needs saying.
@@ -57,4 +81,8 @@ class GeminiContextReview(BaseModel):
     )
     new_contexts: list[GeminiStudentContext] = Field(
         default_factory=list, description="Readings to add. Empty means nothing changed."
+    )
+    frontiers: list[FrontierMove] = Field(
+        default_factory=list,
+        description="Goals whose frontier has moved on. Empty is the normal night.",
     )
