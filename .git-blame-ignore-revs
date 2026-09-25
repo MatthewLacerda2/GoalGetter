@@ -1,0 +1,9 @@
+# Commits that changed bytes without changing meaning. `git blame` skips them, so
+# the line it shows you is the one that actually wrote the code.
+#
+# `make hooks` points git here (blame.ignoreRevsFile); GitHub reads this file by
+# name on its own.
+
+# chore: one line ending, enforced by git instead of by memory (#137)
+# Renormalised all 106 CRLF files to LF. Content untouched.
+56026381bdddac8e8b0ea6068c10b71c9c694182
