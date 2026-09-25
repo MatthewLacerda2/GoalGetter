@@ -17,16 +17,21 @@ def at(minutes: int) -> datetime:
 
 @pytest.fixture
 def question_factory(test_db):
-    """A bank question for a goal. The right choice is `correct` (default 0)."""
+    """A bank question for a goal. The right choice is `correct` (default 0).
 
-    async def _create(goal, text="Q?", correct=0, created_at=None):
+    `options` names the four choices where a test cares what they say: the
+    generation prompt carries the option the student picked (#135), so proving
+    that needs four options a test can tell apart.
+    """
+
+    async def _create(goal, text="Q?", correct=0, created_at=None, options=("a", "b", "c", "d")):
         question = Question(
             goal_id=goal.id,
             text=text,
-            option_a="a",
-            option_b="b",
-            option_c="c",
-            option_d="d",
+            option_a=options[0],
+            option_b=options[1],
+            option_c=options[2],
+            option_d=options[3],
             right_answer_index=correct,
             created_at=created_at or T0,
         )

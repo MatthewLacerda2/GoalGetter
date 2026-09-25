@@ -173,9 +173,16 @@ class Ranked:
     object. `_fill` removes the entry it just picked from the candidates, and
     two different questions scoring identically - which is the ordinary case at
     cold start - must not be able to stand in for one another there.
+
+    `expected` is carried beside `threshold` rather than folded into it because
+    the bell is not invertible: `threshold` says *how well* a question sits at
+    the target, and a question far too easy scores there exactly like one far
+    too hard. The generation decision (#135) asks which of the two it is, so it
+    needs the chance itself and not the bell's reading of it.
     """
 
     question: Question
+    expected: float
     threshold: float
     forgetting: float
     frontier: float
@@ -302,30 +309,34 @@ def rank_bank(
     ratings = replay(bank, history)
     recalls = read_recall(history, moment)
     target = frontier.definition_embedding if frontier is not None else None
-    return [
-        Ranked(
-            question=question,
-            threshold=threshold_score(
-                expected_score(ratings.rating, ratings.difficulty[question.id])
-            ),
-            forgetting=forgetting_score(recalls.get(question.id, Recall()), moment),
-            frontier=affinity(question.text_embedding, target),
-            novelty=0.0 if question.id in recalls else 1.0,
-            context=context_affinity(question, context),
-        )
-        for question in bank
-    ]
+    return [_rank_one(question, ratings, recalls, target, context, moment) for question in bank]
 
 
-def select_lesson_questions(
+def _rank_one(question, ratings, recalls, target, context, moment) -> Ranked:
+    """One bank question's five terms. Split out of `rank_bank` only because
+    `expected` is wanted twice: once as itself, once through the bell."""
+    expected = expected_score(ratings.rating, ratings.difficulty[question.id])
+    return Ranked(
+        question=question,
+        expected=expected,
+        threshold=threshold_score(expected),
+        forgetting=forgetting_score(recalls.get(question.id, Recall()), moment),
+        frontier=affinity(question.text_embedding, target),
+        novelty=0.0 if question.id in recalls else 1.0,
+        context=context_affinity(question, context),
+    )
+
+
+def select_lesson(
     bank: list[Question],
     history: list[AnswerRecord],
     size: int,
     frontier=None,
     context: StudentContext | None = None,
     now: datetime | None = None,
-) -> list[Question]:
-    """The `size` questions this student should see next, best first.
+) -> list[Ranked]:
+    """The `size` entries this student should see next, best first, each still
+    carrying what every term said about it.
 
     `size` is a **cap, not a floor**: a bank shorter than a lesson serves what it
     has. A student whose bank is empty has just created a goal, and the endpoint
@@ -336,11 +347,29 @@ def select_lesson_questions(
 
     `frontier` is the goal's current `Frontier` (#133) - where he is being taken,
     never `goals.description`, which is only what he asked for on day one.
+
+    The lesson endpoint wants only the questions and takes them through
+    `select_lesson_questions`. The nightly generation (#135) wants the terms:
+    what it decides is whether this lesson is already too easy for him, and that
+    is a read of the `expected` these entries carry - the same eight, the same
+    arithmetic, asked a second question.
     """
     return _fill(rank_bank(bank, history, frontier, context, now), size)
 
 
-def _fill(ranked: list[Ranked], size: int) -> list[Question]:
+def select_lesson_questions(
+    bank: list[Question],
+    history: list[AnswerRecord],
+    size: int,
+    frontier=None,
+    context: StudentContext | None = None,
+    now: datetime | None = None,
+) -> list[Question]:
+    """The `size` questions this student should see next, best first."""
+    return [entry.question for entry in select_lesson(bank, history, size, frontier, context, now)]
+
+
+def _fill(ranked: list[Ranked], size: int) -> list[Ranked]:
     """Take the best question, then the best *given that one*, and so on.
 
     Greedy rather than a single sort, because coverage is marginal: whether a
@@ -353,10 +382,10 @@ def _fill(ranked: list[Ranked], size: int) -> list[Question]:
         ranked, key=lambda entry: (entry.question.created_at, str(entry.question.id))
     )
     nearest: dict = {}
-    chosen: list[Question] = []
+    chosen: list[Ranked] = []
     while candidates and len(chosen) < size:
         best = min(candidates, key=lambda entry: -entry.score(_diversity(nearest, entry)))
-        chosen.append(best.question)
+        chosen.append(best)
         candidates.remove(best)
         for entry in candidates:
             similarity = cosine(entry.question.text_embedding, best.question.text_embedding)

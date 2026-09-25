@@ -3,16 +3,18 @@
 It reads the student's still-valid contexts (written by step 1 a moment ago, or
 standing from an earlier run), the goal's current frontier - what the app is
 teaching him now, which step 1 may have moved a moment ago (#133) - and the
-questions of that goal the student most recently got wrong. An empty list of errors is the normal case
-for a student who has answered nothing, not a special one.
+goal's bank with every question's latest answer.
 
-**It generates only when tomorrow would run short (#91).** A lesson leans on
-the questions the student got wrong and the ones he has never seen - the
-forgetting and novelty terms of the ranking (`services/lessons/selection.py`,
-#134) - so a bank deep in either of those already has tomorrow covered. That is
-precisely the student who is struggling, and the user's rule is that struggling
-makes our job cheaper, not dearer: a question stays in rotation until it is
-answered right, so we do not buy new ones to sit behind it.
+**It generates when tomorrow's lesson would be too easy, not when the bank is
+small (#135).** The step builds tomorrow's lesson exactly as the endpoint would,
+with the same selection and the same pace, and then asks the arithmetic in
+`services/lessons/generation.py` whether those questions are still hard enough
+for him. A student who keeps missing his questions gets nothing: his bank
+already holds what he needs, and the tokens would buy him nothing.
+
+Nothing here counts rows. The inventory rule this replaces (#91) topped the bank
+up to two lessons, and how full a bank is says nothing at all about whether the
+student still has something to learn from it.
 """
 
 import logging
@@ -20,29 +22,29 @@ import logging
 from backend.models.question import Question
 from backend.repositories.frontier_repository import FrontierRepository
 from backend.repositories.goal_repository import GoalRepository
-from backend.repositories.question_repository import QuestionRepository
+from backend.repositories.question_repository import QuestionHistory, QuestionRepository
+from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.lesson import generate_lesson_questions
+from backend.services.gemini.lesson.schema import AnsweredQuestion
 from backend.services.gemini.student_context import GeminiStudentContext
-from backend.utils.envs import QUESTIONS_PER_LESSON
+from backend.services.lessons.generation import decide
+from backend.services.lessons.pacing import PACE_WINDOW, lesson_size
+from backend.services.lessons.selection import select_lesson
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 
-# How many of the student's recent mistakes the prompt is shown. The bank is
-# what repeats a question until it is answered right (#55); this only aims the
-# *new* questions at where they keep slipping.
-RECENT_ERRORS = 10
-
-# What a generation tops the servable bank up to: two lessons.
+# How many answered questions of each kind - right and wrong - the prompt
+# carries. Twenty in all, and they are what the generation is written from: real
+# material, never a summary of it (#135).
 #
-# One lesson is tomorrow's, and it is the gap we are actually filling. The
-# second is the margin, and it is one lesson because a student who answers
-# tomorrow's questions correctly consumes all of them - so without it the bank
-# is short again the very next night, and the next night is the one that may
-# find Gemini down or the quota spent. One lesson of margin buys exactly one
-# missed night, which is the failure we can actually expect.
-TARGET_SERVABLE = 2 * QUESTIONS_PER_LESSON
+# Ten a side because that is about two lessons' worth of each: enough for the
+# model to see a pattern in what he misses rather than one accident, and few
+# enough that the questions stay the bulk of a prompt that also holds the
+# contexts, the frontier and the guidelines. The rest of the bank is not
+# forgotten - it is what the selection keeps serving him.
+ANSWERED_SHOWN = 10
 
 
 async def run_questions_step(session, student_id) -> int:
@@ -53,47 +55,49 @@ async def run_questions_step(session, student_id) -> int:
     discard the banks written for the goals before it.
     """
     goals = await GoalRepository(session).list_by_student(student_id)
+    readings = await StudentContextRepository(session).list_valid(student_id)
     contexts = [
-        GeminiStudentContext(state=row.state, metacognition=row.metacognition)
-        for row in await StudentContextRepository(session).list_valid(student_id)
+        GeminiStudentContext(state=row.state, metacognition=row.metacognition) for row in readings
     ]
+    # His pace, and so the size of tomorrow's lesson, is a fact about the person
+    # and not about a goal (#134) - read once, used for every bank below.
+    seconds = await StudentAnswerRepository(session).list_recent_seconds(student_id, PACE_WINDOW)
 
     total = 0
     for goal in goals:
-        total += await _bank_for_goal(session, goal, contexts)
+        total += await _bank_for_goal(session, goal, contexts, readings, lesson_size(seconds))
     return total
 
 
-async def _bank_for_goal(session, goal, contexts: list[GeminiStudentContext]) -> int:
+async def _bank_for_goal(session, goal, contexts, readings, size: int) -> int:
     repository = QuestionRepository(session)
-    history = await repository.list_bank_history(goal.id)
-    servable = [h for h in history if h.last_was_correct is False or h.last_answered_at is None]
+    bank = await repository.list_bank_history(goal.id)
+    frontier = await FrontierRepository(session).current(goal.id)
+    lesson = select_lesson(
+        bank=[entry.question for entry in bank],
+        history=await StudentAnswerRepository(session).list_history_by_goal(goal.id),
+        size=size,
+        frontier=frontier,
+        context=readings[0] if readings else None,
+    )
 
-    if len(servable) >= QUESTIONS_PER_LESSON:
-        logger.info(
-            "Questions step: goal %s has %d servable questions, tomorrow is covered",
-            goal.id,
-            len(servable),
-        )
+    verdict = decide(lesson, goal.rating)
+    logger.info(
+        "Questions step: student %s, goal %s - %s", goal.student_id, goal.id, verdict.reason
+    )
+    if not verdict.generate:
         return 0
 
-    wanted = TARGET_SERVABLE - len(servable)
-    logger.info(
-        "Questions step: goal %s has %d servable questions, asking for %d",
-        goal.id,
-        len(servable),
-        wanted,
-    )
-    current = await FrontierRepository(session).current(goal.id)
     generated = await run_gemini_background(
         generate_lesson_questions,
         goal.name,
         goal.description,
-        current.definition if current else (goal.description or ""),
+        frontier.definition if frontier else (goal.description or ""),
         goal.rating,
+        verdict.target,
         contexts,
-        _recent_errors(history),
-        wanted,
+        _answered(bank, right=True),
+        _answered(bank, right=False),
     )
     # A question whose correct index is out of range would fail the table's
     # check constraint and take the whole batch with it: drop just that one.
@@ -116,12 +120,25 @@ async def _bank_for_goal(session, goal, contexts: list[GeminiStudentContext]) ->
     return len(questions)
 
 
-def _recent_errors(history) -> list[str]:
-    """The questions of this goal whose *latest* answer was wrong, newest first.
+def _answered(bank: list[QuestionHistory], right: bool) -> list[AnsweredQuestion]:
+    """The questions whose *latest* answer was right (or wrong), newest first.
 
-    Same reading of the bank that lesson selection uses: a question the student
-    has since got right is no longer a weakness.
+    The latest answer and not every one: a question he has since got right is no
+    longer a weakness, and one he has since got wrong is no longer settled. It
+    is the same reading of the bank the selection orders on.
     """
-    wrong = [entry for entry in history if entry.last_was_correct is False]
-    wrong.sort(key=lambda entry: entry.last_answered_at, reverse=True)
-    return [entry.question.text for entry in wrong[:RECENT_ERRORS]]
+    seen = [entry for entry in bank if entry.last_was_correct is right]
+    seen.sort(key=lambda entry: entry.last_answered_at, reverse=True)
+    return [_shown(entry) for entry in seen[:ANSWERED_SHOWN]]
+
+
+def _shown(entry: QuestionHistory) -> AnsweredQuestion:
+    """One answered question with the option he picked and the one that was
+    right, both as the text he read rather than as an index."""
+    question = entry.question
+    options = [question.option_a, question.option_b, question.option_c, question.option_d]
+    return AnsweredQuestion(
+        question=question.text,
+        chosen=options[entry.last_selected_index],
+        correct=options[question.right_answer_index],
+    )

@@ -230,6 +230,9 @@ def test_no_gemini_call_can_be_reached_from_the_selection_path():
     closure = reachable(
         "backend.services.lessons.selection",
         "backend.services.lessons.pacing",
+        # The decision to *buy* questions is arithmetic too (#135): it reads
+        # what the selection scored and never asks a model anything.
+        "backend.services.lessons.generation",
     )
 
     assert "backend.services.lessons.rasch" in closure  # the closure really was walked

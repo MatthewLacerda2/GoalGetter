@@ -50,7 +50,8 @@ from backend.services.gemini.student_context.student_context import (
     gemini_generate_student_context,
     gemini_review_student_context,
 )
-from backend.utils.envs import GEMINI_FAST_MODEL, GEMINI_PREMIUM_MODEL, QUESTIONS_PER_LESSON
+from backend.services.lessons.generation import GENERATION_MARGIN
+from backend.utils.envs import GEMINI_FAST_MODEL, GEMINI_PREMIUM_MODEL
 from backend.utils.gemini import gemini_configs
 
 # A goal id is only a foreign key here: the resource search takes one to stamp
@@ -151,16 +152,17 @@ USE_CASES: list[UseCase] = [
     UseCase(
         "lesson-questions",
         GEMINI_FAST_MODEL,
-        "<goal-name> <goal-description> <frontier> <rating> <state> <metacognition> [how-many]",
+        "<goal-name> <goal-description> <frontier> <rating> <state> <metacognition>",
         6,
         lambda a: (
             a[0],
             a[1],
             a[2],
             int(a[3]),
+            int(a[3]) + GENERATION_MARGIN,
             _context(a[4], a[5]),
-            None,
-            int(a[6]) if len(a) > 6 else QUESTIONS_PER_LESSON,
+            [],
+            [],
         ),
         generate_lesson_questions,
         sample=(
@@ -171,8 +173,9 @@ USE_CASES: list[UseCase] = [
             "Knows the moves",
             "Impatient",
         ),
-        note="the questions aim at the frontier, not the description (#133); "
-        "no recent mistakes; how-many defaults to one lesson",
+        note="the questions aim at the frontier, not the description (#133), and "
+        "at the rating plus the generation margin (#135); nothing answered yet, "
+        "so the prompt shows no questions of his own",
     ),
     UseCase(
         "student-context",

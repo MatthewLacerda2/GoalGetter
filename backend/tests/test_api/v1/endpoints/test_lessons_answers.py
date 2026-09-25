@@ -7,7 +7,10 @@ import pytest_asyncio
 
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.tests.fixtures.lessons import at
-from backend.utils.envs import QUESTIONS_PER_LESSON
+
+# The lesson this module submits. A literal, because how many questions a lesson
+# holds is the student's own pace (#134) and no constant says eight any more.
+LESSON = 8
 
 
 def url(goal_id):
@@ -130,7 +133,7 @@ async def test_a_full_lesson_is_graded(
     goal = await goal_factory(test_user, rating=1200)
     questions = [
         await question_factory(goal, f"q{i}", correct=i % 4, created_at=at(i))
-        for i in range(QUESTIONS_PER_LESSON)
+        for i in range(LESSON)
     ]
     body = {"answers": [answer(q, q.right_answer_index, seconds=15) for q in questions]}
 
@@ -139,8 +142,8 @@ async def test_a_full_lesson_is_graded(
     assert response.status_code == 200
     assert response.json() == {"total_seconds_spent": 120, "student_accuracy": 100.0, "elo": 98}
     stored = [a for a, _ in await stored_answers(test_db, test_user)]
-    assert len(stored) == QUESTIONS_PER_LESSON
-    assert [a.total_seconds for a in stored] == [15] * QUESTIONS_PER_LESSON
+    assert len(stored) == LESSON
+    assert [a.total_seconds for a in stored] == [15] * LESSON
 
 
 @pytest.mark.asyncio

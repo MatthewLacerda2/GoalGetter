@@ -12,11 +12,16 @@ from backend.repositories.base import BaseRepository
 @dataclass
 class QuestionHistory:
     """A bank question and its **latest** answer, if it was ever answered.
-    Lesson selection (services/lessons/selection.py) orders on this."""
+
+    `last_selected_index` is the option he actually picked. It is here because
+    *which* wrong answer he gave is what the generation prompt carries (#135):
+    a wrong answer says little, and the option he chose says what he believes.
+    """
 
     question: Question
     last_answered_at: datetime | None
     last_was_correct: bool | None
+    last_selected_index: int | None = None
 
 
 class QuestionRepository(BaseRepository[Question]):
@@ -75,6 +80,7 @@ class QuestionRepository(BaseRepository[Question]):
                 question,
                 answered_at,
                 None if answered_at is None else selected == question.right_answer_index,
+                selected,
             )
             for question, answered_at, selected in result.all()
         ]
