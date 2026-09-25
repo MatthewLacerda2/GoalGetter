@@ -295,8 +295,8 @@ what the one before it wrote:
 
 | Step | Reads | Writes |
 | --- | --- | --- |
-| **1. Context** | every goal of the student, plus either the stored onboarding or their recent lesson answers and tutor chats | `student_contexts` rows added, stale ones retired — possibly neither |
-| **2. Questions** (per goal) | the goal's whole bank with its latest answers, the student's still-valid contexts, the goal | `questions`, and only when the bank is short |
+| **1. Context** | every goal of the student with its current frontier, plus either the stored onboarding or their recent lesson answers and tutor chats | `student_contexts` rows added, stale ones retired, `frontiers` moved on — possibly none of the three |
+| **2. Questions** (per goal) | the goal's whole bank with its latest answers, the student's still-valid contexts, the goal and its **current frontier** | `questions`, and only when the bank is short |
 | **3. Resources** (per goal) | the student's newest context, the goal, the links the goal already holds | `resources` |
 
 `run_student_chain(student_id, with_resources=True)` — the one thing a caller
@@ -382,7 +382,9 @@ chats, and asks two things back:
 
 - `reviewed` — one entry per context shown: its index and whether it is now
   outdated;
-- `new_contexts` — readings to add, each a `state` and a `metacognition`.
+- `new_contexts` — readings to add, each a `state` and a `metacognition`;
+- `frontiers` — the goals whose frontier the student has outgrown, each the
+  goal's index in the prompt and the new definition (#133).
 
 **Both lists empty is a valid, normal, cheap answer** meaning nothing changed,
 and the step then writes nothing. An outdated context is **retired**
@@ -393,6 +395,33 @@ correct-option index out of range.
 
 The first-impression path is unchanged: a student with no standing context, or
 no lesson answered, is introduced rather than reviewed.
+
+### The goal is where he started; the frontier is where we take him (#133)
+
+A goal names what the student wanted to learn **about**, not a course with a
+finish line. `goals.description` is what he asked for on day one and never
+changes; **`frontiers`** (`id`, `goal_id`, `definition`, `definition_embedding`,
+`created_at`) is where the app is taking him now.
+
+- **Append-only**, like `student_contexts`. The current frontier is the goal's
+  newest row; the rows before it are the record of where he has been taken.
+  Nothing is edited or deleted.
+- **The first frontier exists from creation.** `GoalRepository.create` writes it
+  with the goal, from the description the student approved, so no reader ever
+  handles "no frontier yet".
+- **The move rides on the context review**, because that call already reads the
+  goals, the recent answers and the recent tutor chats — and what he asks the
+  tutor is the evidence of what he is interested in. **A night that moves
+  nothing writes no row**, which is the normal night.
+- **A proposal far from the goal's own embedding is refused and logged.** The
+  move must stay recognisable as the same goal seen further on; the row is the
+  one thing that cannot be taken back. Where the comparison cannot be made — no
+  goal embedding yet, or Gemini will not answer — the move is written and logged
+  as unchecked: nothing here is ever blocked by a missing embedding.
+- **Question generation aims at the frontier**, with the day-one description in
+  the prompt as background.
+- Nothing is stored about what a generation aimed at: the frontier in force when
+  a question was written is the newest one dated before that question.
 
 ### When questions are generated (#91)
 

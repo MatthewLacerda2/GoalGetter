@@ -3,13 +3,37 @@ from sqlalchemy import select
 from sqlalchemy import update as sql_update
 
 from backend.core import clock
+from backend.models.frontier import Frontier
 from backend.models.goal import Goal
 from backend.repositories.base import BaseRepository
 
 
 class GoalRepository(BaseRepository[Goal]):
     async def create(self, entity: Goal) -> Goal:
+        """Store a goal and, with it, the first frontier of that goal (#133).
+
+        It is written here because this is the only place a goal is born, and
+        "a goal always has exactly one current frontier" is only true if
+        nothing can create one without it. Nothing downstream then handles "no
+        frontier yet".
+
+        The first definition is the description the student approved: on day
+        one, what he asked for and what we are teaching him are the same
+        sentence - they stop being the same on about the second week, which is
+        the whole reason the two are separate rows. It carries the goal's own
+        `created_at` so a goal seeded with a past date does not get a frontier
+        dated today, and the empty string stands for a goal with no
+        description: as empty as what it was written from.
+        """
         self.db.add(entity)
+        await self.db.flush()
+        self.db.add(
+            Frontier(
+                goal_id=entity.id,
+                definition=entity.description or "",
+                created_at=entity.created_at,
+            )
+        )
         await self.db.flush()
         await self.db.refresh(entity)
         return entity

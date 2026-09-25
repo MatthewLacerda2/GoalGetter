@@ -6,7 +6,8 @@ What it does is decided by what it finds, never by a flag:
   standing - and it writes the **first impression**, from the onboarding rows
   goal creation stored and from every goal the student has;
 * otherwise it asks Gemini to **review** the readings that stand: which of them
-  have gone stale, and what is now missing (#90).
+  have gone stale, what is now missing (#90), and whether any goal's frontier
+  has been outgrown (#133).
 
 **The review is not a rewrite.** Regenerating the whole context every night
 paid a premium call to produce much the same paragraphs. So the prompt carries
@@ -34,6 +35,7 @@ from backend.services.gemini.student_context import (
     gemini_generate_student_context,
     gemini_review_student_context,
 )
+from backend.services.jobs.steps.frontier import apply_frontier_moves, current_definitions
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
@@ -56,15 +58,15 @@ async def run_context_step(session, student_id) -> bool:
         logger.info("Context step: student %s has no goals, nothing to write", student_id)
         return False
 
-    prompt_goals = [StudentGoal(name=goal.name, description=goal.description) for goal in goals]
+    definitions = await current_definitions(session, goals)
     answers = await StudentAnswerRepository(session).list_recent_by_student(
         student_id, RECENT_ANSWERS
     )
     contexts = await StudentContextRepository(session).list_valid(student_id)
 
     if answers and contexts:
-        return await _review(session, student_id, prompt_goals, contexts, answers)
-    return await _first_impression(session, student_id, prompt_goals)
+        return await _review(session, student_id, goals, definitions, contexts, answers)
+    return await _first_impression(session, student_id, _goals_seen(goals, definitions))
 
 
 async def _first_impression(session, student_id, goals: list[StudentGoal]) -> bool:
@@ -92,12 +94,16 @@ async def _first_impression(session, student_id, goals: list[StudentGoal]) -> bo
     return True
 
 
-async def _review(session, student_id, goals: list[StudentGoal], standing, answers) -> bool:
+async def _review(session, student_id, goals, definitions: list[str], standing, answers) -> bool:
     """Show the model what the app believes and let it say what no longer holds.
 
     The chats are in the prompt even though the nightly run does not count them
     as activity (#89): what a student asks the tutor is evidence about them,
-    and only the *gate* is lessons-only.
+    and only the *gate* is lessons-only. It is also the evidence a frontier
+    move reads - what he asks about is what he is interested in (#133).
+
+    `goals` are the rows, not the prompt's view of them, because a move is
+    written back against a goal and checked against its embedding.
     """
     chats = await ChatMessageRepository(session).list_recent_by_student(student_id, RECENT_CHATS)
     logger.info(
@@ -109,7 +115,7 @@ async def _review(session, student_id, goals: list[StudentGoal], standing, answe
     )
     review = await run_gemini_background(
         gemini_review_student_context,
-        goals,
+        _goals_seen(goals, definitions),
         [GeminiStudentContext(state=c.state, metacognition=c.metacognition) for c in standing],
         [_answer_seen(answer, question) for answer, question in answers],
         [
@@ -119,15 +125,17 @@ async def _review(session, student_id, goals: list[StudentGoal], standing, answe
     )
 
     retired = await _retire(session, standing, review.reviewed)
+    moved = await apply_frontier_moves(session, goals, definitions, review.frontiers)
     await _store(session, student_id, review.new_contexts)
     await session.commit()
     logger.info(
-        "Context step: student %s - %d retired, %d added",
+        "Context step: student %s - %d retired, %d added, %d frontier(s) moved",
         student_id,
         retired,
         len(review.new_contexts),
+        moved,
     )
-    return bool(retired or review.new_contexts)
+    return bool(retired or review.new_contexts or moved)
 
 
 async def _retire(session, standing, verdicts) -> int:
@@ -167,6 +175,15 @@ async def _store(session, student_id, generated) -> None:
                 metacognition=item.metacognition,
             )
         )
+
+
+def _goals_seen(goals, definitions: list[str]) -> list[StudentGoal]:
+    """The student's goals as a prompt reads them: what he asked for, and the
+    frontier we are teaching him at today (#133)."""
+    return [
+        StudentGoal(name=goal.name, description=goal.description, frontier=definition)
+        for goal, definition in zip(goals, definitions, strict=True)
+    ]
 
 
 def _answer_seen(answer, question) -> dict:

@@ -1,5 +1,6 @@
 from backend.models.base import Base
 from backend.models.chat_message import ChatMessage
+from backend.models.frontier import Frontier
 from backend.models.goal import Goal
 from backend.models.onboarding_question import OnboardingQuestion
 from backend.models.question import Question
@@ -14,6 +15,7 @@ from backend.models.student_context import StudentContext
 __all__ = [
     "Base",
     "ChatMessage",
+    "Frontier",
     "Goal",
     "OnboardingQuestion",
     "Question",

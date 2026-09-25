@@ -15,18 +15,23 @@ as often, that no call happened at all, which is what a skip means.
 from contextlib import contextmanager
 from unittest.mock import patch
 
+import numpy as np
+
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse, LessonQuestionItem
 from backend.services.gemini.student_context.schema import (
     ContextVerdict,
+    FrontierMove,
     GeminiContextReview,
     GeminiStudentContext,
     GeminiStudentContextResponse,
 )
+from backend.utils.envs import NUM_DIMENSIONS
 
 CONTEXT = "backend.services.jobs.steps.context"
 QUESTIONS = "backend.services.jobs.steps.questions"
 RESOURCES = "backend.services.jobs.steps.resources"
+FRONTIER = "backend.services.jobs.steps.frontier"
 CHAIN = "backend.services.jobs.student_chain"
 NIGHTLY = "backend.services.jobs.nightly"
 
@@ -36,11 +41,13 @@ FIRST = GeminiStudentContextResponse(state="Beginner", metacognition="Curious", 
 NOTHING_CHANGED = GeminiContextReview()
 
 
-def review(outdated=(), added=()) -> GeminiContextReview:
-    """A review naming the indexes it found outdated and the readings to add.
+def review(outdated=(), added=(), moved=()) -> GeminiContextReview:
+    """A review naming the indexes it found outdated, the readings to add and
+    the goals whose frontier has moved on (#133).
 
-    `outdated` may carry an index that was never shown, or one twice: that is
-    the model hallucinating, and the step drops it rather than failing.
+    `outdated` and `moved` may carry an index that was never shown, or one
+    twice: that is the model hallucinating, and the step drops it rather than
+    failing.
     """
     return GeminiContextReview(
         reviewed=[ContextVerdict(index=index, is_outdated=True) for index in outdated],
@@ -48,7 +55,24 @@ def review(outdated=(), added=()) -> GeminiContextReview:
             GeminiStudentContext(state=state, metacognition=metacognition)
             for state, metacognition in added
         ],
+        frontiers=[FrontierMove(index=index, definition=text) for index, text in moved],
     )
+
+
+def axis(index: int) -> np.ndarray:
+    """A stand-in embedding pointing along one axis. Two of them are either the
+    same direction (cosine 1) or perpendicular (cosine 0), so a test says "this
+    frontier is the same subject" or "this one is a different one" with no
+    arithmetic of its own."""
+    vector = np.zeros(NUM_DIMENSIONS, dtype=np.float32)
+    vector[index] = 1.0
+    return vector
+
+
+# The goal's own description, and the two things a proposed frontier can be.
+SUBJECT = axis(0)
+ALONGSIDE = axis(0)
+ELSEWHERE = axis(1)
 
 
 def generated(*correct_indexes) -> GeminiLessonQuestionsResponse:
@@ -96,7 +120,9 @@ def recorder(calls: list, name: str, result):
 
 
 @contextmanager
-def chain_gemini(test_db, calls, questions=GENERATED, found=(), reviewed=NOTHING_CHANGED):
+def chain_gemini(
+    test_db, calls, questions=GENERATED, found=(), reviewed=NOTHING_CHANGED, embedding=ALONGSIDE
+):
     """The jobs with every Gemini call mocked and every call recorded.
 
     The session patches are what keep a job on the test's transaction: both the
@@ -107,6 +133,7 @@ def chain_gemini(test_db, calls, questions=GENERATED, found=(), reviewed=NOTHING
         patch(CONTEXT + ".gemini_generate_student_context", recorder(calls, "context", FIRST)),
         patch(CONTEXT + ".gemini_review_student_context", recorder(calls, "review", reviewed)),
         patch(QUESTIONS + ".generate_lesson_questions", recorder(calls, "questions", questions)),
+        patch(FRONTIER + ".get_gemini_embeddings", recorder(calls, "embedding", embedding)),
         patch(RESOURCES + ".search_resources", recorder(calls, "resources", list(found))),
         patch(RESOURCES + ".validate_resources", side_effect=lambda proposed: proposed),
         patch(CHAIN + ".AsyncSessionLocal", return_value=Session(test_db)),
