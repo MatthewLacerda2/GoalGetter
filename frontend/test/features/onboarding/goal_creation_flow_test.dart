@@ -53,7 +53,10 @@ void main() {
     expect(api.lastAnswers!.single.answer, 'A few words');
   });
 
-  testWidgets('create stores the goal, plays the intro, and lands home', (
+  // #131: the end of onboarding is the first lesson, not the dashboard. What
+  // happens when the bank is not ready yet is the lesson screen's own 409
+  // message with a retry (lesson_screen_test.dart), never a bounce to home.
+  testWidgets('create stores the goal, plays the intro, and starts a lesson', (
     tester,
   ) async {
     final api = FakeOnboardingApi();
@@ -70,7 +73,8 @@ void main() {
 
     await tester.tap(find.text("Let's start"));
     await tester.pumpAndSettle();
-    expect(find.text('HOME'), findsOneWidget);
+    expect(find.text('LESSON'), findsOneWidget);
+    expect(find.text('HOME'), findsNothing);
   });
 
   testWidgets('a failed create keeps the plan and retries it', (tester) async {

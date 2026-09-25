@@ -1,8 +1,7 @@
 import pytest
 from sqlalchemy import select
 
-from backend.models.lesson import Lesson
-from backend.repositories.lesson_repository import LessonRepository
+from backend.models.student_answer import StudentAnswer
 from backend.tests.fixtures.lessons import at
 from backend.utils.envs import QUESTIONS_PER_LESSON
 
@@ -12,10 +11,10 @@ def url(goal_id):
 
 
 @pytest.mark.asyncio
-async def test_start_serves_recent_mistakes_first_and_records_the_lesson(
+async def test_start_serves_recent_mistakes_first_and_writes_nothing(
     auth_client, test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """The question just got wrong leads; the lesson stores what it served"""
+    """The question just got wrong leads; serving a lesson stores no row (#131)"""
     goal = await goal_factory(test_user)
     fresh = await question_factory(goal, "fresh", correct=2)
     missed = await question_factory(goal, "missed")
@@ -32,9 +31,9 @@ async def test_start_serves_recent_mistakes_first_and_records_the_lesson(
         "choices": ["a", "b", "c", "d"],
         "correct_answer_index": 2,
     }
-    lesson = await LessonRepository(test_db).get_by_id(body["lesson_id"])
-    assert lesson.question_ids == [missed.id, fresh.id]
-    assert lesson.finished_at is None
+    assert "lesson_id" not in body
+    stored = await test_db.execute(select(StudentAnswer.question_id))
+    assert [row[0] for row in stored.all()] == [missed.id]
 
 
 @pytest.mark.asyncio
@@ -65,7 +64,7 @@ async def test_a_bank_shorter_than_a_lesson_serves_what_it_has(
 
 
 @pytest.mark.asyncio
-async def test_start_on_an_empty_bank_is_409(auth_client, test_db, test_user, goal_factory):
+async def test_start_on_an_empty_bank_is_409(auth_client, test_user, goal_factory):
     """The first bank is still being generated: say so, open nothing"""
     goal = await goal_factory(test_user)
 
@@ -73,7 +72,6 @@ async def test_start_on_an_empty_bank_is_409(auth_client, test_db, test_user, go
 
     assert response.status_code == 409
     assert response.json()["detail"] == "Lessons are still being prepared"
-    assert (await test_db.execute(select(Lesson).where(Lesson.goal_id == goal.id))).first() is None
 
 
 @pytest.mark.asyncio

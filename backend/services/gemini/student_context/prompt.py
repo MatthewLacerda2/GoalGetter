@@ -73,7 +73,7 @@ def format_numbered_contexts(contexts: list[GeminiStudentContext]) -> str:
 def get_context_review_prompt(
     goals: list[StudentGoal],
     contexts: list[GeminiStudentContext],
-    recent_lesson_results: list[dict],
+    recent_answers: list[dict],
     recent_chat_history: list[dict],
 ) -> str:
     """Ask what went stale and what is missing, rather than for a rewrite (#90).
@@ -83,15 +83,15 @@ def get_context_review_prompt(
     about it: which of these no longer hold, and what would you add. Saying
     "nothing" is explicitly allowed, and is the cheapest answer there is.
     """
-    lessons_formatted = (
+    answers_formatted = (
         "\n".join(
             [
                 f"- Question: {res.get('question')}\n  Selected: {res.get('selected_option')}\n  Is Correct: {res.get('is_correct')}\n  Time Spent: {res.get('time_spent')}s"
-                for res in recent_lesson_results
+                for res in recent_answers
             ]
         )
-        if recent_lesson_results
-        else "No recent lesson answers."
+        if recent_answers
+        else "No recent answers."
     )
 
     chat_formatted = (
@@ -115,8 +115,8 @@ def get_context_review_prompt(
     numbered; the numbers are only for this reply:
     {format_numbered_contexts(contexts)}
 
-    Recent Study Lesson Answers (their performance, across every goal):
-    {lessons_formatted}
+    Recent answers (their performance, across every goal):
+    {answers_formatted}
 
     Recent Chat Tutor Messages (what they asked and how they reasoned):
     {chat_formatted}

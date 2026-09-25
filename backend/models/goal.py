@@ -29,13 +29,8 @@ class Goal(Base):
     )
 
     student = relationship("Student", back_populates="goals", foreign_keys=[student_id])
-    lesson_questions = relationship(
-        "LessonQuestion", back_populates="goal", cascade="all, delete-orphan"
-    )
+    questions = relationship("Question", back_populates="goal", cascade="all, delete-orphan")
     onboarding_questions = relationship(
         "OnboardingQuestion", back_populates="goal", cascade="all, delete-orphan"
     )
     resources = relationship("Resource", back_populates="goal", cascade="all, delete-orphan")
-    microlearning_contents = relationship(
-        "MicrolearningContent", back_populates="goal", cascade="all, delete-orphan"
-    )

@@ -25,8 +25,8 @@ import logging
 from backend.models.student_context import StudentContext
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.goal_repository import GoalRepository
-from backend.repositories.lesson_answer_repository import LessonAnswerRepository
 from backend.repositories.onboarding_repository import OnboardingRepository
+from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.student_context import (
     GeminiStudentContext,
@@ -57,7 +57,7 @@ async def run_context_step(session, student_id) -> bool:
         return False
 
     prompt_goals = [StudentGoal(name=goal.name, description=goal.description) for goal in goals]
-    answers = await LessonAnswerRepository(session).list_recent_by_student(
+    answers = await StudentAnswerRepository(session).list_recent_by_student(
         student_id, RECENT_ANSWERS
     )
     contexts = await StudentContextRepository(session).list_valid(student_id)
@@ -171,12 +171,16 @@ async def _store(session, student_id, generated) -> None:
 
 def _answer_seen(answer, question) -> dict:
     """One answer as the prompt reads it: the question, the option the student
-    picked (its text, not its index), and how long they took."""
+    picked (its text, not its index), and how long they took.
+
+    Correctness is worked out here rather than read: `student_answers` stores
+    no `is_correct` (#131).
+    """
     options = [question.option_a, question.option_b, question.option_c, question.option_d]
-    index = answer.selected_option_index
+    index = answer.selected_index
     return {
-        "question": question.question,
+        "question": question.text,
         "selected_option": options[index] if 0 <= index < len(options) else "",
-        "is_correct": answer.is_correct,
-        "time_spent": answer.time_spent,
+        "is_correct": index == question.right_answer_index,
+        "time_spent": answer.total_seconds,
     }

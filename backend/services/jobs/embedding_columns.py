@@ -20,7 +20,7 @@ from typing import Any
 
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.goal_repository import GoalRepository
-from backend.repositories.lesson_question_repository import LessonQuestionRepository
+from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 
@@ -72,9 +72,9 @@ SOURCES: tuple[EmbeddingSource, ...] = (
         (EmbeddingColumn("description_embedding", lambda row: row.description),),
     ),
     EmbeddingSource(
-        "lesson_questions",
-        LessonQuestionRepository,
-        (EmbeddingColumn("question_embedding", lambda row: row.question),),
+        "questions",
+        QuestionRepository,
+        (EmbeddingColumn("text_embedding", lambda row: row.text),),
     ),
     EmbeddingSource(
         "student_contexts",

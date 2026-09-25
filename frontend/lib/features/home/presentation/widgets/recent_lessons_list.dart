@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/theme/app_theme.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// The user's most recent lessons for the active goal. Each row shows accuracy,
-/// time taken, and an elo badge (green = gained, grey = even, blue = lost).
-/// Capped so the dashboard fits the screen.
+/// time taken and the day it was done. Capped so the dashboard fits the screen.
+///
+/// The elo badge that used to close each row is gone with the per-lesson
+/// rating change (#131); the day takes its place until #62 gives the rating a
+/// history again.
 class RecentLessonsList extends StatelessWidget {
   final List<RecentLesson> lessons;
 
@@ -97,47 +100,13 @@ class _RecentLessonRow extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const Spacer(),
-          _EloBadge(delta: lesson.eloDelta),
+          Text(
+            DateFormat.MMMd(
+              Localizations.localeOf(context).toLanguageTag(),
+            ).format(lesson.date),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
         ],
-      ),
-    );
-  }
-}
-
-/// Elo delta pill: green if gained, grey if even, blue if lost.
-class _EloBadge extends StatelessWidget {
-  final int delta;
-
-  const _EloBadge({required this.delta});
-
-  @override
-  Widget build(BuildContext context) {
-    final custom = Theme.of(context).extension<CustomColors>();
-    final Color color;
-    if (delta > 0) {
-      color = custom?.success ?? AppTheme.success;
-    } else if (delta < 0) {
-      color = custom?.lost ?? AppTheme.lost;
-    } else {
-      color = Theme.of(context).colorScheme.onSurfaceVariant;
-    }
-    final label = delta > 0 ? '+$delta' : '$delta';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(AppRadius.control),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: color,
-          fontWeight: FontWeight.bold,
-        ),
       ),
     );
   }

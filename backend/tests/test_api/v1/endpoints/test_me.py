@@ -24,16 +24,15 @@ async def test_me_is_the_signed_in_students_profile(auth_client, test_user):
 
 
 @pytest.mark.asyncio
-async def test_the_streak_is_user_wide_and_counts_finished_lessons_only(
-    auth_client, test_user, goal_factory, finished_lesson_factory
+async def test_the_streak_is_user_wide_and_counts_days_with_an_answer(
+    auth_client, test_user, goal_factory, lesson_factory
 ):
-    """Two goals the same day count once; an unfinished lesson today does not count"""
+    """Two goals the same day count once; the streak spans every goal"""
     italian = await goal_factory(test_user, active=True)
     chess = await goal_factory(test_user, name="Chess")
-    await finished_lesson_factory(italian, days_ago(1))
-    await finished_lesson_factory(chess, days_ago(1, hour=15))
-    await finished_lesson_factory(chess, days_ago(2))
-    await finished_lesson_factory(italian, None)
+    await lesson_factory(italian, days_ago(1))
+    await lesson_factory(chess, days_ago(1, hour=15))
+    await lesson_factory(chess, days_ago(2))
 
     response = await auth_client.get(ENDPOINT)
 

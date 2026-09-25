@@ -81,7 +81,7 @@ async def test_a_row_that_already_has_its_vector_is_not_sent(
     """Null is the queue: an embedded question is not re-embedded, ever"""
     goal = await goal_factory(test_user, description=None)
     done = await question_factory(goal, text="already embedded")
-    done.question_embedding = a_vector("already embedded")
+    done.text_embedding = a_vector("already embedded")
     await question_factory(goal, text="still null")
     await test_db.commit()
 
@@ -90,7 +90,7 @@ async def test_a_row_that_already_has_its_vector_is_not_sent(
         tallies = await run_embeddings()
 
     assert sent(calls) == {"still null"}
-    assert tally(tallies, "lesson_questions.question_embedding").queued == 1
+    assert tally(tallies, "questions.text_embedding").queued == 1
 
 
 @pytest.mark.asyncio
@@ -125,7 +125,7 @@ async def test_a_night_with_nothing_null_makes_no_gemini_call_at_all(
     goal = await goal_factory(test_user, description="Hold a chat.")
     goal.description_embedding = a_vector("Hold a chat.")
     question = await question_factory(goal, text="Q?")
-    question.question_embedding = a_vector("Q?")
+    question.text_embedding = a_vector("Q?")
     await test_db.commit()
 
     calls = []
@@ -149,13 +149,13 @@ async def test_a_failed_batch_leaves_the_rows_null_for_the_next_run(
     with gemini(test_db, calls, error=RuntimeError("quota")):
         tallies = await run_embeddings()
 
-    assert question.question_embedding is None
-    assert tally(tallies, "lesson_questions.question_embedding").left == 1
+    assert question.text_embedding is None
+    assert tally(tallies, "questions.text_embedding").left == 1
 
     with gemini(test_db, calls):
         await run_embeddings()
 
-    assert question.question_embedding is not None
+    assert question.text_embedding is not None
 
 
 @pytest.mark.asyncio
@@ -202,7 +202,7 @@ async def test_every_one_of_the_seven_columns_is_filled(
         "chat_messages.tutor_response_embedding",
         "goals.description_embedding",
         "resources.description_embedding",
-        "lesson_questions.question_embedding",
+        "questions.text_embedding",
         "student_contexts.state_embedding",
         "student_contexts.metacognition_embedding",
     ]
@@ -213,7 +213,7 @@ async def test_every_one_of_the_seven_columns_is_filled(
             (exchange, "tutor_response_embedding"),
             (goal, "description_embedding"),
             (resource, "description_embedding"),
-            (question, "question_embedding"),
+            (question, "text_embedding"),
             (context, "state_embedding"),
             (context, "metacognition_embedding"),
         )

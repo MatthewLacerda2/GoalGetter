@@ -12,7 +12,7 @@ of the issue.
 
 import pytest
 
-from backend.repositories.lesson_question_repository import LessonQuestionRepository
+from backend.repositories.question_repository import QuestionRepository
 from backend.services.jobs.steps.questions import TARGET_SERVABLE, run_questions_step
 from backend.tests.fixtures.jobs import chain_gemini, generated
 from backend.tests.fixtures.lessons import at
@@ -137,4 +137,4 @@ async def test_each_goal_is_counted_on_its_own(
         await run_questions_step(test_db, str(test_user.id))
 
     assert [name for name, _ in calls] == ["questions"]
-    assert await LessonQuestionRepository(test_db).list_bank_history(law.id) != []
+    assert await QuestionRepository(test_db).list_bank_history(law.id) != []

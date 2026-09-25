@@ -4,8 +4,9 @@
 that the student has lessons to do every day. Generation runs at night, when
 Google's servers are quiet and nobody is studying - by then the student either
 did today's lesson or was not going to. A student who did no lesson that day is
-skipped *entirely*: no context, no questions, no call at all. Chat activity
-does not count; only lessons do. Resources are rare - Monday only, and only for
+skipped *entirely*: no context, no questions, no call at all. A day counts
+because he answered at least one question in it (#131) - there is no lesson
+row. Chat activity does not count; only answers do. Resources are rare - Monday only, and only for
 a student who studied in the past week.
 
 **"That day" is not the calendar day.** The run fires at 03:00, and reading the
@@ -28,7 +29,7 @@ from datetime import datetime
 
 from backend.core import clock
 from backend.core.database import AsyncSessionLocal
-from backend.repositories.lesson_repository import LessonRepository
+from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_repository import StudentRepository
 from backend.services.jobs.student_chain import run_student_chain
 
@@ -52,7 +53,7 @@ class Decision:
     reason: str
 
 
-def decide(last_lesson: datetime | None, at: datetime) -> Decision:
+def decide(last_answer: datetime | None, at: datetime) -> Decision:
     """Everything the nightly run decides about one student, from one moment.
 
     Pure on purpose: the gate is a rule about days and weekdays, and a rule
@@ -60,18 +61,18 @@ def decide(last_lesson: datetime | None, at: datetime) -> Decision:
     scheduler to state it.
     """
     since = clock.previous_nightly_run(at)
-    if last_lesson is None:
-        return Decision(False, False, "skipped: no lesson has ever been finished")
+    if last_answer is None:
+        return Decision(False, False, "skipped: no question has ever been answered")
 
-    last = clock.as_utc(last_lesson)
+    last = clock.as_utc(last_answer)
     if last < since:
         return Decision(
-            False, False, f"skipped: last lesson {last:%Y-%m-%d %H:%M}Z is before {since:%H:%M}Z"
+            False, False, f"skipped: last answer {last:%Y-%m-%d %H:%M}Z is before {since:%H:%M}Z"
         )
     if clock.app_local(at).weekday() != RESOURCE_WEEKDAY:
-        return Decision(True, False, "context and questions: a lesson was finished today")
+        return Decision(True, False, "context and questions: a question was answered today")
 
-    # The rule also says resources need a lesson in the last seven days, and
+    # The rule also says resources need study in the last seven days, and
     # there is no test of it here because reaching this line already proves it:
     # the student studied within the last 24 hours or they were skipped above.
     # Writing the week out as a second comparison would be a branch no input
@@ -87,9 +88,9 @@ async def run_for_student(student_id: str, at: datetime | None = None) -> bool:
     """
     at = at or clock.now()
     async with AsyncSessionLocal() as session:
-        last_lesson = await LessonRepository(session).last_finished_at(student_id)
+        last_answer = await StudentAnswerRepository(session).last_answered_at(student_id)
 
-    decision = decide(last_lesson, at)
+    decision = decide(last_answer, at)
     logger.info("Nightly run, student %s: %s", student_id, decision.reason)
     if not decision.run:
         return False

@@ -15,23 +15,20 @@ class LessonsApi {
   /// 409 on [start]: the goal's question bank is still empty.
   static const notReadyStatus = 409;
 
-  /// 409 on [submit]: the lesson was already answered.
-  static const alreadyAnsweredStatus = 409;
-
-  /// Opens a new lesson on [goalId].
+  /// Opens a new lesson on [goalId]. Nothing is stored until [submit].
   Future<LessonSession> start(String goalId) async {
     final body = await _api.post('/goals/$goalId/lessons');
     return LessonSession.fromJson(body! as Map<String, dynamic>);
   }
 
-  /// Sends the first attempts, all at once; the server grades them.
+  /// Sends the answers, all at once and in the order they were given; the
+  /// server grades them and marks the batch as one lesson.
   Future<LessonEvaluation> submit(
     String goalId,
-    String lessonId,
     List<LessonAnswer> answers,
   ) async {
     final body = await _api.post(
-      '/goals/$goalId/lessons/$lessonId/answers',
+      '/goals/$goalId/lessons/answers',
       body: {'answers': answers.map((a) => a.toJson()).toList()},
     );
     return LessonEvaluation.fromJson(body! as Map<String, dynamic>);

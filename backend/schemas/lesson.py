@@ -14,14 +14,19 @@ class LessonQuestionResponse(BaseModel):
 
 
 class LessonResponse(BaseModel):
-    """POST /goals/{goal_id}/lessons: the opened lesson and its questions, in order."""
+    """POST /goals/{goal_id}/lessons: the questions of this lesson, in order.
 
-    lesson_id: str
+    There is no lesson id here, because there is no lesson yet (#131). Serving
+    writes nothing: a lesson only becomes a fact when its answers arrive, and
+    the backend marks them then.
+    """
+
     questions: list[LessonQuestionResponse]
 
 
 class LessonAnswerItem(BaseModel):
-    """The student's first attempt at one question."""
+    """One answer, in the order the student gave it - which is what the stored
+    `position` records."""
 
     question_id: UUID
     choice_index: int = Field(..., ge=0, le=3)
@@ -29,15 +34,15 @@ class LessonAnswerItem(BaseModel):
 
 
 class LessonAnswersRequest(BaseModel):
-    """POST /goals/{goal_id}/lessons/{lesson_id}/answers: all answers at once.
+    """POST /goals/{goal_id}/lessons/answers: all answers at once.
 
-    How many there must be is not a schema rule: it is one per question the
-    lesson served, which only the lesson knows. The endpoint decides, so that
-    "you left one out" is always the same 400 (#86) and never a validation
-    error that happens to fire first.
+    How many there are is up to the student: nothing recorded what was served,
+    so the backend cannot ask for a complete set and does not (the completeness
+    rule of #86 went with the `lessons` table). An empty submission is refused
+    here, because it would mint a lesson mark over nothing.
     """
 
-    answers: list[LessonAnswerItem]
+    answers: list[LessonAnswerItem] = Field(..., min_length=1)
 
 
 class LessonEvaluation(BaseModel):

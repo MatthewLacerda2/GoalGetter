@@ -1,7 +1,12 @@
 """One goal's lived-in history, written through the repositories: its question
-bank, finished lessons with their answers, tutor chat, resources and student
-context. The content is hardcoded in history_data.py."""
+bank, the answers of past lessons, tutor chat, resources and student context.
+The content is hardcoded in history_data.py.
 
+A lesson here is what it is everywhere else since #131 - a batch of answers
+sharing one minted `lesson_id`. Nothing is written for the lessons themselves,
+so the goal's rating is the only place the seeded elo lands."""
+
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -10,18 +15,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core import clock
 from backend.models.chat_message import ChatMessage
 from backend.models.goal import Goal
-from backend.models.lesson import Lesson
-from backend.models.lesson_answer import LessonAnswer
-from backend.models.lesson_question import LessonQuestion
+from backend.models.question import Question
 from backend.models.resource import Resource, StudyResourceType
 from backend.models.student import Student
+from backend.models.student_answer import StudentAnswer
 from backend.models.student_context import StudentContext
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.goal_repository import GoalRepository
-from backend.repositories.lesson_answer_repository import LessonAnswerRepository
-from backend.repositories.lesson_question_repository import LessonQuestionRepository
-from backend.repositories.lesson_repository import LessonRepository
+from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
+from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.fictitious.history_data import LESSON_SIZE, START_RATING
 
@@ -47,70 +50,53 @@ def elo_delta(accuracy: float) -> int:
 
 @dataclass
 class PlannedLesson:
-    finished_at: datetime
+    answered_at: datetime
     question_indexes: list[int]
     correct: int
-    accuracy: float
-    elo_delta: int
     elo_after: int
 
 
 def plan_lessons(plan: list, bank_size: int, now: datetime) -> list[PlannedLesson]:
-    """The lessons in order, with the elo series following from the deltas, so
-    the last `elo_after` is START_RATING plus every delta. Questions rotate
+    """The lessons in order, with the elo following from each one's accuracy, so
+    the last `elo_after` is START_RATING plus every delta - and that is the
+    goal's rating, the one place the series still lands. Questions rotate
     through the bank."""
     size = min(LESSON_SIZE, bank_size)
     elo, planned = START_RATING, []
     for i, (days_ago, hour, correct) in enumerate(plan):
         correct = min(correct, size)
-        accuracy = round(100 * correct / size, 1)
-        delta = elo_delta(accuracy)
-        elo += delta
+        elo += elo_delta(round(100 * correct / size, 1))
         planned.append(
             PlannedLesson(
-                finished_at=moment(now, days_ago, hour),
+                answered_at=moment(now, days_ago, hour),
                 question_indexes=[(i * size + k) % bank_size for k in range(size)],
                 correct=correct,
-                accuracy=accuracy,
-                elo_delta=delta,
                 elo_after=elo,
             )
         )
     return planned
 
 
-async def _seed_lessons(
-    db: AsyncSession, goal: Goal, bank: list[LessonQuestion], planned: list[PlannedLesson]
-):
-    """Each lesson with one answer per served question: the first `correct`
-    right, the rest wrong. Answer times are made up but add up to the lesson's."""
-    lessons, answers = LessonRepository(db), LessonAnswerRepository(db)
+async def _seed_lessons(db: AsyncSession, bank: list[Question], planned: list[PlannedLesson]):
+    """Each lesson as one batch of answers under a minted `lesson_id`: the first
+    `correct` right, the rest wrong. Answer times are made up but add up to the
+    lesson's."""
+    answers = StudentAnswerRepository(db)
     for i, plan in enumerate(planned):
         served = [bank[k] for k in plan.question_indexes]
         seconds = [8 + (k * 7 + i * 3) % 20 for k in range(len(served))]
-        started = plan.finished_at - timedelta(seconds=sum(seconds))
-        lesson = await lessons.create(
-            Lesson(
-                goal_id=goal.id,
-                created_at=started,
-                question_ids=[q.id for q in served],
-                finished_at=plan.finished_at,
-                total_seconds=sum(seconds),
-                accuracy=plan.accuracy,
-                elo_delta=plan.elo_delta,
-                elo_after=plan.elo_after,
-            )
-        )
+        started = plan.answered_at - timedelta(seconds=sum(seconds))
+        lesson_id = uuid.uuid4()
         await answers.create_many(
             [
-                LessonAnswer(
-                    lesson_id=lesson.id,
+                StudentAnswer(
+                    lesson_id=lesson_id,
+                    position=k,
                     question_id=q.id,
-                    is_correct=k < plan.correct,
-                    selected_option_index=q.correct_option_index
+                    selected_index=q.right_answer_index
                     if k < plan.correct
-                    else (q.correct_option_index + 1) % 4,
-                    time_spent=seconds[k],
+                    else (q.right_answer_index + 1) % 4,
+                    total_seconds=seconds[k],
                     created_at=started + timedelta(seconds=sum(seconds[: k + 1])),
                 )
                 for k, q in enumerate(served)
@@ -129,25 +115,25 @@ async def seed_goal(db: AsyncSession, student: Student, spec: dict, now: datetim
             description=spec["description"],
             rating=planned[-1].elo_after if planned else START_RATING,
             created_at=created,
-            updated_at=planned[-1].finished_at if planned else created,
+            updated_at=planned[-1].answered_at if planned else created,
         )
     )
-    bank = await LessonQuestionRepository(db).create_many(
+    bank = await QuestionRepository(db).create_many(
         [
-            LessonQuestion(
+            Question(
                 goal_id=goal.id,
-                question=text,
+                text=text,
                 option_a=options[0],
                 option_b=options[1],
                 option_c=options[2],
                 option_d=options[3],
-                correct_option_index=correct,
+                right_answer_index=correct,
                 created_at=created + timedelta(minutes=5, seconds=i),
             )
             for i, (text, options, correct) in enumerate(spec["questions"])
         ]
     )
-    await _seed_lessons(db, goal, bank, planned)
+    await _seed_lessons(db, bank, planned)
     chat = ChatMessageRepository(db)
     for prompt, replies, liked, days_ago, hour in spec["chat"]:
         await chat.create(

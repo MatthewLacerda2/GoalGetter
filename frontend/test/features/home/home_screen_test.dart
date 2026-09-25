@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 
@@ -9,8 +10,7 @@ String homeJson() {
   final today = DateTime.now().toIso8601String().substring(0, 10);
   return '{"goal_name": "Learn Go", "current_elo": 1042, "current_streak": 5,'
       ' "recent_lessons": [{"lesson_id": "l1", "date": "$today",'
-      ' "accuracy": 80.0, "elo_delta": 14, "duration_seconds": 95}],'
-      ' "elo_history": [{"date": "$today", "elo": 1042}]}';
+      ' "accuracy": 80.0, "duration_seconds": 95}]}';
 }
 
 Future<void> pumpHome(WidgetTester tester, (int, String) reply) async {
@@ -25,8 +25,11 @@ void main() {
     expect(find.text('Learn Go'), findsOneWidget);
     expect(find.text('1042'), findsOneWidget);
     expect(find.text('5'), findsOneWidget); // streak
-    expect(find.text('+14'), findsOneWidget);
+    expect(find.text('80%'), findsOneWidget);
     expect(find.text('1:35'), findsOneWidget);
+    // The day closes the row where the elo badge used to (#131).
+    expect(find.text(DateFormat.MMMd('en').format(DateTime.now())),
+        findsOneWidget);
   });
 
   testWidgets('404 No active goal is the empty state', (tester) async {

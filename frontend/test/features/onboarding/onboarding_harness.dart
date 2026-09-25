@@ -61,6 +61,7 @@ GoRouter _router(String initial, Object? extra) => GoRouter(
           GoalIntroScreen(screens: s.extra! as List<IntroScreenData>),
     ),
     GoRoute(path: AppRoutes.home, builder: (_, __) => const Text('HOME')),
+    GoRoute(path: AppRoutes.lesson, builder: (_, __) => const Text('LESSON')),
     GoRoute(path: AppRoutes.start, builder: (_, __) => const _SignedInButton()),
   ],
 );
