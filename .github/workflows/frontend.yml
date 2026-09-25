@@ -28,6 +28,9 @@ jobs:
           flutter-version-file: frontend/pubspec.yaml
           cache: true
       # So every run states, in its own log, which version it analyzed with.
+      # `make front-lint` and `make front-test` below also assert it: they
+      # depend on `front-version`, which fails if what the runner installed is
+      # not what the pin asks for (#147).
       - run: flutter --version
       - run: flutter pub get
         working-directory: frontend
