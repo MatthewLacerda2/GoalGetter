@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -20,6 +21,22 @@ class LessonSummary:
     answered_at: datetime
     total_seconds: int
     accuracy: float  # 0..100
+
+
+@dataclass
+class AnswerRecord:
+    """One answer as the rating model reads it (#62): which question, when, and
+    whether it was right.
+
+    Correctness is computed in SQL from the question's own right index, because
+    `student_answers` deliberately stores no copy of it (#131). The moment is
+    here because the model walks the history in order: a question is anchored at
+    the rating the goal had when it was generated.
+    """
+
+    question_id: uuid.UUID
+    answered_at: datetime
+    correct: bool
 
 
 # Whether one answer was right, as SQL. The only definition there is: the
@@ -70,6 +87,23 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+
+    async def list_history_by_goal(self, goal_id) -> list[AnswerRecord]:
+        """Every answer this goal ever received, oldest first - the history the
+        rating is a function of (#62).
+
+        Ordered by the moment, then by the answer's place in its lesson, so a
+        batch written in one transaction is replayed in the order it was given
+        and the walk is the same every time.
+        """
+        stmt = (
+            select(StudentAnswer.question_id, StudentAnswer.created_at, _IS_RIGHT)
+            .join(Question, Question.id == StudentAnswer.question_id)
+            .where(Question.goal_id == goal_id)
+            .order_by(StudentAnswer.created_at, StudentAnswer.position, StudentAnswer.id)
+        )
+        result = await self.db.execute(stmt)
+        return [AnswerRecord(question, moment, right) for question, moment, right in result.all()]
 
     async def list_recent_lessons_by_goal(self, goal_id, limit: int) -> list[LessonSummary]:
         """The goal's last `limit` lessons, newest first, as Home shows them.

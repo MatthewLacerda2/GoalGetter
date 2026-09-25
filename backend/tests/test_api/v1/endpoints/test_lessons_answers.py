@@ -1,7 +1,6 @@
 """Submitting a lesson: one batch, one minted `lesson_id`, one row per answer (#131)."""
 
 import uuid
-from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
@@ -9,8 +8,6 @@ import pytest_asyncio
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.tests.fixtures.lessons import at
 from backend.utils.envs import QUESTIONS_PER_LESSON
-
-DELTA = "backend.api.v1.endpoints.lessons.lesson_elo_delta"
 
 
 def url(goal_id):
@@ -44,18 +41,23 @@ async def opened(test_user, goal_factory, question_factory):
 async def test_answers_are_graded_server_side_and_move_the_rating(
     auth_client, test_db, test_user, opened
 ):
-    """Right, then wrong despite the client's claims: 50%, the patched delta applied"""
+    """Right, then wrong despite the client's claims: 50%, and 50% is below par.
+
+    Both questions are new, so both are worth what the goal was worth when they
+    were generated: E is 0.625 against each (#62), because a quarter of any
+    right answer is the four options. One right and one wrong is under that, so
+    a lesson graded 50% costs rating: 1200 -> 1190.
+    """
     goal, first, second = opened
     faked = answer(second, 3, seconds=20, is_correct=True, correct_answer_index=3)
     body = {"answers": [answer(first, 1), faked], "student_accuracy": 100.0, "elo": 99}
 
-    with patch(DELTA, return_value=7):
-        response = await auth_client.post(url(goal.id), json=body)
+    response = await auth_client.post(url(goal.id), json=body)
 
     assert response.status_code == 200
-    assert response.json() == {"total_seconds_spent": 30, "student_accuracy": 50.0, "elo": 7}
+    assert response.json() == {"total_seconds_spent": 30, "student_accuracy": 50.0, "elo": -10}
     await test_db.refresh(goal)
-    assert goal.rating == 1207
+    assert goal.rating == 1190
     stored = {a.question_id: a.selected_index for a, _ in await stored_answers(test_db, test_user)}
     assert stored == {first.id: 1, second.id: 3}
 
@@ -119,7 +121,12 @@ async def test_no_answers_at_all_is_422(auth_client, opened):
 async def test_a_full_lesson_is_graded(
     auth_client, test_db, test_user, goal_factory, question_factory
 ):
-    """Eight questions answered: graded, nothing refused"""
+    """Eight questions, all right: graded, nothing refused, 98 points of rating.
+
+    Eight answers at a K that is still provisional (40, decaying as the evidence
+    arrives) against a bank the student has never seen: a perfect first lesson
+    is worth about a hundred points, and the second one will be worth less.
+    """
     goal = await goal_factory(test_user, rating=1200)
     questions = [
         await question_factory(goal, f"q{i}", correct=i % 4, created_at=at(i))
@@ -127,11 +134,10 @@ async def test_a_full_lesson_is_graded(
     ]
     body = {"answers": [answer(q, q.right_answer_index, seconds=15) for q in questions]}
 
-    with patch(DELTA, return_value=3):
-        response = await auth_client.post(url(goal.id), json=body)
+    response = await auth_client.post(url(goal.id), json=body)
 
     assert response.status_code == 200
-    assert response.json() == {"total_seconds_spent": 120, "student_accuracy": 100.0, "elo": 3}
+    assert response.json() == {"total_seconds_spent": 120, "student_accuracy": 100.0, "elo": 98}
     stored = [a for a, _ in await stored_answers(test_db, test_user)]
     assert len(stored) == QUESTIONS_PER_LESSON
     assert [a.total_seconds for a in stored] == [15] * QUESTIONS_PER_LESSON
@@ -142,14 +148,13 @@ async def test_a_submit_bumps_the_goals_updated_at_and_moves_the_rating(
     auth_client, test_db, test_user, goal_factory, question_factory
 ):
     """#72: the rating moves in one UPDATE, which must still move `updated_at`"""
-    goal = await goal_factory(test_user, rating=1000, created_at=at(0), updated_at=at(0))
+    goal = await goal_factory(test_user, rating=1200, created_at=at(0), updated_at=at(0))
     question = await question_factory(goal, "only", correct=0)
 
-    with patch(DELTA, return_value=-4):
-        await auth_client.post(url(goal.id), json={"answers": [answer(question, 0)]})
+    await auth_client.post(url(goal.id), json={"answers": [answer(question, 0)]})
 
     await test_db.refresh(goal)
-    assert goal.rating == 996
+    assert goal.rating == 1215
     assert goal.updated_at > at(60)
 
 
@@ -187,3 +192,25 @@ async def test_someone_elses_goal_is_404(auth_client, student_factory, goal_fact
     foreign = await goal_factory(other)
     body = {"answers": [answer(first, 1)]}
     assert (await auth_client.post(url(foreign.id), json=body)).status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_two_identical_histories_end_at_the_same_rating(
+    auth_client, test_db, test_user, goal_factory, question_factory
+):
+    """Nothing random is left in grading (#62): the same answers over the same
+    history land on the same number, and two goals are the proof."""
+    outcomes = []
+    for name in ("Italian", "Guitar"):
+        goal = await goal_factory(test_user, name=name, rating=1200)
+        bank = [
+            await question_factory(goal, f"{name}-{i}", correct=1, created_at=at(i))
+            for i in range(3)
+        ]
+        body = {"answers": [answer(bank[0], 1), answer(bank[1], 0), answer(bank[2], 1)]}
+        deltas = [(await auth_client.post(url(goal.id), json=body)).json()["elo"] for _ in range(2)]
+        await test_db.refresh(goal)
+        outcomes.append((deltas, goal.rating))
+
+    assert outcomes[0] == outcomes[1]
+    assert outcomes[0][1] != 1200

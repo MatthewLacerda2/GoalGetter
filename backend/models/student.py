@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -9,10 +9,13 @@ from backend.models.base import Base
 
 
 class Student(Base):
+    """The person. **There is no rating here** (#62): a rating is what the
+    student is worth *on one goal*, replayed from the answers he gave under it,
+    and a single number across every goal he ever opened would be an average of
+    things that are not comparable. `goals.rating` is the only rating there is.
+    """
+
     __tablename__ = "students"
-    __table_args__ = (
-        CheckConstraint("progress_rating >= 0", name="check_progress_rating_non_negative"),
-    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, nullable=False, unique=True)
@@ -20,7 +23,6 @@ class Student(Base):
     name = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
     last_login = Column(DateTime(timezone=True), nullable=False, default=clock.now)
-    progress_rating = Column(Integer, nullable=False, default=1200)
     # The active goal. Nullable + use_alter because students<->goals reference each
     # other (goals.student_id and students.current_goal_id), a mutual FK Postgres can
     # only build via a deferred ALTER. SET NULL so deleting the active goal is safe.
