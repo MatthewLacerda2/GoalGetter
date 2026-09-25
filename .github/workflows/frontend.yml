@@ -15,10 +15,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # The exact version is read from frontend/pubspec.yaml's
+      # `environment.flutter`, never repeated here: two copies of a version
+      # number are two things that can disagree. `channel: stable` only says
+      # which channel that release came from; the version is what gets
+      # installed. Before this pin CI tracked whatever `stable` resolved to on
+      # the day (3.47.5 on 2026-09-25) while this machine ran 3.44.1, and #119
+      # lost a run to two analyzer warnings that existed on only one of them.
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version-file: frontend/pubspec.yaml
           cache: true
+      # So every run states, in its own log, which version it analyzed with.
+      - run: flutter --version
       - run: flutter pub get
         working-directory: frontend
 
