@@ -121,6 +121,8 @@ setup: hooks env test-db ## One-time per checkout/worktree: git hooks + .env + o
 hooks: ## Point git at the versioned hooks in .githooks
 	@git config core.hooksPath .githooks
 	@echo "core.hooksPath -> .githooks"
+	@git config blame.ignoreRevsFile .git-blame-ignore-revs
+	@echo "blame.ignoreRevsFile -> .git-blame-ignore-revs"
 
 # A bearer for "Fictitious Claude", so Claude can drive the API without Google.
 # Needs a running backend started with DEV_LOGIN=true (off, the route is a 404).
