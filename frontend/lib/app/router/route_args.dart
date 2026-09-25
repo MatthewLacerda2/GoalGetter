@@ -14,6 +14,16 @@ class GoalQuestionsArgs {
   const GoalQuestionsArgs({required this.prompt, required this.questions});
 }
 
+/// Args for the standard questions asked while the first lesson generates
+/// (#132): the goal they belong to, and the questions `POST /goals` answered
+/// with.
+class StandardQuestionsArgs {
+  final String goalId;
+  final List<StandardQuestion> questions;
+
+  const StandardQuestionsArgs({required this.goalId, required this.questions});
+}
+
 /// Args for the lesson finish screen (computed stats from the completed lesson).
 class FinishLessonArgs {
   final String title;

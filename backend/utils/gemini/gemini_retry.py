@@ -14,8 +14,8 @@ transport failures that happen before any status code exists
 
 Two budgets, because the caller decides how long a failure may take:
 
-* `REQUEST_BUDGET` - a user is watching a spinner (goal creation's introduction
-  screens, the tutor's reply). Two attempts, half a second apart: enough to ride
+* `REQUEST_BUDGET` - a user is watching a spinner (the goal validation and the
+  study plan, the tutor's reply). Two attempts, half a second apart: enough to ride
   out one blip, short enough that the request still answers. Gemini's own status
   code then reaches the client, so the app can say what happened.
 * `BACKGROUND_BUDGET` - nobody is waiting (the goal-creation chain: resources,

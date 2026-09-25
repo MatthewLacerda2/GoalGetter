@@ -40,44 +40,59 @@ class GoalDraft {
   });
 }
 
-/// One introduction screen shown after the goal is created. [icon] is a name
-/// from the backend's fixed `IntroIcon` set (see `intro_icons.dart`).
-class IntroScreenData {
-  final String icon;
-  final String title;
-  final String text;
+/// One standard onboarding question, as `POST /goals` hands it over: keys, not
+/// sentences (#132).
+///
+/// The four questions are written by us and live in the backend's
+/// `services/onboarding/standard_questions.py`; what the student reads is the
+/// ARB entry each key maps to (see `standard_question_text.dart`), in all five
+/// locales. The key is what travels in both directions, so the English the
+/// database keeps for the prompts never depends on the locale he answered in.
+class StandardQuestion {
+  final String key;
+  final List<String> optionKeys;
 
-  const IntroScreenData({
-    required this.icon,
-    required this.title,
-    required this.text,
-  });
+  const StandardQuestion({required this.key, required this.optionKeys});
 
-  factory IntroScreenData.fromJson(Map<String, dynamic> json) =>
-      IntroScreenData(
-        icon: json['icon'] as String,
-        title: json['title'] as String,
-        text: json['text'] as String,
+  factory StandardQuestion.fromJson(Map<String, dynamic> json) =>
+      StandardQuestion(
+        key: json['key'] as String,
+        optionKeys: (json['options'] as List).cast<String>(),
       );
 }
 
-/// `POST /goals` 201: the new goal and its introduction screens.
+/// One answer to a standard question: the question's key and the key of the
+/// option picked.
+class StandardAnswer {
+  final String questionKey;
+  final String optionKey;
+
+  const StandardAnswer({required this.questionKey, required this.optionKey});
+
+  Map<String, dynamic> toJson() => {
+    'question_key': questionKey,
+    'option_key': optionKey,
+  };
+}
+
+/// `POST /goals` 201: the new goal and the questions to ask while its first
+/// batch of lesson questions generates.
 class CreatedGoal {
   final String id;
   final String name;
-  final List<IntroScreenData> introScreens;
+  final List<StandardQuestion> standardQuestions;
 
   const CreatedGoal({
     required this.id,
     required this.name,
-    required this.introScreens,
+    required this.standardQuestions,
   });
 
   factory CreatedGoal.fromJson(Map<String, dynamic> json) => CreatedGoal(
     id: json['id'] as String,
     name: json['name'] as String,
-    introScreens: (json['introduction_screen_data'] as List)
-        .map((e) => IntroScreenData.fromJson(e as Map<String, dynamic>))
+    standardQuestions: (json['standard_questions'] as List)
+        .map((e) => StandardQuestion.fromJson(e as Map<String, dynamic>))
         .toList(),
   );
 }

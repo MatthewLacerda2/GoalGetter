@@ -90,11 +90,22 @@ def format_numbered_contexts(contexts: list[GeminiStudentContext]) -> str:
     )
 
 
+def format_onboarding(questions_answers: list[tuple[str, str]] | None) -> str:
+    """What the student said about himself while creating his goals: his own
+    words, the questions Gemini asked him, and the standard ones we ask
+    everyone (#132). The same lines the first impression was written from, and
+    they stay true long after a reading of him has gone stale."""
+    if not questions_answers:
+        return "The student told us nothing about himself."
+    return "\n".join([f"- {question}: {answer}" for question, answer in questions_answers])
+
+
 def get_context_review_prompt(
     goals: list[StudentGoal],
     contexts: list[GeminiStudentContext],
     recent_answers: list[dict],
     recent_chat_history: list[dict],
+    questions_answers: list[tuple[str, str]] | None = None,
 ) -> str:
     """Ask what went stale and what is missing, rather than for a rewrite (#90).
 
@@ -137,6 +148,10 @@ def get_context_review_prompt(
     What the app currently believes about this learner. Each reading is
     numbered; the numbers are only for this reply:
     {format_numbered_contexts(contexts)}
+
+    What the student told us about himself when he signed up. These are facts
+    he gave us, not a reading of him, so they do not go out of date:
+    {format_onboarding(questions_answers)}
 
     Recent answers (their performance, across every goal):
     {answers_formatted}

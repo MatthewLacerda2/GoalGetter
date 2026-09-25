@@ -58,23 +58,42 @@ class GoalCommitRequest(BaseModel):
     )
 
 
-class IntroductionScreenData(BaseModel):
-    """One welcome/roulette screen shown while the goal is being set up in the background."""
+class StandardQuestionData(BaseModel):
+    """One standard onboarding question, as keys (#132).
 
-    icon: str = Field(..., description="Material icon name from the fixed set")
-    title: str = Field(..., description="Short title")
-    text: str = Field(..., description="Short encouraging text")
+    Keys, never sentences: what the student reads is the ARB entry the frontend
+    looks the key up in, in each of the five locales, while the English the
+    database stores lives in `services/onboarding/standard_questions.py` where
+    a prompt can read it.
+    """
+
+    key: str = Field(..., description="The question's key, an ARB entry on the client")
+    options: list[str] = Field(..., description="The four option keys, in the order asked")
 
 
 class GoalCreationResponse(BaseModel):
     """What the client gets after committing a goal: the persisted goal plus the
-    introduction screens to show while async setup (resources, lessons) runs."""
+    standard questions to ask while the chain generates its first batch (#132)."""
 
     id: str = Field(..., description="The created goal's id")
     name: str = Field(..., description="The goal name")
-    introduction_screen_data: list[IntroductionScreenData] = Field(
-        ..., description="Screens to display while setup runs"
+    standard_questions: list[StandardQuestionData] = Field(
+        ..., description="Questions to ask while the first batch generates"
     )
+
+
+class StandardAnswer(BaseModel):
+    """One answer to a standard question, both sides of it a key."""
+
+    question_key: str = Field(..., min_length=1, description="The question's key")
+    option_key: str = Field(..., min_length=1, description="The key of the option picked")
+
+
+class StandardAnswersRequest(BaseModel):
+    """What the student answered before his first lesson. Partial by design: he
+    may skip out at any question, and what he did answer is still worth keeping."""
+
+    answers: list[StandardAnswer] = Field(..., description="The answers given, in any order")
 
 
 class GoalResponse(BaseModel):

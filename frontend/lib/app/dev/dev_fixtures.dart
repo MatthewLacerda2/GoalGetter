@@ -52,23 +52,32 @@ class DevFixtures {
         plan: studyPlan,
       );
 
-  static List<IntroScreenData> get introScreens => const [
-        IntroScreenData(
-          icon: 'rocket_launch',
-          title: 'Your Italian starts now',
-          text: 'We are preparing your first lessons while you read this.',
-        ),
-        IntroScreenData(
-          icon: 'map',
-          title: 'A route made for you',
-          text: 'Each lesson adapts to what you already know.',
-        ),
-        IntroScreenData(
-          icon: 'local_fire_department',
-          title: 'Keep the streak',
-          text: 'Five minutes a day is enough to make real progress.',
-        ),
-      ];
+  /// The standard onboarding questions as `POST /goals` answers with them
+  /// (#132): keys, in the order the backend's
+  /// `services/onboarding/standard_questions.py` lists them. The screen draws
+  /// the ARB sentences, so this fixture carries no prose of its own.
+  static StandardQuestionsArgs get standardQuestions =>
+      const StandardQuestionsArgs(
+        goalId: 'goal_italian',
+        questions: [
+          StandardQuestion(
+            key: 'age',
+            optionKeys: ['under18', '18to24', '25to39', '40plus'],
+          ),
+          StandardQuestion(
+            key: 'purpose',
+            optionKeys: ['school', 'work', 'project', 'curiosity'],
+          ),
+          StandardQuestion(
+            key: 'level',
+            optionKeys: ['nothing', 'little', 'enough', 'deep'],
+          ),
+          StandardQuestion(
+            key: 'time',
+            optionKeys: ['minutes', 'quarter', 'half', 'hour'],
+          ),
+        ],
+      );
 
   static StudyPlan get studyPlan => const StudyPlan(
         goalName: 'Learn Italian',

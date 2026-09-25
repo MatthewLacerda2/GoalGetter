@@ -8,7 +8,7 @@ import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/services/shared_preferences_provider.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/goal_intro_screen.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/standard_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
@@ -56,9 +56,14 @@ GoRouter _router(String initial, Object? extra) => GoRouter(
       builder: (_, s) => StudyPlanScreen(draft: s.extra! as GoalDraft),
     ),
     GoRoute(
-      path: AppRoutes.goalIntro,
-      builder: (_, s) =>
-          GoalIntroScreen(screens: s.extra! as List<IntroScreenData>),
+      path: AppRoutes.standardQuestions,
+      builder: (_, s) {
+        final args = s.extra! as StandardQuestionsArgs;
+        return StandardQuestionsScreen(
+          goalId: args.goalId,
+          questions: args.questions,
+        );
+      },
     ),
     GoRoute(path: AppRoutes.home, builder: (_, __) => const Text('HOME')),
     GoRoute(path: AppRoutes.lesson, builder: (_, __) => const Text('LESSON')),

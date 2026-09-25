@@ -101,20 +101,38 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     able to judge their own study plan; they can judge whether we understood
     their goal. Endpoint name can stay; the prompt must change.
 
-- **`POST /goals`** ⚙️ ✅ — step 3: commit the goal the user approved.
+- **`POST /goals`** ✅ — step 3: commit the goal the user approved.
   request: `GoalCommitRequest` (prompt, answers, **and the approved goal_name +
-  description**) · response: `goal` + `introduction_screen_data`
+  description**) · response: `goal` + `standard_questions`
   - **AUTHED.** Steps 1–2 are public; on "Generate" the app signs in with Google,
     calls `/auth/signup` (idempotent create-or-return ⇒ JWT) and replays this
     request with the token. Ownership = the authenticated student.
   - does **not** re-generate the goal: it persists exactly the text the user
     approved, so what they said yes to is what they get (and it saves a call).
-  - the only synchronous Gemini call here is the **introduction screens** (fast
-    model): 3–5 `{icon, title, text}` shown while background setup runs. `icon`
-    is a fixed 15-value enum so Gemini cannot hallucinate an icon name.
+  - **no Gemini call at all** (#132). It used to buy introduction screens — a
+    premium call per goal created — to fill the wait; the wait is now the
+    standard questions this response carries.
+  - `standard_questions` is `[{key, options: [key]}]` — **keys, never
+    sentences**. What the student reads is the ARB entry each key maps to, in
+    the five locales; the English the database stores for the prompts lives in
+    `backend/services/onboarding/standard_questions.py`.
   - stores the prompt and the onboarding answers (`onboarding_questions`), sets
     `students.current_goal_id`, then fires the **student chain** below with the
-    student's id — the chain reads the onboarding back, it is not handed it.
+    student's id — the chain reads the onboarding back, it is not handed it. It
+    is fired with the **instant this call finished writing**, so the batch now in
+    flight cannot see the standard answers the student is about to give.
+
+- **`POST /goals/{goal_id}/standard-answers`** ✅ — what the student told us
+  about himself while his first lesson generated (#132).
+  request: `{ "answers": [{ "question_key": "...", "option_key": "..." }] }` ·
+  response: 204, no body
+  - **AUTHED**, same 404 rule as the other `{goal_id}` routes.
+  - stored in `onboarding_questions` with `ai_model = "system"` and, unlike any
+    other row there, all four options and the true index of the one picked — we
+    wrote the question, so we know the options it was never told about.
+  - **nothing blocks on it.** A partial list is normal (he may skip out at any
+    question), an empty one is a no-op, and a key this backend does not know is
+    dropped and logged rather than refused. The client does not await it.
 
 - **`PUT /goals/{goal_id}/set-active`** ✅ — set `students.current_goal_id`.
   request: none · response: `{ "goal_id": "..." }`
@@ -287,7 +305,7 @@ user bubble plus one tutor bubble per `responses` entry.
 ### Resource generation (the chain's third step) — ✅
 
 The last step of the student chain (see Background jobs), which `POST /goals`
-kicks off fire-and-forget; the introduction screens exist to buy time for it.
+kicks off fire-and-forget; the standard questions (#132) exist to buy time for it.
 Never fails the request that started it. It runs only after the student has a
 context, and the nightly run asks for it on Mondays only (#89).
 
@@ -324,14 +342,16 @@ what the one before it wrote:
 
 | Step | Reads | Writes |
 | --- | --- | --- |
-| **1. Context** | every goal of the student with its current frontier, plus either the stored onboarding or their recent lesson answers and tutor chats | `student_contexts` rows added, stale ones retired, `frontiers` moved on — possibly none of the three |
+| **1. Context** | every goal of the student with its current frontier, the stored onboarding, and their recent lesson answers and tutor chats | `student_contexts` rows added, stale ones retired, `frontiers` moved on — possibly none of the three |
 | **2. Questions** (per goal) | the goal's whole bank with its latest answers, the student's still-valid contexts, the goal and its **current frontier** | `questions`, and only when the bank is short |
 | **3. Resources** (per goal) | the student's newest context, the goal, the links the goal already holds | `resources` |
 
-`run_student_chain(student_id, with_resources=True)` — the one thing a caller
-decides is the third step, because it is the one that is not wanted every time:
-the nightly run buys resources once a week, goal creation wants them for a goal
-that has none. Everything else a step reads for itself.
+`run_student_chain(student_id, with_resources=True, onboarding_as_of=None)` — the
+one thing a caller decides about *what runs* is the third step, because it is the
+one that is not wanted every time: the nightly run buys resources once a week,
+goal creation wants them for a goal that has none. `onboarding_as_of` decides
+nothing about what runs, only how far back the onboarding is read (below).
+Everything else a step reads for itself.
 
 **Nothing tells a step whether this is the first run.** Each works out what it
 needs from what it finds: no lesson answered yet (or no context left standing)
@@ -346,6 +366,17 @@ prompt and their answers to `onboarding_questions` (see
 chain with the student's id alone. An input that lives only in a function
 argument dies with the call that carried it; these rows mean a chain that failed
 tonight can be run again tomorrow.
+
+**How far the onboarding is read is the caller's one other decision** (#132).
+`run_student_chain(student_id, with_resources=True, onboarding_as_of=None)`:
+goal creation passes the instant it finished writing, so the batch it fires
+reads the onboarding *as it stood then* and the standard questions the student
+answers while it runs are invisible to it. Every other caller passes nothing and
+reads all of it. That is what makes the first batch generated without those
+answers and every generation after it generated with them — a cutoff in the
+query, not a race between a human and a Gemini call. Both the first impression
+and the review are shown them: facts a student gave about himself do not go
+stale the way a reading of him does, so a review sees them too.
 
 **No resources without memory** (the user, 2026-09-23). Step 3 returns without
 calling Gemini when the student has no valid context: a search made with no
@@ -557,7 +588,7 @@ Decided in conversation; recorded here so they survive the session.
    **premium** one. They may be the same name when only one is worth using; the
    split is the rule, not the two names. Where each goes (the user, 2026-09-24):
    **premium** for onboarding end to end — goal validation, the objective
-   questions, the study plan, the introduction screens — and for the student
+   questions, the study plan — and for the student
    context, because both decide what the student gets for a long time;
    **fast** for what is generated constantly: the tutor's replies, lesson
    questions, and the resource search. Model names live in `backend/utils/envs.py`

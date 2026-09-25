@@ -33,6 +33,16 @@ const _questions = GoalQuestionsArgs(
   ],
 );
 
+const _standard = StandardQuestionsArgs(
+  goalId: 'g1',
+  questions: [
+    StandardQuestion(
+      key: 'age',
+      optionKeys: ['under18', '18to24', '25to39', '40plus'],
+    ),
+  ],
+);
+
 /// The real route table, read through a provider so it gets the same `ref` the
 /// app's own router gets.
 final _routesProvider = Provider<List<RouteBase>>(appRoutes);
@@ -114,11 +124,20 @@ void main() {
     expect(find.text('Learn Italian'), findsOneWidget);
   });
 
-  testWidgets('the introduction, refreshed, goes to the first lesson',
+  testWidgets('the standard questions, refreshed, go to the first lesson',
       (tester) async {
-    final router = await pumpAt(tester, AppRoutes.goalIntro);
+    final router = await pumpAt(tester, AppRoutes.standardQuestions);
 
     expect(_at(router), AppRoutes.lesson);
+  });
+
+  testWidgets('the standard questions still show when they were passed',
+      (tester) async {
+    final router = await pumpAt(tester, AppRoutes.standardQuestions,
+        extra: _standard);
+
+    expect(_at(router), AppRoutes.standardQuestions);
+    expect(find.text('How old are you?'), findsOneWidget);
   });
 
   testWidgets('the lesson result, refreshed, goes home', (tester) async {
