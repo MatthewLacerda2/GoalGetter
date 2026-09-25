@@ -196,10 +196,16 @@ preview-down: ## Stop the tailnet preview (web + its backend)
 
 # `make shot ROUTES="/home /goals"` writes one phone-sized PNG per route to
 # shots/, signed in with .claude/token when it exists (make claude-token).
+#
+# A signed-in session is a token AND an active goal, and the app only writes
+# the goal down when it boots through `/`: a deep link to /lesson photographed
+# the "no active goal" empty state however much the student had (#127). With
+# no GOAL the tool asks the API which goal is active, so the usual call needs
+# nothing extra; `make shot GOAL=<id>` photographs another of the student's.
 ROUTES ?= /
-shot: ## Headless phone screenshots of ROUTES from the preview, into shots/
+shot: ## Headless phone screenshots of ROUTES from the preview, into shots/ (GOAL=<id> picks the goal)
 	@node tools/shot.mjs --url http://127.0.0.1:$(PREVIEW_PORT) --out shots \
-	  $(if $(wildcard .claude/token),--token .claude/token) $(ROUTES)
+	  $(if $(wildcard .claude/token),--token .claude/token) $(if $(GOAL),--goal $(GOAL)) $(ROUTES)
 
 # `make gemini`: run ONE Gemini use case for real and print the raw text next to
 # the parsed object (backend/tools/gemini_cli.py). It SPENDS REAL QUOTA on the

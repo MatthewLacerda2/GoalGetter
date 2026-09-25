@@ -4,9 +4,10 @@
 //
 //   node tools/shot.mjs --url http://127.0.0.1:8090 /home /goals
 //   node tools/shot.mjs --token .claude/token /home      # signed in
+//   node tools/shot.mjs --token .claude/token --goal <id> /lesson
 //
 // Flutter web draws on a canvas, so the DOM says little: the PNG is the
-// evidence. Two things this gets right on purpose:
+// evidence. Three things this gets right on purpose:
 //
 // - The viewport is set through CDP `Emulation.setDeviceMetricsOverride`, not
 //   `--window-size`, which lays the page out shorter than the file it writes.
@@ -14,6 +15,10 @@
 //   shared_preferences reads on web: localStorage `flutter.<key>`, holding the
 //   JSON encoding of the value (a string is stored with its quotes — read back
 //   from a running build: `flutter.user_language` = `"en"`).
+// - A session is a token *and* an active goal. The app writes the goal key
+//   itself, but only at the `/` splash (AppStartController); a deep link
+//   straight to /lesson skips it, so the screen photographed as its "no active
+//   goal" empty state however much the student had seeded (issue #127).
 //
 // Needs Node >= 22 (built-in WebSocket) and chromium. No npm dependencies.
 import { spawn } from "node:child_process";
@@ -30,6 +35,7 @@ const opt = (name, fallback) => {
 };
 const baseUrl = opt("url", process.env.SHOT_URL || "http://127.0.0.1:8090").replace(/\/$/, "");
 const tokenFile = opt("token", "");
+const goalOption = opt("goal", "");
 const outDir = opt("out", "shots");
 const width = Number(opt("width", 412));
 const height = Number(opt("height", 915));
@@ -114,9 +120,21 @@ function settle(cdp) {
   };
 }
 
-function sessionScript(token) {
+// The goal the injected session is "on". `--goal` names one; with none, the
+// student's active goal is read back with the same token, so the usual call
+// needs nothing extra. A student with no active goal resolves to null and the
+// key is left unwritten — the empty state, which is then the true screen.
+async function resolveGoalId(token) {
+  if (goalOption) return goalOption;
+  const res = await fetch(`${baseUrl}/api/v1/goals`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`GET /api/v1/goals answered ${res.status}`);
+  const goals = await res.json();
+  return goals.find((goal) => goal.is_active)?.id ?? null;
+}
+
+function sessionScript(token, goalId) {
   // Mirrors SettingsStorage's keys (frontend/lib/core/utils/settings_storage.dart).
-  const entries = { access_token: token };
+  const entries = { access_token: token, ...(goalId ? { current_goal_id: goalId } : {}) };
   const lines = Object.entries(entries).map(
     ([key, value]) => `localStorage.setItem(${JSON.stringify("flutter." + key)}, ${JSON.stringify(JSON.stringify(value))});`,
   );
@@ -145,7 +163,13 @@ async function main() {
     if (tokenFile) {
       const token = readFileSync(tokenFile, "utf8").trim();
       if (!token) throw new Error(`${tokenFile} is empty — run make claude-token`);
-      await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: sessionScript(token) });
+      let goalId = null;
+      try {
+        goalId = await resolveGoalId(token);
+      } catch (err) {
+        console.error(`shot: could not read the active goal (${err.message}); screens that need one will photograph empty`);
+      }
+      await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: sessionScript(token, goalId) });
     }
 
     mkdirSync(outDir, { recursive: true });
