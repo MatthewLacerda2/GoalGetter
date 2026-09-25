@@ -81,8 +81,9 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
 
 - **The shared dev database.** The backend drops its whole schema on every start, and
   every worktree points at the same dev database. A subagent that brings a backend up
-  against it wipes the data of whoever else is using it — including the tailnet
-  preview the user may be looking at. Backend work is validated by `make back-test`,
+  against it wipes the data of whoever else is using it. The tailnet preview is no
+  longer one of them: since #122 it has a database of its own, and `make preview`
+  leaves the dev one alone. Backend work is validated by `make back-test`,
   which uses a test database of the worktree's own (`make setup` creates it). An agent
   that needs a running backend gets a database of its own, named in its brief.
   Changing the *schema* is fine when the issue says so; using that one database is not.

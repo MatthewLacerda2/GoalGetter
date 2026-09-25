@@ -146,18 +146,40 @@ claude-token: ## Sign in as "Fictitious Claude" on the running backend and write
 # worktree, so removing a worktree never takes it down. The backend reads the
 # main checkout's .env (mounted read-only, never copied) and drops its schema on
 # every start, like any backend here - a rebuild signs everyone out.
+#
+# It drops the schema of its OWN database (#122). The preview used to take
+# DATABASE_URL straight from that .env, which is the shared dev database, so
+# every `make preview` wiped whatever anyone else had in there - the one thing
+# left sharing after the test databases were split per worktree (#64). The
+# preview now gets goalgetter_preview, created the way `make test-db` creates
+# its own: a database on the dev server, so the URL is the dev one with the
+# name swapped and no new credential exists anywhere. It is read out of .env
+# inside the recipe, handed to the container by name (`-e DATABASE_URL`, never
+# a value on a command line) and never printed. The rest of .env - the Gemini
+# key, the OAuth client - still comes from the mount.
 PREVIEW_DIR  ?= $(HOME)/.local/share/goalgetter-preview
 PREVIEW_PORT := 8093
+PREVIEW_DB   := goalgetter_preview
 MAIN_CHECKOUT = $(shell git worktree list --porcelain | awk '/^worktree /{print $$2; exit}')
+# Prints the preview's DATABASE_URL on stdout: the dev server's, with the
+# database name replaced. Both `preview` and `claude` read it this way.
+# The sed delimiter is `|`, not `#`: a `#` here would start a make comment and
+# silently truncate the command.
+PREVIEW_URL = sed -nE 's|^DATABASE_URL="?([^"]*)"?$$|\1|p' "$(MAIN_CHECKOUT)/.env" \
+	  | head -n1 | sed -E 's|/[^/]*$$|/$(PREVIEW_DB)|'
 
 preview: ## Build and serve the integrated app on the tailnet (http://<this host>:8093)
 	@set -e; \
 	ip="$$(tailscale ip -4 | head -n1)"; [ -n "$$ip" ] || { echo "tailscale is not up"; exit 1; }; \
+	export DATABASE_URL="$$($(PREVIEW_URL))"; \
+	[ -n "$$DATABASE_URL" ] || { echo "preview: no DATABASE_URL in $(MAIN_CHECKOUT)/.env"; exit 1; }; \
+	docker exec goalgetter_postgres psql -U postgres -Atc "SELECT 1 FROM pg_database WHERE datname='$(PREVIEW_DB)'" | grep -q 1 \
+	  || docker exec goalgetter_postgres createdb -U postgres "$(PREVIEW_DB)"; \
 	mkdir -p "$(PREVIEW_DIR)"; \
 	docker build -q -t goalgetter-preview-backend backend >/dev/null; \
 	docker rm -f goalgetter_preview_backend >/dev/null 2>&1 || true; \
 	docker run -d --name goalgetter_preview_backend --network host --restart unless-stopped \
-	  -v "$(MAIN_CHECKOUT)/.env":/app/.env:ro -e DEV_LOGIN=true goalgetter-preview-backend \
+	  -v "$(MAIN_CHECKOUT)/.env":/app/.env:ro -e DEV_LOGIN=true -e DATABASE_URL goalgetter-preview-backend \
 	  uvicorn backend.main:app --host 127.0.0.1 --port 8001 --workers 1 >/dev/null; \
 	(cd frontend && $(FLUTTER) build web --release --dart-define=DEV_LOGIN=true --dart-define=BASE_URL= \
 	  --output "$(PREVIEW_DIR)/web"); \
@@ -209,11 +231,15 @@ embeddings: env ## Fill every null embedding by hand (SPENDS QUOTA)
 # `make claude`: "Fictitious Claude" with a lived-in history, so every signed-in
 # screen has data (backend/services/fictitious/, hardcoded, no Gemini/YouTube),
 # then its token through `claude-token`. It writes to DATABASE_URL: the
-# environment's if set (forwarded by name, never echoed), else .env's, which is
-# the dev database the preview backend uses. The schema must exist (a backend
-# creates it on start), and every backend start drops it: re-run after one.
-# Idempotent; ARGS=--fresh deletes the student and rebuilds it.
-CLAUDE_RUN = $(subst --network host,--network host $(if $(DATABASE_URL),-e DATABASE_URL),$(DOCKER_RUN))
+# environment's if set, else the preview's own database (#122) - the one the
+# backend on BACKEND_PORT is serving. Either way it is forwarded by name and
+# never echoed. A backend run by hand against another database wants that
+# database named: `DATABASE_URL=... make claude`. The schema must exist (a
+# backend creates it on start), and every backend start drops it: re-run after
+# one. Idempotent; ARGS=--fresh deletes the student and rebuilds it.
+CLAUDE_RUN = $(subst --network host,--network host -e DATABASE_URL,$(DOCKER_RUN))
 claude: env ## Seed "Fictitious Claude" with a lived-in history, then write .claude/token (ARGS=--fresh)
-	@$(CLAUDE_RUN) python -m backend.services.fictitious $(ARGS)
+	@set -e; export DATABASE_URL="$${DATABASE_URL:-$$($(PREVIEW_URL))}"; \
+	[ -n "$$DATABASE_URL" ] || { echo "claude: no DATABASE_URL in $(MAIN_CHECKOUT)/.env"; exit 1; }; \
+	$(CLAUDE_RUN) python -m backend.services.fictitious $(ARGS)
 	@$(MAKE) --no-print-directory claude-token
