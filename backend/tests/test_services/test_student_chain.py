@@ -78,8 +78,9 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
         await run_student_chain(str(test_user.id))
 
     seen = dict(calls)
-    name, description, rating, contexts, errors, _count = seen["questions"]
+    name, description, frontier, rating, contexts, errors, _count = seen["questions"]
     assert (name, description, rating, errors) == (goal.name, goal.description, 1200, [])
+    assert frontier == goal.description
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
     assert seen["resources"][1:] == (goal.name, goal.description, "Beginner Curious", [])
     bank = await QuestionRepository(test_db).list_bank_history(goal.id)
@@ -110,7 +111,7 @@ async def test_a_later_run_reviews_the_context_and_aims_at_what_went_wrong(
     assert [(c.state, c.metacognition) for c in standing] == [("Beginner", "Curious")]
     assert [(r["question"], r["is_correct"]) for r in results] == [("What is 'ciao'?", False)]
     assert [c["prompt"] for c in chats] == ["q0"]
-    assert dict(calls)["questions"][4] == ["What is 'ciao'?"]
+    assert dict(calls)["questions"][5] == ["What is 'ciao'?"]
 
 
 @pytest.mark.asyncio

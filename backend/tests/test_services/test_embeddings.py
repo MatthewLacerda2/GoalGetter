@@ -22,6 +22,7 @@ import pytest
 from backend.core import clock
 from backend.models.resource import Resource, StudyResourceType
 from backend.models.student_context import StudentContext
+from backend.repositories.frontier_repository import FrontierRepository
 from backend.services.jobs.embeddings import run_embeddings
 from backend.tests.fixtures.jobs import Session
 from backend.tools import nightly_run
@@ -124,6 +125,8 @@ async def test_a_night_with_nothing_null_makes_no_gemini_call_at_all(
     """Not a cheaper run, no run: the no-op costs zero calls"""
     goal = await goal_factory(test_user, description="Hold a chat.")
     goal.description_embedding = a_vector("Hold a chat.")
+    frontier = await FrontierRepository(test_db).current(goal.id)
+    frontier.definition_embedding = a_vector(frontier.definition)
     question = await question_factory(goal, text="Q?")
     question.text_embedding = a_vector("Q?")
     await test_db.commit()
@@ -174,10 +177,10 @@ async def test_an_empty_text_is_never_sent_and_stays_null(test_db, test_user, go
 
 
 @pytest.mark.asyncio
-async def test_every_one_of_the_seven_columns_is_filled(
+async def test_every_one_of_the_eight_columns_is_filled(
     test_db, test_user, goal_factory, question_factory, exchange_factory
 ):
-    """Five tables, seven columns, one run"""
+    """Six tables, eight columns, one run"""
     goal = await goal_factory(test_user, description="Hold a chat.")
     question = await question_factory(goal, text="Q?")
     (exchange,) = await exchange_factory(goal)
@@ -196,10 +199,11 @@ async def test_every_one_of_the_seven_columns_is_filled(
     with gemini(test_db, []):
         tallies = await run_embeddings()
 
-    assert sum(item.filled for item in tallies) == 7
+    assert sum(item.filled for item in tallies) == 8
     assert [item.column for item in tallies] == [
         "chat_messages.prompt_embedding",
         "chat_messages.tutor_response_embedding",
+        "frontiers.definition_embedding",
         "goals.description_embedding",
         "resources.description_embedding",
         "questions.text_embedding",
@@ -212,6 +216,7 @@ async def test_every_one_of_the_seven_columns_is_filled(
             (exchange, "prompt_embedding"),
             (exchange, "tutor_response_embedding"),
             (goal, "description_embedding"),
+            (await FrontierRepository(test_db).current(goal.id), "definition_embedding"),
             (resource, "description_embedding"),
             (question, "text_embedding"),
             (context, "state_embedding"),
