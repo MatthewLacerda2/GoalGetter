@@ -1,20 +1,21 @@
 import uuid
 
-from backend.models.lesson_question import LessonQuestion
-from backend.repositories.lesson_question_repository import QuestionHistory
+from backend.models.question import Question
+from backend.repositories.question_repository import QuestionHistory
 from backend.services.lessons.selection import select_lesson_questions
 from backend.tests.fixtures.lessons import at
+from backend.utils.envs import QUESTIONS_PER_LESSON
 
 
 def entry(name, created=0, answered=None, correct=None):
     """A bank question called `name`, created at minute `created`, whose latest
     answer (if any) came at minute `answered` and was `correct`."""
-    question = LessonQuestion(id=uuid.uuid4(), question=name, created_at=at(created))
+    question = Question(id=uuid.uuid4(), text=name, created_at=at(created))
     return QuestionHistory(question, at(answered) if answered is not None else None, correct)
 
 
 def names(bank, size=10):
-    return [q.question for q in select_lesson_questions(bank, size)]
+    return [q.text for q in select_lesson_questions(bank, size)]
 
 
 def test_wrong_questions_come_most_recent_first():
@@ -53,3 +54,9 @@ def test_a_bank_smaller_than_the_lesson_serves_all_of_it():
 
 def test_an_empty_bank_serves_nothing():
     assert select_lesson_questions([], 5) == []
+
+
+def test_the_default_size_is_the_lessons_own_and_no_callers():
+    """#131: the endpoint asks for a lesson; how many that is lives here"""
+    bank = [entry(f"q{i}", created=i) for i in range(12)]
+    assert len(select_lesson_questions(bank)) == QUESTIONS_PER_LESSON

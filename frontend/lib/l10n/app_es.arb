@@ -189,9 +189,7 @@
     "recentLessons": "Lecciones recientes",
     "@recentLessons": { "description": "Heading for the recent lessons list" },
     "noLessonsYet": "Aún no hay lecciones",
-    "@noLessonsYet": { "description": "Empty state for lessons and chart" },
-    "yourProgress": "Tu progreso",
-    "@yourProgress": { "description": "Heading for the elo progress chart" },
+    "@noLessonsYet": { "description": "Empty state for the recent lessons list" },
     "noActiveGoal": "Aún no hay meta activa",
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Gestionar objetivos",
@@ -256,7 +254,6 @@
     "startWithGoogle": "Empezar con Google",
     "signingIn": "Iniciando sesión...",
     "appWordmark": "Goal Getter",
-    "chartRangeDays": "{days}d",
     "profileVersionTag": "ELO · v0.1 prototipo",
     "statSeparator": "  ·  ",
     "tutorLoadFailed": "No se pudo cargar tu conversación"

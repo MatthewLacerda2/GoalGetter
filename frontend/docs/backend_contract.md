@@ -61,7 +61,7 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 - **`GET /me`** — the signed-in user's profile + streak (drives the Profile header).
   request: none · response: `user_profile`
   - `member_since` is `students.created_at`.
-  - `current_streak` is user-wide; computed from lesson activity, no streak
+  - `current_streak` is user-wide; computed from answer activity, no streak
     table (see **Streak** under the cross-cutting notes).
 
 ---
@@ -122,7 +122,7 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
 - **`DELETE /goals/{goal_id}`** ✅ — delete a goal and its data.
   request: none · response: 204, no body
   - the database cascades: `ON DELETE CASCADE` takes the goal's rows
-    (resources, lessons, questions…), `SET NULL` clears `current_goal_id` when the
+    (resources, questions and their answers…), `SET NULL` clears `current_goal_id` when the
     active goal goes. No goal becomes active in its place; the client decides
     where to land. **Student contexts survive**: they hang off the student, not
     the goal (#87), and they are progression history.
@@ -134,74 +134,85 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ## Home — ✅ implemented & tested (#56, backend and app)
 
-- **`GET /home`** — dashboard for the active goal: rating, streak, recent
-  lessons, and the elo-over-time series.
+- **`GET /home`** — dashboard for the active goal: rating, streak and recent
+  lessons.
   request: none (uses `current_goal_id`) · response: `home_dashboard`
   - **404** `No active goal` without one (`get_active_goal`, as `/resources`);
     the app shows its empty state with a way to create a goal.
-  - `recent_lessons`: finished lessons only, newest first, at most **10** (the
-    screen shows 4).
-  - `elo_history`: one point per day that had a finished lesson, oldest first,
-    the `elo_after` of that day's last lesson; the whole history, the client
-    filters to 7/30/90 days.
-  - Dates are the server's local date of `lessons.finished_at`.
+  - `recent_lessons`: the answers of this goal **grouped by their `lesson_id`**,
+    newest first, at most **10** (the screen shows 4). Accuracy and seconds are
+    counted over the group; there is no lesson row to read them off (#131).
+  - Dates are the app's calendar date (`core/clock.py`) of the group's last
+    answer.
+  - **no `elo_history`, no per-lesson `elo_delta`.** They came off the `lessons`
+    table, which is gone; the rating has no stored history until #62. The app
+    shows no chart meanwhile, and each row ends with the day instead of an elo
+    badge.
 
 ---
 
-## Lessons — ✅ implemented & tested (#55, backend and app)
+## Lessons — ✅ implemented & tested (#55, #131, backend and app)
+
+**A lesson is a cut, not a row.** It is the questions chosen for this student at
+this moment. There is no `lessons` table and there will not be one: serving
+writes nothing, and what makes a lesson afterwards is the `lesson_id` the
+backend mints over the answers when they arrive (#131).
 
 - **`POST /goals/{goal_id}/lessons`** — open a lesson from the goal's question
   bank. 201.
-  request: none · response: `{ "lesson_id": "...", "questions": multiple_choice_question[] }`
+  request: none · response: `{ "questions": multiple_choice_question[] }`
   - questions are **not** generated on request: the bank is built by the lesson
-    job (see Background jobs). This endpoint picks the next set and opens a
-    lesson (`lessons` row, served ids in order).
-  - **selection**, in this order until the lesson is full
-    (`QUESTIONS_PER_LESSON` = 8, `utils/envs.py`): 1. questions whose **latest**
-    answer was wrong, most recent first; 2. questions never answered, oldest
-    first; 3. everything else, least recently answered first. Written once, in
-    `services/lessons/selection.py`. The embedding columns are unused, and
-    nothing will be shared between students (see **No reuse between students**).
-  - **8 is a cap, not a floor** (#86). A lesson is meant to last about two
-    minutes, and eight questions is the user's measure of that. A bank shorter
-    than eight serves what it has: the empty bank is the student who has just
-    created a goal and is already answered with the 409 below, while a bank
-    that is short but not empty means last night's generation came back thin —
-    refusing there would turn one bad night at Gemini into a lost day of study.
-    The bank only grows, so a short lesson repairs itself.
+    job (see Background jobs). This endpoint picks the next set and stores
+    nothing — so there is no `lesson_id` in the response, and nothing to resume.
+  - **selection**, in this order until the lesson is full: 1. questions whose
+    **latest** answer was wrong, most recent first; 2. questions never answered,
+    oldest first; 3. everything else, least recently answered first. Written
+    once, in `services/lessons/selection.py`, which also owns **how many** —
+    the endpoint asks for a lesson and takes what it gets. The embedding columns
+    are unused, and nothing will be shared between students (see **No reuse
+    between students**).
+  - the count is the flat `QUESTIONS_PER_LESSON` = 8 of #86 today. It stops
+    being flat with #134: a lesson is two minutes, filled from the student's own
+    answering pace, with a floor of six.
+  - **the count is a cap, not a floor** (#86). A short bank serves what it has:
+    the empty bank is the student who has just created a goal and is already
+    answered with the 409 below, while a bank that is short but not empty means
+    last night's generation came back thin — refusing there would turn one bad
+    night at Gemini into a lost day of study. The bank only grows, so a short
+    lesson repairs itself.
   - empty bank ⇒ **409** `"Lessons are still being prepared"`. Not the
     student's goal ⇒ 404.
-  - every call opens a new lesson; an unanswered one is simply left open.
   - `correct_answer_index` **is** included (the frontend grades inline; we accept
     that a determined user could read it via devtools). The server re-grades.
 
-- **`POST /goals/{goal_id}/lessons/{lesson_id}/answers`** — submit the answers
-  all at once; returns the result.
+- **`POST /goals/{goal_id}/lessons/answers`** — submit the answers all at once;
+  returns the result.
   request: `{ "answers": lesson_answer[] }` · response: `lesson_evaluation`
-  - **every served question, answered exactly once** (#86). The student answers
-    each question before the next is shown, so a submission missing one is a
-    broken client, not a student who gave up — and the app is written so it
-    cannot build one (`lesson_controller.dart` returns to the gap instead of
-    sending it). How many answers there must be is **not** a schema rule: only
-    the lesson knows, so the endpoint decides and the shortfall is always the
-    same 400, never a validation error that fired first. An empty list is that
-    same 400.
-  - graded **server-side** from the stored correct index; nothing the client
-    says about correctness is read. `student_accuracy` is over every question
-    served, which is now always every question answered. Time is self-reported,
-    per question (`lesson_answers.time_spent`) — that is what makes the
-    two-minute target measurable.
-  - stores one `lesson_answers` row per question (the first attempt; the
-    review round is never submitted), then the lesson's `finished_at`,
-    `total_seconds`, `accuracy`, `elo_delta`, `elo_after`.
+  - **the completeness rule of #86 is gone.** Nothing recorded what was served,
+    so the backend cannot say "you left one out" and does not try: it grades
+    what arrives. The app still sends the whole lesson in order
+    (`lesson_controller.dart` returns to a gap rather than sending it), because
+    that is the lesson the student did — not because the server insists.
+  - graded **server-side** from the stored right index; nothing the client says
+    about correctness is read. `student_accuracy` is over the answers submitted.
+    Time is self-reported, per answer (`student_answers.total_seconds`) — that
+    is what makes the two-minute target measurable.
+  - stores one `student_answers` row per answer, all carrying **one fresh
+    `lesson_id`** and their 0-based `position`. Nothing is overwritten: the same
+    question answered five times is five rows, which is the history that says
+    whether the student learned. `is_correct` is **not** stored — it is
+    `selected_index == questions.right_answer_index`.
   - `elo` is **random** (±20) until the elo design (#62): one function,
-    `services/lessons/elo.py`. It is added to `goals.rating`.
-  - a served question left unanswered ⇒ **400** `"Every question this lesson
-    served must be answered"`. A question not served in this lesson, or the
-    same one twice ⇒ **422** — the two are kept apart because they say
-    different things about the client: one stopped early, the other sent an
-    answer we cannot place. Lesson already answered ⇒ **409**. Lesson not in
-    this goal ⇒ 404. Streak: #56.
+    `services/lessons/elo.py`. It is added to `goals.rating` and returned, but
+    not recorded anywhere per lesson.
+  - an answer naming a question outside this goal's bank, or naming one twice
+    in the same batch ⇒ **422**, and nothing is stored. An empty `answers` list
+    ⇒ 422 (it would mint a lesson mark over nothing). Not the student's goal ⇒
+    404. Streak: #56.
+  - **no idempotency.** There is no lesson row to be "already answered", so a
+    submit whose response was lost and then retried writes a second lesson. The
+    app only retries on a failure it saw, and `_hasSubmittedAnswers` stops a
+    double send inside one session.
 
 ---
 
@@ -285,7 +296,7 @@ what the one before it wrote:
 | Step | Reads | Writes |
 | --- | --- | --- |
 | **1. Context** | every goal of the student, plus either the stored onboarding or their recent lesson answers and tutor chats | `student_contexts` rows added, stale ones retired — possibly neither |
-| **2. Questions** (per goal) | the goal's whole bank with its latest answers, the student's still-valid contexts, the goal | `lesson_questions`, and only when the bank is short |
+| **2. Questions** (per goal) | the goal's whole bank with its latest answers, the student's still-valid contexts, the goal | `questions`, and only when the bank is short |
 | **3. Resources** (per goal) | the student's newest context, the goal, the links the goal already holds | `resources` |
 
 `run_student_chain(student_id, with_resources=True)` — the one thing a caller
@@ -325,9 +336,9 @@ this one stopped.
 `docker-compose.yml`. It fires at **03:00 in `APP_TIMEZONE`**
 (`clock.NIGHTLY_RUN_HOUR`, #92), and for each student in turn:
 
-1. **skip unless they finished a lesson in the day the run is closing out** —
+1. **skip unless they answered a question in the day the run is closing out** —
    no chain, no Gemini call, nothing. Chat activity does not count; only
-   lessons do.
+   answers do.
 2. run the chain's **context** step, then its **question** step;
 3. **on Mondays**, run the **resource** step as well.
 
@@ -335,7 +346,7 @@ this one stopped.
 (`clock.previous_nightly_run`). The run fires three hours into a day nobody has
 studied yet, so reading the calendar date would skip every student who studied
 the evening before — which is every student. The window is
-`[previous 03:00, now]`. The rule "resources also need a lesson in the last
+`[previous 03:00, now]`. The rule "resources also need study in the last
 seven days" is satisfied by construction: a student who reaches step 3 studied
 within the last 24 hours.
 
@@ -528,11 +539,9 @@ objective_question      { "question": "...", "options": ["a","b","c","d"] }  // 
 objective_answer        { "question": "...", "answer": "<the selected option>" }  // unselected options omitted
 
 home_dashboard          { "goal_name": "...", "current_elo": 920, "current_streak": 7,
-                          "recent_lessons": [ recent_lesson ],   // newest first
-                          "elo_history":    [ elo_point ] }       // one/day, oldest first
+                          "recent_lessons": [ recent_lesson ] }   // newest first
 recent_lesson           { "lesson_id": "...", "date": "2026-06-06", "accuracy": 90.0,
-                          "elo_delta": 10, "duration_seconds": 137 }
-elo_point               { "date": "2026-05-31", "elo": 854 }
+                          "duration_seconds": 137 }   // the answers sharing one mark
 
 multiple_choice_question{ "id": "q1", "question": "...", "choices": ["...","..."],
                           "correct_answer_index": 0 }
@@ -553,7 +562,9 @@ resource_item           { "name": "...", "description": "...", "url": "https://.
   `goals.rating` (the user's rating *for that goal*); `goal.current_elo` and
   `home_dashboard.current_elo` read from it. `lesson_evaluation.elo` is the
   signed change applied to it for that lesson, in one atomic `UPDATE`
-  (`GoalRepository.add_to_rating`, #72), whose result is `lessons.elo_after`.
+  (`GoalRepository.add_to_rating`, #72). Where that change went is **not**
+  recorded anywhere: the column that held it went with the `lessons` table
+  (#131), and the rating gets a history again with #62.
   Streak stays **per-user**.
 - **`students.current_goal_id`** is the single source of truth for the active
   goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.

@@ -8,7 +8,6 @@ import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
-import 'package:goal_getter/features/home/presentation/widgets/elo_chart.dart';
 import 'package:goal_getter/features/home/presentation/widgets/elo_chip.dart';
 import 'package:goal_getter/features/home/presentation/widgets/recent_lessons_list.dart';
 import 'package:goal_getter/features/home/presentation/widgets/start_lesson_button.dart';
@@ -18,8 +17,11 @@ import 'package:goal_getter/app/theme/app_dimens.dart';
 /// The landing dashboard shown to a logged-in user (the first bottom-nav tab).
 ///
 /// Headerless by design: a clean top row (active goal + streak), the primary
-/// "start lesson" CTA, recent lessons, and an elo-progress chart. Data is
-/// scoped to the active goal, which is chosen from the Profile goals list.
+/// "start lesson" CTA and the recent lessons. Data is scoped to the active
+/// goal, which is chosen from the Profile goals list.
+///
+/// The elo progress chart is not here: the rating has no per-day history to
+/// draw while #62 is open, and an always-empty chart card reads as broken.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -88,8 +90,6 @@ class _Dashboard extends StatelessWidget {
           ),
           const SizedBox(height: 20.0),
           const StartLessonButton(),
-          const SizedBox(height: 20.0),
-          EloChart(history: data.eloHistory),
           const SizedBox(height: 20.0),
           RecentLessonsList(lessons: data.recentLessons),
         ],

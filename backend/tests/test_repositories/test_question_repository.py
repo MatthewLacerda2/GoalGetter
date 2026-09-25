@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from backend.repositories.lesson_question_repository import LessonQuestionRepository
+from backend.repositories.question_repository import QuestionRepository
 from backend.tests.fixtures.lessons import at
 from backend.utils.envs import NUM_DIMENSIONS
 
@@ -18,7 +18,7 @@ async def test_bank_history_reports_only_the_latest_answer(
     await answer_factory(redeemed, correct=True, answered_at=at(2))
 
     history = {
-        h.question.id: h for h in await LessonQuestionRepository(test_db).list_bank_history(goal.id)
+        h.question.id: h for h in await QuestionRepository(test_db).list_bank_history(goal.id)
     }
 
     assert (history[redeemed.id].last_was_correct, history[redeemed.id].last_answered_at) == (
@@ -39,7 +39,7 @@ async def test_bank_history_is_scoped_to_the_goal(
     mine = await question_factory(goal)
     await question_factory(other)
 
-    history = await LessonQuestionRepository(test_db).list_bank_history(goal.id)
+    history = await QuestionRepository(test_db).list_bank_history(goal.id)
     assert [h.question.id for h in history] == [mine.id]
 
 
@@ -56,11 +56,11 @@ async def test_list_missing_embeddings_leaves_the_embedded_rows_in_the_database(
     """
     goal = await goal_factory(test_user)
     done = await question_factory(goal, text="already embedded")
-    done.question_embedding = np.zeros(NUM_DIMENSIONS, dtype=np.float32)
+    done.text_embedding = np.zeros(NUM_DIMENSIONS, dtype=np.float32)
     pending = await question_factory(goal, text="still null")
     await test_db.flush()
 
-    found = await LessonQuestionRepository(test_db).list_missing_embeddings(10)
+    found = await QuestionRepository(test_db).list_missing_embeddings(10)
 
     assert [row.id for row in found] == [pending.id]
 
@@ -75,4 +75,4 @@ async def test_list_missing_embeddings_stops_at_the_cap_it_is_given(
         await question_factory(goal, text=f"Q{index}")
     await test_db.flush()
 
-    assert len(await LessonQuestionRepository(test_db).list_missing_embeddings(2)) == 2
+    assert len(await QuestionRepository(test_db).list_missing_embeddings(2)) == 2

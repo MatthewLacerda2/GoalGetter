@@ -189,9 +189,7 @@
     "recentLessons": "Recent lessons",
     "@recentLessons": { "description": "Heading for the recent lessons list" },
     "noLessonsYet": "No lessons yet",
-    "@noLessonsYet": { "description": "Empty state for lessons and chart" },
-    "yourProgress": "Your progress",
-    "@yourProgress": { "description": "Heading for the elo progress chart" },
+    "@noLessonsYet": { "description": "Empty state for the recent lessons list" },
     "noActiveGoal": "No active goal yet",
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Manage goals",
@@ -318,11 +316,6 @@
     "appWordmark": "Goal Getter",
     "@appWordmark": {
         "description": "Start screen: the wordmark, the product name as it is drawn"
-    },
-    "chartRangeDays": "{days}d",
-    "@chartRangeDays": {
-        "description": "Elo chart: one range button, e.g. 7d",
-        "placeholders": { "days": { "type": "int" } }
     },
     "profileVersionTag": "ELO · v0.1 prototype",
     "@profileVersionTag": {

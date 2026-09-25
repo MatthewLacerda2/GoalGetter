@@ -16,9 +16,9 @@ ones to sit behind it.
 
 import logging
 
-from backend.models.lesson_question import LessonQuestion
+from backend.models.question import Question
 from backend.repositories.goal_repository import GoalRepository
-from backend.repositories.lesson_question_repository import LessonQuestionRepository
+from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.student_context import GeminiStudentContext
@@ -63,7 +63,7 @@ async def run_questions_step(session, student_id) -> int:
 
 
 async def _bank_for_goal(session, goal, contexts: list[GeminiStudentContext]) -> int:
-    repository = LessonQuestionRepository(session)
+    repository = QuestionRepository(session)
     history = await repository.list_bank_history(goal.id)
     servable = [h for h in history if h.last_was_correct is False or h.last_answered_at is None]
 
@@ -94,14 +94,14 @@ async def _bank_for_goal(session, goal, contexts: list[GeminiStudentContext]) ->
     # A question whose correct index is out of range would fail the table's
     # check constraint and take the whole batch with it: drop just that one.
     questions = [
-        LessonQuestion(
+        Question(
             goal_id=goal.id,
-            question=item.question,
+            text=item.question,
             option_a=item.option_a,
             option_b=item.option_b,
             option_c=item.option_c,
             option_d=item.option_d,
-            correct_option_index=item.correct_option_index,
+            right_answer_index=item.correct_option_index,
         )
         for item in generated.questions
         if 0 <= item.correct_option_index <= 3
@@ -120,4 +120,4 @@ def _recent_errors(history) -> list[str]:
     """
     wrong = [entry for entry in history if entry.last_was_correct is False]
     wrong.sort(key=lambda entry: entry.last_answered_at, reverse=True)
-    return [entry.question.question for entry in wrong[:RECENT_ERRORS]]
+    return [entry.question.text for entry in wrong[:RECENT_ERRORS]]

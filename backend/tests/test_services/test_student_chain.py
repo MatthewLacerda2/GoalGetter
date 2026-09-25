@@ -11,8 +11,8 @@ import asyncio
 import pytest
 
 from backend.models.student_context import StudentContext
-from backend.repositories.lesson_question_repository import LessonQuestionRepository
 from backend.repositories.onboarding_repository import OnboardingRepository
+from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.jobs import student_chain
@@ -82,8 +82,8 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
     assert (name, description, rating, errors) == (goal.name, goal.description, 1200, [])
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
     assert seen["resources"][1:] == (goal.name, goal.description, "Beginner Curious", [])
-    bank = await LessonQuestionRepository(test_db).list_bank_history(goal.id)
-    assert sorted(h.question.question for h in bank) == ["Q0", "Q1"]
+    bank = await QuestionRepository(test_db).list_bank_history(goal.id)
+    assert sorted(h.question.text for h in bank) == ["Q0", "Q1"]
 
 
 @pytest.mark.asyncio
@@ -173,7 +173,7 @@ async def test_a_failed_step_keeps_what_the_steps_before_it_wrote(test_db, test_
 
     assert [name for name, _ in calls] == ["context", "questions"]
     assert len(await StudentContextRepository(test_db).list_valid(test_user.id)) == 1
-    assert await LessonQuestionRepository(test_db).list_bank_history(goal.id) == []
+    assert await QuestionRepository(test_db).list_bank_history(goal.id) == []
     assert await ResourceRepository(test_db).list_by_goal(goal.id) == []
 
 
@@ -215,8 +215,8 @@ async def test_two_goals_get_one_context_and_a_bank_each(test_db, test_user, goa
     stored = await StudentContextRepository(test_db).list_valid(test_user.id)
     assert [(c.state, c.metacognition) for c in stored] == [("Beginner", "Curious")]
     for goal in (law, history):
-        bank = await LessonQuestionRepository(test_db).list_bank_history(goal.id)
-        assert sorted(h.question.question for h in bank) == ["Q0", "Q1"]
+        bank = await QuestionRepository(test_db).list_bank_history(goal.id)
+        assert sorted(h.question.text for h in bank) == ["Q0", "Q1"]
 
 
 @pytest.mark.asyncio
