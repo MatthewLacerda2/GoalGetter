@@ -22,8 +22,10 @@ environment:
   sdk: '>=3.8.1 <4.0.0'
   # The one place the Flutter version is written down. CI installs exactly this
   # (`flutter-version-file` in .github/workflows/frontend.yml), so "green here"
-  # and "green there" are the same analyzer. Locally pub reads it as a floor:
-  # it catches a machine behind the pin, not one ahead of it.
+  # and "green there" are the same analyzer. Locally pub reads the same line as
+  # a floor (`>=`), which only catches a machine behind the pin; `make
+  # front-version` - a prerequisite of both frontend gates, and run by CI with
+  # them - is what catches a machine ahead of it (#147).
   # Bumping it is this line plus one analyzer run - `make frontend` - and the
   # edit is under frontend/, so CI re-analyzes on the same PR.
   flutter: 3.44.1
