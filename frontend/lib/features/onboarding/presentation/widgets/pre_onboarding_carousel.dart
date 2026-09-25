@@ -10,8 +10,9 @@ import 'package:goal_getter/app/theme/app_dimens.dart';
 typedef CarouselItem = ({IconData icon, String title, String body});
 
 /// A looping, auto-sliding carousel of icon + title + body pages. Without
-/// [items] it shows the start screen's pitch; the introduction screens after a
-/// goal is created pass theirs.
+/// [items] it shows the start screen's pitch, which is its only caller today:
+/// the introduction screens that passed their own were removed with the Gemini
+/// call that wrote them (#132), so [items] is now unused but still supported.
 class PreOnboardingCarousel extends StatefulWidget {
   const PreOnboardingCarousel({super.key, this.height = 170, this.items});
 

@@ -1,16 +1,17 @@
 # Backend endpoints
 
-> Spec for the GoalGetter backend (FastAPI). Derived from the frontend mocks
-> (`frontend/lib/features/**/debug/mock_*.dart`) — the frontend currently runs
-> on those fixtures. We'll implement the services from this doc, then cover them
-> with tests (TDD).
+> Spec for the GoalGetter backend (FastAPI). It began as a description of the frontend's
+> mocks; every screen has run on the real API since #51–#57 and those mock files are gone.
+> What it is now is the contract itself: Pydantic defines it, Flutter mirrors it by hand,
+> and nothing checks that the two agree — so this file is where they are kept honest.
 
 **Conventions**
 
 - Prefix: `/api/v1` (e.g. `GET /me` → `GET /api/v1/me`).
 - Auth: `Authorization: Bearer <access_token>` on everything **except**
   `/auth/signup`, `/auth/login`, `/auth/dev-login`, `/auth/refresh`.
-- Field names are snake_case (the Dart client generator maps them to camelCase).
+- Field names are snake_case. There is no client generator: the Dart side is written by
+  hand (see `CLAUDE.md`), so a rename here is a rename in two places.
 - Times are ISO-8601. Status codes and error shapes are intentionally **omitted**
   (we'll pin those down when writing tests).
 - "Active goal" = `students.current_goal_id`. Goal-scoped reads (`/home`,
