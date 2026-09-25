@@ -42,11 +42,18 @@ def gemini_review_student_context(
     contexts: list[GeminiStudentContext],
     recent_answers: list[dict],
     recent_chat_history: list[dict],
+    questions_answers: list[tuple[str, str]] | None = None,
 ) -> GeminiContextReview:
     """Ask which of the student's standing readings went stale, and what to add
     (#90). Replaces the periodic rewrite: the model is already reading the
     recent lessons, so it is the one that says what changed - and "nothing
-    changed" is an answer it is allowed to give cheaply."""
+    changed" is an answer it is allowed to give cheaply.
+
+    `questions_answers` is what the student told us about himself while creating
+    his goals - the standard questions included, which the first batch never saw
+    (#132). Facts about a person do not go stale the way a reading of him does,
+    so they are shown to every review rather than only to the first impression.
+    """
     client = get_client()
     model = GEMINI_PREMIUM_MODEL
     config = get_gemini_config(GeminiContextReview.model_json_schema())
@@ -56,6 +63,7 @@ def gemini_review_student_context(
         contexts=contexts,
         recent_answers=recent_answers,
         recent_chat_history=recent_chat_history,
+        questions_answers=questions_answers,
     )
 
     response = client.models.generate_content(model=model, contents=full_prompt, config=config)

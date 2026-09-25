@@ -10,6 +10,7 @@ import asyncio
 
 import pytest
 
+from backend.core import clock
 from backend.models.student_context import StudentContext
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionRepository
@@ -23,11 +24,25 @@ from backend.tests.fixtures.lessons import at
 
 ANSWERS = [("Experience?", "None")]
 PROMPT_PAIR = ("What do you want to learn?", "I want Italian")
+MODEL = "gemini-test"
+
+# One standard answer and the pair the prompt reads it back as (#132).
+STANDARD = [("age", "18to24")]
+STANDARD_PAIR = ("How old are you?", "18 to 24")
 
 
 async def onboarded(test_db, goal, prompt="I want Italian", answers=ANSWERS):
-    await OnboardingRepository(test_db).save_onboarding(goal.id, prompt, answers)
+    await OnboardingRepository(test_db).save_onboarding(goal.id, prompt, answers, MODEL)
     await test_db.commit()
+
+
+async def answered_the_standard_questions(test_db, goal):
+    """What the student fills the wait with, after goal creation has returned.
+    Returns the moment goal creation pinned its own read of the onboarding to."""
+    as_of = clock.now()
+    await OnboardingRepository(test_db).save_standard_answers(goal.id, STANDARD)
+    await test_db.commit()
+    return as_of
 
 
 @pytest.mark.asyncio
@@ -107,7 +122,7 @@ async def test_a_later_run_reviews_the_context_and_aims_at_what_went_wrong(
         await run_student_chain(str(test_user.id))
 
     assert [name for name, _ in calls] == ["review", "questions", "resources"]
-    _, standing, results, chats = dict(calls)["review"]
+    _, standing, results, chats, _ = dict(calls)["review"]
     assert [(c.state, c.metacognition) for c in standing] == [("Beginner", "Curious")]
     assert [(r["question"], r["is_correct"]) for r in results] == [("What is 'ciao'?", False)]
     assert [c["prompt"] for c in chats] == ["q0"]
@@ -228,3 +243,62 @@ async def test_a_student_with_no_goals_spends_nothing(test_db, test_user):
         assert await run_student_chain(str(test_user.id)) == (False, 0, 0)
 
     assert calls == []
+
+
+@pytest.mark.asyncio
+async def test_the_batch_goal_creation_fires_never_reads_the_standard_questions(
+    test_db, test_user, goal_factory
+):
+    """#132: the student answers them while this run is in flight, so they are
+    memory for the generations after it, never an input this one waits for.
+
+    The guarantee is the cutoff `POST /goals` passes, not the speed of a human:
+    here he answers *before* the run starts and it still does not see them.
+    """
+    goal = await goal_factory(test_user)
+    await onboarded(test_db, goal)
+    as_of = await answered_the_standard_questions(test_db, goal)
+
+    calls = []
+    with chain_gemini(test_db, calls):
+        await run_student_chain(str(test_user.id), onboarding_as_of=as_of)
+
+    assert dict(calls)["context"][2] == [PROMPT_PAIR, *ANSWERS]
+
+
+@pytest.mark.asyncio
+async def test_the_generation_after_it_does_read_them(test_db, test_user, goal_factory):
+    """Same chain, same student, no cutoff: every run but goal creation's own"""
+    goal = await goal_factory(test_user)
+    await onboarded(test_db, goal)
+    await answered_the_standard_questions(test_db, goal)
+
+    calls = []
+    with chain_gemini(test_db, calls):
+        await run_student_chain(str(test_user.id))
+
+    assert dict(calls)["context"][2] == [PROMPT_PAIR, *ANSWERS, STANDARD_PAIR]
+
+
+@pytest.mark.asyncio
+async def test_a_review_is_told_what_the_student_said_about_himself(
+    test_db, test_user, goal_factory, question_factory, answer_factory
+):
+    """The night after his first lesson is a review, not a first impression, so
+    the standard answers would be dead data if only the first impression read
+    them (#132). Facts about a person do not go stale; a reading of him does."""
+    goal = await goal_factory(test_user)
+    await onboarded(test_db, goal)
+    await answered_the_standard_questions(test_db, goal)
+    missed = await question_factory(goal, text="What is 'ciao'?")
+    await answer_factory(missed, correct=False, answered_at=at(10))
+    await StudentContextRepository(test_db).create(
+        StudentContext(student_id=test_user.id, state="Beginner", metacognition="Curious")
+    )
+    await test_db.commit()
+
+    calls = []
+    with chain_gemini(test_db, calls):
+        await run_student_chain(str(test_user.id))
+
+    assert dict(calls)["review"][4] == [PROMPT_PAIR, *ANSWERS, STANDARD_PAIR]

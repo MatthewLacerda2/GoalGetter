@@ -53,10 +53,12 @@ void main() {
     expect(api.lastAnswers!.single.answer, 'A few words');
   });
 
-  // #131: the end of onboarding is the first lesson, not the dashboard. What
-  // happens when the bank is not ready yet is the lesson screen's own 409
-  // message with a retry (lesson_screen_test.dart), never a bounce to home.
-  testWidgets('create stores the goal, plays the intro, and starts a lesson', (
+  // #131: the end of onboarding is the first lesson, not the dashboard. #132:
+  // the wait in between is the standard questions, never a spinner and never
+  // an introduction screen. What happens when the bank is not ready yet is the
+  // lesson screen's own 409 message with a retry (lesson_screen_test.dart),
+  // never a bounce to home.
+  testWidgets('create stores the goal and asks what we already know to ask', (
     tester,
   ) async {
     final api = FakeOnboardingApi();
@@ -69,12 +71,45 @@ void main() {
     await tester.tap(find.text('Start learning'));
     await tester.pumpAndSettle();
     expect(prefs.getString('current_goal_id'), created.id);
-    expect(find.text('Ready?'), findsOneWidget);
+    expect(find.text('How old are you?'), findsOneWidget);
+    expect(find.text('18 to 24'), findsOneWidget);
+  });
 
-    await tester.tap(find.text("Let's start"));
+  testWidgets('answering them all sends them and starts the lesson', (
+    tester,
+  ) async {
+    final api = FakeOnboardingApi();
+    await pumpFlow(tester, api, initial: AppRoutes.studyPlan, extra: draft);
+    await tester.tap(find.text('Start learning'));
     await tester.pumpAndSettle();
+
+    await tester.tap(find.text('18 to 24'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('My work or my career'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('LESSON'), findsOneWidget);
+    expect(api.lastAnsweredGoalId, created.id);
+    expect(
+      api.lastStandardAnswers!.map((a) => '${a.questionKey}=${a.optionKey}'),
+      ['age=18to24', 'purpose=work'],
+    );
+  });
+
+  testWidgets('skipping them goes to the lesson and sends nothing', (
+    tester,
+  ) async {
+    final api = FakeOnboardingApi();
+    await pumpFlow(tester, api, initial: AppRoutes.studyPlan, extra: draft);
+    await tester.tap(find.text('Start learning'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+
     expect(find.text('LESSON'), findsOneWidget);
     expect(find.text('HOME'), findsNothing);
+    expect(api.lastStandardAnswers, isNull);
   });
 
   testWidgets('a failed create keeps the plan and retries it', (tester) async {
@@ -88,7 +123,7 @@ void main() {
     api.createError = null;
     await tester.tap(find.text('Retry'));
     await tester.pumpAndSettle();
-    expect(find.text('Ready?'), findsOneWidget);
+    expect(find.text('How old are you?'), findsOneWidget);
   });
 
   testWidgets('without a session, sign-in comes back to the same draft', (

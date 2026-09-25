@@ -22,6 +22,7 @@ after it fail.
 """
 
 import logging
+from datetime import datetime
 
 from backend.models.student_context import StudentContext
 from backend.repositories.chat_message_repository import ChatMessageRepository
@@ -46,12 +47,15 @@ RECENT_ANSWERS = 30
 RECENT_CHATS = 10
 
 
-async def run_context_step(session, student_id) -> bool:
+async def run_context_step(session, student_id, onboarding_as_of: datetime | None = None) -> bool:
     """Bring the student's readings up to date. Returns whether anything moved.
 
     False is a normal outcome, and there are two of them: a student with no
     goals, who has nothing to be written about and costs nothing; and a review
     that found nothing stale and nothing to add, which is what #90 is for.
+
+    `onboarding_as_of` is how far back the onboarding is read - the chain's
+    caller decides it, and only goal creation sets one (#132).
     """
     goals = await GoalRepository(session).list_by_student(student_id)
     if not goals:
@@ -64,12 +68,13 @@ async def run_context_step(session, student_id) -> bool:
     )
     contexts = await StudentContextRepository(session).list_valid(student_id)
 
+    onboarding = await OnboardingRepository(session).list_by_student(student_id, onboarding_as_of)
     if answers and contexts:
-        return await _review(session, student_id, goals, definitions, contexts, answers)
-    return await _first_impression(session, student_id, _goals_seen(goals, definitions))
+        return await _review(session, student_id, goals, definitions, contexts, answers, onboarding)
+    return await _first_impression(session, student_id, _goals_seen(goals, definitions), onboarding)
 
 
-async def _first_impression(session, student_id, goals: list[StudentGoal]) -> bool:
+async def _first_impression(session, student_id, goals: list[StudentGoal], rows) -> bool:
     """The reading of someone we have watched do nothing yet: their own words
     and the questions they answered while creating their goals.
 
@@ -77,10 +82,7 @@ async def _first_impression(session, student_id, goals: list[StudentGoal]) -> bo
     this runs the same whether goal creation fired it a second ago or the
     nightly run picked it up after that attempt failed (#88).
     """
-    rows = await OnboardingRepository(session).list_by_student(student_id)
-    # Every row is a question and what the student gave for it - including the
-    # free-text one, whose question is what the start screen asked them.
-    questions_answers = [(row.question, row.option_a) for row in rows]
+    questions_answers = _told_us(rows)
     logger.info(
         "Context step: first impression for student %s from %d onboarding answers",
         student_id,
@@ -94,7 +96,9 @@ async def _first_impression(session, student_id, goals: list[StudentGoal]) -> bo
     return True
 
 
-async def _review(session, student_id, goals, definitions: list[str], standing, answers) -> bool:
+async def _review(
+    session, student_id, goals, definitions: list[str], standing, answers, onboarding
+) -> bool:
     """Show the model what the app believes and let it say what no longer holds.
 
     The chats are in the prompt even though the nightly run does not count them
@@ -122,6 +126,7 @@ async def _review(session, student_id, goals, definitions: list[str], standing, 
             {"prompt": chat.prompt, "tutor_response": " ".join(chat.tutor_responses)}
             for chat in chats
         ],
+        _told_us(onboarding),
     )
 
     retired = await _retire(session, standing, review.reviewed)
@@ -175,6 +180,17 @@ async def _store(session, student_id, generated) -> None:
                 metacognition=item.metacognition,
             )
         )
+
+
+def _told_us(rows) -> list[tuple[str, str]]:
+    """The onboarding as a prompt reads it: one question and what the student
+    gave for it, the free-text row and the standard questions included.
+
+    `OnboardingRepository.answer_of` is the single rule that reads a row back,
+    so nothing here has to know which of the three shapes it is in - or which
+    of them a model wrote and which we did (#132).
+    """
+    return [(row.question, OnboardingRepository.answer_of(row)) for row in rows]
 
 
 def _goals_seen(goals, definitions: list[str]) -> list[StudentGoal]:

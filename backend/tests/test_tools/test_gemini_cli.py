@@ -19,7 +19,6 @@ EXPECTED = {
     "goal-validation",
     "objective-questions",
     "study-plan",
-    "introduction",
     "tutor-reply",
     "lesson-questions",
     "student-context",

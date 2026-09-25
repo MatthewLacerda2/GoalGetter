@@ -19,12 +19,12 @@ class DevMenuScreen extends StatelessWidget {
     _DevSection('Onboarding', [
       _DevEntry('Start / sign-in', Icons.login, AppRoutes.start),
       _DevEntry('Goal prompt', Icons.edit_note, AppRoutes.goalPrompt),
-      _DevEntry('Goal questions', Icons.quiz_outlined, AppRoutes.goalQuestions,
-          needsArgs: true),
-      _DevEntry('Study plan', Icons.description_outlined, AppRoutes.studyPlan,
-          needsArgs: true),
-      _DevEntry('Goal introduction', Icons.slideshow, AppRoutes.goalIntro,
-          needsArgs: true),
+      _DevEntry('Goal questions', Icons.quiz_outlined,
+          AppRoutes.devGoalQuestions),
+      _DevEntry('Study plan', Icons.description_outlined,
+          AppRoutes.devStudyPlan),
+      _DevEntry('Standard questions', Icons.fact_check_outlined,
+          AppRoutes.devStandardQuestions),
     ]),
     _DevSection('Main tabs', [
       _DevEntry('Home dashboard', Icons.home_outlined, AppRoutes.home),
@@ -49,12 +49,6 @@ class DevMenuScreen extends StatelessWidget {
   /// The `extra` payload a route needs, or null when it takes none.
   static Object? _extraFor(String route) {
     switch (route) {
-      case AppRoutes.goalQuestions:
-        return DevFixtures.goalQuestions;
-      case AppRoutes.studyPlan:
-        return DevFixtures.goalDraft;
-      case AppRoutes.goalIntro:
-        return DevFixtures.introScreens;
       case AppRoutes.lessonFinish:
         return DevFixtures.finishLesson;
       case AppRoutes.devGoalDetail:

@@ -13,7 +13,7 @@ import 'package:goal_getter/features/onboarding/presentation/screens/goal_questi
 import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/goal_intro_screen.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/standard_questions_screen.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
@@ -80,13 +80,13 @@ GoalDraft? _studyPlanDraft(Ref ref, GoRouterState state) =>
     _extra<GoalDraft>(state) ?? ref.read(pendingGoalDraftProvider);
 
 /// Goal creation: the prompt, the questions Gemini wrote for it, the plan, and
-/// the introduction screens `POST /goals` returned.
+/// the standard questions asked while the first lesson generates (#132).
 ///
 /// None of the three after the prompt can be fetched back after a refresh: the
 /// questions and the plan are Gemini's answers to what the student typed a
-/// screen earlier, and the introduction screens are generated once, by the
-/// creation call, and never stored. So a refresh returns to the step that
-/// produces the content again — except on the introduction, where the goal
+/// screen earlier, and the standard questions belong to a goal that has just
+/// been created. So a refresh returns to the step that produces the content
+/// again — except on the standard questions, which nothing waits on: the goal
 /// already exists and the first lesson is what came next anyway.
 List<RouteBase> _onboardingRoutes(Ref ref) => [
       GoRoute(
@@ -114,13 +114,18 @@ List<RouteBase> _onboardingRoutes(Ref ref) => [
             StudyPlanScreen(draft: _studyPlanDraft(ref, state)!),
       ),
       GoRoute(
-        path: AppRoutes.goalIntro,
-        redirect: (_, state) => _extra<List<IntroScreenData>>(state) == null
+        path: AppRoutes.standardQuestions,
+        redirect: (_, state) =>
+            _extra<StandardQuestionsArgs>(state) == null
             ? AppRoutes.lesson
             : null,
-        builder: (_, state) => GoalIntroScreen(
-          screens: _extra<List<IntroScreenData>>(state)!,
-        ),
+        builder: (_, state) {
+          final args = _extra<StandardQuestionsArgs>(state)!;
+          return StandardQuestionsScreen(
+            goalId: args.goalId,
+            questions: args.questions,
+          );
+        },
       ),
     ];
 

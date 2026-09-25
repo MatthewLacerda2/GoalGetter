@@ -6,10 +6,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'onboarding_api.g.dart';
 
-/// The three goal-creation calls. Each one calls Gemini on the backend, so a
-/// Gemini failure keeps Gemini's status code (429, 503...), and all three are
-/// rate-limited to 20/min per client. The first two are public; `create`
-/// needs a session.
+/// The goal-creation calls. The first three reach Gemini on the backend, so a
+/// Gemini failure keeps Gemini's status code (429, 503...), and they are
+/// rate-limited to 20/min per client. The first two are public; `create` and
+/// `sendStandardAnswers` need a session.
 class OnboardingApi {
   OnboardingApi(this._api);
 
@@ -52,6 +52,19 @@ class OnboardingApi {
       },
     );
     return CreatedGoal.fromJson(body as Map<String, dynamic>);
+  }
+
+  /// What the student told us about himself while his first lesson generated
+  /// (#132). No Gemini, nothing waiting on it: the caller does not await it and
+  /// a failure costs one fact about him, never his lesson.
+  Future<void> sendStandardAnswers(
+    String goalId,
+    List<StandardAnswer> answers,
+  ) async {
+    await _api.post(
+      '/goals/$goalId/standard-answers',
+      body: {'answers': answers.map((a) => a.toJson()).toList()},
+    );
   }
 }
 

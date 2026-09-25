@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
@@ -20,7 +21,8 @@ import 'package:goal_getter/app/theme/app_dimens.dart';
 /// Confirming sends `POST /goals`, which needs a session. Without one the
 /// draft is held and the student goes to sign in; the sign-in brings them back
 /// here (see `routeAfterSignIn`). On success the goal is stored as active and
-/// its introduction screens play before home.
+/// the standard questions fill the wait while its first lesson generates
+/// (#132).
 class StudyPlanScreen extends ConsumerStatefulWidget {
   final GoalDraft draft;
 
@@ -46,7 +48,15 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
           .create(widget.draft);
       await ref.read(settingsStorageProvider).writeCurrentGoalId(created.id);
       ref.read(pendingGoalDraftProvider.notifier).clear();
-      if (mounted) context.go(AppRoutes.goalIntro, extra: created.introScreens);
+      if (mounted) {
+        context.go(
+          AppRoutes.standardQuestions,
+          extra: StandardQuestionsArgs(
+            goalId: created.id,
+            questions: created.standardQuestions,
+          ),
+        );
+      }
     } on ApiException catch (e) {
       // A 401 the client could not refresh has already sent the student to
       // sign in; the held draft brings them back.

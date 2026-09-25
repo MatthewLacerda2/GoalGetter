@@ -42,7 +42,6 @@ from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
 from backend.services.gemini.lesson.lesson_generation import generate_lesson_questions
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation
-from backend.services.gemini.onboarding.introduction import generate_introduction_screens
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
 from backend.services.gemini.resources.search_resources import search_resources
@@ -138,15 +137,6 @@ USE_CASES: list[UseCase] = [
         lambda a: (a[0], _answers(a[1:])),
         generate_study_plan,
         sample=("Learn chess", "How often?=Daily"),
-    ),
-    UseCase(
-        "introduction",
-        GEMINI_PREMIUM_MODEL,
-        "<goal-name> <goal-description>",
-        2,
-        lambda a: (a[0], a[1]),
-        generate_introduction_screens,
-        sample=("Chess", "Learn chess openings"),
     ),
     UseCase(
         "tutor-reply",

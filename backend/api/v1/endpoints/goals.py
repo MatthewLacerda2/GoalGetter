@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_owned_goal
+from backend.core import clock
 from backend.core.database import get_db
 from backend.core.rate_limiter import limiter
 from backend.core.security import get_current_user
@@ -15,20 +16,22 @@ from backend.schemas.goal import (
     GoalCreationRequest,
     GoalCreationResponse,
     GoalResponse,
-    IntroductionScreenData,
     ObjectiveQuestion,
     ObjectiveQuestionsRequest,
     SetActiveGoalResponse,
+    StandardAnswersRequest,
+    StandardQuestionData,
     StudyPlanResponse,
 )
 from backend.services.gemini.onboarding.goal_validation import (
     get_prompt_validation,
     is_goal_validated,
 )
-from backend.services.gemini.onboarding.introduction import generate_introduction_screens
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
 from backend.services.jobs.student_chain import kickoff_student_chain
+from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
+from backend.utils.envs import GEMINI_PREMIUM_MODEL
 from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
@@ -87,37 +90,60 @@ async def create_goal(
 ):
     """
     Step 3 (AUTHED): persist the goal the user approved in the preview, store the
-    onboarding it came from, make it the active goal, generate the introduction
-    screens (the only synchronous Gemini call), then fire the student chain in the
-    background — that is what the introduction screens buy time for.
+    onboarding it came from, make it the active goal, then fire the student chain
+    in the background. No Gemini call of its own (#132): the wait it used to buy
+    introduction screens for is now the standard questions this returns.
 
     The onboarding is *stored*, not handed to the chain: the chain's first step
     reads it from the database, so a run that fails is one the nightly run can do
-    over (#88).
+    over (#88). It is read **as it stood when this returned**, which is what keeps
+    the batch now in flight from seeing the standard questions the student is
+    about to answer.
     """
-    intro = await run_gemini(generate_introduction_screens, payload.goal_name, payload.description)
-
     goal = await GoalRepository(db).create(
         Goal(student_id=current_user.id, name=payload.goal_name, description=payload.description)
     )
     await OnboardingRepository(db).save_onboarding(
-        goal.id, payload.prompt, [(a.question, a.answer) for a in payload.answers]
+        goal.id,
+        payload.prompt,
+        [(a.question, a.answer) for a in payload.answers],
+        GEMINI_PREMIUM_MODEL,
     )
     student_id = str(current_user.id)
     current_user.current_goal_id = goal.id
     await StudentRepository(db).update(current_user)
     await db.commit()
 
-    kickoff_student_chain(student_id)
+    kickoff_student_chain(student_id, onboarding_as_of=clock.now())
 
     return GoalCreationResponse(
         id=str(goal.id),
         name=goal.name,
-        introduction_screen_data=[
-            IntroductionScreenData(icon=s.icon.value, title=s.title, text=s.text)
-            for s in intro.screens
+        standard_questions=[
+            StandardQuestionData(key=q.key, options=[o.key for o in q.options])
+            for q in STANDARD_QUESTIONS
         ],
     )
+
+
+@router.post("/{goal_id}/standard-answers", status_code=status.HTTP_204_NO_CONTENT)
+async def standard_answers(
+    payload: StandardAnswersRequest,
+    goal: Goal = Depends(get_owned_goal),
+    db: AsyncSession = Depends(get_db),
+):
+    """What the student told us about himself while his first batch generated.
+
+    Stored beside the rest of his onboarding, marked `ai_model = "system"`. The
+    batch already in flight will not read them - `POST /goals` pinned its view of
+    the onboarding to the moment it returned - and every generation after it
+    will (#132). Answers so far are worth keeping, so a partial list is normal
+    and an empty one is a no-op.
+    """
+    await OnboardingRepository(db).save_standard_answers(
+        goal.id, [(a.question_key, a.option_key) for a in payload.answers]
+    )
+    await db.commit()
 
 
 @router.get("", response_model=list[GoalResponse])

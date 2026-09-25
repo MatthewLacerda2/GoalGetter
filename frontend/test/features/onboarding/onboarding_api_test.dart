@@ -5,6 +5,7 @@ import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
+import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,21 +58,25 @@ void main() {
     );
   });
 
-  test('create sends the approved plan and reads the intro screens', () async {
+  test('create sends the approved plan and reads the standard questions', () async {
     final sent = <http.Request>[];
     final api = await apiAnswering(
       {
         'id': 'g1',
         'name': 'Travel Italian',
-        'introduction_screen_data': [
-          {'icon': 'map', 'title': 'T', 'text': 'X'},
+        'standard_questions': [
+          {
+            'key': 'age',
+            'options': ['under18', '18to24', '25to39', '40plus'],
+          },
         ],
       },
       sent,
       status: 201,
     );
     final goal = await api.create(draft);
-    expect(goal.introScreens.single.icon, 'map');
+    expect(goal.standardQuestions.single.key, 'age');
+    expect(goal.standardQuestions.single.optionKeys.first, 'under18');
     expect(jsonDecode(sent.single.body), {
       'prompt': draft.prompt,
       'answers': [
@@ -79,6 +84,22 @@ void main() {
       ],
       'goal_name': plan.goalName,
       'description': plan.description,
+    });
+  });
+
+  test('the standard answers go to the goal that asked them', () async {
+    final sent = <http.Request>[];
+    final api = await apiAnswering('', sent, status: 204);
+
+    await api.sendStandardAnswers('g1', const [
+      StandardAnswer(questionKey: 'age', optionKey: '18to24'),
+    ]);
+
+    expect(sent.single.url.path, '/api/v1/goals/g1/standard-answers');
+    expect(jsonDecode(sent.single.body), {
+      'answers': [
+        {'question_key': 'age', 'option_key': '18to24'},
+      ],
     });
   });
 }

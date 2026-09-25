@@ -19,8 +19,15 @@ const draft = GoalDraft(
 const created = CreatedGoal(
   id: 'g1',
   name: 'Travel Italian',
-  introScreens: [
-    IntroScreenData(icon: 'rocket_launch', title: 'Ready?', text: 'Go.'),
+  standardQuestions: [
+    StandardQuestion(
+      key: 'age',
+      optionKeys: ['under18', '18to24', '25to39', '40plus'],
+    ),
+    StandardQuestion(
+      key: 'purpose',
+      optionKeys: ['school', 'work', 'project', 'curiosity'],
+    ),
   ],
 );
 
@@ -37,6 +44,8 @@ class FakeOnboardingApi implements OnboardingApi {
   String? lastPrompt;
   List<ObjectiveAnswer>? lastAnswers;
   GoalDraft? lastCreated;
+  String? lastAnsweredGoalId;
+  List<StandardAnswer>? lastStandardAnswers;
 
   @override
   Future<List<ObjectiveQuestion>> objectiveQuestions(String prompt) async {
@@ -60,5 +69,14 @@ class FakeOnboardingApi implements OnboardingApi {
     lastCreated = draft;
     if (createError != null) throw createError!;
     return created;
+  }
+
+  @override
+  Future<void> sendStandardAnswers(
+    String goalId,
+    List<StandardAnswer> answers,
+  ) async {
+    lastAnsweredGoalId = goalId;
+    lastStandardAnswers = answers;
   }
 }

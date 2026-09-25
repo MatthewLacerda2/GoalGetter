@@ -22,6 +22,7 @@ what makes "the next run" a certainty rather than a hope.
 
 import asyncio
 import logging
+from datetime import datetime
 
 from backend.core.database import AsyncSessionLocal
 from backend.services.jobs.steps.context import run_context_step
@@ -31,20 +32,31 @@ from backend.services.jobs.steps.resources import run_resources_step
 logger = logging.getLogger(__name__)
 
 
-async def run_student_chain(student_id: str, with_resources: bool = True) -> tuple[bool, int, int]:
+async def run_student_chain(
+    student_id: str,
+    with_resources: bool = True,
+    onboarding_as_of: datetime | None = None,
+) -> tuple[bool, int, int]:
     """Run the whole chain for one student: what each step did, in order.
 
-    `with_resources` is the one thing a caller decides, because resources are
-    the one step that is not wanted every time: the nightly run buys them once
-    a week (#89), goal creation wants them for a goal that has none. Everything
-    else a step needs it reads for itself.
+    `with_resources` is the one thing a caller decides about *what runs*,
+    because resources are the one step that is not wanted every time: the
+    nightly run buys them once a week (#89), goal creation wants them for a
+    goal that has none. Everything else a step needs it reads for itself.
+
+    `onboarding_as_of` decides nothing about what runs; it pins *how far* the
+    onboarding is read. Goal creation passes the instant it finished writing,
+    so this run - the first batch - cannot see the standard questions the
+    student starts answering the moment it returns (#132). Every other caller
+    passes nothing and the whole onboarding is read, which is what makes the
+    generation after the first the one those answers reach.
 
     Raises whatever a step raised, so the caller decides what a failure means:
     goal creation logs it and moves on, the nightly run logs it and moves on to
     the next student.
     """
     async with AsyncSessionLocal() as session:
-        wrote_context = await run_context_step(session, student_id)
+        wrote_context = await run_context_step(session, student_id, onboarding_as_of)
         questions = await run_questions_step(session, student_id)
         resources = await run_resources_step(session, student_id) if with_resources else 0
 
@@ -59,20 +71,20 @@ async def run_student_chain(student_id: str, with_resources: bool = True) -> tup
     return wrote_context, questions, resources
 
 
-async def _run_safely(student_id: str) -> None:
+async def _run_safely(student_id: str, onboarding_as_of: datetime | None) -> None:
     try:
-        await run_student_chain(student_id)
+        await run_student_chain(student_id, onboarding_as_of=onboarding_as_of)
     except Exception:
         logger.exception("Chain for student %s failed", student_id)
 
 
-def kickoff_student_chain(student_id: str) -> None:
+def kickoff_student_chain(student_id: str, onboarding_as_of: datetime | None = None) -> None:
     """Fire the chain on the running loop and return: goal creation answers
-    immediately and the introduction screens buy the time.
+    immediately and the standard questions (#132) buy the time.
 
     The task is kept in a set so it is not garbage-collected mid-flight.
     """
-    task = asyncio.create_task(_run_safely(student_id))
+    task = asyncio.create_task(_run_safely(student_id, onboarding_as_of))
     _running.add(task)
     task.add_done_callback(_running.discard)
 
