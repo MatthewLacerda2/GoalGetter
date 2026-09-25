@@ -31,7 +31,7 @@ PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-test back-image front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
+.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-test back-image front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -71,6 +71,31 @@ back-test: env ## Backend pytest (needs the test database: docker compose up -d 
 back-image: ## Rebuild the backend image the gates run in (after a requirements.txt change)
 	@docker build -t $(BACKEND_IMAGE) backend
 
+# One number, one meaning. `environment.flutter` in frontend/pubspec.yaml is the
+# pin, and CI installs exactly it - but pub reads the same line as a floor
+# (`>=`), so the two ends disagree. A machine BEHIND the pin fails `pub get`
+# loudly, with both numbers in the message; a machine AHEAD of it is silent, and
+# then the branch is green here having been analyzed by a version that will
+# never judge it (#147 - #119's drift, inverted).
+#
+# This makes the silent direction behave like the loud one: the gate refuses to
+# call itself green when the analyzer it just ran is not the one CI will run.
+# It is a comparison of two strings - ~0.5s, and nothing when they agree - and
+# both frontend gates depend on it, so make runs it once per `make frontend`.
+# CI runs it too, where the same comparison doubles as the assertion that
+# flutter-action installed the version the pin asked for.
+front-version: ## Check this machine's Flutter is exactly frontend/pubspec.yaml's pin
+	@pin="$$(sed -nE 's/^[[:space:]]+flutter:[[:space:]]*([0-9][^[:space:]#]*).*/\1/p' frontend/pubspec.yaml | head -n1)"; \
+	have="$$($(FLUTTER) --version 2>/dev/null | sed -nE 's/^Flutter ([^[:space:]]+).*/\1/p' | head -n1)"; \
+	if [ -z "$$pin" ] || [ -z "$$have" ] || [ "$$have" = "0.0.0-unknown" ]; then \
+	  echo "→ Flutter pin check skipped (read pin='$$pin' sdk='$$have')"; \
+	elif [ "$$pin" != "$$have" ]; then \
+	  echo "Flutter $$have is installed here; frontend/pubspec.yaml pins $$pin."; \
+	  echo "CI installs the pin exactly, so this analyzer is not the one that will judge the branch."; \
+	  echo "Fix one line: 'flutter: $$have' in frontend/pubspec.yaml, or put this SDK back on $$pin."; \
+	  exit 1; \
+	fi
+
 # A warning fails this gate (#101): the backlog that justified letting them
 # through is gone. The infos are a separate, larger backlog, so they still
 # only report.
@@ -85,11 +110,11 @@ back-image: ## Rebuild the backend image the gates run in (after a requirements.
 gen-l10n: ## Regenerate lib/l10n/generated/ from the ARB files
 	@cd frontend && $(FLUTTER) gen-l10n
 
-front-lint: gen-l10n ## Frontend dart line limits + flutter analyze
+front-lint: front-version gen-l10n ## Frontend dart line limits + flutter analyze
 	@cd frontend && $(DART) run tool/frontend_linter.dart
 	@cd frontend && $(FLUTTER) analyze --no-fatal-infos
 
-front-test: gen-l10n ## Frontend widget/unit tests
+front-test: front-version gen-l10n ## Frontend widget/unit tests
 	@cd frontend && $(FLUTTER) test
 
 # On a runner there is no main checkout to copy from, and the settings arrive as

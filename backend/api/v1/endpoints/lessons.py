@@ -15,9 +15,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.core.database import get_db
 from backend.models.goal import Goal
+from backend.models.question import Question
+from backend.repositories.frontier_repository import FrontierRepository
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
+from backend.repositories.student_context_repository import StudentContextRepository
 from backend.schemas.lesson import (
     LessonAnswersRequest,
     LessonEvaluation,
@@ -25,6 +28,7 @@ from backend.schemas.lesson import (
     LessonResponse,
 )
 from backend.services.lessons.grading import UnknownQuestionError, grade_lesson
+from backend.services.lessons.pacing import PACE_WINDOW, lesson_size
 from backend.services.lessons.rasch import replay
 from backend.services.lessons.selection import select_lesson_questions
 
@@ -37,31 +41,39 @@ LESSONS_NOT_READY = "Lessons are still being prepared"
     "/{goal_id}/lessons", response_model=LessonResponse, status_code=status.HTTP_201_CREATED
 )
 async def start_lesson(goal: Goal = Depends(get_owned_goal), db: AsyncSession = Depends(get_db)):
-    """Open a lesson: the questions the selection picks (see select_lesson_questions).
+    """Open a lesson: two minutes of questions at the threshold of what he knows (#134).
 
-    How many that is belongs to the selection, not here: a lesson is two
-    minutes, not a constant this endpoint knows.
+    Both halves of that are arithmetic and neither is a constant this endpoint
+    knows. **How many** comes from his own answering pace (`pacing.py`), and
+    **which** from a ranking over the goal's bank (`selection.py`) - his chance
+    of getting each one right, how due it is, how far it is from the rest of the
+    lesson and from the goal's current frontier, and whether he has ever seen it.
+
+    No Gemini call happens here or anywhere below it. Everything this reads was
+    written by a nightly job or by the student himself.
     """
-    bank = await QuestionRepository(db).list_bank_history(goal.id)
-    questions = select_lesson_questions(bank)
+    answers = StudentAnswerRepository(db)
+    contexts = await StudentContextRepository(db).list_valid(goal.student_id)
+    questions = select_lesson_questions(
+        bank=await QuestionRepository(db).list_by_goal(goal.id),
+        history=await answers.list_history_by_goal(goal.id),
+        size=lesson_size(await answers.list_recent_seconds(goal.student_id, PACE_WINDOW)),
+        frontier=await FrontierRepository(db).current(goal.id),
+        context=contexts[0] if contexts else None,
+    )
     if not questions:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=LESSONS_NOT_READY)
 
-    return LessonResponse(
-        questions=[
-            LessonQuestionResponse(
-                id=str(question.id),
-                question=question.text,
-                choices=[
-                    question.option_a,
-                    question.option_b,
-                    question.option_c,
-                    question.option_d,
-                ],
-                correct_answer_index=question.right_answer_index,
-            )
-            for question in questions
-        ]
+    return LessonResponse(questions=[_served(question) for question in questions])
+
+
+def _served(question: Question) -> LessonQuestionResponse:
+    """One bank question as the app draws it. Always four options."""
+    return LessonQuestionResponse(
+        id=str(question.id),
+        question=question.text,
+        choices=[question.option_a, question.option_b, question.option_c, question.option_d],
+        correct_answer_index=question.right_answer_index,
     )
 
 
