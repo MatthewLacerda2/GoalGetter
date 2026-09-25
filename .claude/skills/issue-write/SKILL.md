@@ -174,6 +174,13 @@ Then what is new. Priority orders what gets **merged**, not what gets **worked**
 
 ## Relationships
 
+**A dependency written in prose is not a dependency.** "Needs #131" in the body is a
+sentence; `issue-batch` obeys the *relationship*, and a batch running unattended will
+cheerfully start five issues whose bodies all say they need the same unmerged one. Set it on
+GitHub — `gh api repos/<owner>/<repo>/issues/<n>/dependencies/blocked_by -X POST -F
+issue_id=<the blocker's **id**, not its number>` (`gh api repos/<owner>/<repo>/issues/<n> --jq
+.id`). Keep the graph minimal: if A blocks B and B blocks C, do not also draw A to C.
+
 Use GitHub's **Blocked by / Blocks**, and **sub-issues** when one is literal groundwork
 for another. **The dependency graph is the plan** — there are no rigid batches.
 
