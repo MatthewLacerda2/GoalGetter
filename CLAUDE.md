@@ -311,9 +311,6 @@ remind him and ask.
   while the models settle; no data survives a restart. There are **no migrations**
   yet — Alembic is scaffolded and `versions/` is empty. Plan: lock the schemas when the
   user says they have settled, generate the first migration, and switch startup to it.
-- **Line endings are mixed** — roughly 20 files CRLF, the rest LF. Preserve a file's
-  existing endings when editing: a tool that rewrites them turns a one-line change
-  into a whole-file diff.
 - **Every screen runs on the real API** (2026-09-21, #51–#57). The only mocks left
   are `app/dev/dev_fixtures.dart`, which the dev menu uses — and which routes taking
   a go_router `extra` still fall back to in production builds when the `extra` is
@@ -339,8 +336,6 @@ remind him and ask.
   tailnet name) is not enabled on this tailnet yet; the user enables it once from the
   admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google
   sign-in will need that HTTPS origin.
-- **Gemini model names drift.** They are defined once in `backend/utils/envs.py` and
-  need a bump roughly monthly.
 
 All rules can be overridden by the user if he explicitly said so in the current or
 previous prompt, but not older than that.

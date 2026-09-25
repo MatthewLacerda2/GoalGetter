@@ -1,0 +1,23 @@
+# One line ending in this repository: LF, in the index and in the working tree.
+#
+# We carried ~20 hand-written files in CRLF for months and asked every session to
+# preserve whatever a file already had, because a tool that rewrote them turned a
+# one-line edit into a whole-file diff. That is a rule a human has to remember, so
+# it belongs here instead: git now normalises on the way in and checks out LF on
+# the way back. The project is developed and deployed on Linux only (CLAUDE.md).
+* text=auto eol=lf
+
+# Binaries git must never look inside. Everything else is text.
+*.png  binary
+*.ico  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ttf  binary
+*.otf  binary
+*.woff  binary
+*.woff2 binary
+*.pdf  binary
+*.zip  binary
+*.jar  binary
