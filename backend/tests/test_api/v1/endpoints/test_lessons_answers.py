@@ -1,19 +1,20 @@
+"""Submitting a lesson: one batch, one minted `lesson_id`, one row per answer (#131)."""
+
 import uuid
 from unittest.mock import patch
 
 import pytest
 import pytest_asyncio
 
-from backend.repositories.lesson_answer_repository import LessonAnswerRepository
-from backend.repositories.lesson_repository import LessonRepository
+from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.tests.fixtures.lessons import at
 from backend.utils.envs import QUESTIONS_PER_LESSON
 
 DELTA = "backend.api.v1.endpoints.lessons.lesson_elo_delta"
 
 
-def url(goal_id, lesson_id):
-    return f"/api/v1/goals/{goal_id}/lessons/{lesson_id}/answers"
+def url(goal_id):
+    return f"/api/v1/goals/{goal_id}/lessons/answers"
 
 
 def answer(question, choice, seconds=10, **extra):
@@ -25,147 +26,164 @@ def answer(question, choice, seconds=10, **extra):
     }
 
 
+async def stored_answers(test_db, test_user):
+    """Every answer the student has, newest first, with its question."""
+    return await StudentAnswerRepository(test_db).list_recent_by_student(test_user.id, 100)
+
+
 @pytest_asyncio.fixture
-async def opened(auth_client, test_user, goal_factory, question_factory):
-    """A goal at rating 1200 with a started lesson of two questions, both correct at index 1."""
+async def opened(test_user, goal_factory, question_factory):
+    """A goal at rating 1200 with two bank questions, both right at index 1."""
     goal = await goal_factory(test_user, rating=1200)
     first = await question_factory(goal, "first", correct=1, created_at=at(0))
     second = await question_factory(goal, "second", correct=1, created_at=at(1))
-    response = await auth_client.post(f"/api/v1/goals/{goal.id}/lessons")
-    return goal, response.json()["lesson_id"], first, second
+    return goal, first, second
 
 
 @pytest.mark.asyncio
-async def test_answers_are_graded_server_side_and_move_the_rating(auth_client, test_db, opened):
+async def test_answers_are_graded_server_side_and_move_the_rating(
+    auth_client, test_db, test_user, opened
+):
     """Right, then wrong despite the client's claims: 50%, the patched delta applied"""
-    goal, lesson_id, first, second = opened
+    goal, first, second = opened
     faked = answer(second, 3, seconds=20, is_correct=True, correct_answer_index=3)
     body = {"answers": [answer(first, 1), faked], "student_accuracy": 100.0, "elo": 99}
 
     with patch(DELTA, return_value=7):
-        response = await auth_client.post(url(goal.id, lesson_id), json=body)
+        response = await auth_client.post(url(goal.id), json=body)
 
     assert response.status_code == 200
     assert response.json() == {"total_seconds_spent": 30, "student_accuracy": 50.0, "elo": 7}
     await test_db.refresh(goal)
     assert goal.rating == 1207
-    lesson = await LessonRepository(test_db).get_by_id(lesson_id)
-    assert (lesson.accuracy, lesson.total_seconds, lesson.elo_delta, lesson.elo_after) == (
-        50.0,
-        30,
-        7,
-        1207,
-    )
-    assert lesson.finished_at is not None
-    stored = {
-        a.question_id: a.is_correct
-        for a in await LessonAnswerRepository(test_db).list_by_lesson(lesson.id)
-    }
-    assert stored == {first.id: True, second.id: False}
+    stored = {a.question_id: a.selected_index for a, _ in await stored_answers(test_db, test_user)}
+    assert stored == {first.id: 1, second.id: 3}
 
 
 @pytest.mark.asyncio
-async def test_a_submit_bumps_the_goals_updated_at_and_records_the_new_rating(
+async def test_one_submission_is_one_lesson_id_and_two_are_two(
+    auth_client, test_db, test_user, opened
+):
+    """The mark the backend mints groups a batch and nothing else (#131)"""
+    goal, first, second = opened
+    body = {"answers": [answer(first, 1), answer(second, 1)]}
+
+    await auth_client.post(url(goal.id), json=body)
+    await auth_client.post(url(goal.id), json=body)
+
+    answers = [a for a, _ in await stored_answers(test_db, test_user)]
+    marks = {a.lesson_id for a in answers}
+    assert len(answers) == 4
+    assert len(marks) == 2
+    for mark in marks:
+        batch = await StudentAnswerRepository(test_db).list_by_lesson(mark)
+        assert [a.position for a in batch] == [0, 1]
+        assert [a.question_id for a in batch] == [first.id, second.id]
+
+
+@pytest.mark.asyncio
+async def test_answering_the_same_question_again_adds_a_row_rather_than_replacing_one(
+    auth_client, test_db, test_user, opened
+):
+    """Nothing is ever overwritten: the history is what says whether he learned"""
+    goal, first, _ = opened
+
+    for choice in (0, 1):
+        await auth_client.post(url(goal.id), json={"answers": [answer(first, choice)]})
+
+    history = await StudentAnswerRepository(test_db).list_for_question(first.id)
+    assert [a.selected_index for a in history] == [0, 1]
+    assert len({a.lesson_id for a in history}) == 2
+
+
+@pytest.mark.asyncio
+async def test_a_partial_submission_is_accepted(auth_client, test_db, test_user, opened):
+    """The completeness rule of #86 is gone: nothing recorded what was served"""
+    goal, first, _ = opened
+
+    response = await auth_client.post(url(goal.id), json={"answers": [answer(first, 1)]})
+
+    assert response.status_code == 200
+    assert response.json()["student_accuracy"] == 100.0
+    assert len(await stored_answers(test_db, test_user)) == 1
+
+
+@pytest.mark.asyncio
+async def test_no_answers_at_all_is_422(auth_client, opened):
+    """An empty batch would mint a lesson mark over nothing"""
+    goal, _, _ = opened
+    assert (await auth_client.post(url(goal.id), json={"answers": []})).status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_a_full_lesson_is_graded(
     auth_client, test_db, test_user, goal_factory, question_factory
 ):
-    """#72: the rating moves in one UPDATE, which must still move `updated_at`"""
-    goal = await goal_factory(test_user, rating=1000, created_at=at(0), updated_at=at(0))
-    question = await question_factory(goal, "only", correct=0)
-    lesson_id = (await auth_client.post(f"/api/v1/goals/{goal.id}/lessons")).json()["lesson_id"]
-
-    with patch(DELTA, return_value=-4):
-        await auth_client.post(url(goal.id, lesson_id), json={"answers": [answer(question, 0)]})
-
-    await test_db.refresh(goal)
-    lesson = await LessonRepository(test_db).get_by_id(lesson_id)
-    assert (goal.rating, lesson.elo_after) == (996, 996)
-    assert goal.updated_at > at(60)
-
-
-@pytest.mark.asyncio
-async def test_a_missing_answer_is_400_and_stores_nothing(auth_client, test_db, opened):
-    """#86: a lesson comes back complete or not at all"""
-    goal, lesson_id, first, _ = opened
-    response = await auth_client.post(url(goal.id, lesson_id), json={"answers": [answer(first, 1)]})
-
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Every question this lesson served must be answered"
-    assert await LessonAnswerRepository(test_db).list_by_lesson(lesson_id) == []
-    lesson = await LessonRepository(test_db).get_by_id(lesson_id)
-    assert lesson.finished_at is None
-
-
-@pytest.mark.asyncio
-async def test_no_answers_at_all_is_400(auth_client, opened):
-    """An empty list leaves every question unanswered: the same 400, not a 422"""
-    goal, lesson_id, _, _ = opened
-    response = await auth_client.post(url(goal.id, lesson_id), json={"answers": []})
-    assert response.status_code == 400
-
-
-@pytest.mark.asyncio
-async def test_a_complete_submission_of_a_full_lesson_is_graded(
-    auth_client, test_db, test_user, goal_factory, question_factory
-):
-    """Eight questions served, eight answered: graded, nothing refused"""
+    """Eight questions answered: graded, nothing refused"""
     goal = await goal_factory(test_user, rating=1200)
     questions = [
         await question_factory(goal, f"q{i}", correct=i % 4, created_at=at(i))
         for i in range(QUESTIONS_PER_LESSON)
     ]
-    lesson_id = (await auth_client.post(f"/api/v1/goals/{goal.id}/lessons")).json()["lesson_id"]
-    body = {"answers": [answer(q, q.correct_option_index, seconds=15) for q in questions]}
+    body = {"answers": [answer(q, q.right_answer_index, seconds=15) for q in questions]}
 
     with patch(DELTA, return_value=3):
-        response = await auth_client.post(url(goal.id, lesson_id), json=body)
+        response = await auth_client.post(url(goal.id), json=body)
 
     assert response.status_code == 200
     assert response.json() == {"total_seconds_spent": 120, "student_accuracy": 100.0, "elo": 3}
-    stored = await LessonAnswerRepository(test_db).list_by_lesson(lesson_id)
+    stored = [a for a, _ in await stored_answers(test_db, test_user)]
     assert len(stored) == QUESTIONS_PER_LESSON
-    assert [a.time_spent for a in stored] == [15] * QUESTIONS_PER_LESSON
+    assert [a.total_seconds for a in stored] == [15] * QUESTIONS_PER_LESSON
 
 
 @pytest.mark.asyncio
-async def test_a_second_submit_is_409(auth_client, opened):
-    goal, lesson_id, first, second = opened
-    body = {"answers": [answer(first, 1), answer(second, 1)]}
-    assert (await auth_client.post(url(goal.id, lesson_id), json=body)).status_code == 200
-    assert (await auth_client.post(url(goal.id, lesson_id), json=body)).status_code == 409
-
-
-@pytest.mark.asyncio
-async def test_an_unserved_question_is_422_and_stores_nothing(
-    auth_client, test_db, opened, question_factory
+async def test_a_submit_bumps_the_goals_updated_at_and_moves_the_rating(
+    auth_client, test_db, test_user, goal_factory, question_factory
 ):
-    goal, lesson_id, first, _ = opened
-    unserved = await question_factory(goal, "not in this lesson")
-    body = {"answers": [answer(first, 1), answer(unserved, 1)]}
+    """#72: the rating moves in one UPDATE, which must still move `updated_at`"""
+    goal = await goal_factory(test_user, rating=1000, created_at=at(0), updated_at=at(0))
+    question = await question_factory(goal, "only", correct=0)
 
-    assert (await auth_client.post(url(goal.id, lesson_id), json=body)).status_code == 422
-    assert await LessonAnswerRepository(test_db).list_by_lesson(lesson_id) == []
+    with patch(DELTA, return_value=-4):
+        await auth_client.post(url(goal.id), json={"answers": [answer(question, 0)]})
+
+    await test_db.refresh(goal)
+    assert goal.rating == 996
+    assert goal.updated_at > at(60)
 
 
 @pytest.mark.asyncio
-async def test_the_same_question_twice_is_422(auth_client, opened):
-    goal, lesson_id, first, _ = opened
+async def test_a_question_outside_the_goals_bank_is_422_and_stores_nothing(
+    auth_client, test_db, test_user, goal_factory, question_factory, opened
+):
+    goal, first, _ = opened
+    elsewhere = await question_factory(await goal_factory(test_user, name="Chess"), "not here")
+    body = {"answers": [answer(first, 1), answer(elsewhere, 1)]}
+
+    assert (await auth_client.post(url(goal.id), json=body)).status_code == 422
+    assert await stored_answers(test_db, test_user) == []
+
+
+@pytest.mark.asyncio
+async def test_the_same_question_twice_in_one_batch_is_422(auth_client, opened):
+    """Inside one lesson a question is asked once; twice is a broken client"""
+    goal, first, _ = opened
     body = {"answers": [answer(first, 1), answer(first, 0)]}
-    assert (await auth_client.post(url(goal.id, lesson_id), json=body)).status_code == 422
+    assert (await auth_client.post(url(goal.id), json=body)).status_code == 422
 
 
 @pytest.mark.asyncio
-async def test_a_lesson_of_another_goal_is_404(auth_client, test_user, goal_factory, opened):
-    _, lesson_id, first, _ = opened
-    other_goal = await goal_factory(test_user, name="Chess")
-    body = {"answers": [answer(first, 1)]}
-    for goal_id, lesson in ((other_goal.id, lesson_id), (opened[0].id, uuid.uuid4())):
-        assert (await auth_client.post(url(goal_id, lesson), json=body)).status_code == 404
+async def test_an_unknown_question_id_is_422(auth_client, opened):
+    goal, _, _ = opened
+    body = {"answers": [{"question_id": str(uuid.uuid4()), "choice_index": 0, "seconds_spent": 1}]}
+    assert (await auth_client.post(url(goal.id), json=body)).status_code == 422
 
 
 @pytest.mark.asyncio
 async def test_someone_elses_goal_is_404(auth_client, student_factory, goal_factory, opened):
-    _, lesson_id, first, _ = opened
+    _, first, _ = opened
     other = await student_factory(email="o@example.com", google_id="other")
     foreign = await goal_factory(other)
     body = {"answers": [answer(first, 1)]}
-    assert (await auth_client.post(url(foreign.id, lesson_id), json=body)).status_code == 404
+    assert (await auth_client.post(url(foreign.id), json=body)).status_code == 404

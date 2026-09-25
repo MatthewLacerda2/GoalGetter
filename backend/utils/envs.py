@@ -1,17 +1,14 @@
-# TODO: num_per_lesson is deprecated
-# Lessons will have mcq and subjective
-# Will count time_per_questions instead, and sum up to hit 2min lessons
-# Evaluations are just when user hits 95% mastery
-
 from backend.core.config import settings
 
-# Deprecated: nothing reads it. Use QUESTIONS_PER_LESSON.
-NUM_QUESTIONS_PER_LESSON = 12  # TODO: deprecated
-# How many questions POST /goals/{goal_id}/lessons serves. Eight, because a
-# lesson is meant to last about two minutes (#86) and the per-question time is
-# what makes that measurable. It is a cap, not a floor: a bank shorter than this
-# serves what it has. It also sets TARGET_SERVABLE, what a generation tops the
-# bank up to (services/jobs/steps/questions.py).
+# How many questions a lesson holds by default. Eight, because a lesson is meant
+# to last about two minutes (#86). It is a cap, not a floor: a bank shorter than
+# this serves what it has. It also sets TARGET_SERVABLE, what a generation tops
+# the bank up to (services/jobs/steps/questions.py).
+#
+# The flat number is on its way out (#131): a lesson is two minutes, and how many
+# questions that is depends on the student's own answering pace, with a floor of
+# six. Until #134 computes it, this is the default that
+# services/lessons/selection.py hands out - no caller names a count of its own.
 QUESTIONS_PER_LESSON = 8
 NUM_QUESTIONS_PER_EVALUATION = 8
 NUM_DIMENSIONS = 3072

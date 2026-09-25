@@ -9,7 +9,12 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
 /// Right after `POST /goals`: the goal's introduction screens, while the
-/// backend prepares its resources and lessons, then home.
+/// backend prepares its resources and lessons, then straight into the first
+/// lesson (#131).
+///
+/// The lesson screen is where the wait is handled: if the bank is not ready it
+/// shows the "still preparing" message with a retry (#98) rather than bouncing
+/// the student to a home screen with nothing on it.
 class GoalIntroScreen extends StatelessWidget {
   const GoalIntroScreen({super.key, required this.screens});
 
@@ -35,7 +40,7 @@ class GoalIntroScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () => context.go(AppRoutes.home),
+                  onPressed: () => context.go(AppRoutes.lesson),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     shape: RoundedRectangleBorder(

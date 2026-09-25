@@ -15,12 +15,11 @@ export 'package:goal_getter/features/lessons/presentation/controllers/lesson_sta
 part 'lesson_controller.g.dart';
 
 /// Runs one lesson on the active goal: open it, answer each question once
-/// (graded inline for feedback), submit those first attempts, then a review
-/// round of the wrong ones that is never submitted.
+/// (graded inline for feedback), submit those answers as one batch, then a
+/// review round of the wrong ones that is never submitted.
 ///
-/// The submit is all-or-nothing: every served question, answered exactly once
-/// (#86). The API refuses anything less with a 400, so the controller never
-/// builds a partial payload - see [_resumeAt].
+/// The batch is what the backend marks as a lesson, so it is sent whole and in
+/// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
 @riverpod
 class LessonController extends _$LessonController {
   @override
@@ -36,7 +35,6 @@ class LessonController extends _$LessonController {
   DateTime _startTime = DateTime.now();
   bool _disposed = false;
   String? _goalId;
-  String? _lessonId;
   bool _hasSubmittedAnswers = false;
 
   /// Opens a new lesson; also the retry after a failed start.
@@ -83,7 +81,6 @@ class LessonController extends _$LessonController {
     }
 
     _goalId = goalId;
-    _lessonId = session.lessonId;
     _startTime = DateTime.now();
     _startTimer();
     state = LessonState(
@@ -154,11 +151,10 @@ class LessonController extends _$LessonController {
 
   /// Puts the student back on question [index], its clock restarted.
   ///
-  /// The submit carries every question the lesson served, or the server
-  /// answers 400 (#86) and the student is stuck holding a lesson they did
-  /// answer. So a gap is never sent: it is returned to. The screen does not
-  /// let one open - a question is answered before the next is shown - and
-  /// this keeps that true of the controller itself.
+  /// The backend takes whatever comes, so a gap would simply be a lesson the
+  /// student was credited less for than he did. It is returned to instead of
+  /// sent. The screen does not let one open - a question is answered before
+  /// the next is shown - and this keeps that true of the controller itself.
   void _resumeAt(int index) {
     final questions = List<LessonQuestionState>.from(state.questions);
     questions[index] = questions[index].copyWith(startTime: DateTime.now());
@@ -190,17 +186,8 @@ class LessonController extends _$LessonController {
     try {
       final evaluation = await ref
           .read(lessonsApiProvider)
-          .submit(_goalId!, _lessonId!, answers);
+          .submit(_goalId!, answers);
       if (!_disposed) _finish(evaluation);
-    } on ApiException catch (e) {
-      if (_disposed) return;
-      if (e.status == LessonsApi.alreadyAnsweredStatus) {
-        // An earlier submit landed but its answer was lost: the lesson is
-        // graded server-side; only the elo change is unknown here.
-        _finish(_localEvaluation(answers));
-        return;
-      }
-      state = state.copyWith(isSubmitting: false, submitFailure: LessonFailure(null, e));
     } on Exception catch (e) {
       if (_disposed) return;
       state = state.copyWith(
@@ -220,17 +207,6 @@ class LessonController extends _$LessonController {
       evaluationResponse: evaluation,
       isSubmitting: false,
       isCompleted: true,
-    );
-  }
-
-  LessonEvaluation _localEvaluation(List<LessonAnswer> answers) {
-    final correct = state.questions
-        .where((q) => q.status == LessonQuestionStatus.correct)
-        .length;
-    return LessonEvaluation(
-      totalSecondsSpent: answers.fold(0, (sum, a) => sum + a.secondsSpent),
-      studentAccuracy: answers.isEmpty ? 0 : correct / answers.length * 100,
-      elo: null,
     );
   }
 

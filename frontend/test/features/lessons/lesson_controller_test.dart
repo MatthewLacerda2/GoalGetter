@@ -105,22 +105,6 @@ void main() {
     expect(c.state.isCompleted, isTrue);
   });
 
-  test('a retry that finds the lesson answered finishes without an elo',
-      () async {
-    final fake = ApiFake({
-      startKey: [(201, lessonJson(1))],
-      answersKey: [(502, ''), (409, '{"detail": "Lesson already answered"}')],
-    });
-    final c = await controllerOver(fake);
-    await c.start();
-    await answer(c, 0);
-    await c.retrySubmit();
-
-    expect(c.state.isCompleted, isTrue);
-    expect(c.state.evaluationResponse?.elo, isNull);
-    expect(c.state.evaluationResponse?.studentAccuracy, 100);
-  });
-
   test('a finished lesson refreshes Home', () async {
     final fake = ApiFake({
       startKey: [(201, lessonJson(1))],

@@ -26,6 +26,9 @@ void main() {
     expect(find.text('1 / 2'), findsOneWidget);
   });
 
+  // Where the student lands at the end of onboarding (#131): a bank that is
+  // still being generated must read as a wait with a retry (#98), on the
+  // lesson screen, and never send him anywhere.
   testWidgets('a 409 says the lessons are still being prepared',
       (tester) async {
     final fake = ApiFake({
@@ -34,6 +37,7 @@ void main() {
     await pumpScreen(tester, await fake.overrides(), const LessonScreen());
 
     expect(find.text('Your lessons are still being prepared'), findsOneWidget);
+    expect(find.text('Check again'), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 

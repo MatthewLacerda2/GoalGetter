@@ -82,8 +82,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
   }
 
-  /// The server's evaluation. When it was lost (LessonEvaluation.elo is null)
-  /// the elo change is unknown and shows as a dash.
+  /// The server's evaluation. Without one - the review round, which is never
+  /// submitted - the elo shows as a dash and the time is the app's own count.
   FinishLessonArgs _finishArgs(LessonState state) {
     final l10n = AppLocalizations.of(context);
     final evaluation = state.evaluationResponse;

@@ -1,20 +1,21 @@
 /// Frontend domain models for GET /home (`backend/schemas/home.py`).
 library;
 
-/// A finished lesson in the recent-lessons list. [date] is the server's local
-/// date the lesson was answered.
+/// A lesson in the recent-lessons list: the answers the backend marked as one
+/// batch. [date] is the student's calendar date they were given.
+///
+/// There is no elo delta: a lesson's rating change has had no stored history
+/// since the backend stopped keeping a `lessons` row, and gets one with #62.
 class RecentLesson {
   final String lessonId;
   final DateTime date;
   final double accuracy; // 0..100
-  final int eloDelta;
   final int durationSeconds;
 
   const RecentLesson({
     required this.lessonId,
     required this.date,
     required this.accuracy,
-    required this.eloDelta,
     required this.durationSeconds,
   });
 
@@ -22,21 +23,7 @@ class RecentLesson {
         lessonId: json['lesson_id'] as String,
         date: DateTime.parse(json['date'] as String),
         accuracy: (json['accuracy'] as num).toDouble(),
-        eloDelta: json['elo_delta'] as int,
         durationSeconds: json['duration_seconds'] as int,
-      );
-}
-
-/// The goal's rating at the end of one day that had a lesson.
-class EloPoint {
-  final DateTime date;
-  final int elo;
-
-  const EloPoint({required this.date, required this.elo});
-
-  factory EloPoint.fromJson(Map<String, dynamic> json) => EloPoint(
-        date: DateTime.parse(json['date'] as String),
-        elo: json['elo'] as int,
       );
 }
 
@@ -46,14 +33,12 @@ class HomeDashboard {
   final int currentElo;
   final int currentStreak;
   final List<RecentLesson> recentLessons; // newest first
-  final List<EloPoint> eloHistory; // oldest first
 
   const HomeDashboard({
     required this.goalName,
     required this.currentElo,
     required this.currentStreak,
     required this.recentLessons,
-    required this.eloHistory,
   });
 
   factory HomeDashboard.fromJson(Map<String, dynamic> json) => HomeDashboard(
@@ -63,10 +48,6 @@ class HomeDashboard {
         recentLessons: (json['recent_lessons'] as List)
             .cast<Map<String, dynamic>>()
             .map(RecentLesson.fromJson)
-            .toList(growable: false),
-        eloHistory: (json['elo_history'] as List)
-            .cast<Map<String, dynamic>>()
-            .map(EloPoint.fromJson)
             .toList(growable: false),
       );
 }

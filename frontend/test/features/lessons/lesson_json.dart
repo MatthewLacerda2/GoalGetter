@@ -6,11 +6,11 @@ String lessonJson(int n) {
       '{"id": "q$i", "question": "Question $i?",'
           ' "choices": ["a", "b", "c", "d"], "correct_answer_index": ${i % 4}}',
   ];
-  return '{"lesson_id": "l1", "questions": [${questions.join(',')}]}';
+  return '{"questions": [${questions.join(',')}]}';
 }
 
 const evaluationJson =
     '{"total_seconds_spent": 6, "student_accuracy": 66.7, "elo": 12}';
 
 const startKey = 'POST /goals/g1/lessons';
-const answersKey = 'POST /goals/g1/lessons/l1/answers';
+const answersKey = 'POST /goals/g1/lessons/answers';

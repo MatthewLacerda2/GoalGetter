@@ -37,15 +37,16 @@ class MultipleChoiceQuestion {
       );
 }
 
-/// An opened lesson: its id (needed to submit) and its questions, in order.
+/// An opened lesson: its questions, in order.
+///
+/// There is no lesson id: serving a lesson writes nothing on the backend, and
+/// the id that groups the answers is minted there when they arrive.
 class LessonSession {
-  final String lessonId;
   final List<MultipleChoiceQuestion> questions;
 
-  const LessonSession({required this.lessonId, required this.questions});
+  const LessonSession({required this.questions});
 
   factory LessonSession.fromJson(Map<String, dynamic> json) => LessonSession(
-        lessonId: json['lesson_id'] as String,
         questions: (json['questions'] as List)
             .cast<Map<String, dynamic>>()
             .map(MultipleChoiceQuestion.fromJson)
@@ -53,7 +54,8 @@ class LessonSession {
       );
 }
 
-/// The student's first attempt at one question.
+/// One answer, in the order the student gave it - which is the order the
+/// backend records as its position inside the lesson.
 class LessonAnswer {
   final String questionId;
   final int choiceIndex;
@@ -72,16 +74,12 @@ class LessonAnswer {
       };
 }
 
-/// The result of a finished lesson.
-///
-/// `elo` is the signed rating change the server applied. It is null only when
-/// the server's evaluation was lost: a submit whose answer never arrived, then
-/// retried into 409 "already answered". The time and accuracy are then the
-/// app's own count of the same first attempts.
+/// The result of a finished lesson: `elo` is the signed rating change the
+/// server applied.
 class LessonEvaluation {
   final int totalSecondsSpent;
   final double studentAccuracy; // 0..100
-  final int? elo;
+  final int elo;
 
   const LessonEvaluation({
     required this.totalSecondsSpent,
