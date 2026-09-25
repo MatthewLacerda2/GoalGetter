@@ -19,6 +19,35 @@ endpoint spec and the product decisions behind it live in
 `frontend/docs/backend_contract.md`; read it before changing onboarding, lessons, or
 the background jobs.
 
+## How the app decides
+
+Four rules the user settled on 2026-09-24. They are why the code looks the way it does,
+and an issue that needs one of them broken is the wrong shape.
+
+- **Gemini writes content; arithmetic decides what appears.** Writing a question, a tutor
+  reply or a resource search is his. Choosing which questions a student gets, measuring
+  how he is doing, and deciding whether it is worth generating more are deterministic
+  formulas — testable without a network and free to run. The selection runs several times
+  a day per student: as a model call it would be the app's largest cost and its least
+  predictable behaviour.
+- **Content sits at the threshold of what the student knows** — always challenged, never
+  handed more than he can take, because both extremes stop him progressing. That is a
+  number: the chance he answers correctly, aimed at about 0.75. Classical Item Response
+  Theory would aim at 0.5, which measures the student best; we are not optimising
+  measurement, we are optimising that he comes back tomorrow.
+- **The product goal is that he learns; the metric is that he returns every day.** A
+  lesson is about two minutes — eight questions — because that is what keeps coming back
+  cheap. More answers is also more evidence about him, so short and daily beats long and
+  occasional twice over.
+- **The goal is where he started, not where he is going.** When a student has learned
+  everything a goal holds, the app moves him outward — to what that knowledge is useful
+  for and what he seems interested in — rather than stopping. The target lives in its own
+  append-only history; the goal's own description stays as what he asked for on day one.
+
+The rating is the student's ability in the Rasch sense, and a question's difficulty is
+derived from his own answers — never tagged by Gemini, and never a column. Nothing is ever
+reused between students: not questions, not resources, not contexts.
+
 ## Stack
 
 - **Backend**: FastAPI, SQLAlchemy (async), Alembic, the Gemini SDK. Postgres with
