@@ -106,3 +106,28 @@ async def test_the_goals_history_is_every_answer_in_order_with_its_correctness(
     assert [record.question_id for record in history] == [first.id, second.id, first.id]
     assert [record.correct for record in history] == [False, True, True]
     assert [record.answered_at for record in history] == [days_ago(days) for days in (3, 2, 1)]
+
+
+@pytest.mark.asyncio
+async def test_the_pace_is_read_across_goals_newest_first_and_skips_untimed_answers(
+    test_db, test_user, student_factory, goal_factory, question_factory, answer_factory
+):
+    """What sizes a lesson (#134): how fast this person answers, wherever he does it."""
+    italian = await goal_factory(test_user)
+    chess = await goal_factory(test_user, name="Chess")
+    theirs = await goal_factory(await student_factory(email="o@example.com", google_id="o"))
+    for goal, days, taken in (
+        (italian, 3, 30),
+        (chess, 2, 10),
+        (italian, 1, None),
+        (theirs, 1, 99),
+    ):
+        question = await question_factory(goal, f"q{days}-{taken}")
+        answer = await answer_factory(question, correct=True, answered_at=days_ago(days))
+        answer.total_seconds = taken
+    await test_db.flush()
+
+    seconds = await StudentAnswerRepository(test_db).list_recent_seconds(test_user.id, 10)
+
+    assert seconds == [10, 30]  # newest first, the null left out, the other student's ignored
+    assert await StudentAnswerRepository(test_db).list_recent_seconds(test_user.id, 1) == [10]
