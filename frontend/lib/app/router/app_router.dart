@@ -27,9 +27,10 @@ import 'package:goal_getter/features/goals/presentation/screens/goal_detail_rout
 /// The app's go_router configuration.
 ///
 /// `AuthGate` (the `/` splash) resolves auth/onboarding state and redirects via
-/// `context.go`. Redirect-based route guards are a documented follow-up (see
-/// docs/go_router_migration.md). Rich objects are passed via `extra`
-/// (see route_args.dart); paths in [AppRoutes] are the single source of truth.
+/// `context.go`; auth is not a route guard yet. Rich objects are passed via
+/// `extra` (see route_args.dart), and the routes that need one guard it in
+/// their `redirect` (see [_extra]); paths in [AppRoutes] are the single source
+/// of truth.
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppConfig.devMenu ? AppRoutes.dev : AppRoutes.splash,
