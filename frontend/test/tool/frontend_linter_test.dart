@@ -221,6 +221,32 @@ void main() {
     });
   });
 
+  group('no-dev-fixture', () {
+    test('fails on a screen or a route reaching for invented data', () {
+      expect(
+        _rules('final a = state.extra as Args? ?? DevFixtures.goalQuestions;'),
+        contains('no-dev-fixture'),
+      );
+      expect(
+        _rules('import "package:goal_getter/app/dev/dev_fixtures.dart";\n'
+            'final d = DevFixtures.goalDraft;'),
+        contains('no-dev-fixture'),
+      );
+    });
+
+    test('passes inside lib/app/dev/, where the fixtures live', () {
+      expect(
+        _rules('final d = DevFixtures.goalDraft;', path: _devFile),
+        isEmpty,
+      );
+    });
+
+    test('ignores the name in a comment or a string', () {
+      expect(_rules('// DevFixtures is for the dev menu.'), isEmpty);
+      expect(_rules("final s = 'DevFixtures';"), isEmpty);
+    });
+  });
+
   group('unused-l10n-key', () {
     test('fails on a key no Dart file names', () {
       expect(

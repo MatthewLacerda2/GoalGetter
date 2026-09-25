@@ -40,7 +40,7 @@ def gemini_generate_student_context(
 def gemini_review_student_context(
     goals: list[StudentGoal],
     contexts: list[GeminiStudentContext],
-    recent_lesson_results: list[dict],
+    recent_answers: list[dict],
     recent_chat_history: list[dict],
 ) -> GeminiContextReview:
     """Ask which of the student's standing readings went stale, and what to add
@@ -54,7 +54,7 @@ def gemini_review_student_context(
     full_prompt = get_context_review_prompt(
         goals=goals,
         contexts=contexts,
-        recent_lesson_results=recent_lesson_results,
+        recent_answers=recent_answers,
         recent_chat_history=recent_chat_history,
     )
 

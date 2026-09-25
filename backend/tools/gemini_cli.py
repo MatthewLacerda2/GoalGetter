@@ -94,11 +94,15 @@ def _turn(message: str) -> list[GeminiChatMessage]:
     return [GeminiChatMessage(role="user", message=message, time=datetime.now().isoformat())]
 
 
-def _goal(name: str, description: str) -> list[StudentGoal]:
+def _goal(name: str, description: str, frontier: str = "") -> list[StudentGoal]:
     """One goal, as the context generators read a student's goals (#116). They
     take the list because a context is written about the person, not the goal;
-    from the command line one is enough to see the prompt work."""
-    return [StudentGoal(name=name, description=description)]
+    from the command line one is enough to see the prompt work.
+
+    `frontier` is where the app is taking him now (#133). Empty means the
+    prompt shows the description as the frontier, which is where a goal starts.
+    """
+    return [StudentGoal(name=name, description=description, frontier=frontier)]
 
 
 def _context(state: str, metacognition: str) -> list[GeminiStudentContext]:
@@ -157,19 +161,28 @@ USE_CASES: list[UseCase] = [
     UseCase(
         "lesson-questions",
         GEMINI_FAST_MODEL,
-        "<goal-name> <goal-description> <rating> <state> <metacognition> [how-many]",
-        5,
+        "<goal-name> <goal-description> <frontier> <rating> <state> <metacognition> [how-many]",
+        6,
         lambda a: (
             a[0],
             a[1],
-            int(a[2]),
-            _context(a[3], a[4]),
+            a[2],
+            int(a[3]),
+            _context(a[4], a[5]),
             None,
-            int(a[5]) if len(a) > 5 else QUESTIONS_PER_LESSON,
+            int(a[6]) if len(a) > 6 else QUESTIONS_PER_LESSON,
         ),
         generate_lesson_questions,
-        sample=("Chess", "Learn chess openings", "1200", "Knows the moves", "Impatient"),
-        note="no recent mistakes; how-many defaults to one lesson",
+        sample=(
+            "Chess",
+            "Learn chess openings",
+            "Rook and pawn endgames",
+            "1200",
+            "Knows the moves",
+            "Impatient",
+        ),
+        note="the questions aim at the frontier, not the description (#133); "
+        "no recent mistakes; how-many defaults to one lesson",
     ),
     UseCase(
         "student-context",
@@ -184,13 +197,18 @@ USE_CASES: list[UseCase] = [
     UseCase(
         "context-review",
         GEMINI_PREMIUM_MODEL,
-        "<goal-name> <goal-description> <state> <metacognition>",
+        "<goal-name> <goal-description> <state> <metacognition> [frontier]",
         4,
-        lambda a: (_goal(a[0], a[1]), _context(a[2], a[3]), [], []),
+        lambda a: (
+            _goal(a[0], a[1], a[4] if len(a) > 4 else ""),
+            _context(a[2], a[3]),
+            [],
+            [],
+        ),
         gemini_review_student_context,
         sample=("Chess", "Learn chess openings", "Knows the moves", "Impatient"),
-        note="what went stale and what to add (#90); no lessons or chats, so "
-        "an empty answer is the right one",
+        note="what went stale, what to add (#90) and whether the frontier has "
+        "moved (#133); no answers or chats, so an empty answer is the right one",
     ),
     UseCase(
         "resource-search",

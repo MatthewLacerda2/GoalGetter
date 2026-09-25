@@ -56,6 +56,26 @@ def get_student_context_prompt(
     """
 
 
+def format_numbered_goals(goals: list[StudentGoal]) -> str:
+    """Every goal numbered, with what he asked for and where we are taking him
+    (#133). The number is the position in this list and nothing else - it is
+    never an id, and it means nothing after this call returns.
+
+    The day-one description stays in the prompt beside the frontier because it
+    is what says the move is a move: "circuits" is why "robotics" is the next
+    threshold and not a change of subject.
+    """
+    if not goals:
+        return "The student has no goals yet."
+    return "\n".join(
+        [
+            f'[{i}] "{goal.name}" - asked for on day one: {goal.description}'
+            f"\n    current frontier: {goal.frontier or goal.description}"
+            for i, goal in enumerate(goals)
+        ]
+    )
+
+
 def format_numbered_contexts(contexts: list[GeminiStudentContext]) -> str:
     """The readings the app is standing behind, numbered so the model can point
     at one (#90). The number is the position in this list and nothing else - it
@@ -108,8 +128,11 @@ def get_context_review_prompt(
     return f"""
     <Context>
     You are an AI Tutor keeping the app's reading of one student up to date.
-    The goals they are studying:
-    {format_goals(goals)}
+
+    The goals they are studying. Each goal carries what the student asked for
+    on day one, which never changes, and its current frontier - the threshold
+    we are teaching them at now. The numbers are only for this reply:
+    {format_numbered_goals(goals)}
 
     What the app currently believes about this learner. Each reading is
     numbered; the numbers are only for this reply:
@@ -123,8 +146,9 @@ def get_context_review_prompt(
     </Context>
 
     <Task>
-    Decide which of the readings above no longer describe this student, and
-    write any reading that is now missing.
+    Decide which of the readings above no longer describe this student, write
+    any reading that is now missing, and say whether any goal's frontier has
+    been outgrown.
     </Task>
 
     <Guidelines>
@@ -140,6 +164,18 @@ def get_context_review_prompt(
     - Only add a reading when it says something the readings above do not.
     - Write about the learner, not about any single goal: one reading of the
       person, covering everything they study.
+    - `frontiers`: the goals whose frontier the student has outgrown, each with
+      the goal's index and the new definition. A goal has no finish line: once
+      a student holds what the frontier names, the next frontier is what that
+      knowledge is useful for and what they seem interested in - someone who
+      has learned what circuits are is taken on to robotics, not stopped.
+    - **A frontier move is a threshold, not a change of subject.** It must stay
+      recognisable as the same goal seen further on. What the student asks the
+      tutor is the strongest evidence of where to take them; the recent chat
+      above is there for that.
+    - **Leaving `frontiers` empty is the normal night**, and the right answer
+      whenever the student is still working at the frontier they are on. Do not
+      move a target to have something to report.
     - Write the response in the student's language.
     </Guidelines>
     """

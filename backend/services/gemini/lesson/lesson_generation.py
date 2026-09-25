@@ -8,6 +8,7 @@ from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 def generate_lesson_questions(
     goal_name: str,
     goal_description: str,
+    frontier: str,
     rating: int,
     contexts: list[GeminiStudentContext],
     recent_errors: list[str] | None = None,
@@ -15,6 +16,10 @@ def generate_lesson_questions(
 ) -> GeminiLessonQuestionsResponse:
     """Questions for one goal, written for the student the contexts describe
     (#87): the same student-wide contexts the tutor reads, plus this goal.
+
+    They aim at `frontier`, not at the goal's description (#133): the
+    description is what he asked for on day one, and the frontier is the
+    threshold the app is teaching him at tonight.
 
     `count` is how many to ask for. It is an argument and not a constant in the
     prompt because the nightly run asks for exactly what tomorrow is short of
@@ -24,6 +29,7 @@ def generate_lesson_questions(
     full_prompt = get_lesson_generation_prompt(
         goal_name=goal_name,
         goal_description=goal_description,
+        frontier=frontier,
         rating=rating,
         contexts=contexts,
         recent_errors=recent_errors,

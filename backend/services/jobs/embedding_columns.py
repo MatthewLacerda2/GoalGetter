@@ -1,11 +1,11 @@
-"""The seven embedding columns, as one table the backfill walks (#96).
+"""The eight embedding columns, as one table the backfill walks (#96).
 
-Five tables, seven columns, one shape: *where the rows come from*, *which
+Six tables, eight columns, one shape: *where the rows come from*, *which
 attribute is null*, and *what text that attribute is an embedding of*. Written
 as data rather than as seven functions because that is what it is - the job in
 `embeddings.py` has one piece of logic and it should not be copied seven times.
 
-The text is a callable, not an attribute name, because two of the seven are not
+The text is a callable, not an attribute name, because two of the eight are not
 a plain column read: a tutor reply is an array of chat bubbles, and a goal's
 description may be absent entirely.
 
@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from backend.repositories.chat_message_repository import ChatMessageRepository
+from backend.repositories.frontier_repository import FrontierRepository
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
@@ -60,6 +61,11 @@ SOURCES: tuple[EmbeddingSource, ...] = (
             EmbeddingColumn("prompt_embedding", lambda row: row.prompt),
             EmbeddingColumn("tutor_response_embedding", _tutor_reply),
         ),
+    ),
+    EmbeddingSource(
+        "frontiers",
+        FrontierRepository,
+        (EmbeddingColumn("definition_embedding", lambda row: row.definition),),
     ),
     EmbeddingSource(
         "goals",
