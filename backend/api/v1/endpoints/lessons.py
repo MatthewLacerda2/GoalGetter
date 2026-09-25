@@ -24,8 +24,8 @@ from backend.schemas.lesson import (
     LessonQuestionResponse,
     LessonResponse,
 )
-from backend.services.lessons.elo import lesson_elo_delta
 from backend.services.lessons.grading import UnknownQuestionError, grade_lesson
+from backend.services.lessons.rasch import replay
 from backend.services.lessons.selection import select_lesson_questions
 
 router = APIRouter()
@@ -75,6 +75,11 @@ async def submit_lesson_answers(
 
     An answer naming a question outside this goal's bank, or naming one twice,
     is a 422 and stores nothing.
+
+    The rating is **replayed**, not nudged (#62): the answers are written first,
+    and then the whole history - this lesson included - is walked to the number
+    the student is worth now. `elo` is what that costs him or pays him, the
+    difference against the rating the goal was carrying.
     """
     bank = await QuestionRepository(db).list_by_goal(goal.id)
     try:
@@ -83,10 +88,12 @@ async def submit_lesson_answers(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(err)
         ) from err
-    await StudentAnswerRepository(db).create_many(graded.answers)
+    answers = StudentAnswerRepository(db)
+    await answers.create_many(graded.answers)
 
-    delta = lesson_elo_delta(goal.rating, graded.accuracy)
-    await GoalRepository(db).add_to_rating(goal.id, delta)
+    ratings = replay(bank, await answers.list_history_by_goal(goal.id))
+    delta = ratings.rating - goal.rating
+    await GoalRepository(db).set_rating(goal.id, ratings.rating)
     await db.commit()
     return LessonEvaluation(
         total_seconds_spent=graded.total_seconds, student_accuracy=graded.accuracy, elo=delta

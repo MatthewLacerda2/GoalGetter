@@ -4,7 +4,9 @@ The content is hardcoded in history_data.py.
 
 A lesson here is what it is everywhere else since #131 - a batch of answers
 sharing one minted `lesson_id`. Nothing is written for the lessons themselves,
-so the goal's rating is the only place the seeded elo lands."""
+so the goal's rating is the only place the seeded elo lands - and it is not
+invented either (#62): once the answers are written, the goal's rating is what
+replaying them says, exactly as a real submission would have left it."""
 
 import uuid
 from dataclasses import dataclass
@@ -27,6 +29,7 @@ from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.fictitious.history_data import LESSON_SIZE, START_RATING
+from backend.services.lessons.rasch import replay
 
 
 def moment(now: datetime, days_ago: int, hour: int | None, minute: int = 0) -> datetime:
@@ -41,37 +44,25 @@ def moment(now: datetime, days_ago: int, hour: int | None, minute: int = 0) -> d
     return clock.app_moment(clock.app_date(now) - timedelta(days=days_ago), hour, minute)
 
 
-def elo_delta(accuracy: float) -> int:
-    """A plausible delta for the fixture: +20 at 100%, -20 at 0%. The live app's
-    delta is random for now (services/lessons/elo.py); a fixture that tracks
-    accuracy reads better on Home."""
-    return round((accuracy - 50) * 0.4)
-
-
 @dataclass
 class PlannedLesson:
     answered_at: datetime
     question_indexes: list[int]
     correct: int
-    elo_after: int
 
 
 def plan_lessons(plan: list, bank_size: int, now: datetime) -> list[PlannedLesson]:
-    """The lessons in order, with the elo following from each one's accuracy, so
-    the last `elo_after` is START_RATING plus every delta - and that is the
-    goal's rating, the one place the series still lands. Questions rotate
-    through the bank."""
+    """The lessons in order: when each was answered, which questions it served,
+    and how many of them went right. Questions rotate through the bank. No elo
+    here any more - the rating is read off the answers once they exist (#62)."""
     size = min(LESSON_SIZE, bank_size)
-    elo, planned = START_RATING, []
+    planned = []
     for i, (days_ago, hour, correct) in enumerate(plan):
-        correct = min(correct, size)
-        elo += elo_delta(round(100 * correct / size, 1))
         planned.append(
             PlannedLesson(
                 answered_at=moment(now, days_ago, hour),
                 question_indexes=[(i * size + k) % bank_size for k in range(size)],
-                correct=correct,
-                elo_after=elo,
+                correct=min(correct, size),
             )
         )
     return planned
@@ -104,6 +95,19 @@ async def _seed_lessons(db: AsyncSession, bank: list[Question], planned: list[Pl
         )
 
 
+async def _seed_rating(db: AsyncSession, goal: Goal, bank: list[Question]):
+    """The rating the seeded answers actually earn (#62).
+
+    `updated_at` is assigned explicitly so the column's ORM `onupdate` does not
+    stamp this UPDATE with now: the goals list reads it as "last studied", and
+    for this student that was the last seeded lesson, not the seeding.
+    """
+    history = await StudentAnswerRepository(db).list_history_by_goal(goal.id)
+    goal.rating = replay(bank, history, start=START_RATING).rating
+    goal.updated_at = history[-1].answered_at if history else goal.updated_at
+    await GoalRepository(db).update(goal)
+
+
 async def seed_goal(db: AsyncSession, student: Student, spec: dict, now: datetime) -> Goal:
     """Create one goal of history_data.GOALS with everything under it."""
     created = moment(now, spec["created_days_ago"], 18)
@@ -113,7 +117,7 @@ async def seed_goal(db: AsyncSession, student: Student, spec: dict, now: datetim
             student_id=student.id,
             name=spec["name"],
             description=spec["description"],
-            rating=planned[-1].elo_after if planned else START_RATING,
+            rating=START_RATING,
             created_at=created,
             updated_at=planned[-1].answered_at if planned else created,
         )
@@ -134,6 +138,7 @@ async def seed_goal(db: AsyncSession, student: Student, spec: dict, now: datetim
         ]
     )
     await _seed_lessons(db, bank, planned)
+    await _seed_rating(db, goal, bank)
     chat = ChatMessageRepository(db)
     for prompt, replies, liked, days_ago, hour in spec["chat"]:
         await chat.create(

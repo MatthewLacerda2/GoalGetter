@@ -25,19 +25,24 @@ class GoalRepository(BaseRepository[Goal]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def add_to_rating(self, goal_id, delta: int) -> int:
-        """Move the goal's rating by `delta` in one statement; return the new rating.
+    async def set_rating(self, goal_id, rating: int) -> int:
+        """Write the goal's rating, and return it.
 
-        Atomic on purpose (#72): a read-then-write in Python lets two lessons
-        finishing at once both read the same rating and lose one delta.
+        The rating is *replayed* from the whole answer history (#62), never
+        incremented, so what is written is a fact about the history and not the
+        result of a read-then-write: two lessons finishing at once can no longer
+        lose a delta between them, and a rating that somehow drifted is repaired
+        by the next submission rather than carried forever.
+
         `updated_at` is set here because a Core-style UPDATE does not fire the
-        column's ORM `onupdate`. The session's copy of the goal is synchronized
-        ("fetch"), so a later flush cannot write a stale rating back over it.
+        column's ORM `onupdate` (#72), and the goals list reads it as "last
+        studied". The session's copy of the goal is synchronized ("fetch"), so a
+        later flush cannot write a stale rating back over it.
         """
         stmt = (
             sql_update(Goal)
             .where(Goal.id == goal_id)
-            .values(rating=Goal.rating + delta, updated_at=clock.now())
+            .values(rating=rating, updated_at=clock.now())
             .returning(Goal.rating)
             .execution_options(synchronize_session="fetch")
         )

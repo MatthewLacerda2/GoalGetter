@@ -56,10 +56,10 @@ async def test_it_creates_the_history(test_db):
 
 @pytest.mark.asyncio
 async def test_every_goal_ends_above_where_it_started(test_db):
-    """The seeded elo now lands only on the goal's rating: there is nowhere
-    else to put it since the `lessons` table went (#131)."""
+    """The seeded elo lands only on the goal's rating (#131) and is not invented
+    (#62): it is what replaying the seeded answers actually pays."""
     for goal in (await seed_fictitious_student(test_db)).goals:
-        assert goal.rating != START_RATING
+        assert goal.rating > START_RATING
 
 
 @pytest.mark.asyncio

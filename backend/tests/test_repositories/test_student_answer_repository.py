@@ -84,3 +84,25 @@ async def test_answered_at_spans_goals_and_stops_at_this_student(
         days_ago(1),
         days_ago(2),
     }
+
+
+@pytest.mark.asyncio
+async def test_the_goals_history_is_every_answer_in_order_with_its_correctness(
+    test_db, test_user, goal_factory, question_factory, answer_factory
+):
+    """What the rating is a function of (#62): one goal's answers, oldest first,
+    each already judged against its own question's right index."""
+    goal = await goal_factory(test_user)
+    elsewhere = await question_factory(await goal_factory(test_user, name="Chess"), "not here")
+    first = await question_factory(goal, "first", correct=1)
+    second = await question_factory(goal, "second", correct=2)
+    await answer_factory(first, correct=False, answered_at=days_ago(3))
+    await answer_factory(second, correct=True, answered_at=days_ago(2))
+    await answer_factory(first, correct=True, answered_at=days_ago(1))
+    await answer_factory(elsewhere, correct=True, answered_at=days_ago(1))
+
+    history = await StudentAnswerRepository(test_db).list_history_by_goal(goal.id)
+
+    assert [record.question_id for record in history] == [first.id, second.id, first.id]
+    assert [record.correct for record in history] == [False, True, True]
+    assert [record.answered_at for record in history] == [days_ago(days) for days in (3, 2, 1)]

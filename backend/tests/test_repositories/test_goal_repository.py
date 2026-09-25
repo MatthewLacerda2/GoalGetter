@@ -38,15 +38,17 @@ async def test_list_by_student_is_newest_first(test_db, test_user, student_facto
 
 
 @pytest.mark.asyncio
-async def test_add_to_rating_is_one_update_that_returns_the_new_rating(
+async def test_set_rating_is_one_update_that_returns_the_rating_written(
     test_db, test_user, goal_factory
 ):
+    """The rating is replayed from the answers and written whole (#62), so the
+    write is a value and not an increment - and it still moves `updated_at`."""
     past = datetime.now(UTC) - timedelta(days=3)
     goal = await goal_factory(test_user, rating=1200, created_at=past, updated_at=past)
     goals = GoalRepository(test_db)
 
-    assert await goals.add_to_rating(goal.id, 7) == 1207
-    assert await goals.add_to_rating(goal.id, -3) == 1204
+    assert await goals.set_rating(goal.id, 1207) == 1207
+    assert await goals.set_rating(goal.id, 1204) == 1204
 
     # The session's copy is in step: nothing stale is left to flush back.
     assert goal.rating == 1204

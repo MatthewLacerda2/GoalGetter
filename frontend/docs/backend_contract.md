@@ -145,9 +145,10 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
   - Dates are the app's calendar date (`core/clock.py`) of the group's last
     answer.
   - **no `elo_history`, no per-lesson `elo_delta`.** They came off the `lessons`
-    table, which is gone; the rating has no stored history until #62. The app
-    shows no chart meanwhile, and each row ends with the day instead of an elo
-    badge.
+    table, which is gone, and nothing stores them now. The app shows no chart,
+    and each row ends with the day instead of an elo badge. The *source* exists
+    again since #62 — replaying `student_answers` gives the rating after any
+    answer — but no endpoint serves it yet.
 
 ---
 
@@ -202,9 +203,19 @@ backend mints over the answers when they arrive (#131).
     question answered five times is five rows, which is the history that says
     whether the student learned. `is_correct` is **not** stored — it is
     `selected_index == questions.right_answer_index`.
-  - `elo` is **random** (±20) until the elo design (#62): one function,
-    `services/lessons/elo.py`. It is added to `goals.rating` and returned, but
-    not recorded anywhere per lesson.
+  - `elo` is the signed change the submission makes to `goals.rating`, and the
+    rating is **Rasch** (#62, `services/lessons/rasch.py`). Every answer is one
+    update, `θ' = θ + K · (S − E)` with
+    `E = 0.25 + 0.75 / (1 + 10^((b − θ)/400))` — `0.25` because four options
+    mean a quarter of any right answer is luck. `K` decays with the goal's
+    evidence (40 at the first answer, 34 at ten, 25 at forty, 15 at two hundred,
+    10 forever after). A question's difficulty `b` is **derived from this
+    student's own answers to it**, never tagged and never a column; one nobody
+    has answered is worth the rating the goal had when it was generated. The
+    whole history is replayed on every submission and the result is *written*
+    (`GoalRepository.set_rating`), so the rating is a function of the answers:
+    the same answers always give the same number, and a lost update repairs
+    itself on the next submission. Nothing is recorded per lesson.
   - an answer naming a question outside this goal's bank, or naming one twice
     in the same batch ⇒ **422**, and nothing is stored. An empty `answers` list
     ⇒ 422 (it would mint a lesson mark over nothing). Not the student's goal ⇒
@@ -561,10 +572,12 @@ resource_item           { "name": "...", "description": "...", "url": "https://.
 - **elo** everywhere (the old SDK used `xp`). Elo is **per-goal**, stored as
   `goals.rating` (the user's rating *for that goal*); `goal.current_elo` and
   `home_dashboard.current_elo` read from it. `lesson_evaluation.elo` is the
-  signed change applied to it for that lesson, in one atomic `UPDATE`
-  (`GoalRepository.add_to_rating`, #72). Where that change went is **not**
+  signed change applied to it for that lesson, written in one `UPDATE`
+  (`GoalRepository.set_rating`, #72/#62). Where that change went is **not**
   recorded anywhere: the column that held it went with the `lessons` table
-  (#131), and the rating gets a history again with #62.
+  (#131). It no longer has to be — the rating is replayed from
+  `student_answers`, so its history is derivable whenever a screen wants it.
+  There is no rating on `students`: a rating is per goal (#62).
   Streak stays **per-user**.
 - **`students.current_goal_id`** is the single source of truth for the active
   goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.
