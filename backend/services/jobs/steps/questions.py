@@ -6,13 +6,13 @@ teaching him now, which step 1 may have moved a moment ago (#133) - and the
 questions of that goal the student most recently got wrong. An empty list of errors is the normal case
 for a student who has answered nothing, not a special one.
 
-**It generates only when tomorrow would run short (#91).** A lesson is filled
-from the questions the student got wrong last time and the ones they have never
-seen (`services/lessons/selection.py`, #55), so a bank deep in either of those
-already has tomorrow covered. That is precisely the student who is struggling,
-and the user's rule is that struggling makes our job cheaper, not dearer: a
-question stays in rotation until it is answered right, so we do not buy new
-ones to sit behind it.
+**It generates only when tomorrow would run short (#91).** A lesson leans on
+the questions the student got wrong and the ones he has never seen - the
+forgetting and novelty terms of the ranking (`services/lessons/selection.py`,
+#134) - so a bank deep in either of those already has tomorrow covered. That is
+precisely the student who is struggling, and the user's rule is that struggling
+makes our job cheaper, not dearer: a question stays in rotation until it is
+answered right, so we do not buy new ones to sit behind it.
 """
 
 import logging

@@ -152,7 +152,7 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 
 ---
 
-## Lessons — ✅ implemented & tested (#55, #131, backend and app)
+## Lessons — ✅ implemented & tested (#131, #134, backend and app)
 
 **A lesson is a cut, not a row.** It is the questions chosen for this student at
 this moment. There is no `lessons` table and there will not be one: serving
@@ -165,16 +165,34 @@ backend mints over the answers when they arrive (#131).
   - questions are **not** generated on request: the bank is built by the lesson
     job (see Background jobs). This endpoint picks the next set and stores
     nothing — so there is no `lesson_id` in the response, and nothing to resume.
-  - **selection**, in this order until the lesson is full: 1. questions whose
-    **latest** answer was wrong, most recent first; 2. questions never answered,
-    oldest first; 3. everything else, least recently answered first. Written
-    once, in `services/lessons/selection.py`, which also owns **how many** —
-    the endpoint asks for a lesson and takes what it gets. The embedding columns
-    are unused, and nothing will be shared between students (see **No reuse
-    between students**).
-  - the count is the flat `QUESTIONS_PER_LESSON` = 8 of #86 today. It stops
-    being flat with #134: a lesson is two minutes, filled from the student's own
-    answering pace, with a floor of six.
+  - **selection** (#134) ranks the goal's whole bank and takes the top N.
+    Arithmetic, never a Gemini call: this runs several times a day per student.
+    Written once, in `services/lessons/selection.py`. Four terms, each in
+    [0, 1], summed with the weights beside them:
+    1. **threshold** ×1.0 — `E`, his chance of getting it right, from the Rasch
+       curve with the difficulty his own answers imply (#62). A bell centred on
+       **`E = 0.75`**, narrower above it than below. 0.75, not IRT's 0.5:
+       we are optimising that he returns, not how precisely we know him.
+    2. **forgetting** ×0.8 — `1 − exp(−Δt/h)`, where `h` starts at one day and
+       multiplies by 2.5 with each consecutive correct answer, inside a
+       **30-day window**. A settled question fades out; a missed one is due
+       tomorrow.
+    3. **coverage** ×0.4 — half cosine distance from what the lesson already
+       holds (so a lesson is never one question written N ways), half cosine to
+       the goal's **current frontier** (#133), never `goals.description`.
+    4. **novelty** ×0.5 — a flat bonus for a question never answered.
+    A fifth term, cosine to the student's `state` / `metacognition` embeddings,
+    is wired at **weight zero** until there is something to measure it against.
+    A null embedding is neutral, never a block. **Cold start is not a special
+    case**: with no answers `E` ties and the ranking falls through to novelty
+    and coverage. Ties break by `created_at` then id, so the same history at the
+    same hour is always the same lesson.
+  - **how many** is the student's own pace (`services/lessons/pacing.py`):
+    120 seconds divided by the **median** `total_seconds` of his last 24 answers
+    across all his goals, clamped to **6–12**. The median, not the mean, because
+    a phone put down mid-question is in the same column as thinking time. No
+    timed answers at all ⇒ the floor of 6. The answering time is read **here and
+    nowhere else** — it never enters the ranking.
   - **the count is a cap, not a floor** (#86). A short bank serves what it has:
     the empty bank is the student who has just created a goal and is already
     answered with the 409 below, while a bank that is short but not empty means

@@ -31,12 +31,11 @@ nothing in this app is ever blocked by a missing embedding.
 
 import logging
 
-import numpy as np
-
 from backend.models.frontier import Frontier
 from backend.repositories.frontier_repository import FrontierRepository
 from backend.utils.gemini.gemini_configs import get_gemini_embeddings
 from backend.utils.gemini.gemini_guard import run_gemini_background
+from backend.utils.vectors import cosine
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +94,7 @@ async def _append(repository: FrontierRepository, goal, definition: str) -> int:
     work it will not have to do.
     """
     embedding = await _embedding_of(definition)
-    similarity = _similarity(goal.description_embedding, embedding)
+    similarity = cosine(goal.description_embedding, embedding)
     if similarity is not None and similarity < MIN_SIMILARITY:
         logger.warning(
             "Frontier step: refusing a frontier for goal %s, similarity %.2f to its own "
@@ -124,17 +123,3 @@ async def _embedding_of(definition: str):
     except Exception:
         logger.exception("Frontier step: could not embed a proposed frontier")
         return None
-
-
-def _similarity(goal_embedding, proposed) -> float | None:
-    """Cosine similarity between the goal's description and the proposal, or
-    None when either side is missing - which is not a failure, only a night
-    where there is nothing to compare."""
-    if goal_embedding is None or proposed is None:
-        return None
-    left = np.asarray(goal_embedding, dtype=np.float32)
-    right = np.asarray(proposed, dtype=np.float32)
-    norms = float(np.linalg.norm(left) * np.linalg.norm(right))
-    if norms == 0.0:
-        return None
-    return float(np.dot(left, right) / norms)

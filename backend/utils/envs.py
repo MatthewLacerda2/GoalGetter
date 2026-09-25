@@ -1,14 +1,15 @@
 from backend.core.config import settings
 
-# How many questions a lesson holds by default. Eight, because a lesson is meant
-# to last about two minutes (#86). It is a cap, not a floor: a bank shorter than
-# this serves what it has. It also sets TARGET_SERVABLE, what a generation tops
-# the bank up to (services/jobs/steps/questions.py).
+# What one lesson costs the bank, as the *generator* reckons it. It sets
+# TARGET_SERVABLE, what a generation tops the bank up to, and how many questions
+# one Gemini call is asked for (services/jobs/steps/questions.py).
 #
-# The flat number is on its way out (#131): a lesson is two minutes, and how many
-# questions that is depends on the student's own answering pace, with a floor of
-# six. Until #134 computes it, this is the default that
-# services/lessons/selection.py hands out - no caller names a count of its own.
+# **It is no longer how many questions a lesson serves** (#134). A lesson is two
+# minutes, and how many questions that is comes from the student's own answering
+# pace - six to twelve, computed in services/lessons/pacing.py. Eight is the
+# middle of that band, which is why it survives here as the generator's unit: a
+# night that tops the bank up to two of these covers the widest lesson the
+# pacing can ask for, plus a spare.
 QUESTIONS_PER_LESSON = 8
 NUM_QUESTIONS_PER_EVALUATION = 8
 NUM_DIMENSIONS = 3072

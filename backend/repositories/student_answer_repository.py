@@ -159,6 +159,32 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         result = await self.db.execute(stmt)
         return [(answer, question) for answer, question in result.all()]
 
+    async def list_recent_seconds(self, student_id, limit: int) -> list[int]:
+        """How long each of the student's last `limit` answers took, newest first.
+
+        **The only read of the answering time there is** (#134): it sizes the
+        lesson - two minutes of questions at his own pace - and nothing else.
+        How long he took says nothing about whether a question is right for him.
+
+        Across goals, like `list_recent_by_student` and for the same reason: how
+        fast a person answers is a fact about the person, so his second goal
+        starts at the pace he already reads at rather than at the floor.
+
+        `total_seconds` is nullable, and a null is not a zero - it is an answer
+        that arrived without a duration. Those are left out, so the average is
+        taken over the answers that actually timed themselves.
+        """
+        stmt = (
+            select(StudentAnswer.total_seconds)
+            .join(Question, Question.id == StudentAnswer.question_id)
+            .join(Goal, Goal.id == Question.goal_id)
+            .where(Goal.student_id == student_id, StudentAnswer.total_seconds.is_not(None))
+            .order_by(StudentAnswer.created_at.desc(), StudentAnswer.id.desc())
+            .limit(limit)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def last_answered_at(self, student_id) -> datetime | None:
         """When this student last answered a question, on any goal, or None.
 
