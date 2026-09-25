@@ -6,11 +6,12 @@ analyzer:
   errors:
     # custom_lint (and riverpod_lint through it) is a legacy analyzer plugin
     # and Dart deprecated that system, so a newer analyzer warns about the two
-    # lines above. The warning is about the plugin, not about our code, and
-    # since #101 a warning fails `make front-lint` - on CI, which tracks stable
-    # Flutter, before it fails on a machine one release behind. That machine's
-    # analyzer does not know the code yet and warns about *that*, so both are
-    # silenced here. Drop the pair when custom_lint speaks the new protocol.
+    # lines above, and since #101 a warning fails `make front-lint`. The
+    # analyzer we pin (frontend/pubspec.yaml) does not know that code yet and
+    # warns about the ignore itself, so both are silenced. The pair outlived
+    # the version drift that produced it (#121): it is now what keeps the pin
+    # bumpable, since the first newer Flutter would otherwise redden the bump
+    # PR. Drop it when custom_lint speaks the new protocol.
     unrecognized_error_code: ignore
     analysis_options_deprecated_plugins: ignore
   exclude:
