@@ -104,9 +104,12 @@ NEUTRAL = 0.5
 # rule and therefore the unit everything else is quoted in.
 #
 # The threshold decides what he *can* take; the others decide what is worth
-# serving among the things he can. So no combination of the other three may
-# promote a question that is wrong for him, and each of them is smaller than the
-# threshold on its own.
+# serving among the things he can. Each of them is smaller than the threshold on
+# its own, and among questions he has never seen - where forgetting is zero for
+# everything - the most the others can pay together is 0.9 against the
+# threshold's 1.0, so nothing new is ever promoted over something that fits him
+# better. Among questions he *has* answered, forgetting is allowed to argue
+# back, which is the whole of what revision means.
 WEIGHT_THRESHOLD = 1.0
 
 # Forgetting is worth nearly as much as the threshold, and the two almost never
@@ -166,9 +169,10 @@ class Ranked:
     is built. Diversity is marginal - it depends on what has already been
     chosen - which is why it arrives at `score` instead of living here.
 
-    `eq=False`: two entries are the same entry only if they are the same object.
-    The default dataclass equality would compare embeddings, and comparing two
-    numpy arrays does not answer true or false.
+    `eq=False`: two entries are the same entry only if they are the same
+    object. `_fill` removes the entry it just picked from the candidates, and
+    two different questions scoring identically - which is the ordinary case at
+    cold start - must not be able to stand in for one another there.
     """
 
     question: Question
