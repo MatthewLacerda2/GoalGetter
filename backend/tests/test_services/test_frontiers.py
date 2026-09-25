@@ -203,6 +203,12 @@ async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
 ):
     """The claim the issue is for: generation aims at the frontier, not the goal"""
     goal = await studied(test_db, test_user, goal_factory, question_factory, answer_factory)
+    # Three he can answer beside the one he missed: a generation is only bought
+    # for a student the bank has become too easy for (#135).
+    for i in range(3):
+        held = await question_factory(goal, text=f"What is Ohm's law? ({i})")
+        await answer_factory(held, correct=True, answered_at=at(11 + i))
+    await test_db.commit()
 
     prompts: list[str] = []
     with a_recording_client(prompts):

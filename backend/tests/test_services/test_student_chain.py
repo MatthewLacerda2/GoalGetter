@@ -19,6 +19,7 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.jobs import student_chain
 from backend.services.jobs.steps.resources import run_resources_step
 from backend.services.jobs.student_chain import kickoff_student_chain, run_student_chain
+from backend.services.lessons.generation import GENERATION_MARGIN
 from backend.tests.fixtures.jobs import chain_gemini, resource, review
 from backend.tests.fixtures.lessons import at
 
@@ -93,8 +94,9 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
         await run_student_chain(str(test_user.id))
 
     seen = dict(calls)
-    name, description, frontier, rating, contexts, errors, _count = seen["questions"]
-    assert (name, description, rating, errors) == (goal.name, goal.description, 1200, [])
+    name, description, frontier, rating, target, contexts, right, wrong = seen["questions"]
+    assert (name, description, rating, right, wrong) == (goal.name, goal.description, 1200, [], [])
+    assert target == 1200 + GENERATION_MARGIN
     assert frontier == goal.description
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
     assert seen["resources"][1:] == (goal.name, goal.description, "Beginner Curious", [])
@@ -103,10 +105,12 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
 
 
 @pytest.mark.asyncio
-async def test_a_later_run_reviews_the_context_and_aims_at_what_went_wrong(
+async def test_a_later_run_reviews_the_context_and_buys_nothing_for_what_went_wrong(
     test_db, test_user, goal_factory, question_factory, answer_factory, exchange_factory
 ):
-    """History exists, so the same entry point reviews instead of introducing"""
+    """History exists, so the same entry point reviews instead of introducing -
+    and the question he missed is the bank already holding tomorrow (#135), so
+    the night stops after the review"""
     goal = await goal_factory(test_user)
     await onboarded(test_db, goal)
     missed = await question_factory(goal, text="What is 'ciao'?")
@@ -121,12 +125,11 @@ async def test_a_later_run_reviews_the_context_and_aims_at_what_went_wrong(
     with chain_gemini(test_db, calls, reviewed=review(added=[("Improving", "Doubtful")])):
         await run_student_chain(str(test_user.id))
 
-    assert [name for name, _ in calls] == ["review", "questions", "resources"]
+    assert [name for name, _ in calls] == ["review", "resources"]
     _, standing, results, chats, _ = dict(calls)["review"]
     assert [(c.state, c.metacognition) for c in standing] == [("Beginner", "Curious")]
     assert [(r["question"], r["is_correct"]) for r in results] == [("What is 'ciao'?", False)]
     assert [c["prompt"] for c in chats] == ["q0"]
-    assert dict(calls)["questions"][5] == ["What is 'ciao'?"]
 
 
 @pytest.mark.asyncio

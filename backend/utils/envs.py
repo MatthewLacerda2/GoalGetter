@@ -1,16 +1,16 @@
 from backend.core.config import settings
 
-# What one lesson costs the bank, as the *generator* reckons it. It sets
-# TARGET_SERVABLE, what a generation tops the bank up to, and how many questions
-# one Gemini call is asked for (services/jobs/steps/questions.py).
+# How many questions one Gemini call is asked for. **The size of a batch, not
+# of a lesson** (#135) - the two were the same number until #134 and are not the
+# same thing: a lesson is two minutes, and how many questions that is comes from
+# the student's own answering pace (six to twelve, services/lessons/pacing.py).
 #
-# **It is no longer how many questions a lesson serves** (#134). A lesson is two
-# minutes, and how many questions that is comes from the student's own answering
-# pace - six to twelve, computed in services/lessons/pacing.py. Eight is the
-# middle of that band, which is why it survives here as the generator's unit: a
-# night that tops the bank up to two of these covers the widest lesson the
-# pacing can ask for, plus a spare.
-QUESTIONS_PER_LESSON = 8
+# Eight, in the user's own words: "pedir exatamente 8 e uma boa, nao sao
+# perguntas demais nem de menos; pedir demais pode diminuir a performance, ainda
+# mais quando nao temos contexto suficiente sobre o usuario". It is a fixed
+# number and no longer a gap to fill, because the decision to generate is no
+# longer about how full the bank is (services/lessons/generation.py).
+QUESTIONS_PER_GENERATION = 8
 NUM_QUESTIONS_PER_EVALUATION = 8
 NUM_DIMENSIONS = 3072
 EMBEDDING_MODEL = "gemini-embedding-2"
