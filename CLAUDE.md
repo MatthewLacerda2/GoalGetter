@@ -42,7 +42,8 @@ and an issue that needs one of them broken is the wrong shape.
 - **The goal is where he started, not where he is going.** When a student has learned
   everything a goal holds, the app moves him outward — to what that knowledge is useful
   for and what he seems interested in — rather than stopping. The target lives in its own
-  append-only history; the goal's own description stays as what he asked for on day one.
+  append-only history — the `frontiers` table (#133), newest row wins — and the goal's own
+  description stays as what he asked for on day one.
 
 The rating is the student's ability in the Rasch sense, and a question's difficulty is
 derived from his own answers — never tagged by Gemini, and never a column. Nothing is ever
@@ -67,6 +68,14 @@ generates the l10n files — a fresh checkout shows ~69 analyzer errors until it
 runs).
 It also gives the worktree its **own test database** (`make test-db`): the fixtures drop
 every table, so two worktrees sharing one would wipe each other mid-run.
+
+The Flutter version is pinned in `frontend/pubspec.yaml` (`environment.flutter`), and CI
+installs exactly that number rather than whatever `stable` resolves to — one analyzer, so
+green here is green there (#121). `make frontend` checks it first (`front-version`) and
+fails when this machine's SDK differs, naming both numbers and the one-line fix: pub reads
+that pin as a floor, so only a machine *behind* it fails on its own, and this is what
+catches one ahead of it (#147). Upgrading is that one line plus an analyzer run, and the
+SDK at `~/development/flutter` moves with it.
 
 Run `make backend` or `make frontend` for the side you touched, or `make check`
 for both, and see it pass **before pushing**.
@@ -101,7 +110,9 @@ since there is no venv here. CI has no image and overrides the interpreter
 - Setup failures read as such: `back-test` failing on `DATABASE_URL` wants
   `make env`; a refused connection wants `docker compose up -d postgres_test`;
   missing Dart packages want `make setup`; `No module named ruff` (or vulture)
-  means the backend image predates `backend/requirements.txt` — `make back-image`.
+  means the backend image predates `backend/requirements.txt` — `make back-image`; a
+  frontend gate failing on the Flutter version means the SDK moved without the pin, so bump
+  `environment.flutter` and let the same pull request re-analyze.
 
 Two hooks make that mechanical, both scoped to the side that changed and both
 installed by `make hooks`:
@@ -189,15 +200,22 @@ gates prove the code runs; they do not prove it is the right change.
 - **Screens**: `DEV_MENU=true` opens a dev index of every screen, including the
   ones that need route arguments, all running on mocks.
 - **Endpoints**: Swagger is at `/api/v1/docs` (e.g. `http://localhost:8001/api/v1/docs`).
-- **Signed-in screens, headless**: `make preview` builds the integrated app and serves
-  it with its own backend on `:8093` (loopback and the tailnet only). `make claude-token`
-  signs Claude in as a fictitious student, then `make shot ROUTES="/home /goals"` writes a
-  phone-sized PNG per route to `shots/` — read them. Flutter web draws to a canvas, so
-  the PNG, not the DOM, is the evidence. `make claude` does what `make claude-token`
-  does after giving that student a lived-in history (three goals, two weeks of lessons,
-  a tutor chat, resources) written straight to the dev database, so every screen has
-  data; `ARGS=--fresh` rebuilds it. The preview's backend drops its schema on every
-  start: re-run `make claude` (or `make claude-token`) after a rebuild.
+- **Signed-in screens, headless**: `make preview` builds the integrated app and serves it
+  with its own backend, on its **own database**, at `:8093` (loopback and the tailnet only).
+  Signing in needs no Google: a backend started with `DEV_LOGIN=true` serves
+  `POST /auth/dev-login`, `make claude-token` (honours `BACKEND_PORT`) writes a bearer for
+  "Fictitious Claude" to `.claude/token`, and a Flutter build with
+  `--dart-define=DEV_LOGIN=true` offers the same sign-in on the start screen. Then
+  `make shot ROUTES="/home /goals"` writes a phone-sized PNG per route to `shots/` — read
+  them. Flutter web draws to a canvas, so the PNG, not the DOM, is the evidence. A shot
+  carries the student's active goal, so screens that need one photograph properly, and
+  `GOAL=<id>` picks another (#127) — but a route that guards its go_router `extra`
+  redirects away from a bare URL (#139), so those screens are reachable only through the
+  dev menu. `make claude` does what `make claude-token` does after giving that student a
+  lived-in history (three goals, two weeks of lessons, a tutor chat, resources) written to
+  the preview's own database, so every screen has data; `ARGS=--fresh` rebuilds it. The
+  preview's backend drops its schema on every start: re-run `make claude` (or
+  `make claude-token`) after a rebuild.
 - **Gemini behaviour**: `make gemini` lists the use cases it can run; `make gemini
   ARGS='tutor-reply "Chess" "Learn chess" "What is a fork?"'` runs one for real and
   prints the raw text beside the parsed object, so a bad response format is visible
@@ -311,15 +329,8 @@ remind him and ask.
   while the models settle; no data survives a restart. There are **no migrations**
   yet — Alembic is scaffolded and `versions/` is empty. Plan: lock the schemas when the
   user says they have settled, generate the first migration, and switch startup to it.
-- **Every screen runs on the real API** (2026-09-21, #51–#57). The only mocks left
-  are `app/dev/dev_fixtures.dart`, which the dev menu uses — and which routes taking
-  a go_router `extra` still fall back to in production builds when the `extra` is
-  missing (a web refresh), so those screens can show fixture data there.
-- **Dev sign-in without Google.** A backend started with `DEV_LOGIN=true` serves
-  `POST /auth/dev-login`; `make claude-token` (honours `BACKEND_PORT`) writes a
-  bearer for "Fictitious Claude" to `.claude/token`, and a Flutter build with
-  `--dart-define=DEV_LOGIN=true` offers the same sign-in on the start screen.
-- **Analyzer backlog: 0 warnings, 389 infos** (2026-09-24, after #124/#125). A warning now
+- **Analyzer backlog: 0 warnings, 379 infos** (2026-09-25, measured on `main` after the
+  batch). A warning now
   fails `make front-lint`; the infos are a separate, larger backlog and still
   only report (`--no-fatal-infos`). Next step: clear them and let them block too.
 - **The deploy now runs a job that spends money.** `docker-compose.yml` carries a
@@ -327,11 +338,12 @@ remind him and ask.
   and runs the context → questions → resources chain for each qualifying student at
   **03:00**, America/Sao_Paulo. It waits for the hour before running, so a restart or a
   crash loop never spends quota, and it skips any student who did no lesson that day.
-  `make nightly ARGS='--once'` and `make embeddings` run them by hand.
-- **The tailnet preview wipes the shared dev database** (#122). Its backend mounts the
-  main checkout's `.env`, so it points at the dev database and drops the schema on start;
-  `make claude` reseeds it. Fine when the user is looking at his phone, destructive while
-  anything else depends on that data.
+  Two changes on 2026-09-25 raised what a night costs: the chain can append a `frontiers`
+  row, which pays for one extra embedding (#133); and the question step no longer tops up a
+  thin bank but buys **eight questions per studying student per goal** on any night when
+  tomorrow's lesson would be too easy (#135) — so a deep bank no longer saves anything, and
+  a student who keeps missing his questions is now the cheap case rather than the expensive
+  one. `make nightly ARGS='--once'` and `make embeddings` run them by hand.
 - **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the
   tailnet name) is not enabled on this tailnet yet; the user enables it once from the
   admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google
