@@ -2,9 +2,10 @@ from pydantic import BaseModel, Field
 
 
 class StudentGoal(BaseModel):
-    """One of the student's goals as a prompt sees it. The context generator
-    reads all of them (#87): the reading is of the person, and a person who
-    studies law and history is one learner, not two.
+    """One of the student's goals as a prompt sees it. The reading is of the
+    person (#87), but since 2026-09-26 the jobs pass only the goal he is working
+    on: a paused goal is not unlearned, and nothing is refreshed for it until he
+    picks it again.
 
     `description` is what he asked for on day one and never changes;
     `frontier` is where we are taking him today (#133). They are the same

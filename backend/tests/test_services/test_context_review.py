@@ -21,7 +21,7 @@ from backend.tests.fixtures.lessons import at
 async def studied(test_db, test_user, goal_factory, question_factory, answer_factory, *states):
     """A student with a lesson behind them and `states` standing readings,
     created oldest first - so the review sees them newest first, numbered."""
-    goal = await goal_factory(test_user)
+    goal = await goal_factory(test_user, active=True)
     question = await question_factory(goal, text="What is 'ciao'?")
     await answer_factory(question, correct=False, answered_at=at(10))
     written = [

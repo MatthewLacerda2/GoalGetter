@@ -4,7 +4,8 @@ What it does is decided by what it finds, never by a flag:
 
 * nothing to review - no lesson the student has answered, or no context left
   standing - and it writes the **first impression**, from the onboarding rows
-  goal creation stored and from every goal the student has;
+  goal creation stored and from the goal he is working on (the active one:
+  a paused goal is not refreshed, the user, 2026-09-26);
 * otherwise it asks Gemini to **review** the readings that stand: which of them
   have gone stale, what is now missing (#90), and whether any goal's frontier
   has been outgrown (#133).
@@ -58,7 +59,7 @@ async def run_context_step(session, student_id, onboarding_as_of: datetime | Non
     `onboarding_as_of` is how far back the onboarding is read - the chain's
     caller decides it, and only goal creation sets one (#132).
     """
-    goals = await GoalRepository(session).list_by_student(student_id)
+    goals = await GoalRepository(session).list_active(student_id)
     if not goals:
         logger.info("Context step: student %s has no goals, nothing to write", student_id)
         return False

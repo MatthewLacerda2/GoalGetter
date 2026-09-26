@@ -19,8 +19,8 @@ def gemini_generate_student_context(
     questions_answers: list[tuple[str, str]] | None,
     language: Language,
 ) -> GeminiStudentContextResponse:
-    """The first reading of a learner, from their onboarding and every goal
-    they have (#87). One context per student, not one per goal."""
+    """The first reading of a learner, from their onboarding and the goal they
+    are working on (#87, 2026-09-26). One context per student, not one per goal."""
     client = get_client()
     model = GEMINI_PREMIUM_MODEL
     config = get_gemini_config(GeminiStudentContext.model_json_schema())

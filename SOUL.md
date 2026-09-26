@@ -56,6 +56,11 @@ rather than stopping. That moving target is the goal's frontier (#133).
 onboarding by text was tried before, and people only typed because they were asked to.
 So the app asks little, by multiple choice, and learns the rest from his answers.
 
+**One goal at a time.** The goal he picked on his profile is the one the app works on:
+new exercises, the reading of him, resources. A goal he is not working on is paused, not
+unlearned (*"eu não desaprendo, eu só não tô trabalhando nele no momento"*), so nothing
+is refreshed for it until he picks it again (2026-09-26).
+
 **He learns in his own language.** He picks it on the first screen, it defaults to his
 phone's, and every prompt names it outright.
 

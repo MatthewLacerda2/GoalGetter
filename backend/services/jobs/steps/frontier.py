@@ -6,7 +6,7 @@ today, and when he has learned everything the goal holds the app takes him
 outward - circuits to robotics - rather than stopping.
 
 **The move rides on the context review, not on a job of its own.** That call is
-already reading every goal, the student's recent answers and his recent chats
+already reading his active goal, the student's recent answers and his recent chats
 with the tutor, which is exactly the evidence a move needs. What he asks the
 tutor is in the prompt because *"no que ele pareça demonstrar interesse"* -
 interest is evidence about where to take him, and it costs nothing here: the

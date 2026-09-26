@@ -52,13 +52,14 @@ ANSWERED_SHOWN = 10
 
 
 async def run_questions_step(session, student_id) -> int:
-    """Top up the bank of each of the student's goals. Returns how many
-    questions were stored across all of them - zero is the common answer.
+    """Top up the bank of the student's active goal - a paused one is not
+    refreshed (the user, 2026-09-26). Returns how many questions were stored -
+    zero is the common answer.
 
     Each goal commits on its own: a goal whose generation fails does not
     discard the banks written for the goals before it.
     """
-    goals = await GoalRepository(session).list_by_student(student_id)
+    goals = await GoalRepository(session).list_active(student_id)
     readings = await StudentContextRepository(session).list_valid(student_id)
     contexts = [
         GeminiStudentContext(state=row.state, metacognition=row.metacognition) for row in readings

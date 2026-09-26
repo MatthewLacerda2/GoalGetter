@@ -34,7 +34,9 @@ CIRCUITS = "Understand circuits."
 async def studied(test_db, test_user, goal_factory, question_factory, answer_factory, **kwargs):
     """A student with a goal, one answer behind him and one standing reading -
     everything the review path needs to be the one that runs."""
-    goal = await goal_factory(test_user, name="Circuits", description=CIRCUITS, **kwargs)
+    goal = await goal_factory(
+        test_user, active=True, name="Circuits", description=CIRCUITS, **kwargs
+    )
     question = await question_factory(goal, text="What is a resistor?")
     await answer_factory(question, correct=False, answered_at=at(10))
     await StudentContextRepository(test_db).create(

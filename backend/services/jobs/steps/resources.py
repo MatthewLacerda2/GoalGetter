@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 
 
 async def run_resources_step(session, student_id) -> int:
-    """Search, verify and store resources for each of the student's goals.
+    """Search, verify and store resources for the student's active goal - a
+    paused one is not refreshed (the user, 2026-09-26).
     Returns how many stuck. Returns 0 without calling Gemini when the app has
     no reading of this student."""
     contexts = await StudentContextRepository(session).list_valid(student_id)
@@ -39,7 +40,7 @@ async def run_resources_step(session, student_id) -> int:
         return 0
 
     reading = f"{contexts[0].state} {contexts[0].metacognition}"
-    goals = await GoalRepository(session).list_by_student(student_id)
+    goals = await GoalRepository(session).list_active(student_id)
     language = await student_language(session, student_id, goals)
 
     total = 0

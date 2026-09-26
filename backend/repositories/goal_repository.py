@@ -5,6 +5,7 @@ from sqlalchemy import update as sql_update
 from backend.core import clock
 from backend.models.frontier import Frontier
 from backend.models.goal import Goal
+from backend.models.student import Student
 from backend.repositories.base import BaseRepository
 
 
@@ -46,6 +47,23 @@ class GoalRepository(BaseRepository[Goal]):
     async def list_by_student(self, student_id) -> list[Goal]:
         """The student's goals, newest first."""
         stmt = select(Goal).where(Goal.student_id == student_id).order_by(Goal.created_at.desc())
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def list_active(self, student_id) -> list[Goal]:
+        """The goal the student is working on - the one he picked on his
+        profile - as a list of one, or none when he has not picked any.
+
+        What the background jobs write for (the user, 2026-09-26): a goal he is
+        not working on is not one he unlearned, it is one he paused, and nothing
+        needs refreshing for it until he picks it again. A list, so a step reads
+        the same whether it gets one goal or none.
+        """
+        stmt = (
+            select(Goal)
+            .join(Student, Student.current_goal_id == Goal.id)
+            .where(Student.id == student_id)
+        )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
