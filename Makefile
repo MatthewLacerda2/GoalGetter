@@ -41,7 +41,7 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -340,3 +340,19 @@ claude: env ## Seed "Fictitious Claude" with a lived-in history, then write .cla
 	[ -n "$$DATABASE_URL" ] || { echo "claude: no DATABASE_URL in $(MAIN_CHECKOUT)/.env"; exit 1; }; \
 	$(DOCKER_RUN_DB) python -m backend.services.fictitious $(ARGS)
 	@$(MAKE) --no-print-directory claude-token
+
+# Production follows main (#105): a user timer runs tools/deploy/deploy.sh every
+# two minutes, which rebuilds and brings the stack up whenever origin/main moved.
+# The script explains why it pulls instead of using a GitHub runner.
+deploy: ## Bring production up to origin/main now (what the timer does)
+	@tools/deploy/deploy.sh
+
+deploy-install: ## Install and start the timer that deploys main (once per machine)
+	@set -e; unit="$$HOME/.config/systemd/user"; mkdir -p "$$unit"; \
+	sed "s|__DEPLOY_SCRIPT__|$(MAIN_CHECKOUT)/tools/deploy/deploy.sh|" tools/deploy/goalgetter-deploy.service > "$$unit/goalgetter-deploy.service"; \
+	cp tools/deploy/goalgetter-deploy.timer "$$unit/"; \
+	systemctl --user daemon-reload; systemctl --user enable --now goalgetter-deploy.timer; \
+	systemctl --user list-timers goalgetter-deploy.timer --no-pager
+
+deploy-log: ## What the deploy timer did lately
+	@journalctl --user -u goalgetter-deploy.service -n 40 --no-pager

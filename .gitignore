@@ -196,3 +196,5 @@ terraform.tfvars
 .terraform/
 # Headless screenshots (make shot)
 shots/
+# The deploy timer's state: the live commit, a failed one, its lock (#105).
+.deploy/

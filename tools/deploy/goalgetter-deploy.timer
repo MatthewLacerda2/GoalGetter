@@ -1,0 +1,11 @@
+# Installed by `make deploy-install` (#105). Survives a reboot: the user has
+# lingering on, so user timers run with nobody logged in.
+[Unit]
+Description=GoalGetter: check origin/main every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=2min
+
+[Install]
+WantedBy=timers.target
