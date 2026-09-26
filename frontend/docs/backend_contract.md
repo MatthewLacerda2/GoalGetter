@@ -93,15 +93,21 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     is_harmless, is_achievable — plus a `reasoning` string. Any false ⇒ 400 with
     that reasoning (the app shows it to the user and stops). Only if all three
     pass do we make the second call for the questions.
-  - **exactly 5 questions**, 4 options each, no correct answer. Each probes one
-    fixed dimension: familiarity, interests, hands-on practice, theory,
-    preferred learning style. (The frontend mock still shows 6 — mock is wrong.)
+  - **exactly 8 questions** (#173, for now: the time spent per question will
+    decide the number), 4 options each, no correct answer, each question and
+    option at most 20 words — asked of the prompt, not enforced (an over-long
+    one is logged). They never ask the student to rate his own level: what he
+    says about himself is his opinion, and the lessons measure him.
+  - both calls, and the study plan's, write in the `X-Student-Language` header's
+    language; without one, in the language the prompt is written in, else English.
   - **PUBLIC** (no auth) + rate-limited 20/min, so anyone can try the app.
 
 - **`POST /goals/study-plan`** ⚙️ ✅ — step 2: preview what the goal will be.
   request: `{ "prompt": "...", "answers": objective_answer[] }`
   response: `{ "goal_name": "...", "description": "...(markdown)" }`
   - stateless preview — nothing is persisted here.
+  - brief: the description is at most 60 words (#173), and it never plans an
+    end point — what the student says he wants to reach is not a ceiling.
   - **PUBLIC** + rate-limited, same as step 1.
   - ⚠️ **decided, not yet done:** this should describe *what the goal covers* so
     the user can say "yes, that's what I want" — NOT a study plan. Users are not

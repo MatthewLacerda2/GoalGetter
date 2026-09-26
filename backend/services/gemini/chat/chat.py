@@ -1,5 +1,6 @@
 from google.genai.types import GenerateContentResponse
 
+from backend.core.language import Language
 from backend.services.gemini.chat.prompt import chat_system_prompt
 from backend.services.gemini.chat.schema import (
     GeminiChatMessage,
@@ -15,13 +16,14 @@ def gemini_messages_generator(
     contexts: list[StudentContextToChat],
     goal_name: str,
     goal_description: str,
+    language: Language,
 ) -> GeminiChatResponse:
     client = get_client()
     model = GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiChatResponse.model_json_schema())
 
     # Generate system prompt
-    system_instruction = chat_system_prompt(goal_name, goal_description, contexts)
+    system_instruction = chat_system_prompt(goal_name, goal_description, contexts, language)
 
     gemini_messages = [{"role": "user", "parts": [{"text": system_instruction}]}]
 

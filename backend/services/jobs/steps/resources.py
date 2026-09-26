@@ -18,6 +18,7 @@ from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.resources.search_resources import search_resources
+from backend.services.jobs.steps.language import student_language
 from backend.services.resources.link_validation import validate_resources
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
@@ -35,14 +36,15 @@ async def run_resources_step(session, student_id) -> int:
 
     reading = f"{contexts[0].state} {contexts[0].metacognition}"
     goals = await GoalRepository(session).list_by_student(student_id)
+    language = await student_language(session, student_id, goals)
 
     total = 0
     for goal in goals:
-        total += await _resources_for_goal(session, goal, reading)
+        total += await _resources_for_goal(session, goal, reading, language)
     return total
 
 
-async def _resources_for_goal(session, goal, reading: str) -> int:
+async def _resources_for_goal(session, goal, reading: str, language) -> int:
     repository = ResourceRepository(session)
     held = [resource.link for resource in await repository.list_by_goal(goal.id)]
 
@@ -50,7 +52,7 @@ async def _resources_for_goal(session, goal, reading: str) -> int:
     # keep it off the event loop. Nobody is waiting on it, so it retries on the
     # background budget (backend/utils/gemini/gemini_retry.py).
     recommended = await run_gemini_background(
-        search_resources, str(goal.id), goal.name, goal.description, reading, held
+        search_resources, str(goal.id), goal.name, goal.description, reading, held, language
     )
     logger.info("Gemini recommended %d resources for goal %s", len(recommended), goal.id)
 

@@ -86,7 +86,7 @@ def test_the_arguments_an_entry_builds_are_the_ones_its_function_takes(case):
 def test_command_line_pairs_become_objective_answers():
     case = next(c for c in gemini_cli.USE_CASES if c.name == "study-plan")
 
-    prompt, answers = case.build(["Learn chess", "How often?=Daily", "Level?=Beginner"])
+    prompt, answers, _language = case.build(["Learn chess", "How often?=Daily", "Level?=Beginner"])
 
     assert prompt == "Learn chess"
     assert answers == [
@@ -98,7 +98,7 @@ def test_command_line_pairs_become_objective_answers():
 def test_the_tutor_reply_is_built_as_one_user_turn():
     case = next(c for c in gemini_cli.USE_CASES if c.name == "tutor-reply")
 
-    messages, contexts, goal_name, description = case.build(
+    messages, contexts, goal_name, description, _language = case.build(
         ["Chess", "Openings", "Where do I start?"]
     )
 

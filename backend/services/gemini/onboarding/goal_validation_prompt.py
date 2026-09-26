@@ -1,4 +1,8 @@
-def get_goal_validation_prompt(prompt: str) -> str:
+from backend.core.language import Language
+from backend.services.gemini.output_language import language_name
+
+
+def get_goal_validation_prompt(prompt: str, language: Language) -> str:
 
     return f"""
 
@@ -26,10 +30,13 @@ def get_goal_validation_prompt(prompt: str) -> str:
     - is_achievable: is possible to achieve if the user dedicates to it?
 
     - reasoning: a succinct description
-    If everything was valid, just write what the user seems to want
+    If everything was valid, just write what the user seems to want to learn
     If something was not valid, write why you didn't validate it
-    The reasoning must be written as short as possible
+    The reasoning must be the shortest text that does the job: one sentence
+    Write the reasoning in {language_name(language)}
 
     As long as the user asked for something that can be done safely, we are good to go.
     Ambitious goals are fine, as long as they are possible.
+    A level he says he wants to stop at ("just the basics") is not part of the goal: the
+    app teaches him as far as he can go, so describe the subject, not a ceiling.
     """

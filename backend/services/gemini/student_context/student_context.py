@@ -1,3 +1,4 @@
+from backend.core.language import Language
 from backend.services.gemini.student_context.prompt import (
     get_context_review_prompt,
     get_student_context_prompt,
@@ -14,8 +15,9 @@ from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 
 def gemini_generate_student_context(
     goals: list[StudentGoal],
-    onboarding_prompt: str | None = None,
-    questions_answers: list[tuple[str, str]] | None = None,
+    onboarding_prompt: str | None,
+    questions_answers: list[tuple[str, str]] | None,
+    language: Language,
 ) -> GeminiStudentContextResponse:
     """The first reading of a learner, from their onboarding and every goal
     they have (#87). One context per student, not one per goal."""
@@ -27,6 +29,7 @@ def gemini_generate_student_context(
         goals=goals,
         onboarding_prompt=onboarding_prompt,
         questions_answers=questions_answers,
+        language=language,
     )
 
     response = client.models.generate_content(model=model, contents=full_prompt, config=config)
@@ -42,7 +45,8 @@ def gemini_review_student_context(
     contexts: list[GeminiStudentContext],
     recent_answers: list[dict],
     recent_chat_history: list[dict],
-    questions_answers: list[tuple[str, str]] | None = None,
+    questions_answers: list[tuple[str, str]] | None,
+    language: Language,
 ) -> GeminiContextReview:
     """Ask which of the student's standing readings went stale, and what to add
     (#90). Replaces the periodic rewrite: the model is already reading the
@@ -64,6 +68,7 @@ def gemini_review_student_context(
         recent_answers=recent_answers,
         recent_chat_history=recent_chat_history,
         questions_answers=questions_answers,
+        language=language,
     )
 
     response = client.models.generate_content(model=model, contents=full_prompt, config=config)

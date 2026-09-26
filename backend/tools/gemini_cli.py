@@ -37,6 +37,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from backend.core.language import Language
 from backend.schemas.goal import ObjectiveAnswer
 from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
@@ -57,6 +58,10 @@ from backend.utils.gemini import gemini_configs
 # A goal id is only a foreign key here: the resource search takes one to stamp
 # on the Resource rows it builds, and this command never stores them.
 UNSAVED_GOAL_ID = "00000000-0000-0000-0000-000000000000"
+
+# Every prompt names the student's language (#173); the command writes to an
+# English-speaking student. Edit this to see another language's output.
+CLI_LANGUAGE = Language.ENGLISH
 
 
 @dataclass(frozen=True)
@@ -117,7 +122,7 @@ USE_CASES: list[UseCase] = [
         GEMINI_PREMIUM_MODEL,
         "<prompt>",
         1,
-        lambda a: (a[0],),
+        lambda a: (a[0], CLI_LANGUAGE),
         get_prompt_validation,
         sample=("Learn chess openings",),
     ),
@@ -126,7 +131,7 @@ USE_CASES: list[UseCase] = [
         GEMINI_PREMIUM_MODEL,
         "<goal-name> <goal-description>",
         2,
-        lambda a: (a[0], a[1]),
+        lambda a: (a[0], a[1], CLI_LANGUAGE),
         generate_onboarding_questions,
         sample=("Chess", "Learn chess openings"),
     ),
@@ -135,7 +140,7 @@ USE_CASES: list[UseCase] = [
         GEMINI_PREMIUM_MODEL,
         "<prompt> [question=answer ...]",
         1,
-        lambda a: (a[0], _answers(a[1:])),
+        lambda a: (a[0], _answers(a[1:]), CLI_LANGUAGE),
         generate_study_plan,
         sample=("Learn chess", "How often?=Daily"),
     ),
@@ -144,7 +149,7 @@ USE_CASES: list[UseCase] = [
         GEMINI_FAST_MODEL,
         "<goal-name> <goal-description> <student-message>",
         3,
-        lambda a: (_turn(a[2]), [StudentContextToChat()], a[0], a[1]),
+        lambda a: (_turn(a[2]), [StudentContextToChat()], a[0], a[1], CLI_LANGUAGE),
         gemini_messages_generator,
         sample=("Chess", "Learn chess openings", "Where do I start?"),
         note="one turn, no history and an empty student context",
@@ -163,6 +168,7 @@ USE_CASES: list[UseCase] = [
             _context(a[4], a[5]),
             [],
             [],
+            CLI_LANGUAGE,
         ),
         generate_lesson_questions,
         sample=(
@@ -182,7 +188,7 @@ USE_CASES: list[UseCase] = [
         GEMINI_PREMIUM_MODEL,
         "<goal-name> <goal-description> [onboarding-prompt]",
         2,
-        lambda a: (_goal(a[0], a[1]), a[2] if len(a) > 2 else None, None),
+        lambda a: (_goal(a[0], a[1]), a[2] if len(a) > 2 else None, None, CLI_LANGUAGE),
         gemini_generate_student_context,
         sample=("Chess", "Learn chess openings", "I keep losing to my brother"),
         note="the first reading of a student: one goal, no onboarding answers",
@@ -197,6 +203,8 @@ USE_CASES: list[UseCase] = [
             _context(a[2], a[3]),
             [],
             [],
+            None,
+            CLI_LANGUAGE,
         ),
         gemini_review_student_context,
         sample=("Chess", "Learn chess openings", "Knows the moves", "Impatient"),
@@ -208,7 +216,7 @@ USE_CASES: list[UseCase] = [
         GEMINI_FAST_MODEL,
         "<goal-name> <goal-description> [student-context]",
         2,
-        lambda a: (UNSAVED_GOAL_ID, a[0], a[1], a[2] if len(a) > 2 else None),
+        lambda a: (UNSAVED_GOAL_ID, a[0], a[1], a[2] if len(a) > 2 else None, None, CLI_LANGUAGE),
         search_resources,
         sample=("Chess", "Learn chess openings"),
         note="a grounded search and a reformat, then one billed embedding per "

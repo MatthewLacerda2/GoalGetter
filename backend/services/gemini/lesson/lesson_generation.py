@@ -1,3 +1,4 @@
+from backend.core.language import Language
 from backend.services.gemini.lesson.prompt import get_lesson_generation_prompt
 from backend.services.gemini.lesson.schema import AnsweredQuestion, GeminiLessonQuestionsResponse
 from backend.services.gemini.student_context.schema import GeminiStudentContext
@@ -12,8 +13,9 @@ def generate_lesson_questions(
     rating: int,
     target_difficulty: int,
     contexts: list[GeminiStudentContext],
-    answered_right: list[AnsweredQuestion] | None = None,
-    answered_wrong: list[AnsweredQuestion] | None = None,
+    answered_right: list[AnsweredQuestion] | None,
+    answered_wrong: list[AnsweredQuestion] | None,
+    language: Language,
 ) -> GeminiLessonQuestionsResponse:
     """Questions for one goal, written for the student the contexts describe
     (#87): the same student-wide contexts the tutor reads, plus this goal.
@@ -41,6 +43,7 @@ def generate_lesson_questions(
         contexts=contexts,
         answered_right=answered_right,
         answered_wrong=answered_wrong,
+        language=language,
     )
     config = get_gemini_config(GeminiLessonQuestionsResponse.model_json_schema())
 

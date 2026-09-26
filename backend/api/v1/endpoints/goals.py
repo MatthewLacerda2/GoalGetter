@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.core import clock
 from backend.core.database import get_db
+from backend.core.language import Language, requested_language
 from backend.core.rate_limiter import limiter
 from backend.core.security import get_current_user
 from backend.models.goal import Goal
@@ -29,6 +30,7 @@ from backend.services.gemini.onboarding.goal_validation import (
 )
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
+from backend.services.gemini.output_language import output_language
 from backend.services.jobs.student_chain import kickoff_student_chain
 from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
 from backend.utils.envs import GEMINI_PREMIUM_MODEL
@@ -49,17 +51,25 @@ router = APIRouter()
 
 @router.post("/objective-questions", response_model=list[ObjectiveQuestion])
 @limiter.limit("20/minute")
-async def objective_questions(request: Request, payload: ObjectiveQuestionsRequest):
+async def objective_questions(
+    request: Request,
+    payload: ObjectiveQuestionsRequest,
+    chosen: Language | None = Depends(requested_language),
+):
     """
     Step 1: validate the prompt is a real goal, then generate clarifying
     multiple-choice questions. Blocking Gemini calls run off the event loop.
+
+    Public, so there is no student row: the language is the header the app
+    sends (#172), else the one the prompt is written in (#173).
     """
-    validation = await run_gemini(get_prompt_validation, payload.prompt)
+    language = output_language(chosen, payload.prompt)
+    validation = await run_gemini(get_prompt_validation, payload.prompt, language)
     if not is_goal_validated(validation):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=validation.reasoning)
 
     generated = await run_gemini(
-        generate_onboarding_questions, payload.prompt, validation.reasoning
+        generate_onboarding_questions, payload.prompt, validation.reasoning, language
     )
     return [
         ObjectiveQuestion(
@@ -71,12 +81,17 @@ async def objective_questions(request: Request, payload: ObjectiveQuestionsReque
 
 @router.post("/study-plan", response_model=StudyPlanResponse)
 @limiter.limit("20/minute")
-async def study_plan(request: Request, payload: GoalCreationRequest):
+async def study_plan(
+    request: Request,
+    payload: GoalCreationRequest,
+    chosen: Language | None = Depends(requested_language),
+):
     """
     Step 2: generate a stateless study-plan preview (goal name + markdown
     description) from the prompt and the user's onboarding answers. Not persisted.
     """
-    plan = await run_gemini(generate_study_plan, payload.prompt, payload.answers)
+    language = output_language(chosen, payload.prompt)
+    plan = await run_gemini(generate_study_plan, payload.prompt, payload.answers, language)
     return StudyPlanResponse(goal_name=plan.goal_name, description=plan.description)
 
 

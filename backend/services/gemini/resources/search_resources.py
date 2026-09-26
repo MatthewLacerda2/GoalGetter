@@ -2,7 +2,9 @@ import logging
 
 from google.genai import types
 
+from backend.core.language import Language
 from backend.models.resource import Resource
+from backend.services.gemini.output_language import language_name
 from backend.services.gemini.resources.schema import GeminiResourceSearchResults
 from backend.utils.envs import GEMINI_FAST_MODEL
 from backend.utils.gemini.gemini_configs import (
@@ -19,8 +21,9 @@ def search_resources(
     goal_id: str,
     goal_name: str,
     goal_description: str,
-    student_context: str | None = None,
-    existing_links: list[str] | None = None,
+    student_context: str | None,
+    existing_links: list[str] | None,
+    language: Language,
 ) -> list[Resource]:
     """Nine resources for one goal, searched for this student.
 
@@ -50,12 +53,17 @@ def search_resources(
     - 3 Webpages or websites that teach "{goal_name}".
     - 3 PDF guides, eBooks, or PDF cheatsheets relevant to learning "{goal_name}".
 
-    Take into account the student's level and context: "{context_str}".
+    Take into account the app's reading of the student: "{context_str}".
+    His level is what that reading says his answers show, not what he says about himself:
+    his own opinion of his level is not a measurement. Nor is what he says he wants to reach
+    a ceiling: the app teaches him as far as he can go.
 
     {held}
 
     You have the Google Search tool. Use it to find actual, existing, valid URLs for these resources.
     Format your response in plain text first, listing each resource's name, type, description, language, and exact URL link.
+    One line per resource, nothing before or after the list.
+    Write each description in {language_name(language)}, in at most 20 words.
     """
 
     config = get_gemini_config_plain_text(tools=[types.Tool(google_search=types.GoogleSearch())])
@@ -67,6 +75,8 @@ def search_resources(
     You are an assistant that formats search results into a clean JSON structure.
     Convert the following text containing recommendations into the requested JSON schema.
     Ensure all links are valid, exact URLs.
+    Every description is in {language_name(language)}, at most 20 words; translate one that is not.
+    Return only the JSON.
 
     Text:
     {search_response.text}

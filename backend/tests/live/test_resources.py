@@ -11,15 +11,17 @@ import pytest
 
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.services.resources.link_validation import validate_resources
-from backend.tools.gemini_cli import UNSAVED_GOAL_ID, USE_CASES
+from backend.tools.gemini_cli import USE_CASES
 
 pytestmark = [pytest.mark.live, pytest.mark.usefixtures("gemini_key", "youtube_key")]
 
-SAMPLE = next(case for case in USE_CASES if case.name == "resource-search").sample
+# `make gemini`'s own entry, so the arguments are the ones the default suite
+# type-checks against the signature (the language among them, #173).
+CASE = next(case for case in USE_CASES if case.name == "resource-search")
 
 
 async def test_at_least_one_recommended_resource_survives_validation():
-    recommended = search_resources(UNSAVED_GOAL_ID, *SAMPLE)
+    recommended = search_resources(*CASE.build(list(CASE.sample)))
 
     kept = await validate_resources(recommended)
 

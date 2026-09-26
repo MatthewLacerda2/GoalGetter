@@ -1,3 +1,5 @@
+from backend.core.language import Language
+from backend.services.gemini.output_language import language_name
 from backend.services.gemini.student_context.schema import GeminiStudentContext, StudentGoal
 
 
@@ -11,8 +13,9 @@ def format_goals(goals: list[StudentGoal]) -> str:
 
 def get_student_context_prompt(
     goals: list[StudentGoal],
-    onboarding_prompt: str | None = None,
-    questions_answers: list[tuple[str, str]] | None = None,
+    onboarding_prompt: str | None,
+    questions_answers: list[tuple[str, str]] | None,
+    language: Language,
 ) -> str:
     context_parts = []
 
@@ -50,9 +53,12 @@ def get_student_context_prompt(
     - state: A string (less than 100 words) describing the student's current state
     - metacognition: A string (less than 100 words) describing the student's metacognitive understanding
 
-    Be specific and insightful.
+    Be specific and insightful, in as few words as that takes.
     Write about the learner, not about any single goal: what they know and how they think travels with them across everything they study.
     If onboarding data is limited, infer reasonable assumptions based on the goals.
+    What the student says about his own level is his opinion, not his level: record it as what he believes, never as what he knows. His answers to lessons are what will measure him.
+    What he says he wants to reach is not a ceiling: the app teaches him as far as he can go.
+    Write both texts in {language_name(language)}.
     """
 
 
@@ -105,7 +111,8 @@ def get_context_review_prompt(
     contexts: list[GeminiStudentContext],
     recent_answers: list[dict],
     recent_chat_history: list[dict],
-    questions_answers: list[tuple[str, str]] | None = None,
+    questions_answers: list[tuple[str, str]] | None,
+    language: Language,
 ) -> str:
     """Ask what went stale and what is missing, rather than for a rewrite (#90).
 
@@ -191,6 +198,11 @@ def get_context_review_prompt(
     - **Leaving `frontiers` empty is the normal night**, and the right answer
       whenever the student is still working at the frontier they are on. Do not
       move a target to have something to report.
-    - Write the response in the student's language.
+    - What the student told us about his own level is his opinion, not his
+      level: his recent answers are the measurement, and they win.
+    - What he said he wants to reach is not a ceiling. The app teaches him as
+      far as he can go, so a stated "only the basics" never stops a frontier.
+    - Every reading as short as it can be while saying what it has to.
+    - Write every text in {language_name(language)}.
     </Guidelines>
     """
