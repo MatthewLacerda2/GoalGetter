@@ -78,8 +78,13 @@ services:
       GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
       # Without it the resource job drops every YouTube link (it cannot verify them).
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+    # 8000 belongs to another project on this machine (see CLAUDE.md), and
+    # nothing outside needs to reach the API directly: nginx proxies /api to
+    # `backend:8000` over the compose network, and the tunnel talks to nginx.
+    # So this is published on the backend's documented port here, and on
+    # loopback only - Swagger for whoever is at the keyboard, not an open API.
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8001:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -141,8 +146,14 @@ services:
       args:
         BASE_URL: ${BASE_URL}
     container_name: goalgetter_frontend
+    # 8080 is another project's on this machine (see CLAUDE.md) - it was taken,
+    # so the stack could not come up at all. The tunnel does not use this: its
+    # ingress points at `http://frontend:80` over the compose network
+    # (terraform/cloudflare_backup/main.tf), which is why moving the published
+    # port cannot break the site. Loopback only, for looking at the real bundle
+    # without going out to the internet and back.
     ports:
-      - "8080:80"
+      - "127.0.0.1:8095:80"
     restart: unless-stopped
     depends_on:
       backend:
