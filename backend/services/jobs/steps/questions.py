@@ -28,6 +28,7 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.lesson.schema import AnsweredQuestion
 from backend.services.gemini.student_context import GeminiStudentContext
+from backend.services.jobs.steps.language import student_language
 from backend.services.lessons.generation import decide
 from backend.services.lessons.pacing import PACE_WINDOW, lesson_size
 from backend.services.lessons.selection import select_lesson
@@ -62,14 +63,17 @@ async def run_questions_step(session, student_id) -> int:
     # His pace, and so the size of tomorrow's lesson, is a fact about the person
     # and not about a goal (#134) - read once, used for every bank below.
     seconds = await StudentAnswerRepository(session).list_recent_seconds(student_id, PACE_WINDOW)
+    language = await student_language(session, student_id, goals)
 
     total = 0
     for goal in goals:
-        total += await _bank_for_goal(session, goal, contexts, readings, lesson_size(seconds))
+        total += await _bank_for_goal(
+            session, goal, contexts, readings, lesson_size(seconds), language
+        )
     return total
 
 
-async def _bank_for_goal(session, goal, contexts, readings, size: int) -> int:
+async def _bank_for_goal(session, goal, contexts, readings, size: int, language) -> int:
     repository = QuestionRepository(session)
     bank = await repository.list_bank_history(goal.id)
     frontier = await FrontierRepository(session).current(goal.id)
@@ -98,6 +102,7 @@ async def _bank_for_goal(session, goal, contexts, readings, size: int) -> int:
         contexts,
         _answered(bank, right=True),
         _answered(bank, right=False),
+        language,
     )
     # A question whose correct index is out of range would fail the table's
     # check constraint and take the whole batch with it: drop just that one.

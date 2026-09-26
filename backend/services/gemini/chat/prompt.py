@@ -1,8 +1,12 @@
+from backend.core.language import Language
 from backend.services.gemini.chat.schema import StudentContextToChat
 
 
 def chat_system_prompt(
-    goal_name: str, goal_description: str, contexts: list[StudentContextToChat]
+    goal_name: str,
+    goal_description: str,
+    contexts: list[StudentContextToChat],
+    language: Language,
 ) -> str:
     context_parts = []
     for context in contexts:
@@ -34,8 +38,13 @@ def chat_system_prompt(
     The student values straightforwardness.
     Treat the student as a peer, but keep in mind they are still learning.
 
-    Answer as concisely as possible.
+    Answer as concisely as possible: the shortest reply that does the job.
     The messages must be written simply and read simply.
+
+    What the student says about his own level is his opinion, not his level:
+    judge it from how he reasons and what the background below shows.
+    What he says he wants to reach is not a ceiling either - the app teaches
+    him as far as he can go, so never stop at "just the basics" because he asked.
 
     <information>
     Here is some background information about the student:
@@ -45,6 +54,6 @@ def chat_system_prompt(
     ## Guidelines
     Return a list of strings representing the paragraphs or logical chunks of your response.
     Each chunk should be small and readable (typically under 40 words per chunk).
-    Respond in the same language the student uses.
+    Write every chunk in {language.english_name}.
     </system_instruction>
     """

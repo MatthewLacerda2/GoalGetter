@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 from google.genai.errors import APIError
 
+from backend.services.gemini.onboarding.onboarding_prompts import ONBOARDING_QUESTIONS
 from backend.services.gemini.onboarding.schema import (
     GeminiGoalValidation,
     GeminiOnboardingQuestionsResponse,
@@ -21,7 +22,7 @@ QUESTIONS = GeminiOnboardingQuestionsResponse(
         OnboardingQuestionItem(
             question=f"Q{i}", option_a="a", option_b="b", option_c="c", option_d="d"
         )
-        for i in range(5)
+        for i in range(ONBOARDING_QUESTIONS)
     ]
 )
 
@@ -37,7 +38,7 @@ async def test_objective_questions_valid_goal(client):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 200
     body = response.json()
-    assert len(body) == 5
+    assert len(body) == ONBOARDING_QUESTIONS == 8
     assert body[0]["question"] == "Q0"
     assert body[0]["options"] == ["a", "b", "c", "d"]
 

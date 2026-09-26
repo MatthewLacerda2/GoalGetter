@@ -1,7 +1,13 @@
+from backend.core.language import Language
 from backend.schemas.goal import ObjectiveAnswer
 
+# How long the goal description the student reads at the end of onboarding may
+# be (#173: "o app deve ser breve"). Sixty words is a short paragraph on a phone
+# screen: enough for what to study next and why, not enough for a syllabus.
+STUDY_PLAN_MAX_WORDS = 60
 
-def get_study_plan_prompt(prompt: str, answers: list[ObjectiveAnswer]) -> str:
+
+def get_study_plan_prompt(prompt: str, answers: list[ObjectiveAnswer], language: Language) -> str:
 
     answers_text = "\n".join([f"- {a.question}: {a.answer}" for a in answers])
 
@@ -25,8 +31,12 @@ def get_study_plan_prompt(prompt: str, answers: list[ObjectiveAnswer]) -> str:
 
     ## Writing rules
 
-    - You may write the description in Markdown (headings, bold, bullet lists).
-    - Keep it short: never more than ~400 lines, and ideally much shorter.
+    - Be brief: the description is at most {STUDY_PLAN_MAX_WORDS} words, and goal_name a few words.
+    - You may write the description in Markdown (bold, a short bullet list).
     - Use simple, everyday language. Avoid technical jargon.
-    - Write in the same language the user used.
+    - What the user says about his own level is his opinion, not his level: the app
+      measures it from his answers to lessons, so do not build the plan on it as a fact.
+    - What he says he wants to reach is not where he stops: the app teaches him as far
+      as he can go. Never promise or plan an end point.
+    - Write both parts in {language.english_name}.
     """

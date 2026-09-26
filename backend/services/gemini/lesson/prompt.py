@@ -1,3 +1,4 @@
+from backend.core.language import Language
 from backend.services.gemini.lesson.schema import AnsweredQuestion
 from backend.services.gemini.student_context.schema import GeminiStudentContext
 from backend.utils.envs import QUESTIONS_PER_GENERATION
@@ -45,8 +46,9 @@ def get_lesson_generation_prompt(
     rating: int,
     target_difficulty: int,
     contexts: list[GeminiStudentContext],
-    answered_right: list[AnsweredQuestion] | None = None,
-    answered_wrong: list[AnsweredQuestion] | None = None,
+    answered_right: list[AnsweredQuestion] | None,
+    answered_wrong: list[AnsweredQuestion] | None,
+    language: Language,
 ) -> str:
     return f"""
     <Context>
@@ -85,6 +87,9 @@ def get_lesson_generation_prompt(
       no finish line, and the frontier is where he has been taken since.
     - The questions are about this goal only. The student's context may mention other subjects they study; use it to judge how they learn, never as a topic to ask about.
     - Keep questions educational and didactically sound.
-    - Write the questions in the user's language.
+    - His level is what his answers above show, not what he or the context says he thinks it is: a self-assessment is his opinion.
+    - Do not stop at what he said he wants to reach. The app teaches him as far as he can go; his stated ambition is not a ceiling.
+    - Write every question and option in {language.english_name}.
+    - Keep each question and option as short as it can be while staying clear; return only the questions.
     </Guidelines>
     """

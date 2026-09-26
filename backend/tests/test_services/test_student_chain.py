@@ -76,7 +76,7 @@ async def test_the_first_run_reads_the_onboarding_from_the_database(
     with chain_gemini(test_db, calls):
         await run_student_chain(str(test_user.id))
 
-    goals, prompt, questions_answers = dict(calls)["context"]
+    goals, prompt, questions_answers, _language = dict(calls)["context"]
     assert [(g.name, g.description) for g in goals] == [(goal.name, goal.description)]
     assert prompt is None
     assert questions_answers == [PROMPT_PAIR, *ANSWERS]
@@ -97,7 +97,7 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
         await run_student_chain(str(test_user.id))
 
     seen = dict(calls)
-    name, description, frontier, rating, target, contexts, right, wrong = seen["questions"]
+    name, description, frontier, rating, target, contexts, right, wrong, _ = seen["questions"]
     assert (name, description, rating, right, wrong) == (goal.name, goal.description, 1200, [], [])
     assert target == 1200 + GENERATION_MARGIN
     assert frontier == goal.description
@@ -135,7 +135,7 @@ async def test_a_later_run_reviews_the_context_and_buys_nothing_for_what_went_wr
         await run_student_chain(str(test_user.id))
 
     assert [name for name, _ in calls] == ["review", "resources"]
-    _, standing, results, chats, _ = dict(calls)["review"]
+    _, standing, results, chats, _, _ = dict(calls)["review"]
     assert [(c.state, c.metacognition) for c in standing] == [("Beginner", "Curious")]
     assert [(r["question"], r["is_correct"]) for r in results] == [("What is 'ciao'?", False)]
     assert [c["prompt"] for c in chats] == ["q0"]

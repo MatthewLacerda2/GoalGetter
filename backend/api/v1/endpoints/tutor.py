@@ -10,13 +10,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.api.v1.goal_dependencies import get_active_goal
 from backend.core import clock
 from backend.core.database import get_db
+from backend.core.security import get_current_user
 from backend.models.chat_message import ChatMessage
 from backend.models.goal import Goal
+from backend.models.student import Student
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.schemas.tutor import ChatExchange, LikeRequest, TutorMessageRequest
 from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
+from backend.services.gemini.output_language import output_language
 from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
@@ -59,6 +62,7 @@ async def list_messages(
 async def send_message(
     payload: TutorMessageRequest,
     goal: Goal = Depends(get_active_goal),
+    current_user: Student = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Send the student's message with this goal's recent history and the
@@ -78,7 +82,12 @@ async def send_message(
         for c in await StudentContextRepository(db).list_valid(goal.student_id)
     ]
     reply = await run_gemini(
-        gemini_messages_generator, history, contexts, goal.name, goal.description
+        gemini_messages_generator,
+        history,
+        contexts,
+        goal.name,
+        goal.description,
+        output_language(current_user.language, payload.message),
     )
 
     exchange = await repo.create(

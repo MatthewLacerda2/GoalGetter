@@ -15,6 +15,8 @@ def search_prompt(
     return f"""
     Use Google Search to find study material for a student learning "{goal_name}"
     ({goal_description}). What the app knows about him: {context}
+    His level is what his answers show; what he says about it is his opinion. And
+    what he says he wants to reach is no ceiling: the app teaches him as far as he can go.
     {held_line}
 
     Find 3 web pages and 3 PDF guides, written in {language} where possible, that
@@ -30,6 +32,8 @@ def describe_prompt(goal_name: str, context: str, sources: str, language: str) -
     A Google search for study material on "{goal_name}" found the numbered sources
     below. Each shows its site and what the search said about it.
     What the app knows about the student: {context}
+    His level is what his answers show, not his opinion of it; and the app teaches
+    him as far as he can go, whatever he says he wants to reach.
 
     {sources}
 

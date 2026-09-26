@@ -20,8 +20,8 @@ from backend.core.language import Language
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.repositories.student_repository import StudentRepository
 from backend.services.gemini.resources.search_resources import search_resources
+from backend.services.jobs.steps.language import student_language
 from backend.services.resources.link_validation import validate_resources
 from backend.services.resources.youtube_search import search_videos
 from backend.utils.gemini.gemini_guard import run_gemini_background
@@ -39,9 +39,8 @@ async def run_resources_step(session, student_id) -> int:
         return 0
 
     reading = f"{contexts[0].state} {contexts[0].metacognition}"
-    student = await StudentRepository(session).get_by_id(student_id)
-    language = Language.of(student.language if student else None)
     goals = await GoalRepository(session).list_by_student(student_id)
+    language = await student_language(session, student_id, goals)
 
     total = 0
     for goal in goals:

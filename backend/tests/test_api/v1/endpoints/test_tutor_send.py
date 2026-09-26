@@ -44,7 +44,7 @@ async def test_send_gives_gemini_the_window_oldest_first(
     with patch(GEMINI, return_value=REPLY) as gemini:
         await auth_client.post(ENDPOINT, json={"message": "next?"})
 
-    history, contexts, name, description = gemini.call_args.args
+    history, contexts, name, description, _language = gemini.call_args.args
     kept = range(2, HISTORY_WINDOW + 2)  # the two oldest fall out of the window
     expected = [t for i in kept for t in (("user", f"q{i}"), ("model", f"a{i}\nb{i}"))]
     assert [(m.role, m.message) for m in history] == expected + [("user", "next?")]

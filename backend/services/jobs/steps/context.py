@@ -37,6 +37,7 @@ from backend.services.gemini.student_context import (
     gemini_review_student_context,
 )
 from backend.services.jobs.steps.frontier import apply_frontier_moves, current_definitions
+from backend.services.jobs.steps.language import student_language
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
@@ -69,12 +70,17 @@ async def run_context_step(session, student_id, onboarding_as_of: datetime | Non
     contexts = await StudentContextRepository(session).list_valid(student_id)
 
     onboarding = await OnboardingRepository(session).list_by_student(student_id, onboarding_as_of)
+    language = await student_language(session, student_id, goals)
     if answers and contexts:
-        return await _review(session, student_id, goals, definitions, contexts, answers, onboarding)
-    return await _first_impression(session, student_id, _goals_seen(goals, definitions), onboarding)
+        return await _review(
+            session, student_id, goals, definitions, contexts, answers, onboarding, language
+        )
+    return await _first_impression(
+        session, student_id, _goals_seen(goals, definitions), onboarding, language
+    )
 
 
-async def _first_impression(session, student_id, goals: list[StudentGoal], rows) -> bool:
+async def _first_impression(session, student_id, goals: list[StudentGoal], rows, language) -> bool:
     """The reading of someone we have watched do nothing yet: their own words
     and the questions they answered while creating their goals.
 
@@ -89,7 +95,7 @@ async def _first_impression(session, student_id, goals: list[StudentGoal], rows)
         len(questions_answers),
     )
     generated = await run_gemini_background(
-        gemini_generate_student_context, goals, None, questions_answers
+        gemini_generate_student_context, goals, None, questions_answers, language
     )
     await _store(session, student_id, [generated])
     await session.commit()
@@ -97,7 +103,7 @@ async def _first_impression(session, student_id, goals: list[StudentGoal], rows)
 
 
 async def _review(
-    session, student_id, goals, definitions: list[str], standing, answers, onboarding
+    session, student_id, goals, definitions: list[str], standing, answers, onboarding, language
 ) -> bool:
     """Show the model what the app believes and let it say what no longer holds.
 
@@ -127,6 +133,7 @@ async def _review(
             for chat in chats
         ],
         _told_us(onboarding),
+        language,
     )
 
     retired = await _retire(session, standing, review.reviewed)

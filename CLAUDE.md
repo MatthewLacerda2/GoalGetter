@@ -62,6 +62,8 @@ reused between students: not questions, not resources, not contexts.
   the function that calls the client. Callers get a typed result like any function.
   Every prompt is **written in English** and **names the language of its output** — the
   student's — outright; that line is written by hand in each prompt, there is no shortcut.
+  Which language it names is `services/gemini/output_language.py`'s answer: his
+  `students.language`, else what he typed, else English (#173).
   And every prompt asks for the **shortest output that does the job**: tokens are the bill,
   and a response the code only parses needs no prose around it.
 
