@@ -22,7 +22,7 @@ async def test_every_step_is_given_his_chosen_language(test_db, test_user, goal_
 
     assert {name: args[-1] for name, args in calls} == {
         "context": Language.GERMAN,
-        "questions": Language.GERMAN,
+        "placement": Language.GERMAN,
         "resources": Language.GERMAN,
     }
 

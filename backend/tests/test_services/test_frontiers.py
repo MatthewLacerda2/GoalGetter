@@ -25,6 +25,7 @@ from backend.services.jobs.steps.context import run_context_step
 from backend.services.jobs.steps.questions import run_questions_step
 from backend.tests.fixtures.jobs import ELSEWHERE, SUBJECT, chain_gemini, review
 from backend.tests.fixtures.lessons import at
+from backend.utils.envs import PLACEMENT_SIZE
 
 LESSON = "backend.services.gemini.lesson.lesson_generation"
 CIRCUITS = "Understand circuits."
@@ -203,9 +204,10 @@ async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
 ):
     """The claim the issue is for: generation aims at the frontier, not the goal"""
     goal = await studied(test_db, test_user, goal_factory, question_factory, answer_factory)
-    # Three he can answer beside the one he missed: a generation is only bought
-    # for a student the bank has become too easy for (#135).
-    for i in range(3):
+    # Plenty he can answer beside the one he missed: a generation is only bought
+    # for a student the bank has become too easy for (#135), and once the goal
+    # holds the placement's worth of answers.
+    for i in range(PLACEMENT_SIZE):
         held = await question_factory(goal, text=f"What is Ohm's law? ({i})")
         await answer_factory(held, correct=True, answered_at=at(11 + i))
     await test_db.commit()
@@ -218,6 +220,6 @@ async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
         await test_db.commit()
         await run_questions_step(test_db, str(test_user.id))
 
-    before, after = (f'current frontier: "{text}"' for text in (CIRCUITS, "Robotics."))
+    before, after = (f'What to teach him now: "{text}"' for text in (CIRCUITS, "Robotics."))
     assert before in prompts[0] and after not in prompts[0]
     assert after in prompts[1] and CIRCUITS in prompts[1]

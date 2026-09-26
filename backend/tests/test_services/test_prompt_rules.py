@@ -24,6 +24,7 @@ from backend.services.gemini.onboarding.schema import (
     OnboardingQuestionItem,
 )
 from backend.services.gemini.onboarding.study_plan_prompt import get_study_plan_prompt
+from backend.services.gemini.placement.prompt import get_placement_prompt
 from backend.services.gemini.resources.prompt import describe_prompt, search_prompt
 from backend.services.gemini.student_context.prompt import (
     get_context_review_prompt,
@@ -72,10 +73,15 @@ PROMPTS = {
     ),
     "lesson": (
         lambda lang: get_lesson_generation_prompt(
-            "Chess", "Openings", "Endgames", 1200, 1232, CONTEXTS, [], [], lang
+            "Chess", "Openings", "Endgames", CONTEXTS, [], [], lang
         ),
         True,
-        "as short as it can be",
+        "Return only the exercises",
+    ),
+    "placement": (
+        lambda lang: get_placement_prompt("Chess", "i want chess", CONTEXTS, lang),
+        True,
+        "Return only the exercises",
     ),
     "first-context": (
         lambda lang: get_student_context_prompt(GOALS, "I want chess", None, lang),
@@ -123,13 +129,33 @@ def test_the_goal_validation_does_not_take_a_ceiling_as_the_goal():
     assert "as far as he can go" in get_goal_validation_prompt("Only the basics", Language.ENGLISH)
 
 
-def test_onboarding_asks_for_eight_short_questions_and_no_self_rating():
+def test_onboarding_asks_for_six_short_questions_and_no_self_rating():
     prompt = get_onboarding_questions_prompt("Chess", "Learn chess", Language.ENGLISH)
 
-    assert "exactly 8 multiple-choice" in prompt
+    assert "exactly 6 multiple-choice" in prompt
     assert "at most 20 words" in prompt
     assert "Do not ask the student to rate his own level" in prompt
+    assert "Do not ask him to pick one aspect" in prompt
     assert "familiarity/experience level" not in prompt
+
+
+@pytest.mark.parametrize("name", ["lesson", "placement"])
+def test_exercises_are_short_plain_and_not_given_away_by_their_shape(name):
+    """The user's rules of 2026-09-26: 20 words, an instruction is allowed, and
+    the wrong options plausible and as long as the right one"""
+    render, _, _ = PROMPTS[name]
+    prompt = " ".join(render(Language.ENGLISH).split())
+
+    assert "at most 20 words, and so is each option" in prompt
+    assert "May be a question or an instruction" in prompt
+    assert "about as long as the right one" in prompt
+
+
+def test_the_study_plan_does_not_narrow_what_he_asked():
+    prompt = " ".join(get_study_plan_prompt("Learn chess", ANSWERS, Language.ENGLISH).split())
+
+    assert "as broad as he asked it. Never narrower" in prompt
+    assert "do not pick one aspect of it for him" in prompt
 
 
 def test_the_study_plan_is_brief_as_a_number():

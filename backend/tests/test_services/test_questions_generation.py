@@ -13,13 +13,13 @@ he can answer, which the old rule would have left alone.
 
 import pytest
 
+from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionRepository
 from backend.services.gemini.lesson.prompt import get_lesson_generation_prompt
 from backend.services.jobs.steps.questions import run_questions_step
-from backend.services.lessons.generation import GENERATION_MARGIN
 from backend.tests.fixtures.jobs import chain_gemini, generated
 from backend.tests.fixtures.lessons import at
-from backend.utils.envs import QUESTIONS_PER_GENERATION
+from backend.utils.envs import PLACEMENT_SIZE, QUESTIONS_PER_GENERATION
 
 # Italian, so the option the student picked reads as a belief and not as "b".
 ITALIAN = ("hello", "goodbye", "please", "thank you")
@@ -80,10 +80,11 @@ async def test_a_short_bank_he_keeps_missing_is_still_nothing(
 
 
 @pytest.mark.asyncio
-async def test_a_student_who_never_misses_gets_eight_aimed_above_his_rating(
+async def test_a_student_who_never_misses_gets_eight_one_step_past_what_he_holds(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """The target reaches the prompt as a number, and it is above where he is"""
+    """No difficulty number reaches the prompt: a model cannot tell what 1432
+    means. What he got right does, and the batch is written one step past it"""
     goal = await goal_factory(test_user, rating=1400)
     await answered(test_db, goal, question_factory, answer_factory, right=10, wrong=0)
 
@@ -91,10 +92,10 @@ async def test_a_student_who_never_misses_gets_eight_aimed_above_his_rating(
     with chain_gemini(test_db, calls, questions=generated(*[0] * QUESTIONS_PER_GENERATION)):
         assert await run_questions_step(test_db, str(test_user.id)) == QUESTIONS_PER_GENERATION
 
-    assert (asked(calls)[3], asked(calls)[4]) == (1400, 1400 + GENERATION_MARGIN)
     prompt = get_lesson_generation_prompt(*asked(calls))
-    assert "**Write these questions at difficulty 1432**" in prompt
-    assert f"exactly {QUESTIONS_PER_GENERATION} multiple-choice" in prompt
+    assert "1400" not in prompt and "difficulty" not in prompt
+    assert f"Write exactly {QUESTIONS_PER_GENERATION} exercises" in prompt
+    assert "one\n    step past what he got right" in prompt
 
 
 @pytest.mark.asyncio
@@ -139,15 +140,40 @@ async def test_the_prompt_carries_his_own_questions_and_the_option_he_chose(
 
 
 @pytest.mark.asyncio
-async def test_an_empty_bank_is_the_goals_first_batch(test_db, test_user, goal_factory):
-    """A goal created minutes ago: nothing to be too easy yet, so eight of them"""
-    await goal_factory(test_user)
+async def test_an_empty_bank_is_the_placement_written_from_what_he_typed(
+    test_db, test_user, goal_factory
+):
+    """A goal created minutes ago gets the placement, and it reads what he typed:
+    the goal's name and description are Gemini's study plan, which can be narrower"""
+    goal = await goal_factory(test_user, name="Digital China", description="Tech giants.")
+    await OnboardingRepository(test_db).save_onboarding(
+        goal.id, "understand modern China", [], "gemini-test"
+    )
+    await test_db.commit()
 
     calls = []
-    with chain_gemini(test_db, calls, questions=generated(*[0] * QUESTIONS_PER_GENERATION)):
-        assert await run_questions_step(test_db, str(test_user.id)) == QUESTIONS_PER_GENERATION
+    with chain_gemini(test_db, calls, questions=generated(*[0] * PLACEMENT_SIZE)):
+        assert await run_questions_step(test_db, str(test_user.id)) == PLACEMENT_SIZE
 
-    assert asked(calls)[4] == 1200 + GENERATION_MARGIN
+    name, typed, _, _ = dict(calls)["placement"]
+    assert (name, typed) == ("Digital China", "understand modern China")
+    assert "questions" not in dict(calls)
+
+
+@pytest.mark.asyncio
+async def test_under_eighteen_answers_buys_nothing_however_easy(
+    test_db, test_user, goal_factory, question_factory, answer_factory
+):
+    """Eight right answers, twice each, is sixteen: he has not finished being
+    measured, so there is nothing yet to write the next batch from"""
+    goal = await goal_factory(test_user)
+    await answered(test_db, goal, question_factory, answer_factory, right=8, wrong=0)
+
+    calls = []
+    with chain_gemini(test_db, calls):
+        assert await run_questions_step(test_db, str(test_user.id)) == 0
+
+    assert calls == []
 
 
 @pytest.mark.asyncio
@@ -171,10 +197,11 @@ async def test_each_goal_is_decided_on_its_own(
 
 @pytest.mark.asyncio
 async def test_the_questions_aim_at_the_frontier_and_not_at_the_description(
-    test_db, test_user, goal_factory
+    test_db, test_user, goal_factory, question_factory, answer_factory
 ):
     """#133: the day-one description is background, the frontier is the target"""
     goal = await goal_factory(test_user)
+    await answered(test_db, goal, question_factory, answer_factory, right=10, wrong=0)
 
     calls = []
     with chain_gemini(test_db, calls):

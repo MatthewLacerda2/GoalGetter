@@ -18,20 +18,23 @@ student still has something to learn from it.
 """
 
 import logging
+import random
 
-from backend.models.question import Question
 from backend.repositories.frontier_repository import FrontierRepository
 from backend.repositories.goal_repository import GoalRepository
+from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionHistory, QuestionRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.lesson.schema import AnsweredQuestion
+from backend.services.gemini.placement import generate_placement_questions
 from backend.services.gemini.student_context import GeminiStudentContext
 from backend.services.jobs.steps.language import student_language
 from backend.services.lessons.generation import decide
 from backend.services.lessons.pacing import PACE_WINDOW, lesson_size
 from backend.services.lessons.selection import select_lesson
+from backend.services.lessons.shuffle import shuffled_question
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
@@ -77,45 +80,47 @@ async def _bank_for_goal(session, goal, contexts, readings, size: int, language)
     repository = QuestionRepository(session)
     bank = await repository.list_bank_history(goal.id)
     frontier = await FrontierRepository(session).current(goal.id)
+    history = await StudentAnswerRepository(session).list_history_by_goal(goal.id)
     lesson = select_lesson(
         bank=[entry.question for entry in bank],
-        history=await StudentAnswerRepository(session).list_history_by_goal(goal.id),
+        history=history,
         size=size,
         frontier=frontier,
         context=readings[0] if readings else None,
     )
 
-    verdict = decide(lesson, goal.rating)
+    verdict = decide(lesson, answers=len(history))
     logger.info(
         "Questions step: student %s, goal %s - %s", goal.student_id, goal.id, verdict.reason
     )
     if not verdict.generate:
         return 0
 
-    generated = await run_gemini_background(
-        generate_lesson_questions,
-        goal.name,
-        goal.description,
-        frontier.definition if frontier else (goal.description or ""),
-        goal.rating,
-        verdict.target,
-        contexts,
-        _answered(bank, right=True),
-        _answered(bank, right=False),
-        language,
-    )
+    if verdict.placement:
+        asked = await OnboardingRepository(session).prompt_of(goal.id)
+        generated = await run_gemini_background(
+            generate_placement_questions,
+            goal.name,
+            asked or goal.description or goal.name,
+            contexts,
+            language,
+        )
+    else:
+        generated = await run_gemini_background(
+            generate_lesson_questions,
+            goal.name,
+            goal.description,
+            frontier.definition if frontier else (goal.description or ""),
+            contexts,
+            _answered(bank, right=True),
+            _answered(bank, right=False),
+            language,
+        )
     # A question whose correct index is out of range would fail the table's
     # check constraint and take the whole batch with it: drop just that one.
+    rng = random.Random()
     questions = [
-        Question(
-            goal_id=goal.id,
-            text=item.question,
-            option_a=item.option_a,
-            option_b=item.option_b,
-            option_c=item.option_c,
-            option_d=item.option_d,
-            right_answer_index=item.correct_option_index,
-        )
+        shuffled_question(goal.id, item, rng)
         for item in generated.questions
         if 0 <= item.correct_option_index <= 3
     ]

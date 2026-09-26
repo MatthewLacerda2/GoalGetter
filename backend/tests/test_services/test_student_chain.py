@@ -20,7 +20,6 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.jobs import student_chain
 from backend.services.jobs.steps.resources import run_resources_step
 from backend.services.jobs.student_chain import kickoff_student_chain, run_student_chain
-from backend.services.lessons.generation import GENERATION_MARGIN
 from backend.tests.fixtures.jobs import chain_gemini, resource, review
 from backend.tests.fixtures.lessons import at
 
@@ -61,7 +60,7 @@ async def test_the_chain_runs_context_then_questions_then_resources(
     with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
         assert await run_student_chain(str(test_user.id)) == (True, 2, 1)
 
-    assert [name for name, _ in calls] == ["context", "questions", "resources"]
+    assert [name for name, _ in calls] == ["context", "placement", "resources"]
 
 
 @pytest.mark.asyncio
@@ -97,10 +96,10 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
         await run_student_chain(str(test_user.id))
 
     seen = dict(calls)
-    name, description, frontier, rating, target, contexts, right, wrong, _ = seen["questions"]
-    assert (name, description, rating, right, wrong) == (goal.name, goal.description, 1200, [], [])
-    assert target == 1200 + GENERATION_MARGIN
-    assert frontier == goal.description
+    # A goal created minutes ago: its first batch is the placement, written from
+    # what he typed rather than from the goal's description.
+    name, asked, contexts, _ = seen["placement"]
+    assert (name, asked) == (goal.name, "I want Italian")
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
     assert seen["resources"][1:] == (
         goal.name,
@@ -184,7 +183,7 @@ async def test_the_caller_can_ask_for_a_chain_without_resources(test_db, test_us
     with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
         assert await run_student_chain(str(test_user.id), with_resources=False) == (True, 2, 0)
 
-    assert [name for name, _ in calls] == ["context", "questions"]
+    assert [name for name, _ in calls] == ["context", "placement"]
     assert await ResourceRepository(test_db).list_by_goal(goal.id) == []
 
 
@@ -199,7 +198,7 @@ async def test_a_failed_step_keeps_what_the_steps_before_it_wrote(test_db, test_
         with pytest.raises(RuntimeError):
             await run_student_chain(str(test_user.id))
 
-    assert [name for name, _ in calls] == ["context", "questions"]
+    assert [name for name, _ in calls] == ["context", "placement"]
     assert len(await StudentContextRepository(test_db).list_valid(test_user.id)) == 1
     assert await QuestionRepository(test_db).list_bank_history(goal.id) == []
     assert await ResourceRepository(test_db).list_by_goal(goal.id) == []
@@ -233,8 +232,8 @@ async def test_two_goals_get_one_context_and_a_bank_each(test_db, test_user, goa
 
     assert [name for name, _ in calls] == [
         "context",
-        "questions",
-        "questions",
+        "placement",
+        "placement",
         "resources",
         "resources",
     ]

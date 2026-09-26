@@ -85,7 +85,8 @@ async def test_a_student_who_did_nothing_costs_no_gemini_call(
 async def test_a_student_who_answered_something_gets_context_then_questions(
     test_db, test_user, goal_factory, lesson_factory
 ):
-    """Six nights a week the chain stops after the second step"""
+    """Six nights a week the chain stops after the second step. One lesson is
+    under the placement's answers, so that step buys nothing yet"""
     goal = await goal_factory(test_user)
     await lesson_factory(goal, WEDNESDAY_EVENING)
     await test_db.commit()
@@ -94,7 +95,7 @@ async def test_a_student_who_answered_something_gets_context_then_questions(
     with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
         assert await run_nightly(THURSDAY_RUN) == (1, 1)
 
-    assert [name for name, _ in calls] == ["context", "questions"]
+    assert [name for name, _ in calls] == ["context"]
 
 
 @pytest.mark.asyncio
@@ -110,7 +111,7 @@ async def test_resources_are_searched_on_monday_and_only_then(
     with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
         assert await run_nightly(MONDAY_RUN) == (1, 1)
 
-    assert [name for name, _ in calls] == ["context", "questions", "resources"]
+    assert [name for name, _ in calls] == ["context", "resources"]
 
 
 @pytest.mark.asyncio
