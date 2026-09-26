@@ -3,11 +3,11 @@ import secrets
 from datetime import timedelta
 
 import httpx
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core import clock
@@ -119,7 +119,7 @@ def verify_token(token: str) -> dict:
             audience=JWT_AUDIENCE,
         )
         return payload
-    except JWTError as err:
+    except jwt.PyJWTError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         ) from err
@@ -153,7 +153,7 @@ async def get_current_user(
 
         return user
 
-    except JWTError as err:
+    except jwt.PyJWTError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         ) from err

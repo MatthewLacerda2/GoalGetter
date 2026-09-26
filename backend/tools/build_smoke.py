@@ -8,9 +8,9 @@ resolve every route's request and response model. A broken import, a schema
 that no longer validates, a route whose response model references a deleted
 type - all of it surfaces here, in about a second, with no database.
 
-No database is needed and none may be touched: the lifespan that drops and
-recreates the schema only runs when a server starts, and importing the module
-never opens a connection (`create_async_engine` is lazy). This script therefore
+No database is needed and none may be touched: the app has no lifespan (#157),
+and importing the module never opens a connection (`create_async_engine` is
+lazy). This script therefore
 pins placeholder settings *before* the import, so the app assembles against
 values that point nowhere even if a real `.env` sits next to it - and
 `make back-build` runs the container with no network at all, so a connection
@@ -36,15 +36,20 @@ PLACEHOLDERS = {
     "GOOGLE_REDIRECT_URI": "http://localhost/callback",
 }
 
+HTTP_METHODS = {"get", "put", "post", "delete", "options", "head", "patch", "trace"}
+
 
 def main():
     os.environ.update(PLACEHOLDERS)
 
     from backend.main import app
 
-    schema = app.openapi()
-    paths = len(schema.get("paths", {}))
-    print(f"backend build OK - {len(app.routes)} routes, {paths} documented paths")
+    # Counted from the OpenAPI, not `app.routes`: FastAPI 0.141 keeps each
+    # included router as one entry there, so that number stopped moving when an
+    # endpoint went away (#170). An operation is one method on one path.
+    paths = app.openapi().get("paths", {})
+    operations = sum(1 for item in paths.values() for key in item if key in HTTP_METHODS)
+    print(f"backend build OK - {operations} operations on {len(paths)} paths")
     return 0
 
 
