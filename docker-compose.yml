@@ -1,24 +1,36 @@
 services:
+  # Postgres 18 mounts its volume at /var/lib/postgresql, one level up from
+  # where 16 did: 18 keeps its cluster in /var/lib/postgresql/18/docker so a
+  # later major can sit beside it for `pg_upgrade --link`, and it refuses to
+  # start at all with a volume on the old /var/lib/postgresql/data path. New
+  # volume names too, so the pg16 data is left untouched on disk rather than
+  # half-read by a server that cannot open it.
   postgres:
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:pg18
     container_name: goalgetter_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: goalgetter
+    # Loopback only: the tunnel never reaches the database, and nothing on the
+    # LAN should.
     ports:
-      - "5434:5432"
+      - "127.0.0.1:5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres18_data:/var/lib/postgresql
     restart: unless-stopped
+    # Over TCP, and against the app's database. On a fresh volume the image's
+    # first boot runs a temporary server on the unix socket only; a socket
+    # `pg_isready` passes against it, and `migrate` then connects to a server
+    # that is about to shut down. TCP answers only once the real one is up.
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d goalgetter -h 127.0.0.1"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   postgres_test:
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:pg18
     container_name: goalgetter_postgres_test
     environment:
       POSTGRES_USER: postgres
@@ -27,7 +39,7 @@ services:
     ports:
       - "127.0.0.1:5435:5432" # Bind to localhost only
     volumes:
-      - postgres_test_data:/var/lib/postgresql/data
+      - postgres18_test_data:/var/lib/postgresql
     restart: unless-stopped
 
   # The schema, applied once, before anything that reads it (#157). Nothing
@@ -172,7 +184,8 @@ services:
       start_period: 10s
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    # A fixed release, not `latest`: a deploy should change what we changed.
+    image: cloudflare/cloudflared:2026.9.3
     container_name: goalgetter_cloudflared
     command: tunnel run
     environment:
@@ -182,5 +195,5 @@ services:
         condition: service_healthy
     restart: unless-stopped
 volumes:
-  postgres_data:
-  postgres_test_data:
+  postgres18_data:
+  postgres18_test_data:
