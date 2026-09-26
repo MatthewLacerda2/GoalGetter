@@ -177,8 +177,16 @@ wrong; tests must never be complex.
 ## Endpoints — TDD
 
 1. Define what the endpoint does, then the request and response schemas.
-2. Write the tests (edit fixtures if needed). Tests use fixtures, never real APIs —
-   Gemini and YouTube are always mocked.
+2. Write the tests (edit fixtures if needed). **The default suite never calls a real
+   API** — Gemini and YouTube are always mocked, and `fixtures/network.py` fails any
+   test that reaches past this machine and the test database. **The `live` suite does,
+   and runs only when asked** (#176): tests marked `@pytest.mark.live` under
+   `backend/tests/live/`, skipped by `make check` and by every-push CI, run by
+   `make test-live` and by the `live` workflow — on a pull request that touches the
+   Gemini, YouTube or link-validation code or the `google-genai` pin, and on its Run
+   workflow button. A live test asserts a contract, never words (the answer parses; N
+   texts embed into N vectors; a recommended resource survives validation), makes one
+   call per use case on the smallest input, and the run prints how many calls it made.
 3. Implement the endpoint until the tests pass. An endpoint that fails its tests is
    not ready.
 
@@ -235,9 +243,12 @@ gates prove the code runs; they do not prove it is the right change.
   ARGS='tutor-reply "Chess" "Learn chess" "What is a fork?"'` runs one for real and
   prints the raw text beside the parsed object, so a bad response format is visible
   instead of swallowed by the parser. It **spends real quota** — one run, one billed
-  call — so never loop it, and never call it from a test.
+  call — so never loop it, and never call it from a default-suite test.
 - **YouTube behaviour**: the services are plain functions — call them directly to
   see what comes back.
+- **Real calls are billed, so ask first.** Claude may call the real APIs to look at
+  what they return — `make gemini`, `make test-live`, a throwaway script — but asks the
+  user before each run (the user, 2026-09-26).
 
 Unit and widget tests are still the validation for most changes. Ask the user to
 look only when they asked to, or when what is left is a judgement about how

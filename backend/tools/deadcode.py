@@ -60,6 +60,7 @@ IGNORE_DECORATORS = [
     "@app.*",  # app-level routes and hooks in backend/main.py
     "@pytest.fixture",  # fixtures are requested by parameter name, never referenced
     "@pytest_asyncio.fixture",
+    "@pytest.hookimpl*",  # pytest hooks (conftest.py) are called by their pytest_* name
     "@field_validator",  # Pydantic v2 validators run during (de)serialization
     "@model_validator",
 ]
