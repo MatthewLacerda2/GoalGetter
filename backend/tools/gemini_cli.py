@@ -211,8 +211,8 @@ USE_CASES: list[UseCase] = [
         lambda a: (UNSAVED_GOAL_ID, a[0], a[1], a[2] if len(a) > 2 else None),
         search_resources,
         sample=("Chess", "Learn chess openings"),
-        note="three billed calls: a grounded search, a reformat, then one embedding "
-        "per resource. Nothing is stored.",
+        note="a grounded search and a reformat, then one billed embedding per "
+        "resource recommended (about eleven calls). Nothing is stored.",
     ),
 ]
 

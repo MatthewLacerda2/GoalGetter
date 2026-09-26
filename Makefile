@@ -283,9 +283,10 @@ shot: ## Headless phone screenshots of ROUTES from the preview, into shots/ (GOA
 
 # `make gemini`: run ONE Gemini use case for real and print the raw text next to
 # the parsed object (backend/tools/gemini_cli.py). It SPENDS REAL QUOTA on the
-# project's key - one run, one billed call (the resource search: three) - so it
-# is never wired into a gate and never called from the tests. With no ARGS it
-# lists the use cases it knows and spends nothing.
+# project's key - one run, one billed call (the resource search: two, plus one
+# embedding per resource recommended) - so it is never wired into a gate and
+# never called from the default suite. With no ARGS it lists the use cases it
+# knows and spends nothing.
 #   make gemini
 #   make gemini ARGS='tutor-reply "Chess" "Learn chess openings" "How do I start?"'
 gemini: env ## Run one Gemini use case for real (SPENDS QUOTA; no ARGS lists them)
