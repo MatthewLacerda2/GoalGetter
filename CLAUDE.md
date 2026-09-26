@@ -302,8 +302,10 @@ done — then is shaped to the change (Context / Solution / Result is a sound de
 not a form). Describe the change, not the journey, and stay at the altitude of what
 changed: screens by route, endpoints, tables, services.
 
-Any defect found along the way gets **reported** in the closing message, not
-silently fixed out of scope and not silently ignored.
+**When Claude finds a bug, stale documentation or a rule that should no longer apply,
+Claude either fixes it within the task being done or files an issue for it — and then
+tells the user** (2026-09-26). Never silently ignored, and never left only in a closing
+message: a closing message is read once, an issue is still there next week.
 
 A PR that closes an issue opens with `Closes #<number>` — check the number; a typo
 closes the wrong issue, or none, silently.
