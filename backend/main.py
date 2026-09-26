@@ -41,7 +41,7 @@ app.add_middleware(
     allow_origin_regex=cors_origin_regex(settings.DEV_LOGIN),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Student-Language"],
 )
 
 app.state.limiter = limiter

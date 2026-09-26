@@ -3,16 +3,17 @@ import secrets
 from datetime import timedelta
 
 import httpx
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core import clock
 from backend.core.config import settings
 from backend.core.database import get_db
+from backend.core.language import Language, requested_language
 from backend.models.student import Student
 from backend.repositories.student_repository import StudentRepository
 from backend.utils.envs import GOOGLE_CLIENT_ID, JWT_AUDIENCE, JWT_ISSUER
@@ -119,7 +120,7 @@ def verify_token(token: str) -> dict:
             audience=JWT_AUDIENCE,
         )
         return payload
-    except JWTError as err:
+    except jwt.PyJWTError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         ) from err
@@ -128,13 +129,32 @@ def verify_token(token: str) -> dict:
 security = HTTPBearer()
 
 
+def remember_language(student: Student, language: Language | None) -> bool:
+    """Mirror the language the app sent onto the student; True if it changed.
+    Nothing sent leaves what is stored alone."""
+    if language is None or student.language == language:
+        return False
+    student.language = language
+    return True
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
+    language: Language | None = Depends(requested_language),
 ) -> Student:
     """
-    Get the current authenticated user from the JWT token.
+    Get the current authenticated user from the JWT token, and keep his
+    language up to date with the one the app sent (#172, `core/language.py`).
     """
+    user = await _user_from_token(credentials, db)
+    if remember_language(user, language):
+        await StudentRepository(db).update(user)
+        await db.commit()
+    return user
+
+
+async def _user_from_token(credentials: HTTPAuthorizationCredentials, db: AsyncSession) -> Student:
     try:
         payload = verify_token(credentials.credentials)
 
@@ -153,7 +173,7 @@ async def get_current_user(
 
         return user
 
-    except JWTError as err:
+    except jwt.PyJWTError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         ) from err

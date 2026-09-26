@@ -2,10 +2,10 @@ FROM python:3.14-slim
 
 WORKDIR /app
 
-# Install system dependencies (cached unless changed)
-RUN apt-get update && apt-get install -y \
-    gcc \
-    libpq-dev \
+# System packages only. No compiler and no libpq headers: on 3.14 every
+# dependency in requirements.txt ships a wheel, so the build compiles nothing
+# (#171). curl is the compose healthcheck.
+RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     curl \
     && rm -rf /var/lib/apt/lists/*

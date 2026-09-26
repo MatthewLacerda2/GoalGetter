@@ -1,4 +1,3 @@
-import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,7 @@ import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/core/widgets/language_picker.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
 import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:goal_getter/features/profile/presentation/widgets/profile_header.dart';
@@ -24,22 +24,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late final AuthService _authService = ref.read(authServiceProvider);
   late final SettingsStorage _storage = ref.read(settingsStorageProvider);
   late bool _notificationsOn = _storage.readNotificationsOn();
-
-  static const _languageNames = {
-    SettingsStorage.english: 'English',
-    SettingsStorage.portuguese: 'Português',
-    SettingsStorage.spanish: 'Español',
-    SettingsStorage.french: 'Français',
-    SettingsStorage.german: 'Deutsch',
-  };
-
-  static const _languageFlags = {
-    SettingsStorage.english: 'US',
-    SettingsStorage.portuguese: 'BR',
-    SettingsStorage.spanish: 'ES',
-    SettingsStorage.french: 'FR',
-    SettingsStorage.german: 'DE',
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -128,13 +112,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           icon: Icons.language,
           title: l10n.language,
           trailing: Text(
-            _languageNames[currentLanguage] ?? currentLanguage,
+            languageNames[currentLanguage] ?? currentLanguage,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),
-          onTap: _showLanguagePicker,
+          onTap: () => showLanguagePicker(
+            context,
+            ref,
+            // GET /me carries the new language, so the backend learns it now.
+            onPicked: () => ref.invalidate(profileControllerProvider),
+          ),
         ),
         const SizedBox(height: 12),
         _tile(
@@ -252,42 +241,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _setNotifications(bool on) {
     setState(() => _notificationsOn = on);
     _storage.writeNotificationsOn(on: on);
-  }
-
-  void _showLanguagePicker() {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.chip)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _languageNames.entries.map((e) {
-              return ListTile(
-                leading: SizedBox(
-                  width: 32,
-                  height: 24,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.hairline),
-                    child: CountryFlag.fromCountryCode(
-                      _languageFlags[e.key] ?? 'US',
-                    ),
-                  ),
-                ),
-                title: Text(e.value),
-                onTap: () {
-                  ref.read(localeProvider.notifier).setLanguage(e.key);
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
   }
 
   Future<void> _handleSignOut() async {

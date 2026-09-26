@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/core/widgets/language_picker.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/dev_login_button.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/google_sign_in_button.dart';
@@ -47,6 +48,12 @@ class StartScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // The language, already the phone's: one tap fixes it when
+                  // the phone (or the browser) is wrong (#172).
+                  const Align(
+                    alignment: Alignment.topRight,
+                    child: LanguageSelector(),
+                  ),
                   const Spacer(flex: 2),
                   const _Wordmark(),
                   const SizedBox(height: AppSpacing.xl),

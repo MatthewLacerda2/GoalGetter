@@ -113,7 +113,10 @@ class ApiClient {
     Map<String, String>? headers,
   ) {
     final request = http.Request(method, Uri.parse('$_baseUrl$apiPrefix$path'))
-      ..headers['Accept'] = 'application/json';
+      ..headers['Accept'] = 'application/json'
+      // The student's chosen language, on every request: the backend mirrors
+      // it onto students.language (backend/core/language.py, #172).
+      ..headers['X-Student-Language'] = _storage.readUserLanguageSync();
     final token = _storage.getAccessToken();
     if (token != null && token.isNotEmpty) {
       request.headers['Authorization'] = 'Bearer $token';

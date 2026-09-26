@@ -22,4 +22,5 @@ async def get_me(
         email=current_user.email,
         member_since=current_user.created_at,
         current_streak=await student_streak(db, current_user.id),
+        language=current_user.language,
     )

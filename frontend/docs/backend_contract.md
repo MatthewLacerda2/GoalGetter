@@ -10,6 +10,10 @@
 - Prefix: `/api/v1` (e.g. `GET /me` → `GET /api/v1/me`).
 - Auth: `Authorization: Bearer <access_token>` on everything **except**
   `/auth/signup`, `/auth/login`, `/auth/dev-login`, `/auth/refresh`.
+- Language: `X-Student-Language: <en|pt|es|fr|de>` on **every** request, the language
+  the student chose in the app (start screen or profile). The backend mirrors it onto
+  `students.language` whenever it differs — on sign-up and on any authenticated request
+  — and ignores a missing or unknown value (#172, `backend/core/language.py`).
 - Field names are snake_case. There is no client generator: the Dart side is written by
   hand (see `CLAUDE.md`), so a rename here is a rename in two places.
 - Times are ISO-8601. Status codes and error shapes are intentionally **omitted**
@@ -64,6 +68,8 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   - `member_since` is `students.created_at`.
   - `current_streak` is user-wide; computed from answer activity, no streak
     table (see **Streak** under the cross-cutting notes).
+  - `language` is `students.language`: null until the app's `X-Student-Language`
+    header has reached the backend once.
 
 ---
 
@@ -619,7 +625,8 @@ token_refresh_response  { "access_token": "<jwt>", "refresh_token": "..." }
 
 // ── To build ──
 user_profile            { "id": "...", "name": "...", "email": "...",
-                          "member_since": "2026-05-31T00:00:00Z", "current_streak": 7 }
+                          "member_since": "2026-05-31T00:00:00Z", "current_streak": 7,
+                          "language": "pt" }
 
 goal                    { "id": "...", "name": "...", "description": "...",
                           "current_elo": 920, "is_active": true, "created_at": "2026-05-31T00:00:00Z",
