@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:goal_getter/core/services/shared_preferences_provider.dart';
@@ -7,7 +8,7 @@ part 'settings_storage.g.dart';
 
 /// Everything the app keeps on the device, in shared_preferences: the session
 /// (access token, refresh token, user info, Google token), the active goal id,
-/// and the preferences (language, notifications).
+/// and the preferences (language, notifications, theme).
 ///
 /// Two ways out: [clearSession] when the backend refuses the session (the
 /// preferences survive), and [clearAll] on sign-out, which deletes every key,
@@ -40,6 +41,7 @@ class SettingsStorage {
   static const String _notificationsKey = 'notifications_on';
   static const String _googleTokenKey = 'google_token';
   static const String _userInfoKey = 'user_info';
+  static const String _themeModeKey = 'theme_mode';
 
   // --- Supported Languages ---
   static const String english = 'en';
@@ -174,10 +176,23 @@ class SettingsStorage {
     return await _prefs.setBool(_notificationsKey, on);
   }
 
+  // --- Theme Preference ---
+
+  /// Follows the phone until the student picks light or dark (#178). Stored
+  /// by the enum's name; anything unreadable falls back to the phone.
+  ThemeMode readThemeMode() {
+    final stored = _prefs.getString(_themeModeKey);
+    return ThemeMode.values.asNameMap()[stored] ?? ThemeMode.system;
+  }
+
+  Future<bool> writeThemeMode(ThemeMode mode) =>
+      _prefs.setString(_themeModeKey, mode.name);
+
   // --- Cleardown Methods ---
 
   /// Drops the session and the active goal, which belongs to that student.
-  /// Language and notifications stay: the device's owner has not changed.
+  /// Language, notifications and theme stay: the device's owner has not
+  /// changed.
   Future<void> clearSession() async {
     await _prefs.remove(_tokenKey);
     await _prefs.remove(_refreshTokenKey);
