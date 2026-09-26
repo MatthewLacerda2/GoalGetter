@@ -30,5 +30,7 @@ def generate_placement_questions(
     # drops the Client mid-call - "Cannot send a request, as the client has been
     # closed" (seen on the preview, 2026-09-26).
     client = get_client()
-    response = client.models.generate_content(model=GEMINI_FAST_MODEL, contents=prompt, config=config)
+    response = client.models.generate_content(
+        model=GEMINI_FAST_MODEL, contents=prompt, config=config
+    )
     return GeminiLessonQuestionsResponse.model_validate_json(response.text)
