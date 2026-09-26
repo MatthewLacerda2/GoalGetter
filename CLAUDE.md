@@ -293,10 +293,11 @@ first migration), it stays online. Every update to `main` rebuilds the container
 brings them up with the new code: the `migrate` service applies the migrations once
 and the backend and `nightly` wait for it to exit 0, so a failed migration stops the
 deploy instead of being served on top of. There is no staging: CI is the gate.
-**Today that rebuild is done by hand** — `docker compose build`, then `docker compose up -d`
-in the main checkout, build first so a failed build leaves the old containers serving.
-Automating it is #105; the Claude Code permission classifier refused to install a
-timer that deploys on its own (2026-09-26), so that step is the user's to allow.
+A user timer does it (#105): every two minutes `tools/deploy/deploy.sh` fetches main and,
+when it moved, builds and then brings the stack up — build first, so a failed build leaves
+the old containers serving. `make deploy` runs it now, `make deploy-log` shows what it did,
+`make deploy-install` sets it up on a new machine. So **a merge is a deploy**: nothing is
+merged that should not go live within minutes.
 
 **A decision the plan did not cover** is yours to take when the information is at
 hand and something points the way — a rule, a convention the codebase already

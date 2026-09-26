@@ -1,0 +1,9 @@
+# Installed into ~/.config/systemd/user/ by `make deploy-install` (#105).
+# __DEPLOY_SCRIPT__ is replaced with this checkout's tools/deploy/deploy.sh.
+[Unit]
+Description=GoalGetter: bring production up to origin/main
+
+[Service]
+Type=oneshot
+ExecStart=__DEPLOY_SCRIPT__
+TimeoutStartSec=45min
