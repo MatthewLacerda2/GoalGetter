@@ -14,8 +14,9 @@ export 'package:goal_getter/features/lessons/presentation/controllers/lesson_sta
 part 'lesson_controller.g.dart';
 
 /// Runs one lesson on the active goal: open it, answer each question once
-/// (graded inline for feedback), submit those answers as one batch, then a
-/// review round of the wrong ones that is never submitted.
+/// (graded inline for feedback), submit those answers as one batch, then
+/// review rounds of the wrong ones - never submitted - until every one of them
+/// has been answered right.
 ///
 /// The batch is what the backend marks as a lesson, so it is sent whole and in
 /// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
@@ -141,7 +142,16 @@ class LessonController extends _$LessonController {
     } else if (!state.isReviewMode && !_hasSubmittedAnswers) {
       await _submitEvaluation();
     } else {
-      state = state.copyWith(isCompleted: true);
+      // A review round ends only when he gets every one right: the ones he
+      // missed again come back, round after round (the user, 2026-09-26).
+      final missedAgain = state.questions
+          .where((q) => q.status == LessonQuestionStatus.incorrect)
+          .toList();
+      if (state.isReviewMode && missedAgain.isNotEmpty) {
+        startReviewMode(missedAgain);
+      } else {
+        state = state.copyWith(isCompleted: true);
+      }
     }
   }
 

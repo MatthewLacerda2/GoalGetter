@@ -57,6 +57,32 @@ void main() {
     expect(fake.count(answersKey), 1);
   });
 
+  test('the review comes back with what he missed again, until none is left',
+      () async {
+    // The user, 2026-09-26: three wrong is three to correct; if two of those
+    // come out right, the third comes back.
+    final fake = ApiFake({
+      startKey: [(201, lessonJson(3))],
+      answersKey: [(200, evaluationJson)],
+    });
+    final c = await controllerOver(fake);
+    await c.start();
+    for (var i = 0; i < 3; i++) {
+      await answer(c, 3); // all wrong (question i's answer is i)
+    }
+
+    c.startReviewMode(c.state.questions);
+    await answer(c, 0); // right
+    await answer(c, 3); // wrong again
+    await answer(c, 2); // right
+
+    expect(c.state.isCompleted, isFalse);
+    expect(c.state.questions.map((q) => q.apiQuestion.id), ['q1']);
+    await answer(c, 1); // right at last
+    expect(c.state.isCompleted, isTrue);
+    expect(fake.count(answersKey), 1);
+  });
+
   test('a gap in the answers is returned to, never submitted', () async {
     // #86: the API refuses an incomplete lesson with a 400, so the controller
     // must not be able to build one. It used to drop the unanswered question
