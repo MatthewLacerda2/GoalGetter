@@ -33,10 +33,15 @@ DOCKER_RUN_DB := $(subst --network host,--network host -e DATABASE_URL,$(DOCKER_
 # `make back-lint PY=python PY_OFFLINE=python`.
 PY         ?= $(DOCKER_RUN) python
 PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
+# The live suite's container forwards the two API keys by NAME, like
+# DOCKER_RUN_DB: unset here, the container reads them from the mounted .env; set
+# (even empty, `GEMINI_API_KEY= make test-live`), the environment wins. CI
+# overrides it with `PY_LIVE=python`, the keys arriving from its secrets.
+PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE_API_KEY,$(DOCKER_RUN)) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
+.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -278,13 +283,23 @@ shot: ## Headless phone screenshots of ROUTES from the preview, into shots/ (GOA
 
 # `make gemini`: run ONE Gemini use case for real and print the raw text next to
 # the parsed object (backend/tools/gemini_cli.py). It SPENDS REAL QUOTA on the
-# project's key - one run, one billed call (the resource search: three) - so it
-# is never wired into a gate and never called from the tests. With no ARGS it
-# lists the use cases it knows and spends nothing.
+# project's key - one run, one billed call (the resource search: two, plus one
+# embedding per resource recommended) - so it is never wired into a gate and
+# never called from the default suite. With no ARGS it lists the use cases it
+# knows and spends nothing.
 #   make gemini
 #   make gemini ARGS='tutor-reply "Chess" "Learn chess openings" "How do I start?"'
 gemini: env ## Run one Gemini use case for real (SPENDS QUOTA; no ARGS lists them)
 	@$(DOCKER_RUN) python -m backend.tools.gemini_cli $(ARGS)
+
+# `make test-live`: the live suite (#176) - one real call per Gemini use case,
+# the embedding batch, the resource search through link validation, and one
+# YouTube search. It asserts contracts, never words, and prints how many calls
+# it made. It SPENDS REAL QUOTA, so no gate depends on it: `make check` and the
+# every-push CI skip these tests, and the default suite fails any test that
+# reaches the network at all. Ask the user before running it.
+test-live: env ## The live suite against the real Gemini and YouTube APIs (SPENDS QUOTA)
+	@$(PY_LIVE) -m pytest backend/tests/live --live -o addopts="" -q -rs -p no:cacheprovider
 
 # `make nightly ARGS='--student <id>'`: the nightly run (#89) by hand, now,
 # instead of at 03:00, logging every decision it takes - which students it

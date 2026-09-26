@@ -1,0 +1,82 @@
+name: live
+
+# The live suite (#176): real calls to Gemini and YouTube, asserting the
+# contracts our code depends on. It SPENDS QUOTA, so it never runs on every push
+# - only on the user's two triggers:
+#
+#   * "when we change how we use them": a pull request touching the Gemini code,
+#     the YouTube/link-validation code, the live tests, or the google-genai line
+#     of backend/requirements.txt (the path filter can only see the file, so the
+#     job itself checks that the line is what changed);
+#   * "when there is word the API changed": the Run workflow button.
+#
+# The keys are GitHub Actions secrets the USER adds (Settings -> Secrets and
+# variables -> Actions): GEMINI_API_KEY and YOUTUBE_API_KEY. Without them - no
+# secret yet, or a pull request from a fork, which GitHub never hands secrets -
+# the job skips with the reason printed, the way the git hooks skip a side they
+# cannot run. It does not fail.
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+    paths:
+      - "backend/services/gemini/**"
+      - "backend/utils/gemini/**"
+      - "backend/services/resources/**"
+      - "backend/tests/live/**"
+      - "backend/requirements.txt"
+      - ".github/workflows/live.yml"
+  workflow_dispatch:
+
+jobs:
+  live:
+    name: live suite (real APIs)
+    if: ${{ github.event_name == 'workflow_dispatch' || !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to spend
+        id: decide
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          skip() { echo "::notice title=live suite skipped::$1"; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          if [ -z "$GEMINI_API_KEY" ] || [ -z "$YOUTUBE_API_KEY" ]; then
+            skip "the GEMINI_API_KEY and YOUTUBE_API_KEY repository secrets are not both set (or this pull request comes from a fork)."
+          fi
+          if [ -n "$BASE" ]; then
+            others="$(git diff --name-only "$BASE" HEAD | grep -vx 'backend/requirements.txt' \
+              | grep -E '^(backend/services/gemini/|backend/utils/gemini/|backend/services/resources/|backend/tests/live/|\.github/workflows/live\.yml$)' || true)"
+            genai="$(git diff "$BASE" HEAD -- backend/requirements.txt | grep -E '^[+-]google-genai' || true)"
+            if [ -z "$others" ] && [ -z "$genai" ]; then
+              skip "backend/requirements.txt changed, but not its google-genai line."
+            fi
+          fi
+          echo "run=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v7
+        if: steps.decide.outputs.run == 'true'
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - if: steps.decide.outputs.run == 'true'
+        run: pip install -r backend/requirements.txt
+
+      # The same target a developer runs, with the interpreter installed above.
+      # The database settings are placeholders: the live suite never opens one,
+      # but the test fixtures build an engine from them on import.
+      - name: make test-live
+        if: steps.decide.outputs.run == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          DATABASE_URL: postgresql+asyncpg://unused@127.0.0.1:1/unused
+          TEST_DATABASE_URL: postgresql+asyncpg://unused@127.0.0.1:1/unused
+          SECRET_KEY: unused
+          GOOGLE_REDIRECT_URI: http://localhost/callback
+        run: make test-live PY_LIVE=python
