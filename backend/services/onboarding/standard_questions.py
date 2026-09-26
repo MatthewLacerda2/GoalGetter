@@ -76,14 +76,18 @@ STANDARD_QUESTIONS: tuple[StandardQuestion, ...] = (
             StandardOption("curiosity", "Curiosity, nothing more"),
         ),
     ),
+    # How much he has been *around* the subject, not how much he thinks he
+    # knows: asking him to rate his own level is his opinion, and his answers
+    # are the measurement (SOUL.md; the user, 2026-09-26). The keys kept their
+    # old names so no stored answer or client build breaks; the text is new.
     StandardQuestion(
         key="level",
-        text="How much do you already know about it?",
+        text="How much have you already studied it?",
         options=(
-            StandardOption("nothing", "Nothing at all"),
-            StandardOption("little", "A little, here and there"),
-            StandardOption("enough", "Enough to get by"),
-            StandardOption("deep", "I know it well and want to go deeper"),
+            StandardOption("nothing", "Never studied it"),
+            StandardOption("little", "Read or watched a little about it"),
+            StandardOption("enough", "Studied it for a while"),
+            StandardOption("deep", "Studied it for years"),
         ),
     ),
     StandardQuestion(
