@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -17,12 +16,6 @@ Future<void> main() async {
 
   final prefs = await SharedPreferences.getInstance();
   SettingsStorage.initialize(prefs);
-
-  // Pre-initialize default language choice reactively based on device locale list
-  SettingsStorage.instance.initUserLanguage(
-    preferredLanguageCodes: PlatformDispatcher.instance.locales
-        .map((locale) => locale.languageCode),
-  );
 
   runApp(
     ProviderScope(

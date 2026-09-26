@@ -9,9 +9,9 @@
 set -uo pipefail
 
 # Git exports GIT_DIR (and friends) to every hook. Flutter reads GIT_DIR as its
-# own SDK checkout, reports version `0.0.0-unknown`, and pub solving then fails
-# on fl_chart's Flutter constraint - so `flutter analyze` could not run from a
-# hook at all, in any worktree, and every frontend commit aborted. Clearing them
+# own SDK checkout and reports version `0.0.0-unknown`, which fails pub solving
+# against any package with a Flutter constraint - so `flutter analyze` could not
+# run from a hook at all, in any worktree, and every frontend commit aborted. Clearing them
 # makes the hook's environment the same one a developer types into.
 unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX GIT_QUARANTINE_PATH
 
@@ -68,7 +68,9 @@ fi
 # frontend/docs/ is prose (the backend contract lives there), so a push that
 # only touches it is not a Flutter change.
 if grep '^frontend/' <<<"$changed" | grep -qv '^frontend/docs/'; then
-  flutter_bin="$(command -v flutter 2>/dev/null || echo "$HOME/development/flutter/bin/flutter")"
+  # $FLUTTER first, as the Makefile reads it, so a side-by-side SDK reaches the
+  # hook too (#170); then PATH; then the SDK this machine keeps.
+  flutter_bin="${FLUTTER:-$(command -v flutter 2>/dev/null || echo "$HOME/development/flutter/bin/flutter")}"
   if [ ! -x "$flutter_bin" ]; then
     echo "→ frontend gates skipped (flutter not found)"
   elif [ ! -d frontend/.dart_tool ]; then
