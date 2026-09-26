@@ -25,7 +25,10 @@ def generate_placement_questions(
     """
     prompt = get_placement_prompt(goal_name, asked, contexts, language)
     config = get_gemini_config(GeminiLessonQuestionsResponse.model_json_schema())
-    response = get_client().models.generate_content(
-        model=GEMINI_FAST_MODEL, contents=prompt, config=config
-    )
+    # Held in a name on purpose: google-genai closes its HTTP client when the
+    # Client is garbage-collected, and `get_client().models.generate_content(...)`
+    # drops the Client mid-call - "Cannot send a request, as the client has been
+    # closed" (seen on the preview, 2026-09-26).
+    client = get_client()
+    response = client.models.generate_content(model=GEMINI_FAST_MODEL, contents=prompt, config=config)
     return GeminiLessonQuestionsResponse.model_validate_json(response.text)
