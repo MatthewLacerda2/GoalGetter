@@ -93,3 +93,29 @@ async def test_someone_elses_goal_is_not_found(
     response = await auth_client.post(url(goal), json={"answers": [answer(AGE, 0)]})
 
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_each_answer_keeps_how_long_he_took(auth_client, test_db, test_user, goal_factory):
+    """The seconds the app measured travel with the answer they belong to (#174)"""
+    goal = await goal_factory(test_user)
+    answers = [{**answer(AGE, 0), "total_seconds": 4}, {**answer(PURPOSE, 1), "total_seconds": 9}]
+
+    await auth_client.post(url(goal), json={"answers": answers})
+
+    rows = await OnboardingRepository(test_db).list_by_student(test_user.id)
+    assert {row.question: row.total_seconds for row in rows} == {AGE.text: 4, PURPOSE.text: 9}
+
+
+@pytest.mark.asyncio
+async def test_an_answer_without_a_duration_is_still_stored(
+    auth_client, test_db, test_user, goal_factory
+):
+    """A missing duration loses the duration, not the answer (#174)"""
+    goal = await goal_factory(test_user)
+
+    response = await auth_client.post(url(goal), json={"answers": [answer(AGE, 3)]})
+
+    assert response.status_code == 204
+    row = (await OnboardingRepository(test_db).list_by_student(test_user.id))[0]
+    assert (row.selected_option_index, row.total_seconds) == (3, None)

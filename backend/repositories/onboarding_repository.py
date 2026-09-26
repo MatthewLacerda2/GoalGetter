@@ -48,8 +48,13 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
     generated, the literal `"system"` for the standard four and for the row
     holding the student's own words.
 
+    **How long he took** is `total_seconds`, on every answered row of both
+    kinds, as the app measured it; NULL when it sent none, and on the free-text
+    row, which it does not time (#174).
+
     This is a *use* of a table that was created on every boot and read by nobody
-    (#112). The one schema change is `ai_model` (#132).
+    (#112). The schema changes since are `ai_model` (#132) and `total_seconds`
+    (#174).
     """
 
     async def create(self, entity: OnboardingQuestion) -> OnboardingQuestion:
@@ -59,25 +64,28 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         return entity
 
     async def save_onboarding(
-        self, goal_id, prompt: str, answers: list[tuple[str, str]], ai_model: str
+        self, goal_id, prompt: str, answers: list[tuple[str, str, int | None]], ai_model: str
     ) -> list[OnboardingQuestion]:
         """Persist one goal's onboarding: the student's own words first, then
-        one row per question they answered.
+        one row per question they answered, as `(question, answer, seconds)`.
 
         `ai_model` is the model that wrote those questions; the prompt row is
         ours, so it is `"system"` whatever the rest were written by.
         """
-        rows = [self._row(goal_id, PROMPT_QUESTION, prompt, None, SYSTEM_AUTHOR)]
-        rows += [self._row(goal_id, question, answer, 0, ai_model) for question, answer in answers]
+        rows = [self._row(goal_id, PROMPT_QUESTION, prompt, None, SYSTEM_AUTHOR, None)]
+        rows += [
+            self._row(goal_id, question, answer, 0, ai_model, seconds)
+            for question, answer, seconds in answers
+        ]
         self.db.add_all(rows)
         await self.db.flush()
         return rows
 
     async def save_standard_answers(
-        self, goal_id, answers: list[tuple[str, str]]
+        self, goal_id, answers: list[tuple[str, str, int | None]]
     ) -> list[OnboardingQuestion]:
         """Persist the answers to the standard questions, as `(question key,
-        option key)` pairs.
+        option key, seconds)`.
 
         A key neither side knows is dropped and logged rather than refused: the
         client can only have sent one this backend served, so an unknown key is
@@ -85,13 +93,13 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         student is never worth costing him the lesson he is on his way to.
         """
         rows = []
-        for question_key, option_key in answers:
+        for question_key, option_key, seconds in answers:
             resolved = _resolve(question_key, option_key)
             if resolved is None:
                 logger.info("Standard onboarding: unknown key %s/%s", question_key, option_key)
                 continue
             question, index = resolved
-            rows.append(_standard_row(goal_id, question, index))
+            rows.append(_standard_row(goal_id, question, index, seconds))
         self.db.add_all(rows)
         await self.db.flush()
         return rows
@@ -148,7 +156,12 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
 
     @staticmethod
     def _row(
-        goal_id, question: str, answer: str, index: int | None, ai_model: str
+        goal_id,
+        question: str,
+        answer: str,
+        index: int | None,
+        ai_model: str,
+        seconds: int | None,
     ) -> OnboardingQuestion:
         return OnboardingQuestion(
             goal_id=goal_id,
@@ -159,10 +172,13 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
             option_d="",
             selected_option_index=index,
             ai_model=ai_model,
+            total_seconds=seconds,
         )
 
 
-def _standard_row(goal_id, question: StandardQuestion, index: int) -> OnboardingQuestion:
+def _standard_row(
+    goal_id, question: StandardQuestion, index: int, seconds: int | None
+) -> OnboardingQuestion:
     """A standard question's row: all four options, and the one picked."""
     texts = [option.text for option in question.options]
     return OnboardingQuestion(
@@ -174,6 +190,7 @@ def _standard_row(goal_id, question: StandardQuestion, index: int) -> Onboarding
         option_d=texts[3],
         selected_option_index=index,
         ai_model=SYSTEM_AUTHOR,
+        total_seconds=seconds,
     )
 
 

@@ -128,10 +128,13 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     student's id — the chain reads the onboarding back, it is not handed it. It
     is fired with the **instant this call finished writing**, so the batch now in
     flight cannot see the standard answers the student is about to give.
+  - each answer's `total_seconds` lands in `onboarding_questions.total_seconds`
+    (#174). See "Onboarding durations" under the standard answers.
 
 - **`POST /goals/{goal_id}/standard-answers`** ✅ — what the student told us
   about himself while his first lesson generated (#132).
-  request: `{ "answers": [{ "question_key": "...", "option_key": "..." }] }` ·
+  request: `{ "answers": [{ "question_key": "...", "option_key": "...",
+  "total_seconds": 9 }] }` ·
   response: 204, no body
   - **AUTHED**, same 404 rule as the other `{goal_id}` routes.
   - stored in `onboarding_questions` with `ai_model = "system"` and, unlike any
@@ -140,6 +143,15 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   - **nothing blocks on it.** A partial list is normal (he may skip out at any
     question), an empty one is a no-op, and a key this backend does not know is
     dropped and logged rather than refused. The client does not await it.
+  - **Onboarding durations** (#174), on both kinds of answer: `total_seconds`
+    is the whole seconds the question was on screen before he answered it —
+    the clock starts when the question takes the screen and stops at the tap
+    that answers it; a question he goes back to adds its new time to the old; a
+    standard question he skips is not sent, so it has no duration. Optional and
+    nullable (`>= 0`): an older client or an unreadable clock sends none, and the
+    answer is stored all the same. The free-text prompt row is never timed.
+    Named after `student_answers.total_seconds`. **Stored, read by nothing yet**
+    — it is there to decide, later, how many onboarding questions to ask.
 
 - **`PUT /goals/{goal_id}/set-active`** ✅ — set `students.current_goal_id`.
   request: none · response: `{ "goal_id": "..." }`
@@ -633,7 +645,8 @@ goal                    { "id": "...", "name": "...", "description": "...",
                           "updated_at": "2026-06-06T09:00:00Z" }
 
 objective_question      { "question": "...", "options": ["a","b","c","d"] }  // exactly 4
-objective_answer        { "question": "...", "answer": "<the selected option>" }  // unselected options omitted
+objective_answer        { "question": "...", "answer": "<the selected option>",
+                          "total_seconds": 7 }  // unselected options omitted; seconds optional (#174)
 
 home_dashboard          { "goal_name": "...", "current_elo": 920, "current_streak": 7,
                           "recent_lessons": [ recent_lesson ] }   // newest first

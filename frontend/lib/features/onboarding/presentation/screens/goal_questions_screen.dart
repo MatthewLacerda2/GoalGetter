@@ -6,6 +6,7 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
+import 'package:goal_getter/features/onboarding/presentation/question_timer.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
@@ -31,6 +32,7 @@ class GoalQuestionsScreen extends ConsumerStatefulWidget {
 class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
     with TickerProviderStateMixin {
   late final List<String> _answers = List.filled(widget.questions.length, '');
+  late final QuestionTimer _timer = QuestionTimer(widget.questions.length);
   int _currentQuestionIndex = 0;
   bool _isLoading = false;
 
@@ -56,6 +58,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
   @override
   void initState() {
     super.initState();
+    _timer.show(0);
     _slideController.forward();
   }
 
@@ -67,6 +70,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
 
   void _onOptionSelected(String option) {
     if (_isLoading) return;
+    _timer.stop();
     setState(() => _answers[_currentQuestionIndex] = option);
 
     // Brief delay to allow the user to see their selection before auto-advancing
@@ -77,9 +81,11 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
   }
 
   void _moveBy(int step) {
+    _timer.stop();
     _slideController.reverse().then((_) {
       if (!mounted) return;
       setState(() => _currentQuestionIndex += step);
+      _timer.show(_currentQuestionIndex);
       _slideController.forward();
     });
   }
@@ -91,6 +97,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
         ObjectiveAnswer(
           question: widget.questions[i].question,
           answer: _answers[i],
+          totalSeconds: _timer.secondsOn(i),
         ),
     ];
     try {
@@ -98,10 +105,20 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
           .read(onboardingApiProvider)
           .studyPlan(widget.prompt, answers);
       if (mounted) {
-        context.push(
-          AppRoutes.studyPlan,
-          extra: GoalDraft(prompt: widget.prompt, answers: answers, plan: plan),
-        );
+        // Back from the plan, he is on the last question again: its clock
+        // resumes, in case he changes that answer.
+        context
+            .push(
+              AppRoutes.studyPlan,
+              extra: GoalDraft(
+                prompt: widget.prompt,
+                answers: answers,
+                plan: plan,
+              ),
+            )
+            .then((_) {
+              if (mounted) _timer.show(_currentQuestionIndex);
+            });
       }
     } on Exception catch (e) {
       // Every answer is still in `_answers`, so the retry sends the same ones.

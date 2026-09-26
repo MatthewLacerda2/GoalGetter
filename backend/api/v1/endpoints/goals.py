@@ -106,7 +106,7 @@ async def create_goal(
     await OnboardingRepository(db).save_onboarding(
         goal.id,
         payload.prompt,
-        [(a.question, a.answer) for a in payload.answers],
+        [(a.question, a.answer, a.total_seconds) for a in payload.answers],
         GEMINI_PREMIUM_MODEL,
     )
     student_id = str(current_user.id)
@@ -141,7 +141,7 @@ async def standard_answers(
     and an empty one is a no-op.
     """
     await OnboardingRepository(db).save_standard_answers(
-        goal.id, [(a.question_key, a.option_key) for a in payload.answers]
+        goal.id, [(a.question_key, a.option_key, a.total_seconds) for a in payload.answers]
     )
     await db.commit()
 

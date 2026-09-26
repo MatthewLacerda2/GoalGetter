@@ -28,6 +28,11 @@ class ObjectiveAnswer(BaseModel):
 
     question: str
     answer: str = Field(..., description="The selected option")
+    total_seconds: int | None = Field(
+        None,
+        ge=0,
+        description="Seconds from the question appearing to it being answered; null when unmeasured",
+    )
 
 
 class GoalCreationRequest(BaseModel):
@@ -87,6 +92,11 @@ class StandardAnswer(BaseModel):
 
     question_key: str = Field(..., min_length=1, description="The question's key")
     option_key: str = Field(..., min_length=1, description="The key of the option picked")
+    total_seconds: int | None = Field(
+        None,
+        ge=0,
+        description="Seconds from the question appearing to it being answered; null when unmeasured",
+    )
 
 
 class StandardAnswersRequest(BaseModel):

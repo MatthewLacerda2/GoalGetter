@@ -15,14 +15,25 @@ class ObjectiveQuestion {
       );
 }
 
-/// The option the student picked for one question.
+/// The option the student picked for one question, and the whole seconds he
+/// spent on it (#174; see `QuestionTimer`). No duration is sent as none: the
+/// backend stores the answer either way.
 class ObjectiveAnswer {
   final String question;
   final String answer;
+  final int? totalSeconds;
 
-  const ObjectiveAnswer({required this.question, required this.answer});
+  const ObjectiveAnswer({
+    required this.question,
+    required this.answer,
+    this.totalSeconds,
+  });
 
-  Map<String, dynamic> toJson() => {'question': question, 'answer': answer};
+  Map<String, dynamic> toJson() => {
+    'question': question,
+    'answer': answer,
+    if (totalSeconds != null) 'total_seconds': totalSeconds,
+  };
 }
 
 /// Everything the student has said and approved so far. It outlives a detour
@@ -61,17 +72,23 @@ class StandardQuestion {
       );
 }
 
-/// One answer to a standard question: the question's key and the key of the
-/// option picked.
+/// One answer to a standard question: the question's key, the key of the
+/// option picked, and the whole seconds he spent on it (#174).
 class StandardAnswer {
   final String questionKey;
   final String optionKey;
+  final int? totalSeconds;
 
-  const StandardAnswer({required this.questionKey, required this.optionKey});
+  const StandardAnswer({
+    required this.questionKey,
+    required this.optionKey,
+    this.totalSeconds,
+  });
 
   Map<String, dynamic> toJson() => {
     'question_key': questionKey,
     'option_key': optionKey,
+    if (totalSeconds != null) 'total_seconds': totalSeconds,
   };
 }
 
