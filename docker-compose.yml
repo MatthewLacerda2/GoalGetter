@@ -12,10 +12,15 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: goalgetter
-    # Loopback only: the tunnel never reaches the database, and nothing on the
-    # LAN should.
+    # Every interface, on purpose: the user wants the database reachable from
+    # the LAN and over Tailscale (2026-09-26). What must never reach it is the
+    # internet, and nothing here offers that path - the Cloudflare tunnel is
+    # the only way in from outside and it carries HTTP to nginx, nothing else.
+    # The one way to expose this is a port forward on the home router for 5434;
+    # there must never be one. (Docker's published ports bypass the host
+    # firewall, so the router, not ufw, is what keeps it private.)
     ports:
-      - "127.0.0.1:5434:5432"
+      - "5434:5432"
     volumes:
       - postgres18_data:/var/lib/postgresql
     restart: unless-stopped
