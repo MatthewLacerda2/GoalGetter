@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
@@ -20,10 +21,36 @@ from backend.models import Base  # noqa: E402 - must follow the config block abo
 
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+
+def database_url() -> str:
+    """The migration target, as a sync URL.
+
+    One place reads it: DATABASE_URL from the settings (the environment first,
+    then .env), which is how every other process here finds the database. It
+    arrives in asyncpg form because the app is async; alembic drives a plain
+    DBAPI, so it is handed to psycopg2 instead.
+    """
+    from backend.core.config import settings
+
+    url = settings.DATABASE_URL
+    if url.startswith("postgresql+asyncpg://"):
+        url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+    return url
+
+
+def render_item(type_, obj, autogen_context) -> str | bool:
+    """Render pgvector's column type with the import it needs.
+
+    Autogenerate writes `pgvector.sqlalchemy.Vector(dim=768)` for an embedding
+    column and imports nothing, so a generated revision does not even import -
+    every embedding column had to be fixed by hand. Adding the import to
+    `autogen_context.imports` puts it in the file's `${imports}` block, and
+    only in the revisions that actually have one.
+    """
+    if type_ == "type" and isinstance(obj, Vector):
+        autogen_context.imports.add("import pgvector.sqlalchemy")
+        return f"pgvector.sqlalchemy.Vector(dim={obj.dim})"
+    return False
 
 
 def run_migrations_offline() -> None:
@@ -38,21 +65,12 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    # Read DATABASE_URL from environment variables
-    from backend.core.config import settings
-
-    # Use DATABASE_URL from settings (which reads from .env)
-    url = settings.DATABASE_URL
-
-    # Convert asyncpg URL to psycopg2 URL for Alembic (Alembic needs sync driver)
-    if url.startswith("postgresql+asyncpg://"):
-        url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
-
     context.configure(
-        url=url,
+        url=database_url(),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        render_item=render_item,
     )
 
     with context.begin_transaction():
@@ -66,18 +84,9 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    # Read DATABASE_URL from environment variables
-    from backend.core.config import settings
-
-    # Use DATABASE_URL from settings (which reads from .env)
-    database_url = settings.DATABASE_URL
-
-    # Convert asyncpg URL to psycopg2 URL for Alembic (Alembic needs sync driver)
-    if database_url.startswith("postgresql+asyncpg://"):
-        database_url = database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
-
-    # Override the config with the environment-based URL
-    config.set_main_option("sqlalchemy.url", database_url)
+    # alembic.ini carries no URL (no credential in a tracked file), so the
+    # engine below is configured from the settings instead.
+    config.set_main_option("sqlalchemy.url", database_url())
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
@@ -86,7 +95,9 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection, target_metadata=target_metadata, render_item=render_item
+        )
 
         with context.begin_transaction():
             context.run_migrations()

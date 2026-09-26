@@ -30,6 +30,36 @@ services:
       - postgres_test_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  # The schema, applied once, before anything that reads it (#157). Nothing
+  # creates tables on start any more: a container restart is the normal result
+  # of a push, and the old startup path would have dropped every student.
+  #
+  # Its own service rather than the backend's lifespan, because `backend` and
+  # `nightly` share this image and start together - two processes racing to
+  # migrate the same database. As a service it runs once, and both of them wait
+  # for it to *exit 0* (`service_completed_successfully`), so a failed migration
+  # stops the deploy instead of being served on top of.
+  #
+  # No `restart:` here on purpose: this is a one-shot that must be allowed to
+  # finish. `unless-stopped` would run it again forever.
+  #
+  # A migration only uses DATABASE_URL; the other three are what the settings
+  # object requires before it will load at all (backend/core/config.py).
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: goalgetter_migrate
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/goalgetter
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: python -m alembic -c backend/alembic.ini upgrade head
+
   backend:
     build:
       context: ./backend
@@ -53,6 +83,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/check"]
@@ -92,6 +124,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
     command: python -m backend.tools.nightly_run
     logging:

@@ -80,7 +80,7 @@ SDK at `~/development/flutter` moves with it.
 Run `make backend` or `make frontend` for the side you touched, or `make check`
 for both, and see it pass **before pushing**.
 
-`make backend` is four gates, cheapest first:
+`make backend` is five gates, cheapest first:
 
 - **`make back-lint`** — the house rules below (`backend/tests/backend_linter.py`),
   then `ruff check` and `ruff format --check`. The rule set, and the reason for
@@ -95,7 +95,16 @@ for both, and see it pass **before pushing**.
   database: it pins placeholder settings before the import and runs with no
   network at all, so a broken import or an unresolvable response model surfaces
   in a second.
-- **`make back-test`** — pytest, the only one that needs the test database.
+- **`make back-migrations`** — `alembic upgrade head` on an empty schema, then
+  `alembic check` against the models. The migrations are what builds the database;
+  the tests build their tables from the models, so a model changed without a
+  migration is green everywhere else and broken on deploy. It resets this
+  worktree's test database, which is disposable by definition. When it goes red,
+  `make back-revision M="what changed"` drafts the revision it is asking for —
+  then read it, because autogenerate misses a pgvector extension, a mutual
+  foreign key and an enum it should drop.
+- **`make back-test`** — pytest. Together with `back-migrations`, the two that
+  need the test database.
 
 Ruff and vulture are in `backend/requirements.txt`, so they live in the backend
 image the way pytest does: that image is where every Python tool runs locally,
@@ -213,9 +222,9 @@ gates prove the code runs; they do not prove it is the right change.
   redirects away from a bare URL (#139), so those screens are reachable only through the
   dev menu. `make claude` does what `make claude-token` does after giving that student a
   lived-in history (three goals, two weeks of lessons, a tutor chat, resources) written to
-  the preview's own database, so every screen has data; `ARGS=--fresh` rebuilds it. The
-  preview's backend drops its schema on every start: re-run `make claude` (or
-  `make claude-token`) after a rebuild.
+  the preview's own database, so every screen has data; `ARGS=--fresh` rebuilds it. It
+  survives a rebuild now (#157), so it is run once; the token still expires in 30
+  minutes.
 - **Gemini behaviour**: `make gemini` lists the use cases it can run; `make gemini
   ARGS='tutor-reply "Chess" "Learn chess" "What is a fork?"'` runs one for real and
   prints the raw text beside the parsed object, so a bad response format is visible
@@ -247,16 +256,24 @@ something looks or feels.
     answer is written into `CLAUDE.md`, the issue, or a skill, so the next session
     does not ask again. A decision that only changes how the code looks is yours.
 
-**The database.** Creating and dropping tables and columns is allowed — there is no
-production, and the schema is rebuilt on every backend start. Two conditions: the
-change was **agreed with the user in conversation before the issue was written**, so
-it is already decided when the work starts; and it is a **consequence of what the
-issue defines**, never something invented while writing the code. A schema change
-that surprises the user is the failure, not the schema change.
+**The database.** A schema change is a migration in `backend/alembic/versions/`,
+written and reviewed with the code that needs it — nothing rebuilds the schema on
+start any more (#157), and data survives. Tables and columns can still be created
+and dropped, on two conditions: the change was **agreed with the user in
+conversation before the issue was written**, so it is already decided when the work
+starts; and it is a **consequence of what the issue defines**, never something
+invented while writing the code. A schema change that surprises the user is the
+failure, not the schema change.
+
+A clean local database is `make migrate ARGS='downgrade base'` then `make migrate`
+— starting the backend no longer gives one away. A database whose tables predate
+the migrations is `make migrate ARGS='stamp head'`, once.
 
 **Deployment.** Once the app is online (the Cloudflare tunnel, Google OAuth, the
 first migration), it stays online. Every update to `main` rebuilds the containers and
-brings them up with the new code. There is no staging: CI is the gate.
+brings them up with the new code: the `migrate` service applies the migrations once
+and the backend and `nightly` wait for it to exit 0, so a failed migration stops the
+deploy instead of being served on top of. There is no staging: CI is the gate.
 
 **A decision the plan did not cover** is yours to take when the information is at
 hand and something points the way — a rule, a convention the codebase already
@@ -324,11 +341,9 @@ remind him and ask.
 
 ===== KNOWN ISSUES =====
 
-- **The database drops its whole schema on every backend start.** The lifespan in
-  `backend/main.py` runs `DROP SCHEMA public CASCADE` then `create_all`. Deliberate
-  while the models settle; no data survives a restart. There are **no migrations**
-  yet — Alembic is scaffolded and `versions/` is empty. Plan: lock the schemas when the
-  user says they have settled, generate the first migration, and switch startup to it.
+- **Nothing backs the database up.** Since #157 the data survives a restart, which
+  is the point — and makes losing it possible in a way it never was. No issue covers
+  this yet.
 - **Analyzer backlog: 0 warnings, 379 infos** (2026-09-25, measured on `main` after the
   batch). A warning now
   fails `make front-lint`; the infos are a separate, larger backlog and still
