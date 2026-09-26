@@ -87,6 +87,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # The start screen shows the app's own icon (#180), the same source every
+  # platform icon is resized from (#179).
+  assets:
+    - assets/icon/app_icon.png
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
