@@ -120,7 +120,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     if (!state.isAnswerRevealed) {
       return state.selectedChoiceIndex == index
           ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-          : Theme.of(context).colorScheme.outline.withValues(alpha: 0.12);
+          : Theme.of(context).colorScheme.surfaceContainerHigh;
     }
 
     final currentQuestion = state.questions[state.currentQuestionIndex];

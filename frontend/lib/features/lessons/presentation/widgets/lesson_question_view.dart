@@ -56,7 +56,7 @@ class LessonQuestionCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: theme.colorScheme.outline.withValues(alpha: 0.12),
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppRadius.chip),
       ),
       child: Text(
@@ -144,7 +144,10 @@ class LessonAnswerButton extends StatelessWidget {
         child: Text(
           label,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: theme.colorScheme.onPrimary,
+            // Muted while disabled: white on the grey fill was unreadable.
+            color: onPressed == null
+                ? theme.colorScheme.onSurfaceVariant
+                : theme.colorScheme.onPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),

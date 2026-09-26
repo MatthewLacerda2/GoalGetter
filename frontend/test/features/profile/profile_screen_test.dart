@@ -25,7 +25,8 @@ void main() {
     expect(find.text('Fictitious Claude'), findsOneWidget);
     expect(find.text('claude@example.com'), findsOneWidget);
     expect(find.text('9'), findsOneWidget);
-    expect(find.text('Member since Sep 1, 2026'), findsOneWidget);
+    // GET /me still sends member_since; the page no longer shows it (#178).
+    expect(find.textContaining('Member since'), findsNothing);
   });
 
   testWidgets('a failed GET /me says so, with a retry', (tester) async {

@@ -7,10 +7,12 @@ import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/core/utils/theme_mode_provider.dart';
 import 'package:goal_getter/core/widgets/language_picker.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
 import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:goal_getter/features/profile/presentation/widgets/profile_header.dart';
+import 'package:goal_getter/features/profile/presentation/widgets/theme_mode_sheet.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -100,7 +102,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  /// "Preferences": the app language, and the notifications switch.
+  /// "Preferences": the app language, the theme, and the notifications
+  /// switch.
   Widget _preferencesSection(AppLocalizations l10n, String currentLanguage) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -124,6 +127,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // GET /me carries the new language, so the backend learns it now.
             onPicked: () => ref.invalidate(profileControllerProvider),
           ),
+        ),
+        const SizedBox(height: 12),
+        _tile(
+          icon: Icons.contrast,
+          title: l10n.theme,
+          trailing: ThemeModeValue(mode: ref.watch(themeModeProvider)),
+          onTap: () => showThemeModeSheet(context, ref),
         ),
         const SizedBox(height: 12),
         _tile(
