@@ -1,5 +1,9 @@
 # SOUL.md
 
+> **The first priority, above every other rule here: the student learns something every
+> day, however little.** *"Fazer o aluno aprender alguma coisa todo dia, por menos que
+> seja."* When two rules pull apart, this one decides.
+
 What GoalGetter is, and how its decisions are made. `CLAUDE.md` is how to work in this
 repository; this is **why the product is the way it is**. When a rule here and a piece of
 code disagree, the code is what is wrong — or the rule is out of date, and then the user
@@ -16,8 +20,7 @@ found for him. Generative AI is what makes that possible: everything is written 
 student, and **nothing is ever reused between students** — not exercises, not resources,
 not what the app has read about him.
 
-**The point is that he leaves every day having learned something, even if it is the
-minimum.** The metric is that he comes back tomorrow.
+The metric is that he comes back tomorrow — the first priority above is what makes him.
 
 A goal names *what he wants to learn about*, not a course with a finish line. Progress is
 measured against him, not against a syllabus.
@@ -78,8 +81,11 @@ Eastern capital"* — not only something ending in a question mark.
   a learner has, and about as long as the right one; and the right one's position is
   drawn by the code, not chosen by Gemini.
 
-**A lesson is about two minutes**, at least **6** exercises — as many as fit his own pace.
-Short and daily keeps him coming back, and more answers is more evidence about him.
+**A lesson is two minutes** — not a number of exercises. *"As questões e lições são
+breves para que o aluno não sinta que demora demais fazer uma lição."* That is why the
+app records how long he takes on each exercise: his own pace decides how many fit in two
+minutes, between **6 and 12**. Short and daily keeps him coming back, and more answers is
+more evidence about him.
 
 **The first 18 place him** (2026-09-26). A new goal gets 18 exercises right after
 onboarding — three lessons — climbing from the most basic, written by their own prompt.
