@@ -45,13 +45,16 @@ FROM flutter-base AS builder
 WORKDIR /app
 
 # Copy dependency files first for better caching
-COPY frontend/pubspec.yaml ./frontend/
+COPY frontend/pubspec.yaml frontend/pubspec.lock ./frontend/
 
 WORKDIR /app/frontend
 
-# Install dependencies (cached unless pubspec.yaml changes)
-RUN rm -f pubspec.lock && flutter pub get
-RUN find / -name "*very_good_analysis*" || true
+# Install exactly what the committed lock says (#192), cached until either
+# file changes. `--enforce-lockfile` fails the build instead of resolving
+# anew when the lock is missing, disagrees with pubspec.yaml, or a package's
+# content hash does not match: production ships the packages the gates ran
+# against, never whatever pub.dev offers on the day of the deploy.
+RUN flutter pub get --enforce-lockfile
 
 # Copy the rest of the code
 WORKDIR /app
@@ -59,7 +62,7 @@ COPY frontend/ ./frontend/
 
 WORKDIR /app/frontend
 
-RUN rm -f pubspec.lock && flutter pub get
+RUN flutter pub get --enforce-lockfile
 
 ARG BASE_URL
 ENV BASE_URL=${BASE_URL}

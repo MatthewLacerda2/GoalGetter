@@ -1,6 +1,7 @@
 # Miscellaneous
 *.class
-*.lock
+# No blanket *.lock (#192): frontend/pubspec.lock is committed, because an
+# application pins what it resolved - only a published package leaves it out.
 *.log
 *.swp
 .buildlog/
@@ -180,7 +181,6 @@ app.*.symbols
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-!/dev/ci/**/Gemfile.lock
 
 # Project-specific
 .claude/token

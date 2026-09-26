@@ -32,7 +32,13 @@ jobs:
       # depend on `front-version`, which fails if what the runner installed is
       # not what the pin asks for (#147).
       - run: flutter --version
-      - run: flutter pub get
+      # The committed pubspec.lock, exactly (#192). `--enforce-lockfile` fails
+      # the run when the lock is stale - a pubspec.yaml change pushed without
+      # the `flutter pub get` that rewrites it - instead of resolving something
+      # nobody reviewed; and it checks each package's content hash. Locally
+      # `make setup` runs a plain `pub get`, which honours the lock too but may
+      # update it: that is where the lock changes, and the diff is reviewed.
+      - run: flutter pub get --enforce-lockfile
         working-directory: frontend
 
       # The same targets `make frontend` runs locally: the gates are defined
