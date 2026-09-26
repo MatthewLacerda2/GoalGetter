@@ -80,7 +80,7 @@ void main() {
     expect(jsonDecode(sent.single.body), {
       'prompt': draft.prompt,
       'answers': [
-        {'question': 'Level?', 'answer': 'None'},
+        {'question': 'Level?', 'answer': 'None', 'total_seconds': 7},
       ],
       'goal_name': plan.goalName,
       'description': plan.description,
@@ -92,13 +92,16 @@ void main() {
     final api = await apiAnswering('', sent, status: 204);
 
     await api.sendStandardAnswers('g1', const [
-      StandardAnswer(questionKey: 'age', optionKey: '18to24'),
+      StandardAnswer(questionKey: 'age', optionKey: '18to24', totalSeconds: 3),
+      StandardAnswer(questionKey: 'purpose', optionKey: 'work'),
     ]);
 
     expect(sent.single.url.path, '/api/v1/goals/g1/standard-answers');
     expect(jsonDecode(sent.single.body), {
       'answers': [
-        {'question_key': 'age', 'option_key': '18to24'},
+        {'question_key': 'age', 'option_key': '18to24', 'total_seconds': 3},
+        // A duration the app could not measure is left out, never sent as 0.
+        {'question_key': 'purpose', 'option_key': 'work'},
       ],
     });
   });

@@ -12,7 +12,9 @@ const plan = StudyPlan(goalName: 'Travel Italian', description: 'Greetings.');
 
 const draft = GoalDraft(
   prompt: 'Learn Italian well enough to travel',
-  answers: [ObjectiveAnswer(question: 'Level?', answer: 'None')],
+  answers: [
+    ObjectiveAnswer(question: 'Level?', answer: 'None', totalSeconds: 7),
+  ],
   plan: plan,
 );
 

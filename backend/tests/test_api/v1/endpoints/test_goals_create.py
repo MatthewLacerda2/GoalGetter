@@ -77,3 +77,39 @@ async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
         ("What do you want to learn?", BODY["prompt"], SYSTEM_AUTHOR),
         ("Experience?", "None", GEMINI_PREMIUM_MODEL),
     ]
+
+
+@pytest.mark.asyncio
+async def test_create_goal_stores_how_long_each_answer_took(auth_client, test_db, test_user):
+    """Each Gemini question keeps the seconds the app measured on it (#174); the
+    student's own words are not timed, so their row has none"""
+    timed = [
+        {"question": "Experience?", "answer": "None", "total_seconds": 7},
+        {"question": "Why?", "answer": "Fun", "total_seconds": 12},
+    ]
+    with patch(CHAIN):
+        response = await auth_client.post(ENDPOINT, json={**BODY, "answers": timed})
+
+    assert response.status_code == 201
+    rows = await OnboardingRepository(test_db).list_by_student(test_user.id)
+    assert [(r.question, r.total_seconds) for r in rows] == [
+        ("What do you want to learn?", None),
+        ("Experience?", 7),
+        ("Why?", 12),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_create_goal_without_a_duration_still_stores_the_answer(
+    auth_client, test_db, test_user
+):
+    """An older client, or a clock that could not be read, costs the duration and
+    never the answer (#174)"""
+    with patch(CHAIN):
+        response = await auth_client.post(ENDPOINT, json=BODY)
+
+    assert response.status_code == 201
+    rows = await OnboardingRepository(test_db).list_by_student(test_user.id)
+    assert [(OnboardingRepository.answer_of(r), r.total_seconds) for r in rows[1:]] == [
+        ("None", None)
+    ]

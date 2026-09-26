@@ -33,6 +33,20 @@ void main() {
     expect(api.lastAnswers!.single.answer, 'A few words');
   });
 
+  // #174: from the question taking the screen to the tap that answers it.
+  testWidgets('each answer carries the seconds it took', (tester) async {
+    final api = FakeOnboardingApi();
+    await pumpFlow(
+      tester,
+      api,
+      initial: AppRoutes.goalQuestions,
+      extra: _questions,
+    );
+    await tester.pump(const Duration(seconds: 5));
+    await answer(tester);
+    expect(api.lastAnswers!.single.totalSeconds, 5);
+  });
+
   testWidgets('a failed study plan keeps the answers for the retry', (
     tester,
   ) async {
@@ -94,6 +108,24 @@ void main() {
       api.lastStandardAnswers!.map((a) => '${a.questionKey}=${a.optionKey}'),
       ['age=18to24', 'purpose=work'],
     );
+  });
+
+  testWidgets('each standard answer carries the seconds it took', (
+    tester,
+  ) async {
+    final api = FakeOnboardingApi();
+    await pumpFlow(tester, api, initial: AppRoutes.studyPlan, extra: draft);
+    await tester.tap(find.text('Start learning'));
+    await tester.pumpAndSettle();
+
+    await tester.pump(const Duration(seconds: 4));
+    await tester.tap(find.text('18 to 24'));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 9));
+    await tester.tap(find.text('My work or my career'));
+    await tester.pumpAndSettle();
+
+    expect(api.lastStandardAnswers!.map((a) => a.totalSeconds), [4, 9]);
   });
 
   testWidgets('skipping them goes to the lesson and sends nothing', (

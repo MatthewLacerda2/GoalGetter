@@ -7,6 +7,7 @@ import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
+import 'package:goal_getter/features/onboarding/presentation/question_timer.dart';
 import 'package:goal_getter/features/onboarding/presentation/standard_question_text.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 
@@ -43,6 +44,7 @@ class _StandardQuestionsScreenState
   late final List<StandardQuestion> _asked = widget.questions
       .where((q) => standardQuestionText.containsKey(q.key))
       .toList();
+  late final QuestionTimer _timer = QuestionTimer(_asked.length);
   final List<StandardAnswer> _answers = [];
   int _index = 0;
   bool _leaving = false;
@@ -52,19 +54,28 @@ class _StandardQuestionsScreenState
     super.initState();
     if (_asked.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _finish());
+    } else {
+      _timer.show(0);
     }
   }
 
   void _pick(String optionKey) {
     if (_leaving) return;
+    _timer.stop();
     setState(() {
       _answers.add(
-        StandardAnswer(questionKey: _asked[_index].key, optionKey: optionKey),
+        StandardAnswer(
+          questionKey: _asked[_index].key,
+          optionKey: optionKey,
+          totalSeconds: _timer.secondsOn(_index),
+        ),
       );
     });
     Future.delayed(const Duration(milliseconds: 250), () {
       if (!mounted) return;
-      _index == _asked.length - 1 ? _finish() : setState(() => _index += 1);
+      if (_index == _asked.length - 1) return _finish();
+      setState(() => _index += 1);
+      _timer.show(_index);
     });
   }
 
