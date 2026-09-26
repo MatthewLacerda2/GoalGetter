@@ -34,11 +34,13 @@ def get_onboarding_questions_prompt(
       teaches him as far as he can go.
     - Do not ask him to pick one aspect, area or topic to focus on: the lessons cover
       the subject as he asked for it, and his answers to them show where to go.
+    - Do not ask how he prefers to learn or thinks he learns best, nor anything that has
+      him evaluate himself. He may be asked about his personal preferences, never to
+      evaluate his own performance.
     - Between them, the questions cover:
       1. What he has already done or practised in the topic
       2. What he wants to use it for
       3. Related things he already knows
-      4. How he likes to learn
     - Each question, and each option, is at most {MAX_WORDS} words. Shorter is better.
     - Keep the questions and options simple, direct, and easy to understand.
     - Write every question and option in {language.english_name}.
