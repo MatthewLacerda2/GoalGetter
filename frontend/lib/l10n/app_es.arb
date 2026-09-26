@@ -252,6 +252,7 @@
     "onboardingPlanFailed": "No se pudo generar tu plan de estudio",
     "startWithGoogle": "Empezar con Google",
     "signingIn": "Iniciando sesión...",
+    "tryWithoutSigningIn": "Probar sin iniciar sesión",
     "appWordmark": "Goal Getter",
     "profileVersionTag": "ELO · v0.1 prototipo",
     "statSeparator": "  ·  ",

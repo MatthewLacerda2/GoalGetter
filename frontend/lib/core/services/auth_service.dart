@@ -62,8 +62,29 @@ class AuthService {
     await storeSession(response! as Map<String, dynamic>);
   }
 
-  /// Native Google sign-in. Returns the Google token, or null if cancelled.
-  Future<String?> signInWithGoogle() async {
+  /// Every Google sign-in, as the token POST /auth/signup accepts.
+  ///
+  /// One stream for both platforms, because the two ways in end in the same
+  /// place: on the web only Google's own rendered button may start a sign-in
+  /// (see `widgets/google_rendered_button_web.dart`), and it reports the
+  /// result *here* and nowhere else; on mobile [startGoogleSignIn] opens
+  /// Google's sheet and the plugin publishes the account to this same stream.
+  /// So the caller has one thing to listen to and one place that turns an
+  /// account into a token.
+  ///
+  /// A Google-side failure arrives as a stream **error**, so the listener has
+  /// something to show the student.
+  Stream<String> googleTokens() => GoogleSignIn.instance.authenticationEvents
+      .where((event) => event is GoogleSignInAuthenticationEventSignIn)
+      .cast<GoogleSignInAuthenticationEventSignIn>()
+      .asyncMap((event) => googleTokenFor(event.user));
+
+  /// Opens Google's own sign-in on mobile. The token comes back through
+  /// [googleTokens], never from here; this only starts it.
+  ///
+  /// Throws on the web, where the GIS SDK allows no programmatic sign-in at
+  /// all — there, Google's rendered button is the only way in.
+  Future<void> startGoogleSignIn() async {
     await ensureInitialized();
     if (kIsWeb) {
       throw UnsupportedError(
@@ -72,14 +93,10 @@ class AuthService {
       );
     }
     try {
-      final account =
-          await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
-      // Awaited inside the try so a failure here is caught below, not thrown
-      // to the caller past the catch.
-      return await googleTokenFor(account);
+      await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
     } on GoogleSignInException catch (e) {
-      if (e.code == GoogleSignInExceptionCode.canceled) return null;
-      rethrow;
+      // Cancelling is not a failure: the student closed Google's sheet.
+      if (e.code != GoogleSignInExceptionCode.canceled) rethrow;
     }
   }
 

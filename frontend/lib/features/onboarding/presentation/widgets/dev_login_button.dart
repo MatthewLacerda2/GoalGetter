@@ -45,7 +45,7 @@ class _DevLoginButtonState extends ConsumerState<DevLoginButton> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: AppSizes.signInButton,
       child: FilledButton.icon(
         onPressed: _isLoading ? null : _signIn,
         icon: _isLoading

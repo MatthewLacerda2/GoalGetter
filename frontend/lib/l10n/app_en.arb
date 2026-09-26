@@ -311,6 +311,8 @@
     "@startWithGoogle": { "description": "Start screen: the Google button" },
     "signingIn": "Signing in...",
     "@signingIn": { "description": "Start screen: the Google button while signing in" },
+    "tryWithoutSigningIn": "Try it without signing in",
+    "@tryWithoutSigningIn": { "description": "Start screen: opens goal creation, whose first two steps need no account" },
     "appWordmark": "Goal Getter",
     "@appWordmark": {
         "description": "Start screen: the wordmark, the product name as it is drawn"

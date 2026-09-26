@@ -330,5 +330,30 @@ void main() {
         isEmpty,
       );
     });
+
+    // The web half of a conditional import is named after the `if`, not
+    // before it, and reading only the first URI made it an orphan (#84).
+    test('both halves of a conditional import are reached', () {
+      expect(
+        _projectRules({
+          'lib/main.dart':
+              "import 'a.dart' if (dart.library.js_interop) 'a_web.dart';",
+          'lib/a.dart': '',
+          'lib/a_web.dart': '',
+        }, {}),
+        isEmpty,
+      );
+    });
+
+    test('a library only its own part points back at is still an orphan', () {
+      expect(
+        _projectRules({
+          'lib/a.dart': "part 'a_part.dart';",
+          'lib/a_part.dart': "part of 'a.dart';",
+          'lib/main.dart': '',
+        }, {}),
+        ['orphan-file'],
+      );
+    });
   });
 }

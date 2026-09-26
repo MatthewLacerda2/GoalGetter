@@ -252,6 +252,7 @@
     "onboardingPlanFailed": "Dein Lernplan konnte nicht erstellt werden",
     "startWithGoogle": "Mit Google starten",
     "signingIn": "Anmeldung...",
+    "tryWithoutSigningIn": "Ohne Anmeldung ausprobieren",
     "appWordmark": "Goal Getter",
     "profileVersionTag": "ELO · v0.1 Prototyp",
     "statSeparator": "  ·  ",
