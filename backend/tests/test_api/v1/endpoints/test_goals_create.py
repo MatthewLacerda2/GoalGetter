@@ -58,7 +58,7 @@ async def test_create_goal_requires_auth(client):
     """No Authorization header -> rejected, goal never created"""
     with patch(CHAIN) as chain:
         response = await client.post(ENDPOINT, json=BODY)
-    assert response.status_code == 403
+    assert response.status_code == 401
     chain.assert_not_called()
 
 

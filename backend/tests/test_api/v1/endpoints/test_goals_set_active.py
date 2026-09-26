@@ -36,4 +36,4 @@ async def test_set_active_someone_elses_goal_is_404(
 
 @pytest.mark.asyncio
 async def test_set_active_requires_auth(client):
-    assert (await client.put(endpoint(uuid.uuid4()))).status_code == 403
+    assert (await client.put(endpoint(uuid.uuid4()))).status_code == 401

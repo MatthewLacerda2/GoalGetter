@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import delete as sql_delete
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import distinct_on
 
 from backend.models.question import Question
 from backend.models.student_answer import StudentAnswer
@@ -65,7 +66,7 @@ class QuestionRepository(BaseRepository[Question]):
                 StudentAnswer.selected_index,
             )
             .where(StudentAnswer.question_id.in_(bank_ids))
-            .distinct(StudentAnswer.question_id)
+            .ext(distinct_on(StudentAnswer.question_id))
             .order_by(StudentAnswer.question_id, StudentAnswer.created_at.desc())
             .subquery()
         )
