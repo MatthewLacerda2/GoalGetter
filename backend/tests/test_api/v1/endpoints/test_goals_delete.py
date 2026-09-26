@@ -69,4 +69,4 @@ async def test_delete_someone_elses_goal_is_404(
 
 @pytest.mark.asyncio
 async def test_delete_requires_auth(client):
-    assert (await client.delete(endpoint(uuid.uuid4()))).status_code == 403
+    assert (await client.delete(endpoint(uuid.uuid4()))).status_code == 401

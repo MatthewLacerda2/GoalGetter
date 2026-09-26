@@ -51,4 +51,4 @@ async def test_signup_invalid_token(client, mock_google_verify):
 async def test_signup_missing_token(client):
     """Test signing up without providing an authorization header"""
     response = await client.post("/api/v1/auth/signup")
-    assert response.status_code == 403
+    assert response.status_code == 401

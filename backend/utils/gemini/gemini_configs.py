@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 from dotenv import load_dotenv
 from google.genai import Client
-from google.genai.types import EmbedContentConfig, GenerateContentConfig, Tool
+from google.genai.types import Content, EmbedContentConfig, GenerateContentConfig, Part, Tool
 
 from backend.core.config import settings
 from backend.utils.envs import EMBEDDING_MODEL, NUM_DIMENSIONS
@@ -56,9 +56,12 @@ def get_gemini_embeddings_batch(texts: list[str]) -> list[np.ndarray]:
     """
     client = get_client()
 
+    # One Content per text, never the bare strings. From google-genai 2.x on, a
+    # `gemini-embedding-2` model reads a list of strings as the parts of ONE
+    # multimodal content and answers ONE aggregated vector for all of them (#163).
     response = client.models.embed_content(
         model=EMBEDDING_MODEL,
-        contents=texts,
+        contents=[Content(parts=[Part(text=text)]) for text in texts],
         config=EmbedContentConfig(
             output_dimensionality=NUM_DIMENSIONS,
         ),

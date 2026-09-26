@@ -7,9 +7,9 @@
 # The rule set is prototipo-atem's, minus what does not fit here (see below).
 
 [tool.ruff]
-# Matches backend/Dockerfile (python:3.11-slim) and the CI interpreter, so
+# Matches backend/Dockerfile (python:3.14-slim) and the CI interpreter, so
 # pyupgrade never emits syntax the deployed interpreter lacks.
-target-version = "py311"
+target-version = "py314"
 line-length = 100
 # venv/__pycache__ are not ours. alembic IS linted here - only the dead-code
 # gate skips it, because alembic calls its modules by name convention.
