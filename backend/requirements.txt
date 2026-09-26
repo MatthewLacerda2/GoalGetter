@@ -14,7 +14,7 @@ python-dotenv==1.2.3
 
 # Sign-in: Google's ID token, then our own JWT
 google-auth[requests]==2.58.1
-python-jose==3.5.0
+PyJWT==2.15.0
 
 # Database: async through asyncpg, alembic through psycopg2
 sqlalchemy[asyncio]==2.1.1
