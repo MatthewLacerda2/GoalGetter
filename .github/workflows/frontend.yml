@@ -38,10 +38,11 @@ jobs:
       # The same targets `make frontend` runs locally: the gates are defined
       # once, in the Makefile, and CI calls them.
       #
-      # `front-lint` is the 400-line file limit plus `flutter analyze`. A warning
-      # fails it (#101); the infos are a separate, larger backlog and still only
-      # report. The flags live in the Makefile, so there is one place to change
-      # when they start blocking too.
+      # `front-lint` is the 400-line file limit plus `dart analyze`, which
+      # (unlike `flutter analyze`) runs the riverpod_lint plugin (#169). A
+      # warning fails it (#101); the infos are a separate, larger backlog and
+      # still only report. The flags live in the Makefile, so there is one place
+      # to change when they start blocking too.
       - name: Lint and analyze
         run: make front-lint
 

@@ -43,8 +43,10 @@ if grep -q '^frontend/' <<<"$staged" && grep -qv '^frontend/docs/' <<<"$(grep '^
     echo "→ frontend line limits"
     (cd frontend && "$(dirname "$flutter_bin")/dart" run tool/frontend_linter.dart) || fail=1
     # A warning fails this gate (#101); the infos are a separate backlog.
-    echo "→ flutter analyze"
-    (cd frontend && "$flutter_bin" analyze --no-fatal-infos) || fail=1
+    # `dart analyze`, as `make front-lint` runs it: `flutter analyze` skips
+    # analyzer plugins, so riverpod_lint would never be seen here (#169).
+    echo "→ dart analyze"
+    (cd frontend && "$(dirname "$flutter_bin")/dart" analyze) || fail=1
   fi
 fi
 

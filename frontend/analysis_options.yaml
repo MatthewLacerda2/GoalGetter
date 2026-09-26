@@ -1,7 +1,8 @@
 include: package:very_good_analysis/analysis_options.yaml
 
 # riverpod_lint 3 is an analysis_server_plugin: the analyzer loads it itself,
-# so `flutter analyze` reports its lints with no custom_lint in between (#164).
+# with no custom_lint in between (#164). `dart analyze` runs it and `flutter
+# analyze` does not, which is why `make front-lint` runs the former (#169).
 plugins:
   riverpod_lint: ^3.1.9
 
