@@ -9,11 +9,13 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A backend where only `fresh-access` opens `/goals`, and `/auth/refresh`
-/// answers [refreshStatus]. Counts the refresh calls.
+/// answers [refreshStatus] — or, with [refreshOffline], never answers at all.
+/// Counts the refresh calls.
 class FakeBackend {
-  FakeBackend({this.refreshStatus = 200});
+  FakeBackend({this.refreshStatus = 200, this.refreshOffline = false});
 
   final int refreshStatus;
+  final bool refreshOffline;
   int refreshCalls = 0;
 
   late final client = MockClient((request) async {
@@ -21,9 +23,14 @@ class FakeBackend {
       refreshCalls++;
       // Let every concurrent 401 arrive before the refresh answers.
       await Future<void>.delayed(const Duration(milliseconds: 10));
+      if (refreshOffline) throw http.ClientException('Connection refused');
+      if (refreshStatus == 401) {
+        return http.Response(
+            '{"detail": "Invalid or expired refresh token"}', 401);
+      }
       if (refreshStatus != 200) {
-        return http.Response('{"detail": "Invalid or expired refresh token"}',
-            refreshStatus);
+        return http.Response(
+            '{"detail": "Internal server error"}', refreshStatus);
       }
       return http.Response(
         jsonEncode({'access_token': 'fresh-access', 'refresh_token': 'r2'}),
@@ -65,7 +72,7 @@ void main() {
     expect(storage.getRefreshToken(), 'r2');
   });
 
-  test('a failed refresh clears the session and reports it expired',
+  test('a refused refresh clears the session and reports it expired',
       () async {
     final storage = await signedInStorage();
     var expired = 0;
@@ -85,6 +92,41 @@ void main() {
     expect(storage.getRefreshToken(), isNull);
     expect(storage.readStoredUserLanguageOrNull(), 'en',
         reason: 'an expired session is not a sign-out: preferences stay');
+  });
+
+  test('a refresh the server fails (5xx) keeps the session', () async {
+    final storage = await signedInStorage();
+    var expired = 0;
+    final api = ApiClient(
+      httpClient: FakeBackend(refreshStatus: 503).client,
+      storage: storage,
+      baseUrl: 'http://api.test',
+      onSessionExpired: () => expired++,
+    );
+
+    await expectLater(
+      api.get('/goals'),
+      throwsA(isA<ApiException>().having((e) => e.status, 'status', 503)),
+      reason: 'not a 401: a screen reading 401 as signed-out must not here',
+    );
+    expect(expired, 0);
+    expect(storage.getAccessToken(), 'expired-access');
+    expect(storage.getRefreshToken(), 'r1');
+  });
+
+  test('a refresh that cannot reach the server keeps the session', () async {
+    final storage = await signedInStorage();
+    var expired = 0;
+    final api = ApiClient(
+      httpClient: FakeBackend(refreshOffline: true).client,
+      storage: storage,
+      baseUrl: 'http://api.test',
+      onSessionExpired: () => expired++,
+    );
+
+    await expectLater(api.get('/goals'), throwsA(isA<http.ClientException>()));
+    expect(expired, 0);
+    expect(storage.getRefreshToken(), 'r1');
   });
 
   test('a 401 from an auth route is final: no refresh', () async {

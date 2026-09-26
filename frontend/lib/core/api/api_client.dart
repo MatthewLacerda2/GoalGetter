@@ -29,8 +29,13 @@ String resolveBaseUrl(String configured) {
 ///   request. The refresh is shared by every request that 401s at the same
 ///   time: the backend rotates refresh tokens, so N parallel refreshes would
 ///   revoke each other and log the user out.
-/// - A failed refresh, or a replay that still 401s, clears the session and
+/// - A refresh the backend refuses (401: the refresh token is revoked,
+///   expired or unknown), or a replay that still 401s, clears the session and
 ///   calls [onSessionExpired] (the app sends the user to the start screen).
+/// - A refresh that fails for any other reason — a 5xx, no network — keeps the
+///   session: it throws the refresh's own [ApiException] (never the 401 that
+///   triggered it, which screens read as signed-out) or the network exception.
+///   Nothing retries it here; the next request that 401s refreshes again (#193).
 /// - Any other non-2xx throws [ApiException] with FastAPI's `detail`.
 ///
 /// Paths are relative to `/api/v1`: `get('/goals')`.
@@ -133,25 +138,32 @@ class ApiClient {
     return _refreshing ??= _runRefresh().whenComplete(() => _refreshing = null);
   }
 
+  /// True when the tokens were rotated, false when the backend refused the
+  /// refresh token (or there is none). Any other failure throws, so every
+  /// request sharing this refresh fails with it and the session survives.
   Future<bool> _runRefresh() async {
+    const path = '/auth/refresh';
     final refreshToken = _storage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) return false;
-    try {
-      final response = await _http.post(
-        Uri.parse('$_baseUrl$apiPrefix/auth/refresh'),
-        headers: const {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({'refresh_token': refreshToken}),
+    final response = await _http.post(
+      Uri.parse('$_baseUrl$apiPrefix$path'),
+      headers: const {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({'refresh_token': refreshToken}),
+    );
+    if (response.statusCode == 401) return false;
+    if (response.statusCode != 200) {
+      throw ApiException.fromBody(
+        response.statusCode,
+        utf8.decode(response.bodyBytes, allowMalformed: true),
+        path: path,
       );
-      if (response.statusCode != 200) return false;
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      await _storage.setAccessToken(data['access_token'] as String);
-      await _storage.setRefreshToken(data['refresh_token'] as String);
-      return true;
-    } on Exception {
-      return false;
     }
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    await _storage.setAccessToken(data['access_token'] as String);
+    await _storage.setRefreshToken(data['refresh_token'] as String);
+    return true;
   }
 }
