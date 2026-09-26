@@ -78,8 +78,11 @@ class _GoogleSignInButtonState extends ConsumerState<GoogleSignInButton> {
       if (mounted) setState(() => _ready = _Ready.failed);
       return;
     }
+    // Loading the SDK is a round trip, so the screen may already be gone;
+    // subscribing now would outlive the dispose that would have cancelled it.
+    if (!mounted) return;
     _tokens = auth.googleTokens().listen(_exchange, onError: _sayItFailed);
-    if (mounted) setState(() => _ready = _Ready.ready);
+    setState(() => _ready = _Ready.ready);
   }
 
   /// Mobile only: opens Google's sheet. The token it produces comes back
