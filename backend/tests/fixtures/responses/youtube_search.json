@@ -1,0 +1,144 @@
+{
+  "kind": "youtube#searchListResponse",
+  "etag": "4-T-dIEkNYFOySnMGeuWBCQFT9Q",
+  "nextPageToken": "CAMQAA",
+  "regionCode": "BR",
+  "pageInfo": {
+    "totalResults": 801309,
+    "resultsPerPage": 3
+  },
+  "items": [
+    {
+      "kind": "youtube#searchResult",
+      "etag": "vGIlztIYXf9_f5uMrRnToiut30A",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "kJTwOfl0RmA"
+      },
+      "snippet": {
+        "publishedAt": "2015-10-14T00:16:56Z",
+        "channelId": "UCl0pW-vG9r8AT8N2bJdMu8Q",
+        "title": "Xadrez Total | Aprendendo a jogar xadrez",
+        "description": "Um video sobre como mover as peças de xadrez, para que alguém possa aprender a jogar xadrez sozinho! Apresentado pelo ...",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/kJTwOfl0RmA/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/kJTwOfl0RmA/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/kJTwOfl0RmA/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/kJTwOfl0RmA/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/kJTwOfl0RmA/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "Xadrez Total",
+        "liveBroadcastContent": "none",
+        "publishTime": "2015-10-14T00:16:56Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "BgiOGBMUkGoRR6DtdaUv2wqUM7M",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "XiRXBnyjxjs"
+      },
+      "snippet": {
+        "publishedAt": "2021-03-31T16:00:27Z",
+        "channelId": "UCDofzh5jSFjf8kbNQu1XHUg",
+        "title": "Como ficar BOM no Xadrez - Iniciante",
+        "description": "Em busca de jogar melhor xadrez, como um iniciante, eu fiz algumas pesquisas e resumi isso em um video para ajudar outros ...",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/XiRXBnyjxjs/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/XiRXBnyjxjs/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/XiRXBnyjxjs/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/XiRXBnyjxjs/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/XiRXBnyjxjs/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "Rentune",
+        "liveBroadcastContent": "none",
+        "publishTime": "2021-03-31T16:00:27Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "4NgvC44IMoiorLM4_uCO3RTMihs",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "50xyd83SHdo"
+      },
+      "snippet": {
+        "publishedAt": "2025-03-20T19:30:02Z",
+        "channelId": "UCF4rlw_pDM5AUxwXzseP2vQ",
+        "title": "XADREZ PARA INICIANTES: como jogar uma ABERTURA IDEAL?",
+        "description": "Claro que você precisa considerar os lances do oponente Nesse vídeo a MN Gabi Feller, campeã brasileira (categoria), ensina ...",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/50xyd83SHdo/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/50xyd83SHdo/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/50xyd83SHdo/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/50xyd83SHdo/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/50xyd83SHdo/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "Chess.com - Português",
+        "liveBroadcastContent": "none",
+        "publishTime": "2025-03-20T19:30:02Z"
+      }
+    }
+  ]
+}
