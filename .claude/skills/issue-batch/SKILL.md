@@ -79,6 +79,11 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
 
 ## What a batch must never touch
 
+- **Docker state it did not create.** `docker builder prune`, `docker system prune`, or
+  removing an image, volume or cache not made by that agent under its own name: the build
+  cache and images are shared with production. An agent "cleaning up after itself" with a
+  time-filtered prune deleted 16.75 GB of cache on 2026-09-26 (#192) — nothing broke, the
+  next production build just started cold. Clean up by name, never by filter.
 - **The shared dev database.** Every worktree points at the same dev database, and a
   subagent that migrates it, seeds it or downgrades it changes the data of whoever else
   is using it. (Nothing drops the schema on start any more since #157 — that is not a

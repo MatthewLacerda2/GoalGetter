@@ -293,6 +293,10 @@ first migration), it stays online. Every update to `main` rebuilds the container
 brings them up with the new code: the `migrate` service applies the migrations once
 and the backend and `nightly` wait for it to exit 0, so a failed migration stops the
 deploy instead of being served on top of. There is no staging: CI is the gate.
+**Today that rebuild is done by hand** — `docker compose build`, then `docker compose up -d`
+in the main checkout, build first so a failed build leaves the old containers serving.
+Automating it is #105; the Claude Code permission classifier refused to install a
+timer that deploys on its own (2026-09-26), so that step is the user's to allow.
 
 **A decision the plan did not cover** is yours to take when the information is at
 hand and something points the way — a rule, a convention the codebase already
@@ -305,7 +309,8 @@ run after a push, and in that gap `gh pr checks` answers "no checks reported" �
 the same words it uses for a PR with genuinely no CI (workflows are path-filtered,
 and drafts are skipped). A run can take **more than two minutes** to appear, and a
 new workflow file may not fire on the push that adds it — so silence proves nothing.
-Poll `gh run list --commit <sha>` until the run appears; if it never does, close and
+Poll `gh run list --commit <sha>` — the **full** 40-character sha; a short one silently
+returns `[]` — until the run appears; if it never does, close and
 reopen the PR (the workflows listen for `reopened`). Path filters compare the whole
 PR against its base, not the last commit, so a docs-only push to a PR that touches
 code still runs CI. On a draft the runs come back `skipped`, which is not a pass.
@@ -362,6 +367,10 @@ remind him and ask.
 
 ===== KNOWN ISSUES =====
 
+- **Cloudflare's edge may still hold year-old copies of web files.** Until #197 nginx
+  served every `*.js`/`*.png` as `public, immutable` for a year, and Flutter web's file
+  names carry no hash. A **Purge Everything** in the Cloudflare dashboard clears what is
+  already cached (no API token here to do it); from #197 on, files are revalidated.
 - **Nothing backs the database up.** Since #157 the data survives a restart, which
   is the point — and makes losing it possible in a way it never was. No issue covers
   this yet.
@@ -380,7 +389,9 @@ remind him and ask.
   thin bank but buys **eight questions per studying student per goal** on any night when
   tomorrow's lesson would be too easy (#135) — so a deep bank no longer saves anything, and
   a student who keeps missing his questions is now the cheap case rather than the expensive
-  one. `make nightly ARGS='--once'` and `make embeddings` run them by hand.
+  one. Since #175 the resources step also spends **one YouTube `search.list` per goal-run
+  (100 of the free 10,000 daily units)** and no longer embeds up front — the midnight
+  backfill does. `make nightly ARGS='--once'` and `make embeddings` run them by hand.
 - **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the
   tailnet name) is not enabled on this tailnet yet; the user enables it once from the
   admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google
