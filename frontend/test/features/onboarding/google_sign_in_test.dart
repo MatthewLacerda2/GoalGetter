@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
@@ -88,7 +89,7 @@ Future<(GoRouter, FakeGoogle, SettingsStorage)> pumpStart(
     ..sdkIsBroken = googleIsBroken
     ..signInIsBroken = googleIsBroken;
   addTearDown(google.tokens.close);
-  final container = ProviderContainer(overrides: [
+  final container = ProviderContainer(retry: noAutomaticRetry, overrides: [
     ...backend.overrides,
     authServiceProvider.overrideWithValue(google),
   ]);

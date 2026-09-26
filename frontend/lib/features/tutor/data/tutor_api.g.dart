@@ -6,20 +6,46 @@ part of 'tutor_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tutorApiHash() => r'2d2397ceb1f9f0a126a99d2ddea4b10ffd6f7a65';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [tutorApi].
 @ProviderFor(tutorApi)
-final tutorApiProvider = AutoDisposeProvider<TutorApi>.internal(
-  tutorApi,
-  name: r'tutorApiProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$tutorApiHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final tutorApiProvider = TutorApiProvider._();
 
-typedef TutorApiRef = AutoDisposeProviderRef<TutorApi>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class TutorApiProvider
+    extends $FunctionalProvider<TutorApi, TutorApi, TutorApi>
+    with $Provider<TutorApi> {
+  TutorApiProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'tutorApiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$tutorApiHash();
+
+  @$internal
+  @override
+  $ProviderElement<TutorApi> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  TutorApi create(Ref ref) {
+    return tutorApi(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TutorApi value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TutorApi>(value),
+    );
+  }
+}
+
+String _$tutorApiHash() => r'f314faa303fba875447f8e10b8ef6b58f32ae9b7';

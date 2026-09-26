@@ -6,19 +6,46 @@ part of 'profile_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$profileApiHash() => r'5550aa66ea6c9139c05f487c546ca7ae045c8666';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [profileApi].
 @ProviderFor(profileApi)
-final profileApiProvider = AutoDisposeProvider<ProfileApi>.internal(
-  profileApi,
-  name: r'profileApiProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$profileApiHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final profileApiProvider = ProfileApiProvider._();
 
-typedef ProfileApiRef = AutoDisposeProviderRef<ProfileApi>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class ProfileApiProvider
+    extends $FunctionalProvider<ProfileApi, ProfileApi, ProfileApi>
+    with $Provider<ProfileApi> {
+  ProfileApiProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'profileApiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$profileApiHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProfileApi> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ProfileApi create(Ref ref) {
+    return profileApi(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProfileApi value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProfileApi>(value),
+    );
+  }
+}
+
+String _$profileApiHash() => r'465ae9ffbf98dea53bd831c277dfe64ac64ff4bd';

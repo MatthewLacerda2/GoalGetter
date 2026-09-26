@@ -6,19 +6,46 @@ part of 'home_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$homeApiHash() => r'5abbafb0aeca8e891b9a78553e8ef1805bc38484';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [homeApi].
 @ProviderFor(homeApi)
-final homeApiProvider = AutoDisposeProvider<HomeApi>.internal(
-  homeApi,
-  name: r'homeApiProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$homeApiHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final homeApiProvider = HomeApiProvider._();
 
-typedef HomeApiRef = AutoDisposeProviderRef<HomeApi>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class HomeApiProvider
+    extends $FunctionalProvider<HomeApi, HomeApi, HomeApi>
+    with $Provider<HomeApi> {
+  HomeApiProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'homeApiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$homeApiHash();
+
+  @$internal
+  @override
+  $ProviderElement<HomeApi> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  HomeApi create(Ref ref) {
+    return homeApi(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(HomeApi value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<HomeApi>(value),
+    );
+  }
+}
+
+String _$homeApiHash() => r'6be1f36da1476e150ab75b933b6d3595803e3178';

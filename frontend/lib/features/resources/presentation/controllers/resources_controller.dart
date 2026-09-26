@@ -7,6 +7,6 @@ part 'resources_controller.g.dart';
 
 /// The active goal's resources. Refresh with `ref.invalidate`.
 @riverpod
-Future<GoalResources> resources(ResourcesRef ref) {
+Future<GoalResources> resources(Ref ref) {
   return ref.watch(resourcesApiProvider).fetch();
 }

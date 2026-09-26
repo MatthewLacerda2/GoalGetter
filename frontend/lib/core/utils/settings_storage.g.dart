@@ -6,20 +6,47 @@ part of 'settings_storage.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$settingsStorageHash() => r'da0b4379e3d17997d96b196d986d67bd2bb8a35d';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [settingsStorage].
 @ProviderFor(settingsStorage)
-final settingsStorageProvider = Provider<SettingsStorage>.internal(
-  settingsStorage,
-  name: r'settingsStorageProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$settingsStorageHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final settingsStorageProvider = SettingsStorageProvider._();
 
-typedef SettingsStorageRef = ProviderRef<SettingsStorage>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class SettingsStorageProvider
+    extends
+        $FunctionalProvider<SettingsStorage, SettingsStorage, SettingsStorage>
+    with $Provider<SettingsStorage> {
+  SettingsStorageProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'settingsStorageProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$settingsStorageHash();
+
+  @$internal
+  @override
+  $ProviderElement<SettingsStorage> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SettingsStorage create(Ref ref) {
+    return settingsStorage(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SettingsStorage value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SettingsStorage>(value),
+    );
+  }
+}
+
+String _$settingsStorageHash() => r'11ab36d8bae57fbde33d6be9bff94d4579783429';

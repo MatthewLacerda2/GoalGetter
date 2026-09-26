@@ -6,21 +6,48 @@ part of 'resources_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$resourcesHash() => r'1309aa1c05e0df852b8b939d14c69f5243fc5ba4';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// The active goal's resources. Refresh with `ref.invalidate`.
+
+@ProviderFor(resources)
+final resourcesProvider = ResourcesProvider._();
 
 /// The active goal's resources. Refresh with `ref.invalidate`.
-///
-/// Copied from [resources].
-@ProviderFor(resources)
-final resourcesProvider = AutoDisposeFutureProvider<GoalResources>.internal(
-  resources,
-  name: r'resourcesProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$resourcesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-typedef ResourcesRef = AutoDisposeFutureProviderRef<GoalResources>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class ResourcesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<GoalResources>,
+          GoalResources,
+          FutureOr<GoalResources>
+        >
+    with $FutureModifier<GoalResources>, $FutureProvider<GoalResources> {
+  /// The active goal's resources. Refresh with `ref.invalidate`.
+  ResourcesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'resourcesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$resourcesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<GoalResources> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<GoalResources> create(Ref ref) {
+    return resources(ref);
+  }
+}
+
+String _$resourcesHash() => r'675751c8b6a2535782d071120e72f99dacdbafa3';

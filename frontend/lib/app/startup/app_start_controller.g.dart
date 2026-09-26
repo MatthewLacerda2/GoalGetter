@@ -6,22 +6,53 @@ part of 'app_start_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appStartControllerHash() =>
-    r'9d31593bf4216623c40903edde830f04eb59d684';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [appStartController].
 @ProviderFor(appStartController)
-final appStartControllerProvider =
-    AutoDisposeProvider<AppStartController>.internal(
-  appStartController,
-  name: r'appStartControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$appStartControllerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final appStartControllerProvider = AppStartControllerProvider._();
 
-typedef AppStartControllerRef = AutoDisposeProviderRef<AppStartController>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class AppStartControllerProvider
+    extends
+        $FunctionalProvider<
+          AppStartController,
+          AppStartController,
+          AppStartController
+        >
+    with $Provider<AppStartController> {
+  AppStartControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appStartControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appStartControllerHash();
+
+  @$internal
+  @override
+  $ProviderElement<AppStartController> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AppStartController create(Ref ref) {
+    return appStartController(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppStartController value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppStartController>(value),
+    );
+  }
+}
+
+String _$appStartControllerHash() =>
+    r'da33fc2222c3352f9a8b5f96515ad85813209498';

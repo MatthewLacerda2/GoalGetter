@@ -20,6 +20,3 @@ class LocaleNotifier extends _$LocaleNotifier {
     }
   }
 }
-
-// Keep backwards compatibility alias
-final localeProvider = localeNotifierProvider;

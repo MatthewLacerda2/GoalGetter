@@ -87,7 +87,7 @@ class AppStartController {
 }
 
 @riverpod
-AppStartController appStartController(AppStartControllerRef ref) {
+AppStartController appStartController(Ref ref) {
   return AppStartController(
     ref.watch(settingsStorageProvider),
     ref.watch(apiClientProvider),

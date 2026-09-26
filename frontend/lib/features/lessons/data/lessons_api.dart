@@ -36,5 +36,5 @@ class LessonsApi {
 }
 
 @riverpod
-LessonsApi lessonsApi(LessonsApiRef ref) =>
+LessonsApi lessonsApi(Ref ref) =>
     LessonsApi(ref.watch(apiClientProvider));

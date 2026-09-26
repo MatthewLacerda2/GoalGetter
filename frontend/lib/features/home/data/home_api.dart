@@ -30,4 +30,4 @@ class HomeApi {
 }
 
 @riverpod
-HomeApi homeApi(HomeApiRef ref) => HomeApi(ref.watch(apiClientProvider));
+HomeApi homeApi(Ref ref) => HomeApi(ref.watch(apiClientProvider));

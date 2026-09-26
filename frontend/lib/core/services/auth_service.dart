@@ -155,7 +155,7 @@ class AuthService {
 }
 
 @Riverpod(keepAlive: true)
-AuthService authService(AuthServiceRef ref) {
+AuthService authService(Ref ref) {
   return AuthService(
     api: ref.watch(apiClientProvider),
     storage: ref.watch(settingsStorageProvider),

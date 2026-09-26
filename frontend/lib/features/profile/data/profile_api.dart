@@ -19,5 +19,5 @@ class ProfileApi {
 }
 
 @riverpod
-ProfileApi profileApi(ProfileApiRef ref) =>
+ProfileApi profileApi(Ref ref) =>
     ProfileApi(ref.watch(apiClientProvider));

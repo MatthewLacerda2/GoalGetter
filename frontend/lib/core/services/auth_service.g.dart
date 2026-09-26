@@ -6,19 +6,46 @@ part of 'auth_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authServiceHash() => r'194fb8a3f6cf76d511ef17974ebd13338fe87f98';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [authService].
 @ProviderFor(authService)
-final authServiceProvider = Provider<AuthService>.internal(
-  authService,
-  name: r'authServiceProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$authServiceHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final authServiceProvider = AuthServiceProvider._();
 
-typedef AuthServiceRef = ProviderRef<AuthService>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class AuthServiceProvider
+    extends $FunctionalProvider<AuthService, AuthService, AuthService>
+    with $Provider<AuthService> {
+  AuthServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'authServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$authServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<AuthService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AuthService create(Ref ref) {
+    return authService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AuthService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AuthService>(value),
+    );
+  }
+}
+
+String _$authServiceHash() => r'db284dad45aac5283cfa2f95483a75c99a08fb61';
