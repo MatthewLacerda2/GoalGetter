@@ -71,14 +71,6 @@ class AppTheme {
   /// "No fill", for a Material whose child paints its own background.
   static const transparent = Colors.transparent;
 
-  /// The start screen's backdrop — dark in both modes, on purpose (#85).
-  static const startGradientTop = Color(0xFF212121);
-  static const startGradientBottom = Color(0xFF0B0B0B);
-
-  // The two foregrounds that backdrop needs, light type on the dark gradient.
-  static const _onDark = Colors.white;
-  static const _onDarkMuted = Color(0xFFBDBDBD);
-
   /// The three semantic colours [CustomColors] carries, as plain constants.
   /// They exist for the two callers that cannot reach a [BuildContext]'s
   /// theme: the dev fixtures, and the `??` fallback on an extension lookup.
@@ -272,29 +264,6 @@ class AppTheme {
       ),
 
       dividerTheme: DividerThemeData(color: p.hairline, thickness: 1),
-    );
-  }
-
-  /// [light], with its foregrounds turned over for the dark gradient the start
-  /// screen paints. A screen on that backdrop wraps itself in this, in either
-  /// mode: the backdrop is dark on purpose, so it reads the same both ways.
-  ///
-  /// The start screen once took the app's light theme onto its dark gradient,
-  /// and the wordmark and the carousel titles were near-black type on a
-  /// near-black gradient (#85). The backdrop is a different surface, so it gets
-  /// the theme of that surface.
-  static ThemeData get startBackdrop {
-    final base = light;
-    return base.copyWith(
-      colorScheme: base.colorScheme.copyWith(
-        surface: startGradientTop,
-        onSurface: _onDark,
-        onSurfaceVariant: _onDarkMuted,
-      ),
-      textTheme: base.textTheme.apply(
-        bodyColor: _onDarkMuted,
-        displayColor: _onDark,
-      ),
     );
   }
 }

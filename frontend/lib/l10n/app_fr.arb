@@ -132,47 +132,11 @@
     "@studyPlan": {
         "description": "Label for study plan"
     },
-    "yourMentor": "Votre mentor personnalisé!",
-    "@yourMentor": {
-        "description": "Label for your mentor"
-    },
     "agreeToTermsAndPrivacyPolicy": "En continuant, vous acceptez nos Conditions d'Utilisation et Politique de Confidentialité",
     "@agreeToTermsAndPrivacyPolicy": {
         "description": "Label for agree to terms and privacy policy"
     },
-    "preOnboardingYourCoursesTitle": "Vos cours",
-    "@preOnboardingYourCoursesTitle": {
-        "description": "Pre-onboarding tutorial page title: Your courses"
-    },
-    "preOnboardingYourCoursesBody": "GoalGetter est une plateforme de cours, où chaque cours est généré spécifiquement pour vous",
-    "@preOnboardingYourCoursesBody": {
-        "description": "Pre-onboarding tutorial page body: Your courses"
-    },
-    "preOnboardingTellUsYourGoalTitle": "Dites-nous votre objectif",
-    "@preOnboardingTellUsYourGoalTitle": {
-        "description": "Pre-onboarding tutorial page title: Tell us your Goal"
-    },
-    "preOnboardingTellUsYourGoalBody": "Dites-nous ce que vous voulez apprendre, atteindre ou accomplir",
-    "@preOnboardingTellUsYourGoalBody": {
-        "description": "Pre-onboarding tutorial page body: Tell us your Goal"
-    },
-    "preOnboardingDailyLessonTitle": "Leçon quotidienne",
-    "@preOnboardingDailyLessonTitle": {
-        "description": "Pre-onboarding tutorial page title: Daily lesson"
-    },
-    "preOnboardingDailyLessonBody": "Pratiquez chaque jour, maintenez votre progression vers votre objectif",
-    "@preOnboardingDailyLessonBody": {
-        "description": "Pre-onboarding tutorial page body: Daily lesson"
-    },
-    "preOnboardingAiThatKnowsYouTitle": "Chat avec votre AI",
-    "@preOnboardingAiThatKnowsYouTitle": {
-        "description": "Pre-onboarding tutorial page title: An AI that knows you"
-    },
-    "preOnboardingAiThatKnowsYouBody": "Votre tuteur vous connaît et est prêt à parler et vous guider",
-    "@preOnboardingAiThatKnowsYouBody": {
-        "description": "Pre-onboarding tutorial page body: An AI that knows you"
-    },
-    "noDescription": "Supprimer l'Objectif",
+    "noDescription": "Aucune description",
     "@noDescription": {
         "description": "Label for no description"
     },
@@ -260,6 +224,12 @@
     "startWithGoogle": "Commencer avec Google",
     "signingIn": "Connexion...",
     "tryWithoutSigningIn": "Essayer sans se connecter",
+    "startHeadline": "Apprenez ce que vous voulez",
+    "startTagline": "Un enseignement sur mesure",
+    "startPointSubject": "N'importe quel sujet, à vous de choisir",
+    "startPointDaily": "Deux minutes par jour",
+    "startPointLevel": "Toujours à votre niveau",
+    "startPointTutor": "Un tuteur pour toutes vos questions",
     "appWordmark": "Goal Getter",
     "profileVersionTag": "ELO · v0.1 prototype",
     "statSeparator": "  ·  ",

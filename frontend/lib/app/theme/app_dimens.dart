@@ -104,4 +104,8 @@ abstract final class AppSizes {
   /// The widest Google will draw its own sign-in button - the GIS SDK's own
   /// limit. Asking for more gets a button clipped by the box holding it.
   static const double googleButtonMaxWidth = 400;
+
+  /// The app's icon at the top of the start screen, the one place it is
+  /// drawn inside the app rather than by the platform (#180).
+  static const double startIcon = 88;
 }

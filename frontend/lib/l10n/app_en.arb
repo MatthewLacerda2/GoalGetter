@@ -132,45 +132,9 @@
     "@studyPlan": {
         "description": "Label for study plan"
     },
-    "yourMentor": "Your personal mentor!",
-    "@yourMentor": {
-        "description": "Label for your mentor"
-    },
     "agreeToTermsAndPrivacyPolicy": "By continuing, you agree to our Terms of Service and Privacy Policy",
     "@agreeToTermsAndPrivacyPolicy": {
         "description": "Label for agree to terms and privacy policy"
-    },
-    "preOnboardingYourCoursesTitle": "Your courses",
-    "@preOnboardingYourCoursesTitle": {
-        "description": "Pre-onboarding tutorial page title: Your courses"
-    },
-    "preOnboardingYourCoursesBody": "GoalGetter is a courses platform, where every course is generated specifically for you",
-    "@preOnboardingYourCoursesBody": {
-        "description": "Pre-onboarding tutorial page body: Your courses"
-    },
-    "preOnboardingTellUsYourGoalTitle": "Tell us your Goal",
-    "@preOnboardingTellUsYourGoalTitle": {
-        "description": "Pre-onboarding tutorial page title: Tell us your Goal"
-    },
-    "preOnboardingTellUsYourGoalBody": "Say what you want to learn, achieve or accomplish",
-    "@preOnboardingTellUsYourGoalBody": {
-        "description": "Pre-onboarding tutorial page body: Tell us your Goal"
-    },
-    "preOnboardingDailyLessonTitle": "Daily lesson",
-    "@preOnboardingDailyLessonTitle": {
-        "description": "Pre-onboarding tutorial page title: Daily lesson"
-    },
-    "preOnboardingDailyLessonBody": "Practice every day, keep progressing to your goal",
-    "@preOnboardingDailyLessonBody": {
-        "description": "Pre-onboarding tutorial page body: Daily lesson"
-    },
-    "preOnboardingAiThatKnowsYouTitle": "Chat with your AI",
-    "@preOnboardingAiThatKnowsYouTitle": {
-        "description": "Pre-onboarding tutorial page title: An AI that knows you"
-    },
-    "preOnboardingAiThatKnowsYouBody": "Your Tutor knows you and is ready to talk and guide you",
-    "@preOnboardingAiThatKnowsYouBody": {
-        "description": "Pre-onboarding tutorial page body: An AI that knows you"
     },
     "noDescription": "No description",
     "@noDescription": {
@@ -316,6 +280,18 @@
     "@signingIn": { "description": "Start screen: the Google button while signing in" },
     "tryWithoutSigningIn": "Try it without signing in",
     "@tryWithoutSigningIn": { "description": "Start screen: opens goal creation, whose first two steps need no account" },
+    "startHeadline": "Learn whatever you want",
+    "@startHeadline": { "description": "Start screen: the big line that says what the app is. It and startTagline are the two candidates for it: swapping their values swaps which one is the headline" },
+    "startTagline": "Tailor-made teaching",
+    "@startTagline": { "description": "Start screen: the line under the headline" },
+    "startPointSubject": "Any subject you name",
+    "@startPointSubject": { "description": "Start screen: the student names what he wants to learn about, anything" },
+    "startPointDaily": "Two minutes a day",
+    "@startPointDaily": { "description": "Start screen: a lesson is about two minutes, once a day" },
+    "startPointLevel": "Always at your level",
+    "@startPointLevel": { "description": "Start screen: the questions are always at the student's level" },
+    "startPointTutor": "A tutor to ask anything",
+    "@startPointTutor": { "description": "Start screen: a chat tutor answers any question" },
     "appWordmark": "Goal Getter",
     "@appWordmark": {
         "description": "Start screen: the wordmark, the product name as it is drawn"
