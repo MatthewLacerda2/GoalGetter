@@ -121,9 +121,6 @@ front-version: ## Check this machine's Flutter is exactly frontend/pubspec.yaml'
 	  exit 1; \
 	fi
 
-# A warning fails this gate (#101): the backlog that justified letting them
-# through is gone. The infos are a separate, larger backlog, so they still
-# only report.
 # The ARB files generate lib/l10n/generated/, which is gitignored - so it is
 # whatever the last branch in this worktree left behind. A branch that adds or
 # renames a key leaves it stale, and then every frontend gate fails on getters
@@ -135,9 +132,19 @@ front-version: ## Check this machine's Flutter is exactly frontend/pubspec.yaml'
 gen-l10n: ## Regenerate lib/l10n/generated/ from the ARB files
 	@cd frontend && $(FLUTTER) gen-l10n
 
-front-lint: front-version gen-l10n ## Frontend dart line limits + flutter analyze
+# A warning fails this gate (#101): the backlog that justified letting them
+# through is gone. The infos are a separate, larger backlog, so they still
+# only report - `dart analyze` fails on warnings and not on infos by default,
+# the policy `flutter analyze --no-fatal-infos` spelled out.
+#
+# `dart analyze`, not `flutter analyze`: only the former runs analyzer plugins,
+# so riverpod_lint (analysis_options.yaml `plugins:`) was never a gate while
+# this read `flutter analyze` - a deliberate `missing_provider_scope` passed it
+# (#169). On everything else the two agree exactly: on 2026-09-26 both
+# reported the same 375 infos, rule by rule and line by line.
+front-lint: front-version gen-l10n ## Frontend dart line limits + dart analyze (with riverpod_lint)
 	@cd frontend && $(DART) run tool/frontend_linter.dart
-	@cd frontend && $(FLUTTER) analyze --no-fatal-infos
+	@cd frontend && $(DART) analyze
 
 front-test: front-version gen-l10n ## Frontend widget/unit tests
 	@cd frontend && $(FLUTTER) test
