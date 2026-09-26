@@ -1,4 +1,20 @@
-FROM debian:bullseye-slim AS flutter-base
+# The Flutter version, read from the one place it is written (#121): the pin in
+# frontend/pubspec.yaml, which CI installs exactly and `make front-version`
+# checks locally. This image used to clone whatever `stable` was on the day, so
+# production was built by a different Flutter than the one every gate ran.
+#
+# Its own stage so the pin, not the whole pubspec, is what the Flutter layer
+# depends on: COPY --from caches on the file's content, and /flutter-version
+# only changes when the version does - a dependency bump does not re-clone it.
+FROM debian:bookworm-slim AS flutter-pin
+COPY frontend/pubspec.yaml /pubspec.yaml
+RUN sed -nE 's/^[[:space:]]+flutter:[[:space:]]*([0-9][^[:space:]#]*).*/\1/p' /pubspec.yaml \
+      | head -n1 > /flutter-version \
+    && test -s /flutter-version
+
+# bookworm, not bullseye: bullseye's LTS ended in August 2026 and its security
+# archive now answers 404, so `apt-get install` failed and the build never ran.
+FROM debian:bookworm-slim AS flutter-base
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -15,8 +31,9 @@ ENV FLUTTER_HOME="/opt/flutter"
 ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
 ENV PUB_HOSTED_URL="https://pub.dev"
 
-# Install Flutter (this layer will be cached unless Flutter version changes)
-RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 $FLUTTER_HOME \
+# Install the pinned Flutter (cached until the pin moves)
+COPY --from=flutter-pin /flutter-version /flutter-version
+RUN git clone https://github.com/flutter/flutter.git -b "$(cat /flutter-version)" --depth 1 $FLUTTER_HOME \
     && cd $FLUTTER_HOME \
     && flutter config --enable-web \
     && flutter precache --web
