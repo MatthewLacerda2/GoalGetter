@@ -7,10 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core import clock
 from backend.core.config import settings
 from backend.core.database import get_db
+from backend.core.language import Language, requested_language
 from backend.core.security import (
     create_access_token,
     generate_refresh_token_string,
     get_current_user,
+    remember_language,
     verify_google_token,
     verify_google_token_header,
 )
@@ -57,7 +59,9 @@ async def _token_response(db: AsyncSession, student: Student) -> TokenResponse:
 
 @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def signup(
-    user_info: dict = Depends(verify_google_token_header), db: AsyncSession = Depends(get_db)
+    user_info: dict = Depends(verify_google_token_header),
+    db: AsyncSession = Depends(get_db),
+    language: Language | None = Depends(requested_language),
 ):
     """
     Sign up or sign in using Google OAuth2 token.
@@ -73,7 +77,8 @@ async def signup(
         )
     else:
         user.last_login = clock.now()
-        await student_repo.update(user)
+    remember_language(user, language)
+    await student_repo.update(user)
     return await _token_response(db, user)
 
 
@@ -106,7 +111,11 @@ def require_dev_login():
     dependencies=[Depends(require_dev_login)],
     include_in_schema=settings.DEV_LOGIN,
 )
-async def dev_login(payload: DevLoginRequest, db: AsyncSession = Depends(get_db)):
+async def dev_login(
+    payload: DevLoginRequest,
+    db: AsyncSession = Depends(get_db),
+    language: Language | None = Depends(requested_language),
+):
     """
     Dev only: sign in as a fictitious student, no Google involved. Creates or
     reuses the student named `Fictitious <name>` (services/fictitious/identity.py).
@@ -120,7 +129,8 @@ async def dev_login(payload: DevLoginRequest, db: AsyncSession = Depends(get_db)
         )
     else:
         student.last_login = clock.now()
-        await student_repo.update(student)
+    remember_language(student, language)
+    await student_repo.update(student)
     return await _token_response(db, student)
 
 

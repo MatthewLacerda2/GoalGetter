@@ -106,4 +106,24 @@ void main() {
     expect(error.detail, 'No active goal');
     expect(ApiException.fromBody(502, '<html>').detail, 'HTTP 502');
   });
+
+  test('every request carries the chosen language', () async {
+    final storage = await signedInStorage();
+    await storage.writeUserLanguage('pt');
+    final sent = <String?>[];
+    final api = ApiClient(
+      httpClient: MockClient((request) async {
+        sent.add(request.headers['X-Student-Language']);
+        return http.Response('[]', 200);
+      }),
+      storage: storage,
+      baseUrl: 'http://api.test',
+    );
+
+    await api.get('/goals');
+    await storage.writeUserLanguage('de');
+    await api.post('/auth/dev-login');
+
+    expect(sent, ['pt', 'de']);
+  });
 }

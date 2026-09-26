@@ -19,6 +19,7 @@ async def test_me_is_the_signed_in_students_profile(auth_client, test_user):
         "email": test_user.email,
         "member_since": body["member_since"],
         "current_streak": 0,
+        "language": None,
     }
     assert datetime.fromisoformat(body["member_since"]) == test_user.created_at
 

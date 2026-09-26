@@ -23,6 +23,9 @@ class Student(Base):
     name = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
     last_login = Column(DateTime(timezone=True), nullable=False, default=clock.now)
+    # The language he chose in the app (`core/language.py`: a `Language` value).
+    # Null until the app first tells us, which is his next request (#172).
+    language = Column(String(2), nullable=True)
     # The active goal. Nullable + use_alter because students<->goals reference each
     # other (goals.student_id and students.current_goal_id), a mutual FK Postgres can
     # only build via a deferred ALTER. SET NULL so deleting the active goal is safe.

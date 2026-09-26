@@ -7,7 +7,7 @@ const meJson = '{"id": "s1", "name": "Fictitious Claude",'
     ' "email": "claude@example.com",'
     ' "member_since": "2026-09-01T10:00:00", "current_streak": 9}';
 
-Future<void> pumpProfile(WidgetTester tester, (int, String) me) async {
+Future<ApiFake> pumpProfile(WidgetTester tester, (int, String) me) async {
   final fake = ApiFake({
     'GET /me': [me],
     'GET /goals': [(200, '[]')],
@@ -15,6 +15,7 @@ Future<void> pumpProfile(WidgetTester tester, (int, String) me) async {
   await pumpScreen(tester, await fake.overrides(), ProfileScreen());
   // The goals count may still come from a delayed mock: let it resolve.
   await tester.pump(const Duration(seconds: 1));
+  return fake;
 }
 
 void main() {
@@ -33,5 +34,19 @@ void main() {
     expect(find.text('Could not load your profile'), findsOneWidget);
     expect(find.text('boom'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
+  });
+
+  // The request carries X-Student-Language (ApiClient), so re-reading GET /me
+  // is what tells the backend at once (#172).
+  testWidgets('picking a language re-reads GET /me', (tester) async {
+    final fake = await pumpProfile(tester, (200, meJson));
+    expect(fake.count('GET /me'), 1);
+
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Deutsch'));
+    await tester.pumpAndSettle();
+
+    expect(fake.count('GET /me'), 2);
   });
 }
