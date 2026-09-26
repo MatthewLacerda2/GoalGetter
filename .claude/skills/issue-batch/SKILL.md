@@ -22,9 +22,9 @@ in another issue's pull request. An agent that folds says so in the PR, which th
 closes each issue it finished.
 
 **An issue that carries a migration gets a database of its own**, not just the test one
-`make setup` creates: it is about to change a schema every other worktree is reading. There are no
-migrations yet — the schema is dropped and rebuilt on every backend start — so the
-first issue that carries one also builds the target that creates that database.
+`make setup` creates: it is about to change a schema every other worktree is reading.
+`make back-migrations` already runs the chain on the worktree's own test database, which
+is where a migration is proven.
 
 ## What a batch is allowed to pick up
 
@@ -79,9 +79,10 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
 
 ## What a batch must never touch
 
-- **The shared dev database.** The backend drops its whole schema on every start, and
-  every worktree points at the same dev database. A subagent that brings a backend up
-  against it wipes the data of whoever else is using it. The tailnet preview is no
+- **The shared dev database.** Every worktree points at the same dev database, and a
+  subagent that migrates it, seeds it or downgrades it changes the data of whoever else
+  is using it. (Nothing drops the schema on start any more since #157 — that is not a
+  licence to use it.) The tailnet preview is no
   longer one of them: since #122 it has a database of its own, and `make preview`
   leaves the dev one alone. Backend work is validated by `make back-test`,
   which uses a test database of the worktree's own (`make setup` creates it). An agent
