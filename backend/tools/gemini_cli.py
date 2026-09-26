@@ -15,7 +15,7 @@ That pairing is the whole point. When a prompt drifts and the model answers in
 a shape the schema rejects, the parse error alone says nothing useful; next to
 the raw text it says everything. The raw text is printed even when the parse
 blows up, and a use case that calls Gemini more than once (the resource search
-searches, then reformats) prints every call.
+searches, then describes what it found) prints every call.
 
 **It spends real quota.** Every run is a billed call on the project's key, and
 the output says so. Nothing in the test suite may call `run()`.
@@ -31,7 +31,7 @@ import json
 import sys
 import traceback
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import datetime
 from typing import Any
 
@@ -214,13 +214,21 @@ USE_CASES: list[UseCase] = [
     UseCase(
         "resource-search",
         GEMINI_FAST_MODEL,
-        "<goal-name> <goal-description> [student-context]",
+        "<goal-name> <goal-description> [student-context] [language: en|pt|es|fr|de]",
         2,
-        lambda a: (UNSAVED_GOAL_ID, a[0], a[1], a[2] if len(a) > 2 else None, None, CLI_LANGUAGE),
+        lambda a: (
+            UNSAVED_GOAL_ID,
+            a[0],
+            a[1],
+            a[2] if len(a) > 2 else None,
+            [],
+            Language(a[3]) if len(a) > 3 else CLI_LANGUAGE,
+        ),
         search_resources,
         sample=("Chess", "Learn chess openings"),
-        note="a grounded search and a reformat, then one billed embedding per "
-        "resource recommended (about eleven calls). Nothing is stored.",
+        note="a grounded search, then a description of its sources (two calls). "
+        "The pages' links are Google's redirects, unresolved; the videos are "
+        "not searched (that is YouTube's API). Nothing is stored.",
     ),
 ]
 
@@ -263,7 +271,9 @@ def _cell(value: Any) -> Any:
 
 def render(value: Any) -> str:
     """The parsed result as text: Pydantic models as JSON, ORM rows as their
-    columns, anything else as its repr."""
+    columns, a dataclass field by field, anything else as its repr."""
+    if is_dataclass(value) and not isinstance(value, type):
+        return "\n".join(f"{f.name}:\n{render(getattr(value, f.name))}" for f in fields(value))
     if isinstance(value, BaseModel):
         return value.model_dump_json(indent=2)
     if isinstance(value, list):

@@ -1,5 +1,4 @@
 from backend.core.language import Language
-from backend.services.gemini.output_language import language_name
 
 # How many questions onboarding asks (#173, "por enquanto"): the time each
 # student spends per question (#174) is what will decide the right number later.
@@ -40,6 +39,6 @@ def get_onboarding_questions_prompt(
       5. How he likes to learn
     - Each question, and each option, is at most {MAX_WORDS} words. Shorter is better.
     - Keep the questions and options simple, direct, and easy to understand.
-    - Write every question and option in {language_name(language)}.
+    - Write every question and option in {language.english_name}.
     </Guidelines>
     """

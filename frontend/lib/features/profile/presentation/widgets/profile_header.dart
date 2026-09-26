@@ -83,11 +83,6 @@ class _Header extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 2),
-              Text(
-                l10n.profileMemberSince(profile.memberSince.toLocal()),
-                style: theme.textTheme.bodySmall,
-              ),
             ],
           ),
         ),

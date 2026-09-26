@@ -59,6 +59,10 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   flutter_markdown_plus: ^1.0.7
+  # Read by the onboarding's question timer (#174) instead of DateTime or a bare
+  # Stopwatch: flutter_test's fake time drives it, so a widget test can measure
+  # a duration. Already in the lock through flutter_test.
+  clock: ^1.1.2
 
 dev_dependencies:
   flutter_test:

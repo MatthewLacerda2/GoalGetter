@@ -1,5 +1,4 @@
 from backend.core.language import Language
-from backend.services.gemini.output_language import language_name
 from backend.services.gemini.student_context.schema import GeminiStudentContext, StudentGoal
 
 
@@ -58,7 +57,7 @@ def get_student_context_prompt(
     If onboarding data is limited, infer reasonable assumptions based on the goals.
     What the student says about his own level is his opinion, not his level: record it as what he believes, never as what he knows. His answers to lessons are what will measure him.
     What he says he wants to reach is not a ceiling: the app teaches him as far as he can go.
-    Write both texts in {language_name(language)}.
+    Write both texts in {language.english_name}.
     """
 
 
@@ -203,6 +202,6 @@ def get_context_review_prompt(
     - What he said he wants to reach is not a ceiling. The app teaches him as
       far as he can go, so a stated "only the basics" never stops a frontier.
     - Every reading as short as it can be while saying what it has to.
-    - Write every text in {language_name(language)}.
+    - Write every text in {language.english_name}.
     </Guidelines>
     """

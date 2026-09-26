@@ -13,12 +13,13 @@ as often, that no call happened at all, which is what a skip means.
 """
 
 from contextlib import contextmanager
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import numpy as np
 
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse, LessonQuestionItem
+from backend.services.gemini.resources.search_resources import ResourceSearch
 from backend.services.gemini.student_context.schema import (
     ContextVerdict,
     FrontierMove,
@@ -134,8 +135,12 @@ def chain_gemini(
         patch(CONTEXT + ".gemini_review_student_context", recorder(calls, "review", reviewed)),
         patch(QUESTIONS + ".generate_lesson_questions", recorder(calls, "questions", questions)),
         patch(FRONTIER + ".get_gemini_embeddings", recorder(calls, "embedding", embedding)),
-        patch(RESOURCES + ".search_resources", recorder(calls, "resources", list(found))),
-        patch(RESOURCES + ".validate_resources", side_effect=lambda proposed: proposed),
+        patch(
+            RESOURCES + ".search_resources",
+            recorder(calls, "resources", ResourceSearch(list(found), "a query")),
+        ),
+        patch(RESOURCES + ".search_videos", AsyncMock(return_value=[])),
+        patch(RESOURCES + ".validate_resources", side_effect=lambda proposed, client: proposed),
         patch(CHAIN + ".AsyncSessionLocal", return_value=Session(test_db)),
         patch(NIGHTLY + ".AsyncSessionLocal", return_value=Session(test_db)),
     ):

@@ -1,6 +1,5 @@
 from backend.core.language import Language
 from backend.schemas.goal import ObjectiveAnswer
-from backend.services.gemini.output_language import language_name
 
 # How long the goal description the student reads at the end of onboarding may
 # be (#173: "o app deve ser breve"). Sixty words is a short paragraph on a phone
@@ -39,5 +38,5 @@ def get_study_plan_prompt(prompt: str, answers: list[ObjectiveAnswer], language:
       measures it from his answers to lessons, so do not build the plan on it as a fact.
     - What he says he wants to reach is not where he stops: the app teaches him as far
       as he can go. Never promise or plan an end point.
-    - Write both parts in {language_name(language)}.
+    - Write both parts in {language.english_name}.
     """

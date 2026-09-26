@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'app_dimens.dart';
+import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/app/theme/app_palette.dart';
 
 /// 1. CUSTOM SEMANTIC TOKENS (Tailwind-like custom design tokens)
 /// Retrieve via `Theme.of(context).extension<CustomColors>()!.success`
@@ -46,25 +47,15 @@ class CustomColors extends ThemeExtension<CustomColors> {
 
 /// 2. THE MAIN THEME CONFIGURATION
 ///
-/// Radius and spacing live next door in `app_dimens.dart`; this file spends
-/// them. Nothing outside `lib/app/theme/` may write a colour, a font size, a
-/// radius or a padding as a literal — `tool/frontend_linter.dart` enforces it.
+/// Radius and spacing live next door in `app_dimens.dart`, and colours in
+/// `app_palette.dart`; this file spends them. Nothing outside `lib/app/theme/`
+/// may write a colour, a font size, a radius or a padding as a literal —
+/// `tool/frontend_linter.dart` enforces it.
+///
+/// [light] and [dark] are one builder over two palettes, so the modes differ
+/// in colour only (#178).
 class AppTheme {
   AppTheme._();
-
-  // --- Primitive Color Tokens (light) ---
-  static const _ink = Color(0xFF1A1A1A); // primary text / near-black
-  static const _slateText = Color(0xFF6B7280); // secondary / muted text
-  static const _hairline = Color(0xFFE5E7EB); // borders & dividers
-  static const _surface = Colors.white;
-  static const _surfaceMuted = Color(0xFFF5F5F7); // chip / filled background
-  static const _surfaceMutedHigh = Color(0xFFEDEDF0);
-
-  static const _green = Color(0xFF2D9D78); // primary accent (kept)
-  static const _greenSuccess = Color(0xFF16A34A); // elo gained badge
-  static const _orange = Color(0xFFF1820A); // streak flame
-  static const _blue = Color(0xFF2563EB); // elo lost badge
-  static const _red = Color(0xFFDC2626); // destructive / logout
 
   // --- Colours a screen may name directly ---
   // The colour scheme covers everything a layout decides for itself. These
@@ -80,21 +71,20 @@ class AppTheme {
   /// "No fill", for a Material whose child paints its own background.
   static const transparent = Colors.transparent;
 
-  /// The start screen's backdrop — the one dark surface in a light app.
+  /// The start screen's backdrop — dark in both modes, on purpose (#85).
   static const startGradientTop = Color(0xFF212121);
   static const startGradientBottom = Color(0xFF0B0B0B);
 
-  // The two foregrounds that backdrop needs, mirroring `_ink` and
-  // `_slateText` on the other side of the contrast.
+  // The two foregrounds that backdrop needs, light type on the dark gradient.
   static const _onDark = Colors.white;
   static const _onDarkMuted = Color(0xFFBDBDBD);
 
   /// The three semantic colours [CustomColors] carries, as plain constants.
   /// They exist for the two callers that cannot reach a [BuildContext]'s
   /// theme: the dev fixtures, and the `??` fallback on an extension lookup.
-  static const success = _greenSuccess;
-  static const lost = _blue;
-  static const streak = _orange;
+  static final success = AppPalette.light.success;
+  static final lost = AppPalette.light.lost;
+  static final streak = AppPalette.light.secondary;
 
   // --- Type scale ---
   static const double _fontSize12 = 12;
@@ -106,135 +96,119 @@ class AppTheme {
   static const double _fontSize32 = 32;
   static const String _fontFamily = 'Roboto';
 
-  static ColorScheme get _colorScheme => const ColorScheme.light().copyWith(
-    primary: _green,
-    onPrimary: Colors.white,
-    primaryContainer: _green,
-    secondary: _orange,
-    onSecondary: Colors.white,
-    surface: _surface,
-    surfaceContainer: _surfaceMuted, // card / chip fill
-    surfaceContainerHigh: _surfaceMutedHigh, // inputs / nav
-    onSurface: _ink, // primary text
-    onSurfaceVariant: _slateText, // secondary / muted text
-    outline: _hairline, // borders & dividers
-    error: _red,
-    onError: Colors.white,
+  static ColorScheme _colorScheme(AppPalette p) => _baseScheme(p).copyWith(
+    primary: p.primary,
+    onPrimary: AppPalette.onFill,
+    primaryContainer: p.primaryContainer,
+    secondary: p.secondary,
+    onSecondary: AppPalette.onFill,
+    surface: p.surface,
+    surfaceContainer: p.surfaceMuted, // card / chip fill
+    surfaceContainerHigh: p.surfaceMutedHigh, // inputs / nav
+    onSurface: p.ink, // primary text
+    onSurfaceVariant: p.muted, // secondary / muted text
+    outline: p.hairline, // borders & dividers
+    error: p.error,
+    onError: AppPalette.onFill,
+  );
+
+  /// Material's own scheme for [p]'s brightness: the roles the palette
+  /// leaves unset (containers, tertiary, inverse) come from here.
+  static ColorScheme _baseScheme(AppPalette p) =>
+      p.brightness == Brightness.dark
+          ? const ColorScheme.dark()
+          : const ColorScheme.light();
+
+  static TextStyle _style(
+    double size,
+    Color color, {
+    FontWeight? weight,
+    double? height,
+  }) => TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+    height: height,
   );
 
   /// --- Global Typography System ---
   ///
   /// Every piece of text in the app picks one of these and, at most,
   /// `copyWith`s a colour or a weight onto it.
-  static const TextTheme _textTheme = TextTheme(
-    bodyLarge: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize16,
-      color: _slateText,
-      height: 1.5,
-    ),
-    bodyMedium: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize14,
-      color: _slateText,
-      height: 1.5,
-    ),
-    bodySmall: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize12,
-      color: _slateText,
-      height: 1.4,
-    ),
-    titleLarge: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize20,
-      fontWeight: FontWeight.w700,
-      color: _ink,
+  static TextTheme _textTheme(AppPalette p) => TextTheme(
+    bodyLarge: _style(_fontSize16, p.body, height: 1.5),
+    bodyMedium: _style(_fontSize14, p.body, height: 1.5),
+    bodySmall: _style(_fontSize12, p.body, height: 1.4),
+    titleLarge: _style(
+      _fontSize20,
+      p.ink,
+      weight: FontWeight.w700,
       height: 1.3,
     ),
-    titleMedium: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize18,
-      fontWeight: FontWeight.w600,
-      color: _ink,
+    titleMedium: _style(
+      _fontSize18,
+      p.ink,
+      weight: FontWeight.w600,
       height: 1.3,
     ),
-    titleSmall: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize16,
-      fontWeight: FontWeight.w600,
-      color: _ink,
+    titleSmall: _style(
+      _fontSize16,
+      p.ink,
+      weight: FontWeight.w600,
       height: 1.3,
     ),
-    labelLarge: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize14,
-      fontWeight: FontWeight.w600,
-      color: _ink,
-    ),
-    labelMedium: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize12,
-      fontWeight: FontWeight.w500,
-      color: _slateText,
-    ),
-    headlineSmall: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize20,
-      fontWeight: FontWeight.bold,
-      color: _ink,
+    labelLarge: _style(_fontSize14, p.ink, weight: FontWeight.w600),
+    labelMedium: _style(_fontSize12, p.muted, weight: FontWeight.w500),
+    headlineSmall: _style(
+      _fontSize20,
+      p.ink,
+      weight: FontWeight.bold,
       height: 1.3,
     ),
     // The label on a full-width primary action, and the single letter in an
     // avatar: the biggest type that is not a screen title.
-    headlineLarge: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize24,
-      fontWeight: FontWeight.bold,
-      color: _ink,
-    ),
-    headlineMedium: TextStyle(
-      fontFamily: _fontFamily,
-      fontSize: _fontSize32,
-      fontWeight: FontWeight.bold,
-      color: _ink,
-    ),
+    headlineLarge: _style(_fontSize24, p.ink, weight: FontWeight.bold),
+    headlineMedium: _style(_fontSize32, p.ink, weight: FontWeight.bold),
   );
 
-  /// Lovable-style cards: white with a 1px hairline border, no shadow.
-  static CardThemeData get _cardTheme => CardThemeData(
-    color: _surface,
+  /// Lovable-style cards: the page's surface with a 1px hairline border, no
+  /// shadow.
+  static CardThemeData _cardTheme(AppPalette p) => CardThemeData(
+    color: p.surface,
     elevation: 0,
-    shape: const RoundedRectangleBorder(
+    shape: RoundedRectangleBorder(
       borderRadius: AppRadius.cardBorder,
-      side: BorderSide(color: _hairline),
+      side: BorderSide(color: p.hairline),
     ),
     margin: EdgeInsets.zero,
     clipBehavior: Clip.antiAlias,
   );
 
-  static InputDecorationTheme _inputTheme(ColorScheme colorScheme) =>
-      InputDecorationTheme(
-        filled: true,
-        fillColor: colorScheme.surfaceContainer,
-        hintStyle: const TextStyle(color: _slateText, fontSize: _fontSize14),
-        border: const OutlineInputBorder(
-          borderRadius: AppRadius.cardBorder,
-          borderSide: BorderSide(color: _hairline),
-        ),
-        enabledBorder: const OutlineInputBorder(
-          borderRadius: AppRadius.cardBorder,
-          borderSide: BorderSide(color: _hairline),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadius.cardBorder,
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-      );
+  static InputDecorationTheme _inputTheme(
+    AppPalette p,
+    ColorScheme colorScheme,
+  ) => InputDecorationTheme(
+    filled: true,
+    fillColor: colorScheme.surfaceContainer,
+    hintStyle: TextStyle(color: p.muted, fontSize: _fontSize14),
+    border: OutlineInputBorder(
+      borderRadius: AppRadius.cardBorder,
+      borderSide: BorderSide(color: p.hairline),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: AppRadius.cardBorder,
+      borderSide: BorderSide(color: p.hairline),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: AppRadius.cardBorder,
+      borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+    ),
+    contentPadding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.md,
+      vertical: AppSpacing.sm,
+    ),
+  );
 
   static ElevatedButtonThemeData _elevatedButtonTheme(ColorScheme colorScheme) =>
       ElevatedButtonThemeData(
@@ -253,28 +227,32 @@ class AppTheme {
         ),
       );
 
-  static ThemeData get light {
-    final colorScheme = _colorScheme;
+  static ThemeData get light => _build(AppPalette.light);
+
+  static ThemeData get dark => _build(AppPalette.dark);
+
+  static ThemeData _build(AppPalette p) {
+    final colorScheme = _colorScheme(p);
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.surface,
 
-      extensions: const [
+      extensions: [
         CustomColors(
-          success: _greenSuccess,
-          lost: _blue,
-          errorMuted: _red,
-          accentMuted: _green,
+          success: p.success,
+          lost: p.lost,
+          errorMuted: p.errorMuted,
+          accentMuted: p.accentMuted,
         ),
       ],
 
-      textTheme: _textTheme,
+      textTheme: _textTheme(p),
 
       // --- Component Themes ---
-      cardTheme: _cardTheme,
-      inputDecorationTheme: _inputTheme(colorScheme),
+      cardTheme: _cardTheme(p),
+      inputDecorationTheme: _inputTheme(p, colorScheme),
       elevatedButtonTheme: _elevatedButtonTheme(colorScheme),
 
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -293,17 +271,18 @@ class AppTheme {
         centerTitle: true,
       ),
 
-      dividerTheme: const DividerThemeData(color: _hairline, thickness: 1),
+      dividerTheme: DividerThemeData(color: p.hairline, thickness: 1),
     );
   }
 
   /// [light], with its foregrounds turned over for the dark gradient the start
-  /// screen paints. A screen on that backdrop wraps itself in this.
+  /// screen paints. A screen on that backdrop wraps itself in this, in either
+  /// mode: the backdrop is dark on purpose, so it reads the same both ways.
   ///
-  /// Every colour in the app comes from the theme, and the app's theme is a
-  /// light one — so on the one dark surface the wordmark and the carousel
-  /// titles were near-black type on a near-black gradient (#85). The backdrop
-  /// is a different surface, so it gets the theme of that surface.
+  /// The start screen once took the app's light theme onto its dark gradient,
+  /// and the wordmark and the carousel titles were near-black type on a
+  /// near-black gradient (#85). The backdrop is a different surface, so it gets
+  /// the theme of that surface.
   static ThemeData get startBackdrop {
     final base = light;
     return base.copyWith(

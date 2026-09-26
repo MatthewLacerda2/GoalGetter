@@ -29,6 +29,12 @@ class Language(StrEnum):
     FRENCH = "fr"
     GERMAN = "de"
 
+    @property
+    def english_name(self) -> str:
+        """The name a prompt writes when it tells Gemini which language to answer
+        in: prompts are English and name the output language outright (CLAUDE.md)."""
+        return self.name.capitalize()
+
 
 def requested_language(
     x_student_language: str | None = Header(

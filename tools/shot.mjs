@@ -41,6 +41,9 @@ const width = Number(opt("width", 412));
 const height = Number(opt("height", 915));
 const settleMs = Number(opt("settle", 1500));
 const timeoutMs = Number(opt("timeout", 45000));
+// `--scheme dark` photographs the phone in dark mode: the app follows the
+// phone's brightness unless the student picked one (#178).
+const scheme = opt("scheme", "light");
 const chromium = process.env.CHROMIUM || "/usr/bin/chromium";
 const routes = args.length ? args : ["/"];
 
@@ -158,6 +161,7 @@ async function main() {
     await cdp.send("Page.enable");
     await cdp.send("Runtime.enable");
     await cdp.send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 2, mobile: true });
+    await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: scheme }] });
     const waitSettled = settle(cdp);
 
     if (tokenFile) {

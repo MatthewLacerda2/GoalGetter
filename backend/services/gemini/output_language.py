@@ -17,19 +17,14 @@ language of the words he just wrote is exactly what the old prompts did, only
 decided in code instead of by the model. English last because a language
 nothing points to is a guess either way, and English is the one the prompts
 themselves are written in.
+
+This answers *which* language; `Language.english_name` is how a prompt names
+it. `Language.of` (#175) answered the same question without the middle step
+and was folded into this.
 """
 
 from backend.core.language import Language
 from backend.services.language.detection import detect_language
-
-# The name a prompt writes. In English, like the prompts themselves.
-LANGUAGE_NAMES: dict[Language, str] = {
-    Language.ENGLISH: "English",
-    Language.PORTUGUESE: "Portuguese",
-    Language.SPANISH: "Spanish",
-    Language.FRENCH: "French",
-    Language.GERMAN: "German",
-}
 
 
 def output_language(chosen: str | None, *typed: str) -> Language:
@@ -40,7 +35,3 @@ def output_language(chosen: str | None, *typed: str) -> Language:
         except ValueError:
             pass
     return detect_language(" ".join(typed)) or Language.ENGLISH
-
-
-def language_name(language: Language) -> str:
-    return LANGUAGE_NAMES[language]

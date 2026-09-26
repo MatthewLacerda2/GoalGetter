@@ -14,12 +14,16 @@ new rather than for what is already on the screen.
 
 import logging
 
+import httpx
+
+from backend.core.language import Language
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.services.jobs.steps.language import student_language
 from backend.services.resources.link_validation import validate_resources
+from backend.services.resources.youtube_search import search_videos
 from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
@@ -44,23 +48,31 @@ async def run_resources_step(session, student_id) -> int:
     return total
 
 
-async def _resources_for_goal(session, goal, reading: str, language) -> int:
+async def _resources_for_goal(session, goal, reading: str, language: Language) -> int:
     repository = ResourceRepository(session)
     held = [resource.link for resource in await repository.list_by_goal(goal.id)]
 
     # The Gemini client is synchronous and this is a slow, grounded search, so
     # keep it off the event loop. Nobody is waiting on it, so it retries on the
     # background budget (backend/utils/gemini/gemini_retry.py).
-    recommended = await run_gemini_background(
+    search = await run_gemini_background(
         search_resources, str(goal.id), goal.name, goal.description, reading, held, language
     )
-    logger.info("Gemini recommended %d resources for goal %s", len(recommended), goal.id)
+    async with httpx.AsyncClient() as client:
+        videos = await search_videos(client, str(goal.id), search.video_query, language)
+        found = search.pages + videos
+        logger.info("Found %d resources for goal %s", len(found), goal.id)
+        verified = await validate_resources(found, client=client)
 
-    verified = await validate_resources(recommended)
-    # Asking the prompt not to repeat a link is not the same as it obeying, and
-    # a link it invented may resolve to one we hold: dedupe after validation too.
+    # A page is only known by its address once its redirect is followed, and two
+    # sources may land on one page: dedupe after validation, against the goal
+    # and within the batch.
     already = await repository.existing_links(str(goal.id), [r.link for r in verified])
-    fresh = [resource for resource in verified if resource.link not in already]
+    fresh = []
+    for resource in verified:
+        if resource.link not in already:
+            already.add(resource.link)
+            fresh.append(resource)
 
     await repository.create_many(fresh)
     await session.commit()

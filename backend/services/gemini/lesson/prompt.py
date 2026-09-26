@@ -1,6 +1,5 @@
 from backend.core.language import Language
 from backend.services.gemini.lesson.schema import AnsweredQuestion
-from backend.services.gemini.output_language import language_name
 from backend.services.gemini.student_context.schema import GeminiStudentContext
 from backend.utils.envs import QUESTIONS_PER_GENERATION
 
@@ -90,7 +89,7 @@ def get_lesson_generation_prompt(
     - Keep questions educational and didactically sound.
     - His level is what his answers above show, not what he or the context says he thinks it is: a self-assessment is his opinion.
     - Do not stop at what he said he wants to reach. The app teaches him as far as he can go; his stated ambition is not a ceiling.
-    - Write every question and option in {language_name(language)}.
+    - Write every question and option in {language.english_name}.
     - Keep each question and option as short as it can be while staying clear; return only the questions.
     </Guidelines>
     """

@@ -38,12 +38,19 @@ class OnboardingQuestion(Base):
 
     # Who wrote the question: the Gemini model that generated it, or the
     # literal "system" for the four standard questions and for the row holding
-    # the student's own words (#132). NOT NULL - the schema is rebuilt on every
-    # start, so there is no row from before the column existed, and a row that
+    # the student's own words (#132). NOT NULL - the column is in the initial
+    # migration, so there is no row from before it existed, and a row that
     # cannot say where it came from is the one thing this column is for.
     ai_model = Column(String, nullable=False)
 
     selected_option_index = Column(Integer, nullable=True)
+    # How long he spent on the question, in whole seconds, as the app measured
+    # it (#174) - named after `student_answers.total_seconds`, one word for one
+    # thing. Nullable: an older client or a clock that could not be read sends
+    # none, and losing the duration must never lose the answer. NULL too on the
+    # row holding the student's own words, which the app does not time. Stored
+    # for deciding how many onboarding questions to ask; nothing reads it yet.
+    total_seconds = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
 
     goal = relationship("Goal", back_populates="onboarding_questions")

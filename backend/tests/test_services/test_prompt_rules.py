@@ -1,8 +1,6 @@
 """The rules every prompt carries (#173), read off the rendered prompt.
 
-No Gemini call: each prompt is rendered from its builder - the resource search,
-whose prompts live inside the function, through a stand-in client that keeps
-what it was sent. A rule is pinned by a phrase the prompt has to contain:
+No Gemini call: each prompt is rendered from its builder. A rule is pinned by a phrase the prompt has to contain:
 
 - the student's language, **named** (Portuguese and German here, so a prompt
   that always says English fails), where the old prompts guessed it;
@@ -10,9 +8,6 @@ what it was sent. A rule is pinned by a phrase the prompt has to contain:
   *as far as he can go*, wherever Gemini reasons about him;
 - rule 7, the shortest output: a phrase of each prompt's own, below.
 """
-
-from types import SimpleNamespace
-from unittest.mock import patch
 
 import pytest
 
@@ -29,7 +24,7 @@ from backend.services.gemini.onboarding.schema import (
     OnboardingQuestionItem,
 )
 from backend.services.gemini.onboarding.study_plan_prompt import get_study_plan_prompt
-from backend.services.gemini.resources.search_resources import search_resources
+from backend.services.gemini.resources.prompt import describe_prompt, search_prompt
 from backend.services.gemini.student_context.prompt import (
     get_context_review_prompt,
     get_student_context_prompt,
@@ -42,19 +37,15 @@ ANSWERS = [ObjectiveAnswer(question="How much do you already know?", answer="A l
 
 
 def resource_prompts(language: Language) -> str:
-    """Both of the resource search's prompts, as the client received them."""
-    sent = []
-
-    def generate(model, contents, config):
-        sent.append(contents)
-        return SimpleNamespace(text='{"resources": []}')
-
-    client = SimpleNamespace(models=SimpleNamespace(generate_content=generate))
-    with patch(
-        "backend.services.gemini.resources.search_resources.get_client", return_value=client
-    ):
-        search_resources("g", "Chess", "Learn chess openings", "Knows the moves", [], language)
-    return "\n".join(sent)
+    """Both of the resource search's prompts (#175), as `search_resources` names
+    the language in them."""
+    tongue = language.english_name
+    return "\n".join(
+        [
+            search_prompt("Chess", "Learn chess openings", "Knows the moves", [], tongue),
+            describe_prompt("Chess", "Knows the moves", "[0] chess.com", tongue),
+        ]
+    )
 
 
 # name -> (render the prompt in a language, rules 1 and 2 apply, its brevity phrase)
@@ -96,7 +87,7 @@ PROMPTS = {
         True,
         "as short as it can be",
     ),
-    "resource-search": (resource_prompts, True, "nothing before or after the list"),
+    "resource-search": (resource_prompts, True, "Nothing else: no URLs, no introduction"),
 }
 
 

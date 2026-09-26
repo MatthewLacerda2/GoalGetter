@@ -1,5 +1,4 @@
 from backend.core.language import Language
-from backend.services.gemini.output_language import language_name
 
 
 def get_goal_validation_prompt(prompt: str, language: Language) -> str:
@@ -33,7 +32,7 @@ def get_goal_validation_prompt(prompt: str, language: Language) -> str:
     If everything was valid, just write what the user seems to want to learn
     If something was not valid, write why you didn't validate it
     The reasoning must be the shortest text that does the job: one sentence
-    Write the reasoning in {language_name(language)}
+    Write the reasoning in {language.english_name}
 
     As long as the user asked for something that can be done safely, we are good to go.
     Ambitious goals are fine, as long as they are possible.

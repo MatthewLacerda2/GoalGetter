@@ -1,6 +1,5 @@
 from backend.core.language import Language
 from backend.services.gemini.chat.schema import StudentContextToChat
-from backend.services.gemini.output_language import language_name
 
 
 def chat_system_prompt(
@@ -55,6 +54,6 @@ def chat_system_prompt(
     ## Guidelines
     Return a list of strings representing the paragraphs or logical chunks of your response.
     Each chunk should be small and readable (typically under 40 words per chunk).
-    Write every chunk in {language_name(language)}.
+    Write every chunk in {language.english_name}.
     </system_instruction>
     """

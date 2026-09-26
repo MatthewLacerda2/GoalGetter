@@ -134,10 +134,13 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     student's id — the chain reads the onboarding back, it is not handed it. It
     is fired with the **instant this call finished writing**, so the batch now in
     flight cannot see the standard answers the student is about to give.
+  - each answer's `total_seconds` lands in `onboarding_questions.total_seconds`
+    (#174). See "Onboarding durations" under the standard answers.
 
 - **`POST /goals/{goal_id}/standard-answers`** ✅ — what the student told us
   about himself while his first lesson generated (#132).
-  request: `{ "answers": [{ "question_key": "...", "option_key": "..." }] }` ·
+  request: `{ "answers": [{ "question_key": "...", "option_key": "...",
+  "total_seconds": 9 }] }` ·
   response: 204, no body
   - **AUTHED**, same 404 rule as the other `{goal_id}` routes.
   - stored in `onboarding_questions` with `ai_model = "system"` and, unlike any
@@ -146,6 +149,15 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   - **nothing blocks on it.** A partial list is normal (he may skip out at any
     question), an empty one is a no-op, and a key this backend does not know is
     dropped and logged rather than refused. The client does not await it.
+  - **Onboarding durations** (#174), on both kinds of answer: `total_seconds`
+    is the whole seconds the question was on screen before he answered it —
+    the clock starts when the question takes the screen and stops at the tap
+    that answers it; a question he goes back to adds its new time to the old; a
+    standard question he skips is not sent, so it has no duration. Optional and
+    nullable (`>= 0`): an older client or an unreadable clock sends none, and the
+    answer is stored all the same. The free-text prompt row is never timed.
+    Named after `student_answers.total_seconds`. **Stored, read by nothing yet**
+    — it is there to decide, later, how many onboarding questions to ask.
 
 - **`PUT /goals/{goal_id}/set-active`** ✅ — set `students.current_goal_id`.
   request: none · response: `{ "goal_id": "..." }`
@@ -322,20 +334,38 @@ kicks off fire-and-forget; the standard questions (#132) exist to buy time for i
 Never fails the request that started it. It runs only after the student has a
 context, and the nightly run asks for it on Mondays only (#89).
 
-1. Ask Gemini (premium model, Google Search grounding) for 3 YouTube + 3
-   webpages + 3 PDFs, then a second call reshapes that text into JSON.
-2. **Validate every link** (see below) — anything unconfirmed is dropped
+Links come from what a tool found, never from what Gemini remembers (#175) — the
+first real student's nine recommended links were all invented and all dropped.
+
+1. **Pages**: a Gemini call (fast model) with the Google Search tool looks for 3
+   webpages + 3 PDFs in the student's language. Its text is discarded; the
+   response's `grounding_metadata.grounding_chunks` are the sources
+   (`services/gemini/resources/grounding.py`). A second call, without tools, is
+   shown those sources **by number, without URLs**, and answers per source a
+   type, name, short description and language code, plus one YouTube query. The
+   link is the source the number points at — the schema has no link field.
+   YouTube chunks are not offered: videos come from the next step.
+2. **Videos**: one YouTube Data API `search.list` on that query, 3 results,
+   `relevanceLanguage` = the student's language (`services/resources/youtube_search.py`).
+   Name and description are the video's own snippet. 100 quota units a run.
+3. **Validate every link** (see below) — anything unconfirmed is dropped
    silently. No 4xx: nobody is waiting on this.
-3. Drop links this goal already has, embed the descriptions, store the rest.
+4. Drop links this goal already has (and duplicates within the run), store the
+   rest. No embedding here: `description_embedding` stays null until the
+   midnight batch (#96), so a dropped link costs nothing.
 
 **Link validation rules**
-- *webpage* — must answer a request at all.
-- *pdf* — must answer AND be a real PDF (`content-type: application/pdf`, or a
-  `.pdf` path as fallback since some hosts serve octet-stream).
+- *webpage* — the grounding source is a `vertexaisearch.cloud.google.com`
+  redirect: it is followed, and **the page it lands on is what is stored**. A page
+  is dropped only when it is gone (**404, 410**) or unreachable; a **403** (a bot
+  wall in front of a page Google indexed) is kept. A redirect that never leaves
+  Google's host is dropped.
+- *pdf* — the same, AND a real PDF (`content-type: application/pdf`, or a
+  `.pdf` path as fallback since some hosts serve octet-stream or a bot wall).
 - *youtube* — must resolve through the **YouTube Data API v3** to a real item:
   a video must be `public`, and the channel/video must have a picture, which we
-  store as `image_url`. Needs `YOUTUBE_API_KEY`; without it YouTube links are
-  dropped. Handles `/watch?v=`, `youtu.be/`, `/shorts/`, `/embed/`,
+  store as `image_url`. Needs `YOUTUBE_API_KEY`; without it no videos are
+  searched. Handles `/watch?v=`, `youtu.be/`, `/shorts/`, `/embed/`,
   `/channel/UC…` and `/@handle`.
 
 **`resources.link` is deliberately NOT unique.** Two students may legitimately be
@@ -590,7 +620,9 @@ Decided in conversation; recorded here so they survive the session.
    Gemini ranks and describes the results it gets back. Cheaper (results are
    input tokens, not output), more deterministic, and no URL can be invented.
    Validators stay as the safety net. YouTube still needs the Data API either
-   way. ⬜ not built; `customsearch.googleapis.com` not yet enabled.
+   way. ✅ **done differently (#175)**: Gemini's own Google Search grounding
+   returns the real URLs, so Custom Search was not needed — see Resource
+   generation.
 5. **Embedding columns stay nullable** everywhere — generating them is never
    obligatory. Present on: chat messages (prompt + response), goals, resources,
    student context (state + metacognition), lesson questions. ~~The
@@ -639,7 +671,8 @@ goal                    { "id": "...", "name": "...", "description": "...",
                           "updated_at": "2026-06-06T09:00:00Z" }
 
 objective_question      { "question": "...", "options": ["a","b","c","d"] }  // exactly 4
-objective_answer        { "question": "...", "answer": "<the selected option>" }  // unselected options omitted
+objective_answer        { "question": "...", "answer": "<the selected option>",
+                          "total_seconds": 7 }  // unselected options omitted; seconds optional (#174)
 
 home_dashboard          { "goal_name": "...", "current_elo": 920, "current_streak": 7,
                           "recent_lessons": [ recent_lesson ] }   // newest first

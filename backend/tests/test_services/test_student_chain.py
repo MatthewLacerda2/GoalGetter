@@ -11,6 +11,7 @@ import asyncio
 import pytest
 
 from backend.core import clock
+from backend.core.language import Language
 from backend.models.student_context import StudentContext
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionRepository
@@ -33,7 +34,8 @@ STANDARD_PAIR = ("How old are you?", "18 to 24")
 
 
 async def onboarded(test_db, goal, prompt="I want Italian", answers=ANSWERS):
-    await OnboardingRepository(test_db).save_onboarding(goal.id, prompt, answers, MODEL)
+    timed = [(question, answer, None) for question, answer in answers]
+    await OnboardingRepository(test_db).save_onboarding(goal.id, prompt, timed, MODEL)
     await test_db.commit()
 
 
@@ -41,7 +43,8 @@ async def answered_the_standard_questions(test_db, goal):
     """What the student fills the wait with, after goal creation has returned.
     Returns the moment goal creation pinned its own read of the onboarding to."""
     as_of = clock.now()
-    await OnboardingRepository(test_db).save_standard_answers(goal.id, STANDARD)
+    timed = [(question, option, None) for question, option in STANDARD]
+    await OnboardingRepository(test_db).save_standard_answers(goal.id, timed)
     await test_db.commit()
     return as_of
 
@@ -99,7 +102,13 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
     assert target == 1200 + GENERATION_MARGIN
     assert frontier == goal.description
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
-    assert seen["resources"][1:-1] == (goal.name, goal.description, "Beginner Curious", [])
+    assert seen["resources"][1:] == (
+        goal.name,
+        goal.description,
+        "Beginner Curious",
+        [],
+        Language.ENGLISH,
+    )
     bank = await QuestionRepository(test_db).list_bank_history(goal.id)
     assert sorted(h.question.text for h in bank) == ["Q0", "Q1"]
 
