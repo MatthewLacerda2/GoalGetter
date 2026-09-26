@@ -29,6 +29,21 @@ class Language(StrEnum):
     FRENCH = "fr"
     GERMAN = "de"
 
+    @property
+    def english_name(self) -> str:
+        """The name a prompt writes when it tells Gemini which language to answer
+        in: prompts are English and name the output language outright (CLAUDE.md)."""
+        return self.name.capitalize()
+
+    @classmethod
+    def of(cls, code: str | None) -> Language:
+        """A stored code as a Language. Null means the app has not told us yet
+        (#172); a job cannot wait for him, so it writes in English until then."""
+        try:
+            return cls(code) if code else cls.ENGLISH
+        except ValueError:
+            return cls.ENGLISH
+
 
 def requested_language(
     x_student_language: str | None = Header(

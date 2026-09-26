@@ -11,6 +11,7 @@ import asyncio
 import pytest
 
 from backend.core import clock
+from backend.core.language import Language
 from backend.models.student_context import StudentContext
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionRepository
@@ -99,7 +100,13 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
     assert target == 1200 + GENERATION_MARGIN
     assert frontier == goal.description
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
-    assert seen["resources"][1:] == (goal.name, goal.description, "Beginner Curious", [])
+    assert seen["resources"][1:] == (
+        goal.name,
+        goal.description,
+        "Beginner Curious",
+        [],
+        Language.ENGLISH,
+    )
     bank = await QuestionRepository(test_db).list_bank_history(goal.id)
     assert sorted(h.question.text for h in bank) == ["Q0", "Q1"]
 

@@ -1,9 +1,11 @@
-"""Liveness checks for the study resources Gemini recommends.
+"""Liveness checks for the study resources the search found.
 
-Gemini returns plausible-looking URLs that may be dead, of the wrong type, or
-simply invented. Nothing here raises: a resource that fails its check is quietly
-dropped, because no user is waiting on the answer (this runs in the background
-job kicked off after goal creation).
+Pages come from Google's grounding sources as redirects
+(`vertexaisearch.cloud.google.com/grounding-api-redirect/...`): the check
+follows each one and stores the page it lands on, never the redirect (#175).
+Videos come from the YouTube Data API's search; the check confirms each is
+public and fills in its picture. Nothing here raises: a resource that fails its
+check is quietly dropped, because no user is waiting on the answer.
 """
 
 import asyncio
@@ -22,6 +24,12 @@ YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 
 # Some hosts refuse an obviously robotic client, which would cost us a good link.
 _BROWSER_UA = {"User-Agent": "Mozilla/5.0 (compatible; GoalGetter/1.0)"}
+
+# "A page that exists is good enough" (the user, #175): only these say it does
+# not. A 403 is a bot wall in front of a page Google indexed, so it is kept.
+GONE = (404, 410)
+# Google's redirect host: a link still pointing here was never resolved.
+REDIRECT_HOST = "vertexaisearch.cloud.google.com"
 
 _VIDEO_ID = re.compile(
     r"(?:youtube\.com/(?:watch\?(?:.*&)?v=|shorts/|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})"
@@ -49,26 +57,34 @@ async def _fetch(client: httpx.AsyncClient, url: str, params: dict | None = None
     return response
 
 
-async def is_live_webpage(client: httpx.AsyncClient, url: str) -> bool:
-    """True when the page answers at all."""
-    return await _fetch(client, url) is not None
+async def resolve_page(client: httpx.AsyncClient, url: str):
+    """Follow `url` to the page it lands on. The response, or None when there
+    is no page: the request failed, the page is gone (404/410), or the redirect
+    never left Google's host."""
+    try:
+        response = await client.get(
+            url, timeout=REQUEST_TIMEOUT, follow_redirects=True, headers=_BROWSER_UA
+        )
+    except httpx.HTTPError as exc:
+        logger.info("Dropping %s: request failed (%s)", url, exc)
+        return None
+    if response.status_code in GONE:
+        logger.info("Dropping %s: HTTP %s", response.url, response.status_code)
+        return None
+    if response.url.host == REDIRECT_HOST:
+        logger.info("Dropping %s: the redirect did not resolve", url)
+        return None
+    return response
 
 
-async def is_live_pdf(client: httpx.AsyncClient, url: str) -> bool:
-    """True when the link is reachable AND is actually a PDF.
-
-    The content type is the trustworthy signal; a `.pdf` path is accepted as a
-    fallback because some hosts serve PDFs as octet-stream.
-    """
-    response = await _fetch(client, url)
-    if response is None:
-        return False
+def is_pdf(response) -> bool:
+    """The content type is the trustworthy signal; a `.pdf` path is accepted as
+    a fallback because some hosts serve PDFs as octet-stream, and a bot wall
+    answers HTML in front of one."""
     content_type = response.headers.get("content-type", "").lower()
-    if "application/pdf" in content_type:
+    if "application/pdf" in content_type or response.url.path.lower().endswith(".pdf"):
         return True
-    if url.lower().split("?")[0].endswith(".pdf"):
-        return True
-    logger.info("Dropping %s: not a PDF (content-type %r)", url, content_type)
+    logger.info("Dropping %s: not a PDF (content-type %r)", response.url, content_type)
     return False
 
 
@@ -127,16 +143,21 @@ async def youtube_picture(client: httpx.AsyncClient, url: str) -> str | None:
 
 
 async def _keep(client: httpx.AsyncClient, resource: Resource) -> bool:
-    """Decide one resource's fate, filling in image_url for YouTube."""
+    """Decide one resource's fate: a page's link becomes where it landed, a
+    video gets its picture."""
     if resource.resource_type == StudyResourceType.youtube:
         picture = await youtube_picture(client, resource.link)
         if picture is None:
             return False
         resource.image_url = picture
         return True
-    if resource.resource_type == StudyResourceType.pdf:
-        return await is_live_pdf(client, resource.link)
-    return await is_live_webpage(client, resource.link)
+    response = await resolve_page(client, resource.link)
+    if response is None:
+        return False
+    if resource.resource_type == StudyResourceType.pdf and not is_pdf(response):
+        return False
+    resource.link = str(response.url)
+    return True
 
 
 async def validate_resources(
