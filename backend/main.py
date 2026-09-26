@@ -1,5 +1,4 @@
 import logging
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,32 +14,18 @@ from backend.core.logging_middleware import LoggingMiddleware
 from backend.core.rate_limiter import limiter
 from backend.llms import get_llms_txt
 
+# App-wide log format. Nothing logs from this module itself; the middleware and
+# the services take their loggers from here.
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 )
 
-logger = logging.getLogger(__name__)
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    from sqlalchemy import text
-
-    from backend.core.database import engine
-    from backend.models.base import Base
-
-    logger.info("Resetting database schema on startup...")
-    async with engine.begin() as conn:
-        await conn.execute(text("DROP SCHEMA public CASCADE;"))
-        await conn.execute(text("CREATE SCHEMA public;"))
-        await conn.execute(text("GRANT ALL ON SCHEMA public TO postgres;"))
-        await conn.execute(text("GRANT ALL ON SCHEMA public TO public;"))
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database schema successfully reset.")
-    yield
-
-
+# There is no lifespan here on purpose (#157). Starting the app used to drop the
+# public schema and rebuild it from the models, which was free while the tables
+# were still moving and is fatal with a real student in the database. The schema
+# is owned by backend/alembic/versions/ now, applied by the `migrate` service
+# before this one starts (docker-compose.yml). By hand: `make migrate`.
 app = FastAPI(
     title="GoalGetter API",
     description="API for the GoalGetter app",
@@ -48,7 +33,6 @@ app = FastAPI(
     openapi_url="/api/v1/openapi.json",
     docs_url="/api/v1/docs",  # Move docs to /api/v1/docs
     redoc_url="/api/v1/redoc",  # Move redoc to /api/v1/redoc
-    lifespan=lifespan,
 )
 
 app.add_middleware(

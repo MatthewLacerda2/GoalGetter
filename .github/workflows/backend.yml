@@ -63,6 +63,19 @@ jobs:
       - name: Build smoke
         run: make back-build PY_OFFLINE=python
 
+      # The schema gate (#157): `alembic upgrade head` on an empty database,
+      # then `alembic check` against the models. It resets TEST_DATABASE_URL's
+      # schema first, which on a runner is the service container above - the
+      # same database pytest then builds its tables in.
+      - name: Migrations
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
+          TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
+          GEMINI_API_KEY: test-key
+          SECRET_KEY: test-secret
+          GOOGLE_REDIRECT_URI: http://localhost/callback
+        run: make back-migrations PY=python
+
       # `make back-test PY=python` - the same target, and the same pytest
       # invocation, a developer runs. The settings arrive as real environment
       # variables here, so the target's `env` prerequisite finds nothing to seed.

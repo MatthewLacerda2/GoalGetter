@@ -41,7 +41,13 @@ async def drop_all_tables(conn):
 
 @pytest_asyncio.fixture(scope="session")
 async def setup_test_db():
-    """Create tables once at session start, drop at end"""
+    """Create tables once at session start, drop at end.
+
+    From the models, not from `backend/alembic/versions/` (#157): replaying the
+    migration history on every run would cost seconds and prove nothing the
+    suite is here to prove. What it does leave is the schema described twice,
+    and `make back-migrations` is the gate that keeps the two the same.
+    """
     async with test_engine.begin() as conn:
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         # Drop all tables first to ensure fresh schema (using CASCADE to handle circular deps)

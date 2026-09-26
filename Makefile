@@ -21,6 +21,11 @@ DOCKER_RUN    := docker run --rm --network host --user "$$(id -u):$$(id -g)" \
 # The same container cut off from the network. `back-build` claims it needs no
 # database; with no network it could not reach one even if the claim were wrong.
 DOCKER_RUN_OFFLINE := $(subst --network host,--network none,$(DOCKER_RUN))
+# The same container, forwarding DATABASE_URL by NAME (never a value on a
+# command line, where `ps` would read it). With none in the environment the
+# container falls back to the .env it has mounted, which is this worktree's.
+# `migrate` and `claude` both target a database, so both run through this.
+DOCKER_RUN_DB := $(subst --network host,--network host -e DATABASE_URL,$(DOCKER_RUN))
 
 # Every Python tool - ruff, vulture, the build smoke, pytest - runs inside the
 # backend image, because there is no local venv here. CI has no image: it
@@ -31,7 +36,7 @@ PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-test back-image front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
+.PHONY: help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -39,7 +44,7 @@ help: ## Show this help
 
 check: backend frontend ## Run every gate (backend + frontend)
 
-backend: back-lint back-deadcode back-build back-test ## Backend: lint + dead code + build smoke + pytest
+backend: back-lint back-deadcode back-build back-migrations back-test ## Backend: lint + dead code + build smoke + migrations + pytest
 
 frontend: front-lint front-test ## Frontend: line limits + analyze + tests
 
@@ -61,6 +66,21 @@ back-deadcode: ## Backend whole-program dead-code gate (vulture; whitelist in ba
 
 back-build: ## Backend build smoke: import the app and generate the OpenAPI (no database)
 	@$(PY_OFFLINE) -m backend.tools.build_smoke
+
+# In `make backend` rather than beside it, because it is the same failure the
+# other gates are for: the tests build their tables from the models, so a model
+# changed without a migration is green here and broken on deploy. It needs a
+# database - the worktree's own test one, which it resets - and `back-test`
+# already needed that, so the gate adds a prerequisite nobody has to think
+# about. It runs before pytest only because it is the cheaper of the two.
+back-migrations: env ## Backend schema gate: the migrations build it from empty, and match the models
+	@$(PY) -m backend.tools.migration_check
+
+# The fix for a red back-migrations, not a gate: autogenerate the revision the
+# models are asking for. A generated revision is a draft - read it.
+back-revision: env ## Draft a migration from the models (M="what changed")
+	@[ -n "$(M)" ] || { echo 'usage: make back-revision M="what changed"'; exit 1; }
+	@$(PY) -m backend.tools.migration_check --revision "$(M)"
 
 back-test: env ## Backend pytest (needs the test database: docker compose up -d postgres_test)
 	@$(PY) -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
@@ -149,6 +169,19 @@ hooks: ## Point git at the versioned hooks in .githooks
 	@git config blame.ignoreRevsFile .git-blame-ignore-revs
 	@echo "blame.ignoreRevsFile -> .git-blame-ignore-revs"
 
+# `make migrate`: bring DATABASE_URL's database to the current head. Nothing
+# creates the schema on start any more (#157), so this is how a database gets
+# one - the compose stack runs the same command as its own `migrate` service.
+# Useful ARGS:
+#   ARGS='stamp head'                a database whose tables were built by the
+#                                    old startup path: record it as already at
+#                                    head instead of building it again
+#   ARGS='downgrade base' then bare  a clean database, the reset that starting
+#                                    the backend used to give away
+#   ARGS=current / ARGS=history      where this database is, and what there is
+migrate: env ## Apply migrations to DATABASE_URL (ARGS='stamp head', 'downgrade base', 'current', ...)
+	@$(DOCKER_RUN_DB) python -m alembic -c backend/alembic.ini $(if $(ARGS),$(ARGS),upgrade head)
+
 # A bearer for "Fictitious Claude", so Claude can drive the API without Google.
 # Needs a running backend started with DEV_LOGIN=true (off, the route is a 404).
 # Only the access token is written, with no trailing newline, so
@@ -161,7 +194,7 @@ claude-token: ## Sign in as "Fictitious Claude" on the running backend and write
 	mkdir -p .claude; umask 077; \
 	printf '%s' "$$body" | python3 -c 'import json,sys; sys.stdout.write(json.load(sys.stdin)["access_token"])' > .claude/token; \
 	echo "claude-token: wrote .claude/token for Fictitious Claude."; \
-	echo "  It expires in 30 minutes, and dies with any backend restart (the database is dropped on start): re-run then."; \
+	echo "  It expires in 30 minutes: re-run then. A backend restart no longer costs it (#157)."; \
 	echo "  curl -H \"Authorization: Bearer \$$(cat .claude/token)\" http://127.0.0.1:$(BACKEND_PORT)/api/v1/..."
 
 # --- Looking at the app ------------------------------------------------------
@@ -169,19 +202,23 @@ claude-token: ## Sign in as "Fictitious Claude" on the running backend and write
 # build and the API on one origin, served by nginx on loopback and this machine's
 # Tailscale address only (tools/preview/nginx.conf). It lives outside every
 # worktree, so removing a worktree never takes it down. The backend reads the
-# main checkout's .env (mounted read-only, never copied) and drops its schema on
-# every start, like any backend here - a rebuild signs everyone out.
+# main checkout's .env (mounted read-only, never copied).
 #
-# It drops the schema of its OWN database (#122). The preview used to take
-# DATABASE_URL straight from that .env, which is the shared dev database, so
-# every `make preview` wiped whatever anyone else had in there - the one thing
-# left sharing after the test databases were split per worktree (#64). The
-# preview now gets goalgetter_preview, created the way `make test-db` creates
-# its own: a database on the dev server, so the URL is the dev one with the
-# name swapped and no new credential exists anywhere. It is read out of .env
-# inside the recipe, handed to the container by name (`-e DATABASE_URL`, never
-# a value on a command line) and never printed. The rest of .env - the Gemini
-# key, the OAuth client - still comes from the mount.
+# Since #157 it no longer wipes anything: the recipe runs `migrate` on the
+# preview database and starts a backend that creates no schema, so a rebuild
+# keeps the students that were in there. (It used to drop its schema on every
+# start, which is why `make claude` exists.)
+#
+# It has its OWN database (#122). The preview used to take DATABASE_URL straight
+# from that .env, which is the shared dev database, so every `make preview`
+# wiped whatever anyone else had in there - the one thing left sharing after the
+# test databases were split per worktree (#64). The preview now gets
+# goalgetter_preview, created the way `make test-db` creates its own: a database
+# on the dev server, so the URL is the dev one with the name swapped and no new
+# credential exists anywhere. It is read out of .env inside the recipe, handed
+# to the container by name (`-e DATABASE_URL`, never a value on a command line)
+# and never printed. The rest of .env - the Gemini key, the OAuth client -
+# still comes from the mount.
 PREVIEW_DIR  ?= $(HOME)/.local/share/goalgetter-preview
 PREVIEW_PORT := 8093
 PREVIEW_DB   := goalgetter_preview
@@ -200,6 +237,7 @@ preview: ## Build and serve the integrated app on the tailnet (http://<this host
 	[ -n "$$DATABASE_URL" ] || { echo "preview: no DATABASE_URL in $(MAIN_CHECKOUT)/.env"; exit 1; }; \
 	docker exec goalgetter_postgres psql -U postgres -Atc "SELECT 1 FROM pg_database WHERE datname='$(PREVIEW_DB)'" | grep -q 1 \
 	  || docker exec goalgetter_postgres createdb -U postgres "$(PREVIEW_DB)"; \
+	$(MAKE) --no-print-directory migrate; \
 	mkdir -p "$(PREVIEW_DIR)"; \
 	docker build -q -t goalgetter-preview-backend backend >/dev/null; \
 	docker rm -f goalgetter_preview_backend >/dev/null 2>&1 || true; \
@@ -265,12 +303,12 @@ embeddings: env ## Fill every null embedding by hand (SPENDS QUOTA)
 # environment's if set, else the preview's own database (#122) - the one the
 # backend on BACKEND_PORT is serving. Either way it is forwarded by name and
 # never echoed. A backend run by hand against another database wants that
-# database named: `DATABASE_URL=... make claude`. The schema must exist (a
-# backend creates it on start), and every backend start drops it: re-run after
-# one. Idempotent; ARGS=--fresh deletes the student and rebuilds it.
-CLAUDE_RUN = $(subst --network host,--network host -e DATABASE_URL,$(DOCKER_RUN))
+# database named: `DATABASE_URL=... make claude`. The schema must exist
+# (`make migrate`); since #157 nothing drops it, so this survives a restart and
+# only has to be run once. Idempotent; ARGS=--fresh deletes the student and
+# rebuilds it.
 claude: env ## Seed "Fictitious Claude" with a lived-in history, then write .claude/token (ARGS=--fresh)
 	@set -e; export DATABASE_URL="$${DATABASE_URL:-$$($(PREVIEW_URL))}"; \
 	[ -n "$$DATABASE_URL" ] || { echo "claude: no DATABASE_URL in $(MAIN_CHECKOUT)/.env"; exit 1; }; \
-	$(CLAUDE_RUN) python -m backend.services.fictitious $(ARGS)
+	$(DOCKER_RUN_DB) python -m backend.services.fictitious $(ARGS)
 	@$(MAKE) --no-print-directory claude-token
