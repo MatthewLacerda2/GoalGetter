@@ -9,9 +9,7 @@ import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/core/utils/theme_mode_provider.dart';
 import 'package:goal_getter/core/widgets/language_picker.dart';
-import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
-import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:goal_getter/features/profile/presentation/widgets/profile_header.dart';
+import 'package:goal_getter/features/profile/data/profile_api.dart';
 import 'package:goal_getter/features/profile/presentation/widgets/theme_mode_sheet.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 
@@ -31,9 +29,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final currentLanguage = ref.watch(localeProvider).languageCode;
-    final profile = ref.watch(profileControllerProvider);
-    final goalsCount =
-        ref.watch(goalsListControllerProvider).value?.length ?? 0;
 
     return Scaffold(
       body: SafeArea(
@@ -43,13 +38,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              ProfileHeader(
-                profile: profile,
-                goalsCount: goalsCount,
-                onRetry: () => ref.invalidate(profileControllerProvider),
-              ),
-              const SizedBox(height: 28),
-
               _goalsSection(l10n),
               const SizedBox(height: 28),
 
@@ -75,7 +63,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  /// "Goals": manage the existing ones, or start another.
+  /// "Goals": a way into the goals list, where a new one is started.
   Widget _goalsSection(AppLocalizations l10n) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -86,17 +74,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _tile(
           icon: Icons.flag_outlined,
           title: l10n.manageGoals,
-          subtitle: l10n.manageGoalsSubtitle,
           trailing: _chevron(),
           onTap: () => context.push(AppRoutes.goals),
-        ),
-        const SizedBox(height: 12),
-        _tile(
-          icon: Icons.add,
-          iconTinted: true,
-          title: l10n.createNewGoal,
-          trailing: _chevron(),
-          onTap: () => context.push(AppRoutes.goalPrompt),
         ),
       ],
     );
@@ -124,8 +103,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           onTap: () => showLanguagePicker(
             context,
             ref,
-            // GET /me carries the new language, so the backend learns it now.
-            onPicked: () => ref.invalidate(profileControllerProvider),
+            onPicked: _tellBackendTheLanguage,
           ),
         ),
         const SizedBox(height: 12),
@@ -167,18 +145,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget _tile({
     required IconData icon,
     required String title,
-    String? subtitle,
     Widget? trailing,
-    bool iconTinted = false,
     VoidCallback? onTap,
   }) {
-    final iconBg = iconTinted
-        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
-        : Theme.of(context).colorScheme.surfaceContainer;
-    final iconColor = iconTinted
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.onSurfaceVariant;
-
+    final scheme = Theme.of(context).colorScheme;
     return Material(
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(AppRadius.card),
@@ -196,23 +166,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: iconBg),
-                child: Icon(icon, color: iconColor, size: 20),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.surfaceContainer,
+                ),
+                child: Icon(icon, color: scheme.onSurfaceVariant, size: 20),
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.labelLarge),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ],
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
               ),
               if (trailing != null) trailing,
@@ -244,6 +208,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  /// Any signed-in request carries `X-Student-Language` (ApiClient) and the
+  /// backend stores it (#172): one GET /me tells it the new language now
+  /// rather than on the next unrelated request. Best-effort — a failure only
+  /// delays that until the next request.
+  Future<void> _tellBackendTheLanguage() async {
+    try {
+      await ref.read(profileApiProvider).me();
+    } on Exception {
+      // Nothing to show: the picker already changed the app's language.
+    }
   }
 
   /// Persisted, so the switch survives a restart. Nothing reads it yet: the

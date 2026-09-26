@@ -90,7 +90,7 @@
     },
     "createNewGoal": "Créer un nouvel objectif",
     "@createNewGoal": {
-        "description": "Label for create new goal"
+        "description": "Goals list: the floating button that starts a new goal"
     },
     "signOut": "Se déconnecter",
     "@signOut": {
@@ -158,8 +158,6 @@
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Gérer les objectifs",
     "@manageGoals": { "description": "Profile: manage goals tile" },
-    "manageGoalsSubtitle": "Voir, changer et supprimer",
-    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
     "notifications": "Notifications",
     "@notifications": { "description": "Profile: notifications tile" },
     "theme": "Thème",
@@ -193,13 +191,10 @@
     "lessonTime": "Temps",
     "lessonAccuracy": "Précision",
     "homeLoadFailed": "Impossible de charger votre tableau de bord",
-    "profileLoadFailed": "Impossible de charger votre profil",
     "retry": "Réessayer",
     "serverUnreachable": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
     "goalsLoadFailed": "Impossible de charger vos objectifs",
     "activeGoalBadge": "Actif",
-    "goalCreatedOn": "Créé le {date}",
-    "goalUpdatedOn": "Mis à jour le {date}",
     "setActiveGoalFailed": "Impossible d'activer cet objectif",
     "deleteGoalFailed": "Impossible de supprimer cet objectif",
     "goalNotFound": "Cet objectif n'existe plus",
@@ -228,7 +223,6 @@
     "startTagline": "Un enseignement sur mesure",
     "appWordmark": "Goal Getter",
     "profileVersionTag": "ELO · v0.1 prototype",
-    "statSeparator": "  ·  ",
     "tutorLoadFailed": "Impossible de charger votre conversation",
     "standardQuestionsTitle": "À propos de vous",
     "standardQuestionsSkip": "Passer",

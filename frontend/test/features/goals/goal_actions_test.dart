@@ -10,8 +10,6 @@ Goal goal(String id, {bool active = false}) => Goal(
       id: id,
       name: id,
       description: '',
-      createdAt: DateTime(2026),
-      updatedAt: DateTime(2026),
       currentElo: 1000,
       isActive: active,
     );

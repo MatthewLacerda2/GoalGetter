@@ -90,7 +90,7 @@
     },
     "createNewGoal": "Criar nova meta",
     "@createNewGoal": {
-        "description": "Label for create new goal"
+        "description": "Goals list: the floating button that starts a new goal"
     },
     "signOut": "Sair",
     "@signOut": {
@@ -158,8 +158,6 @@
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Gerenciar metas",
     "@manageGoals": { "description": "Profile: manage goals tile" },
-    "manageGoalsSubtitle": "Ver, trocar e excluir",
-    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
     "notifications": "Notificações",
     "@notifications": { "description": "Profile: notifications tile" },
     "theme": "Tema",
@@ -193,13 +191,10 @@
     "lessonTime": "Tempo",
     "lessonAccuracy": "Precisão",
     "homeLoadFailed": "Não foi possível carregar o seu painel",
-    "profileLoadFailed": "Não foi possível carregar o seu perfil",
     "retry": "Tentar de novo",
     "serverUnreachable": "Não foi possível falar com o servidor. Verifique sua conexão e tente de novo.",
     "goalsLoadFailed": "Não foi possível carregar seus objetivos",
     "activeGoalBadge": "Ativo",
-    "goalCreatedOn": "Criado em {date}",
-    "goalUpdatedOn": "Atualizado em {date}",
     "setActiveGoalFailed": "Não foi possível tornar este seu objetivo ativo",
     "deleteGoalFailed": "Não foi possível excluir este objetivo",
     "goalNotFound": "Este objetivo não existe mais",
@@ -228,7 +223,6 @@
     "startTagline": "Ensino sob medida",
     "appWordmark": "Goal Getter",
     "profileVersionTag": "ELO · v0.1 protótipo",
-    "statSeparator": "  ·  ",
     "tutorLoadFailed": "Não foi possível carregar sua conversa",
     "standardQuestionsTitle": "Sobre você",
     "standardQuestionsSkip": "Pular",

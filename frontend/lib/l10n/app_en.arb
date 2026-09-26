@@ -90,7 +90,7 @@
     },
     "createNewGoal": "Create new goal",
     "@createNewGoal": {
-        "description": "Label for create new goal"
+        "description": "Goals list: the floating button that starts a new goal"
     },
     "signOut": "Sign out",
     "@signOut": {
@@ -158,8 +158,6 @@
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Manage goals",
     "@manageGoals": { "description": "Profile: manage goals tile" },
-    "manageGoalsSubtitle": "View, switch, and delete",
-    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
     "notifications": "Notifications",
     "@notifications": { "description": "Profile: notifications tile" },
     "theme": "Theme",
@@ -208,8 +206,6 @@
     "@lessonAccuracy": { "description": "Finish lesson screen: accuracy stat" },
     "homeLoadFailed": "Could not load your dashboard",
     "@homeLoadFailed": { "description": "Home: GET /home failed" },
-    "profileLoadFailed": "Could not load your profile",
-    "@profileLoadFailed": { "description": "Profile: GET /me failed" },
     "retry": "Retry",
     "@retry": { "description": "Button: retry a failed load" },
     "serverUnreachable": "Could not reach the server. Check your connection and try again.",
@@ -218,16 +214,6 @@
     "@goalsLoadFailed": { "description": "Goals list: GET /goals failed" },
     "activeGoalBadge": "Active",
     "@activeGoalBadge": { "description": "Goals: badge on the active goal" },
-    "goalCreatedOn": "Created {date}",
-    "@goalCreatedOn": {
-        "description": "Goals: creation date",
-        "placeholders": { "date": { "type": "String" } }
-    },
-    "goalUpdatedOn": "Updated {date}",
-    "@goalUpdatedOn": {
-        "description": "Goals: last update date",
-        "placeholders": { "date": { "type": "String" } }
-    },
     "setActiveGoalFailed": "Could not make this your active goal",
     "@setActiveGoalFailed": {
         "description": "Goal detail: set-active failed"
@@ -291,10 +277,6 @@
     "profileVersionTag": "ELO · v0.1 prototype",
     "@profileVersionTag": {
         "description": "Profile: the build tag at the foot of the screen"
-    },
-    "statSeparator": "  ·  ",
-    "@statSeparator": {
-        "description": "Profile header: between the goal count and the streak"
     },
     "tutorLoadFailed": "Could not load your chat",
     "@tutorLoadFailed": {

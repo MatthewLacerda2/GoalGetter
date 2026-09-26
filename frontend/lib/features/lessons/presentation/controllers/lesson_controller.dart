@@ -8,7 +8,6 @@ import 'package:goal_getter/features/home/presentation/controllers/home_controll
 import 'package:goal_getter/features/lessons/data/lessons_api.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
-import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
 
 export 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
 
@@ -200,9 +199,8 @@ class LessonController extends _$LessonController {
   void _finish(LessonEvaluation evaluation) {
     _hasSubmittedAnswers = true;
     _timer?.cancel();
-    // Home's rating, streak and recent lessons, and Profile's streak, moved.
+    // Home's rating, streak and recent lessons moved.
     ref.invalidate(homeControllerProvider);
-    ref.invalidate(profileControllerProvider);
     state = state.copyWith(
       evaluationResponse: evaluation,
       isSubmitting: false,

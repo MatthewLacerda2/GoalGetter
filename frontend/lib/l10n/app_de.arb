@@ -90,7 +90,7 @@
     },
     "createNewGoal": "Erstelle ein neues Ziel",
     "@createNewGoal": {
-        "description": "Label for create new goal"
+        "description": "Goals list: the floating button that starts a new goal"
     },
     "signOut": "Abmelden",
     "@signOut": {
@@ -158,8 +158,6 @@
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Ziele verwalten",
     "@manageGoals": { "description": "Profile: manage goals tile" },
-    "manageGoalsSubtitle": "Ansehen, wechseln und löschen",
-    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
     "notifications": "Benachrichtigungen",
     "@notifications": { "description": "Profile: notifications tile" },
     "theme": "Design",
@@ -193,13 +191,10 @@
     "lessonTime": "Zeit",
     "lessonAccuracy": "Genauigkeit",
     "homeLoadFailed": "Dein Dashboard konnte nicht geladen werden",
-    "profileLoadFailed": "Dein Profil konnte nicht geladen werden",
     "retry": "Erneut versuchen",
     "serverUnreachable": "Der Server ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
     "goalsLoadFailed": "Deine Ziele konnten nicht geladen werden",
     "activeGoalBadge": "Aktiv",
-    "goalCreatedOn": "Erstellt am {date}",
-    "goalUpdatedOn": "Aktualisiert am {date}",
     "setActiveGoalFailed": "Dieses Ziel konnte nicht aktiviert werden",
     "deleteGoalFailed": "Dieses Ziel konnte nicht gelöscht werden",
     "goalNotFound": "Dieses Ziel gibt es nicht mehr",
@@ -228,7 +223,6 @@
     "startTagline": "Unterricht nach Maß",
     "appWordmark": "Goal Getter",
     "profileVersionTag": "ELO · v0.1 Prototyp",
-    "statSeparator": "  ·  ",
     "tutorLoadFailed": "Dein Chat konnte nicht geladen werden",
     "standardQuestionsTitle": "Über dich",
     "standardQuestionsSkip": "Überspringen",
