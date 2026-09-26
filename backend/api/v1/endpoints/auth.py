@@ -204,5 +204,5 @@ async def delete_account(
         logger.error(f"Error deleting account: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deleting account: {str(e)}",
+            detail="Error deleting account",
         ) from e
