@@ -25,11 +25,13 @@ Four rules the user settled on 2026-09-24. They are why the code looks the way i
 and an issue that needs one of them broken is the wrong shape.
 
 - **Gemini writes content; arithmetic decides what appears.** Writing a question, a tutor
-  reply or a resource search is his. Choosing which questions a student gets, measuring
+  reply or a resource's description is his. Choosing which questions a student gets, measuring
   how he is doing, and deciding whether it is worth generating more are deterministic
   formulas — testable without a network and free to run. The selection runs several times
   a day per student: as a model call it would be the app's largest cost and its least
-  predictable behaviour.
+  predictable behaviour. **And he is the tool of last resort** (2026-09-26): where a tool
+  exists for the job, the tool does it. Google Search finds pages and the YouTube Data API
+  finds videos; Gemini never supplies a link from memory, because he invents them (#175).
 - **Content sits at the threshold of what the student knows** — always challenged, never
   handed more than he can take, because both extremes stop him progressing. That is a
   number: the chance he answers correctly, aimed at about 0.75. Classical Item Response
@@ -58,6 +60,10 @@ reused between students: not questions, not resources, not contexts.
 - **Gemini calls** live under `backend/services/gemini/<use-case>/`, each a folder
   with a `schema.py` (the Pydantic JSON shape Gemini must return), a prompt, and
   the function that calls the client. Callers get a typed result like any function.
+  Every prompt is **written in English** and **names the language of its output** — the
+  student's — outright; that line is written by hand in each prompt, there is no shortcut.
+  And every prompt asks for the **shortest output that does the job**: tokens are the bill,
+  and a response the code only parses needs no prose around it.
 
 ## Quality gates — `make check`
 
