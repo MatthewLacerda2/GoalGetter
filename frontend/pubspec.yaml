@@ -71,6 +71,9 @@ dev_dependencies:
   build_runner: ^2.4.9
   riverpod_lint: ^3.1.9
   very_good_analysis: ^6.0.0
+  # Only tool/generate_icons.dart reads it: every app icon is resized from
+  # assets/icon/app_icon.png by that one script (#179).
+  image: ^4.10.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
