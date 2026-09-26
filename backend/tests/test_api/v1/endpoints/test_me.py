@@ -41,4 +41,4 @@ async def test_the_streak_is_user_wide_and_counts_days_with_an_answer(
 
 @pytest.mark.asyncio
 async def test_me_needs_a_token(client):
-    assert (await client.get(ENDPOINT)).status_code in (401, 403)
+    assert (await client.get(ENDPOINT)).status_code == 401

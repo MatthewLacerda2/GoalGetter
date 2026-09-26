@@ -98,7 +98,7 @@ async def submit_lesson_answers(
         graded = grade_lesson(bank, payload.answers)
     except UnknownQuestionError as err:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(err)
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(err)
         ) from err
     answers = StudentAnswerRepository(db)
     await answers.create_many(graded.answers)

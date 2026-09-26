@@ -56,4 +56,4 @@ async def test_list_goals_empty(auth_client):
 
 @pytest.mark.asyncio
 async def test_list_goals_requires_auth(client):
-    assert (await client.get(ENDPOINT)).status_code == 403
+    assert (await client.get(ENDPOINT)).status_code == 401

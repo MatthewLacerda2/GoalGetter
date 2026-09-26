@@ -93,4 +93,4 @@ async def test_resources_without_active_goal_is_404(auth_client, test_user, goal
 
 @pytest.mark.asyncio
 async def test_resources_requires_auth(client):
-    assert (await client.get(ENDPOINT)).status_code == 403
+    assert (await client.get(ENDPOINT)).status_code == 401

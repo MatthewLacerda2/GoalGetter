@@ -34,7 +34,7 @@ def code_line_count(source):
     """
     try:
         tokens = list(tokenize.generate_tokens(io.StringIO(source).readline))
-    except (tokenize.TokenError, IndentationError, SyntaxError):
+    except tokenize.TokenError, IndentationError, SyntaxError:
         # Unparseable: fall back to the raw count rather than silently passing.
         return len(source.splitlines())
 
