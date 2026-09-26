@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/services/shared_preferences_provider.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/standard_questions_screen.dart';
@@ -84,6 +85,7 @@ Future<SharedPreferences> pumpFlow(
   final stored = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
+      retry: noAutomaticRetry,
       overrides: [
         onboardingApiProvider.overrideWithValue(api),
         sharedPreferencesProvider.overrideWithValue(stored),

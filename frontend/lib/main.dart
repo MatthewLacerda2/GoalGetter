@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:goal_getter/app/app.dart';
@@ -25,6 +26,7 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
+      retry: noAutomaticRetry,
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],

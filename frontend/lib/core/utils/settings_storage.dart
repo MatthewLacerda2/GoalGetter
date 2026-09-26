@@ -212,7 +212,7 @@ class SettingsStorage {
 }
 
 @Riverpod(keepAlive: true)
-SettingsStorage settingsStorage(SettingsStorageRef ref) {
+SettingsStorage settingsStorage(Ref ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
   return SettingsStorage(prefs);
 }

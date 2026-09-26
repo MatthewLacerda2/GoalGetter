@@ -6,15 +6,16 @@
 # Its own stage so the pin, not the whole pubspec, is what the Flutter layer
 # depends on: COPY --from caches on the file's content, and /flutter-version
 # only changes when the version does - a dependency bump does not re-clone it.
-FROM debian:bookworm-slim AS flutter-pin
+FROM debian:trixie-slim AS flutter-pin
 COPY frontend/pubspec.yaml /pubspec.yaml
 RUN sed -nE 's/^[[:space:]]+flutter:[[:space:]]*([0-9][^[:space:]#]*).*/\1/p' /pubspec.yaml \
       | head -n1 > /flutter-version \
     && test -s /flutter-version
 
-# bookworm, not bullseye: bullseye's LTS ended in August 2026 and its security
-# archive now answers 404, so `apt-get install` failed and the build never ran.
-FROM debian:bookworm-slim AS flutter-base
+# trixie (Debian 13), the current stable. bullseye's LTS ended in August 2026
+# and its security archive answers 404, which is what broke this build (#162);
+# bookworm was already the previous release, so the image moved on with #164.
+FROM debian:trixie-slim AS flutter-base
 
 RUN apt-get update && apt-get install -y \
     curl \

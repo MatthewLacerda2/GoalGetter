@@ -69,5 +69,5 @@ class OnboardingApi {
 }
 
 @riverpod
-OnboardingApi onboardingApi(OnboardingApiRef ref) =>
+OnboardingApi onboardingApi(Ref ref) =>
     OnboardingApi(ref.watch(apiClientProvider));

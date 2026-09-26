@@ -6,20 +6,46 @@ part of 'onboarding_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$onboardingApiHash() => r'54503cb672182d39952506db1e2cc74d11fa0877';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [onboardingApi].
 @ProviderFor(onboardingApi)
-final onboardingApiProvider = AutoDisposeProvider<OnboardingApi>.internal(
-  onboardingApi,
-  name: r'onboardingApiProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$onboardingApiHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final onboardingApiProvider = OnboardingApiProvider._();
 
-typedef OnboardingApiRef = AutoDisposeProviderRef<OnboardingApi>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class OnboardingApiProvider
+    extends $FunctionalProvider<OnboardingApi, OnboardingApi, OnboardingApi>
+    with $Provider<OnboardingApi> {
+  OnboardingApiProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'onboardingApiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$onboardingApiHash();
+
+  @$internal
+  @override
+  $ProviderElement<OnboardingApi> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  OnboardingApi create(Ref ref) {
+    return onboardingApi(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OnboardingApi value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OnboardingApi>(value),
+    );
+  }
+}
+
+String _$onboardingApiHash() => r'd569743607a25f26b7cf6fef9631ac4eb7f1dce3';

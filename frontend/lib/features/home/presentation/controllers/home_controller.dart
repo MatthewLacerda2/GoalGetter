@@ -8,6 +8,6 @@ part 'home_controller.g.dart';
 /// The Home dashboard for the active goal; null when there is none. A finished
 /// lesson invalidates it (LessonController), so Home shows the new rating.
 @riverpod
-Future<HomeDashboard?> homeController(HomeControllerRef ref) {
+Future<HomeDashboard?> homeController(Ref ref) {
   return ref.watch(homeApiProvider).fetch();
 }

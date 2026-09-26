@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
@@ -11,6 +12,7 @@ import 'fake_tutor_api.dart';
 Future<void> pumpTutor(WidgetTester tester, FakeTutorApi api) async {
   await tester.pumpWidget(
     ProviderScope(
+      retry: noAutomaticRetry,
       overrides: [tutorApiProvider.overrideWithValue(api)],
       child: const MaterialApp(
         locale: Locale('en'),

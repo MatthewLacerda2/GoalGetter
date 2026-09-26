@@ -8,6 +8,6 @@ part 'profile_controller.g.dart';
 /// The signed-in user's profile header (GET /me). A finished lesson
 /// invalidates it (LessonController): the streak may have moved.
 @riverpod
-Future<UserProfile> profileController(ProfileControllerRef ref) {
+Future<UserProfile> profileController(Ref ref) {
   return ref.watch(profileApiProvider).me();
 }

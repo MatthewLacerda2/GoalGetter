@@ -24,5 +24,5 @@ class ResourcesApi {
 }
 
 @riverpod
-ResourcesApi resourcesApi(ResourcesApiRef ref) =>
+ResourcesApi resourcesApi(Ref ref) =>
     ResourcesApi(ref.watch(apiClientProvider));

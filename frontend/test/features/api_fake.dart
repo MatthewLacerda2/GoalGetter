@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:http/http.dart' as http;
@@ -56,6 +58,7 @@ Future<void> pumpScreen(
   Widget screen,
 ) async {
   await tester.pumpWidget(ProviderScope(
+    retry: noAutomaticRetry,
     overrides: overrides,
     child: MaterialApp(
       locale: const Locale('en'),

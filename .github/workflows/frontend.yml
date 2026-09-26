@@ -14,7 +14,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # The exact version is read from frontend/pubspec.yaml's
       # `environment.flutter`, never repeated here: two copies of a version
       # number are two things that can disagree. `channel: stable` only says

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
 
@@ -11,7 +12,10 @@ import 'lesson_json.dart';
 
 /// A running lesson controller over [fake]; disposed with the test.
 Future<LessonController> controllerOver(ApiFake fake) async {
-  final container = ProviderContainer(overrides: await fake.overrides());
+  final container = ProviderContainer(
+    retry: noAutomaticRetry,
+    overrides: await fake.overrides(),
+  );
   addTearDown(container.dispose);
   container.listen(lessonControllerProvider, (_, __) {});
   return container.read(lessonControllerProvider.notifier);
@@ -111,7 +115,10 @@ void main() {
       answersKey: [(200, evaluationJson)],
       'GET /home': [(404, '{"detail": "No active goal"}')],
     });
-    final container = ProviderContainer(overrides: await fake.overrides());
+    final container = ProviderContainer(
+      retry: noAutomaticRetry,
+      overrides: await fake.overrides(),
+    );
     addTearDown(container.dispose);
     container.listen(homeControllerProvider, (_, __) {});
     container.listen(lessonControllerProvider, (_, __) {});

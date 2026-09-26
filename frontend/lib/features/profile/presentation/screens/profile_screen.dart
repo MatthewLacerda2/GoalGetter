@@ -47,7 +47,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final currentLanguage = ref.watch(localeProvider).languageCode;
     final profile = ref.watch(profileControllerProvider);
     final goalsCount =
-        ref.watch(goalsListControllerProvider).valueOrNull?.length ?? 0;
+        ref.watch(goalsListControllerProvider).value?.length ?? 0;
 
     return Scaffold(
       body: SafeArea(

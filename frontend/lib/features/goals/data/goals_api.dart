@@ -28,4 +28,4 @@ class GoalsApi {
 }
 
 @riverpod
-GoalsApi goalsApi(GoalsApiRef ref) => GoalsApi(ref.watch(apiClientProvider));
+GoalsApi goalsApi(Ref ref) => GoalsApi(ref.watch(apiClientProvider));

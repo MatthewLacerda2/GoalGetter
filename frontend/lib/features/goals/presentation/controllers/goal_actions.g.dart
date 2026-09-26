@@ -6,19 +6,46 @@ part of 'goal_actions.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$goalActionsHash() => r'5366346e196df931c31d8e32ecb6d4ac41119c62';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [goalActions].
 @ProviderFor(goalActions)
-final goalActionsProvider = AutoDisposeProvider<GoalActions>.internal(
-  goalActions,
-  name: r'goalActionsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$goalActionsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final goalActionsProvider = GoalActionsProvider._();
 
-typedef GoalActionsRef = AutoDisposeProviderRef<GoalActions>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class GoalActionsProvider
+    extends $FunctionalProvider<GoalActions, GoalActions, GoalActions>
+    with $Provider<GoalActions> {
+  GoalActionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'goalActionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$goalActionsHash();
+
+  @$internal
+  @override
+  $ProviderElement<GoalActions> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  GoalActions create(Ref ref) {
+    return goalActions(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GoalActions value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GoalActions>(value),
+    );
+  }
+}
+
+String _$goalActionsHash() => r'96e4a781f80c668fd1645f296a6351ff5ee78be2';

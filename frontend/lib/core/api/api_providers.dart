@@ -11,7 +11,7 @@ part 'api_providers.g.dart';
 /// The transport under [ApiClient]. Tests override it with
 /// `package:http/testing.dart`'s `MockClient`.
 @Riverpod(keepAlive: true)
-http.Client httpClient(HttpClientRef ref) {
+http.Client httpClient(Ref ref) {
   final client = http.Client();
   ref.onDispose(client.close);
   return client;
@@ -20,7 +20,7 @@ http.Client httpClient(HttpClientRef ref) {
 /// Kept alive on purpose: the client owns the in-flight refresh that every
 /// concurrent 401 shares, so a rebuilt client would refresh twice.
 @Riverpod(keepAlive: true)
-ApiClient apiClient(ApiClientRef ref) {
+ApiClient apiClient(Ref ref) {
   return ApiClient(
     httpClient: ref.watch(httpClientProvider),
     storage: ref.watch(settingsStorageProvider),

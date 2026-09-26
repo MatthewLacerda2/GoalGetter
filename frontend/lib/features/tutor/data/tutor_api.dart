@@ -51,4 +51,4 @@ class TutorApi {
 }
 
 @riverpod
-TutorApi tutorApi(TutorApiRef ref) => TutorApi(ref.watch(apiClientProvider));
+TutorApi tutorApi(Ref ref) => TutorApi(ref.watch(apiClientProvider));

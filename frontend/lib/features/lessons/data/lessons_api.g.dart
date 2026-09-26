@@ -6,19 +6,46 @@ part of 'lessons_api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$lessonsApiHash() => r'9c757c46359b80d04dea6e8534ec67e5ba31d234';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [lessonsApi].
 @ProviderFor(lessonsApi)
-final lessonsApiProvider = AutoDisposeProvider<LessonsApi>.internal(
-  lessonsApi,
-  name: r'lessonsApiProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$lessonsApiHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final lessonsApiProvider = LessonsApiProvider._();
 
-typedef LessonsApiRef = AutoDisposeProviderRef<LessonsApi>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class LessonsApiProvider
+    extends $FunctionalProvider<LessonsApi, LessonsApi, LessonsApi>
+    with $Provider<LessonsApi> {
+  LessonsApiProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'lessonsApiProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$lessonsApiHash();
+
+  @$internal
+  @override
+  $ProviderElement<LessonsApi> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  LessonsApi create(Ref ref) {
+    return lessonsApi(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LessonsApi value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LessonsApi>(value),
+    );
+  }
+}
+
+String _$lessonsApiHash() => r'fea666ea8a0125cecd3cbcacd694b1704db7307d';

@@ -66,7 +66,7 @@ class GoalActions {
 }
 
 @riverpod
-GoalActions goalActions(GoalActionsRef ref) => GoalActions(
+GoalActions goalActions(Ref ref) => GoalActions(
       api: ref.watch(goalsApiProvider),
       storage: ref.watch(settingsStorageProvider),
       reloadGoals: () => ref.refresh(goalsListControllerProvider.future),

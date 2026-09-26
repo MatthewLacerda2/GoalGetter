@@ -6,21 +6,57 @@ part of 'tutor_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tutorControllerHash() => r'23024313e83f59b82dbb65dcf32a4e26a780f7a6';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [TutorController].
 @ProviderFor(TutorController)
-final tutorControllerProvider =
-    AutoDisposeNotifierProvider<TutorController, TutorState>.internal(
-  TutorController.new,
-  name: r'tutorControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$tutorControllerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final tutorControllerProvider = TutorControllerProvider._();
 
-typedef _$TutorController = AutoDisposeNotifier<TutorState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+final class TutorControllerProvider
+    extends $NotifierProvider<TutorController, TutorState> {
+  TutorControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'tutorControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$tutorControllerHash();
+
+  @$internal
+  @override
+  TutorController create() => TutorController();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TutorState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TutorState>(value),
+    );
+  }
+}
+
+String _$tutorControllerHash() => r'095160fdb76ae95e1bfd29a4b35285e7c7de8745';
+
+abstract class _$TutorController extends $Notifier<TutorState> {
+  TutorState build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<TutorState, TutorState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<TutorState, TutorState>,
+              TutorState,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

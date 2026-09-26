@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:http/http.dart' as http;
@@ -64,6 +66,7 @@ Future<void> pumpRouted(
       GoRoute(path: path, builder: (_, __) => landing(path)),
   ]);
   await tester.pumpWidget(ProviderScope(
+    retry: noAutomaticRetry,
     overrides: backend.overrides,
     child: MaterialApp.router(
       routerConfig: router,
