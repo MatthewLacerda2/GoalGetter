@@ -6,14 +6,28 @@ The system is developed and deployed on Linux. This is a **homedeploy**: served
 through a Cloudflare Tunnel from this machine. Google Cloud provides OAuth and the
 Gemini API (project `goalgetter-ai-tutor-1996`).
 
-## What GoalGetter is, and how it decides
+## What GoalGetter is
 
 An AI tutor: a student names what he wants to learn and the app teaches it, a little
-every day. **The product's rules — what it is, how it decides, how it teaches — live in
-[`SOUL.md`](SOUL.md). Read it before changing anything a student sees**; an issue that
-needs one of its rules broken is the wrong shape. The endpoint spec is
-`frontend/docs/backend_contract.md`; read it before changing onboarding, lessons, or the
-background jobs.
+every day. The point is that he leaves every day having learned something; the metric is
+that he comes back tomorrow.
+
+The rules that shape almost every change, in one line each:
+
+- **Gemini writes content; arithmetic decides what appears** — selection, measurement,
+  whether to generate, where the right option sits. And Gemini is the tool of last resort:
+  where a tool exists (Google Search, the YouTube API), the tool does it.
+- **His answers are the measurement**; what he says about himself is his opinion, and
+  what he says he wants to reach is not a ceiling.
+- **Exercises teach, they do not test**: the simplest possible, one step past what he has
+  shown he knows. 20 words at most. Nothing is reused between students.
+- **Every prompt is in English, names his language, and asks for the shortest output.**
+
+**[`SOUL.md`](SOUL.md) is the project's philosophy** — the business rules and the reasoning
+behind them. It is optional reading: open it when a decision is subjective, when a
+business rule is unclear, or before changing anything a student sees. The endpoint spec
+is `frontend/docs/backend_contract.md`; read it before changing onboarding, lessons, or
+the background jobs.
 
 ## Stack
 
