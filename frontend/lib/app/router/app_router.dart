@@ -47,7 +47,7 @@ List<RouteBase> appRoutes(Ref ref) => [
       ),
       GoRoute(
         path: AppRoutes.start,
-        builder: (_, __) => StartScreen(),
+        builder: (_, __) => const StartScreen(),
       ),
       ..._onboardingRoutes(ref),
       ..._lessonRoutes,

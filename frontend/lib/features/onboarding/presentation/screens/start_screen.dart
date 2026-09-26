@@ -1,94 +1,29 @@
-import 'dart:developer' as developer;
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/config/app_config.dart';
-import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/dev_login_button.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/google_sign_in_button.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/pre_onboarding_carousel.dart';
-import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 import 'package:goal_getter/app/theme/app_theme.dart';
 
-class StartScreen extends ConsumerStatefulWidget {
+/// The app's front door, and the only place a student signs in.
+///
+/// Two things to press, because the screen is reached two ways round. Signing
+/// in with Google ([GoogleSignInButton]) is what a returning student wants,
+/// and what the study plan sends a visitor here for: creating the goal is the
+/// first authed call, and the sign-in brings him back to the very draft he was
+/// committing. Starting without an account is the other way: goal creation's
+/// first two steps are public (backend_contract.md, Goals), so anyone can
+/// describe what he wants to learn and see what the app makes of it before
+/// deciding to sign in at all. Before #84 only the second existed, and the
+/// button that said "Google" did it — so a real visitor could reach the point
+/// of committing a goal and then had nothing to press.
+class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
-
-  @override
-  ConsumerState<StartScreen> createState() => _StartScreenState();
-}
-
-class _StartScreenState extends ConsumerState<StartScreen> {
-  late final AuthService _authService = ref.read(authServiceProvider);
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // A DEV_LOGIN build signs in without Google, so it never loads it.
-    if (!AppConfig.devLogin) _initGoogleSignIn();
-  }
-
-  Future<void> _initGoogleSignIn() async {
-    try {
-      developer.log('Initializing Google Sign-In...');
-      await _authService.ensureInitialized();
-
-      // Listen to authentication changes
-      if (kIsWeb) {
-        GoogleSignIn.instance.authenticationEvents.listen((GoogleSignInAuthenticationEvent event) async {
-          if (event is GoogleSignInAuthenticationEventSignIn) {
-            final GoogleSignInAccount account = event.user;
-            developer.log('Google user stream event received: ${account.email}');
-            await _handleGoogleSignInWeb(account);
-          }
-        });
-      }
-    } catch (e) {
-      developer.log('Failed to initialize Google Sign-In: $e');
-    }
-  }
-
-  Future<void> _handleGoogleSignInWeb(GoogleSignInAccount account) async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final googleToken = await _authService.googleTokenFor(account);
-      await _authService.signupWithGoogle(googleToken);
-      if (mounted) await _routeAfterSignIn();
-    } catch (error) {
-      developer.log('Error handling Google web sign-in event: $error');
-      if (mounted) {
-        showFailure(
-          context,
-          error,
-          title: AppLocalizations.of(context).signInFailed,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _routeAfterSignIn() => routeAfterSignIn(ref, context);
-
-  /// Goal creation's first two steps are public (backend_contract.md, Goals):
-  /// the button starts them, and the Google sign-in (the listener above) is
-  /// needed only to commit the goal.
-  void _handleGoogleSignIn() => context.go(AppRoutes.goalPrompt);
 
   @override
   Widget build(BuildContext context) {
@@ -122,10 +57,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   if (AppConfig.devLogin)
                     const DevLoginButton()
                   else
-                    _GoogleButton(
-                      isLoading: _isLoading,
-                      onPressed: _handleGoogleSignIn,
-                    ),
+                    const GoogleSignInButton(),
+                  const _StartWithoutAccount(),
                   const _Terms(),
                   const Spacer(),
                 ],
@@ -140,6 +73,20 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
 /// How tall the pitch carousel stands on the start screen.
 const double _carouselHeight = 170;
+
+/// The public half of goal creation: describe the goal, see what the app would
+/// teach, and only then sign in to keep it.
+class _StartWithoutAccount extends StatelessWidget {
+  const _StartWithoutAccount();
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () => context.go(AppRoutes.goalPrompt),
+      child: Text(AppLocalizations.of(context).tryWithoutSigningIn),
+    );
+  }
+}
 
 /// The line under the sign-in button.
 class _Terms extends StatelessWidget {
@@ -177,51 +124,6 @@ class _Wordmark extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// "Start with Google", in Google's own blue; a spinner while signing in.
-class _GoogleButton extends StatelessWidget {
-  const _GoogleButton({required this.isLoading, required this.onPressed});
-
-  final bool isLoading;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final onBlue = Theme.of(context).colorScheme.onPrimary;
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton.icon(
-        onPressed: isLoading ? null : onPressed,
-        icon: isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(onBlue),
-                ),
-              )
-            : FaIcon(FontAwesomeIcons.google, color: onBlue, size: 20),
-        label: Text(
-          isLoading ? l10n.signingIn : l10n.startWithGoogle,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: onBlue,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.googleBlue,
-          foregroundColor: onBlue,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.chip),
-          ),
-        ),
-      ),
     );
   }
 }

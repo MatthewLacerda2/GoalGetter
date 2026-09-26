@@ -106,9 +106,18 @@ List<ProjectViolation> missingTranslationViolations(
   return violations;
 }
 
+/// A whole `import` / `export` / `part` directive, up to its semicolon.
+///
+/// Matched whole rather than URI-first because one directive may name more
+/// than one file: `import 'a.dart' if (dart.library.js_interop) 'b.dart';` is
+/// how a file picks its web half, and reading only the first URI made the
+/// other half look like a file nothing imports (#84).
 final RegExp _directive = RegExp(
-  r'''(?:import|export|part)\s+(?:r?['"])([^'"]+)['"]''',
+  r'''(?:^|\n)\s*(?:import|export|part)\s+(?!of\b)([^;]+);''',
 );
+
+/// Every quoted URI inside one directive.
+final RegExp _directiveUri = RegExp('''r?['"]([^'"]+)['"]''');
 
 /// Resolves `..` and `.` in a `/`-separated path.
 String normalizePath(String path) {
@@ -126,19 +135,23 @@ String normalizePath(String path) {
 
 /// The files [source] pulls in, as paths relative to `frontend/`.
 ///
-/// `package:` imports of other packages and `dart:` imports are not files of
-/// ours, so they are dropped.
+/// Every URI of every directive, so a conditional import names both of its
+/// halves. `package:` imports of other packages and `dart:` imports are not
+/// files of ours, so they are dropped; `part of` names a library rather than
+/// pulling a file in, so it is not a directive that reaches anything.
 Set<String> importedPaths(String path, String source) {
   final dir = path.contains('/')
       ? path.substring(0, path.lastIndexOf('/'))
       : '';
   final targets = <String>{};
-  for (final match in _directive.allMatches(source)) {
-    final uri = match.group(1)!;
-    if (uri.startsWith(packagePrefix)) {
-      targets.add('lib/${uri.substring(packagePrefix.length)}');
-    } else if (!uri.startsWith('package:') && !uri.startsWith('dart:')) {
-      targets.add(normalizePath('$dir/$uri'));
+  for (final directive in _directive.allMatches(source)) {
+    for (final match in _directiveUri.allMatches(directive.group(1)!)) {
+      final uri = match.group(1)!;
+      if (uri.startsWith(packagePrefix)) {
+        targets.add('lib/${uri.substring(packagePrefix.length)}');
+      } else if (!uri.startsWith('package:') && !uri.startsWith('dart:')) {
+        targets.add(normalizePath('$dir/$uri'));
+      }
     }
   }
   return targets;

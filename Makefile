@@ -222,6 +222,12 @@ claude-token: ## Sign in as "Fictitious Claude" on the running backend and write
 PREVIEW_DIR  ?= $(HOME)/.local/share/goalgetter-preview
 PREVIEW_PORT := 8093
 PREVIEW_DB   := goalgetter_preview
+
+# What the preview build is compiled with. The default is the dev sign-in,
+# which is the point of the preview: no Google, no real account. `make preview
+# PREVIEW_DEFINES=` builds what a visitor gets instead - Google's own sign-in
+# button and nothing else - which is the only way to look at that screen (#84).
+PREVIEW_DEFINES ?= --dart-define=DEV_LOGIN=true
 MAIN_CHECKOUT = $(shell git worktree list --porcelain | awk '/^worktree /{print $$2; exit}')
 # Prints the preview's DATABASE_URL on stdout: the dev server's, with the
 # database name replaced. Both `preview` and `claude` read it this way.
@@ -244,7 +250,7 @@ preview: ## Build and serve the integrated app on the tailnet (http://<this host
 	docker run -d --name goalgetter_preview_backend --network host --restart unless-stopped \
 	  -v "$(MAIN_CHECKOUT)/.env":/app/.env:ro -e DEV_LOGIN=true -e DATABASE_URL goalgetter-preview-backend \
 	  uvicorn backend.main:app --host 127.0.0.1 --port 8001 --workers 1 >/dev/null; \
-	(cd frontend && $(FLUTTER) build web --release --dart-define=DEV_LOGIN=true --dart-define=BASE_URL= \
+	(cd frontend && $(FLUTTER) build web --release $(PREVIEW_DEFINES) --dart-define=BASE_URL= \
 	  --output "$(PREVIEW_DIR)/web"); \
 	sed "s/__TAILNET_IP__/$$ip/" tools/preview/nginx.conf > "$(PREVIEW_DIR)/nginx.conf"; \
 	docker rm -f goalgetter_preview >/dev/null 2>&1 || true; \

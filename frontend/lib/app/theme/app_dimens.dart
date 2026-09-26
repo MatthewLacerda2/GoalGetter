@@ -92,4 +92,16 @@ abstract final class AppSizes {
 
   /// A small icon sitting inside a line of text.
   static const double inlineIcon = 16;
+
+  /// The height of a sign-in button on the start screen.
+  ///
+  /// It is a token because two different buttons have to agree on it: the one
+  /// the app draws, and the box Google's own rendered button is centred in on
+  /// the web (#84). Without one number the layout jumps when the GIS SDK
+  /// finishes loading and the second replaces the first.
+  static const double signInButton = 56;
+
+  /// The widest Google will draw its own sign-in button - the GIS SDK's own
+  /// limit. Asking for more gets a button clipped by the box holding it.
+  static const double googleButtonMaxWidth = 400;
 }

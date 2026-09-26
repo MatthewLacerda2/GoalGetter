@@ -49,6 +49,10 @@ dependencies:
   url_launcher: ^6.3.2
   font_awesome_flutter: ^11.0.0
   google_sign_in: ^7.2.0
+  # Imported directly for `web_only.dart`, whose renderButton() is the only
+  # way to start a sign-in on the web (#84). google_sign_in pulls it in
+  # anyway; a package we import has to be a dependency we name.
+  google_sign_in_web: ^1.1.3
   http: ^1.2.2
   flutter_localizations:
     sdk: flutter
