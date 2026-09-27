@@ -1,6 +1,6 @@
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
-/// Where the backend's standard onboarding questions meet the ARB files (#132).
+/// Where the backend's standard onboarding questions meet the ARB files.
 ///
 /// The backend owns *which* questions exist and in what order: `POST /goals`
 /// answers with a key per question and a key per option, and the English it

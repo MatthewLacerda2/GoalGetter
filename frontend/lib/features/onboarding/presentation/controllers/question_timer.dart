@@ -1,7 +1,7 @@
 import 'package:clock/clock.dart';
 
 /// How long each onboarding question was on screen before the student answered
-/// it (#174), for both the objective questions and the standard ones.
+/// it, for both the objective questions and the standard ones.
 ///
 /// The clock of a question runs while it is the one on screen: [show] starts it
 /// the moment the question takes the screen, and [stop] ends it at the tap that

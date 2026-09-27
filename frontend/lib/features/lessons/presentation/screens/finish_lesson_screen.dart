@@ -11,7 +11,7 @@ import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart
 import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The end of a lesson: the server's evaluation of its first round, as three
-/// tiles. The route hands over the [evaluation] itself (#222); how each number
+/// tiles. The route hands over the [evaluation] itself; how each number
 /// reads — its words, icon and colour — is decided here.
 class FinishLessonScreen extends StatelessWidget {
   final LessonEvaluation evaluation;

@@ -123,7 +123,7 @@ class _Spinner extends StatelessWidget {
 
 /// The screen that says the mistakes come next. It slides in from the right
 /// over the last answered question and back out over the first one to
-/// correct: the transition it had when it was a pushed page.
+/// correct, as a pushed page would.
 class _ReviewIntro extends StatelessWidget {
   const _ReviewIntro({required this.visible, required this.onContinue});
 

@@ -5,10 +5,10 @@ import 'package:goal_getter/core/theme/app_palette.dart';
 
 /// 1. CUSTOM SEMANTIC TOKENS (Tailwind-like custom design tokens)
 ///
-/// Read with [CustomColors.of]. Every screen used to look the extension up
-/// itself with a `?? AppTheme.success` fallback of its own, a light-mode
-/// colour; `tool/frontend_linter.dart` now refuses the nullable lookup outside
-/// this directory (#227), so the one fallback is here.
+/// Read with [CustomColors.of], the one fallback: a screen that looked the
+/// extension up itself would pick its own fallback, and a light-mode colour
+/// there is wrong in the dark theme. `tool/frontend_linter.dart` refuses the
+/// nullable lookup outside this directory.
 class CustomColors extends ThemeExtension<CustomColors> {
   final Color success; // elo gained (green)
   final Color lost; // elo lost (blue)
@@ -75,7 +75,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
 /// `tool/frontend_linter.dart` enforces it.
 ///
 /// [light] and [dark] are one builder over two palettes, so the modes differ
-/// in colour only (#178).
+/// in colour only.
 class AppTheme {
   AppTheme._();
 

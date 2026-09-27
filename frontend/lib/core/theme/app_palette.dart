@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Every colour one theme mode paints with. `AppTheme` builds light and dark
 /// from the same code over one of these two, so switching modes changes the
 /// palette and nothing else: the fonts, the type scale, the shapes and the
-/// spacing are shared (#178).
+/// spacing are shared.
 class AppPalette {
   const AppPalette({
     required this.brightness,

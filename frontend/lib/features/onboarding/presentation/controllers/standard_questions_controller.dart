@@ -34,7 +34,7 @@ final class StandardQuestionsState {
   }
 }
 
-/// The last step of goal creation (#132): [questions] of goal [goalId],
+/// The last step of goal creation: [questions] of goal [goalId],
 /// answered while its first lesson generates.
 ///
 /// [questions] are the ones the screen can draw — it leaves out a key this

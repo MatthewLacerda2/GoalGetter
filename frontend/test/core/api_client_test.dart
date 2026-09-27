@@ -173,7 +173,7 @@ void main() {
 
   test('Gemini refusing our key is a 5xx: the student stays signed in',
       () async {
-    // #214: Gemini's own 401 used to reach the app as a 401 and sign him out.
+    // #214: Gemini's own 401 must not reach the app as a 401 and sign him out.
     final storage = await signedInStorage();
     var expired = false;
     final api = ApiClient(

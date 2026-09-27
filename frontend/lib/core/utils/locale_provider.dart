@@ -8,7 +8,7 @@ part 'locale_provider.g.dart';
 class LocaleNotifier extends _$LocaleNotifier {
   /// The stored choice, or on a first launch the device's own language list
   /// (on a phone, the phone's language; on the web, the browser's), which is
-  /// what the start screen's selector then shows (#172).
+  /// what the start screen's selector then shows.
   @override
   Locale build() {
     final storage = ref.watch(settingsStorageProvider);

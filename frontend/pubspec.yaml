@@ -25,7 +25,7 @@ environment:
   # and "green there" are the same analyzer. Locally pub reads the same line as
   # a floor (`>=`), which only catches a machine behind the pin; `make
   # front-version` - a prerequisite of both frontend gates, and run by CI with
-  # them - is what catches a machine ahead of it (#147).
+  # them - is what catches a machine ahead of it.
   # Bumping it is this line plus one analyzer run - `make frontend` - and the
   # edit is under frontend/, so CI re-analyzes on the same PR.
   flutter: 3.47.5
@@ -46,7 +46,7 @@ dependencies:
   font_awesome_flutter: ^11.0.0
   google_sign_in: ^7.2.0
   # Imported directly for `web_only.dart`, whose renderButton() is the only
-  # way to start a sign-in on the web (#84). google_sign_in pulls it in
+  # way to start a sign-in on the web. google_sign_in pulls it in
   # anyway; a package we import has to be a dependency we name.
   google_sign_in_web: ^1.1.3
   http: ^1.2.2
@@ -59,7 +59,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   flutter_markdown_plus: ^1.0.7
-  # Read by the onboarding's question timer (#174) instead of DateTime or a bare
+  # Read by the onboarding's question timer instead of DateTime or a bare
   # Stopwatch: flutter_test's fake time drives it, so a widget test can measure
   # a duration. Already in the lock through flutter_test.
   clock: ^1.1.2
@@ -72,7 +72,7 @@ dev_dependencies:
   riverpod_lint: ^3.1.9
   very_good_analysis: ^6.0.0
   # Only tool/generate_icons.dart reads it: every app icon is resized from
-  # assets/icon/app_icon.png by that one script (#179).
+  # assets/icon/app_icon.png by that one script.
   image: ^4.10.1
 
 # For information on the generic Dart part of this file, see the
@@ -87,8 +87,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # The start screen shows the app's own icon (#180), the same source every
-  # platform icon is resized from (#179).
+  # The start screen shows the app's own icon, the same source every
+  # platform icon is resized from.
   assets:
     - assets/icon/app_icon.png
 

@@ -42,9 +42,9 @@ typedef JsonReader<T> = T Function(Object? json);
 /// - A refresh that fails for any other reason — a 5xx, no network — keeps the
 ///   session: it throws the refresh's own [ApiFailure] (never the 401 that
 ///   triggered it, which screens read as signed-out). Nothing retries it here;
-///   the next request that 401s refreshes again (#193).
+///   the next request that 401s refreshes again.
 /// - Everything else that goes wrong is one of the [ApiFailure]s, and nothing
-///   else escapes (#221): a non-2xx is [ApiException] with FastAPI's `detail`;
+///   else escapes: a non-2xx is [ApiException] with FastAPI's `detail`;
 ///   an answer the caller's [JsonReader] cannot read is [MalformedResponse];
 ///   no answer within [timeout] is [TimedOut]; a transport failure is
 ///   [ServerUnreachable]. All but the [ApiException] are logged here.
@@ -55,7 +55,7 @@ typedef JsonReader<T> = T Function(Object? json);
 ///
 /// A call names its [ApiRoute], never a path string, so every call the app
 /// can make is one entry of that enum — the list the contract test checks
-/// against the backend's OpenAPI (#213):
+/// against the backend's OpenAPI:
 /// `send(ApiRoute.setActiveGoal, ignoreBody, params: {'goal_id': id})`.
 class ApiClient {
   ApiClient({
@@ -167,7 +167,7 @@ class ApiClient {
     final request = http.Request(method, Uri.parse('$_baseUrl$apiPrefix$path'))
       ..headers['Accept'] = 'application/json'
       // The student's chosen language, on every request: the backend mirrors
-      // it onto students.language (backend/core/language.py, #172).
+      // it onto students.language (backend/core/language.py).
       ..headers['X-Student-Language'] = _storage.readUserLanguageSync();
     final token = _storage.getAccessToken();
     if (token != null && token.isNotEmpty) {

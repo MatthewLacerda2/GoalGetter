@@ -6,7 +6,7 @@ part 'language_sync.g.dart';
 /// Tells the backend the language the student has just picked.
 ///
 /// Any signed-in request carries `X-Student-Language` (ApiClient) and the
-/// backend stores it (#172): one GET /me tells it the new language now rather
+/// backend stores it: one GET /me tells it the new language now rather
 /// than on the next unrelated request. Best-effort — a failure only delays
 /// that until the next request, and there is nothing to show: the picker has
 /// already changed the app's language.

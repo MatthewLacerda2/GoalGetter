@@ -17,10 +17,9 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 import '../fake_backend.dart';
 
-/// The start page of #180: what it says, that it wears the app's own theme in
-/// both modes, and that everything a visitor could do on the old page he can
-/// still do on this one. Every test runs once in the light theme and once in
-/// the dark.
+/// The start page (#180): what it says, that it wears the app's own theme in
+/// both modes, and that both ways in, the language and the terms are there.
+/// Every test runs once in the light theme and once in the dark.
 
 final _modes = ValueVariant<ThemeMode>({ThemeMode.light, ThemeMode.dark});
 

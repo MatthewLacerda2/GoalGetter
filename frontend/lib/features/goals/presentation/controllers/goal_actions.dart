@@ -13,7 +13,7 @@ part 'goal_actions.g.dart';
 /// and nothing local changes.
 ///
 /// A change of active goal goes to [ActiveGoal], and whatever is scoped to the
-/// active goal follows it from there (#220): nothing here names a screen.
+/// active goal follows it from there: nothing here names a screen.
 class GoalActions {
   const GoalActions({
     required GoalsApi api,

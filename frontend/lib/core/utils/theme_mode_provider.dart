@@ -6,7 +6,7 @@ part 'theme_mode_provider.g.dart';
 
 /// Light, dark, or the phone's own mode — what `MaterialApp.themeMode` reads,
 /// so a change repaints the whole app at once, the way `LocaleNotifier` does
-/// for the language (#178).
+/// for the language.
 @riverpod
 class ThemeModeNotifier extends _$ThemeModeNotifier {
   @override

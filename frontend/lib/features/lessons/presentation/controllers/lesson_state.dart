@@ -11,7 +11,7 @@ import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 ///
 /// Each state holds only what can be true of it - a submit failure only exists
 /// in the first round, an evaluation only once the answers are in - so an
-/// impossible screen cannot be written down. Equality is hand-written (#223):
+/// impossible screen cannot be written down. Equality is hand-written:
 /// a handful of small classes did not earn `freezed`, its generator and a
 /// second kind of generated file, and every transition is a constructor call
 /// in the controller rather than a general `copyWith`.

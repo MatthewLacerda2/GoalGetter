@@ -19,7 +19,7 @@ import 'package:goal_getter/features/onboarding/presentation/widgets/loading_but
 /// Without one the draft is held and the student goes to sign in; the sign-in
 /// brings them back here (see `SignInLanding`). On success the goal is stored
 /// as active and the standard questions fill the wait while its first lesson
-/// generates (#132).
+/// generates.
 class StudyPlanScreen extends ConsumerStatefulWidget {
   final GoalDraft draft;
 

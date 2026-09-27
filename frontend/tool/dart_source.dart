@@ -300,7 +300,7 @@ String ownText(String literal) => literal.replaceAll(_interpolation, '');
 ///
 /// This is what "the code names it" means for a rule that looks for a name,
 /// because an interpolation is code that happens to live inside a string.
-/// `stripSource` keeps those already (#262); what this adds is a comment that
+/// `stripSource` keeps those already; what this adds is a comment that
 /// spells an interpolation, restored too: the rule would rather keep a key
 /// than delete one that is read.
 String stripToCode(String source) {

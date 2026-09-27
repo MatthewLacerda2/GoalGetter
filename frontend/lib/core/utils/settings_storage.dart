@@ -23,9 +23,9 @@ class SettingsStorage {
   static const String _tokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
   static const String _notificationsKey = 'notifications_on';
-  // Written by the app until #227 and read by nothing: the Google token
-  // (only POST /auth/signup needs it, once) and the student's profile. Still
-  // removed with the session, so a device that stored them drops them.
+  // Keys this build never writes and nothing reads: the Google token (only
+  // POST /auth/signup needs it, once) and the student's profile, left by older
+  // builds. Removed with the session, so a device that holds them drops them.
   static const String _googleTokenKey = 'google_token';
   static const String _userInfoKey = 'user_info';
   static const String _themeModeKey = 'theme_mode';
@@ -94,7 +94,7 @@ class SettingsStorage {
   //
   // The device's copy of `activeGoalProvider` (core/services/active_goal.dart),
   // which is what the app reads and writes: a write here alone would leave
-  // every screen on the goal before it (#220).
+  // every screen on the goal before it.
 
   String? readCurrentGoalId() {
     return _prefs.getString(_currentGoalIdKey);
@@ -140,7 +140,7 @@ class SettingsStorage {
 
   // --- Theme Preference ---
 
-  /// Follows the phone until the student picks light or dark (#178). Stored
+  /// Follows the phone until the student picks light or dark. Stored
   /// by the enum's name; anything unreadable falls back to the phone.
   ThemeMode readThemeMode() {
     final stored = _prefs.getString(_themeModeKey);

@@ -14,9 +14,9 @@ import 'package:goal_getter/core/api/error_code.dart';
 ///    CORS, a dropped connection.
 ///
 /// All four are [Exception]s, so a controller's `on Exception` catches every
-/// one of them — a response that fails to parse used to throw a `TypeError`,
-/// which is an `Error`, got past those catches and left a spinner up forever
-/// (#221). The server's own error code (#214) is [ApiException.code].
+/// one of them — a parse failure left as a `TypeError`, which is an `Error`,
+/// would get past those catches and leave a spinner up forever. The server's
+/// own error code is [ApiException.code].
 sealed class ApiFailure implements Exception {
   const ApiFailure({this.path});
 
@@ -25,7 +25,7 @@ sealed class ApiFailure implements Exception {
 }
 
 /// A non-2xx answer from the backend, whose body is
-/// `{"code": "...", "detail": "..."}` (#214).
+/// `{"code": "...", "detail": "..."}`.
 ///
 /// [code] is what the app decides on; null when the body carries none this
 /// build knows (a proxy's error page, a newer backend), which is said as a

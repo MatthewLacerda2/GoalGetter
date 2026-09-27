@@ -4,7 +4,7 @@
 /// `authenticate()` throws — and offers exactly one way in: render *their*
 /// button and listen for the event it fires (`AuthService.googleTokens`).
 /// That is why this file exists at all, and why the styled button the app
-/// draws on mobile cannot be what the web uses (#84).
+/// draws on mobile cannot be what the web uses.
 ///
 /// The widget it returns is a real DOM element over the Flutter canvas, so its
 /// wording, its logo and its own localisation come from Google. Nothing here

@@ -143,7 +143,7 @@ void main() {
     });
 
     // #227: the name rule reads names, so an alias declared in lib/app/dev/
-    // carried the fixtures out under another one. Only `devRoutes` crosses.
+    // would carry the fixtures out under another one. Only `devRoutes` crosses.
     test('fails on reaching lib/app/dev/ for anything but devRoutes', () {
       const router = 'lib/app/router/app_router.dart';
       for (final source in [

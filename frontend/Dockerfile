@@ -1,7 +1,7 @@
-# The Flutter version, read from the one place it is written (#121): the pin in
+# The Flutter version, read from the one place it is written: the pin in
 # frontend/pubspec.yaml, which CI installs exactly and `make front-version`
-# checks locally. This image used to clone whatever `stable` was on the day, so
-# production was built by a different Flutter than the one every gate ran.
+# checks locally. Cloning whatever `stable` is on the day would build
+# production with a different Flutter than the one every gate ran.
 #
 # Its own stage so the pin, not the whole pubspec, is what the Flutter layer
 # depends on: COPY --from caches on the file's content, and /flutter-version
@@ -14,9 +14,8 @@ RUN sed -nE 's/^[[:space:]]+flutter:[[:space:]]*([0-9][^[:space:]#]*).*/\1/p' /p
       | head -n1 > /flutter-version \
     && test -s /flutter-version
 
-# trixie (Debian 13), the current stable. bullseye's LTS ended in August 2026
-# and its security archive answers 404, which is what broke this build (#162);
-# bookworm was already the previous release, so the image moved on with #164.
+# trixie (Debian 13), the current stable: a release past its LTS breaks this
+# build the day its security archive starts answering 404 (#162).
 FROM debian:trixie-slim AS flutter-base
 
 # The recommends stay: they carry ca-certificates, which the https clone below
@@ -53,7 +52,7 @@ COPY frontend/pubspec.yaml frontend/pubspec.lock ./frontend/
 
 WORKDIR /app/frontend
 
-# Install exactly what the committed lock says (#192), cached until either
+# Install exactly what the committed lock says, cached until either
 # file changes. `--enforce-lockfile` fails the build instead of resolving
 # anew when the lock is missing, disagrees with pubspec.yaml, or a package's
 # content hash does not match: production ships the packages the gates ran

@@ -12,14 +12,14 @@ import 'package:goal_getter/features/onboarding/presentation/widgets/standard_qu
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 
 /// The last step of goal creation: the handful of questions we already know to
-/// ask, answered while the backend generates the first lesson (#132).
+/// ask, answered while the backend generates the first lesson.
 ///
 /// **Nothing here blocks** (see its controller). `POST /goals` has already
 /// fired the chain, so these answers are memory for the generations after the
 /// first, never an input it waits on: the student may answer all of them, some of them or none, and the
 /// next screen is his first lesson either way. What happens when that lesson is
 /// not ready yet is the lesson screen's own "still preparing" message with a
-/// retry (#98), never a bounce to a home screen with nothing on it.
+/// retry, never a bounce to a home screen with nothing on it.
 ///
 /// The questions arrive as keys; `standard_question_text.dart` turns them into
 /// the sentences of the student's locale, and a key this build does not know is

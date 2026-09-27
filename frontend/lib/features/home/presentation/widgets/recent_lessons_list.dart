@@ -9,9 +9,7 @@ import 'package:goal_getter/core/widgets/lesson_clock.dart';
 /// The user's most recent lessons for the active goal. Each row shows accuracy,
 /// time taken and the day it was done. Capped so the dashboard fits the screen.
 ///
-/// The elo badge that used to close each row is gone with the per-lesson
-/// rating change (#131); the day takes its place until #62 gives the rating a
-/// history again.
+/// No row carries a rating change: GET /home has none per lesson.
 class RecentLessonsList extends StatelessWidget {
   final List<RecentLesson> lessons;
 

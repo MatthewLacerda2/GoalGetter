@@ -10,9 +10,10 @@
 ///
 ///  * a colour, written (`Colors.red`, `Color(0x…)`) or derived from another
 ///    (`primary.withValues(alpha: 0.2)`): an alpha is as much a colour
-///    decision as the hex it tints, and 14 of them lived in screens;
+///    decision as the hex it tints;
 ///  * a colour looked up with a fallback (`extension<CustomColors>()?.success
-///    ?? …`): each screen chose its own fallback, a fixed light-mode value.
+///    ?? …`): a screen choosing its own fallback picks a fixed light-mode
+///    value.
 ///    `CustomColors.of` is the one lookup and holds the one fallback, so the
 ///    nullable lookup is refused outright;
 ///  * a type size, including the `selectedFontSize:` a widget takes directly;
@@ -54,7 +55,8 @@ final RegExp _opacity = RegExp(r'\bopacity\s*:');
 final RegExp _extensionLookup = RegExp(r'\bextension\s*<\s*CustomColors\s*>');
 
 /// `fontSize:`, and the `selectedFontSize:` / `unselectedFontSize:` a
-/// `BottomNavigationBar` takes: the old `\bfontSize` missed every prefixed one.
+/// `BottomNavigationBar` takes: a plain `\bfontSize` would miss every
+/// prefixed one.
 final RegExp _fontSize = RegExp(r'(?:\b|(?<=[a-z]))[fF]ontSize\s*:');
 
 final RegExp _radiusCall = RegExp(

@@ -79,8 +79,8 @@ void main() {
     expect(find.text('1 / 2'), findsOneWidget);
   });
 
-  // Where the student lands at the end of onboarding (#131): a bank that is
-  // still being generated must read as a wait with a retry (#98), on the
+  // Where the student lands at the end of onboarding: a bank that is
+  // still being generated must read as a wait with a retry, on the
   // lesson screen, and never send him anywhere.
   testWidgets('a 409 says the lessons are still being prepared',
       (tester) async {
@@ -122,7 +122,7 @@ void main() {
     expect(answersSent(fake), hasLength(8));
   });
 
-  // The answers are still on screen, so the failure is said over them (#98).
+  // The answers are still on screen, so the failure is said over them.
   testWidgets('a failed submit is a snackbar with a retry', (tester) async {
     final fake = ApiFake({
       startKey: [(201, lessonJson(1))],
@@ -162,7 +162,7 @@ void main() {
       of: find.byType(InfoScreen),
       matching: find.text('Continue!'),
     ));
-    // It slides back out to the right, as the page it used to be popped.
+    // It slides back out to the right, as a popped page does.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 150));
     expect(tester.getTopLeft(find.byType(InfoScreen)).dx, greaterThan(0));

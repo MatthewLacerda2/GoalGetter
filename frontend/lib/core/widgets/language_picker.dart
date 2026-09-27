@@ -46,7 +46,7 @@ class LanguageFlag extends StatelessWidget {
 /// The sheet listing the five languages. Picking one changes the app's
 /// language at once ([LocaleNotifier.setLanguage]); [onPicked] runs after.
 ///
-/// One picker for the start screen and the profile (#172), so the two can
+/// One picker for the start screen and the profile, so the two can
 /// never offer different languages.
 void showLanguagePicker(
   BuildContext context,

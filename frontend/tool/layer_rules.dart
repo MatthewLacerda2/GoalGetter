@@ -4,7 +4,7 @@
 ///
 /// **The layers point one way.** `lib/core/` is what every feature is built
 /// on and never imports `lib/app/`, the router and the screens it wires
-/// together (#224). Inside a feature (#222):
+/// together. Inside a feature (#222):
 ///
 ///  * `data/<feature>_api.dart` talks HTTP;
 ///  * `domain/` holds the models every other layer passes around;
@@ -17,8 +17,8 @@
 ///    what the student reads.
 ///
 /// A screen that calls the API itself keeps its state in `setState`, where no
-/// test reaches it without a widget; that is how onboarding was built until
-/// #222. The folder a file is in is what the rules read, never its name.
+/// test reaches it without a widget. The folder a file is in is what the rules
+/// read, never its name.
 library;
 
 import 'dart_source.dart';
@@ -78,7 +78,7 @@ bool isDevFile(String path) => _normal(path).contains(devDir);
 ///
 /// The `DevFixtures` name rule reads names, so a `typedef Fx = DevFixtures`
 /// (or a re-export, or a top-level `final` holding a fixture) in `lib/app/dev/`
-/// carried the invented student out under another name (#227). Only
+/// would carry the invented student out under another name. Only
 /// `devRoutes` crossing the boundary makes every such alias unreachable: the
 /// importer cannot see a name the `show` does not list.
 List<Violation> devImports(String path, String source) => [

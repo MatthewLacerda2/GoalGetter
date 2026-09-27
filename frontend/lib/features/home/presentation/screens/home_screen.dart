@@ -20,8 +20,8 @@ import 'package:goal_getter/core/theme/app_dimens.dart';
 /// "start lesson" CTA and the recent lessons. Data is scoped to the active
 /// goal, which is chosen from the Profile goals list.
 ///
-/// The elo progress chart is not here: the rating has no per-day history to
-/// draw while #62 is open, and an always-empty chart card reads as broken.
+/// There is no elo progress chart: GET /home carries no rating history to
+/// draw, and an always-empty chart card reads as broken.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 

@@ -37,7 +37,7 @@ class StateMessage extends StatelessWidget {
 /// The layout [StateMessage] and `FailureView` share: an icon, a heading, a
 /// line of text and a button, centred in the empty space. Each of the two says
 /// what it is about; this only lays it out, once, so the two cannot drift
-/// apart (#231).
+/// apart.
 class StateLayout extends StatelessWidget {
   const StateLayout({
     super.key,

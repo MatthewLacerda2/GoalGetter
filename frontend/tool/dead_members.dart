@@ -11,9 +11,8 @@
 /// public one.
 ///
 /// Tests are not readers (#227). A member only a test calls is code nobody
-/// runs, kept alive by the test that exercises it: `SettingsStorage`'s
-/// `getUserInfo` was read by nothing, and the orphan-file and unused-key rules
-/// used to count a test's use the same way.
+/// runs, kept alive by the test that exercises it. The orphan-file and
+/// unused-key rules discount a test's use the same way.
 ///
 /// Not judged, each because something other than our code calls it:
 ///

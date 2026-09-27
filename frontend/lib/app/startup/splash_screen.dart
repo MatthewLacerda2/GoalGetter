@@ -8,7 +8,7 @@ import 'package:goal_getter/app/startup/app_start_controller.dart';
 ///
 /// It never navigates. Watching the provider is what starts the decision and
 /// keeps it alive while the splash is up; the router's redirect on `/` reads
-/// the answer and moves the student on (#224).
+/// the answer and moves the student on.
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 

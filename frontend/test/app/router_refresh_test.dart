@@ -15,8 +15,8 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import '../contract/error_body.dart';
 import '../features/fake_backend.dart';
 
-/// A web refresh loses go_router's `extra`, and the four routes that took one
-/// fell back to the dev fixtures — in every build (#139). Opening the URL cold
+/// A web refresh loses go_router's `extra`, and a route that takes one must
+/// not fall back to the dev fixtures (#139). Opening the URL cold
 /// is exactly what a refresh does, so each of these starts the real route
 /// table at a path with nothing attached.
 
