@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:goal_getter/features/tutor/presentation/chat_bubbles.dart';
+import 'package:goal_getter/features/tutor/presentation/widgets/chat_bubbles.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 

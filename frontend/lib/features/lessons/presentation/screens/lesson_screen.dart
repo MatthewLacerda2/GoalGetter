@@ -8,7 +8,7 @@ import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
-import 'package:goal_getter/features/lessons/presentation/lesson_clock.dart';
+import 'package:goal_getter/features/lessons/presentation/widgets/lesson_clock.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_cannot_start.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_question_view.dart';

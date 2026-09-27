@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:goal_getter/features/onboarding/presentation/standard_question_text.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/standard_question_text.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/l10n/generated/app_localizations_en.dart';
 

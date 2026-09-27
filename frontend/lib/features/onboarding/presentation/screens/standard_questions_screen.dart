@@ -7,8 +7,8 @@ import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
-import 'package:goal_getter/features/onboarding/presentation/question_timer.dart';
-import 'package:goal_getter/features/onboarding/presentation/standard_question_text.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/question_timer.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/standard_question_text.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 
 /// The last step of goal creation: the handful of questions we already know to

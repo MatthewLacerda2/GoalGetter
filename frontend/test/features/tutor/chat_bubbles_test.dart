@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:goal_getter/features/tutor/presentation/chat_bubbles.dart';
+import 'package:goal_getter/features/tutor/presentation/widgets/chat_bubbles.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.dart';
 
 import 'fake_tutor_api.dart';

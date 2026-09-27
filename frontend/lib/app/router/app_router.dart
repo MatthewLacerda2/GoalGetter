@@ -13,7 +13,7 @@ import 'package:goal_getter/app/startup/splash_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_screen.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/standard_questions_screen.dart';
@@ -24,8 +24,8 @@ import 'package:goal_getter/features/profile/presentation/screens/profile_screen
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/finish_lesson_screen.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
-import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
-import 'package:goal_getter/features/goals/presentation/screens/goal_detail_route.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goals_list_screen.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goal_detail_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -223,15 +223,15 @@ final List<RouteBase> _lessonRoutes = [
 ];
 
 /// The goals list and one goal. The detail carries an id in its path, so its
-/// `extra` is only a shortcut: without one [GoalDetailRoute] fetches the goal.
+/// `extra` is only a shortcut: without one [GoalDetailScreen] fetches the goal.
 final List<RouteBase> _goalRoutes = [
   GoRoute(
     path: AppRoutes.goals,
-    builder: (_, __) => const ListGoalsScreen(),
+    builder: (_, __) => const GoalsListScreen(),
   ),
   GoRoute(
     path: '${AppRoutes.goals}/:id',
-    builder: (_, state) => GoalDetailRoute(
+    builder: (_, state) => GoalDetailScreen(
       goalId: state.pathParameters['id']!,
       goal: _extra<Goal>(state),
     ),

@@ -5,11 +5,11 @@ import 'package:goal_getter/app/dev/dev_fixtures.dart';
 import 'package:goal_getter/app/dev/dev_menu_screen.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
-import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
+import 'package:goal_getter/features/goals/presentation/widgets/goal_detail_view.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/standard_questions_screen.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_screen.dart';
 
 /// The routes that exist only in a `--dart-define=DEV_MENU=true` build.
 ///
@@ -44,7 +44,7 @@ final List<RouteBase> devRoutes = [
   ),
   GoRoute(
     path: AppRoutes.devGoalDetail,
-    builder: (_, state) => GoalsDetailScreen(
+    builder: (_, state) => GoalDetailView(
       goal: (state.extra as Goal?) ?? DevFixtures.goalDetail,
     ),
   ),
