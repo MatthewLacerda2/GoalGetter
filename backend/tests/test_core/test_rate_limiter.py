@@ -68,9 +68,15 @@ async def from_peer(rate_limited):
     """POSTs onboarding prompts as a given TCP peer, Gemini mocked."""
     questions = GeminiOnboardingQuestionsResponse(questions=[])
     with (
-        patch("backend.api.v1.endpoints.goals.get_prompt_validation", return_value=VALID),
         patch(
-            "backend.api.v1.endpoints.goals.generate_onboarding_questions", return_value=questions
+            "backend.api.v1.endpoints.goals.get_prompt_validation",
+            return_value=VALID,
+            autospec=True,
+        ),
+        patch(
+            "backend.api.v1.endpoints.goals.generate_onboarding_questions",
+            return_value=questions,
+            autospec=True,
         ),
     ):
 

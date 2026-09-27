@@ -66,7 +66,7 @@ async def test_the_streak_is_real(test_db):
     passes it; the empty days before the goal began reset it, so it stops at
     the fourteen days studied."""
     student = (await seed_fictitious_student(test_db)).student
-    assert 6 < await student_streak(test_db, student.id) <= 14
+    assert await student_streak(test_db, student.id) == 14
 
 
 async def test_a_rerun_writes_nothing(test_db):

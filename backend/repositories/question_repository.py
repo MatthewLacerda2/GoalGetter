@@ -37,8 +37,16 @@ class QuestionRepository(BaseRepository[Question]):
 
     async def list_by_goal(self, goal_id: uuid.UUID) -> list[Question]:
         """The goal's whole bank. What a submission is checked against: an
-        answer naming anything else is not this student's question (#131)."""
-        stmt = select(Question).where(Question.goal_id == goal_id)
+        answer naming anything else is not this student's question (#131).
+
+        Oldest first, the id breaking a tie (#207): the order the rating walk
+        and the selection already sort the bank into, so every reader sees one
+        order rather than whichever the table happens to hold."""
+        stmt = (
+            select(Question)
+            .where(Question.goal_id == goal_id)
+            .order_by(Question.created_at, Question.id)
+        )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 

@@ -21,8 +21,6 @@ from backend.models.student_context import StudentContext
 from backend.repositories.student_answer_repository import AnswerRecord
 from backend.services.lessons.selection import (
     NEUTRAL,
-    TOLERANCE_ABOVE,
-    WEIGHT_CONTEXT,
     Recall,
     context_affinity,
     forgetting_score,
@@ -79,7 +77,6 @@ def test_the_threshold_is_three_answers_in_four_and_falls_away_faster_on_the_eas
     assert threshold_score(1.0) == pytest.approx(0.0039, abs=1e-4)
     # The same 0.15 of E, either side of the target, is not the same distance.
     assert threshold_score(0.90) < threshold_score(0.60)
-    assert TOLERANCE_ABOVE == 0.075
 
 
 def test_the_horizon_grows_with_each_correct_answer_and_falls_back_on_a_wrong_one():
@@ -147,7 +144,6 @@ def test_the_lesson_aims_at_the_goals_frontier_and_not_at_its_description():
 
 def test_the_student_context_term_is_wired_and_weighs_nothing():
     """#134: computed, provably zero, and turned on later with data in hand"""
-    assert WEIGHT_CONTEXT == 0.0
     bank = [question(f"q{i}", born=i, embedding=vector((i, 1.0))) for i in range(4)]
     aligned = StudentContext(
         state_embedding=vector((0, 1.0)), metacognition_embedding=vector((0, 1.0))

@@ -17,7 +17,15 @@ class ResourceRepository(BaseRepository[Resource]):
         return entities
 
     async def list_by_goal(self, goal_id: uuid.UUID) -> list[Resource]:
-        stmt = select(Resource).where(Resource.goal_id == goal_id)
+        """The goal's resources, oldest first (#207): the order they were found
+        in, so a weekly search appends to the list instead of reshuffling it,
+        and a batch keeps the order its search ranked it in. The id breaks a
+        tie, so the same rows always come back in the same order."""
+        stmt = (
+            select(Resource)
+            .where(Resource.goal_id == goal_id)
+            .order_by(Resource.created_at, Resource.id)
+        )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 

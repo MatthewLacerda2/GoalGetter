@@ -1,13 +1,22 @@
 from pathlib import Path
 
 import pytest
+from hypothesis import settings as hypothesis_settings
 
-# Import all fixtures so pytest can discover them. `network` comes FIRST: importing
-# it replaces DATABASE_URL and raises the network guard, and both must happen
-# before any other module imports the settings or the app (#205). `waiting`
-# comes next, for the same reason: a module that binds `asyncio.sleep` on import
-# must bind the guarded one (#206).
+# The property tests (#207), made a gate: the same examples on every run
+# (`derandomize`) - a gate that goes red on one run in fifty is one nobody
+# believes - no example database written into the mounted worktree, and no
+# per-example deadline, which a loaded machine misses on arithmetic that is fine.
+hypothesis_settings.register_profile("gate", derandomize=True, database=None, deadline=None)
+hypothesis_settings.load_profile("gate")
+
+# Import all fixtures so pytest can discover them. `environment` comes FIRST: it
+# pins every setting the suite reads, and nothing may import the settings before
+# it (#207). `network` next: it raises the network guard, which must be up before
+# any other module imports the app (#205). `waiting` after, for the same reason:
+# a module that binds `asyncio.sleep` on import must bind the guarded one (#206).
 pytest_plugins = [
+    "backend.tests.fixtures.environment",
     "backend.tests.fixtures.network",
     "backend.tests.fixtures.waiting",
     "backend.tests.fixtures.database",

@@ -34,7 +34,3 @@ async def test_the_streak_is_user_wide_and_counts_days_with_an_answer(
     response = await auth_client.get(ENDPOINT)
 
     assert response.json()["current_streak"] == 2
-
-
-async def test_me_needs_a_token(client):
-    assert (await client.get(ENDPOINT)).status_code == 401

@@ -8,7 +8,8 @@ from sqlalchemy import text
 from backend.core.config import settings
 from backend.core.database import AsyncSessionLocal, engine
 from backend.tests.fixtures.database import ALEMBIC_INI
-from backend.tests.fixtures.network import UNREACHABLE_HOST, NetworkCallInDefaultSuite
+from backend.tests.fixtures.environment import UNREACHABLE_HOST
+from backend.tests.fixtures.network import NetworkCallInDefaultSuite
 from backend.tools.disposable_database import require_empty
 
 

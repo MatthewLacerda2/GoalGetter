@@ -32,6 +32,8 @@ pytest==9.1.1
 pytest-asyncio==1.4.0
 pytest-cov==7.1.0
 pytest-randomly==5.0.0
+# Property tests: the arithmetic (Rasch, pacing) checked on inputs nobody wrote (#207)
+hypothesis==6.168.2
 ruff==0.16.9
 vulture==2.16
 mypy==2.3.1

@@ -1,0 +1,32 @@
+[
+ {
+  "candidates": [
+   {
+    "content": {
+     "parts": [
+      {
+       "text": "{\"questions\": [{\"question\": \"How often do you play chess?\", \"option_a\": \"Never\", \"option_b\": \"A few times a year\", \"option_c\": \"Every week\", \"option_d\": \"Every day\"}, {\"question\": \"Which opening do you already know?\", \"option_a\": \"None\", \"option_b\": \"Italian Game\", \"option_c\": \"Sicilian Defence\", \"option_d\": \"Several\"}, {\"question\": \"What do you want openings for?\", \"option_a\": \"Beat friends\", \"option_b\": \"Online rating\", \"option_c\": \"Tournaments\", \"option_d\": \"Curiosity\"}]}"
+      }
+     ],
+     "role": "model"
+    },
+    "finish_reason": "STOP",
+    "index": 0
+   }
+  ],
+  "model_version": "gemini-3.8-flash",
+  "response_id": "rp-oq-01",
+  "usage_metadata": {
+   "candidates_token_count": 119,
+   "prompt_token_count": 530,
+   "prompt_tokens_details": [
+    {
+     "modality": "TEXT",
+     "token_count": 530
+    }
+   ],
+   "total_token_count": 649
+  },
+  "automatic_function_calling_history": []
+ }
+]

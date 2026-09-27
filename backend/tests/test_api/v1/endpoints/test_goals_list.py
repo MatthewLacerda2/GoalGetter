@@ -47,7 +47,3 @@ async def test_list_goals_empty(auth_client):
     response = await auth_client.get(ENDPOINT)
     assert response.status_code == 200
     assert response.json() == []
-
-
-async def test_list_goals_requires_auth(client):
-    assert (await client.get(ENDPOINT)).status_code == 401

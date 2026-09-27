@@ -1,6 +1,9 @@
+import uuid
+
 import numpy as np
 
 from backend.core.vectors import NUM_DIMENSIONS
+from backend.models.question import Question
 from backend.repositories.question_repository import QuestionRepository
 from backend.tests.fixtures.lessons import at
 
@@ -38,6 +41,36 @@ async def test_bank_history_is_scoped_to_the_goal(
 
     history = await QuestionRepository(test_db).list_bank_history(goal.id)
     assert [h.question.id for h in history] == [mine.id]
+
+
+async def test_the_bank_comes_back_oldest_first(test_db, test_user, goal_factory):
+    """The id breaks a tie (#207). Written in neither order, so a query with no
+    ORDER BY - which answers in the order the rows were written - fails this."""
+    goal = await goal_factory(test_user)
+    for text, minute, key in (
+        ("third", 2, 3),
+        ("tie-high", 0, 9),
+        ("second", 1, 2),
+        ("tie-low", 0, 8),
+    ):
+        test_db.add(
+            Question(
+                id=uuid.UUID(int=key),
+                goal_id=goal.id,
+                text=text,
+                option_a="a",
+                option_b="b",
+                option_c="c",
+                option_d="d",
+                right_answer_index=0,
+                created_at=at(minute),
+            )
+        )
+        await test_db.flush()
+
+    bank = await QuestionRepository(test_db).list_by_goal(goal.id)
+
+    assert [q.text for q in bank] == ["tie-low", "tie-high", "second", "third"]
 
 
 async def test_list_missing_embeddings_leaves_the_embedded_rows_in_the_database(

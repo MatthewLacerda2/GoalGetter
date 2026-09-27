@@ -57,6 +57,11 @@ def test_the_day_before_the_last_run_is_over_however_recent_it_felt():
     assert decide(utc(2026, 9, 23, 5, 59), THURSDAY_RUN).run is False
 
 
+def test_an_answer_at_the_very_moment_of_the_last_run_counts():
+    """The window is `[previous run, this run]`, closed at the start (#207)"""
+    assert decide(utc(2026, 9, 23, 6), THURSDAY_RUN).run is True
+
+
 def test_resources_are_asked_for_on_mondays():
     decision = decide(SUNDAY_EVENING, MONDAY_RUN)
 

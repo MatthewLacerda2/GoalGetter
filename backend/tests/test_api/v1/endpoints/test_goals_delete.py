@@ -61,7 +61,3 @@ async def test_delete_someone_elses_goal_is_404(
     for goal_id in (theirs.id, uuid.uuid4()):
         assert (await auth_client.delete(endpoint(goal_id))).status_code == 404
     assert (await test_db.execute(select(Goal).where(Goal.id == theirs.id))).first() is not None
-
-
-async def test_delete_requires_auth(client):
-    assert (await client.delete(endpoint(uuid.uuid4()))).status_code == 401

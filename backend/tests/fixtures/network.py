@@ -9,9 +9,9 @@ outermost first:
    (`tools/test-db.sh`). Nothing else exists from inside: not the host's live
    database on 5434, not the internet, not DNS. CI runs on the runner instead,
    where there is no live database to reach, and relies on the next two.
-2. **No real DATABASE_URL.** Before anything imports the settings, this module
-   replaces DATABASE_URL with a host under `.invalid`, which never resolves
-   (RFC 2606). So `backend.core.database.AsyncSessionLocal` - what the chain, the
+2. **No real DATABASE_URL.** Before anything imports the settings,
+   `environment.py` replaces DATABASE_URL with a host under `.invalid`, which
+   never resolves (RFC 2606). So `backend.core.database.AsyncSessionLocal` - what the chain, the
    nightly run and the embeddings job open for themselves - fails loudly when a
    test forgets to patch it, instead of writing wherever DATABASE_URL points.
 3. **This guard**, installed the moment this module is imported. It is the first
@@ -43,15 +43,8 @@ from urllib.parse import urlsplit
 
 import pytest
 
-UNREACHABLE_HOST = "database-url-is-not-for-tests.invalid"
-os.environ["DATABASE_URL"] = f"postgresql+asyncpg://nobody:nothing@{UNREACHABLE_HOST}/none"
-# The signing key, pinned for the same reason: the tests sign and verify their own
-# tokens, so what the environment holds is not theirs to depend on. Whatever it
-# holds (CI's is 11 bytes), PyJWT warns under 32 bytes for HS256, and a warning
-# fails the run (#206) - so every environment gets this one, 40 bytes long.
-os.environ["SECRET_KEY"] = "the-test-suite-signs-with-this-key-only!"
-
-from backend.core.config import settings  # noqa: E402 - must follow the line above
+from backend.core.config import settings
+from backend.tests.fixtures.environment import UNREACHABLE_HOST
 
 ATTEMPTS: list[str] = []
 
