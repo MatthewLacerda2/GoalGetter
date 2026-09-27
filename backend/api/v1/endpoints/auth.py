@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,15 +9,12 @@ from backend.core.database import get_db
 from backend.core.language import Language, requested_language
 from backend.core.security import (
     create_access_token,
-    generate_refresh_token_string,
     get_current_user,
     remember_language,
     verify_google_token,
     verify_google_token_header,
 )
-from backend.models.refresh_token import RefreshToken
 from backend.models.student import Student
-from backend.repositories.refresh_token_repository import RefreshTokenRepository
 from backend.repositories.student_repository import StudentRepository
 from backend.schemas.student import (
     DevLoginRequest,
@@ -28,6 +24,7 @@ from backend.schemas.student import (
     TokenRefreshResponse,
     TokenResponse,
 )
+from backend.services.auth import token_rotation
 from backend.services.fictitious.identity import fictitious_identity
 
 logger = logging.getLogger(__name__)
@@ -38,14 +35,7 @@ router = APIRouter()
 async def _token_response(db: AsyncSession, student: Student) -> TokenResponse:
     """Issue a fresh access + refresh token pair for `student` and commit.
     Shared by every route that answers `token_response`."""
-    refresh_token_str = generate_refresh_token_string()
-    await RefreshTokenRepository(db).create(
-        RefreshToken(
-            student_id=student.id,
-            token=refresh_token_str,
-            expires_at=clock.now() + timedelta(days=30),
-        )
-    )
+    refresh_token_str = await token_rotation.issue(db, student.id)
     await db.commit()
     await db.refresh(student)
     return TokenResponse(
@@ -137,35 +127,22 @@ async def dev_login(
 @router.post("/refresh", response_model=TokenRefreshResponse)
 async def refresh_tokens(payload: TokenRefreshRequest, db: AsyncSession = Depends(get_db)):
     """
-    Refresh access and refresh tokens. Implements Refresh Token Rotation (RTR).
+    Refresh access and refresh tokens. Implements Refresh Token Rotation (RTR):
+    the token presented is revoked and replaced, and presenting one that was
+    already replaced revokes its successors (`services/auth/token_rotation.py`).
     """
-    repo = RefreshTokenRepository(db)
-    token_obj = await repo.get_by_token(payload.refresh_token)
-
-    if not token_obj or token_obj.revoked or clock.as_utc(token_obj.expires_at) < clock.now():
+    rotated = await token_rotation.rotate(db, payload.refresh_token)
+    # Committed before a refusal too: a replayed token revokes its successors.
+    await db.commit()
+    if rotated is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token"
         )
-
-    # Revoke old refresh token (Rotation)
-    token_obj.revoked = True
-    await repo.update(token_obj)
-    await db.flush()
-
-    # Generate new pair
-    student_repo = StudentRepository(db)
-    student = await student_repo.get_by_id(token_obj.student_id)
-
-    new_refresh_str = generate_refresh_token_string()
-    new_refresh_obj = RefreshToken(
-        student_id=student.id, token=new_refresh_str, expires_at=clock.now() + timedelta(days=30)
-    )
-    await repo.create(new_refresh_obj)
-    await db.commit()
-
+    student_id, new_refresh_token = rotated
+    student = await StudentRepository(db).get_by_id(student_id)
     return TokenRefreshResponse(
         access_token=create_access_token(data={"sub": student.google_id}),
-        refresh_token=new_refresh_str,
+        refresh_token=new_refresh_token,
     )
 
 
@@ -174,12 +151,8 @@ async def logout(payload: TokenRefreshRequest, db: AsyncSession = Depends(get_db
     """
     Revoke a refresh token (logout).
     """
-    repo = RefreshTokenRepository(db)
-    token_obj = await repo.get_by_token(payload.refresh_token)
-    if token_obj:
-        token_obj.revoked = True
-        await repo.update(token_obj)
-        await db.commit()
+    await token_rotation.revoke(db, payload.refresh_token)
+    await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

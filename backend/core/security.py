@@ -1,5 +1,4 @@
 import logging
-import secrets
 from datetime import timedelta
 
 import httpx
@@ -41,11 +40,6 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     )
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
     return encoded_jwt
-
-
-def generate_refresh_token_string() -> str:
-    """Generates a secure random refresh token string"""
-    return secrets.token_urlsafe(64)
 
 
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
@@ -164,6 +158,14 @@ async def get_current_user(
     """
     Get the current authenticated user from the JWT token, and keep his
     language up to date with the one the app sent (#172, `core/language.py`).
+
+    **This dependency commits, on purpose (#218).** The language must reach the
+    database even on a GET that commits nothing, because the nightly jobs write
+    in it (`services/gemini/output_language.py`). The commit is safe here: it
+    runs before the endpoint's body, so the language is the only change pending
+    in the session - no endpoint's half-done work is published with it - and it
+    happens only when the language changed, once per switch rather than once per
+    request. Leaving it to the endpoints would make every read endpoint commit.
     """
     user = await _user_from_token(credentials, db)
     if remember_language(user, language):
