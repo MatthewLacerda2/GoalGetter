@@ -37,6 +37,9 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   request: `oauth2_request` · response: `token_response`
 - **`POST /auth/refresh`** — rotate tokens (refresh-token rotation).
   request: `token_refresh_request` · response: `token_refresh_response`
+  Each refresh token works once. Presenting one already rotated answers 401 **and
+  revokes every token issued after it** (#218), so the app must never send the same
+  token twice — it shares one refresh between concurrent requests for that reason.
 - **`POST /auth/logout`** — revoke a refresh token.
   request: `token_refresh_request` · response: none
 - **`DELETE /auth/account`** — delete the signed-in user's account.
