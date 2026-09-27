@@ -39,13 +39,9 @@ router = APIRouter()
 
 # Goal-creation (onboarding) endpoints are intentionally PUBLIC so anyone can try
 # the app without signing up. Each one calls Gemini, so it's rate-limited to
-# 20/minute per client to bound AI cost (the global default is 10/second; see
-# backend/core/rate_limiter.py).
-#
-# NOTE: the backend runs with multiple uvicorn workers and slowapi's default
-# in-memory storage is per-process, so this cap is enforced per worker (looser
-# than 20/min overall). Switch to a single worker or shared storage (Redis) if
-# an exact global cap is required.
+# 20/minute per client address to bound AI cost (the global default is 10/second).
+# Counted per uvicorn worker, so the real ceiling is 20 to 80 a minute - see
+# backend/core/rate_limiter.py for who "a client" is and why.
 
 
 @router.post("/objective-questions", response_model=list[ObjectiveQuestion])

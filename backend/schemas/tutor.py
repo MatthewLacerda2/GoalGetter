@@ -3,11 +3,15 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from backend.schemas.text_limits import TUTOR_MESSAGE_MAX_LENGTH
+
 
 class TutorMessageRequest(BaseModel):
     """POST /tutor/messages: what the student says to the tutor."""
 
-    message: str = Field(..., min_length=1, description="The student's message")
+    message: str = Field(
+        ..., min_length=1, max_length=TUTOR_MESSAGE_MAX_LENGTH, description="The student's message"
+    )
 
 
 class ChatExchange(BaseModel):

@@ -2,11 +2,23 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator
 
+from backend.schemas.text_limits import (
+    GENERATED_DESCRIPTION_MAX_LENGTH,
+    GENERATED_LINE_MAX_LENGTH,
+    GOAL_PROMPT_MAX_LENGTH,
+    ONBOARDING_ANSWERS_MAX_COUNT,
+)
+
 
 class ObjectiveQuestionsRequest(BaseModel):
     """Step 1 of goal creation: the raw thing the user says they want to learn."""
 
-    prompt: str = Field(..., min_length=1, description="What the user wants to learn")
+    prompt: str = Field(
+        ...,
+        min_length=1,
+        max_length=GOAL_PROMPT_MAX_LENGTH,
+        description="What the user wants to learn",
+    )
 
 
 class ObjectiveQuestion(BaseModel):
@@ -29,8 +41,10 @@ class ObjectiveQuestion(BaseModel):
 class ObjectiveAnswer(BaseModel):
     """The user's answer to one objective question (unselected options omitted)."""
 
-    question: str
-    answer: str = Field(..., description="The selected option")
+    question: str = Field(..., max_length=GENERATED_LINE_MAX_LENGTH)
+    answer: str = Field(
+        ..., max_length=GENERATED_LINE_MAX_LENGTH, description="The selected option"
+    )
     ai_model: str | None = Field(
         None,
         max_length=100,
@@ -48,8 +62,17 @@ class GoalCreationRequest(BaseModel):
     """Shared by step 2 (study-plan preview) and step 3 (create goal): the prompt
     plus the user's answers to the objective questions."""
 
-    prompt: str = Field(..., min_length=1, description="What the user wants to learn")
-    answers: list[ObjectiveAnswer] = Field(..., description="Answers to the objective questions")
+    prompt: str = Field(
+        ...,
+        min_length=1,
+        max_length=GOAL_PROMPT_MAX_LENGTH,
+        description="What the user wants to learn",
+    )
+    answers: list[ObjectiveAnswer] = Field(
+        ...,
+        max_length=ONBOARDING_ANSWERS_MAX_COUNT,
+        description="Answers to the objective questions",
+    )
 
 
 class StudyPlanResponse(BaseModel):
@@ -64,11 +87,28 @@ class GoalCommitRequest(BaseModel):
     the approved goal_name + description so we persist exactly what they saw (no
     re-generation), plus the prompt/answers the async jobs need for context."""
 
-    prompt: str = Field(..., min_length=1, description="What the user wants to learn")
-    answers: list[ObjectiveAnswer] = Field(..., description="Answers to the objective questions")
-    goal_name: str = Field(..., min_length=1, description="The approved goal name from the preview")
+    prompt: str = Field(
+        ...,
+        min_length=1,
+        max_length=GOAL_PROMPT_MAX_LENGTH,
+        description="What the user wants to learn",
+    )
+    answers: list[ObjectiveAnswer] = Field(
+        ...,
+        max_length=ONBOARDING_ANSWERS_MAX_COUNT,
+        description="Answers to the objective questions",
+    )
+    goal_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=GENERATED_LINE_MAX_LENGTH,
+        description="The approved goal name from the preview",
+    )
     description: str = Field(
-        ..., min_length=1, description="The approved markdown description from the preview"
+        ...,
+        min_length=1,
+        max_length=GENERATED_DESCRIPTION_MAX_LENGTH,
+        description="The approved markdown description from the preview",
     )
 
 

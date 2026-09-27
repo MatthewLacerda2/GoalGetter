@@ -55,8 +55,8 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture(autouse=True)
 def disable_rate_limiter():
     """Disable the slowapi limiter during tests: the fast-running suite would
-    otherwise trip the global per-second limit and flake. Rate limiting is
-    verified against the running container, not in unit tests."""
+    otherwise trip the global per-second limit and flake. The tests about the
+    limiter turn it back on for themselves (test_core/test_rate_limiter.py)."""
     from backend.core.rate_limiter import limiter
 
     previous = limiter.enabled
