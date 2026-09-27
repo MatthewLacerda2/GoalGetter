@@ -396,11 +396,13 @@ remind him and ask.
 - **Nothing backs the database up.** Since #157 the data survives a restart, which
   is the point — and makes losing it possible in a way it never was. No issue covers
   this yet.
-- **Analyzer backlog: 0 warnings, 375 infos** (2026-09-26, `dart analyze` on `main`;
+- **Analyzer backlog: 0 warnings, 263 infos** (2026-09-27, `dart analyze` after #227;
   riverpod_lint contributes none). A warning now fails `make front-lint`, riverpod_lint's
-  included since it runs `dart analyze` rather than `flutter analyze` (#169); the infos are
-  a separate, larger backlog and still only report. Next step: clear them and let them
-  block too (`--fatal-infos`).
+  included since it runs `dart analyze` rather than `flutter analyze` (#169), and the lints
+  whose finding is a bug (`unawaited_futures`, `use_build_context_synchronously`,
+  `cast_nullable_to_non_nullable`, …) are warnings since #227 — the list and the reason
+  for each is `frontend/analysis_options.yaml`. The infos left are style and still only
+  report. Next step: clear them and let them block too (`--fatal-infos`).
 - **The deploy now runs a job that spends money.** `docker-compose.yml` carries a
   `nightly` service (#89, #96): one process that fills the null embeddings at **00:00**
   and runs the context → questions → resources chain for each qualifying student at

@@ -12,9 +12,9 @@
 ///    (`primary.withValues(alpha: 0.2)`): an alpha is as much a colour
 ///    decision as the hex it tints, and 14 of them lived in screens;
 ///  * a colour looked up with a fallback (`extension<CustomColors>()?.success
-///    ?? …`): the fallback was a fixed light-mode value, so the dark theme
-///    could paint with it. `CustomColors.of` cannot miss, so the lookup that
-///    can is refused outright;
+///    ?? …`): each screen chose its own fallback, a fixed light-mode value.
+///    `CustomColors.of` is the one lookup and holds the one fallback, so the
+///    nullable lookup is refused outright;
 ///  * a type size, including the `selectedFontSize:` a widget takes directly;
 ///  * a radius or a padding, as a number inside `BorderRadius.*`, `Radius.*`
 ///    or `EdgeInsets.*`;
@@ -170,8 +170,8 @@ Iterable<Violation> _colourViolations(String stripped) sync* {
     stripped,
     _extensionLookup,
     'no-color-literal',
-    'Read the semantic colours with CustomColors.of(context): the theme '
-        'always carries them, and a fallback is a colour of one mode only',
+    'Read the semantic colours with CustomColors.of(context): it '
+        'is the one lookup, and holds the one fallback',
   );
 }
 

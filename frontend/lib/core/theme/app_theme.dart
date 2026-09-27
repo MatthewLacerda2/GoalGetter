@@ -5,10 +5,10 @@ import 'package:goal_getter/core/theme/app_palette.dart';
 
 /// 1. CUSTOM SEMANTIC TOKENS (Tailwind-like custom design tokens)
 ///
-/// Read with [CustomColors.of]. Both themes carry the extension, so the lookup
-/// cannot miss; a `?? fallback` could only ever paint the dark theme with a
-/// light-mode colour, and `tool/frontend_linter.dart` refuses the nullable
-/// lookup outside this directory (#227).
+/// Read with [CustomColors.of]. Every screen used to look the extension up
+/// itself with a `?? AppTheme.success` fallback of its own, a light-mode
+/// colour; `tool/frontend_linter.dart` now refuses the nullable lookup outside
+/// this directory (#227), so the one fallback is here.
 class CustomColors extends ThemeExtension<CustomColors> {
   final Color success; // elo gained (green)
   final Color lost; // elo lost (blue)
@@ -22,9 +22,23 @@ class CustomColors extends ThemeExtension<CustomColors> {
     required this.accentMuted,
   });
 
+  /// The semantic colours [palette] paints with.
+  CustomColors.from(AppPalette palette)
+    : this(
+        success: palette.success,
+        lost: palette.lost,
+        errorMuted: palette.errorMuted,
+        accentMuted: palette.accentMuted,
+      );
+
   /// The semantic colours of the theme around [context].
+  ///
+  /// Both app themes carry them. Only a widget pumped without the app's theme
+  /// (a test) finds none, and it gets the light palette's — what every
+  /// screen's own fallback gave it before.
   static CustomColors of(BuildContext context) =>
-      Theme.of(context).extension<CustomColors>()!;
+      Theme.of(context).extension<CustomColors>() ??
+      CustomColors.from(AppPalette.light);
 
   @override
   CustomColors copyWith({
@@ -234,12 +248,7 @@ class AppTheme {
       scaffoldBackgroundColor: colorScheme.surface,
 
       extensions: [
-        CustomColors(
-          success: p.success,
-          lost: p.lost,
-          errorMuted: p.errorMuted,
-          accentMuted: p.accentMuted,
-        ),
+        CustomColors.from(p),
       ],
 
       textTheme: _textTheme(p),
