@@ -109,14 +109,15 @@ def test_every_use_case_has_its_prompt_checked():
 
 @pytest.mark.parametrize("name", PROMPTS)
 @pytest.mark.parametrize(
-    "language, named", [(Language.PORTUGUESE, "Portuguese"), (Language.GERMAN, "German")]
+    ("language", "named"), [(Language.PORTUGUESE, "Portuguese"), (Language.GERMAN, "German")]
 )
 def test_every_prompt_names_the_students_language(name, language, named):
     render, _, _ = PROMPTS[name]
     prompt = render(language)
 
     assert f"in {named}" in prompt
-    assert "same language" not in prompt and "user's language" not in prompt
+    assert "same language" not in prompt
+    assert "user's language" not in prompt
 
 
 @pytest.mark.parametrize("name", PROMPTS)

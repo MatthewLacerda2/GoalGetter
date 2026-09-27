@@ -49,7 +49,8 @@ def test_a_lesson_he_would_mostly_miss_buys_nothing():
 
     assert verdict.generate is False
     assert verdict.predicted == pytest.approx(0.4)
-    assert "0.40" in verdict.reason and "under 0.60" in verdict.reason
+    assert "0.40" in verdict.reason
+    assert "under 0.60" in verdict.reason
 
 
 def test_a_lesson_he_would_walk_through_buys_eight():

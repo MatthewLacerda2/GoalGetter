@@ -33,11 +33,11 @@ import sys
 import traceback
 from collections.abc import Callable
 from dataclasses import dataclass, field, fields, is_dataclass
-from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel
 
+from backend.core import clock
 from backend.core.config import settings
 from backend.core.language import Language
 from backend.schemas.goal import ObjectiveAnswer
@@ -105,7 +105,7 @@ def _answers(pairs: list[str]) -> list[ObjectiveAnswer]:
 
 
 def _turn(message: str) -> list[GeminiChatMessage]:
-    return [GeminiChatMessage(role="user", message=message, time=datetime.now().isoformat())]
+    return [GeminiChatMessage(role="user", message=message, time=clock.now().isoformat())]
 
 
 def _goal(name: str, description: str, frontier: str = "") -> list[StudentGoal]:

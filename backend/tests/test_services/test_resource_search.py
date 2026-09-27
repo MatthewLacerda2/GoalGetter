@@ -94,7 +94,8 @@ async def test_both_prompts_name_the_language_and_the_second_holds_no_link():
     _, gemini = await run(described(), language=Language.GERMAN)
 
     search, describe = (call.contents for call in gemini.calls)
-    assert "German" in search and "German" in describe
+    assert "German" in search
+    assert "German" in describe
     assert "http" not in describe
     assert "[5] lichess.org:" in describe
 
@@ -105,5 +106,7 @@ async def test_a_failed_description_is_asked_again_without_searching_again():
     found, gemini = await run(described((1, "webpage")), Language.PORTUGUESE, api_error(429))
 
     search, first, second = (call.contents for call in gemini.calls)
-    assert "Portuguese" in search and first == second
-    assert "[1]" in second and [page.name for page in found.pages] == ["N1"]
+    assert "Portuguese" in search
+    assert first == second
+    assert "[1]" in second
+    assert [page.name for page in found.pages] == ["N1"]

@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Any, ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
@@ -23,7 +24,7 @@ class Base(DeclarativeBase):
     Nullability is the annotation's: `Mapped[str | None]` is NULL-able, `Mapped[str]`
     is NOT NULL."""
 
-    type_annotation_map = {
+    type_annotation_map: ClassVar[dict[Any, Any]] = {
         uuid.UUID: UUID(as_uuid=True),
         datetime: DateTime(timezone=True),
         Embedding: Vector(NUM_DIMENSIONS),

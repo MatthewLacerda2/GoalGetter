@@ -98,7 +98,8 @@ async def test_a_student_who_never_misses_gets_eight_one_step_past_what_he_holds
         )
 
     prompt = get_lesson_generation_prompt(*asked(calls))
-    assert "1400" not in prompt and "difficulty" not in prompt
+    assert "1400" not in prompt
+    assert "difficulty" not in prompt
     assert f"Write exactly {settings.QUESTIONS_PER_GENERATION} exercises" in prompt
     assert "one\n    step past what he got right" in prompt
 

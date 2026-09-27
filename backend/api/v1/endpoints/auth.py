@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,9 +50,9 @@ async def _token_response(db: AsyncSession, student: Student) -> TokenResponse:
 
 @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def signup(
-    user_info: dict = Depends(verify_google_token_header),
-    db: AsyncSession = Depends(get_db),
-    language: Language | None = Depends(requested_language),
+    user_info: Annotated[dict, Depends(verify_google_token_header)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    language: Annotated[Language | None, Depends(requested_language)],
 ):
     """
     Sign up or sign in using Google OAuth2 token.
@@ -73,7 +74,7 @@ async def signup(
 
 
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def login(oauth_data: OAuth2Request, db: AsyncSession = Depends(get_db)):
+async def login(oauth_data: OAuth2Request, db: Annotated[AsyncSession, Depends(get_db)]):
     """
     Login using Google OAuth2 token.
     """
@@ -103,8 +104,8 @@ def require_dev_login():
 )
 async def dev_login(
     payload: DevLoginRequest,
-    db: AsyncSession = Depends(get_db),
-    language: Language | None = Depends(requested_language),
+    db: Annotated[AsyncSession, Depends(get_db)],
+    language: Annotated[Language | None, Depends(requested_language)],
 ):
     """
     Dev only: sign in as a fictitious student, no Google involved. Creates or
@@ -125,7 +126,9 @@ async def dev_login(
 
 
 @router.post("/refresh", response_model=TokenRefreshResponse)
-async def refresh_tokens(payload: TokenRefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh_tokens(
+    payload: TokenRefreshRequest, db: Annotated[AsyncSession, Depends(get_db)]
+):
     """
     Refresh access and refresh tokens. Implements Refresh Token Rotation (RTR):
     the token presented is revoked and replaced, and presenting one that was
@@ -147,7 +150,7 @@ async def refresh_tokens(payload: TokenRefreshRequest, db: AsyncSession = Depend
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(payload: TokenRefreshRequest, db: AsyncSession = Depends(get_db)):
+async def logout(payload: TokenRefreshRequest, db: Annotated[AsyncSession, Depends(get_db)]):
     """
     Revoke a refresh token (logout).
     """
@@ -158,7 +161,8 @@ async def logout(payload: TokenRefreshRequest, db: AsyncSession = Depends(get_db
 
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_account(
-    db: AsyncSession = Depends(get_db), current_user: Student = Depends(get_current_user)
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[Student, Depends(get_current_user)],
 ):
     try:
         student_repo = StudentRepository(db)
@@ -174,7 +178,7 @@ async def delete_account(
         raise
     except Exception as e:
         await db.rollback()
-        logger.error(f"Error deleting account: {e}", exc_info=True)
+        logger.exception("Error deleting account")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error deleting account",

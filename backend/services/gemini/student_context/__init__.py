@@ -9,9 +9,9 @@ from backend.services.gemini.student_context.student_context import (
 )
 
 __all__ = [
-    "gemini_generate_student_context",
-    "gemini_review_student_context",
     "GeminiContextReview",
     "GeminiStudentContext",
     "StudentGoal",
+    "gemini_generate_student_context",
+    "gemini_review_student_context",
 ]

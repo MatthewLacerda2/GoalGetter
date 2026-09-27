@@ -54,10 +54,15 @@ GUITAR_LESSONS = [(24, 18, 2), (23, 19, 3), (21, 20, 3)]
 PYTHON_LESSONS = [(33, 10, 3), (31, 11, 4)]
 
 ITALIAN_CONTEXT = (
-    "A beginner preparing for a one-week trip to Rome in three weeks. Solid on greetings and "
-    "ordering food; still slips on articles (lo/il) and on essere vs avere in the passato prossimo.",
-    "Studies in the evening, one short lesson a day, sometimes two. Asks 'why' questions and "
-    "remembers rules better with a mnemonic.",
+    (
+        "A beginner preparing for a one-week trip to Rome in three weeks. Solid on greetings and "
+        "ordering food; still slips on articles (lo/il) and on essere vs avere in the passato "
+        "prossimo."
+    ),
+    (
+        "Studies in the evening, one short lesson a day, sometimes two. Asks 'why' questions and "
+        "remembers rules better with a mnemonic."
+    ),
 )
 
 # The goals, newest (and active) first. `created_days_ago` must predate the

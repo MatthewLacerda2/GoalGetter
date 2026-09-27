@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -49,7 +51,7 @@ router = APIRouter()
 async def objective_questions(
     request: Request,
     payload: ObjectiveQuestionsRequest,
-    chosen: Language | None = Depends(requested_language),
+    chosen: Annotated[Language | None, Depends(requested_language)],
 ):
     """
     Step 1: validate the prompt is a real goal, then generate clarifying
@@ -82,7 +84,7 @@ async def objective_questions(
 async def study_plan(
     request: Request,
     payload: GoalCreationRequest,
-    chosen: Language | None = Depends(requested_language),
+    chosen: Annotated[Language | None, Depends(requested_language)],
 ):
     """
     Step 2: generate a stateless study-plan preview (goal name + markdown
@@ -98,8 +100,8 @@ async def study_plan(
 async def create_goal(
     request: Request,
     payload: GoalCommitRequest,
-    current_user: Student = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    current_user: Annotated[Student, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """
     Step 3 (AUTHED): persist the goal the user approved in the preview, store the
@@ -141,8 +143,8 @@ async def create_goal(
 @router.post("/{goal_id}/standard-answers", status_code=status.HTTP_204_NO_CONTENT)
 async def standard_answers(
     payload: StandardAnswersRequest,
-    goal: Goal = Depends(get_owned_goal),
-    db: AsyncSession = Depends(get_db),
+    goal: Annotated[Goal, Depends(get_owned_goal)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """What the student told us about himself while his first batch generated.
 
@@ -160,8 +162,8 @@ async def standard_answers(
 
 @router.get("", response_model=list[GoalResponse])
 async def list_goals(
-    current_user: Student = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    current_user: Annotated[Student, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Every goal of the student, newest first, with all the fields the goals list and
     the goal detail screen show (there is no per-goal GET)."""
@@ -182,9 +184,9 @@ async def list_goals(
 
 @router.put("/{goal_id}/set-active", response_model=SetActiveGoalResponse)
 async def set_active_goal(
-    goal: Goal = Depends(get_owned_goal),
-    current_user: Student = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    goal: Annotated[Goal, Depends(get_owned_goal)],
+    current_user: Annotated[Student, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Make one of the student's goals the active one (students.current_goal_id).
     Someone else's goal, or a missing one, is 404 (see get_owned_goal)."""
@@ -197,9 +199,9 @@ async def set_active_goal(
 
 @router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_goal(
-    goal: Goal = Depends(get_owned_goal),
-    current_user: Student = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    goal: Annotated[Goal, Depends(get_owned_goal)],
+    current_user: Annotated[Student, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Delete a goal and everything under it. The database does the cascading
     (ON DELETE CASCADE on the goal's rows, SET NULL on students.current_goal_id), so

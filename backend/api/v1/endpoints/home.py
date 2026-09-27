@@ -1,5 +1,7 @@
 """GET /home: the dashboard for the active goal (students.current_goal_id)."""
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,7 +21,9 @@ RECENT_LESSONS_LIMIT = 10
 
 
 @router.get("", response_model=HomeDashboard)
-async def get_home(goal: Goal = Depends(get_active_goal), db: AsyncSession = Depends(get_db)):
+async def get_home(
+    goal: Annotated[Goal, Depends(get_active_goal)], db: Annotated[AsyncSession, Depends(get_db)]
+):
     """Rating, streak and recent lessons. No active goal is 404.
 
     A lesson here is a group of answers sharing one `lesson_id` (#131); the

@@ -47,7 +47,7 @@ async def test_send_gives_gemini_the_window_oldest_first(
     history, contexts, name, description, _language = gemini.call_args.args
     kept = range(2, HISTORY_WINDOW + 2)  # the two oldest fall out of the window
     expected = [t for i in kept for t in (("user", f"q{i}"), ("model", f"a{i}\nb{i}"))]
-    assert [(m.role, m.message) for m in history] == expected + [("user", "next?")]
+    assert [(m.role, m.message) for m in history] == [*expected, ("user", "next?")]
     assert [(c.state, c.metacognition) for c in contexts] == [("beginner", "curious")]
     assert (name, description) == (goal.name, goal.description)
 

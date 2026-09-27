@@ -26,13 +26,65 @@ src = [".."]
 # B   - flake8-bugbear: real footguns (mutable defaults, except-pass, ...).
 # I   - isort: one import order, so a diff never argues about it.
 # UP  - pyupgrade: modern syntax only (`list[str]`, `str | None`).
-select = ["F", "E", "W", "B", "I", "UP"]
+#
+# The families below (#210) each encode a rule this code already keeps, or a
+# bug it already had - chosen by what they found, not by how many exist:
+# ASYNC  - blocking calls inside `async def`. Zero hits when added: a free guard
+#          for an app that is async end to end. It cannot see a blocking call
+#          behind a library (google-auth's certificate fetch was one, fixed by
+#          hand in core/security.py), so it is a floor, not a proof.
+# DTZ    - naive datetimes. core/clock.py's rule, mechanised: every moment is
+#          timezone-aware UTC.
+# BLE    - blind `except Exception` that swallows. A handler names what it
+#          expects; one that re-raises is not flagged.
+# G, LOG - logging calls: arguments, not f-strings (the message is built only
+#          when the record is emitted, and one template groups one event), and
+#          no misuse of the logging module itself.
+# TRY400 - `logger.error` inside `except` drops the traceback; `.exception`
+#          keeps it. Only this one of the tryceratops rules: the rest are about
+#          exception-message style.
+# FAST   - FastAPI idioms: `Annotated[..., Depends(...)]` rather than a default
+#          value, so a dependency reads the same in a route and in a test.
+# ISC    - implicit string concatenation. In a list or tuple it is how a
+#          missing comma merges two items silently (ISC004) - and prompts and
+#          seed data are long lists of strings.
+# RUF    - Ruff's own: implicit Optional, mutable class defaults, unsorted
+#          `__all__`, `noqa` comments that no longer silence anything.
+# PT     - pytest idioms: one fact per `assert` (a failure names which one),
+#          `pytest.raises` narrowed by `match`.
+# T20    - `print`: the app logs. Command-line tools are exempt below.
+#
+# Not selected, on purpose: SIM (style: its hits were nested `if`s and the
+# word lists in services/language/common_words.py, which read better as the
+# split strings they are); S (bandit: 750 hits, all `assert` in tests); ANN, D
+# (annotation and docstring coverage are the type checker's and the reader's
+# business, #209); ARG (FastAPI dependencies are unused arguments by design).
+select = [
+  "F", "E", "W", "B", "I", "UP",
+  "ASYNC", "DTZ", "BLE", "G", "LOG", "TRY400", "FAST", "ISC", "RUF", "PT", "T20",
+]
 # E501: line length is enforced by the formatter, not as a lint error.
 # UP042: rewriting `class X(str, Enum)` as `StrEnum` is a behaviour change -
 #        `str(member)` and f-strings go from "Kind.MEMBER" to "member", which
 #        reaches responses and stored values. Off until someone migrates on
 #        purpose.
 ignore = ["E501", "UP042"]
+# Ruff calls these fixes unsafe; here they are not, and marking them safe is
+# what lets `make back-fix` apply them, so back-fix still fixes exactly what
+# back-lint checks:
+# FAST002 - it is unsafe because moving `= Depends(x)` into `Annotated` changes
+#           the parameter's default. FastAPI resolves both forms identically,
+#           and nothing here calls a route function directly.
+# PT018 stays unsafe - and so is fixed by hand: its fix drops a trailing comment.
+extend-safe-fixes = ["FAST002"]
+
+[tool.ruff.lint.per-file-ignores]
+# Command-line tools: printing is their output, and each reports whatever
+# failed - a Gemini call, a file it cannot parse - instead of dying with it.
+# The app has neither excuse.
+"tools/**" = ["T20", "BLE001"]
+"**/__main__.py" = ["T20"]
+"tests/backend_linter.py" = ["T20", "BLE001"]
 
 [tool.ruff.lint.isort]
 # See `src` above: without this, `backend.*` is sorted as a third-party import.
@@ -54,7 +106,8 @@ extend-immutable-calls = [
 ]
 
 [tool.ruff.format]
-# atem pins "lf". Here that is wrong: ~15 backend files are CRLF (see
-# CLAUDE.md's known issues), and pinning lf would turn every future one-line
-# change in them into a whole-file diff. "auto" keeps each file's own endings.
-line-ending = "auto"
+# LF, as the repository's .gitattributes checks every text file out. This once
+# said "auto" because ~15 backend files were CRLF and pinning LF would have made
+# each one-line edit a whole-file diff; .gitattributes normalised them, and none
+# are CRLF any more, so the formatter pins what git already guarantees.
+line-ending = "lf"

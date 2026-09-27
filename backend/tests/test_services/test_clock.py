@@ -30,7 +30,8 @@ def test_now_is_timezone_aware_utc():
 
 
 def test_a_naive_moment_is_read_as_utc():
-    assert as_utc(datetime(2026, 9, 22, 1)) == utc(2026, 9, 22, 1)
+    # The naive moment is the input under test.
+    assert as_utc(datetime(2026, 9, 22, 1)) == utc(2026, 9, 22, 1)  # noqa: DTZ001
 
 
 def test_22_brasilia_is_still_the_21st_though_it_is_01_utc_on_the_22nd():
