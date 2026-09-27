@@ -354,6 +354,22 @@ nightly: env ## Run the nightly job by hand (SPENDS QUOTA; ARGS='--student <id>'
 embeddings: env ## Fill every null embedding by hand (SPENDS QUOTA)
 	@$(DOCKER_RUN) python -m backend.tools.nightly_run --embeddings
 
+# --- Google Cloud (Terraform) --------------------------------------------------
+# terraform/google (#108), run in the pinned official image: Terraform is not
+# installed here. The credential is the active gcloud login's access token,
+# exported and forwarded by NAME so it is never on a command line. The state is
+# local and gitignored, and it holds the API key strings - terraform/README.md.
+# `init` runs first every time (a no-op once .terraform/ exists).
+TF_IMAGE ?= hashicorp/terraform:1.16.4
+TF_RUN   := docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp \
+            -e GOOGLE_OAUTH_ACCESS_TOKEN \
+            -v "$(CURDIR)/terraform/google":/work -w /work
+.PHONY: tf
+tf: ## Terraform on Google Cloud in the pinned image (ARGS='plan' by default)
+	@set -e; export GOOGLE_OAUTH_ACCESS_TOKEN="$$(gcloud auth print-access-token)"; \
+	$(TF_RUN) $(TF_IMAGE) init -input=false >/dev/null; \
+	$(TF_RUN) $$([ -t 0 ] && echo -it) $(TF_IMAGE) $(or $(ARGS),plan)
+
 # `make claude`: "Fictitious Claude" with a lived-in history, so every signed-in
 # screen has data (backend/services/fictitious/, hardcoded, no Gemini/YouTube),
 # then its token through `claude-token`. It writes to DATABASE_URL: the

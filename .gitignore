@@ -52,7 +52,9 @@ frontend/macos/Flutter/GeneratedPluginRegistrant.swift
 .terraform/
 *.tfstate
 *.tfstate.*
+# A saved plan carries the API key strings in the clear (terraform/README.md).
 *.tfplan
+tfplan
 
 # --- Local tooling output -----------------------------------------------------
 # Headless screenshots (make shot).
