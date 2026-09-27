@@ -5,7 +5,7 @@ import 'package:goal_getter/app/router/app_routes.dart';
 
 import 'package:goal_getter/features/lessons/presentation/widgets/stat.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 class FinishLessonScreen extends StatelessWidget {
   final String title;

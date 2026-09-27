@@ -8,7 +8,7 @@ import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// Step 1 of goal creation: what the student wants to learn. Sends it to
 /// `POST /goals/objective-questions`; a 400 there is Gemini saying it is not a

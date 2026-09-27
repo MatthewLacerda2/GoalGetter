@@ -3,13 +3,14 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/dev/dev_fixtures.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// A dev-only index of every screen in the app.
 ///
-/// Entry point while the backend is mocked: it makes each screen reachable in
-/// one tap, including the ones that need a rich `extra` object and would
-/// otherwise only be reachable by walking the whole flow (see [DevFixtures]).
+/// It makes each screen reachable in one tap, including the ones that need a
+/// rich `extra` object and would otherwise only be reachable by walking the
+/// whole flow (see [DevFixtures]). The screens that are not fixtures call the
+/// backend, and the router sends a signed-out visitor from them to Start.
 /// Shown instead of the normal splash when the app is built with
 /// `--dart-define=DEV_MENU=true`; it is never reachable in a production build.
 class DevMenuScreen extends StatelessWidget {
@@ -75,7 +76,8 @@ class DevMenuScreen extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Every screen runs on mock data. Back returns here.',
+                'Fixture screens run on invented data; the rest call the backend and '
+                'need a session - sign in from Start first. Back returns here.',
                 style: theme.textTheme.bodySmall,
               ),
             ),

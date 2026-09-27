@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/app/startup/app_start_controller.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/features/goals/data/goals_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,11 +21,17 @@ Future<AppStartDestination> launch(
     storage: storage,
     baseUrl: 'http://api.test',
   );
-  final result = await AppStartController(storage, api).evaluate();
+  final result =
+      await AppStartController(storage, GoalsApi(api)).evaluate();
   return result.destination;
 }
 
 const _token = {'access_token': 'access', 'refresh_token': 'r1'};
+
+/// One item of GET /goals, as the backend sends it.
+String _goal(String id, {required bool active}) =>
+    '{"id": "$id", "name": "Chess", "description": "Openings.",'
+    ' "current_elo": 1000, "is_active": $active}';
 
 void main() {
   test('no token goes to the start screen', () async {
@@ -38,15 +45,15 @@ void main() {
   test('an active goal goes home', () async {
     final destination = await launch(
       _token,
-      goalsBody: '[{"id": "g1", "is_active": false},'
-          ' {"id": "g2", "is_active": true}]',
+      goalsBody:
+          '[${_goal('g1', active: false)}, ${_goal('g2', active: true)}]',
     );
     expect(destination, AppStartDestination.authenticatedReady);
   });
 
   test('goals but none active goes to the goals list', () async {
     final destination =
-        await launch(_token, goalsBody: '[{"id": "g1", "is_active": false}]');
+        await launch(_token, goalsBody: '[${_goal('g1', active: false)}]');
     expect(destination, AppStartDestination.authenticatedNeedsActiveGoal);
   });
 

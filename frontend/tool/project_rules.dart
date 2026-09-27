@@ -139,22 +139,25 @@ String normalizePath(String path) {
 /// halves. `package:` imports of other packages and `dart:` imports are not
 /// files of ours, so they are dropped; `part of` names a library rather than
 /// pulling a file in, so it is not a directive that reaches anything.
-Set<String> importedPaths(String path, String source) {
+Set<String> importedPaths(String path, String source) =>
+    {for (final (_, target) in directiveTargets(path, source)) target};
+
+/// [importedPaths], each with the offset in [source] where its directive
+/// ends, so a rule about one import can say which line it is on.
+Iterable<(int, String)> directiveTargets(String path, String source) sync* {
   final dir = path.contains('/')
       ? path.substring(0, path.lastIndexOf('/'))
       : '';
-  final targets = <String>{};
   for (final directive in _directive.allMatches(source)) {
     for (final match in _directiveUri.allMatches(directive.group(1)!)) {
       final uri = match.group(1)!;
       if (uri.startsWith(packagePrefix)) {
-        targets.add('lib/${uri.substring(packagePrefix.length)}');
+        yield (directive.end, 'lib/${uri.substring(packagePrefix.length)}');
       } else if (!uri.startsWith('package:') && !uri.startsWith('dart:')) {
-        targets.add(normalizePath('$dir/$uri'));
+        yield (directive.end, normalizePath('$dir/$uri'));
       }
     }
   }
-  return targets;
 }
 
 /// Files under `lib/` that no source in [sources] imports, exports or parts.

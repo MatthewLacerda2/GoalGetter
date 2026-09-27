@@ -10,7 +10,7 @@ import 'package:goal_getter/features/tutor/presentation/controllers/tutor_contro
 import 'package:goal_getter/features/tutor/presentation/widgets/chat_input.dart';
 import 'package:goal_getter/features/tutor/presentation/widgets/chat_message_bubble.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The chat with the tutor, on the active goal. The list is reversed: the
 /// newest bubble sits at the bottom, and scrolling up to the top loads older

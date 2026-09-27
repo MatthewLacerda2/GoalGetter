@@ -1,6 +1,6 @@
 /// House rules for the Flutter side, the mirror of `backend/tests/backend_linter.py`.
 ///
-/// Eight rules on every hand-written file under `lib/`:
+/// Nine rules on every hand-written file under `lib/`:
 ///
 ///  1. a `.dart` file is at most 400 lines;
 ///  2. a function or method is at most 60 code lines (comments free, blanks count);
@@ -9,10 +9,17 @@
 ///  5. no radius or padding literal — they come from `AppRadius` / `AppSpacing`;
 ///  6. no user-facing string written in Dart — it comes from the ARB files;
 ///  7. no widget named after a failure outside `lib/core/`;
-///  8. no `DevFixtures` named outside `lib/app/dev/`.
+///  8. no `DevFixtures` named outside `lib/app/dev/`;
+///  9. no file under `lib/core/` imports `lib/app/`.
+///
+/// Rule 9 keeps the layers pointing one way: `lib/app/` is the router and the
+/// screens it wires together, `lib/core/` is what every feature is built on.
+/// A core file that reached back into the app made the whole app one import
+/// cycle through the API client, which is how session expiry used to navigate
+/// (#224); the router now listens to the session instead.
 ///
 /// Rules 3-5 exist so the theme is the only place a colour, a type size, a
-/// corner or a gap is decided. `lib/app/theme/` is where those values live, so
+/// corner or a gap is decided. `lib/core/theme/` is where those values live, so
 /// it is the one directory exempt from them. Rules 6 and 8 are both about
 /// `lib/app/dev/`, the one directory exempt from them: the dev menu and its
 /// fixtures are a tool for us, written in English like the code and never
@@ -45,7 +52,7 @@ const int maxFileLines = 400;
 const int maxFunctionLines = 60;
 
 /// The one directory allowed to write raw design values.
-const String themeDir = 'lib/app/theme/';
+const String themeDir = 'lib/core/theme/';
 
 /// The one directory allowed to write user-facing strings in Dart and to name
 /// the fixtures: the dev menu is a tool for us, not a screen for a student.
@@ -53,6 +60,10 @@ const String devDir = 'lib/app/dev/';
 
 /// The one directory allowed to define a widget named after a failure.
 const String coreDir = 'lib/core/';
+
+/// The app layer: the router and the screens it wires together. Nothing under
+/// [coreDir] may import it.
+const String appDir = 'lib/app/';
 
 /// The name endings that say "this widget is how a failure is shown".
 const List<String> failureSuffixes = [
@@ -144,6 +155,20 @@ List<Violation> failureWidgets(String stripped) {
         ),
   ];
 }
+
+/// Imports from a file under [coreDir] that reach into [appDir]. Read from the
+/// raw source, since the URI is a string the stripped source blanks.
+List<Violation> coreImportsApp(String path, String source) => [
+      if (isCoreFile(path))
+        for (final (end, target) in directiveTargets(path, source))
+          if (target.startsWith(appDir))
+            Violation(
+              lineAt(source, end),
+              'core-imports-app',
+              'lib/core/ is what the app is built on and may not import '
+                  "lib/app/ ('$target'): expose state the app listens to",
+            ),
+    ];
 
 /// Numeric literal anywhere in the balanced argument list opening at [open].
 bool _hasNumericArgument(String stripped, int open) {
@@ -272,6 +297,7 @@ List<Violation> lintSource(String path, String source) {
   }
 
   if (!isCoreFile(path)) violations.addAll(failureWidgets(stripped));
+  violations.addAll(coreImportsApp(path, source));
 
   violations.sort((a, b) => a.line.compareTo(b.line));
   return violations;

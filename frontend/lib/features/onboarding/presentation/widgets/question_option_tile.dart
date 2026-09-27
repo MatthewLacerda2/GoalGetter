@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// One of the four options of an objective question.
 class QuestionOptionTile extends StatelessWidget {

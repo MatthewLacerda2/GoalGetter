@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 class StatWidget extends StatelessWidget {
   final StatData statData;

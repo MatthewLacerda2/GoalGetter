@@ -8,7 +8,7 @@ import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
 import 'package:goal_getter/features/goals/presentation/widgets/goal_card.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The student's goals, from `GET /goals`. Tapping a card opens the detail
 /// screen with that same goal (no second fetch). Starting another goal is the

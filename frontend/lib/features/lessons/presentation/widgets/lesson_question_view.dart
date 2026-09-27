@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The pieces the lesson screen is made of, one widget each, so answering a
 /// question rebuilds the tile that changed rather than the whole screen.

@@ -19,7 +19,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/core/utils/error_text.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 

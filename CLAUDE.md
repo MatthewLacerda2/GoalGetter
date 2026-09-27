@@ -201,7 +201,8 @@ You do not need to be asked to bring a change up and look at it yourself. Green
 gates prove the code runs; they do not prove it is the right change.
 
 - **Screens**: `DEV_MENU=true` opens a dev index of every screen, including the
-  ones that need route arguments, all running on mocks.
+  ones that need route arguments. Those run on fixtures; the rest call the backend,
+  and without a session the router sends them to the start screen (#224).
 - **Endpoints**: Swagger is at `/api/v1/docs` (e.g. `http://localhost:8001/api/v1/docs`).
 - **Signed-in screens, headless**: `make preview` builds the integrated app and serves it
   with its own backend, on its **own database**, at `:8093` (loopback and the tailnet only).

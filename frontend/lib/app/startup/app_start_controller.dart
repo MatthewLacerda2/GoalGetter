@@ -1,10 +1,10 @@
 import 'dart:developer' as developer;
 
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
-import 'package:goal_getter/core/api/api_providers.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/features/goals/data/goals_api.dart';
+import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_start_controller.g.dart';
@@ -42,10 +42,10 @@ class AppStartResult {
 /// #52): a stored active goal id ⇒ home, the returning student's usual screen;
 /// none ⇒ the goals list, whose `GET /goals` retries this very call.
 class AppStartController {
-  const AppStartController(this._storage, this._api);
+  const AppStartController(this._storage, this._goals);
 
   final SettingsStorage _storage;
-  final ApiClient _api;
+  final GoalsApi _goals;
 
   Future<AppStartResult> evaluate() async {
     final token = _storage.getAccessToken();
@@ -53,8 +53,7 @@ class AppStartController {
       return const AppStartResult(AppStartDestination.unauthenticated);
     }
     try {
-      final goals = (await _api.get('/goals'))! as List<dynamic>;
-      return AppStartResult(await _decide(goals.cast<Map<String, dynamic>>()));
+      return AppStartResult(await _decide(await _goals.list()));
     } on ApiException catch (e) {
       if (e.status == 401) {
         return const AppStartResult(AppStartDestination.unauthenticated);
@@ -73,11 +72,11 @@ class AppStartController {
         : AppStartDestination.authenticatedReady;
   }
 
-  Future<AppStartDestination> _decide(List<Map<String, dynamic>> goals) async {
+  Future<AppStartDestination> _decide(List<Goal> goals) async {
     if (goals.isEmpty) return AppStartDestination.authenticatedNeedsGoal;
     for (final goal in goals) {
-      if (goal['is_active'] == true) {
-        await _storage.writeCurrentGoalId(goal['id'] as String);
+      if (goal.isActive) {
+        await _storage.writeCurrentGoalId(goal.id);
         return AppStartDestination.authenticatedReady;
       }
     }
@@ -90,6 +89,17 @@ class AppStartController {
 AppStartController appStartController(Ref ref) {
   return AppStartController(
     ref.watch(settingsStorageProvider),
-    ref.watch(apiClientProvider),
+    ref.watch(goalsApiProvider),
   );
 }
+
+/// Where the splash (`/`) sends the student: [AppStartController]'s answer,
+/// asked once per visit to the splash.
+///
+/// Auto-disposed and kept alive only by the splash screen watching it, so
+/// every visit asks again, as the old `AuthGate` did in its `initState`. The
+/// router listens to it without keeping it alive and redirects `/` once it
+/// has an answer.
+@riverpod
+Future<AppStartDestination> launchDestination(Ref ref) async =>
+    (await ref.watch(appStartControllerProvider).evaluate()).destination;

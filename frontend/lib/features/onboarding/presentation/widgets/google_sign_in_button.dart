@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:goal_getter/app/theme/app_dimens.dart';
-import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';

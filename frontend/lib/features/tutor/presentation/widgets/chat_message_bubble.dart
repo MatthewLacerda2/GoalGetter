@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:goal_getter/features/tutor/presentation/chat_bubbles.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// One chat bubble. A tutor bubble likes its exchange on a double tap; the
 /// reply's last bubble also shows the heart, which toggles the like on a tap.

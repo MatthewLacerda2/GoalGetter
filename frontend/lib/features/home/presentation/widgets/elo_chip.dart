@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// Compact elo (rating) pill for the top-left of the Home screen — the
 /// counterpart to the streak chip on the top-right.

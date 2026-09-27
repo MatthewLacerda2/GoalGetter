@@ -59,18 +59,27 @@ String _$httpClientHash() => r'7ec49beae0f15115de79f9aa98dbd250130e26d8';
 
 /// Kept alive on purpose: the client owns the in-flight refresh that every
 /// concurrent 401 shares, so a rebuilt client would refresh twice.
+///
+/// An ended session only updates [signedInProvider]; the router listens to it
+/// and sends the student to the start screen.
 
 @ProviderFor(apiClient)
 final apiClientProvider = ApiClientProvider._();
 
 /// Kept alive on purpose: the client owns the in-flight refresh that every
 /// concurrent 401 shares, so a rebuilt client would refresh twice.
+///
+/// An ended session only updates [signedInProvider]; the router listens to it
+/// and sends the student to the start screen.
 
 final class ApiClientProvider
     extends $FunctionalProvider<ApiClient, ApiClient, ApiClient>
     with $Provider<ApiClient> {
   /// Kept alive on purpose: the client owns the in-flight refresh that every
   /// concurrent 401 shares, so a rebuilt client would refresh twice.
+  ///
+  /// An ended session only updates [signedInProvider]; the router listens to it
+  /// and sends the student to the start screen.
   ApiClientProvider._()
     : super(
         from: null,
@@ -104,4 +113,4 @@ final class ApiClientProvider
   }
 }
 
-String _$apiClientHash() => r'2d18f0e7b33b508f7ac16fe417acdaa6d4a66d21';
+String _$apiClientHash() => r'20d15c27a19aa2545802f055dd0ffe2d552c9241';

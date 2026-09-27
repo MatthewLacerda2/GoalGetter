@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// A whole-screen message about a state that is not a failure: an empty list,
 /// a wait, or something the student has to do first. An icon, a title, an

@@ -55,4 +55,68 @@ final class AppStartControllerProvider
 }
 
 String _$appStartControllerHash() =>
-    r'da33fc2222c3352f9a8b5f96515ad85813209498';
+    r'66f2a1a28f2d5c07a3f9ae27a5c71c927f8d8b5a';
+
+/// Where the splash (`/`) sends the student: [AppStartController]'s answer,
+/// asked once per visit to the splash.
+///
+/// Auto-disposed and kept alive only by the splash screen watching it, so
+/// every visit asks again, as the old `AuthGate` did in its `initState`. The
+/// router listens to it without keeping it alive and redirects `/` once it
+/// has an answer.
+
+@ProviderFor(launchDestination)
+final launchDestinationProvider = LaunchDestinationProvider._();
+
+/// Where the splash (`/`) sends the student: [AppStartController]'s answer,
+/// asked once per visit to the splash.
+///
+/// Auto-disposed and kept alive only by the splash screen watching it, so
+/// every visit asks again, as the old `AuthGate` did in its `initState`. The
+/// router listens to it without keeping it alive and redirects `/` once it
+/// has an answer.
+
+final class LaunchDestinationProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<AppStartDestination>,
+          AppStartDestination,
+          FutureOr<AppStartDestination>
+        >
+    with
+        $FutureModifier<AppStartDestination>,
+        $FutureProvider<AppStartDestination> {
+  /// Where the splash (`/`) sends the student: [AppStartController]'s answer,
+  /// asked once per visit to the splash.
+  ///
+  /// Auto-disposed and kept alive only by the splash screen watching it, so
+  /// every visit asks again, as the old `AuthGate` did in its `initState`. The
+  /// router listens to it without keeping it alive and redirects `/` once it
+  /// has an answer.
+  LaunchDestinationProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'launchDestinationProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$launchDestinationHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<AppStartDestination> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<AppStartDestination> create(Ref ref) {
+    return launchDestination(ref);
+  }
+}
+
+String _$launchDestinationHash() => r'ec1cd0ba1cdbe5722872fb43eacac701c2493e73';

@@ -6,7 +6,7 @@ import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// DEV_LOGIN builds only: signs in as `Fictitious <AppConfig.devLoginName>`
 /// through POST /auth/dev-login, then routes the way a launch would (or back

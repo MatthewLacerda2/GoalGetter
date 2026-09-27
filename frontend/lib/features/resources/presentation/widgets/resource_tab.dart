@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// A tab of curated resources. Each item is a clean white card with an optional
 /// thumbnail/logo, a title + description, and a trailing open-in-new link icon

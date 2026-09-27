@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Colour and type already came from [ThemeData]; radius and spacing did not,
 /// so the app grew thirteen different ways to round a corner and fifteen ways
 /// to pad a box. These are the tokens, and `tool/frontend_linter.dart` refuses
-/// a raw number outside `lib/app/theme/`.
+/// a raw number outside `lib/core/theme/`.
 
 /// The corner radii the design uses. Six, each with a job.
 ///

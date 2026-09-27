@@ -7,7 +7,7 @@ import '../../tool/frontend_linter.dart';
 /// can trust.
 
 const _screen = 'lib/features/home/presentation/screens/home_screen.dart';
-const _themeFile = 'lib/app/theme/app_theme.dart';
+const _themeFile = 'lib/core/theme/app_theme.dart';
 const _devFile = 'lib/app/dev/dev_menu_screen.dart';
 const _coreFile = 'lib/core/widgets/failure.dart';
 
@@ -52,7 +52,7 @@ void main() {
       );
     });
 
-    test('passes inside lib/app/theme/, where the values live', () {
+    test('passes inside lib/core/theme/, where the values live', () {
       expect(_rules('const a = Colors.red;', path: _themeFile), isEmpty);
     });
 
@@ -218,6 +218,42 @@ void main() {
 
     test('passes on a widget not named after a failure', () {
       expect(_rules('class GoalCard extends StatelessWidget {}'), isEmpty);
+    });
+  });
+
+  group('core-imports-app', () {
+    test('fails on a file under lib/core/ importing lib/app/', () {
+      expect(
+        _rules(
+          "import 'package:goal_getter/app/router/app_router.dart';",
+          path: 'lib/core/api/api_providers.dart',
+        ),
+        contains('core-imports-app'),
+      );
+      expect(
+        _rules(
+          "import '../../app/router/app_routes.dart';",
+          path: 'lib/core/api/api_providers.dart',
+        ),
+        contains('core-imports-app'),
+      );
+    });
+
+    test('passes on core importing core, and on app importing core', () {
+      expect(
+        _rules(
+          "import 'package:goal_getter/core/utils/settings_storage.dart';",
+          path: 'lib/core/api/api_providers.dart',
+        ),
+        isEmpty,
+      );
+      expect(
+        _rules(
+          "import 'package:goal_getter/core/api/api_providers.dart';",
+          path: 'lib/app/router/app_router.dart',
+        ),
+        isEmpty,
+      );
     });
   });
 
