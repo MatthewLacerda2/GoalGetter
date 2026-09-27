@@ -335,7 +335,7 @@ gates prove the code runs; they do not prove it is the right change.
   dev menu. `make claude` does what `make claude-token` does after giving that student a
   lived-in history (three goals, two weeks of lessons, a tutor chat, resources) written to
   the preview's own database, so every screen has data; `ARGS=--fresh` rebuilds it. It
-  survives a rebuild now (#157), so it is run once; the token still expires in 30
+  survives a rebuild, so it is run once; the token still expires in 30
   minutes.
 - **Gemini behaviour**: `make gemini` lists the use cases it can run; `make gemini
   ARGS='tutor-reply "Chess" "Learn chess" "What is a fork?"'` runs one for real and
@@ -373,7 +373,7 @@ something looks or feels.
 
 **The database.** A schema change is a migration in `backend/alembic/versions/`,
 written and reviewed with the code that needs it — nothing rebuilds the schema on
-start any more (#157), and data survives. Tables and columns can still be created
+start (#157), and data survives. Tables and columns can still be created
 and dropped, on two conditions: the change was **agreed with the user in
 conversation before the issue was written**, so it is already decided when the work
 starts; and it is a **consequence of what the issue defines**, never something
@@ -381,7 +381,7 @@ invented while writing the code. A schema change that surprises the user is the
 failure, not the schema change.
 
 A clean local database is `make migrate ARGS='downgrade base'` then `make migrate`
-— starting the backend no longer gives one away. A database whose tables predate
+— starting the backend does not reset it. A database whose tables predate
 the migrations is `make migrate ARGS='stamp head'`, once.
 
 **Deployment.** Once the app is online (the Cloudflare tunnel, Google OAuth, the
@@ -456,6 +456,14 @@ Documentation is for AI agents navigating the code: record the decisions that ar
 not self-evident from it. Business logic is written by the user, or at their
 request.
 
+**A comment states what is true now, and why** (the user, 2026-09-26, #228). The history
+of how it got there — "used to", "the old X", "since #N" — belongs in the pull request and
+the issue: it goes stale, costs tokens on every read, and invites reasoning about code
+that no longer exists. A rejected alternative with the reason it lost, or the failure a
+guard prevents, is rationale and stays. An issue reference that points to a still-relevant
+decision may stay, on one line. `make back-lint` and `make front-lint` hold the line: at
+most three `#N` references per source file, and no `since/until/before/after #N`.
+
 ---
 
 The sections below are heads-up so we remember issues and build with future changes
@@ -468,30 +476,29 @@ remind him and ask.
   served every `*.js`/`*.png` as `public, immutable` for a year, and Flutter web's file
   names carry no hash. A **Purge Everything** in the Cloudflare dashboard clears what is
   already cached (no API token here to do it); from #197 on, files are revalidated.
-- **Nothing backs the database up.** Since #157 the data survives a restart, which
-  is the point — and makes losing it possible in a way it never was. No issue covers
+- **Nothing backs the database up.** The data survives a restart (#157), which
+  is the point — and makes losing it possible. No issue covers
   this yet.
 - **Analyzer backlog: 0 warnings, 263 infos** (2026-09-27, `dart analyze` after #227;
-  riverpod_lint contributes none). A warning now fails `make front-lint`, riverpod_lint's
-  included since it runs `dart analyze` rather than `flutter analyze` (#169), and the lints
+  riverpod_lint contributes none). A warning fails `make front-lint`, riverpod_lint's
+  included, because it runs `dart analyze` rather than `flutter analyze` (#169), and the lints
   whose finding is a bug (`unawaited_futures`, `use_build_context_synchronously`,
-  `cast_nullable_to_non_nullable`, …) are warnings since #227 — the list and the reason
+  `cast_nullable_to_non_nullable`, …) are warnings — the list and the reason
   for each is `frontend/analysis_options.yaml`. The infos left are style and still only
   report. Next step: clear them and let them block too (`--fatal-infos`).
-- **The deploy now runs a job that spends money.** `docker-compose.yml` carries a
+- **The deploy runs a job that spends money.** `docker-compose.yml` carries a
   `nightly` service (#89, #96): one process that fills the null embeddings at **00:00**
   and runs the context → questions → resources chain for each qualifying student at
   **03:00**, America/Sao_Paulo. It waits for the hour before running, so a restart or a
   crash loop never spends quota, and it skips any student who did no lesson that day.
-  Two changes on 2026-09-25 raised what a night costs: the chain can append a `frontiers`
-  row, which pays for one extra embedding (#133); and the question step no longer tops up a
-  thin bank but buys **eight questions per studying student per goal** on any night when
-  tomorrow's lesson would be too easy (#135) — so a deep bank no longer saves anything, and
-  a student who keeps missing his questions is now the cheap case rather than the expensive
-  one. A new goal's first batch is the **18-exercise placement**, and nothing more is bought
-  for a goal until it holds 18 answers (`PLACEMENT_SIZE`, 2026-09-26). Since #175 the resources step also spends **one YouTube `search.list` per goal-run
-  (100 of the free 10,000 daily units)** and no longer embeds up front — the midnight
-  backfill does. `make nightly ARGS='--once'` and `make embeddings` run them by hand.
+  What a night costs: the chain can append a `frontiers` row, which pays for one extra
+  embedding (#133); the question step buys **eight questions per studying student per
+  goal** on any night when tomorrow's lesson would be too easy (#135) — so a deep bank saves
+  nothing, and a student who keeps missing his questions is the cheap case rather than the
+  expensive one. A new goal's first batch is the **18-exercise placement**, and nothing more
+  is bought for a goal until it holds 18 answers (`PLACEMENT_SIZE`, 2026-09-26). The
+  resources step spends **one YouTube `search.list` per goal-run (100 of the free 10,000
+  daily units)** and does not embed — the midnight backfill does. `make nightly ARGS='--once'` and `make embeddings` run them by hand.
 - **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the
   tailnet name) is not enabled on this tailnet yet; the user enables it once from the
   admin link `tailscale serve --bg --https=443 http://127.0.0.1:8093` prints. Google

@@ -91,10 +91,8 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
   next production build just started cold. Clean up by name, never by filter.
 - **The shared dev database.** Every worktree points at the same dev database, and a
   subagent that migrates it, seeds it or downgrades it changes the data of whoever else
-  is using it. (Nothing drops the schema on start any more since #157 — that is not a
-  licence to use it.) The tailnet preview is no
-  longer one of them: since #122 it has a database of its own, and `make preview`
-  leaves the dev one alone. Backend work is validated by `make back-test`,
+  is using it. The tailnet preview is not one of them: it has a database of its own
+  (#122), and `make preview` leaves the dev one alone. Backend work is validated by `make back-test`,
   which starts a disposable database for each run and cannot reach this one (#205). An agent
   that needs a running backend gets a database of its own, named in its brief.
   Changing the *schema* is fine when the issue says so; using that one database is not.

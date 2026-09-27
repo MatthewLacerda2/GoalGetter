@@ -22,9 +22,9 @@ jobs:
       # `environment.flutter`, never repeated here: two copies of a version
       # number are two things that can disagree. `channel: stable` only says
       # which channel that release came from; the version is what gets
-      # installed. Before this pin CI tracked whatever `stable` resolved to on
-      # the day (3.47.5 on 2026-09-25) while this machine ran 3.44.1, and #119
-      # lost a run to two analyzer warnings that existed on only one of them.
+      # installed. Tracking whatever `stable` resolves to on the day put CI on
+      # 3.47.5 while this machine ran 3.44.1 (2026-09-25), and a run was lost
+      # to two analyzer warnings that existed on only one of them (#119).
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
