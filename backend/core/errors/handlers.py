@@ -60,9 +60,7 @@ async def _invalid_request(_request: Request, exc: RequestValidationError) -> JS
     return error_response(ErrorCode.INVALID_REQUEST, fields)
 
 
-def _too_many_requests(_request: Request, exc: RateLimitExceeded) -> JSONResponse:
-    # Synchronous on purpose: SlowAPIMiddleware calls it directly for the
-    # default limit, and falls back to its own body for a coroutine.
+async def _too_many_requests(_request: Request, exc: RateLimitExceeded) -> JSONResponse:
     return error_response(ErrorCode.TOO_MANY_REQUESTS, f"Rate limit exceeded: {exc.detail}")
 
 
@@ -75,7 +73,7 @@ def install_error_handlers(app: FastAPI) -> None:
     # the one class it is registered for, which is all it is ever given (#209).
     app.add_exception_handler(StarletteHTTPException, _http_error)  # type: ignore[arg-type]
     app.add_exception_handler(RequestValidationError, _invalid_request)  # type: ignore[arg-type]
-    # Registered by its own class: slowapi's middleware looks the handler up by
-    # the exact type it raised, not by its HTTPException base.
+    # Registered by its own class, though it is an HTTPException: Starlette
+    # picks the most specific handler, and the generic one would give it no code.
     app.add_exception_handler(RateLimitExceeded, _too_many_requests)  # type: ignore[arg-type]
     app.add_exception_handler(Exception, _internal_error)

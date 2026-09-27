@@ -91,9 +91,9 @@ def rate_limited():
 
 @pytest.mark.usefixtures("rate_limited")
 async def test_the_default_rate_limit_carries_a_code(client):
-    """Refused by SlowAPIMiddleware, which calls the handler itself."""
-    statuses = [(await client.get("/api/v1/check")).status_code for _ in range(11)]
-    refused = await client.get("/api/v1/check")
+    """On a route of an included router, as every route but three was (#274)."""
+    statuses = [(await client.get("/api/v1/me")).status_code for _ in range(11)]
+    refused = await client.get("/api/v1/me")
 
     assert statuses[-1] == refused.status_code == 429
     assert refused.json()["code"] == "too_many_requests"

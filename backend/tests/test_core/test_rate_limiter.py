@@ -18,11 +18,20 @@ from backend.services.gemini.onboarding.schema import (
     GeminiGoalValidation,
     GeminiOnboardingQuestionsResponse,
 )
+from backend.tests.fixtures.routes import endpoints, with_made_up_ids
 
 NGINX = "172.18.0.4"  # a peer on the compose network
 OUTSIDER = "203.0.113.7"  # a peer with a public address: no proxy of ours
 ONBOARDING = "/api/v1/goals/objective-questions"
 ONBOARDING_LIMIT = 20  # per minute, goals.py
+DEFAULT_LIMIT = 10  # per second, core/rate_limiter.py
+# The routes that carry their own limit (goals.py), which replaces the default.
+OWN_LIMIT = {
+    ("POST", ONBOARDING),
+    ("POST", "/api/v1/goals/study-plan"),
+    ("POST", "/api/v1/goals"),
+}
+DEFAULTED = [endpoint for endpoint in endpoints() if endpoint not in OWN_LIMIT]
 VALID = GeminiGoalValidation(makes_sense=True, is_harmless=True, is_achievable=True, reasoning="ok")
 
 
@@ -100,3 +109,20 @@ async def test_two_students_behind_nginx_do_not_share_a_bucket(from_peer):
 async def test_a_forged_header_from_a_public_peer_does_not_pick_a_bucket(from_peer):
     forged = [await from_peer(OUTSIDER, f"198.51.100.{n}") for n in range(ONBOARDING_LIMIT + 1)]
     assert forged == [200] * ONBOARDING_LIMIT + [429]
+
+
+def test_every_route_with_its_own_limit_still_exists():
+    """A route renamed out of OWN_LIMIT would be swept below with the wrong limit"""
+    assert set(OWN_LIMIT) <= set(endpoints())
+
+
+@pytest.mark.usefixtures("rate_limited")
+@pytest.mark.parametrize(("method", "path"), DEFAULTED, ids=[" ".join(e) for e in DEFAULTED])
+async def test_every_route_refuses_past_the_default_limit(client, method, path):
+    """Included routers too (#274): the limit is checked before the token or the
+    body is, so whatever the first requests answer, the one past it is a 429"""
+    url = with_made_up_ids(path)
+    for _ in range(DEFAULT_LIMIT):
+        await client.request(method, url)
+
+    assert (await client.request(method, url)).status_code == 429

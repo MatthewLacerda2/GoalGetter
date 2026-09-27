@@ -223,7 +223,7 @@ the backend tests; if it fails, you have things to fix.
   | A query | `repositories/` |
   | A table (ORM class) | `models/` |
   | A Pydantic model | `schemas/` (API bodies), `services/gemini/<use-case>/schema.py` (what Gemini returns), `core/config.py` (settings), `core/errors/` (the error body) |
-  | A route (a router, or a route on the app) | `api/` (and, until #274, the three `main.py` declares on the app) |
+  | A route (a router, or a route on the app) | `api/`: `main.py` only includes the routers |
   | An HTTP error | `core/errors/`: raise `ApiError(ErrorCode.X)`; a new error is a new `ErrorCode` |
   | The Gemini SDK | `services/gemini/client/` (an import contract) |
   | The environment (`os.environ`, dotenv) | `core/config.py`, read as `settings` (`tools/` sets it for the processes it starts) |

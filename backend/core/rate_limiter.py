@@ -31,11 +31,21 @@ Memcached), which would be a new service, and a limit that bounds the bill does
 not need to be exact. The kernel spreads connections across workers, so a
 client's real ceiling is between the stated limit and 4x it: 10 to 40 requests a
 second by default, 20 to 80 a minute on the onboarding endpoints.
+
+The default limit is checked by `default_rate_limit`, a dependency of the whole
+app, not by slowapi's `SlowAPIMiddleware` (#274). The middleware finds the
+route by walking `app.routes`, and since FastAPI 0.137 an included router is
+one entry there that names no endpoint: it found only the routes declared on
+the app itself, and every route under /api/v1 went unlimited. A dependency runs
+after routing, so the endpoint is simply the one FastAPI chose - however deep
+the routers nest. It runs before every other dependency, the bearer token's
+included, and before the body is validated.
 """
 
 import ipaddress
 
 from slowapi import Limiter
+from slowapi.middleware import _should_exempt
 from starlette.requests import Request
 
 # Written by Cloudflare's edge, never by the client (see the module docstring).
@@ -85,3 +95,14 @@ def client_address(request: Request) -> str:
 
 
 limiter = Limiter(key_func=client_address, default_limits=["10/second"])
+
+
+async def default_rate_limit(request: Request) -> None:
+    """The default limit, for the route FastAPI matched: what SlowAPIMiddleware
+    does, with the endpoint found by the router rather than by a walk of
+    `app.routes`. A route with its own `@limiter.limit` is exempt here: its
+    decorator counts it, against its own limit instead of the default. Raises
+    slowapi's `RateLimitExceeded`, answered by core/errors/handlers.py."""
+    endpoint = request.scope.get("endpoint")
+    if not _should_exempt(limiter, endpoint):
+        limiter._check_request_limit(request, endpoint, in_middleware=True)
