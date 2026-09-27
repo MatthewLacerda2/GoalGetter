@@ -1,5 +1,3 @@
-import pytest
-
 from backend.models.resource import Resource, StudyResourceType
 
 ENDPOINT = "/api/v1/resources"
@@ -20,7 +18,6 @@ async def add_resource(db, goal, kind, name, image_url=None):
     await db.flush()
 
 
-@pytest.mark.asyncio
 async def test_resources_are_grouped_by_kind(auth_client, test_db, test_user, goal_factory):
     goal = await goal_factory(test_user, active=True)
     await add_resource(test_db, goal, StudyResourceType.youtube, "video", "https://img/v.jpg")
@@ -58,7 +55,6 @@ async def test_resources_are_grouped_by_kind(auth_client, test_db, test_user, go
     }
 
 
-@pytest.mark.asyncio
 async def test_resources_only_of_the_active_goal(
     auth_client, test_db, test_user, student_factory, goal_factory
 ):
@@ -75,7 +71,6 @@ async def test_resources_only_of_the_active_goal(
     assert [r["name"] for r in body["websites"]] == ["mine"]
 
 
-@pytest.mark.asyncio
 async def test_resources_still_being_found_are_empty_lists(auth_client, test_user, goal_factory):
     await goal_factory(test_user, active=True)
     response = await auth_client.get(ENDPOINT)
@@ -83,7 +78,6 @@ async def test_resources_still_being_found_are_empty_lists(auth_client, test_use
     assert response.json() == {"youtube": [], "books": [], "websites": []}
 
 
-@pytest.mark.asyncio
 async def test_resources_without_active_goal_is_404(auth_client, test_user, goal_factory):
     await goal_factory(test_user)
     response = await auth_client.get(ENDPOINT)
@@ -91,6 +85,5 @@ async def test_resources_without_active_goal_is_404(auth_client, test_user, goal
     assert response.json()["detail"] == "No active goal"
 
 
-@pytest.mark.asyncio
 async def test_resources_requires_auth(client):
     assert (await client.get(ENDPOINT)).status_code == 401

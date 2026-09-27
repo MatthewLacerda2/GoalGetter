@@ -14,14 +14,12 @@ def dev_login_on():
         yield
 
 
-@pytest.mark.asyncio
 async def test_dev_login_off_is_404(client):
     """With DEV_LOGIN off (the default) the route answers as if it did not exist."""
     response = await client.post("/api/v1/auth/dev-login", json={"name": "Claude"})
     assert response.status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_dev_login_creates_a_fictitious_student(client, dev_login_on):
     response = await client.post("/api/v1/auth/dev-login", json={"name": "Claude"})
     assert response.status_code == 201
@@ -31,7 +29,6 @@ async def test_dev_login_creates_a_fictitious_student(client, dev_login_on):
     assert student.email == "fictitious-claude@fictitious.invalid"
 
 
-@pytest.mark.asyncio
 async def test_dev_login_reuses_the_same_student(client, dev_login_on):
     first = await client.post("/api/v1/auth/dev-login", json={"name": "Claude"})
     second = await client.post("/api/v1/auth/dev-login", json={"name": "Claude"})
@@ -40,14 +37,12 @@ async def test_dev_login_reuses_the_same_student(client, dev_login_on):
     assert second.json()["refresh_token"] != first.json()["refresh_token"]
 
 
-@pytest.mark.asyncio
 async def test_dev_login_does_not_double_the_prefix(client, dev_login_on):
     response = await client.post("/api/v1/auth/dev-login", json={"name": "Fictitious Ana"})
     assert response.json()["student"]["name"] == "Fictitious Ana"
     assert response.json()["student"]["google_id"] == "fictitious-ana"
 
 
-@pytest.mark.asyncio
 async def test_dev_login_token_opens_an_authed_route(client, dev_login_on):
     """The access token is a real session: an authed route accepts it."""
     login = await client.post("/api/v1/auth/dev-login", json={"name": "Claude"})
@@ -58,7 +53,6 @@ async def test_dev_login_token_opens_an_authed_route(client, dev_login_on):
     assert response.status_code == 204
 
 
-@pytest.mark.asyncio
 async def test_dev_login_rejects_a_name_without_letters(client, dev_login_on):
     response = await client.post("/api/v1/auth/dev-login", json={"name": "  !! "})
     assert response.status_code == 422

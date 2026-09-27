@@ -15,8 +15,6 @@ America/Sao_Paulo is 06:00 UTC.
 from datetime import UTC, datetime
 from unittest.mock import patch
 
-import pytest
-
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.jobs.nightly import run_for_student, run_nightly
 from backend.services.jobs.nightly_decision import decide
@@ -65,7 +63,6 @@ def test_resources_are_asked_for_on_mondays():
     assert (decision.run, decision.with_resources) == (True, True)
 
 
-@pytest.mark.asyncio
 async def test_a_student_who_did_nothing_costs_no_gemini_call(
     test_db, test_user, goal_factory, lesson_factory
 ):
@@ -82,7 +79,6 @@ async def test_a_student_who_did_nothing_costs_no_gemini_call(
     assert await StudentContextRepository(test_db).list_valid(test_user.id) == []
 
 
-@pytest.mark.asyncio
 async def test_a_student_who_answered_something_gets_context_then_questions(
     test_db, test_user, goal_factory, lesson_factory
 ):
@@ -99,7 +95,6 @@ async def test_a_student_who_answered_something_gets_context_then_questions(
     assert [name for name, _ in calls] == ["context"]
 
 
-@pytest.mark.asyncio
 async def test_resources_are_searched_on_monday_and_only_then(
     test_db, test_user, goal_factory, lesson_factory
 ):
@@ -115,7 +110,6 @@ async def test_resources_are_searched_on_monday_and_only_then(
     assert [name for name, _ in calls] == ["context", "resources"]
 
 
-@pytest.mark.asyncio
 async def test_a_chat_is_not_activity(
     test_db, test_user, goal_factory, exchange_factory, lesson_factory
 ):
@@ -131,7 +125,6 @@ async def test_a_chat_is_not_activity(
     assert calls == []
 
 
-@pytest.mark.asyncio
 async def test_one_student_failing_does_not_stop_the_next(
     test_db, student_factory, goal_factory, lesson_factory
 ):
@@ -156,7 +149,6 @@ async def test_one_student_failing_does_not_stop_the_next(
     assert seen == [str(first.id), str(second.id)]
 
 
-@pytest.mark.asyncio
 async def test_running_it_by_hand_logs_the_decision_it_took(
     test_db, test_user, goal_factory, lesson_factory, caplog
 ):

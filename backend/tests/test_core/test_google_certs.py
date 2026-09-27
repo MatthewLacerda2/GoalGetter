@@ -78,7 +78,6 @@ def google_serves_certs(cache_control: str, age: int = 0):
     return fetched, patch.object(requests.Session, "request", request)
 
 
-@pytest.mark.asyncio
 async def test_two_sign_ins_within_max_age_fetch_the_certificates_once():
     fetched, google = google_serves_certs("public, max-age=20000, must-revalidate")
     with google:
@@ -89,7 +88,6 @@ async def test_two_sign_ins_within_max_age_fetch_the_certificates_once():
     assert len(fetched) == 1
 
 
-@pytest.mark.asyncio
 async def test_the_certificates_are_fetched_again_once_max_age_less_age_has_passed():
     """Google's `Age` counts against its `max-age`: 20000 - 19000 leaves 1000 seconds."""
     fetched, google = google_serves_certs("public, max-age=20000", age=19000)
@@ -105,7 +103,6 @@ async def test_the_certificates_are_fetched_again_once_max_age_less_age_has_pass
     assert len(fetched) == 2
 
 
-@pytest.mark.asyncio
 async def test_certificates_served_without_max_age_are_not_kept():
     fetched, google = google_serves_certs("no-cache")
     with google:

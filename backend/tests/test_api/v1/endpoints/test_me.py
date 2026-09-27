@@ -1,13 +1,10 @@
 from datetime import datetime
 
-import pytest
-
 from backend.tests.fixtures.lessons import days_ago
 
 ENDPOINT = "/api/v1/me"
 
 
-@pytest.mark.asyncio
 async def test_me_is_the_signed_in_students_profile(auth_client, test_user):
     response = await auth_client.get(ENDPOINT)
 
@@ -24,7 +21,6 @@ async def test_me_is_the_signed_in_students_profile(auth_client, test_user):
     assert datetime.fromisoformat(body["member_since"]) == test_user.created_at
 
 
-@pytest.mark.asyncio
 async def test_the_streak_is_user_wide_and_counts_days_with_an_answer(
     auth_client, test_user, goal_factory, lesson_factory
 ):
@@ -40,6 +36,5 @@ async def test_the_streak_is_user_wide_and_counts_days_with_an_answer(
     assert response.json()["current_streak"] == 2
 
 
-@pytest.mark.asyncio
 async def test_me_needs_a_token(client):
     assert (await client.get(ENDPOINT)).status_code == 401

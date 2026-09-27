@@ -11,8 +11,6 @@ missing, which the old rule would have topped up, and a deep bank of questions
 he can answer, which the old rule would have left alone.
 """
 
-import pytest
-
 from backend.core.config import settings
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionRepository
@@ -48,7 +46,6 @@ def asked(calls) -> tuple:
     return dict(calls)["questions"]
 
 
-@pytest.mark.asyncio
 async def test_a_student_who_keeps_missing_his_questions_gets_nothing(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -63,7 +60,6 @@ async def test_a_student_who_keeps_missing_his_questions_gets_nothing(
     assert calls == []
 
 
-@pytest.mark.asyncio
 async def test_a_short_bank_he_keeps_missing_is_still_nothing(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -79,7 +75,6 @@ async def test_a_short_bank_he_keeps_missing_is_still_nothing(
     assert calls == []
 
 
-@pytest.mark.asyncio
 async def test_a_student_who_never_misses_gets_eight_one_step_past_what_he_holds(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -104,7 +99,6 @@ async def test_a_student_who_never_misses_gets_eight_one_step_past_what_he_holds
     assert "one\n    step past what he got right" in prompt
 
 
-@pytest.mark.asyncio
 async def test_a_deep_bank_he_can_answer_still_buys_eight(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -123,7 +117,6 @@ async def test_a_deep_bank_he_can_answer_still_buys_eight(
     assert [name for name, _ in calls] == ["questions"]
 
 
-@pytest.mark.asyncio
 async def test_the_prompt_carries_his_own_questions_and_the_option_he_chose(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -145,7 +138,6 @@ async def test_the_prompt_carries_his_own_questions_and_the_option_he_chose(
     assert '- "What is \'grazie\'?" -> he answered "thank you"' in prompt
 
 
-@pytest.mark.asyncio
 async def test_an_empty_bank_is_the_placement_written_from_what_he_typed(
     test_db, test_user, goal_factory
 ):
@@ -166,7 +158,6 @@ async def test_an_empty_bank_is_the_placement_written_from_what_he_typed(
     assert "questions" not in dict(calls)
 
 
-@pytest.mark.asyncio
 async def test_under_eighteen_answers_buys_nothing_however_easy(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -182,7 +173,6 @@ async def test_under_eighteen_answers_buys_nothing_however_easy(
     assert calls == []
 
 
-@pytest.mark.asyncio
 async def test_each_goal_is_decided_on_its_own(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -201,7 +191,6 @@ async def test_each_goal_is_decided_on_its_own(
     assert await QuestionRepository(test_db).list_bank_history(law.id) != []
 
 
-@pytest.mark.asyncio
 async def test_the_questions_aim_at_the_frontier_and_not_at_the_description(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):

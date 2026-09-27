@@ -1,18 +1,14 @@
 from datetime import UTC, datetime, timedelta
 
-import pytest
-
 from backend.repositories.goal_repository import GoalRepository
 
 
-@pytest.mark.asyncio
 async def test_updated_at_is_set_on_create(test_db, test_user, goal_factory):
     goal = await goal_factory(test_user)
     await test_db.refresh(goal)
     assert goal.updated_at is not None
 
 
-@pytest.mark.asyncio
 async def test_updated_at_moves_when_the_rating_changes(test_db, test_user, goal_factory):
     past = datetime.now(UTC) - timedelta(days=3)
     goal = await goal_factory(test_user, created_at=past, updated_at=past)
@@ -24,7 +20,6 @@ async def test_updated_at_moves_when_the_rating_changes(test_db, test_user, goal
     assert goal.updated_at > past + timedelta(days=2)
 
 
-@pytest.mark.asyncio
 async def test_list_by_student_is_newest_first(test_db, test_user, student_factory, goal_factory):
     now = datetime.now(UTC)
     other = await student_factory(email="o@example.com", google_id="other")
@@ -37,7 +32,6 @@ async def test_list_by_student_is_newest_first(test_db, test_user, student_facto
     assert [g.name for g in goals] == ["New", "Old"]
 
 
-@pytest.mark.asyncio
 async def test_set_rating_is_one_update_that_returns_the_rating_written(
     test_db, test_user, goal_factory
 ):

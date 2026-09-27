@@ -1,11 +1,8 @@
 from datetime import UTC, datetime, timedelta
 
-import pytest
-
 ENDPOINT = "/api/v1/goals"
 
 
-@pytest.mark.asyncio
 async def test_list_goals_carries_every_field(auth_client, test_user, goal_factory):
     goal = await goal_factory(test_user, active=True, rating=920)
     response = await auth_client.get(ENDPOINT)
@@ -21,7 +18,6 @@ async def test_list_goals_carries_every_field(auth_client, test_user, goal_facto
     assert body["updated_at"]
 
 
-@pytest.mark.asyncio
 async def test_list_goals_newest_first_and_one_active(auth_client, test_user, goal_factory):
     now = datetime.now(UTC)
     old = await goal_factory(test_user, name="Old", created_at=now - timedelta(days=2))
@@ -35,7 +31,6 @@ async def test_list_goals_newest_first_and_one_active(auth_client, test_user, go
     assert (body[0]["id"], body[2]["id"]) == (str(new.id), str(old.id))
 
 
-@pytest.mark.asyncio
 async def test_list_goals_only_the_students_own(
     auth_client, test_user, student_factory, goal_factory
 ):
@@ -48,13 +43,11 @@ async def test_list_goals_only_the_students_own(
     assert [g["name"] for g in body] == ["Mine"]
 
 
-@pytest.mark.asyncio
 async def test_list_goals_empty(auth_client):
     response = await auth_client.get(ENDPOINT)
     assert response.status_code == 200
     assert response.json() == []
 
 
-@pytest.mark.asyncio
 async def test_list_goals_requires_auth(client):
     assert (await client.get(ENDPOINT)).status_code == 401

@@ -2,8 +2,6 @@
 
 from datetime import timedelta
 
-import pytest
-
 from backend.core import clock
 from backend.repositories.refresh_token_repository import RefreshTokenRepository
 from backend.services.auth import token_rotation
@@ -17,7 +15,6 @@ async def _stored(test_db, token):
     return await RefreshTokenRepository(test_db).get_by_digest(token_rotation.digest(token))
 
 
-@pytest.mark.asyncio
 async def test_refresh_success(client, test_db, test_user):
     """A live token is exchanged for a new pair, and stops being live."""
     token = await token_rotation.issue(test_db, test_user.id)
@@ -30,7 +27,6 @@ async def test_refresh_success(client, test_db, test_user):
     assert (await _stored(test_db, token)).revoked is True
 
 
-@pytest.mark.asyncio
 async def test_refresh_revoked_or_invalid(client):
     """Test refresh fails with invalid or nonexistent token"""
     response = await _refresh(client, "nonexistent_token")
@@ -38,7 +34,6 @@ async def test_refresh_revoked_or_invalid(client):
     assert response.json()["detail"] == "Invalid or expired refresh token"
 
 
-@pytest.mark.asyncio
 async def test_replaying_a_rotated_token_revokes_its_successors(client, test_db, test_user):
     """The first token comes back after two rotations: it is refused, and so is
     everything issued after it - the family is over."""
@@ -52,7 +47,6 @@ async def test_replaying_a_rotated_token_revokes_its_successors(client, test_db,
     assert (await _stored(test_db, third)).revoked is True
 
 
-@pytest.mark.asyncio
 async def test_replay_leaves_other_families_alone(client, test_db, test_user):
     """Another sign-in (another device) is another family, and keeps working."""
     stolen = await token_rotation.issue(test_db, test_user.id)
@@ -64,7 +58,6 @@ async def test_replay_leaves_other_families_alone(client, test_db, test_user):
     assert (await _refresh(client, other_device)).status_code == 200
 
 
-@pytest.mark.asyncio
 async def test_an_expired_token_is_refused_without_revoking_anything(client, test_db, test_user):
     token = await token_rotation.issue(test_db, test_user.id)
     stored = await _stored(test_db, token)
@@ -75,7 +68,6 @@ async def test_an_expired_token_is_refused_without_revoking_anything(client, tes
     assert (await _stored(test_db, token)).revoked is False
 
 
-@pytest.mark.asyncio
 async def test_no_token_is_stored_in_plaintext(client, test_db, test_user):
     """What the app holds never appears in the table, at sign-in or on rotation;
     the row holds its SHA-256."""

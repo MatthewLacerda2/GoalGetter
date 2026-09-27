@@ -24,7 +24,6 @@ LONG_LINE = "x" * (GENERATED_LINE_MAX_LENGTH + 1)
 COMMIT = {"prompt": "guitar", "answers": [ANSWER], "goal_name": "Guitar", "description": "Chords."}
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("endpoint", "body"),
     [
@@ -51,7 +50,6 @@ async def test_an_over_long_onboarding_text_never_reaches_gemini(client, endpoin
     gemini.assert_not_called()
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "override",
     [
@@ -68,7 +66,6 @@ async def test_an_over_long_goal_is_not_stored_for_the_chain(auth_client, overri
     chain.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test_an_over_long_tutor_message_never_reaches_gemini(
     auth_client, test_user, goal_factory
 ):
@@ -80,7 +77,6 @@ async def test_an_over_long_tutor_message_never_reaches_gemini(
     gemini.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test_a_tutor_message_at_the_limit_is_answered(auth_client, test_user, goal_factory):
     await goal_factory(test_user, active=True)
     message = "x" * TUTOR_MESSAGE_MAX_LENGTH

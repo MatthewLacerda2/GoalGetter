@@ -9,14 +9,12 @@ ENDPOINT = "/api/v1/me"
 HEADER = "X-Student-Language"
 
 
-@pytest.mark.asyncio
 async def test_a_student_the_app_never_told_has_no_language(auth_client):
     response = await auth_client.get(ENDPOINT)
 
     assert response.json()["language"] is None
 
 
-@pytest.mark.asyncio
 async def test_the_header_is_stored_and_read_back(auth_client, test_db, test_user):
     response = await auth_client.get(ENDPOINT, headers={HEADER: "pt"})
 
@@ -24,7 +22,6 @@ async def test_the_header_is_stored_and_read_back(auth_client, test_db, test_use
     assert (await test_db.get(Student, test_user.id)).language == "pt"
 
 
-@pytest.mark.asyncio
 async def test_changing_it_in_the_app_changes_it_here(auth_client):
     await auth_client.get(ENDPOINT, headers={HEADER: "pt"})
 
@@ -33,7 +30,6 @@ async def test_changing_it_in_the_app_changes_it_here(auth_client):
     assert response.json()["language"] == "de"
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("sent", [None, "xx", "pt-BR"])
 async def test_no_usable_header_leaves_the_stored_language_alone(auth_client, sent):
     await auth_client.get(ENDPOINT, headers={HEADER: "fr"})
@@ -45,7 +41,6 @@ async def test_no_usable_header_leaves_the_stored_language_alone(auth_client, se
     assert response.json()["language"] == "fr"
 
 
-@pytest.mark.asyncio
 async def test_a_new_student_signs_up_with_the_language_he_chose(
     client, mock_google_verify, test_db
 ):

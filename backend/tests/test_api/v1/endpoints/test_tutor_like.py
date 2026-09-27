@@ -1,13 +1,10 @@
 import uuid
 
-import pytest
-
 
 def like_url(exchange_id):
     return f"/api/v1/tutor/messages/{exchange_id}/like"
 
 
-@pytest.mark.asyncio
 async def test_like_then_unlike(auth_client, test_db, test_user, goal_factory, exchange_factory):
     [exchange] = await exchange_factory(await goal_factory(test_user, active=True))
 
@@ -20,7 +17,6 @@ async def test_like_then_unlike(auth_client, test_db, test_user, goal_factory, e
     assert exchange.is_liked is False
 
 
-@pytest.mark.asyncio
 async def test_like_someone_elses_exchange_is_404(
     auth_client, test_user, student_factory, goal_factory, exchange_factory
 ):
@@ -32,7 +28,6 @@ async def test_like_someone_elses_exchange_is_404(
         assert response.status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_like_without_active_goal_is_404(
     auth_client, test_user, goal_factory, exchange_factory
 ):
