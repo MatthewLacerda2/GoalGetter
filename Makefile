@@ -56,7 +56,7 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-pure back-image migrate front-version front-deps front-lint front-test front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-pure back-image migrate front-version front-deps front-lint front-test front-goldens front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -203,6 +203,15 @@ front-lint: front-version front-deps gen-l10n ## Frontend house rules (tool/fron
 # file (a directory works too); the path is relative to frontend/.
 front-test: front-version front-deps gen-l10n ## Frontend widget/unit tests (FILE=test/... runs one)
 	@cd frontend && $(FLUTTER) test $(FILE)
+
+# The golden tests (#226, frontend/test/goldens/) run inside `front-test` like
+# any other test, and fail on a pixel that moved, writing the old image, the
+# new one and their diff to frontend/test/goldens/failures/. Redrawing the
+# references is this deliberate command, never a flag on the gate: commit the
+# PNGs it rewrote, and the pull request's diff shows what changed. They are
+# drawn on Linux with the pinned Flutter, the same pair CI runs.
+front-goldens: front-version front-deps gen-l10n ## Redraw the golden references on purpose (frontend/test/goldens/references/)
+	@cd frontend && $(FLUTTER) test --update-goldens test/goldens
 
 # The Riverpod providers are generated into committed `*.g.dart` files (#225),
 # and nothing else notices when one is stale: it compiles and runs the old

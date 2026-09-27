@@ -30,11 +30,13 @@ class _NoGoogle extends AuthService {
   Stream<String> googleTokens() => const Stream.empty();
 }
 
-/// Launches [GoalGetterApp] over [stored] and [backend], and lets it settle.
+/// Launches [GoalGetterApp] over [stored] and [backend], and lets it settle —
+/// or, without [settle], draws its first frame only (a spinner never settles).
 Future<(GoRouter, SharedPreferences)> launchApp(
   WidgetTester tester,
   http.Client backend, {
   Map<String, Object> stored = const {},
+  bool settle = true,
 }) async {
   SharedPreferences.setMockInitialValues({'user_language': 'en', ...stored});
   final prefs = await SharedPreferences.getInstance();
@@ -51,7 +53,7 @@ Future<(GoRouter, SharedPreferences)> launchApp(
     ],
     child: const GoalGetterApp(),
   ));
-  await tester.pumpAndSettle();
+  if (settle) await tester.pumpAndSettle();
   final container =
       ProviderScope.containerOf(tester.element(find.byType(GoalGetterApp)));
   return (container.read(goRouterProvider), prefs);

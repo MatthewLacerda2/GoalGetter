@@ -58,6 +58,17 @@ jobs:
       - name: Test
         run: make front-test
 
+      # A golden that moved (#226) leaves the reference, the new image and
+      # their diff in test/goldens/failures/: the only way to see from here
+      # what CI drew.
+      - name: Golden failures
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: golden-failures
+          path: frontend/test/goldens/failures/
+          if-no-files-found: ignore
+
       # The committed `*.g.dart` providers match their sources (#225):
       # build_runner regenerates them and the step fails if anything changed.
       # Not in `make frontend` (1-2 minutes); the pre-push hook runs it when a
