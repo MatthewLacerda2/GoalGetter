@@ -52,6 +52,8 @@ import argparse
 import asyncio
 import logging
 import sys
+import uuid
+from collections.abc import Awaitable, Callable
 
 from backend.core import clock
 from backend.services.jobs.embeddings import run_embeddings
@@ -60,7 +62,7 @@ from backend.services.jobs.nightly import run_for_student, run_nightly
 logger = logging.getLogger("backend.tools.nightly_run")
 
 
-async def wait_for_the_next_job():
+async def wait_for_the_next_job() -> tuple[str, Callable[[], Awaitable[object]]]:
     """Sleep until the night's next hour and answer with the job it belongs to.
 
     Both hours are the clock's (`backend/core/clock.py`), so the time zone and
@@ -70,6 +72,7 @@ async def wait_for_the_next_job():
     """
     at_embeddings = clock.next_embedding_run()
     at_chain = clock.next_nightly_run()
+    job: Callable[[], Awaitable[object]]
     if at_embeddings <= at_chain:
         name, job, fires = "embedding backfill", run_embeddings, at_embeddings
     else:
@@ -93,15 +96,15 @@ async def forever() -> None:
             logger.exception("The %s failed as a whole", name)
 
 
-async def main_async(args) -> int:
+async def main_async(args: argparse.Namespace) -> int:
     if args.embeddings:
         tallies = await run_embeddings()
         filled = sum(tally.filled for tally in tallies)
         print(f"{filled} embedding(s) filled, {sum(t.left for t in tallies)} left")
         return 0
     if args.student:
-        ran = await run_for_student(args.student)
-        print(f"student {args.student}: {'chain ran' if ran else 'skipped'}")
+        chain_ran = await run_for_student(uuid.UUID(args.student))
+        print(f"student {args.student}: {'chain ran' if chain_ran else 'skipped'}")
         return 0
     if args.once:
         looked_at, ran = await run_nightly()

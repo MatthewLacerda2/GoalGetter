@@ -33,11 +33,20 @@ looked at again tomorrow for as long as it stays empty, which is free.
 
 import logging
 from dataclasses import dataclass
+from typing import cast
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import AsyncSessionLocal
+from backend.models.base import Base
 from backend.services.gemini.client.gemini_configs import get_gemini_embeddings_batch
 from backend.services.gemini.client.gemini_guard import run_gemini_background
-from backend.services.jobs.embedding_columns import SOURCES, EmbeddingColumn, EmbeddingSource
+from backend.services.jobs.embedding_columns import (
+    SOURCES,
+    EmbeddingColumn,
+    EmbeddingRepository,
+    EmbeddingSource,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -74,11 +83,12 @@ async def run_embeddings() -> list[Tally]:
     """
     tallies: list[Tally] = []
     async with AsyncSessionLocal() as session:
-        for source in SOURCES:
-            rows = await source.repository(session).list_missing_embeddings(ROWS_PER_TABLE)
-            logger.info("Embeddings: %s has %d row(s) with a null vector", source.table, len(rows))
-            for column in source.columns:
-                tallies.append(await _fill(session, source, column, rows))
+        # Each entry of SOURCES is checked against its own model where it is
+        # written; one loop over six models cannot name them all, and a row only
+        # ever meets the `text` of the table it was read from - so the loop reads
+        # every source as a source of `Base` rows (#209).
+        for source in cast("tuple[EmbeddingSource[Base], ...]", SOURCES):
+            tallies += await _fill_table(session, source)
 
     logger.info(
         "Embeddings finished: %d filled, %d left across %d column(s)",
@@ -89,7 +99,16 @@ async def run_embeddings() -> list[Tally]:
     return tallies
 
 
-async def _fill(session, source: EmbeddingSource, column: EmbeddingColumn, rows) -> Tally:
+async def _fill_table[M: Base](session: AsyncSession, source: EmbeddingSource[M]) -> list[Tally]:
+    """One table: its unembedded rows read once, then each column's pass over them."""
+    rows = await source.repository(session).list_missing_embeddings(ROWS_PER_TABLE)
+    logger.info("Embeddings: %s has %d row(s) with a null vector", source.table, len(rows))
+    return [await _fill(session, source, column, rows) for column in source.columns]
+
+
+async def _fill[M: Base](
+    session: AsyncSession, source: EmbeddingSource[M], column: EmbeddingColumn[M], rows: list[M]
+) -> Tally:
     """One column's pass over the rows already read for its table."""
     tally = Tally(f"{source.table}.{column.attribute}")
     pending = [row for row in rows if getattr(row, column.attribute) is None]
@@ -114,7 +133,12 @@ async def _fill(session, source: EmbeddingSource, column: EmbeddingColumn, rows)
     return tally
 
 
-async def _embed_chunk(session, repository, column: EmbeddingColumn, chunk) -> int:
+async def _embed_chunk[M: Base](
+    session: AsyncSession,
+    repository: EmbeddingRepository[M],
+    column: EmbeddingColumn[M],
+    chunk: list[tuple[M, str]],
+) -> int:
     """One billed call, then one commit. Returns how many rows it wrote.
 
     The commit is per chunk on purpose: what a chunk paid for is written before

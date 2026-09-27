@@ -16,6 +16,7 @@ is ever shared between the worker threads verification runs on (#210).
 
 import re
 import threading
+from collections.abc import Mapping
 from datetime import datetime, timedelta
 
 from google.auth import transport
@@ -42,14 +43,30 @@ class CachedGoogleCerts(transport.Request):
         self._lock = threading.Lock()
         self._kept: dict[str, tuple[datetime, transport.Response]] = {}
 
-    def __call__(self, url, method="GET", body=None, headers=None, **kwargs):
+    def __call__(
+        self,
+        url: str,
+        method: str = "GET",
+        body: bytes | None = None,
+        headers: Mapping[str, str] | None = None,
+        timeout: float | None = None,
+        **kwargs: object,
+    ) -> transport.Response:
+        # Forwarded only when given, so requests' own default applies otherwise.
+        if timeout is not None:
+            kwargs["timeout"] = timeout
         if method != "GET" or body is not None:
-            return requests.Request()(url, method=method, body=body, headers=headers, **kwargs)
+            passed: transport.Response = requests.Request()(
+                url, method=method, body=body, headers=headers, **kwargs
+            )
+            return passed
         with self._lock:
-            expires, kept = self._kept.get(url, (None, None))
-        if expires is not None and clock.now() < expires:
-            return kept
-        response = requests.Request()(url, method=method, headers=headers, **kwargs)
+            entry = self._kept.get(url)
+        if entry is not None and clock.now() < entry[0]:
+            return entry[1]
+        response: transport.Response = requests.Request()(
+            url, method=method, headers=headers, **kwargs
+        )
         lifetime = _lifetime(response)
         if lifetime > 0:
             with self._lock:

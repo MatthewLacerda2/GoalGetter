@@ -7,7 +7,7 @@ class LessonQuestionResponse(BaseModel):
     """A served multiple-choice question. `correct_answer_index` is included on
     purpose: the app grades inline for feedback; the server re-grades on submit."""
 
-    id: str
+    id: UUID
     question: str
     choices: list[str] = Field(..., description="Exactly 4 choices")
     correct_answer_index: int = Field(..., ge=0, le=3)

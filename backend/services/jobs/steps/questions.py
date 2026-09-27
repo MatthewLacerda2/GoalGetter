@@ -19,7 +19,14 @@ student still has something to learn from it.
 
 import logging
 import random
+import uuid
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.core.language import Language
+from backend.models.goal import Goal
+from backend.models.question import Question
+from backend.models.student_context import StudentContext
 from backend.repositories.frontier_repository import FrontierRepository
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.onboarding_repository import OnboardingRepository
@@ -51,7 +58,7 @@ logger = logging.getLogger(__name__)
 ANSWERED_SHOWN = 10
 
 
-async def run_questions_step(session, student_id) -> int:
+async def run_questions_step(session: AsyncSession, student_id: uuid.UUID) -> int:
     """Top up the bank of the student's active goal - a paused one is not
     refreshed (the user, 2026-09-26). Returns how many questions were stored -
     zero is the common answer.
@@ -77,7 +84,14 @@ async def run_questions_step(session, student_id) -> int:
     return total
 
 
-async def _bank_for_goal(session, goal, contexts, readings, size: int, language) -> int:
+async def _bank_for_goal(
+    session: AsyncSession,
+    goal: Goal,
+    contexts: list[GeminiStudentContext],
+    readings: list[StudentContext],
+    size: int,
+    language: Language,
+) -> int:
     repository = QuestionRepository(session)
     bank = await repository.list_bank_history(goal.id)
     frontier = await FrontierRepository(session).current(goal.id)
@@ -97,25 +111,28 @@ async def _bank_for_goal(session, goal, contexts, readings, size: int, language)
     if not verdict.generate:
         return 0
 
+    # `goals.name` and `goals.description` are nullable columns; a prompt gets
+    # an empty line for a missing one, never the word "None".
+    name, description = goal.name or "", goal.description or ""
     if verdict.placement:
         asked = await OnboardingRepository(session).prompt_of(goal.id)
         generated = await run_gemini_background(
             generate_placement_questions,
-            goal.name,
-            asked or goal.description or goal.name,
-            contexts,
-            language,
+            goal_name=name,
+            asked=asked or description or name,
+            contexts=contexts,
+            language=language,
         )
     else:
         generated = await run_gemini_background(
             generate_lesson_questions,
-            goal.name,
-            goal.description,
-            frontier.definition if frontier else (goal.description or ""),
-            contexts,
-            _answered(bank, right=True),
-            _answered(bank, right=False),
-            language,
+            goal_name=name,
+            goal_description=description,
+            frontier=frontier.definition if frontier else description,
+            contexts=contexts,
+            answered_right=_answered(bank, right=True),
+            answered_wrong=_answered(bank, right=False),
+            language=language,
         )
     # A question whose correct index is out of range would fail the table's
     # check constraint and take the whole batch with it: drop just that one.
@@ -144,18 +161,23 @@ def _answered(bank: list[QuestionHistory], right: bool) -> list[AnsweredQuestion
     longer a weakness, and one he has since got wrong is no longer settled. It
     is the same reading of the bank the selection orders on.
     """
-    seen = [entry for entry in bank if entry.last_was_correct is right]
-    seen.sort(key=lambda entry: entry.last_answered_at, reverse=True)
-    return [_shown(entry) for entry in seen[:ANSWERED_SHOWN]]
+    seen = [
+        (entry.last_answered_at, entry.question, entry.last_selected_index)
+        for entry in bank
+        if entry.last_was_correct is right
+        and entry.last_answered_at is not None
+        and entry.last_selected_index is not None
+    ]
+    seen.sort(key=lambda answered: answered[0], reverse=True)
+    return [_shown(question, chosen) for _, question, chosen in seen[:ANSWERED_SHOWN]]
 
 
-def _shown(entry: QuestionHistory) -> AnsweredQuestion:
+def _shown(question: Question, chosen: int) -> AnsweredQuestion:
     """One answered question with the option he picked and the one that was
     right, both as the text he read rather than as an index."""
-    question = entry.question
     options = [question.option_a, question.option_b, question.option_c, question.option_d]
     return AnsweredQuestion(
         question=question.text,
-        chosen=options[entry.last_selected_index],
+        chosen=options[chosen],
         correct=options[question.right_answer_index],
     )

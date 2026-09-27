@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -129,7 +130,7 @@ class GoalCreationResponse(BaseModel):
     """What the client gets after committing a goal: the persisted goal plus the
     standard questions to ask while the chain generates its first batch (#132)."""
 
-    id: str = Field(..., description="The created goal's id")
+    id: UUID = Field(..., description="The created goal's id")
     name: str = Field(..., description="The goal name")
     standard_questions: list[StandardQuestionData] = Field(
         ..., description="Questions to ask while the first batch generates"
@@ -159,7 +160,7 @@ class GoalResponse(BaseModel):
     """One goal in GET /goals. Carries every field the goals list and the goal detail
     screen show, so the detail screen needs no fetch of its own."""
 
-    id: str
+    id: UUID
     name: str
     description: str
     current_elo: int = Field(..., description="The student's rating for this goal (goals.rating)")
@@ -175,4 +176,4 @@ class GoalResponse(BaseModel):
 class SetActiveGoalResponse(BaseModel):
     """PUT /goals/{goal_id}/set-active: the goal that is now active."""
 
-    goal_id: str
+    goal_id: UUID

@@ -6,11 +6,13 @@ it (#211, the import contracts in backend/pyproject.toml). The videos need no
 such step - `youtube_search.py` is not the Gemini layer and builds its rows.
 """
 
+import uuid
+
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.gemini.resources.search_resources import FoundPage
 
 
-def page_resources(goal_id: str, pages: list[FoundPage]) -> list[Resource]:
+def page_resources(goal_id: uuid.UUID, pages: list[FoundPage]) -> list[Resource]:
     """A `Resource` per page, for `goal_id`, its link still the redirect that
     `validate_resources` follows. No embedding: the midnight batch fills it (#96)."""
     return [

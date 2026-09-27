@@ -1,6 +1,7 @@
 import uuid
+from collections.abc import Mapping
 from datetime import datetime
-from typing import Any, ClassVar
+from typing import ClassVar
 
 import numpy as np
 from numpy.typing import NDArray
@@ -8,6 +9,7 @@ from pgvector.sqlalchemy import Vector
 from sqlalchemy import DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.types import TypeEngine
 
 from backend.core.vectors import NUM_DIMENSIONS
 
@@ -24,7 +26,9 @@ class Base(DeclarativeBase):
     Nullability is the annotation's: `Mapped[str | None]` is NULL-able, `Mapped[str]`
     is NOT NULL."""
 
-    type_annotation_map: ClassVar[dict[Any, Any]] = {
+    type_annotation_map: ClassVar[
+        Mapping[object, TypeEngine[uuid.UUID] | TypeEngine[datetime] | Vector]
+    ] = {
         uuid.UUID: UUID(as_uuid=True),
         datetime: DateTime(timezone=True),
         Embedding: Vector(NUM_DIMENSIONS),

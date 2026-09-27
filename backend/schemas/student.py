@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -6,7 +8,7 @@ class OAuth2Request(BaseModel):
 
 
 class StudentResponse(BaseModel):
-    id: str
+    id: UUID
     google_id: str
     email: str
     name: str

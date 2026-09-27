@@ -1,5 +1,3 @@
-from typing import Any
-
 from pydantic import BaseModel, Field
 
 from backend.core.errors.codes import ErrorCode
@@ -17,7 +15,7 @@ class ErrorResponse(BaseModel):
 # a 401, a 422 and a 429 without naming them, and the code is what tells them
 # apart. Declaring a 4XX also replaces FastAPI's own 422 schema, which this
 # body supersedes (`handlers.py`).
-ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
+ERROR_RESPONSES: dict[int | str, dict[str, object]] = {
     "4XX": {"model": ErrorResponse, "description": "The request was refused"},
     "5XX": {"model": ErrorResponse, "description": "The server or a service it calls failed"},
 }

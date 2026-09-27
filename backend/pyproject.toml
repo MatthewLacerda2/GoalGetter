@@ -230,3 +230,72 @@ data_file = "/tmp/goalgetter-backend.coverage"
 fail_under = 90
 skip_covered = true
 show_missing = true
+
+# The type gate (#209): `make back-types`. mypy rather than pyright, for three
+# reasons. It rejects an explicit `Any` (`disallow_any_explicit`), which is the
+# rule this gate exists for and which pyright has no setting for. It is a pip
+# package that runs in the backend image with no network, where pyright is a
+# Node program its pip wrapper downloads on first run. And it has the Pydantic
+# plugin, so a model's constructor is checked field by field.
+#
+# `strict` on everything under backend/: every function annotated, generics
+# spelled out - a bare `dict` or `list` fails (`disallow_any_generics`), and an
+# explicit `Any` fails - and `dict[str, Any]` with it. What remains is judgement:
+# data crossing a layer is a Pydantic model, a dataclass or a TypedDict, not a dict.
+# Strict is affordable because it was reached, not aimed at: the whole backend
+# passed it the day the gate went in, with three narrow exceptions below.
+#
+# The cache lives in .mypy_cache at the repository root (gitignored): cold, the
+# whole backend with its libraries takes ~40 s; warm, a couple of seconds.
+[tool.mypy]
+python_version = "3.14"
+strict = true
+disallow_any_explicit = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+# backend/ has namespace packages (no __init__.py in several folders), and its
+# imports read `backend.x`: modules are named from the repository root.
+explicit_package_bases = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/.."
+# google-auth ships no annotations: calling it is allowed, and what it answers
+# is turned into a typed value on the spot (core/security.py).
+untyped_calls_exclude = ["google.oauth2"]
+
+# Two libraries with no annotations and no stubs, each imported by one command-line
+# tool (disposable_database.py, deadcode.py): what they answer is untyped there.
+[[tool.mypy.overrides]]
+module = ["psycopg2", "vulture", "vulture.*"]
+ignore_missing_imports = true
+
+# `make gemini`'s menu is a table of use cases whose functions all take
+# different arguments, so an entry's arguments are `Any` to the table; the
+# test beside it checks each entry's arguments against its function's own
+# signature (tests/test_tools/test_gemini_cli.py, #120). Only that rule is off.
+[[tool.mypy.overrides]]
+module = ["backend.tools.gemini_cli"]
+disallow_any_explicit = false
+
+# Tests are held to a looser standard. Their bodies are still checked - an
+# argument of the wrong type, or too many of them, fails - but a test need not
+# annotate its own functions, fixtures or the lists that record calls; it may
+# replace a method to patch it; and it reads an Optional it just wrote without
+# narrowing it first, because a None there is a failure the assert reports anyway.
+# And it may assert what the types already say, since a test exists to check it.
+[[tool.mypy.overrides]]
+module = ["backend.tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+disallow_untyped_decorators = false
+disallow_any_explicit = false
+disallow_any_generics = false
+warn_return_any = false
+warn_unreachable = false
+disable_error_code = ["var-annotated", "union-attr", "method-assign", "index"]
+
+[tool.pydantic-mypy]
+# A model built with a field it does not have, or a value of the wrong type,
+# fails here and not at runtime.
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true

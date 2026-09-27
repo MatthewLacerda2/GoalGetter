@@ -1,6 +1,10 @@
 import logging
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import (
+    BaseHTTPMiddleware,
+    RequestResponseEndpoint,
+    _StreamingResponse,
+)
 from starlette.requests import Request
 from starlette.responses import Response
 
@@ -8,14 +12,18 @@ logger = logging.getLogger(__name__)
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         if request.url.path == "/api/v1/check":
             return await call_next(request)
 
         response = await call_next(request)
 
-        if response.status_code >= 400:
-            response_body = [chunk async for chunk in response.body_iterator]
+        # `call_next` always answers Starlette's streaming response, whose body
+        # arrives as bytes; the checks name the types the code below reads.
+        if response.status_code >= 400 and isinstance(response, _StreamingResponse):
+            response_body = [
+                chunk async for chunk in response.body_iterator if isinstance(chunk, bytes)
+            ]
             try:
                 error_msg = b"".join(response_body).decode()
             except UnicodeDecodeError:
@@ -32,7 +40,9 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 media_type=response.media_type,
             )
 
-        real_ip = request.headers.get("cf-connecting-ip") or request.client.host
+        real_ip = request.headers.get("cf-connecting-ip") or (
+            request.client.host if request.client else None
+        )
         logger.info(
             "IP: %s | %s %s | Status: %s",
             real_ip,

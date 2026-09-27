@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select
 
 from backend.models.student import Student
@@ -7,7 +9,7 @@ from backend.repositories.base import DeletableRepository
 class StudentRepository(DeletableRepository[Student]):
     model = Student
 
-    async def list_ids(self) -> list:
+    async def list_ids(self) -> list[uuid.UUID]:
         """Every student's id, oldest first.
 
         What the nightly run (#89) iterates. Ids only: the run decides per

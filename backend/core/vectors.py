@@ -12,6 +12,7 @@ confused the two would quietly treat an un-embedded row as an unrelated one.
 """
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 # The width of every embedding column in the schema (the `Embedding` type in
 # backend/models/base.py) and of what the embedding call asks Gemini for
@@ -20,7 +21,7 @@ import numpy as np
 NUM_DIMENSIONS = 3072
 
 
-def cosine(left, right) -> float | None:
+def cosine(left: ArrayLike | None, right: ArrayLike | None) -> float | None:
     """How alike two embeddings are, in [-1, 1], or None when there is nothing
     to compare: either side missing, or either side a zero vector.
 

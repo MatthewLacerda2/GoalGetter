@@ -21,8 +21,8 @@ from backend.core.clock import (
 )
 
 
-def utc(*args) -> datetime:
-    return datetime(*args, tzinfo=UTC)
+def utc(year: int, month: int, day: int, hour: int, minute: int = 0) -> datetime:
+    return datetime(year, month, day, hour, minute, tzinfo=UTC)
 
 
 def test_now_is_timezone_aware_utc():

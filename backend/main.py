@@ -56,7 +56,7 @@ app.include_router(api_v1_router, prefix="/api/v1", responses=ERROR_RESPONSES)
 
 
 @app.get("/api/v1/check")
-async def root(request: Request):
+async def root(request: Request) -> dict[str, str]:
     return {"message": "Welcome to GoalGetter API"}
 
 
@@ -64,10 +64,10 @@ SECURITY_TXT = "Contact: matheus.l1996@gmail.com\n"
 
 
 @app.get("/security.txt", response_class=PlainTextResponse)
-async def security_txt_fallback():
+async def security_txt_fallback() -> str:
     return SECURITY_TXT
 
 
 @app.get("/llms.txt", response_class=PlainTextResponse)
-async def llms_txt():
+async def llms_txt() -> str:
     return get_llms_txt()

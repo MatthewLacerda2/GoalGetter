@@ -30,7 +30,7 @@ async def main(fresh: bool) -> int:
     finally:
         await engine.dispose()
 
-    names = ", ".join(goal.name for goal in result.goals)
+    names = ", ".join(goal.name or "" for goal in result.goals)
     if result.created:
         print(f"claude: seeded {result.student.name} with {len(result.goals)} goals: {names}.")
     else:

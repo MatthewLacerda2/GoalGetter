@@ -57,7 +57,7 @@ async def test_recent_lessons_group_by_the_mark_newest_first_and_only_that_goal(
     lessons = await StudentAnswerRepository(test_db).list_recent_lessons_by_goal(goal.id, limit=10)
 
     assert [lesson.accuracy for lesson in lessons] == [100.0, 25.0]
-    assert lessons[0].lesson_id == str(recent)
+    assert lessons[0].lesson_id == recent
     assert lessons[0].total_seconds == 40
 
 

@@ -46,7 +46,7 @@ class StandardQuestion:
 
     key: str
     text: str
-    options: tuple[StandardOption, ...]
+    options: tuple[StandardOption, StandardOption, StandardOption, StandardOption]
 
 
 STANDARD_QUESTIONS: tuple[StandardQuestion, ...] = (

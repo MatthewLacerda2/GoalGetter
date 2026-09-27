@@ -30,8 +30,8 @@ from backend.tools import nightly_run
 EMBEDDINGS = "backend.services.jobs.embeddings"
 
 
-def utc(*args) -> datetime:
-    return datetime(*args, tzinfo=UTC)
+def utc(year: int, month: int, day: int, hour: int, minute: int = 0) -> datetime:
+    return datetime(year, month, day, hour, minute, tzinfo=UTC)
 
 
 def a_vector(text: str) -> np.ndarray:

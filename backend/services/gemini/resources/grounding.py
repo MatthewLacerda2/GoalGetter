@@ -19,6 +19,8 @@ The real shape (captured 2026-09-26, `tests/fixtures/responses/`):
 import re
 from dataclasses import dataclass
 
+from backend.services.gemini.client.gemini_call import GroundedResponse
+
 # Videos come from the YouTube Data API's search, where an ID exists by
 # construction; a YouTube page surfacing through web search is left to it.
 VIDEO_SITES = ("youtube.com", "youtu.be")
@@ -39,7 +41,7 @@ class WebSource:
     said: str
 
 
-def web_sources(response) -> list[WebSource]:
+def web_sources(response: GroundedResponse) -> list[WebSource]:
     """Each distinct web page the search found, in the order Google gave them,
     with what the model's text said about it."""
     candidates = response.candidates or []
@@ -55,7 +57,8 @@ def web_sources(response) -> list[WebSource]:
             if text and text not in said.setdefault(index, []):
                 said[index].append(text)
 
-    sources, seen = [], set()
+    sources: list[WebSource] = []
+    seen: set[str] = set()
     for index, chunk in enumerate(metadata.grounding_chunks or []):
         web = chunk.web
         if web is None or not web.uri or web.uri in seen:

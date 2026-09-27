@@ -16,6 +16,7 @@ import httpx
 
 from backend.core.config import settings
 from backend.models.resource import Resource, StudyResourceType
+from backend.services.resources.youtube_api import Item
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,9 @@ _CHANNEL_ID = re.compile(r"youtube\.com/channel/(UC[A-Za-z0-9_-]{22})")
 _HANDLE = re.compile(r"youtube\.com/@([A-Za-z0-9._-]+)")
 
 
-async def _fetch(client: httpx.AsyncClient, url: str, params: dict | None = None):
+async def _fetch(
+    client: httpx.AsyncClient, url: str, params: dict[str, str] | None = None
+) -> httpx.Response | None:
     """GET that returns None instead of raising, and None on any 4xx/5xx."""
     try:
         response = await client.get(
@@ -57,7 +60,7 @@ async def _fetch(client: httpx.AsyncClient, url: str, params: dict | None = None
     return response
 
 
-async def resolve_page(client: httpx.AsyncClient, url: str):
+async def resolve_page(client: httpx.AsyncClient, url: str) -> httpx.Response | None:
     """Follow `url` to the page it lands on. The response, or None when there
     is no page: the request failed, the page is gone (404/410), or the redirect
     never left Google's host."""
@@ -77,7 +80,7 @@ async def resolve_page(client: httpx.AsyncClient, url: str):
     return response
 
 
-def is_pdf(response) -> bool:
+def is_pdf(response: httpx.Response) -> bool:
     """The content type is the trustworthy signal; a `.pdf` path is accepted as
     a fallback because some hosts serve PDFs as octet-stream, and a bot wall
     answers HTML in front of one."""
@@ -88,7 +91,7 @@ def is_pdf(response) -> bool:
     return False
 
 
-def _youtube_lookup(url: str) -> tuple[str, dict] | None:
+def _youtube_lookup(url: str) -> tuple[str, dict[str, str]] | None:
     """Map a YouTube URL onto the Data API call that proves it exists."""
     video = _VIDEO_ID.search(url)
     if video:
@@ -102,7 +105,7 @@ def _youtube_lookup(url: str) -> tuple[str, dict] | None:
     return None
 
 
-def _picture_from(item: dict) -> str | None:
+def _picture_from(item: Item) -> str | None:
     """The channel avatar, or the video thumbnail. Absent = we drop the resource."""
     thumbnails = item.get("snippet", {}).get("thumbnails", {}) or {}
     for size in ("high", "medium", "default"):
@@ -129,7 +132,7 @@ async def youtube_picture(client: httpx.AsyncClient, url: str) -> str | None:
     if response is None:
         return None
 
-    items = response.json().get("items") or []
+    items: list[Item] = response.json().get("items") or []
     if not items:
         logger.info("Dropping %s: YouTube returned no such item", url)
         return None
@@ -182,7 +185,7 @@ async def validate_resources(
         if owned:
             await client.aclose()
 
-    kept = []
+    kept: list[Resource] = []
     for resource, verdict in zip(resources, verdicts, strict=True):
         if isinstance(verdict, BaseException):
             logger.warning("Dropping %s: check errored (%s)", resource.link, verdict)

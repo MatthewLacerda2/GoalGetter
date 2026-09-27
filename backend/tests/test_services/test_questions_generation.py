@@ -55,7 +55,7 @@ async def test_a_student_who_keeps_missing_his_questions_gets_nothing(
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_questions_step(test_db, str(test_user.id)) == 0
+        assert await run_questions_step(test_db, test_user.id) == 0
 
     assert calls == []
 
@@ -70,7 +70,7 @@ async def test_a_short_bank_he_keeps_missing_is_still_nothing(
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_questions_step(test_db, str(test_user.id)) == 0
+        assert await run_questions_step(test_db, test_user.id) == 0
 
     assert calls == []
 
@@ -87,10 +87,7 @@ async def test_a_student_who_never_misses_gets_eight_one_step_past_what_he_holds
     with chain_gemini(
         test_db, calls, questions=generated(*[0] * settings.QUESTIONS_PER_GENERATION)
     ):
-        assert (
-            await run_questions_step(test_db, str(test_user.id))
-            == settings.QUESTIONS_PER_GENERATION
-        )
+        assert await run_questions_step(test_db, test_user.id) == settings.QUESTIONS_PER_GENERATION
 
     prompt = get_lesson_generation_prompt(*asked(calls))
     assert "1400" not in prompt
@@ -112,7 +109,7 @@ async def test_a_deep_bank_he_can_answer_still_buys_eight(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_questions_step(test_db, str(test_user.id))
+        await run_questions_step(test_db, test_user.id)
 
     assert [name for name, _ in calls] == ["questions"]
 
@@ -131,7 +128,7 @@ async def test_the_prompt_carries_his_own_questions_and_the_option_he_chose(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_questions_step(test_db, str(test_user.id))
+        await run_questions_step(test_db, test_user.id)
 
     prompt = get_lesson_generation_prompt(*asked(calls))
     assert '- "What is \'ciao\'?" -> he chose "goodbye", and the answer was "hello"' in prompt
@@ -151,7 +148,7 @@ async def test_an_empty_bank_is_the_placement_written_from_what_he_typed(
 
     calls = []
     with chain_gemini(test_db, calls, questions=generated(*[0] * settings.PLACEMENT_SIZE)):
-        assert await run_questions_step(test_db, str(test_user.id)) == settings.PLACEMENT_SIZE
+        assert await run_questions_step(test_db, test_user.id) == settings.PLACEMENT_SIZE
 
     name, typed, _, _ = dict(calls)["placement"]
     assert (name, typed) == ("Digital China", "understand modern China")
@@ -168,7 +165,7 @@ async def test_under_eighteen_answers_buys_nothing_however_easy(
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_questions_step(test_db, str(test_user.id)) == 0
+        assert await run_questions_step(test_db, test_user.id) == 0
 
     assert calls == []
 
@@ -184,7 +181,7 @@ async def test_each_goal_is_decided_on_its_own(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_questions_step(test_db, str(test_user.id))
+        await run_questions_step(test_db, test_user.id)
 
     assert [name for name, _ in calls] == ["questions"]
     assert asked(calls)[0] == "History"
@@ -200,7 +197,7 @@ async def test_the_questions_aim_at_the_frontier_and_not_at_the_description(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_questions_step(test_db, str(test_user.id))
+        await run_questions_step(test_db, test_user.id)
 
     name, description, frontier = asked(calls)[:3]
     assert (name, description) == (goal.name, goal.description)

@@ -16,6 +16,7 @@ a scheduler.
 """
 
 import logging
+import uuid
 from datetime import datetime
 
 from backend.core import clock
@@ -28,7 +29,7 @@ from backend.services.jobs.student_chain import run_student_chain
 logger = logging.getLogger(__name__)
 
 
-async def run_for_student(student_id: str, at: datetime | None = None) -> bool:
+async def run_for_student(student_id: uuid.UUID, at: datetime | None = None) -> bool:
     """Decide for one student and, if the decision says so, run their chain.
 
     Returns whether the chain ran. Never raises: a chain that failed is this
@@ -61,7 +62,7 @@ async def run_nightly(at: datetime | None = None) -> tuple[int, int]:
     logger.info("Nightly run starting at %s for %d students", at.isoformat(), len(student_ids))
     ran = 0
     for student_id in student_ids:
-        ran += await run_for_student(str(student_id), at)
+        ran += await run_for_student(student_id, at)
 
     logger.info("Nightly run finished: %d of %d students had a chain run", ran, len(student_ids))
     return len(student_ids), ran

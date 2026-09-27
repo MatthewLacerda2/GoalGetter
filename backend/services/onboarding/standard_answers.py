@@ -8,6 +8,7 @@ sentences and the index - and never learns that keys exist.
 """
 
 import logging
+from collections.abc import Sequence
 
 from backend.repositories.onboarding_repository import StandardAnswer
 from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
@@ -15,7 +16,9 @@ from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
 logger = logging.getLogger(__name__)
 
 
-def resolve_standard_answers(answers: list[tuple[str, str, int | None]]) -> list[StandardAnswer]:
+def resolve_standard_answers(
+    answers: Sequence[tuple[str, str, int | None]],
+) -> list[StandardAnswer]:
     """The rows to store for `(question key, option key, seconds)` answers.
 
     A key neither side knows is dropped and logged rather than refused: the
@@ -38,7 +41,8 @@ def _resolve(question_key: str, option_key: str, seconds: int | None) -> Standar
     for question in STANDARD_QUESTIONS:
         if question.key != question_key:
             continue
-        texts = tuple(option.text for option in question.options)
+        first, second, third, fourth = question.options
+        texts = (first.text, second.text, third.text, fourth.text)
         for index, option in enumerate(question.options):
             if option.key == option_key:
                 return StandardAnswer(question.text, texts, index, seconds)

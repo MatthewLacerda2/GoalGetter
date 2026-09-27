@@ -17,6 +17,9 @@ couple of days, and a gap 6 days ago: a day off, which keeps the streak but
 does not add to it (#204), so the streak is 14 and not 15.
 """
 
+from collections.abc import Sequence
+from typing import TypedDict
+
 from backend.services.fictitious.history_chat import GUITAR_CHAT, ITALIAN_CHAT, PYTHON_CHAT
 from backend.services.fictitious.history_questions import (
     GUITAR_QUESTIONS,
@@ -30,6 +33,26 @@ from backend.services.fictitious.history_resources import (
 )
 
 LESSON_SIZE = 5
+
+
+class GoalSpec(TypedDict):
+    """One goal of `GOALS`, as `goal_history.seed_goal` reads it."""
+
+    name: str
+    description: str
+    created_days_ago: int
+    active: bool
+    # (text, four options, right index)
+    questions: Sequence[tuple[str, list[str], int]]
+    # (days ago, hour or None for the default, right answers out of LESSON_SIZE)
+    lessons: Sequence[tuple[int, int | None, int]]
+    # (prompt, reply bubbles, liked, days ago, hour or None for the default)
+    chat: Sequence[tuple[str, list[str], bool, int, int | None]]
+    # (kind, name, description, language, link)
+    resources: Sequence[tuple[str, str, str, str, str]]
+    # (state, metacognition), or None for no reading
+    context: tuple[str, str] | None
+
 
 ITALIAN_LESSONS = [
     (14, 20, 2),
@@ -67,7 +90,7 @@ ITALIAN_CONTEXT = (
 
 # The goals, newest (and active) first. `created_days_ago` must predate the
 # goal's first lesson.
-GOALS = [
+GOALS: list[GoalSpec] = [
     {
         "name": "Conversational Italian for a trip to Rome",
         "description": "Get by in Italian on a week in Rome: greetings, ordering food, asking the way, "

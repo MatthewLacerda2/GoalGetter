@@ -60,7 +60,7 @@ async def test_the_chain_runs_context_then_questions_then_resources(
 
     calls = []
     with chain_gemini(test_db, calls, found=[page("https://good.dev/a")]):
-        assert await run_student_chain(str(test_user.id)) == (True, 2, 1)
+        assert await run_student_chain(test_user.id) == (True, 2, 1)
 
     assert [name for name, _ in calls] == ["context", "placement", "resources"]
 
@@ -74,7 +74,7 @@ async def test_the_first_run_reads_the_onboarding_from_the_database(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_student_chain(str(test_user.id))
+        await run_student_chain(test_user.id)
 
     goals, prompt, questions_answers, _language = dict(calls)["context"]
     assert [(g.name, g.description) for g in goals] == [(goal.name, goal.description)]
@@ -93,7 +93,7 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_student_chain(str(test_user.id))
+        await run_student_chain(test_user.id)
 
     seen = dict(calls)
     # A goal created minutes ago: its first batch is the placement, written from
@@ -130,13 +130,13 @@ async def test_a_later_run_reviews_the_context_and_buys_nothing_for_what_went_wr
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(added=[("Improving", "Doubtful")])):
-        await run_student_chain(str(test_user.id))
+        await run_student_chain(test_user.id)
 
     assert [name for name, _ in calls] == ["review", "resources"]
     _, standing, results, chats, _, _ = dict(calls)["review"]
     assert [(c.state, c.metacognition) for c in standing] == [("Beginner", "Curious")]
-    assert [(r["question"], r["is_correct"]) for r in results] == [("What is 'ciao'?", False)]
-    assert [c["prompt"] for c in chats] == ["q0"]
+    assert [(r.question, r.is_correct) for r in results] == [("What is 'ciao'?", False)]
+    assert [c.prompt for c in chats] == ["q0"]
 
 
 async def test_the_resource_search_is_told_which_links_the_goal_already_has(
@@ -152,7 +152,7 @@ async def test_the_resource_search_is_told_which_links_the_goal_already_has(
     calls = []
     proposed = [page("https://held.dev/a"), page("https://new.dev/b")]
     with chain_gemini(test_db, calls, found=proposed):
-        assert (await run_student_chain(str(test_user.id)))[2] == 1
+        assert (await run_student_chain(test_user.id))[2] == 1
 
     assert dict(calls)["resources"][3] == ["https://held.dev/a"]
     links = sorted(r.link for r in await ResourceRepository(test_db).list_by_goal(goal.id))
@@ -165,7 +165,7 @@ async def test_resources_never_run_without_a_context(test_db, test_user, goal_fa
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_resources_step(test_db, str(test_user.id)) == 0
+        assert await run_resources_step(test_db, test_user.id) == 0
 
     assert calls == []
 
@@ -177,7 +177,7 @@ async def test_the_caller_can_ask_for_a_chain_without_resources(test_db, test_us
 
     calls = []
     with chain_gemini(test_db, calls, found=[page("https://good.dev/a")]):
-        assert await run_student_chain(str(test_user.id), with_resources=False) == (True, 2, 0)
+        assert await run_student_chain(test_user.id, with_resources=False) == (True, 2, 0)
 
     assert [name for name, _ in calls] == ["context", "placement"]
     assert await ResourceRepository(test_db).list_by_goal(goal.id) == []
@@ -191,7 +191,7 @@ async def test_a_failed_step_keeps_what_the_steps_before_it_wrote(test_db, test_
     calls = []
     with chain_gemini(test_db, calls, questions=RuntimeError("quota")):
         with pytest.raises(RuntimeError):
-            await run_student_chain(str(test_user.id))
+            await run_student_chain(test_user.id)
 
     assert [name for name, _ in calls] == ["context", "placement"]
     assert len(await StudentContextRepository(test_db).list_valid(test_user.id)) == 1
@@ -206,7 +206,7 @@ async def test_the_kickoff_never_raises_into_goal_creation(test_db, test_user, g
 
     calls = []
     with chain_gemini(test_db, calls, questions=RuntimeError("quota")):
-        kickoff_student_chain(str(test_user.id))
+        kickoff_student_chain(test_user.id)
         await asyncio.gather(*student_chain._running)
 
     assert len(await StudentContextRepository(test_db).list_valid(test_user.id)) == 1
@@ -222,7 +222,7 @@ async def test_only_the_active_goal_is_worked_on(test_db, test_user, goal_factor
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_student_chain(str(test_user.id)) == (True, 2, 0)
+        assert await run_student_chain(test_user.id) == (True, 2, 0)
 
     assert [name for name, _ in calls] == ["context", "placement", "resources"]
     assert [g.name for g in dict(calls)["context"][0]] == ["History"]
@@ -234,7 +234,7 @@ async def test_a_student_with_no_goals_spends_nothing(test_db, test_user):
     """Nothing to write about, nothing to generate for: no Gemini call at all"""
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_student_chain(str(test_user.id)) == (False, 0, 0)
+        assert await run_student_chain(test_user.id) == (False, 0, 0)
 
     assert calls == []
 
@@ -254,7 +254,7 @@ async def test_the_batch_goal_creation_fires_never_reads_the_standard_questions(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_student_chain(str(test_user.id), onboarding_as_of=as_of)
+        await run_student_chain(test_user.id, onboarding_as_of=as_of)
 
     assert dict(calls)["context"][2] == [PROMPT_PAIR, *ANSWERS]
 
@@ -267,7 +267,7 @@ async def test_the_generation_after_it_does_read_them(test_db, test_user, goal_f
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_student_chain(str(test_user.id))
+        await run_student_chain(test_user.id)
 
     assert dict(calls)["context"][2] == [PROMPT_PAIR, *ANSWERS, STANDARD_PAIR]
 
@@ -290,6 +290,6 @@ async def test_a_review_is_told_what_the_student_said_about_himself(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_student_chain(str(test_user.id))
+        await run_student_chain(test_user.id)
 
     assert dict(calls)["review"][4] == [PROMPT_PAIR, *ANSWERS, STANDARD_PAIR]

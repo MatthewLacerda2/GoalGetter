@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select
 
 from backend.models.frontier import Frontier
@@ -17,7 +19,7 @@ class FrontierRepository(BaseRepository[Frontier]):
 
     model = Frontier
 
-    async def current(self, goal_id) -> Frontier | None:
+    async def current(self, goal_id: uuid.UUID) -> Frontier | None:
         """The goal's newest frontier - what we are teaching him today.
 
         `None` is unreachable for a goal created through `GoalRepository`,
@@ -34,7 +36,7 @@ class FrontierRepository(BaseRepository[Frontier]):
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def list_by_goal(self, goal_id) -> list[Frontier]:
+    async def list_by_goal(self, goal_id: uuid.UUID) -> list[Frontier]:
         """The whole history, oldest first: where the student started and every
         threshold he has been moved to since."""
         stmt = (

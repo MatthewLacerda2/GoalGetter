@@ -31,4 +31,4 @@ def detect_language(text: str) -> Language | None:
     ranked = sorted(scores.values(), reverse=True)
     if ranked[0] == 0 or ranked[0] == ranked[1]:
         return None
-    return max(scores, key=scores.get)
+    return max(scores, key=lambda language: scores[language])

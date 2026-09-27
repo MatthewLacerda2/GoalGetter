@@ -1,3 +1,7 @@
+from typing import cast
+
+import httpx
+
 from backend.core.config import settings
 from backend.models.resource import StudyResourceType
 from backend.services.resources.link_validation import validate_resources
@@ -5,6 +9,11 @@ from backend.tests.test_services.test_link_validation import FakeClient, FakeRes
 
 CHANNEL_URL = "https://www.youtube.com/@italianteacher"
 AVATAR = "https://yt3.ggpht.com/avatar.jpg"
+
+
+def as_async_client(fake: FakeClient) -> httpx.AsyncClient:
+    """The fake answers `get` like an AsyncClient, which is all validation calls."""
+    return cast(httpx.AsyncClient, fake)
 
 
 def youtube_payload(thumbnails=None, privacy=None):
@@ -27,7 +36,7 @@ async def test_real_channel_is_kept_and_its_picture_stored(monkeypatch):
         }
     )
 
-    kept = await validate_resources([resource], client=client)
+    kept = await validate_resources([resource], client=as_async_client(client))
 
     assert kept == [resource]
     assert resource.image_url == AVATAR
@@ -39,7 +48,7 @@ async def test_channel_without_a_picture_is_dropped(monkeypatch):
     resource = make(StudyResourceType.youtube, CHANNEL_URL)
     client = FakeClient({"youtube/v3/channels": FakeResponse(200, payload=youtube_payload({}))})
 
-    assert await validate_resources([resource], client=client) == []
+    assert await validate_resources([resource], client=as_async_client(client)) == []
 
 
 async def test_unknown_video_is_dropped(monkeypatch):
@@ -48,7 +57,7 @@ async def test_unknown_video_is_dropped(monkeypatch):
     resource = make(StudyResourceType.youtube, "https://youtu.be/abcdefghijk")
     client = FakeClient({"youtube/v3/videos": FakeResponse(200, payload={"items": []})})
 
-    assert await validate_resources([resource], client=client) == []
+    assert await validate_resources([resource], client=as_async_client(client)) == []
 
 
 async def test_private_video_is_dropped(monkeypatch):
@@ -63,7 +72,7 @@ async def test_private_video_is_dropped(monkeypatch):
         }
     )
 
-    assert await validate_resources([resource], client=client) == []
+    assert await validate_resources([resource], client=as_async_client(client)) == []
 
 
 async def test_non_youtube_link_typed_as_youtube_is_dropped(monkeypatch):
@@ -72,5 +81,5 @@ async def test_non_youtube_link_typed_as_youtube_is_dropped(monkeypatch):
     resource = make(StudyResourceType.youtube, "https://vimeo.com/12345")
     client = FakeClient({})
 
-    assert await validate_resources([resource], client=client) == []
+    assert await validate_resources([resource], client=as_async_client(client)) == []
     assert client.calls == []

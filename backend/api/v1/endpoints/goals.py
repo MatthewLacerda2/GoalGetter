@@ -55,7 +55,7 @@ async def objective_questions(
     request: Request,
     payload: ObjectiveQuestionsRequest,
     chosen: Annotated[Language | None, Depends(requested_language)],
-):
+) -> list[ObjectiveQuestion]:
     """
     Step 1: validate the prompt is a real goal, then generate clarifying
     multiple-choice questions. Each question names the model that wrote it, and
@@ -65,12 +65,15 @@ async def objective_questions(
     sends (#172), else the one the prompt is written in (#173).
     """
     language = output_language(chosen, payload.prompt)
-    validation = await run_gemini(get_prompt_validation, payload.prompt, language)
+    validation = await run_gemini(get_prompt_validation, prompt=payload.prompt, language=language)
     if not is_goal_validated(validation):
         raise ApiError(ErrorCode.NOT_A_GOAL, validation.reasoning)
 
     generated = await run_gemini(
-        generate_onboarding_questions, payload.prompt, validation.reasoning, language
+        generate_onboarding_questions,
+        goal_name=payload.prompt,
+        goal_description=validation.reasoning,
+        language=language,
     )
     return [
         ObjectiveQuestion(
@@ -88,13 +91,15 @@ async def study_plan(
     request: Request,
     payload: GoalCreationRequest,
     chosen: Annotated[Language | None, Depends(requested_language)],
-):
+) -> StudyPlanResponse:
     """
     Step 2: generate a stateless study-plan preview (goal name + markdown
     description) from the prompt and the user's onboarding answers. Not persisted.
     """
     language = output_language(chosen, payload.prompt)
-    plan = await run_gemini(generate_study_plan, payload.prompt, payload.answers, language)
+    plan = await run_gemini(
+        generate_study_plan, prompt=payload.prompt, answers=payload.answers, language=language
+    )
     return StudyPlanResponse(goal_name=plan.goal_name, description=plan.description)
 
 
@@ -105,7 +110,7 @@ async def create_goal(
     payload: GoalCommitRequest,
     current_user: Annotated[Student, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> GoalCreationResponse:
     """
     Step 3 (AUTHED): persist the goal the user approved in the preview, store the
     onboarding it came from, make it the active goal, then fire the student chain
@@ -126,7 +131,7 @@ async def create_goal(
         payload.prompt,
         [(a.question, a.answer, a.total_seconds, a.ai_model) for a in payload.answers],
     )
-    student_id = str(current_user.id)
+    student_id = current_user.id
     current_user.current_goal_id = goal.id
     await StudentRepository(db).update(current_user)
     await db.commit()
@@ -134,8 +139,8 @@ async def create_goal(
     kickoff_student_chain(student_id, onboarding_as_of=clock.now())
 
     return GoalCreationResponse(
-        id=str(goal.id),
-        name=goal.name,
+        id=goal.id,
+        name=payload.goal_name,
         standard_questions=[
             StandardQuestionData(key=q.key, options=[o.key for o in q.options])
             for q in STANDARD_QUESTIONS
@@ -148,7 +153,7 @@ async def standard_answers(
     payload: StandardAnswersRequest,
     goal: Annotated[Goal, Depends(get_owned_goal)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> None:
     """What the student told us about himself while his first batch generated.
 
     Stored beside the rest of his onboarding, marked `ai_model = "system"`. The
@@ -166,15 +171,15 @@ async def standard_answers(
 async def list_goals(
     current_user: Annotated[Student, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> list[GoalResponse]:
     """Every goal of the student, newest first, with all the fields the goals list and
     the goal detail screen show (there is no per-goal GET)."""
     goals = await GoalRepository(db).list_by_student(current_user.id)
     return [
         GoalResponse(
-            id=str(goal.id),
-            name=goal.name,
-            description=goal.description,
+            id=goal.id,
+            name=goal.name or "",
+            description=goal.description or "",
             current_elo=goal.rating,
             is_active=goal.id == current_user.current_goal_id,
             created_at=goal.created_at,
@@ -189,14 +194,14 @@ async def set_active_goal(
     goal: Annotated[Goal, Depends(get_owned_goal)],
     current_user: Annotated[Student, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> SetActiveGoalResponse:
     """Make one of the student's goals the active one (students.current_goal_id).
     Someone else's goal, or a missing one, is 404 (see get_owned_goal)."""
     goal_id = goal.id  # read before commit: the production session expires on commit
     current_user.current_goal_id = goal_id
     await StudentRepository(db).update(current_user)
     await db.commit()
-    return SetActiveGoalResponse(goal_id=str(goal_id))
+    return SetActiveGoalResponse(goal_id=goal_id)
 
 
 @router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -204,7 +209,7 @@ async def delete_goal(
     goal: Annotated[Goal, Depends(get_owned_goal)],
     current_user: Annotated[Student, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> None:
     """Delete a goal and everything under it. The database does the cascading
     (ON DELETE CASCADE on the goal's rows, SET NULL on students.current_goal_id), so
     the in-memory student is refreshed afterwards: it may still hold the old id."""

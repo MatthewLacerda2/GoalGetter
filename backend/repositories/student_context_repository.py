@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import or_, select
 
 from backend.models.student_context import StudentContext
@@ -11,7 +13,7 @@ class StudentContextRepository(BaseRepository[StudentContext]):
 
     model = StudentContext
 
-    async def list_valid(self, student_id) -> list[StudentContext]:
+    async def list_valid(self, student_id: uuid.UUID) -> list[StudentContext]:
         """The student's still-valid contexts, newest first. Every goal of
         theirs reads the same ones."""
         stmt = (

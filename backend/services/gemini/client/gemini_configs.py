@@ -1,11 +1,14 @@
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
-from google.genai import Client
+
+# Re-exported: `make gemini` and the live suite wrap it here (see get_client).
+from google.genai import Client as Client
 from google.genai.types import Content, EmbedContentConfig, GenerateContentConfig, Part, Tool
+from numpy.typing import NDArray
+from pydantic import BaseModel
 
 from backend.core.config import settings
 from backend.core.vectors import NUM_DIMENSIONS
@@ -50,10 +53,11 @@ def get_client() -> Client:
     return _shared.client
 
 
-def get_gemini_config(json_schema: dict[str, Any]) -> GenerateContentConfig:
+def get_gemini_config(schema: type[BaseModel]) -> GenerateContentConfig:
+    """JSON generation, held to `schema`'s JSON schema."""
     return GenerateContentConfig(
         response_mime_type="application/json",
-        response_schema=json_schema,
+        response_schema=schema.model_json_schema(),
     )
 
 
@@ -61,16 +65,16 @@ def get_gemini_config_plain_text(tools: list[Tool] | None = None) -> GenerateCon
     """Plain-text generation. `tools` wires Gemini's own tools, e.g. Google Search."""
     return GenerateContentConfig(
         response_mime_type="text/plain",
-        tools=tools,
+        tools=[*tools] if tools else None,
     )
 
 
-async def get_gemini_embeddings(text: str) -> np.ndarray:
+async def get_gemini_embeddings(text: str) -> NDArray[np.float32]:
 
     return (await get_gemini_embeddings_batch([text]))[0]
 
 
-async def get_gemini_embeddings_batch(texts: list[str]) -> list[np.ndarray]:
+async def get_gemini_embeddings_batch(texts: list[str]) -> list[NDArray[np.float32]]:
     """Embed many texts in one request - what the nightly backfill spends (#96).
 
     `embed_content` takes a list and answers a list in the same order, so N
@@ -102,4 +106,6 @@ async def get_gemini_embeddings_batch(texts: list[str]) -> list[np.ndarray]:
         "embed_content",
     )
 
-    return [np.array(embedding.values, dtype=np.float32) for embedding in response.embeddings]
+    # No embeddings at all is a short answer, which the caller already refuses.
+    embeddings = response.embeddings or []
+    return [np.array(embedding.values, dtype=np.float32) for embedding in embeddings]

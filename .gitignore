@@ -22,6 +22,8 @@ __pycache__/
 .pytest_cache/
 # `ruff check` / `ruff format` (make back-lint).
 .ruff_cache/
+# mypy (make back-types).
+.mypy_cache/
 # Coverage writes to /tmp ([tool.coverage.run] data_file in backend/pyproject.toml);
 # these catch a run by hand with other settings.
 .coverage

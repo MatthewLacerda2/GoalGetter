@@ -1,5 +1,10 @@
 from backend.core.language import Language
-from backend.services.gemini.student_context.schema import GeminiStudentContext, StudentGoal
+from backend.services.gemini.student_context.schema import (
+    GeminiStudentContext,
+    RecentAnswer,
+    RecentChat,
+    StudentGoal,
+)
 
 
 def format_goals(goals: list[StudentGoal]) -> str:
@@ -108,8 +113,8 @@ def format_onboarding(questions_answers: list[tuple[str, str]] | None) -> str:
 def get_context_review_prompt(
     goals: list[StudentGoal],
     contexts: list[GeminiStudentContext],
-    recent_answers: list[dict],
-    recent_chat_history: list[dict],
+    recent_answers: list[RecentAnswer],
+    recent_chat_history: list[RecentChat],
     questions_answers: list[tuple[str, str]] | None,
     language: Language,
 ) -> str:
@@ -123,7 +128,7 @@ def get_context_review_prompt(
     answers_formatted = (
         "\n".join(
             [
-                f"- Question: {res.get('question')}\n  Selected: {res.get('selected_option')}\n  Is Correct: {res.get('is_correct')}\n  Time Spent: {res.get('time_spent')}s"
+                f"- Question: {res.question}\n  Selected: {res.selected_option}\n  Is Correct: {res.is_correct}\n  Time Spent: {res.time_spent}s"
                 for res in recent_answers
             ]
         )
@@ -133,10 +138,7 @@ def get_context_review_prompt(
 
     chat_formatted = (
         "\n".join(
-            [
-                f"User: {msg.get('prompt')}\nTutor: {msg.get('tutor_response')}"
-                for msg in recent_chat_history
-            ]
+            [f"User: {msg.prompt}\nTutor: {msg.tutor_response}" for msg in recent_chat_history]
         )
         if recent_chat_history
         else "No recent chat history."

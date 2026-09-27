@@ -23,6 +23,7 @@ and a lost update repairs itself on the next submission.
 """
 
 import math
+import uuid
 from dataclasses import dataclass
 
 from backend.models.goal import START_RATING
@@ -75,7 +76,7 @@ class GoalRatings:
 
     rating: int
     answers_seen: int
-    difficulty: dict
+    difficulty: dict[uuid.UUID, float]
 
 
 def expected_score(rating: float, difficulty: float) -> float:
@@ -120,8 +121,8 @@ def replay(
     """
     rating = float(start)
     born = sorted(bank, key=lambda question: (question.created_at, str(question.id)))
-    anchors: dict = {}
-    tally: dict = {}
+    anchors: dict[uuid.UUID, float] = {}
+    tally: dict[uuid.UUID, tuple[int, int]] = {}
     pending, seen = 0, 0
 
     for record in answers:

@@ -1,3 +1,5 @@
+import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -82,7 +84,10 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
     model = OnboardingQuestion
 
     async def save_onboarding(
-        self, goal_id, prompt: str, answers: list[tuple[str, str, int | None, str | None]]
+        self,
+        goal_id: uuid.UUID,
+        prompt: str,
+        answers: Sequence[tuple[str, str, int | None, str | None]],
     ) -> list[OnboardingQuestion]:
         """Persist one goal's onboarding: the student's own words first, then
         one row per question they answered, as `(question, answer, seconds,
@@ -101,7 +106,7 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         return rows
 
     async def save_standard_answers(
-        self, goal_id, answers: list[StandardAnswer]
+        self, goal_id: uuid.UUID, answers: list[StandardAnswer]
     ) -> list[OnboardingQuestion]:
         """Persist the answers to the standard questions: all four options and
         the one picked, marked as written by nobody (`SYSTEM_AUTHOR`)."""
@@ -111,7 +116,7 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         return rows
 
     async def list_by_student(
-        self, student_id, as_of: datetime | None = None
+        self, student_id: uuid.UUID, as_of: datetime | None = None
     ) -> list[OnboardingQuestion]:
         """Everything the student told us while creating any of their goals,
         oldest first. A context is written about the person (#87), so it reads
@@ -133,7 +138,7 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def prompt_of(self, goal_id) -> str | None:
+    async def prompt_of(self, goal_id: uuid.UUID) -> str | None:
         """What the student typed for this goal, in his own words - the
         free-text row. None for a goal created without an onboarding.
 
@@ -164,7 +169,7 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
 
     @staticmethod
     def _row(
-        goal_id,
+        goal_id: uuid.UUID,
         question: str,
         answer: str,
         index: int | None,
@@ -184,7 +189,7 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         )
 
 
-def _standard_row(goal_id, answer: StandardAnswer) -> OnboardingQuestion:
+def _standard_row(goal_id: uuid.UUID, answer: StandardAnswer) -> OnboardingQuestion:
     """A standard question's row: all four options, and the one picked."""
     return OnboardingQuestion(
         goal_id=goal_id,

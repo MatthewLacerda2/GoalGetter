@@ -15,6 +15,7 @@ right for him (the user, 2026-09-24), and keeping the duration out of that
 module's signature is how that stays true rather than being remembered.
 """
 
+from collections.abc import Sequence
 from statistics import median
 
 # Two minutes, in seconds. The lesson's whole budget.
@@ -46,7 +47,7 @@ MAX_QUESTIONS = 12
 PACE_WINDOW = 24
 
 
-def lesson_size(seconds: list[int]) -> int:
+def lesson_size(seconds: Sequence[int | None]) -> int:
     """How many questions to serve, given his last answers' durations, newest first.
 
     A missing pace is the floor, not a guess: a student with no timed answers at

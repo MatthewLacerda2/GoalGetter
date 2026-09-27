@@ -50,6 +50,11 @@ jobs:
       - name: Build smoke
         run: make back-build PY_OFFLINE=python
 
+      # mypy, strict: no `Any` in our signatures, no bare `dict` (#209). The
+      # configuration and its reasons are [tool.mypy] in backend/pyproject.toml.
+      - name: Types
+        run: make back-types PY_OFFLINE=python
+
       # The two gates that need a database start their own, the way they do
       # locally (tools/test-db.sh, #205): a pgvector Postgres - the image
       # production runs - that exists for that one step and is removed after it.

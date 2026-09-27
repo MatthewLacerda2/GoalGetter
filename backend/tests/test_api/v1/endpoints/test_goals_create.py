@@ -40,7 +40,7 @@ async def test_create_goal_persists_and_asks_the_standard_questions(
     assert goal.student_id == test_user.id
     await test_db.refresh(test_user)
     assert str(test_user.current_goal_id) == body["id"]
-    assert chain.call_args.args == (str(test_user.id),)
+    assert chain.call_args.args == (test_user.id,)
 
 
 async def test_create_goal_costs_no_gemini_call(auth_client):

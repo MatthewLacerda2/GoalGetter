@@ -23,8 +23,17 @@ after it fail.
 """
 
 import logging
+import uuid
+from collections.abc import Sequence
 from datetime import datetime
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.core.language import Language
+from backend.models.goal import Goal
+from backend.models.onboarding_question import OnboardingQuestion
+from backend.models.question import Question
+from backend.models.student_answer import StudentAnswer
 from backend.models.student_context import StudentContext
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.goal_repository import GoalRepository
@@ -34,9 +43,15 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.gemini.client.gemini_guard import run_gemini_background
 from backend.services.gemini.student_context import (
     GeminiStudentContext,
+    RecentAnswer,
+    RecentChat,
     StudentGoal,
     gemini_generate_student_context,
     gemini_review_student_context,
+)
+from backend.services.gemini.student_context.schema import (
+    ContextVerdict,
+    GeminiStudentContextResponse,
 )
 from backend.services.jobs.steps.frontier import apply_frontier_moves, current_definitions
 from backend.services.jobs.steps.language import student_language
@@ -49,7 +64,9 @@ RECENT_ANSWERS = 30
 RECENT_CHATS = 10
 
 
-async def run_context_step(session, student_id, onboarding_as_of: datetime | None = None) -> bool:
+async def run_context_step(
+    session: AsyncSession, student_id: uuid.UUID, onboarding_as_of: datetime | None = None
+) -> bool:
     """Bring the student's readings up to date. Returns whether anything moved.
 
     False is a normal outcome, and there are two of them: a student with no
@@ -81,7 +98,13 @@ async def run_context_step(session, student_id, onboarding_as_of: datetime | Non
     )
 
 
-async def _first_impression(session, student_id, goals: list[StudentGoal], rows, language) -> bool:
+async def _first_impression(
+    session: AsyncSession,
+    student_id: uuid.UUID,
+    goals: list[StudentGoal],
+    rows: list[OnboardingQuestion],
+    language: Language,
+) -> bool:
     """The reading of someone we have watched do nothing yet: their own words
     and the questions they answered while creating their goals.
 
@@ -96,7 +119,11 @@ async def _first_impression(session, student_id, goals: list[StudentGoal], rows,
         len(questions_answers),
     )
     generated = await run_gemini_background(
-        gemini_generate_student_context, goals, None, questions_answers, language
+        gemini_generate_student_context,
+        goals=goals,
+        onboarding_prompt=None,
+        questions_answers=questions_answers,
+        language=language,
     )
     await _store(session, student_id, [generated])
     await session.commit()
@@ -104,7 +131,14 @@ async def _first_impression(session, student_id, goals: list[StudentGoal], rows,
 
 
 async def _review(
-    session, student_id, goals, definitions: list[str], standing, answers, onboarding, language
+    session: AsyncSession,
+    student_id: uuid.UUID,
+    goals: list[Goal],
+    definitions: list[str],
+    standing: list[StudentContext],
+    answers: list[tuple[StudentAnswer, Question]],
+    onboarding: list[OnboardingQuestion],
+    language: Language,
 ) -> bool:
     """Show the model what the app believes and let it say what no longer holds.
 
@@ -126,15 +160,17 @@ async def _review(
     )
     review = await run_gemini_background(
         gemini_review_student_context,
-        _goals_seen(goals, definitions),
-        [GeminiStudentContext(state=c.state, metacognition=c.metacognition) for c in standing],
-        [_answer_seen(answer, question) for answer, question in answers],
-        [
-            {"prompt": chat.prompt, "tutor_response": " ".join(chat.tutor_responses)}
+        goals=_goals_seen(goals, definitions),
+        contexts=[
+            GeminiStudentContext(state=c.state, metacognition=c.metacognition) for c in standing
+        ],
+        recent_answers=[_answer_seen(answer, question) for answer, question in answers],
+        recent_chat_history=[
+            RecentChat(prompt=chat.prompt, tutor_response=" ".join(chat.tutor_responses))
             for chat in chats
         ],
-        _told_us(onboarding),
-        language,
+        questions_answers=_told_us(onboarding),
+        language=language,
     )
 
     retired = await _retire(session, standing, review.reviewed)
@@ -151,7 +187,9 @@ async def _review(
     return bool(retired or review.new_contexts or moved)
 
 
-async def _retire(session, standing, verdicts) -> int:
+async def _retire(
+    session: AsyncSession, standing: list[StudentContext], verdicts: list[ContextVerdict]
+) -> int:
     """Mark the readings the model called outdated, and return how many.
 
     An index it invented, or repeated, is dropped rather than failing the run:
@@ -176,7 +214,11 @@ async def _retire(session, standing, verdicts) -> int:
     return retired
 
 
-async def _store(session, student_id, generated) -> None:
+async def _store(
+    session: AsyncSession,
+    student_id: uuid.UUID,
+    generated: Sequence[GeminiStudentContext | GeminiStudentContextResponse],
+) -> None:
     """Add the new readings. Never an update: a context row is never rewritten,
     only added beside the ones before it or retired."""
     repository = StudentContextRepository(session)
@@ -190,7 +232,7 @@ async def _store(session, student_id, generated) -> None:
         )
 
 
-def _told_us(rows) -> list[tuple[str, str]]:
+def _told_us(rows: list[OnboardingQuestion]) -> list[tuple[str, str]]:
     """The onboarding as a prompt reads it: one question and what the student
     gave for it, the free-text row and the standard questions included.
 
@@ -201,16 +243,16 @@ def _told_us(rows) -> list[tuple[str, str]]:
     return [(row.question, OnboardingRepository.answer_of(row)) for row in rows]
 
 
-def _goals_seen(goals, definitions: list[str]) -> list[StudentGoal]:
+def _goals_seen(goals: list[Goal], definitions: list[str]) -> list[StudentGoal]:
     """The student's goals as a prompt reads them: what he asked for, and the
     frontier we are teaching him at today (#133)."""
     return [
-        StudentGoal(name=goal.name, description=goal.description, frontier=definition)
+        StudentGoal(name=goal.name or "", description=goal.description or "", frontier=definition)
         for goal, definition in zip(goals, definitions, strict=True)
     ]
 
 
-def _answer_seen(answer, question) -> dict:
+def _answer_seen(answer: StudentAnswer, question: Question) -> RecentAnswer:
     """One answer as the prompt reads it: the question, the option the student
     picked (its text, not its index), and how long they took.
 
@@ -219,9 +261,9 @@ def _answer_seen(answer, question) -> dict:
     """
     options = [question.option_a, question.option_b, question.option_c, question.option_d]
     index = answer.selected_index
-    return {
-        "question": question.text,
-        "selected_option": options[index] if 0 <= index < len(options) else "",
-        "is_correct": index == question.right_answer_index,
-        "time_spent": answer.total_seconds,
-    }
+    return RecentAnswer(
+        question=question.text,
+        selected_option=options[index] if 0 <= index < len(options) else "",
+        is_correct=index == question.right_answer_index,
+        time_spent=answer.total_seconds,
+    )

@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select
 from sqlalchemy import update as sql_update
 
@@ -40,13 +42,13 @@ class GoalRepository(DeletableRepository[Goal]):
         await self.db.refresh(entity)
         return entity
 
-    async def list_by_student(self, student_id) -> list[Goal]:
+    async def list_by_student(self, student_id: uuid.UUID) -> list[Goal]:
         """The student's goals, newest first."""
         stmt = select(Goal).where(Goal.student_id == student_id).order_by(Goal.created_at.desc())
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def list_active(self, student_id) -> list[Goal]:
+    async def list_active(self, student_id: uuid.UUID) -> list[Goal]:
         """The goal the student is working on - the one he picked on his
         profile - as a list of one, or none when he has not picked any.
 
@@ -63,7 +65,7 @@ class GoalRepository(DeletableRepository[Goal]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def set_rating(self, goal_id, rating: int) -> int:
+    async def set_rating(self, goal_id: uuid.UUID, rating: int) -> int:
         """Write the goal's rating, and return it.
 
         The rating is *replayed* from the whole answer history (#62), never

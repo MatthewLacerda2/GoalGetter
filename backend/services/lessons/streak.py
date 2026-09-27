@@ -33,6 +33,7 @@ misses, a studied day, then a third miss resets, and the studied day between
 them is lost with the rest.
 """
 
+import uuid
 from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 
@@ -75,7 +76,7 @@ def current_streak(answered_at: Iterable[datetime], today: date) -> int:
     return streak + (today in studied)
 
 
-async def student_streak(db: AsyncSession, student_id) -> int:
+async def student_streak(db: AsyncSession, student_id: uuid.UUID) -> int:
     """The signed-in student's streak as of today (the app's calendar date)."""
     answered_at = await StudentAnswerRepository(db).list_answered_at_by_student(student_id)
     return current_streak(answered_at, app_today())

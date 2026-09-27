@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from datetime import timedelta
+from typing import TypedDict
 
 import httpx
 import jwt
@@ -23,11 +24,11 @@ JWT_ISSUER = "https://goalsgetter.org/api/v1"
 JWT_AUDIENCE = "https://goalsgetter.org/api/v1"
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def create_access_token(data: dict[str, str], expires_delta: timedelta | None = None) -> str:
     """
     Create a JWT access token with the given data and expiration time.
     """
-    to_encode = data.copy()
+    to_encode: dict[str, object] = {**data}
     expire = clock.now() + (expires_delta or timedelta(minutes=30))
     to_encode.update(
         {
@@ -52,15 +53,32 @@ def _google_unreachable() -> ApiError:
     return ApiError(ErrorCode.GOOGLE_UNREACHABLE)
 
 
-def _verify_id_token(token: str) -> dict:
+class GoogleIdentity(TypedDict):
+    """Who Google says the token belongs to, from an ID token or from userinfo."""
+
+    sub: str  # Google's unique user ID
+    email: str
+    name: str | None
+    picture: str | None
+    email_verified: bool
+
+
+def _verify_id_token(token: str) -> GoogleIdentity:
     """google-auth fetches Google's certificates with `requests`, synchronously:
     called on the event loop, one slow fetch stalls every request in flight, so
     `verify_google_token` runs this in a worker thread (#210). The certificates
     are kept for as long as Google says they stay valid, not refetched per call (#258)."""
-    return id_token.verify_oauth2_token(token, GOOGLE_CERTS, settings.GOOGLE_CLIENT_ID)
+    idinfo = id_token.verify_oauth2_token(token, GOOGLE_CERTS, settings.GOOGLE_CLIENT_ID)
+    return GoogleIdentity(
+        sub=idinfo["sub"],
+        email=idinfo["email"],
+        name=idinfo.get("name"),
+        picture=idinfo.get("picture"),
+        email_verified=idinfo.get("email_verified", False),
+    )
 
 
-async def verify_google_token(token: str) -> dict:
+async def verify_google_token(token: str) -> GoogleIdentity:
     """
     Verify a Google OAuth2 token (ID token or access token) and return the user information.
 
@@ -68,14 +86,7 @@ async def verify_google_token(token: str) -> dict:
     client is told which, never the exception's text: that goes to the log.
     """
     try:
-        idinfo = await asyncio.to_thread(_verify_id_token, token)
-        return {
-            "sub": idinfo["sub"],  # Google's unique user ID
-            "email": idinfo["email"],
-            "name": idinfo.get("name"),
-            "picture": idinfo.get("picture"),
-            "email_verified": idinfo.get("email_verified", False),
-        }
+        return await asyncio.to_thread(_verify_id_token, token)
     except TransportError as err:
         logger.exception("Could not fetch Google's certificates")
         raise _google_unreachable() from err
@@ -88,7 +99,7 @@ async def verify_google_token(token: str) -> dict:
     return await _verify_google_access_token(token)
 
 
-async def _verify_google_access_token(token: str) -> dict:
+async def _verify_google_access_token(token: str) -> GoogleIdentity:
     # The token rides in the header, not the query string, so the URL that
     # httpx logs does not carry it.
     try:
@@ -102,19 +113,19 @@ async def _verify_google_access_token(token: str) -> dict:
     try:
         response.raise_for_status()
         userinfo = response.json()
-        return {
-            "sub": userinfo["id"],  # Google's unique user ID
-            "email": userinfo["email"],
-            "name": userinfo.get("name"),
-            "picture": userinfo.get("picture"),
-            "email_verified": userinfo.get("verified_email", False),
-        }
+        return GoogleIdentity(
+            sub=userinfo["id"],
+            email=userinfo["email"],
+            name=userinfo.get("name"),
+            picture=userinfo.get("picture"),
+            email_verified=userinfo.get("verified_email", False),
+        )
     except Exception as err:
         logger.info("Google access token rejected: %s", err)
         raise _invalid_google_token() from err
 
 
-def verify_token(token: str) -> dict:
+def verify_token(token: str) -> dict[str, object]:
     """
     Verify a JWT token and return the payload.
 
@@ -132,7 +143,7 @@ def verify_token(token: str) -> dict:
     two clocks, a test that freezes the app's got expiry backwards (#206).
     """
     try:
-        payload = jwt.decode(
+        payload: dict[str, object] = jwt.decode(
             token,
             settings.SECRET_KEY,
             algorithms=["HS256"],
@@ -153,7 +164,7 @@ security = HTTPBearer()
 
 async def verify_google_token_header(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> dict:
+) -> GoogleIdentity:
     """
     Verify a Google OAuth2 token from the Authorization header.
     Returns the user info from Google without requiring the user to exist in the database.

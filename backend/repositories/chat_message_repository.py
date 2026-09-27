@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from sqlalchemy import or_, select
@@ -12,7 +13,7 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
     model = ChatMessage
 
     async def list_by_goal(
-        self, goal_id, limit: int, before: datetime | None = None
+        self, goal_id: uuid.UUID, limit: int, before: datetime | None = None
     ) -> list[ChatMessage]:
         """This goal's exchanges, newest first; `before` is the pagination cursor
         (strictly older than that `created_at`)."""
@@ -23,7 +24,7 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def list_recent_by_student(self, student_id, limit: int) -> list[ChatMessage]:
+    async def list_recent_by_student(self, student_id: uuid.UUID, limit: int) -> list[ChatMessage]:
         """The student's last exchanges on any goal, newest first. The chain's
         context step reads them the way it reads lesson answers: what the
         person asks about is a reading of the person, not of one subject."""

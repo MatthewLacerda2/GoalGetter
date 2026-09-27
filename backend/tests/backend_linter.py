@@ -178,7 +178,7 @@ def database_access(tree):
                 if _database_package(alias.name):
                     errors.append((node.lineno, f"Database import: 'import {alias.name}'"))
         elif isinstance(node, ast.ImportFrom) and node.level == 0:
-            if not _database_package(node.module):
+            if node.module is None or not _database_package(node.module):
                 continue
             allowed = ALLOWED_DATABASE_IMPORTS.get(node.module, set())
             for alias in node.names:
@@ -266,7 +266,7 @@ def check_source(source, norm_path):
         else:
             continue
         start_line = node.decorator_list[0].lineno if node.decorator_list else node.lineno
-        func_len = node.end_lineno - start_line + 1
+        func_len = (node.end_lineno or node.lineno) - start_line + 1
         if func_len > 50:
             errors.append(
                 (

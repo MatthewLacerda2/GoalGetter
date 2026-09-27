@@ -22,6 +22,7 @@ import logging
 from google.genai.types import (
     ContentListUnion,
     ContentListUnionDict,
+    GenerateContentConfig,
     GenerateContentResponse,
     GoogleSearch,
     Tool,
@@ -34,6 +35,10 @@ from backend.services.gemini.client.gemini_retry import call_with_retry
 logger = logging.getLogger(__name__)
 
 type Contents = ContentListUnion | ContentListUnionDict
+
+# What `grounded_search` answers, named here so the callers that read it need
+# not import google.genai themselves (#211's contract keeps it inside client/).
+GroundedResponse = GenerateContentResponse
 
 # How much of an answer that failed to parse reaches the log: enough to see
 # what came back instead, not a whole batch of exercises per line.
@@ -56,7 +61,7 @@ class GeminiNoAnswer(Exception):
 
 async def generate[T: BaseModel](model: str, contents: Contents, schema: type[T]) -> T:
     """Ask `model` for an answer shaped like `schema`, and return it parsed."""
-    config = gemini_configs.get_gemini_config(schema.model_json_schema())
+    config = gemini_configs.get_gemini_config(schema)
     response = await _send(model, contents, config, schema.__name__)
     return _parsed(response, schema, model)
 
@@ -69,7 +74,9 @@ async def grounded_search(model: str, contents: Contents) -> GenerateContentResp
     return await _send(model, contents, config, "grounded search")
 
 
-async def _send(model: str, contents: Contents, config, name: str) -> GenerateContentResponse:
+async def _send(
+    model: str, contents: Contents, config: GenerateContentConfig, name: str
+) -> GenerateContentResponse:
     """One billed call: retried, under a deadline, on the shared client."""
     client = gemini_configs.get_client()
     return await call_with_retry(

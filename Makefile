@@ -56,7 +56,7 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-pure back-image migrate front-version front-deps front-lint front-test front-goldens front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-types back-migrations back-revision back-test back-pure back-image migrate front-version front-deps front-lint front-test front-goldens front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -64,7 +64,7 @@ help: ## Show this help
 
 check: backend frontend ops-lint ## Run every gate (backend + frontend + shell scripts and Dockerfiles)
 
-backend: back-lint back-deadcode back-build back-migrations back-test ## Backend: lint + dead code + build smoke + migrations + pytest
+backend: back-lint back-deadcode back-build back-types back-migrations back-test ## Backend: lint + dead code + build smoke + types + migrations + pytest
 
 frontend: front-lint front-test ## Frontend: line limits + analyze + tests
 
@@ -90,6 +90,14 @@ back-deadcode: ## Backend whole-program dead-code gate (vulture; whitelist in ba
 # commit it. The frontend's contract test reads the same file.
 back-build: ## Backend build smoke: import the app, write the OpenAPI snapshot, fail if it changed (no database)
 	@$(PY_OFFLINE) -m backend.tools.build_smoke
+
+# mypy, strict, over everything under backend/ (#209): the configuration and the
+# reason for each choice in it is [tool.mypy] in backend/pyproject.toml. No
+# network and no database. Its cache is .mypy_cache at the repository root
+# (gitignored): the first run in a worktree reads every library, ~35 s; after
+# that a run takes a second or two.
+back-types: ## Backend type check (mypy, strict: no Any, no bare dict)
+	@$(PY_OFFLINE) -m mypy --config-file backend/pyproject.toml backend
 
 # In `make backend` rather than beside it, because it is the same failure the
 # other gates are for: a model changed without a migration is a deploy that

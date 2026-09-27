@@ -40,4 +40,4 @@ def test_a_database_that_holds_anything_is_refused(setup_test_db):
     """The run's own database, migrated a moment ago, is no longer empty - so
     neither the fixtures nor the migration gate would build on it again."""
     with pytest.raises(RuntimeError, match="born empty for this run"):
-        require_empty(settings.TEST_DATABASE_URL)
+        require_empty(settings.TEST_DATABASE_URL or "")

@@ -21,8 +21,8 @@ from backend.services.jobs.nightly_decision import decide
 from backend.tests.fixtures.jobs import NIGHTLY, chain_gemini, page
 
 
-def utc(*args) -> datetime:
-    return datetime(*args, tzinfo=UTC)
+def utc(year: int, month: int, day: int, hour: int, minute: int = 0) -> datetime:
+    return datetime(year, month, day, hour, minute, tzinfo=UTC)
 
 
 THURSDAY_RUN = utc(2026, 9, 24, 6)  # 03:00 Brasilia, Thursday
@@ -140,13 +140,13 @@ async def test_one_student_failing_does_not_stop_the_next(
 
     async def chain(student_id, with_resources=True):
         seen.append(student_id)
-        if student_id == str(first.id):
+        if student_id == first.id:
             raise RuntimeError("quota")
 
     with patch(NIGHTLY + ".run_student_chain", chain), chain_gemini(test_db, []):
         assert await run_nightly(THURSDAY_RUN) == (2, 1)
 
-    assert seen == [str(first.id), str(second.id)]
+    assert seen == [first.id, second.id]
 
 
 async def test_running_it_by_hand_logs_the_decision_it_took(
@@ -159,6 +159,6 @@ async def test_running_it_by_hand_logs_the_decision_it_took(
 
     calls = []
     with chain_gemini(test_db, calls), caplog.at_level("INFO"):
-        assert await run_for_student(str(test_user.id), THURSDAY_RUN) is False
+        assert await run_for_student(test_user.id, THURSDAY_RUN) is False
 
     assert "skipped: last answer 2026-09-10 12:00Z is before 06:00Z" in caplog.text

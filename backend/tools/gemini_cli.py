@@ -31,7 +31,8 @@ import asyncio
 import json
 import sys
 import traceback
-from collections.abc import Callable
+import uuid
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field, fields, is_dataclass
 from typing import Any
 
@@ -58,7 +59,7 @@ from backend.services.gemini.student_context.student_context import (
 
 # A goal id is only a foreign key here: the video search takes one to stamp on
 # the Resource rows it builds, and nothing that uses this stores them.
-UNSAVED_GOAL_ID = "00000000-0000-0000-0000-000000000000"
+UNSAVED_GOAL_ID = uuid.UUID(int=0)
 
 # Every prompt names the student's language (#173); the command writes to an
 # English-speaking student. Edit this to see another language's output.
@@ -85,14 +86,14 @@ class UseCase:
     model_setting: str
     usage: str
     least_args: int
-    build: Callable[[list[str]], tuple]
-    call: Callable[..., Any]
+    build: Callable[[list[str]], tuple[Any, ...]]
+    call: Callable[..., Coroutine[object, object, object]]
     sample: tuple[str, ...]
     note: str = ""
 
     @property
     def model(self) -> str:
-        return getattr(settings, self.model_setting)
+        return str(getattr(settings, self.model_setting))
 
 
 def _answers(pairs: list[str]) -> list[ObjectiveAnswer]:
@@ -254,29 +255,33 @@ class Recorder:
     def install(self) -> None:
         real_client = gemini_configs.Client
 
-        def factory(*args, **kwargs):
+        # Passes every argument through untouched, so it is typed as loosely as
+        # what it wraps is called; replacing a method and a class is what this
+        # recorder is.
+        def factory(*args: Any, **kwargs: Any) -> Any:
             client = real_client(*args, **kwargs)
             generate = client.aio.models.generate_content
 
-            async def recording(*call_args, **call_kwargs):
+            async def recording(*call_args: Any, **call_kwargs: Any) -> Any:
                 response = await generate(*call_args, **call_kwargs)
                 self.raw.append(response.text or "")
                 return response
 
-            client.aio.models.generate_content = recording
+            client.aio.models.generate_content = recording  # type: ignore[method-assign]
             return client
 
-        gemini_configs.Client = factory
+        gemini_configs.Client = factory  # type: ignore[misc, assignment]
 
 
-def _cell(value: Any) -> Any:
+def _cell(value: object) -> object:
     """Keep a 3072-float embedding from drowning the output it belongs to."""
-    if hasattr(value, "shape"):
-        return f"<embedding {tuple(value.shape)}>"
+    shape = getattr(value, "shape", None)
+    if shape is not None:
+        return f"<embedding {tuple(shape)}>"
     return value
 
 
-def render(value: Any) -> str:
+def render(value: object) -> str:
     """The parsed result as text: Pydantic models as JSON, ORM rows as their
     columns, a dataclass field by field, anything else as its repr."""
     if is_dataclass(value) and not isinstance(value, type):

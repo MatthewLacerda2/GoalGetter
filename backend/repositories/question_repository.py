@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -34,14 +35,14 @@ class QuestionRepository(BaseRepository[Question]):
         await self.db.flush()
         return entities
 
-    async def list_by_goal(self, goal_id) -> list[Question]:
+    async def list_by_goal(self, goal_id: uuid.UUID) -> list[Question]:
         """The goal's whole bank. What a submission is checked against: an
         answer naming anything else is not this student's question (#131)."""
         stmt = select(Question).where(Question.goal_id == goal_id)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def list_bank_history(self, goal_id) -> list[QuestionHistory]:
+    async def list_bank_history(self, goal_id: uuid.UUID) -> list[QuestionHistory]:
         """Every question of the goal's bank with its latest answer (or none).
 
         Correctness is derived here, from the answer's index against the

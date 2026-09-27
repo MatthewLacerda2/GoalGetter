@@ -23,7 +23,7 @@ RECENT_LESSONS_LIMIT = 10
 @router.get("", response_model=HomeDashboard)
 async def get_home(
     goal: Annotated[Goal, Depends(get_active_goal)], db: Annotated[AsyncSession, Depends(get_db)]
-):
+) -> HomeDashboard:
     """Rating, streak and recent lessons. No active goal is 404.
 
     A lesson here is a group of answers sharing one `lesson_id` (#131); the
@@ -34,7 +34,7 @@ async def get_home(
         goal.id, RECENT_LESSONS_LIMIT
     )
     return HomeDashboard(
-        goal_name=goal.name,
+        goal_name=goal.name or "",
         current_elo=goal.rating,
         current_streak=await student_streak(db, goal.student_id),
         recent_lessons=[

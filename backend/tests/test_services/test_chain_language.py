@@ -15,7 +15,7 @@ async def test_every_step_is_given_his_chosen_language(test_db, test_user, goal_
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_student_chain(str(test_user.id))
+        await run_student_chain(test_user.id)
 
     assert {name: args[-1] for name, args in calls} == {
         "context": Language.GERMAN,
@@ -33,6 +33,6 @@ async def test_without_a_choice_the_language_of_his_goals(test_db, test_user, go
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_student_chain(str(test_user.id))
+        await run_student_chain(test_user.id)
 
     assert {args[-1] for _, args in calls} == {Language.PORTUGUESE}

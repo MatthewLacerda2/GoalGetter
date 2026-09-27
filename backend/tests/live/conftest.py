@@ -74,12 +74,12 @@ def count_calls():
         CALLS[YOUTUBE if youtube else LINK_CHECK] += 1
         return await real_send(self, request, *args, **kwargs)
 
-    gemini_configs.Client = client
+    gemini_configs.Client = client  # type: ignore[misc, assignment]  # the wrapper is the point
     httpx.AsyncClient.send = send
     try:
         yield
     finally:
-        gemini_configs.Client = real_client
+        gemini_configs.Client = real_client  # type: ignore[misc]
         httpx.AsyncClient.send = real_send
 
 

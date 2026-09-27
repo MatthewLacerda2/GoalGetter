@@ -15,6 +15,7 @@ a hundred resource runs a day before validation's 1-unit lookups are counted.
 
 import html
 import logging
+import uuid
 
 import httpx
 
@@ -22,6 +23,7 @@ from backend.core.config import settings
 from backend.core.language import Language
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.resources.link_validation import REQUEST_TIMEOUT, YOUTUBE_API
+from backend.services.resources.youtube_api import SearchResult
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ DESCRIPTION_CHARS = 200
 
 
 async def search_videos(
-    client: httpx.AsyncClient, goal_id: str, query: str, language: Language
+    client: httpx.AsyncClient, goal_id: uuid.UUID, query: str, language: Language
 ) -> list[Resource]:
     """Up to three videos for `query`, preferring the student's language.
     Nothing raises: a failed search is no videos tonight, not a failed chain."""
@@ -59,8 +61,9 @@ async def search_videos(
         logger.warning("YouTube search answered HTTP %s", response.status_code)
         return []
 
-    videos = []
-    for item in response.json().get("items") or []:
+    videos: list[Resource] = []
+    found: list[SearchResult] = response.json().get("items") or []
+    for item in found:
         video_id = (item.get("id") or {}).get("videoId")
         snippet = item.get("snippet") or {}
         if not video_id or not snippet.get("title"):

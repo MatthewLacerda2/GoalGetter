@@ -51,7 +51,7 @@ async def test_nothing_outdated_and_nothing_new_is_a_no_op(
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_context_step(test_db, str(test_user.id)) is False
+        assert await run_context_step(test_db, test_user.id) is False
 
     assert [name for name, _ in calls] == ["review"]
     assert await standing(test_db, test_user) == ["Beginner"]
@@ -67,7 +67,7 @@ async def test_an_outdated_context_is_retired_and_stays_in_the_table(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(outdated=[0])):
-        assert await run_context_step(test_db, str(test_user.id)) is True
+        assert await run_context_step(test_db, test_user.id) is True
 
     assert await standing(test_db, test_user) == []
     assert await still_there(test_db, beginner)
@@ -81,7 +81,7 @@ async def test_a_new_context_is_stored_beside_the_one_it_did_not_retire(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(added=[("Reads music", "Impatient")])):
-        assert await run_context_step(test_db, str(test_user.id)) is True
+        assert await run_context_step(test_db, test_user.id) is True
 
     assert sorted(await standing(test_db, test_user)) == ["Beginner", "Reads music"]
 
@@ -96,7 +96,7 @@ async def test_the_contexts_reach_the_prompt_newest_first(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(outdated=[1])):
-        await run_context_step(test_db, str(test_user.id))
+        await run_context_step(test_db, test_user.id)
 
     assert [c.state for c in dict(calls)["review"][1]] == ["Newer", "Older"]
     assert await standing(test_db, test_user) == ["Newer"]
@@ -112,7 +112,7 @@ async def test_an_index_the_model_invented_or_repeated_is_dropped_not_raised(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(outdated=[7, -1, 0, 0])):
-        assert await run_context_step(test_db, str(test_user.id)) is True
+        assert await run_context_step(test_db, test_user.id) is True
 
     assert await standing(test_db, test_user) == []
     assert await still_there(test_db, beginner)
@@ -126,7 +126,7 @@ async def test_a_student_with_no_reading_yet_still_gets_a_first_impression(
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_context_step(test_db, str(test_user.id)) is True
+        assert await run_context_step(test_db, test_user.id) is True
 
     assert [name for name, _ in calls] == ["context"]
     assert await standing(test_db, test_user) == ["Beginner"]

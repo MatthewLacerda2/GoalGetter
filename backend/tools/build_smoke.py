@@ -32,6 +32,7 @@ Usage::
 
 import json
 import os
+from collections.abc import Mapping
 from pathlib import Path
 
 # Settings are required fields (backend/core/config.py), so give them values
@@ -56,13 +57,13 @@ HTTP_METHODS = {"get", "put", "post", "delete", "options", "head", "patch", "tra
 SNAPSHOT = Path(__file__).resolve().parents[1] / "openapi.json"
 
 
-def render(schema: dict) -> str:
+def render(schema: Mapping[str, object]) -> str:
     """The snapshot's text: FastAPI's own key order (routes read in the order
     the routers declare them), indented so a diff names the line that moved."""
     return json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
 
 
-def write_snapshot(schema: dict, path: Path = SNAPSHOT) -> bool:
+def write_snapshot(schema: Mapping[str, object], path: Path = SNAPSHOT) -> bool:
     """Writes the snapshot; True when the committed copy was already current."""
     text = render(schema)
     current = path.read_text(encoding="utf-8") if path.exists() else None
@@ -71,7 +72,7 @@ def write_snapshot(schema: dict, path: Path = SNAPSHOT) -> bool:
     return current == text
 
 
-def main():
+def main() -> int:
     os.environ.update(PLACEHOLDERS)
 
     from backend.main import app
