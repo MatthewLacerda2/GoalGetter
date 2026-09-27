@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/tutor_controller.dart';
 
+import '../api_fake.dart';
 import 'fake_tutor_api.dart';
 
 /// The tutor over [api], its first page loaded (or failed), kept alive and
@@ -22,6 +26,20 @@ Future<ProviderContainer> loaded(FakeTutorApi api) async {
       .then<void>((_) {}, onError: (Object _) {});
   return container;
 }
+
+/// The tutor over the real [TutorApi], on [fake]'s backend.
+Future<ProviderContainer> loadedOver(ApiFake fake) async {
+  final container = ProviderContainer(
+    retry: noAutomaticRetry,
+    overrides: await fake.overrides(),
+  );
+  addTearDown(container.dispose);
+  container.listen(tutorControllerProvider, (_, __) {});
+  return container;
+}
+
+const _listKey = 'GET /tutor/messages';
+const _sendKey = 'POST /tutor/messages';
 
 extension on ProviderContainer {
   TutorController get tutor => read(tutorControllerProvider.notifier);
@@ -120,5 +138,50 @@ void main() {
     final sending = c.tutor.send('ciao');
     c.dispose(); // the student left the tutor
     await expectLater(sending, completion(isNull));
+  });
+
+  group('an answer the app cannot read, or none at all (#221)', () {
+    test('a chat that cannot be read is the error', () async {
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, '{"exchanges": []}')],
+      }));
+      await c
+          .read(tutorControllerProvider.future)
+          .then<void>((_) {}, onError: (Object _) {});
+      expect(c.async.error, isA<MalformedResponse>());
+    });
+
+    test('a reply that cannot be read fails the message', () async {
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, '[]')],
+        _sendKey: [(201, '{"id": 7}')],
+      }));
+      await c.read(tutorControllerProvider.future);
+
+      expect(await c.tutor.send('ciao'), isA<MalformedResponse>());
+      expect(c.chat.pending, const FailedMessage('ciao'));
+    });
+
+    testWidgets('a chat nobody answers ends in the error', (tester) async {
+      final c = await loadedOver(ApiFake({}, silent: {_listKey}));
+
+      await tester.pump(ApiClient.timeout + const Duration(seconds: 1));
+      expect(c.async.error, isA<TimedOut>());
+    });
+
+    testWidgets('a reply nobody answers fails the message', (tester) async {
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, '[]')],
+      }, silent: {_sendKey}));
+      await tester.pump();
+      Object? failure;
+      unawaited(c.tutor.send('ciao').then((e) => failure = e));
+      await tester.pump();
+      expect(c.chat.pending, const SendingMessage('ciao'));
+
+      await tester.pump(ApiClient.timeout + const Duration(seconds: 1));
+      expect(failure, isA<TimedOut>());
+      expect(c.chat.pending, const FailedMessage('ciao'));
+    });
   });
 }

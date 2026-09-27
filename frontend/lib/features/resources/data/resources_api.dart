@@ -17,10 +17,10 @@ class ResourcesApi {
 
   final ApiClient _api;
 
-  Future<GoalResources> fetch() async {
-    final body = (await _api.get('/resources'))! as Map<String, dynamic>;
-    return GoalResources.fromJson(body);
-  }
+  Future<GoalResources> fetch() => _api.get(
+        '/resources',
+        (json) => GoalResources.fromJson(json! as Map<String, dynamic>),
+      );
 }
 
 @riverpod

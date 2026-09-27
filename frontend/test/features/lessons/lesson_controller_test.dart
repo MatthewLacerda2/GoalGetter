@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:clock/clock.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
@@ -237,5 +239,64 @@ void main() {
     c.dispose(); // the student left the lesson screen
 
     await expectLater(submitting, completes);
+  });
+
+  group('an answer the app cannot read, or none at all (#221)', () {
+    test('a lesson that cannot be read is the error, not a spinner', () async {
+      final fake = ApiFake({
+        startKey: [(201, '{"questions": "soon"}')],
+      });
+      final c = await openedOver(fake);
+      expect(c.async.error, isA<MalformedResponse>());
+    });
+
+    test('a result that cannot be read keeps the answers, with the failure',
+        () async {
+      final fake = ApiFake({
+        startKey: [(201, lessonJson(1))],
+        answersKey: [(200, '{"elo": "twelve"}')],
+      });
+      final c = await openedOver(fake);
+      await c.answer(0);
+
+      final round = c.answering.round as FirstRound;
+      expect(round.submitFailure, isA<MalformedResponse>());
+    });
+
+    testWidgets('a start nobody answers ends in the error', (tester) async {
+      final fake = ApiFake({}, silent: {startKey});
+      final c = ProviderContainer(
+        retry: noAutomaticRetry,
+        overrides: await fake.overrides(),
+      );
+      addTearDown(c.dispose);
+      c.listen(lessonControllerProvider, (_, __) {});
+
+      await tester.pump(ApiClient.timeout - const Duration(seconds: 1));
+      expect(c.async.isLoading, isTrue, reason: 'not before the timeout');
+      await tester.pump(const Duration(seconds: 1));
+      expect(c.async.error, isA<TimedOut>());
+    });
+
+    testWidgets('a submit nobody answers keeps the answers, with the failure',
+        (tester) async {
+      final fake = ApiFake({
+        startKey: [(201, lessonJson(1))],
+      }, silent: {answersKey});
+      final c = ProviderContainer(
+        retry: noAutomaticRetry,
+        overrides: await fake.overrides(),
+      );
+      addTearDown(c.dispose);
+      c.listen(lessonControllerProvider, (_, __) {});
+      await tester.pump();
+      unawaited(c.answer(0));
+      await tester.pump();
+      expect(c.state, const LessonSubmitting());
+
+      await tester.pump(ApiClient.timeout + const Duration(seconds: 1));
+      final round = c.answering.round as FirstRound;
+      expect(round.submitFailure, isA<TimedOut>());
+    });
   });
 }

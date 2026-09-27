@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,11 +16,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// A backend that answers `'<METHOD> <path>'` (path under /api/v1) with
 /// canned `(status, body)` replies, handed out in order (the last repeats),
-/// and records every request's key and body. Unknown routes answer 599.
+/// and records every request's key and body. Unknown routes answer 599, and
+/// the [silent] ones never answer at all.
 class ApiFake {
-  ApiFake(this.replies);
+  ApiFake(this.replies, {this.silent = const {}});
 
   final Map<String, List<(int, String)>> replies;
+  final Set<String> silent;
   final List<(String, String)> requests = [];
 
   int count(String key) => requests.where((r) => r.$1 == key).length;
@@ -36,6 +40,7 @@ class ApiFake {
         final key =
             '${request.method} ${request.url.path.replaceFirst('/api/v1', '')}';
         requests.add((key, request.body));
+        if (silent.contains(key)) return Completer<http.Response>().future;
         final queue = replies[key];
         if (queue == null) return http.Response('{"detail": "no route"}', 599);
         final (status, body) = queue.length > 1 ? queue.removeAt(0) : queue[0];

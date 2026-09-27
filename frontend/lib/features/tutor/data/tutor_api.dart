@@ -28,26 +28,31 @@ class TutorApi {
         'limit': '$limit',
       },
     ).query;
-    final body = await _api.get('/tutor/messages?$query') as List;
-    return body
-        .map((e) => ChatExchange.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return _api.get(
+      '/tutor/messages?$query',
+      (json) => [
+        for (final e in json! as List)
+          ChatExchange.fromJson(e as Map<String, dynamic>),
+      ],
+    );
   }
 
   /// Calls Gemini on the backend; a Gemini failure keeps its status code.
-  Future<ChatExchange> send(String message) async {
-    final body = await _api.post('/tutor/messages', body: {'message': message});
-    return ChatExchange.fromJson(body as Map<String, dynamic>);
-  }
+  Future<ChatExchange> send(String message) => _api.post(
+        '/tutor/messages',
+        _exchange,
+        body: {'message': message},
+      );
 
   /// Sets (not toggles) the like on the exchange's reply.
-  Future<ChatExchange> setLike(String id, bool isLiked) async {
-    final body = await _api.put(
-      '/tutor/messages/$id/like',
-      body: {'is_liked': isLiked},
-    );
-    return ChatExchange.fromJson(body as Map<String, dynamic>);
-  }
+  Future<ChatExchange> setLike(String id, bool isLiked) => _api.put(
+        '/tutor/messages/$id/like',
+        _exchange,
+        body: {'is_liked': isLiked},
+      );
+
+  static ChatExchange _exchange(Object? json) =>
+      ChatExchange.fromJson(json! as Map<String, dynamic>);
 }
 
 @riverpod

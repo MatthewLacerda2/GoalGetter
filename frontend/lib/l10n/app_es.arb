@@ -189,6 +189,8 @@
     "homeLoadFailed": "No se pudo cargar tu panel",
     "retry": "Reintentar",
     "serverUnreachable": "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+    "unreadableResponse": "El servidor respondió de una forma que la app no puede leer. Inténtalo de nuevo más tarde.",
+    "serverTimedOut": "El servidor tardó demasiado en responder. Inténtalo de nuevo.",
     "goalsLoadFailed": "No se pudieron cargar tus objetivos",
     "activeGoalBadge": "Activo",
     "setActiveGoalFailed": "No se pudo activar este objetivo",

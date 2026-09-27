@@ -18,32 +18,35 @@ class OnboardingApi {
   /// A 400 means Gemini judged [prompt] not to be a goal: its `detail` is
   /// Gemini's reasoning, meant for the student.
   Future<List<ObjectiveQuestion>> objectiveQuestions(String prompt) async {
-    final body =
-        await _api.post('/goals/objective-questions', body: {'prompt': prompt})
-            as List;
-    return body
-        .map((e) => ObjectiveQuestion.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return _api.post(
+      '/goals/objective-questions',
+      (json) => [
+        for (final e in json! as List)
+          ObjectiveQuestion.fromJson(e as Map<String, dynamic>),
+      ],
+      body: {'prompt': prompt},
+    );
   }
 
   Future<StudyPlan> studyPlan(
     String prompt,
     List<ObjectiveAnswer> answers,
   ) async {
-    final body = await _api.post(
+    return _api.post(
       '/goals/study-plan',
+      (json) => StudyPlan.fromJson(json! as Map<String, dynamic>),
       body: {
         'prompt': prompt,
         'answers': answers.map((a) => a.toJson()).toList(),
       },
     );
-    return StudyPlan.fromJson(body as Map<String, dynamic>);
   }
 
   /// Creates the goal and makes it the student's active one.
   Future<CreatedGoal> create(GoalDraft draft) async {
-    final body = await _api.post(
+    return _api.post(
       '/goals',
+      (json) => CreatedGoal.fromJson(json! as Map<String, dynamic>),
       body: {
         'prompt': draft.prompt,
         'answers': draft.answers.map((a) => a.toJson()).toList(),
@@ -51,7 +54,6 @@ class OnboardingApi {
         'description': draft.plan.description,
       },
     );
-    return CreatedGoal.fromJson(body as Map<String, dynamic>);
   }
 
   /// What the student told us about himself while his first lesson generated
@@ -63,6 +65,7 @@ class OnboardingApi {
   ) async {
     await _api.post(
       '/goals/$goalId/standard-answers',
+      ApiClient.ignoreBody,
       body: {'answers': answers.map((a) => a.toJson()).toList()},
     );
   }

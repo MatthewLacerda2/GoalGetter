@@ -17,11 +17,13 @@ class HomeApi {
   static const noActiveGoal = 'No active goal';
 
   /// The dashboard, or null when the student has no active goal (404
-  /// `No active goal`). Any other failure throws `ApiException`.
+  /// `No active goal`). Any other failure throws an `ApiFailure`.
   Future<HomeDashboard?> fetch() async {
     try {
-      final body = await _api.get('/home');
-      return HomeDashboard.fromJson(body! as Map<String, dynamic>);
+      return await _api.get(
+        '/home',
+        (json) => HomeDashboard.fromJson(json! as Map<String, dynamic>),
+      );
     } on ApiException catch (e) {
       if (e.status == 404 && e.detail == noActiveGoal) return null;
       rethrow;
