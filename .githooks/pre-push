@@ -55,7 +55,9 @@ fi
 
 fail=0
 
-if grep -q '^backend/' <<<"$changed"; then
+# tools/test-db.sh is the backend's test database (#205): a change to it is a
+# backend change.
+if grep -qE '^(backend/|tools/test-db\.sh)' <<<"$changed"; then
   if ! docker info >/dev/null 2>&1; then
     # The backend gates run inside the image; there is no local venv here.
     echo "→ backend gates skipped (docker is not available)"

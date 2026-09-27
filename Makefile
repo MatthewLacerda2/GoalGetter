@@ -33,6 +33,21 @@ DOCKER_RUN_DB := $(subst --network host,--network host -e DATABASE_URL,$(DOCKER_
 # `make back-lint PY=python PY_OFFLINE=python`.
 PY         ?= $(DOCKER_RUN) python
 PY_OFFLINE ?= $(DOCKER_RUN_OFFLINE) python
+# The disposable test database (#205): every target that needs one runs its
+# command through tools/test-db.sh, which starts a Postgres for that run and
+# removes it by name however the run ends. The name is the worktree plus a random
+# tail plus the target, so two worktrees - or two runs in one - never share one.
+# The command's container joins the database's network namespace, which has no
+# other network in it: from inside, 127.0.0.1:5432 is the test database and the
+# live one on the host's 5434 does not exist. CI runs the same targets with
+# `PY_TESTDB=python TEST_DB_MODE=published` (see tools/test-db.sh).
+WORKTREE_SLUG := $(shell basename "$(CURDIR)" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '_')
+RUN_ID        := $(shell od -An -N4 -tx1 /dev/urandom | tr -d ' \n')
+TEST_DB        = goalgetter_testdb_$(WORKTREE_SLUG)_$(RUN_ID)_$@
+DOCKER_RUN_TESTDB = $(subst --network host,--name $(TEST_DB)_run --network container:$(TEST_DB) -e TEST_DATABASE_URL -e DATABASE_URL,$(DOCKER_RUN))
+PY_TESTDB ?= $(DOCKER_RUN_TESTDB) python
+WITH_TEST_DB = tools/test-db.sh $(TEST_DB)
+
 # The live suite's container forwards the two API keys by NAME, like
 # DOCKER_RUN_DB: unset here, the container reads them from the mounted .env; set
 # (even empty, `GEMINI_API_KEY= make test-live`), the environment wins. CI
@@ -41,7 +56,7 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env test-db claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -73,22 +88,25 @@ back-build: ## Backend build smoke: import the app and generate the OpenAPI (no 
 	@$(PY_OFFLINE) -m backend.tools.build_smoke
 
 # In `make backend` rather than beside it, because it is the same failure the
-# other gates are for: the tests build their tables from the models, so a model
-# changed without a migration is green here and broken on deploy. It needs a
-# database - the worktree's own test one, which it resets - and `back-test`
-# already needed that, so the gate adds a prerequisite nobody has to think
-# about. It runs before pytest only because it is the cheaper of the two.
+# other gates are for: a model changed without a migration is a deploy that
+# breaks. The pytest fixtures build their schema from the migrations too (#205),
+# so a migration that fails is red there as well - but only this compares the
+# result with the models. Each run gets a disposable database of its own
+# (tools/test-db.sh), and it runs before pytest only because it is the cheaper.
 back-migrations: env ## Backend schema gate: the migrations build it from empty, and match the models
-	@$(PY) -m backend.tools.migration_check
+	@$(WITH_TEST_DB) $(PY_TESTDB) -m backend.tools.migration_check
 
 # The fix for a red back-migrations, not a gate: autogenerate the revision the
 # models are asking for. A generated revision is a draft - read it.
 back-revision: env ## Draft a migration from the models (M="what changed")
 	@[ -n "$(M)" ] || { echo 'usage: make back-revision M="what changed"'; exit 1; }
-	@$(PY) -m backend.tools.migration_check --revision "$(M)"
+	@$(WITH_TEST_DB) $(PY_TESTDB) -m backend.tools.migration_check --revision "$(M)"
 
-back-test: env ## Backend pytest (needs the test database: docker compose up -d postgres_test)
-	@$(PY) -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
+# The suite on a database that exists for this run only: started empty,
+# migrated by the session fixture, rolled back test by test, and removed with
+# its container at the end - pass, fail or Ctrl-C.
+back-test: env ## Backend pytest, on a disposable migrated database of its own
+	@$(WITH_TEST_DB) $(PY_TESTDB) -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
 
 # Every backend gate runs in this image, so an image older than
 # backend/requirements.txt fails with a bare "No module named ruff". Rebuilding
@@ -150,29 +168,16 @@ front-test: front-version gen-l10n ## Frontend widget/unit tests
 	@cd frontend && $(FLUTTER) test
 
 # On a runner there is no main checkout to copy from, and the settings arrive as
-# real environment variables from the workflow - so having no .env is correct
-# there, not a warning.
+# real environment variables from the workflow (CI=true on GitHub) - so having no
+# .env is correct there, not a warning.
 env: ## Seed this worktree's .env from the main checkout (never overwrites)
-	@if [ -f .env ] || [ -n "$$DATABASE_URL" ]; then :; else \
+	@if [ -f .env ] || [ -n "$$CI" ] || [ -n "$$DATABASE_URL" ]; then :; else \
 	  main="$$(git worktree list --porcelain | awk '/^worktree /{print $$2; exit}')"; \
 	  if [ -f "$$main/.env" ]; then cp "$$main/.env" .env && echo "seeded .env from $$main"; \
 	  else echo "no .env here and none in $$main - backend tests will fail"; fi; \
 	fi
 
-# The test fixtures drop every table at session start and end, so two worktrees
-# sharing one test database wipe each other mid-run. Each linked worktree gets its
-# own (goalgetter_test_<dir>); the main checkout keeps goalgetter_test. Only the
-# password-free tail of TEST_DATABASE_URL is rewritten, and nothing is printed.
-test-db: env ## Give this worktree its own test database and point .env at it
-	@main="$$(git worktree list --porcelain | awk '/^worktree /{print $$2; exit}')"; \
-	if [ "$$main" = "$(CURDIR)" ]; then db=goalgetter_test; \
-	else db="goalgetter_test_$$(basename "$(CURDIR)" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '_')"; fi; \
-	docker exec goalgetter_postgres_test psql -U postgres -Atc "SELECT 1 FROM pg_database WHERE datname='$$db'" | grep -q 1 \
-	  || docker exec goalgetter_postgres_test createdb -U postgres "$$db"; \
-	sed -i -E "s#^(TEST_DATABASE_URL=\"?[^\"]*/)[^/\"]*(\"?)\$$#\1$$db\2#" .env; \
-	echo "test database: $$db"
-
-setup: hooks env test-db ## One-time per checkout/worktree: git hooks + .env + own test DB + frontend deps
+setup: hooks env ## One-time per checkout/worktree: git hooks + .env + frontend deps
 	@cd frontend && $(FLUTTER) pub get
 
 hooks: ## Point git at the versioned hooks in .githooks
@@ -225,8 +230,7 @@ claude-token: ## Sign in as "Fictitious Claude" on the running backend and write
 # from that .env, which is the shared dev database, so every `make preview`
 # wiped whatever anyone else had in there - the one thing left sharing after the
 # test databases were split per worktree (#64). The preview now gets
-# goalgetter_preview, created the way `make test-db` creates its own: a database
-# on the dev server, so the URL is the dev one with the name swapped and no new
+# goalgetter_preview: a database on the dev server, so the URL is the dev one with the name swapped and no new
 # credential exists anywhere. It is read out of .env inside the recipe, handed
 # to the container by name (`-e DATABASE_URL`, never a value on a command line)
 # and never printed. The rest of .env - the Gemini key, the OAuth client -

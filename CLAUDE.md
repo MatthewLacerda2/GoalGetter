@@ -52,8 +52,10 @@ targets; `make help` lists them. `make setup` once per checkout or worktree
 installs the git hooks, seeds `.env`, and fetches the Flutter deps (which also
 generates the l10n files — a fresh checkout shows ~69 analyzer errors until it
 runs).
-It also gives the worktree its **own test database** (`make test-db`): the fixtures drop
-every table, so two worktrees sharing one would wipe each other mid-run.
+There is no test database to set up: each run of `make back-test` or `make
+back-migrations` starts its **own disposable Postgres** (`tools/test-db.sh`, #205) —
+empty, on a tmpfs, removed by name when the run ends however it ends — so any number of
+worktrees run the gates at once and nothing is left behind.
 
 The Flutter version is pinned in `frontend/pubspec.yaml` (`environment.flutter`), and CI
 installs exactly that number rather than whatever `stable` resolves to — one analyzer, so
@@ -81,16 +83,20 @@ for both, and see it pass **before pushing**.
   database: it pins placeholder settings before the import and runs with no
   network at all, so a broken import or an unresolvable response model surfaces
   in a second.
-- **`make back-migrations`** — `alembic upgrade head` on an empty schema, then
-  `alembic check` against the models. The migrations are what builds the database;
-  the tests build their tables from the models, so a model changed without a
-  migration is green everywhere else and broken on deploy. It resets this
-  worktree's test database, which is disposable by definition. When it goes red,
+- **`make back-migrations`** — `alembic upgrade head` on an empty database, then
+  `alembic check` against the models. The migrations are what builds the database —
+  the test suite's too — but only this gate compares the result with the models, so a
+  model changed without a migration is caught here and nowhere else. When it goes red,
   `make back-revision M="what changed"` drafts the revision it is asking for —
   then read it, because autogenerate misses a pgvector extension, a mutual
   foreign key and an enum it should drop.
-- **`make back-test`** — pytest. Together with `back-migrations`, the two that
-  need the test database.
+- **`make back-test`** — pytest, on a database started for the run: the session
+  fixture checks it is empty, migrates it to head, and each test rolls back. The suite
+  runs in a container that shares that database's network namespace and nothing else,
+  so from inside it the live database on 5434 does not exist; and in-process
+  `DATABASE_URL` is a host that cannot resolve, so a job that opens
+  `AsyncSessionLocal` without the test's session fails loudly (`fixtures/network.py`).
+  CI runs the same targets with `PY_TESTDB=python TEST_DB_MODE=published`.
 
 Ruff and vulture are in `backend/requirements.txt`, so they live in the backend
 image the way pytest does: that image is where every Python tool runs locally,
@@ -102,8 +108,9 @@ since there is no venv here. CI has no image and overrides the interpreter
 - **Never pipe `make` into a chain that decides a push.** `make check | tail && git
   push` pushes on a red gate — a pipeline exits with its *last* command's status.
   Run the gate on its own line and read it.
-- Setup failures read as such: `back-test` failing on `DATABASE_URL` wants
-  `make env`; a refused connection wants `docker compose up -d postgres_test`;
+- Setup failures read as such: `back-test` failing on `GEMINI_API_KEY` wants
+  `make env`; a test database that never comes up prints its own log (the image is
+  `pgvector/pgvector:pg18`, the stack's own);
   missing Dart packages want `make setup`; `No module named ruff` (or vulture)
   means the backend image predates `backend/requirements.txt` — `make back-image`; a
   frontend gate failing on the Flutter version means the SDK moved without the pin, so bump
@@ -159,7 +166,8 @@ wrong; tests must never be complex.
 1. Define what the endpoint does, then the request and response schemas.
 2. Write the tests (edit fixtures if needed). **The default suite never calls a real
    API** — Gemini and YouTube are always mocked, and `fixtures/network.py` fails any
-   test that reaches past this machine and the test database. **The `live` suite does,
+   test that reaches anything but the test database — loopback, DNS, UDP and child
+   processes included. **The `live` suite does,
    and runs only when asked** (#176): tests marked `@pytest.mark.live` under
    `backend/tests/live/`, skipped by `make check` and by every-push CI, run by
    `make test-live` and by the `live` workflow — on a pull request that touches the

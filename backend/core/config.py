@@ -29,7 +29,10 @@ class Settings(BaseSettings):
     DEV_LOGIN: bool = False
 
     DATABASE_URL: str
-    TEST_DATABASE_URL: str | None = None  # Optional, only needed for tests
+    # The run's disposable test database, set by tools/test-db.sh for the length
+    # of `make back-test` / `make back-migrations` (#205). Nothing else sets it,
+    # and the gates never read it from .env: the script's value wins.
+    TEST_DATABASE_URL: str | None = None
 
     # The connection pool of ONE process (backend/core/database.py), sized so
     # that every process together fits under Postgres's `max_connections` (#219).

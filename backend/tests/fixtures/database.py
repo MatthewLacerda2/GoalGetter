@@ -1,63 +1,60 @@
+"""The test database: disposable, and built by the migrations (#205).
+
+`make back-test` starts a Postgres for the run (`tools/test-db.sh`) and hands its
+URL over as TEST_DATABASE_URL. The session fixture checks the database is empty,
+runs `alembic upgrade head` on it - the schema production gets, not one drawn
+from the models - and every test then runs inside a transaction that is rolled
+back. Nothing is dropped at the end: the container goes, and the database with it.
+"""
+
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 import pytest_asyncio
-from sqlalchemy import text
+from alembic import command
+from alembic.config import Config
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from backend.core.config import settings
-from backend.models.base import Base
+from backend.tools.disposable_database import alembic_url, require_empty
 
-# Ensure TEST_DATABASE_URL is set
-if not settings.TEST_DATABASE_URL:
-    raise ValueError(
-        "TEST_DATABASE_URL must be set in environment variables or .env file. "
-        "Example: postgresql+asyncpg://postgres:password@localhost:5432/goalgetter_test"
-    )
+ALEMBIC_INI = Path(__file__).resolve().parents[2] / "alembic.ini"
 
-# Use test database URL from settings
-# Use NullPool to avoid connection pooling issues with asyncpg
-test_engine = create_async_engine(settings.TEST_DATABASE_URL, poolclass=NullPool)
+MISSING_URL = (
+    "TEST_DATABASE_URL is not set. The suite runs on a database started for the "
+    "run: `make back-test` starts one."
+)
 
-TestingSessionLocal = sessionmaker(
-    test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False,
+# NullPool: every test opens and closes its own connection, so no connection
+# outlives the event loop it was made on. Creating the engine opens nothing, so
+# a run without a database (the live suite) never touches it.
+test_engine = create_async_engine(
+    settings.TEST_DATABASE_URL or "postgresql+asyncpg://unset/unset", poolclass=NullPool
 )
 
 
-async def drop_all_tables(conn):
-    """Drop all tables using raw SQL to handle circular dependencies"""
-    # Get all table names from metadata
-    table_names = [table.name for table in Base.metadata.tables.values()]
+def migrate(url: str) -> None:
+    """`alembic upgrade head` on `url`, in-process, with alembic.ini's settings.
 
-    if table_names:
-        # Drop all tables with CASCADE to handle foreign key dependencies
-        # This avoids circular dependency errors
-        drop_statements = ", ".join([f'"{name}"' for name in table_names])
-        await conn.execute(text(f"DROP TABLE IF EXISTS {drop_statements} CASCADE"))
-
-
-@pytest_asyncio.fixture(scope="session")
-async def setup_test_db():
-    """Create tables once at session start, drop at end.
-
-    From the models, not from `backend/alembic/versions/` (#157): replaying the
-    migration history on every run would cost seconds and prove nothing the
-    suite is here to prove. What it does leave is the schema described twice,
-    and `make back-migrations` is the gate that keeps the two the same.
+    env.py reads the target from `settings.DATABASE_URL` at call time, which in
+    the test process is a host that cannot resolve (fixtures/network.py) - so it
+    is pointed at the test database for exactly the length of the upgrade.
     """
-    async with test_engine.begin() as conn:
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-        # Drop all tables first to ensure fresh schema (using CASCADE to handle circular deps)
-        await drop_all_tables(conn)
-        # Create all tables with current schema
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-    async with test_engine.begin() as conn:
-        # Drop all tables at end
-        await drop_all_tables(conn)
+    config = Config(str(ALEMBIC_INI))
+    config.attributes["configure_logger"] = False
+    with patch.object(settings, "DATABASE_URL", alembic_url(url)):
+        command.upgrade(config, "head")
+
+
+@pytest.fixture(scope="session")
+def setup_test_db():
+    """Migrate the run's database once. Refuses one that is not empty."""
+    if not settings.TEST_DATABASE_URL:
+        pytest.fail(MISSING_URL, pytrace=False)
+    require_empty(settings.TEST_DATABASE_URL)
+    migrate(settings.TEST_DATABASE_URL)
 
 
 @pytest_asyncio.fixture

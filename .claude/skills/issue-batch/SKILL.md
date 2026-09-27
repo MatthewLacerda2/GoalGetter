@@ -21,10 +21,10 @@ is exactly what **`minor`** marks: a change of about thirty lines that may ride 
 in another issue's pull request. An agent that folds says so in the PR, which then
 closes each issue it finished.
 
-**An issue that carries a migration gets a database of its own**, not just the test one
-`make setup` creates: it is about to change a schema every other worktree is reading.
-`make back-migrations` already runs the chain on the worktree's own test database, which
-is where a migration is proven.
+**An issue that carries a migration gets a database of its own** if it needs a running
+backend: it is about to change a schema every other worktree is reading. The gates need
+nothing: `make back-migrations` and `make back-test` each start a disposable database for
+the run (#205), which is where a migration is proven.
 
 ## What a batch is allowed to pick up
 
@@ -47,7 +47,7 @@ competing for a core and go red over nothing in the diff.
 - **At most five worktrees at once** (the user, 2026-09-27). The limit counts worktrees,
   not agents or issues: one agent may fold several issues into one, and a finished
   agent's worktree still counts until it is removed. Disk and conflicts are why. So a
-  worktree is removed by name, with its test database, as soon as its pull request merges
+  worktree is removed by name as soon as its pull request merges
   or no longer needs it, and only then is the next one created.
 - **At most two agents running Flutter gates at the same time**, inside those five. A
   third is not faster; it makes all three untrustworthy.
@@ -95,7 +95,7 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
   licence to use it.) The tailnet preview is no
   longer one of them: since #122 it has a database of its own, and `make preview`
   leaves the dev one alone. Backend work is validated by `make back-test`,
-  which uses a test database of the worktree's own (`make setup` creates it). An agent
+  which starts a disposable database for each run and cannot reach this one (#205). An agent
   that needs a running backend gets a database of its own, named in its brief.
   Changing the *schema* is fine when the issue says so; using that one database is not.
 
@@ -131,8 +131,8 @@ workflow, or anywhere else. Leave the model unset so the agent inherits it.
 Give it, in this order:
 
 1. **Its own worktree**, created for it, with the exact command. Never two branches
-   taking turns in one checkout. Then `make setup` in it, which also gives it its own
-   test database.
+   taking turns in one checkout. Then `make setup` in it. (The test database needs
+   nothing: every gate run starts its own.)
 2. **`CLAUDE.md` first**, then the issue, then the specific files it will touch.
 3. **What has landed recently** that it must build on, by name — `main` moves under
    long-running agents.
