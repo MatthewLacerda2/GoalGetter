@@ -10,12 +10,20 @@ part of 'goals_list_controller.dart';
 // ignore_for_file: type=lint, type=warning
 /// The student's goals (`GET /goals`). The list and the detail screen both read
 /// it: there is no per-goal GET. Refresh with `ref.invalidate`.
+///
+/// Each answer also says which goal the server holds active, and the app's
+/// copy ([ActiveGoal]) follows it: a goal switched on another device reaches
+/// Home and the Tutor the next time this list loads.
 
 @ProviderFor(goalsListController)
 final goalsListControllerProvider = GoalsListControllerProvider._();
 
 /// The student's goals (`GET /goals`). The list and the detail screen both read
 /// it: there is no per-goal GET. Refresh with `ref.invalidate`.
+///
+/// Each answer also says which goal the server holds active, and the app's
+/// copy ([ActiveGoal]) follows it: a goal switched on another device reaches
+/// Home and the Tutor the next time this list loads.
 
 final class GoalsListControllerProvider
     extends
@@ -27,6 +35,10 @@ final class GoalsListControllerProvider
     with $FutureModifier<List<Goal>>, $FutureProvider<List<Goal>> {
   /// The student's goals (`GET /goals`). The list and the detail screen both read
   /// it: there is no per-goal GET. Refresh with `ref.invalidate`.
+  ///
+  /// Each answer also says which goal the server holds active, and the app's
+  /// copy ([ActiveGoal]) follows it: a goal switched on another device reaches
+  /// Home and the Tutor the next time this list loads.
   GoalsListControllerProvider._()
     : super(
         from: null,
@@ -53,4 +65,4 @@ final class GoalsListControllerProvider
 }
 
 String _$goalsListControllerHash() =>
-    r'21c2993954595c3668f5c61a27f00185f374e534';
+    r'0bb66e55a90cce0c3723d33cc908e32a9436219e';

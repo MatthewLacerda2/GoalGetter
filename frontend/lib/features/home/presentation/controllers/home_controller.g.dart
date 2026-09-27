@@ -10,12 +10,20 @@ part of 'home_controller.dart';
 // ignore_for_file: type=lint, type=warning
 /// The Home dashboard for the active goal; null when there is none. A finished
 /// lesson invalidates it (LessonController), so Home shows the new rating.
+///
+/// The backend scopes GET /home to the active goal on its own; watching
+/// [activeGoalProvider] is what loads it again when the student switches
+/// goals (#220), since Home stays mounted under the goals list.
 
 @ProviderFor(homeController)
 final homeControllerProvider = HomeControllerProvider._();
 
 /// The Home dashboard for the active goal; null when there is none. A finished
 /// lesson invalidates it (LessonController), so Home shows the new rating.
+///
+/// The backend scopes GET /home to the active goal on its own; watching
+/// [activeGoalProvider] is what loads it again when the student switches
+/// goals (#220), since Home stays mounted under the goals list.
 
 final class HomeControllerProvider
     extends
@@ -27,6 +35,10 @@ final class HomeControllerProvider
     with $FutureModifier<HomeDashboard?>, $FutureProvider<HomeDashboard?> {
   /// The Home dashboard for the active goal; null when there is none. A finished
   /// lesson invalidates it (LessonController), so Home shows the new rating.
+  ///
+  /// The backend scopes GET /home to the active goal on its own; watching
+  /// [activeGoalProvider] is what loads it again when the student switches
+  /// goals (#220), since Home stays mounted under the goals list.
   HomeControllerProvider._()
     : super(
         from: null,
@@ -53,4 +65,4 @@ final class HomeControllerProvider
   }
 }
 
-String _$homeControllerHash() => r'b9ee960c12a24ca3b06c8b5b179f08e0a8eaedc8';
+String _$homeControllerHash() => r'd89b78eadfaab1059cb51a4300793c20440b1b62';

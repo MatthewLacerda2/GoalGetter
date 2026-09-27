@@ -55,7 +55,7 @@ final class AppStartControllerProvider
 }
 
 String _$appStartControllerHash() =>
-    r'66f2a1a28f2d5c07a3f9ae27a5c71c927f8d8b5a';
+    r'5b9ee2c4c2b49edece560ce7ed788740fe05b741';
 
 /// Where the splash (`/`) sends the student: [AppStartController]'s answer,
 /// asked once per visit to the splash.

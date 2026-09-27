@@ -80,7 +80,7 @@ final class StudyPlanControllerProvider
 }
 
 String _$studyPlanControllerHash() =>
-    r'ceb18a22b78e04637556b843aa630795fec64d82';
+    r'ab96209b201c0f79497a2892279c6572b9df9902';
 
 /// Step 3 of goal creation: confirming [draft] creates the goal, or starting
 /// over drops it.

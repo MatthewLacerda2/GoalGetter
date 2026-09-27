@@ -16,13 +16,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// A backend that answers `'<METHOD> <path>'` (path under /api/v1) with
 /// canned `(status, body)` replies, handed out in order (the last repeats),
-/// and records every request's key and body. Unknown routes answer 599, and
-/// the [silent] ones never answer at all.
+/// and records every request's key and body. Unknown routes answer 599. A
+/// route in [held] answers once its future completes — never, for one that
+/// does not ([never]).
 class ApiFake {
-  ApiFake(this.replies, {this.silent = const {}});
+  ApiFake(this.replies, {this.held = const {}});
 
   final Map<String, List<(int, String)>> replies;
-  final Set<String> silent;
+  final Map<String, Future<void>> held;
+
+  /// A hold that is never let go: the request is never answered.
+  static Future<void> get never => Completer<void>().future;
   final List<(String, String)> requests = [];
 
   int count(String key) => requests.where((r) => r.$1 == key).length;
@@ -40,7 +44,7 @@ class ApiFake {
         final key =
             '${request.method} ${request.url.path.replaceFirst('/api/v1', '')}';
         requests.add((key, request.body));
-        if (silent.contains(key)) return Completer<http.Response>().future;
+        await held[key];
         final queue = replies[key];
         if (queue == null) return http.Response('{"detail": "no route"}', 599);
         final (status, body) = queue.length > 1 ? queue.removeAt(0) : queue[0];

@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/goals/data/goals_api.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
@@ -39,13 +40,25 @@ class AppStartResult {
 ///
 /// Any other failure (offline, a 5xx) lands where the last known state points,
 /// and that screen's own load shows the failure with a retry (decided in
-/// #52): a stored active goal id ⇒ home, the returning student's usual screen;
+/// #52): a known active goal ⇒ home, the returning student's usual screen;
 /// none ⇒ the goals list, whose `GET /goals` retries this very call.
+///
+/// The answer to GET /goals is also the server's word on which goal is active,
+/// so [ActiveGoal] is set from it.
 class AppStartController {
-  const AppStartController(this._storage, this._goals);
+  const AppStartController(
+    this._storage,
+    this._goals,
+    this._activeGoal, {
+    required String? Function() knownActiveGoal,
+  }) : _knownActiveGoal = knownActiveGoal;
 
   final SettingsStorage _storage;
   final GoalsApi _goals;
+  final ActiveGoal _activeGoal;
+
+  /// The active goal as the app last heard it, for a launch that cannot ask.
+  final String? Function() _knownActiveGoal;
 
   Future<AppStartResult> evaluate() async {
     final token = _storage.getAccessToken();
@@ -65,23 +78,17 @@ class AppStartController {
     return AppStartResult(_offlineDestination());
   }
 
-  AppStartDestination _offlineDestination() {
-    final goalId = _storage.readCurrentGoalId();
-    return goalId == null || goalId.isEmpty
-        ? AppStartDestination.authenticatedNeedsActiveGoal
-        : AppStartDestination.authenticatedReady;
-  }
+  AppStartDestination _offlineDestination() => _knownActiveGoal() == null
+      ? AppStartDestination.authenticatedNeedsActiveGoal
+      : AppStartDestination.authenticatedReady;
 
   Future<AppStartDestination> _decide(List<Goal> goals) async {
     if (goals.isEmpty) return AppStartDestination.authenticatedNeedsGoal;
-    for (final goal in goals) {
-      if (goal.isActive) {
-        await _storage.writeCurrentGoalId(goal.id);
-        return AppStartDestination.authenticatedReady;
-      }
-    }
-    await _storage.deleteCurrentGoal();
-    return AppStartDestination.authenticatedNeedsActiveGoal;
+    final active = activeGoalIn(goals);
+    await _activeGoal.set(active);
+    return active == null
+        ? AppStartDestination.authenticatedNeedsActiveGoal
+        : AppStartDestination.authenticatedReady;
   }
 }
 
@@ -90,6 +97,10 @@ AppStartController appStartController(Ref ref) {
   return AppStartController(
     ref.watch(settingsStorageProvider),
     ref.watch(goalsApiProvider),
+    ref.watch(activeGoalProvider.notifier),
+    // Read when asked, not watched: the launch itself sets it, and a watch
+    // would ask GET /goals a second time.
+    knownActiveGoal: () => ref.read(activeGoalProvider),
   );
 }
 

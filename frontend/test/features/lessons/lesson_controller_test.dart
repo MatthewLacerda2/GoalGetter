@@ -264,7 +264,7 @@ void main() {
     });
 
     testWidgets('a start nobody answers ends in the error', (tester) async {
-      final fake = ApiFake({}, silent: {startKey});
+      final fake = ApiFake({}, held: {startKey: ApiFake.never});
       final c = ProviderContainer(
         retry: noAutomaticRetry,
         overrides: await fake.overrides(),
@@ -282,7 +282,7 @@ void main() {
         (tester) async {
       final fake = ApiFake({
         startKey: [(201, lessonJson(1))],
-      }, silent: {answersKey});
+      }, held: {answersKey: ApiFake.never});
       final c = ProviderContainer(
         retry: noAutomaticRetry,
         overrides: await fake.overrides(),

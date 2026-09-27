@@ -28,3 +28,11 @@ class Goal {
         isActive: json['is_active'] as bool,
       );
 }
+
+/// The id of the goal [goals] marks active, or null when none is.
+String? activeGoalIn(List<Goal> goals) {
+  for (final goal in goals) {
+    if (goal.isActive) return goal.id;
+  }
+  return null;
+}

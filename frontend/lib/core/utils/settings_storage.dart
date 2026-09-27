@@ -109,18 +109,23 @@ class SettingsStorage {
     return await _prefs.setString(_languageKey, language);
   }
 
-  // --- Goal Preferences ---
+  // --- Active Goal ---
+  //
+  // The device's copy of `activeGoalProvider` (core/services/active_goal.dart),
+  // which is what the app reads and writes: a write here alone would leave
+  // every screen on the goal before it (#220).
 
   String? readCurrentGoalId() {
     return _prefs.getString(_currentGoalIdKey);
   }
 
-  Future<bool> writeCurrentGoalId(String goalId) async {
-    return await _prefs.setString(_currentGoalIdKey, goalId);
-  }
-
-  Future<bool> deleteCurrentGoal() async {
-    return await _prefs.remove(_currentGoalIdKey);
+  /// Stores [goalId] as the active goal; null removes it.
+  Future<void> storeCurrentGoalId(String? goalId) async {
+    if (goalId == null) {
+      await _prefs.remove(_currentGoalIdKey);
+    } else {
+      await _prefs.setString(_currentGoalIdKey, goalId);
+    }
   }
 
   // --- Auth & Token Preferences ---
@@ -218,12 +223,6 @@ class SettingsStorage {
       Future.value(instance.initUserLanguage(preferredLanguageCodes: preferredLanguageCodes));
 
   static Future<bool> setUserLanguage(String language) => instance.writeUserLanguage(language);
-
-  static Future<String?> getCurrentGoalId() => Future.value(instance.readCurrentGoalId());
-
-  static Future<bool> setCurrentGoalId(String goalId) => instance.writeCurrentGoalId(goalId);
-
-  static Future<void> clearCurrentGoal() => instance.deleteCurrentGoal();
 }
 
 @Riverpod(keepAlive: true)

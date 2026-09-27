@@ -1,6 +1,6 @@
 import 'package:clock/clock.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
-import 'package:goal_getter/core/utils/settings_storage.dart';
+import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/lessons/data/lessons_api.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
@@ -24,8 +24,9 @@ part 'lesson_controller.g.dart';
 /// [LessonState] it is handed. Time is read from `package:clock`, so a test
 /// decides how long a question was on screen.
 ///
-/// Opening is [build]: the screen watching the provider opens a lesson, and
-/// `ref.invalidate` opens a new one - the retry after a failed start.
+/// Opening is [build]: the screen watching the provider opens a lesson on the
+/// active goal ([activeGoalProvider], the goal Home and the Tutor are on too),
+/// and `ref.invalidate` opens a new one - the retry after a failed start.
 @riverpod
 class LessonController extends _$LessonController {
   /// The goal the lesson was opened on, which its answers are sent to.
@@ -33,8 +34,8 @@ class LessonController extends _$LessonController {
 
   @override
   Future<LessonState> build() async {
-    final goalId = ref.read(settingsStorageProvider).readCurrentGoalId();
-    if (goalId == null || goalId.isEmpty) return const LessonNoActiveGoal();
+    final goalId = ref.watch(activeGoalProvider);
+    if (goalId == null) return const LessonNoActiveGoal();
     final LessonSession session;
     try {
       session = await ref.read(lessonsApiProvider).start(goalId);
