@@ -12,6 +12,7 @@ import pytest
 
 from backend.core.language import Language
 from backend.services.gemini.resources.search_resources import search_resources
+from backend.services.resources.found_pages import page_resources
 from backend.services.resources.link_validation import validate_resources
 from backend.services.resources.youtube_search import search_videos
 from backend.tools.gemini_cli import UNSAVED_GOAL_ID, USE_CASES
@@ -24,10 +25,10 @@ SAMPLE = next(case for case in USE_CASES if case.name == "resource-search").samp
 async def test_at_least_one_recommended_resource_survives_validation():
     """What the resources step does, minus storing: the grounded search, the
     video search on its query, and validation."""
-    search = await search_resources(UNSAVED_GOAL_ID, *SAMPLE, None, [], Language.ENGLISH)
+    search = await search_resources(*SAMPLE, None, [], Language.ENGLISH)
     async with httpx.AsyncClient() as client:
         videos = await search_videos(client, UNSAVED_GOAL_ID, search.video_query, Language.ENGLISH)
-        recommended = search.pages + videos
+        recommended = page_resources(UNSAVED_GOAL_ID, search.pages) + videos
         kept = await validate_resources(recommended, client=client)
 
     links = "\n".join(resource.link for resource in recommended)

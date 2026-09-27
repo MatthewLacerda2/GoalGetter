@@ -31,12 +31,6 @@ this file cannot serve.
 
 from dataclasses import dataclass
 
-# What `onboarding_questions.ai_model` holds for a row no model wrote: these
-# four questions, and the "What do you want to learn?" row that carries the
-# student's own words. Gemini-written rows carry the model that wrote them, so
-# one read of a student's onboarding tells the two apart (#132).
-SYSTEM_AUTHOR = "system"
-
 
 @dataclass(frozen=True)
 class StandardOption:

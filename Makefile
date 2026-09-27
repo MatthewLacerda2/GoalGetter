@@ -70,8 +70,9 @@ frontend: front-lint front-test ## Frontend: line limits + analyze + tests
 
 # Cheapest first: the house rules are stdlib and instant, ruff is a second, the
 # build smoke needs no database, and only pytest needs one.
-back-lint: ## Backend lint: house rules (file/endpoint/test length, repositories) + ruff check + ruff format --check
+back-lint: ## Backend lint: house rules (file/endpoint/test length, repositories) + import contracts + ruff check + ruff format --check
 	@python3 backend/tests/backend_linter.py
+	@$(PY) -m backend.tools.import_contracts
 	@$(PY) -m ruff check backend
 	@$(PY) -m ruff format --check backend
 

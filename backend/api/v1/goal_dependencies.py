@@ -15,8 +15,8 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.api.v1.student_dependencies import get_current_user
 from backend.core.database import get_db
-from backend.core.security import get_current_user
 from backend.models.goal import Goal
 from backend.models.student import Student
 from backend.repositories.goal_repository import GoalRepository

@@ -7,7 +7,8 @@ other half of the seam - that every key has a sentence in the five locales - is
 is where the translations live.
 """
 
-from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS, SYSTEM_AUTHOR
+from backend.repositories.onboarding_repository import SYSTEM_AUTHOR
+from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
 
 
 def test_every_question_has_exactly_four_options():

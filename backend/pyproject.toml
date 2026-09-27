@@ -1,6 +1,7 @@
 # Backend tooling config. Ruff is the lint/format layer; the house rules Ruff
 # cannot express - file, endpoint and test length, and the repository pattern -
-# live in backend/tests/backend_linter.py. `make back-lint` runs all three.
+# live in backend/tests/backend_linter.py. `make back-lint` runs all three, and
+# the import contracts at the end of this file (#211).
 #
 # Ruff finds this file by walking up from each file it checks, so it governs
 # everything under backend/ no matter which directory the gate is invoked from.
@@ -111,3 +112,73 @@ extend-immutable-calls = [
 # each one-line edit a whole-file diff; .gitattributes normalised them, and none
 # are CRLF any more, so the formatter pins what git already guarantees.
 line-ending = "lf"
+
+# The layer boundaries (#211), as import contracts `make back-lint` checks with
+# import-linter. It builds the import graph of backend/ - every `import`, direct
+# or through other modules - and fails when an edge a contract forbids exists.
+# A contract is only as good as its reason, so each one carries it; and none
+# carries an exemption list: when real code breaks a contract, the code moves.
+#
+# What is NOT here, on purpose: whether an endpoint may call a repository
+# directly or must go through a service. That question is open with the user
+# (#211); until it is answered, api/ -> repositories/ is neither allowed nor
+# forbidden by a contract.
+[tool.importlinter]
+# google.genai is a root package so the SDK is a node of its own. Left external,
+# the graph squashes it to `google`, which google-auth's sign-in shares.
+root_packages = ["backend", "google.genai"]
+
+[[tool.importlinter.contracts]]
+# core/ is the floor: settings, the clock, the database engine, security
+# helpers. Everything builds on it; if it imported a layer above, that layer
+# could not be imported without it, and the floor would have a ceiling.
+name = "core/ imports no other layer"
+type = "forbidden"
+source_modules = ["backend.core"]
+forbidden_modules = [
+  "backend.models",
+  "backend.repositories",
+  "backend.schemas",
+  "backend.services",
+  "backend.api",
+]
+
+[[tool.importlinter.contracts]]
+# The database layer answers queries; what to do with the answer is a service's
+# or an endpoint's business. A repository reaching up is a rule hidden in a
+# query, where nobody looking for the rule will find it.
+name = "models/ and repositories/ never import services/ or api/"
+type = "forbidden"
+source_modules = ["backend.models", "backend.repositories"]
+forbidden_modules = ["backend.services", "backend.api"]
+
+[[tool.importlinter.contracts]]
+# "Gemini writes content; arithmetic decides what appears" (CLAUDE.md).
+# Selection, the Rasch rating, pacing, the generation decision, where the right
+# option sits, and who the nightly run serves are arithmetic: none of them may
+# reach a Gemini call, not even through another module (import-linter follows
+# indirect imports too).
+name = "the arithmetic never reaches Gemini"
+type = "forbidden"
+source_modules = [
+  "backend.services.lessons",
+  "backend.services.jobs.nightly_decision",
+]
+forbidden_modules = ["backend.services.gemini"]
+
+[[tool.importlinter.contracts]]
+# The Gemini layer returns content - typed results a caller turns into rows.
+# Building ORM rows there made the prompt code decide what the database holds.
+name = "the Gemini layer writes content, never rows"
+type = "forbidden"
+source_modules = ["backend.services.gemini"]
+forbidden_modules = ["backend.models", "backend.repositories"]
+
+[[tool.importlinter.contracts]]
+# One typed door to the SDK (#216): services/gemini/client/ holds the client,
+# the retry, the guard and the call, and every use case goes through it. The
+# tests are the other importer: they fake the SDK's client and errors.
+name = "only services/gemini/client/ imports google.genai"
+type = "protected"
+protected_modules = ["google.genai"]
+allowed_importers = ["backend.services.gemini.client", "backend.tests"]

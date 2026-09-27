@@ -3,17 +3,10 @@
 import random
 from collections import Counter
 
-from backend.services.gemini.lesson.schema import LessonQuestionItem
 from backend.services.lessons.shuffle import shuffled_question
 
-ITEM = LessonQuestionItem(
-    question="Capital of Japan?",
-    option_a="Osaka",
-    option_b="Tokyo",
-    option_c="Kyoto",
-    option_d="Nagoya",
-    correct_option_index=1,
-)
+TEXT = "Capital of Japan?"
+OPTIONS = ["Osaka", "Tokyo", "Kyoto", "Nagoya"]
 
 
 def options(question) -> list[str]:
@@ -23,7 +16,7 @@ def options(question) -> list[str]:
 def test_the_right_answer_follows_its_option_wherever_it_lands():
     rng = random.Random(7)
     for _ in range(50):
-        question = shuffled_question("goal", ITEM, rng)
+        question = shuffled_question("goal", TEXT, OPTIONS, 1, rng)
 
         assert options(question)[question.right_answer_index] == "Tokyo"
         assert sorted(options(question)) == ["Kyoto", "Nagoya", "Osaka", "Tokyo"]
@@ -32,7 +25,9 @@ def test_the_right_answer_follows_its_option_wherever_it_lands():
 def test_every_position_is_used():
     """Gemini put it on B six times in eight; a draw spreads it over all four"""
     rng = random.Random(7)
-    landed = Counter(shuffled_question("goal", ITEM, rng).right_answer_index for _ in range(400))
+    landed = Counter(
+        shuffled_question("goal", TEXT, OPTIONS, 1, rng).right_answer_index for _ in range(400)
+    )
 
     assert set(landed) == {0, 1, 2, 3}
     assert min(landed.values()) > 60

@@ -5,8 +5,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.api.v1.student_dependencies import get_current_user
 from backend.core.database import get_db
-from backend.core.security import get_current_user
 from backend.models.student import Student
 from backend.schemas.me import UserProfile
 from backend.services.lessons.streak import student_streak

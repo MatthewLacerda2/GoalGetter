@@ -20,7 +20,8 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.jobs import student_chain
 from backend.services.jobs.steps.resources import run_resources_step
 from backend.services.jobs.student_chain import kickoff_student_chain, run_student_chain
-from backend.tests.fixtures.jobs import chain_gemini, resource, review
+from backend.services.onboarding.standard_answers import resolve_standard_answers
+from backend.tests.fixtures.jobs import chain_gemini, page, resource, review
 from backend.tests.fixtures.lessons import at
 
 ANSWERS = [("Experience?", "None")]
@@ -43,7 +44,9 @@ async def answered_the_standard_questions(test_db, goal):
     Returns the moment goal creation pinned its own read of the onboarding to."""
     as_of = clock.now()
     timed = [(question, option, None) for question, option in STANDARD]
-    await OnboardingRepository(test_db).save_standard_answers(goal.id, timed)
+    await OnboardingRepository(test_db).save_standard_answers(
+        goal.id, resolve_standard_answers(timed)
+    )
     await test_db.commit()
     return as_of
 
@@ -57,7 +60,7 @@ async def test_the_chain_runs_context_then_questions_then_resources(
     await onboarded(test_db, goal)
 
     calls = []
-    with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
+    with chain_gemini(test_db, calls, found=[page("https://good.dev/a")]):
         assert await run_student_chain(str(test_user.id)) == (True, 2, 1)
 
     assert [name for name, _ in calls] == ["context", "placement", "resources"]
@@ -101,7 +104,7 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
     name, asked, contexts, _ = seen["placement"]
     assert (name, asked) == (goal.name, "I want Italian")
     assert [(c.state, c.metacognition) for c in contexts] == [("Beginner", "Curious")]
-    assert seen["resources"][1:] == (
+    assert seen["resources"] == (
         goal.name,
         goal.description,
         "Beginner Curious",
@@ -152,11 +155,11 @@ async def test_the_resource_search_is_told_which_links_the_goal_already_has(
     await test_db.commit()
 
     calls = []
-    proposed = [resource(goal.id, "https://held.dev/a"), resource(goal.id, "https://new.dev/b")]
+    proposed = [page("https://held.dev/a"), page("https://new.dev/b")]
     with chain_gemini(test_db, calls, found=proposed):
         assert (await run_student_chain(str(test_user.id)))[2] == 1
 
-    assert dict(calls)["resources"][4] == ["https://held.dev/a"]
+    assert dict(calls)["resources"][3] == ["https://held.dev/a"]
     links = sorted(r.link for r in await ResourceRepository(test_db).list_by_goal(goal.id))
     assert links == ["https://held.dev/a", "https://new.dev/b"]
 
@@ -180,7 +183,7 @@ async def test_the_caller_can_ask_for_a_chain_without_resources(test_db, test_us
     await onboarded(test_db, goal)
 
     calls = []
-    with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
+    with chain_gemini(test_db, calls, found=[page("https://good.dev/a")]):
         assert await run_student_chain(str(test_user.id), with_resources=False) == (True, 2, 0)
 
     assert [name for name, _ in calls] == ["context", "placement"]

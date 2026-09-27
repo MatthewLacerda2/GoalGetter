@@ -121,7 +121,13 @@ async def _bank_for_goal(session, goal, contexts, readings, size: int, language)
     # check constraint and take the whole batch with it: drop just that one.
     rng = random.Random()
     questions = [
-        shuffled_question(goal.id, item, rng)
+        shuffled_question(
+            goal.id,
+            item.question,
+            [item.option_a, item.option_b, item.option_c, item.option_d],
+            item.correct_option_index,
+            rng,
+        )
         for item in generated.questions
         if 0 <= item.correct_option_index <= 3
     ]

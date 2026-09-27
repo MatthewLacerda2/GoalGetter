@@ -9,8 +9,8 @@ partial list, an empty one and a key this build does not know are all answered
 
 import pytest
 
-from backend.repositories.onboarding_repository import OnboardingRepository
-from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS, SYSTEM_AUTHOR
+from backend.repositories.onboarding_repository import SYSTEM_AUTHOR, OnboardingRepository
+from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
 
 AGE, PURPOSE = STANDARD_QUESTIONS[0], STANDARD_QUESTIONS[1]
 

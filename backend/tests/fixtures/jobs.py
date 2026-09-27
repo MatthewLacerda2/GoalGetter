@@ -20,7 +20,7 @@ import numpy as np
 from backend.core.vectors import NUM_DIMENSIONS
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse, LessonQuestionItem
-from backend.services.gemini.resources.search_resources import ResourceSearch
+from backend.services.gemini.resources.search_resources import FoundPage, ResourceSearch
 from backend.services.gemini.student_context.schema import (
     ContextVerdict,
     FrontierMove,
@@ -95,6 +95,11 @@ def generated(*correct_indexes) -> GeminiLessonQuestionsResponse:
 
 
 GENERATED = generated(0, 3, 4)
+
+
+def page(link) -> FoundPage:
+    """A page the resource search found, before it is a row."""
+    return FoundPage("webpage", "Guide", "A guide", "en", link)
 
 
 def resource(goal_id, link) -> Resource:
