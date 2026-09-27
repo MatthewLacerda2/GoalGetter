@@ -103,7 +103,12 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     says about himself is his opinion, and the lessons measure him.
   - both calls, and the study plan's, write in the `X-Student-Language` header's
     language; without one, in the language the prompt is written in, else English.
-  - **PUBLIC** (no auth) + rate-limited 20/min, so anyone can try the app.
+  - **PUBLIC** (no auth) + rate-limited 20/min per client address, so anyone can
+    try the app. The address is Cloudflare's `CF-Connecting-IP`, trusted only from
+    our own proxy; counted per uvicorn worker, so 20 to 80 a minute (#217).
+  - `prompt` is at most 1000 characters, else 422 before any Gemini call (#217);
+    the app's field caps at 500. Every Gemini-bound text has such a ceiling:
+    `backend/schemas/text_limits.py`.
   - when Gemini fails (here, the study plan and the tutor alike): its own status
     and message (429, 402, a 5xx) - except 401/403, which are about our key and
     come as **502**; an answer with nothing in it (a safety block) is **502**;
@@ -315,6 +320,7 @@ user bubble plus one tutor bubble per `responses` entry.
 
 - **`POST /tutor/messages`** ⚙️ ✅ — send a message; get the stored exchange (201).
   request: `{ "message": "..." }` · response: `chat_exchange`
+  - `message` is at most 2000 characters, else 422 before any Gemini call (#217).
   - service: `services/gemini/chat/` via `run_gemini` (a Gemini `APIError` keeps its
     status code). Gemini gets the goal's name and description, **the student's**
     still-valid contexts (all of them — a context is not goal-scoped, #87; what is
