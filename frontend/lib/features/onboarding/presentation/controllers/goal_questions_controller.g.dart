@@ -10,22 +10,22 @@ part of 'goal_questions_controller.dart';
 // ignore_for_file: type=lint, type=warning
 /// The objective questions Gemini wrote for [prompt], one at a time. The
 /// screen owns how a question arrives (the slide, the pause that shows the
-/// pick); this owns what was answered and how long each question took
-/// (#174), and sends them all to `POST /goals/study-plan`.
+/// pick); this owns what was answered and how long each question took, and
+/// sends them all to `POST /goals/study-plan`.
 
 @ProviderFor(GoalQuestionsController)
 final goalQuestionsControllerProvider = GoalQuestionsControllerFamily._();
 
 /// The objective questions Gemini wrote for [prompt], one at a time. The
 /// screen owns how a question arrives (the slide, the pause that shows the
-/// pick); this owns what was answered and how long each question took
-/// (#174), and sends them all to `POST /goals/study-plan`.
+/// pick); this owns what was answered and how long each question took, and
+/// sends them all to `POST /goals/study-plan`.
 final class GoalQuestionsControllerProvider
     extends $NotifierProvider<GoalQuestionsController, GoalQuestionsState> {
   /// The objective questions Gemini wrote for [prompt], one at a time. The
   /// screen owns how a question arrives (the slide, the pause that shows the
-  /// pick); this owns what was answered and how long each question took
-  /// (#174), and sends them all to `POST /goals/study-plan`.
+  /// pick); this owns what was answered and how long each question took, and
+  /// sends them all to `POST /goals/study-plan`.
   GoalQuestionsControllerProvider._({
     required GoalQuestionsControllerFamily super.from,
     required (String, List<ObjectiveQuestion>) super.argument,
@@ -76,8 +76,8 @@ String _$goalQuestionsControllerHash() =>
 
 /// The objective questions Gemini wrote for [prompt], one at a time. The
 /// screen owns how a question arrives (the slide, the pause that shows the
-/// pick); this owns what was answered and how long each question took
-/// (#174), and sends them all to `POST /goals/study-plan`.
+/// pick); this owns what was answered and how long each question took, and
+/// sends them all to `POST /goals/study-plan`.
 
 final class GoalQuestionsControllerFamily extends $Family
     with
@@ -99,8 +99,8 @@ final class GoalQuestionsControllerFamily extends $Family
 
   /// The objective questions Gemini wrote for [prompt], one at a time. The
   /// screen owns how a question arrives (the slide, the pause that shows the
-  /// pick); this owns what was answered and how long each question took
-  /// (#174), and sends them all to `POST /goals/study-plan`.
+  /// pick); this owns what was answered and how long each question took, and
+  /// sends them all to `POST /goals/study-plan`.
 
   GoalQuestionsControllerProvider call(
     String prompt,
@@ -116,8 +116,8 @@ final class GoalQuestionsControllerFamily extends $Family
 
 /// The objective questions Gemini wrote for [prompt], one at a time. The
 /// screen owns how a question arrives (the slide, the pause that shows the
-/// pick); this owns what was answered and how long each question took
-/// (#174), and sends them all to `POST /goals/study-plan`.
+/// pick); this owns what was answered and how long each question took, and
+/// sends them all to `POST /goals/study-plan`.
 
 abstract class _$GoalQuestionsController extends $Notifier<GoalQuestionsState> {
   late final _$args = ref.$arg as (String, List<ObjectiveQuestion>);

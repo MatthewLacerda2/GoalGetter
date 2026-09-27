@@ -10,19 +10,19 @@ part of 'theme_mode_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Light, dark, or the phone's own mode — what `MaterialApp.themeMode` reads,
 /// so a change repaints the whole app at once, the way `LocaleNotifier` does
-/// for the language (#178).
+/// for the language.
 
 @ProviderFor(ThemeModeNotifier)
 final themeModeProvider = ThemeModeNotifierProvider._();
 
 /// Light, dark, or the phone's own mode — what `MaterialApp.themeMode` reads,
 /// so a change repaints the whole app at once, the way `LocaleNotifier` does
-/// for the language (#178).
+/// for the language.
 final class ThemeModeNotifierProvider
     extends $NotifierProvider<ThemeModeNotifier, ThemeMode> {
   /// Light, dark, or the phone's own mode — what `MaterialApp.themeMode` reads,
   /// so a change repaints the whole app at once, the way `LocaleNotifier` does
-  /// for the language (#178).
+  /// for the language.
   ThemeModeNotifierProvider._()
     : super(
         from: null,
@@ -54,7 +54,7 @@ String _$themeModeNotifierHash() => r'f58bf40088ab2d8c384e264e60e3f08f6f1bb7ae';
 
 /// Light, dark, or the phone's own mode — what `MaterialApp.themeMode` reads,
 /// so a change repaints the whole app at once, the way `LocaleNotifier` does
-/// for the language (#178).
+/// for the language.
 
 abstract class _$ThemeModeNotifier extends $Notifier<ThemeMode> {
   ThemeMode build();

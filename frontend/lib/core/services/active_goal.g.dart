@@ -9,7 +9,7 @@ part of 'active_goal.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// The id of the student's active goal, or null when he has none: the
-/// server's `students.current_goal_id`, as the app last heard it (#220).
+/// server's `students.current_goal_id`, as the app last heard it.
 ///
 /// The server is the source of truth, and this is its one copy in the app.
 /// It is written only by code that has just heard the server's answer — the
@@ -28,7 +28,7 @@ part of 'active_goal.dart';
 final activeGoalProvider = ActiveGoalProvider._();
 
 /// The id of the student's active goal, or null when he has none: the
-/// server's `students.current_goal_id`, as the app last heard it (#220).
+/// server's `students.current_goal_id`, as the app last heard it.
 ///
 /// The server is the source of truth, and this is its one copy in the app.
 /// It is written only by code that has just heard the server's answer — the
@@ -44,7 +44,7 @@ final activeGoalProvider = ActiveGoalProvider._();
 /// have each of them ask the server once more, with no session to ask with.
 final class ActiveGoalProvider extends $NotifierProvider<ActiveGoal, String?> {
   /// The id of the student's active goal, or null when he has none: the
-  /// server's `students.current_goal_id`, as the app last heard it (#220).
+  /// server's `students.current_goal_id`, as the app last heard it.
   ///
   /// The server is the source of truth, and this is its one copy in the app.
   /// It is written only by code that has just heard the server's answer — the
@@ -88,7 +88,7 @@ final class ActiveGoalProvider extends $NotifierProvider<ActiveGoal, String?> {
 String _$activeGoalHash() => r'71e9b332fb00d8f34442703cbb96a25180c7519e';
 
 /// The id of the student's active goal, or null when he has none: the
-/// server's `students.current_goal_id`, as the app last heard it (#220).
+/// server's `students.current_goal_id`, as the app last heard it.
 ///
 /// The server is the source of truth, and this is its one copy in the app.
 /// It is written only by code that has just heard the server's answer — the

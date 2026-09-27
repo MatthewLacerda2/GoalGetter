@@ -9,7 +9,7 @@ part of 'tutor_controller.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// The chat with the tutor on the active goal. [build] loads its newest page,
-/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again whenever the active goal changes; `ref.invalidate` loads it
 /// again too - the retry after a failed load.
 ///
 /// Every call made after the first page drops its answer once the chat it
@@ -19,7 +19,7 @@ part of 'tutor_controller.dart';
 final tutorControllerProvider = TutorControllerProvider._();
 
 /// The chat with the tutor on the active goal. [build] loads its newest page,
-/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again whenever the active goal changes; `ref.invalidate` loads it
 /// again too - the retry after a failed load.
 ///
 /// Every call made after the first page drops its answer once the chat it
@@ -27,7 +27,7 @@ final tutorControllerProvider = TutorControllerProvider._();
 final class TutorControllerProvider
     extends $AsyncNotifierProvider<TutorController, TutorState> {
   /// The chat with the tutor on the active goal. [build] loads its newest page,
-  /// again whenever the active goal changes (#220); `ref.invalidate` loads it
+  /// again whenever the active goal changes; `ref.invalidate` loads it
   /// again too - the retry after a failed load.
   ///
   /// Every call made after the first page drops its answer once the chat it
@@ -54,7 +54,7 @@ final class TutorControllerProvider
 String _$tutorControllerHash() => r'581354f0049c9dfa6365c2cda52ea3ff08bee7af';
 
 /// The chat with the tutor on the active goal. [build] loads its newest page,
-/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again whenever the active goal changes; `ref.invalidate` loads it
 /// again too - the retry after a failed load.
 ///
 /// Every call made after the first page drops its answer once the chat it

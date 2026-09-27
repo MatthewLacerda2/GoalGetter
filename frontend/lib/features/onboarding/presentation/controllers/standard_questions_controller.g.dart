@@ -8,7 +8,7 @@ part of 'standard_questions_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The last step of goal creation (#132): [questions] of goal [goalId],
+/// The last step of goal creation: [questions] of goal [goalId],
 /// answered while its first lesson generates.
 ///
 /// [questions] are the ones the screen can draw — it leaves out a key this
@@ -23,7 +23,7 @@ part of 'standard_questions_controller.dart';
 final standardQuestionsControllerProvider =
     StandardQuestionsControllerFamily._();
 
-/// The last step of goal creation (#132): [questions] of goal [goalId],
+/// The last step of goal creation: [questions] of goal [goalId],
 /// answered while its first lesson generates.
 ///
 /// [questions] are the ones the screen can draw — it leaves out a key this
@@ -36,7 +36,7 @@ final standardQuestionsControllerProvider =
 final class StandardQuestionsControllerProvider
     extends
         $NotifierProvider<StandardQuestionsController, StandardQuestionsState> {
-  /// The last step of goal creation (#132): [questions] of goal [goalId],
+  /// The last step of goal creation: [questions] of goal [goalId],
   /// answered while its first lesson generates.
   ///
   /// [questions] are the ones the screen can draw — it leaves out a key this
@@ -94,7 +94,7 @@ final class StandardQuestionsControllerProvider
 String _$standardQuestionsControllerHash() =>
     r'5149987bd30089427ac8ea0b02c28197123988bc';
 
-/// The last step of goal creation (#132): [questions] of goal [goalId],
+/// The last step of goal creation: [questions] of goal [goalId],
 /// answered while its first lesson generates.
 ///
 /// [questions] are the ones the screen can draw — it leaves out a key this
@@ -123,7 +123,7 @@ final class StandardQuestionsControllerFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The last step of goal creation (#132): [questions] of goal [goalId],
+  /// The last step of goal creation: [questions] of goal [goalId],
   /// answered while its first lesson generates.
   ///
   /// [questions] are the ones the screen can draw — it leaves out a key this
@@ -146,7 +146,7 @@ final class StandardQuestionsControllerFamily extends $Family
   String toString() => r'standardQuestionsControllerProvider';
 }
 
-/// The last step of goal creation (#132): [questions] of goal [goalId],
+/// The last step of goal creation: [questions] of goal [goalId],
 /// answered while its first lesson generates.
 ///
 /// [questions] are the ones the screen can draw — it leaves out a key this
