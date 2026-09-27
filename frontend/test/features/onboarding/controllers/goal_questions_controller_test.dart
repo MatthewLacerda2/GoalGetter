@@ -11,6 +11,7 @@ const _second = ObjectiveQuestion(
   options: ['Travel', 'Work', 'Family', 'Fun'],
 );
 const _questions = [question, _second];
+const _one = [question];
 
 void main() {
   // #174: from the question taking the screen to the tap that answers it. The
@@ -47,7 +48,7 @@ void main() {
   test('a failed plan keeps every answer, and the retry sends them', () async {
     final api = FakeOnboardingApi()..planError = geminiDown;
     final (c, _) = await onboardingContainer(api);
-    final provider = goalQuestionsControllerProvider('Italian', [question]);
+    final provider = goalQuestionsControllerProvider('Italian', _one);
     c.keep(provider);
     final controller = c.read(provider.notifier)..select('Fluent');
 
@@ -66,7 +67,7 @@ void main() {
 
   test('back from the plan, the last question is on screen again', () async {
     final (c, _) = await onboardingContainer(FakeOnboardingApi());
-    final provider = goalQuestionsControllerProvider('Italian', [question]);
+    final provider = goalQuestionsControllerProvider('Italian', _one);
     c.keep(provider);
     final controller = c.read(provider.notifier)..select('None');
     await controller.requestPlan();
