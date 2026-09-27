@@ -1,13 +1,16 @@
 import uuid
+from datetime import datetime
+from typing import TYPE_CHECKING
 
-from pgvector.sqlalchemy import Vector
-from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Index, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy import CheckConstraint, ForeignKey, Index
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core import clock
-from backend.models.base import Base
-from backend.utils.envs import NUM_DIMENSIONS
+from backend.models.base import Base, Embedding
+
+if TYPE_CHECKING:
+    from backend.models.goal import Goal
+    from backend.models.student_answer import StudentAnswer
 
 
 class Question(Base):
@@ -28,18 +31,20 @@ class Question(Base):
         Index("idx_question_goal_id", "goal_id"),
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)
-    text = Column(String, nullable=False)
-    text_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    goal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("goals.id", ondelete="CASCADE"))
+    text: Mapped[str]
+    text_embedding: Mapped[Embedding | None]
 
-    option_a = Column(String, nullable=False)
-    option_b = Column(String, nullable=False)
-    option_c = Column(String, nullable=False)
-    option_d = Column(String, nullable=False)
+    option_a: Mapped[str]
+    option_b: Mapped[str]
+    option_c: Mapped[str]
+    option_d: Mapped[str]
 
-    right_answer_index = Column(Integer, nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
+    right_answer_index: Mapped[int]
+    created_at: Mapped[datetime] = mapped_column(default=clock.now)
 
-    goal = relationship("Goal", back_populates="questions")
-    answers = relationship("StudentAnswer", back_populates="question", cascade="all, delete-orphan")
+    goal: Mapped[Goal] = relationship(back_populates="questions")
+    answers: Mapped[list[StudentAnswer]] = relationship(
+        back_populates="question", cascade="all, delete-orphan"
+    )

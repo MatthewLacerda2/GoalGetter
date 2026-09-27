@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core import clock
 from backend.models.chat_message import ChatMessage
-from backend.models.goal import Goal
+from backend.models.goal import START_RATING, Goal
 from backend.models.question import Question
 from backend.models.resource import Resource, StudyResourceType
 from backend.models.student import Student
@@ -28,7 +28,7 @@ from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.fictitious.history_data import LESSON_SIZE, START_RATING
+from backend.services.fictitious.history_data import LESSON_SIZE
 from backend.services.lessons.rasch import replay
 
 

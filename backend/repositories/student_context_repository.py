@@ -1,4 +1,3 @@
-from sqlalchemy import delete as sql_delete
 from sqlalchemy import or_, select
 
 from backend.models.student_context import StudentContext
@@ -10,16 +9,7 @@ class StudentContextRepository(BaseRepository[StudentContext]):
     retired with `is_still_valid = False`, never deleted: it is progression
     history (see backend_contract.md, Student context)."""
 
-    async def create(self, entity: StudentContext) -> StudentContext:
-        self.db.add(entity)
-        await self.db.flush()
-        await self.db.refresh(entity)
-        return entity
-
-    async def get_by_id(self, entity_id: str) -> StudentContext | None:
-        stmt = select(StudentContext).where(StudentContext.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
+    model = StudentContext
 
     async def list_valid(self, student_id) -> list[StudentContext]:
         """The student's still-valid contexts, newest first. Every goal of
@@ -55,12 +45,3 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
-
-    async def update(self, entity: StudentContext) -> StudentContext:
-        await self.db.flush()
-        return entity
-
-    async def delete(self, entity_id: str) -> bool:
-        stmt = sql_delete(StudentContext).where(StudentContext.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.rowcount > 0

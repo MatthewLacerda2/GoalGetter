@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from sqlalchemy import case, func, select
-from sqlalchemy import delete as sql_delete
 
 from backend.models.goal import Goal
 from backend.models.question import Question
@@ -45,11 +44,7 @@ _IS_RIGHT = StudentAnswer.selected_index == Question.right_answer_index
 
 
 class StudentAnswerRepository(BaseRepository[StudentAnswer]):
-    async def create(self, entity: StudentAnswer) -> StudentAnswer:
-        self.db.add(entity)
-        await self.db.flush()
-        await self.db.refresh(entity)
-        return entity
+    model = StudentAnswer
 
     async def create_many(self, entities: list[StudentAnswer]) -> list[StudentAnswer]:
         if not entities:
@@ -57,11 +52,6 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         self.db.add_all(entities)
         await self.db.flush()
         return entities
-
-    async def get_by_id(self, entity_id: str) -> StudentAnswer | None:
-        stmt = select(StudentAnswer).where(StudentAnswer.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
 
     async def list_by_lesson(self, lesson_id) -> list[StudentAnswer]:
         """The answers that arrived in one submission, in the order they were
@@ -215,12 +205,3 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
             .where(Goal.student_id == student_id)
             .order_by(StudentAnswer.created_at.desc())
         )
-
-    async def update(self, entity: StudentAnswer) -> StudentAnswer:
-        await self.db.flush()
-        return entity
-
-    async def delete(self, entity_id: str) -> bool:
-        stmt = sql_delete(StudentAnswer).where(StudentAnswer.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.rowcount > 0

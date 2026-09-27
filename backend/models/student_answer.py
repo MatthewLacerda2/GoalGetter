@@ -1,11 +1,15 @@
 import uuid
+from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Index, Integer
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy import CheckConstraint, ForeignKey, Index
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core import clock
 from backend.models.base import Base
+
+if TYPE_CHECKING:
+    from backend.models.question import Question
 
 
 class StudentAnswer(Base):
@@ -42,15 +46,13 @@ class StudentAnswer(Base):
         Index("idx_student_answer_lesson_id", "lesson_id"),
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    question_id = Column(
-        UUID(as_uuid=True), ForeignKey("questions.id", ondelete="CASCADE"), nullable=False
-    )
-    lesson_id = Column(UUID(as_uuid=True), nullable=False)
-    position = Column(Integer, nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    question_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"))
+    lesson_id: Mapped[uuid.UUID]
+    position: Mapped[int]
 
-    selected_index = Column(Integer, nullable=False)
-    total_seconds = Column(Integer, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
+    selected_index: Mapped[int]
+    total_seconds: Mapped[int | None]
+    created_at: Mapped[datetime] = mapped_column(default=clock.now)
 
-    question = relationship("Question", back_populates="answers")
+    question: Mapped[Question] = relationship(back_populates="answers")

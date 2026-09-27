@@ -7,18 +7,15 @@ from backend.repositories.base import BaseRepository
 class FrontierRepository(BaseRepository[Frontier]):
     """Where we are taking the student, per goal (#133). Append-only: the
     current frontier is the newest row, and the rows before it are the record
-    of where he has been taken."""
+    of where he has been taken.
 
-    async def create(self, entity: Frontier) -> Frontier:
-        self.db.add(entity)
-        await self.db.flush()
-        await self.db.refresh(entity)
-        return entity
+    So a definition is never rewritten - moving the target is a new row - and the
+    only field anything updates is the null embedding the midnight backfill fills
+    in (#96). There is no `delete` (it is a `BaseRepository`, not a
+    `DeletableRepository`): deleting the goal takes its frontiers with it, which
+    the database does on its own (ON DELETE CASCADE)."""
 
-    async def get_by_id(self, entity_id: str) -> Frontier | None:
-        stmt = select(Frontier).where(Frontier.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
+    model = Frontier
 
     async def current(self, goal_id) -> Frontier | None:
         """The goal's newest frontier - what we are teaching him today.
@@ -62,16 +59,3 @@ class FrontierRepository(BaseRepository[Frontier]):
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
-
-    async def update(self, entity: Frontier) -> Frontier:
-        """Flush a row. The definition is never rewritten - moving the target
-        is a new row (#133), and the old one is the record of where the student
-        has been. The only field anything updates is the null embedding the
-        midnight backfill fills in (#96)."""
-        await self.db.flush()
-        return entity
-
-    async def delete(self, entity_id: str) -> bool:
-        """A frontier is never deleted. Deleting the goal takes its frontiers
-        with it, which the database does on its own (ON DELETE CASCADE)."""
-        raise NotImplementedError("A frontier is never deleted")
