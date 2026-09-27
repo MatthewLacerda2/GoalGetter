@@ -472,14 +472,14 @@ remind him and ask.
 
 ===== KNOWN ISSUES =====
 
-- **Cloudflare's edge may still hold year-old copies of web files.** Until #197 nginx
-  served every `*.js`/`*.png` as `public, immutable` for a year, and Flutter web's file
-  names carry no hash. A **Purge Everything** in the Cloudflare dashboard clears what is
-  already cached (no API token here to do it); from #197 on, files are revalidated.
+- **Cloudflare's edge may still hold year-old copies of web files.** nginx once served
+  every `*.js`/`*.png` as `public, immutable` for a year, and Flutter web's file names
+  carry no hash. Files are revalidated now (#197); a **Purge Everything** in the
+  Cloudflare dashboard clears what is already cached (no API token here to do it).
 - **Nothing backs the database up.** The data survives a restart (#157), which
   is the point — and makes losing it possible. No issue covers
   this yet.
-- **Analyzer backlog: 0 warnings, 263 infos** (2026-09-27, `dart analyze` after #227;
+- **Analyzer backlog: 0 warnings, 271 infos** (2026-09-27, `dart analyze` on `main`;
   riverpod_lint contributes none). A warning fails `make front-lint`, riverpod_lint's
   included, because it runs `dart analyze` rather than `flutter analyze` (#169), and the lints
   whose finding is a bug (`unawaited_futures`, `use_build_context_synchronously`,
