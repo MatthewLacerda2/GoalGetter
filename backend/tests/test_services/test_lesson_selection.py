@@ -184,12 +184,13 @@ def test_the_whole_bank_is_scored_and_the_terms_are_readable_from_outside():
     ranked = {
         entry.question.text: entry
         for entry in rank_bank(
-            spent + [fresh], sorted(history, key=lambda r: r.answered_at), now=NOW
+            [*spent, fresh], sorted(history, key=lambda r: r.answered_at), now=NOW
         )
     }
 
     assert len(ranked) == 4  # every question of the bank, not only the served ones
-    assert ranked["fresh"].novelty == 1.0 and ranked["spent0"].novelty == 0.0
+    assert ranked["fresh"].novelty == 1.0
+    assert ranked["spent0"].novelty == 0.0
     assert ranked["spent0"].forgetting < 0.1  # settled: nothing has decayed yet
     assert ranked["fresh"].score(NEUTRAL) > max(
         ranked[f"spent{i}"].score(NEUTRAL) for i in range(3)

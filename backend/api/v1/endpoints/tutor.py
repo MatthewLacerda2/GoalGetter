@@ -48,10 +48,10 @@ def _history_turns(exchanges: list[ChatMessage]) -> list[GeminiChatMessage]:
 
 @router.get("/messages", response_model=list[ChatExchange])
 async def list_messages(
-    before: datetime | None = Query(None, description="Only exchanges older than this created_at"),
-    limit: int = Query(PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
     goal: Goal = Depends(get_active_goal),
     db: AsyncSession = Depends(get_db),
+    before: datetime | None = Query(None, description="Only exchanges older than this created_at"),
+    limit: int = Query(PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
 ):
     """The active goal's exchanges, newest first. Pass the last one's
     `created_at` as `before` for the next (older) page."""

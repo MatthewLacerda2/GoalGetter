@@ -211,5 +211,7 @@ async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
 
     prompts = [call.contents for call in gemini.calls]
     before, after = (f'What to teach him now: "{text}"' for text in (CIRCUITS, "Robotics."))
-    assert before in prompts[0] and after not in prompts[0]
-    assert after in prompts[1] and CIRCUITS in prompts[1]
+    assert before in prompts[0]
+    assert after not in prompts[0]
+    assert after in prompts[1]
+    assert CIRCUITS in prompts[1]

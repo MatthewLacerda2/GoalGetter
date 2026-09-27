@@ -41,7 +41,8 @@ async def test_it_creates_the_history(test_db):
     chat = await ChatMessageRepository(test_db).list_by_goal(goal.id, 50)
     kinds = [r.resource_type.value for r in await ResourceRepository(test_db).list_by_goal(goal.id)]
 
-    assert result.created and len(result.goals) == 3
+    assert result.created
+    assert len(result.goals) == 3
     assert len({g.name for g in result.goals}) == 3
     assert len(await QuestionRepository(test_db).list_bank_history(goal.id)) == 15
     assert len(lessons) == 16
@@ -105,7 +106,8 @@ async def test_it_reuses_a_student_dev_login_made(test_db, student_factory):
         email="fictitious-claude@fictitious.invalid",
     )
     result = await seed_fictitious_student(test_db)
-    assert result.created and result.student.id == existing.id
+    assert result.created
+    assert result.student.id == existing.id
 
 
 @pytest.mark.asyncio

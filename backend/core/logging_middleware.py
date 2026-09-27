@@ -18,9 +18,9 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             response_body = [chunk async for chunk in response.body_iterator]
             try:
                 error_msg = b"".join(response_body).decode()
-            except Exception:
+            except UnicodeDecodeError:
                 error_msg = "[Binary or Undecodable Error Body]"
-            logger.error(f"Error Body: {error_msg}")
+            logger.error("Error Body: %s", error_msg)
 
             response = Response(
                 content=b"".join(response_body),
@@ -31,7 +31,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         real_ip = request.headers.get("cf-connecting-ip") or request.client.host
         logger.info(
-            f"IP: {real_ip} | {request.method} {request.url.path} | Status: {response.status_code}"
+            "IP: %s | %s %s | Status: %s",
+            real_ip,
+            request.method,
+            request.url.path,
+            response.status_code,
         )
 
         return response

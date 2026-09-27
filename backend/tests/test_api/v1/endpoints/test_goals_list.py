@@ -17,7 +17,8 @@ async def test_list_goals_carries_every_field(auth_client, test_user, goal_facto
     assert body["description"] == "Hold a chat."
     assert body["current_elo"] == 920
     assert body["is_active"] is True
-    assert body["created_at"] and body["updated_at"]
+    assert body["created_at"]
+    assert body["updated_at"]
 
 
 @pytest.mark.asyncio

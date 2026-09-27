@@ -107,7 +107,7 @@ async def test_permanent_failure_is_not_retried(code):
 async def test_a_bug_in_our_code_is_not_retried():
     call = Recorder(ValueError("bad schema"))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="bad schema"):
         await call_with_retry(call, "test", budget=BACKGROUND_BUDGET, sleep=Clock())
 
     assert call.calls == 1

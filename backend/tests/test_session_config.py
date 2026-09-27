@@ -16,7 +16,8 @@ async def test_production_session_can_read_what_it_just_committed(setup_test_db)
         session.add(student)
         await session.commit()
         try:
-            assert student.id is not None and student.name == "Commit"
+            assert student.id is not None
+            assert student.name == "Commit"
         finally:
             await session.delete(student)
             await session.commit()

@@ -174,7 +174,7 @@ async def delete_account(
         raise
     except Exception as e:
         await db.rollback()
-        logger.error(f"Error deleting account: {e}", exc_info=True)
+        logger.exception("Error deleting account")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error deleting account",

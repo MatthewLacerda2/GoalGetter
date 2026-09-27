@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from datetime import timedelta
 
@@ -25,7 +26,7 @@ JWT_ISSUER = "https://goalsgetter.org/api/v1"
 JWT_AUDIENCE = "https://goalsgetter.org/api/v1"
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """
     Create a JWT access token with the given data and expiration time.
     """
@@ -56,6 +57,13 @@ def _google_unreachable() -> HTTPException:
     )
 
 
+def _verify_id_token(token: str) -> dict:
+    """google-auth fetches Google's certificates with `requests`, synchronously:
+    called on the event loop, one slow fetch stalls every request in flight, so
+    `verify_google_token` runs this in a worker thread (#210)."""
+    return id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_CLIENT_ID)
+
+
 async def verify_google_token(token: str) -> dict:
     """
     Verify a Google OAuth2 token (ID token or access token) and return the user information.
@@ -64,7 +72,7 @@ async def verify_google_token(token: str) -> dict:
     client is told which, never the exception's text: that goes to the log.
     """
     try:
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_CLIENT_ID)
+        idinfo = await asyncio.to_thread(_verify_id_token, token)
         return {
             "sub": idinfo["sub"],  # Google's unique user ID
             "email": idinfo["email"],
@@ -73,7 +81,7 @@ async def verify_google_token(token: str) -> dict:
             "email_verified": idinfo.get("email_verified", False),
         }
     except TransportError as err:
-        logger.error("Could not fetch Google's certificates: %s", err)
+        logger.exception("Could not fetch Google's certificates")
         raise _google_unreachable() from err
     except Exception as err:
         # Not an ID token: an access token ("ya29.…") is verified by asking
@@ -93,7 +101,7 @@ async def _verify_google_access_token(token: str) -> dict:
                 GOOGLE_USERINFO_URL, headers={"Authorization": f"Bearer {token}"}
             )
     except httpx.RequestError as err:
-        logger.error("Could not reach Google's userinfo: %s", err)
+        logger.exception("Could not reach Google's userinfo")
         raise _google_unreachable() from err
     try:
         response.raise_for_status()

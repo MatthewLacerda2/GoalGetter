@@ -32,9 +32,13 @@ def test_two_paces_fill_the_same_two_minutes_with_different_counts():
     deliberate = lesson_size([24] * 8)
     quick = lesson_size([11] * 8)
 
-    assert deliberate == 6 and quick == 11
-    assert deliberate * 24 == 144 and quick * 11 == 121  # both about two minutes
-    assert deliberate >= MIN_QUESTIONS and quick >= MIN_QUESTIONS
+    assert deliberate == 6
+    assert quick == 11
+    # both about two minutes
+    assert deliberate * 24 == 144
+    assert quick * 11 == 121
+    assert deliberate >= MIN_QUESTIONS
+    assert quick >= MIN_QUESTIONS
 
 
 def test_nobody_gets_fewer_than_six_or_more_than_twelve():
@@ -48,8 +52,8 @@ def test_one_interrupted_question_does_not_resize_the_next_three_lessons():
     """The phone on the table is not thinking time, and the median ignores it"""
     steady = [8] * 7
 
-    assert lesson_size(steady + [3600]) == MAX_QUESTIONS
-    assert lesson_size(steady + [8]) == MAX_QUESTIONS
+    assert lesson_size([*steady, 3600]) == MAX_QUESTIONS
+    assert lesson_size([*steady, 8]) == MAX_QUESTIONS
     # A student who is genuinely slow reads the same either way: no second mode.
     assert lesson_size([30] * 8) == lesson_size([30] * 7 + [31]) == MIN_QUESTIONS
 
