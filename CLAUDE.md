@@ -130,6 +130,13 @@ Both skip a side they cannot run (no Docker, no Flutter, no `flutter pub get` he
 with a printed reason rather than blocking: a gate that always fails is a gate
 nobody runs.
 
+`make check` runs a third gate, **`make ops-lint`** (#230): shellcheck on every tracked
+`*.sh` and hook, hadolint on every Dockerfile, both from images the Makefile pins by
+digest, every finding fatal; hadolint's exceptions and their reasons are `.hadolint.yaml`.
+The pre-push hook runs it when a push touches one of those files. In CI, `ops-lint.yml`
+runs it and `images.yml` builds every compose image on a pull request that changes what
+goes into one — a Dockerfile that would break the deploy breaks the pull request first.
+
 ## House rules
 
 `make back-lint` (`backend/tests/backend_linter.py`) enforces these. Run it before

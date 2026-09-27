@@ -7,6 +7,8 @@
 # depends on: COPY --from caches on the file's content, and /flutter-version
 # only changes when the version does - a dependency bump does not re-clone it.
 FROM debian:trixie-slim AS flutter-pin
+# pipefail, so a failing sed is not hidden behind head's exit status.
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY frontend/pubspec.yaml /pubspec.yaml
 RUN sed -nE 's/^[[:space:]]+flutter:[[:space:]]*([0-9][^[:space:]#]*).*/\1/p' /pubspec.yaml \
       | head -n1 > /flutter-version \
@@ -17,6 +19,9 @@ RUN sed -nE 's/^[[:space:]]+flutter:[[:space:]]*([0-9][^[:space:]#]*).*/\1/p' /p
 # bookworm was already the previous release, so the image moved on with #164.
 FROM debian:trixie-slim AS flutter-base
 
+# The recommends stay: they carry ca-certificates, which the https clone below
+# needs, and this stage is discarded - only the nginx stage ships.
+# hadolint ignore=DL3015
 RUN apt-get update && apt-get install -y \
     curl \
     git \
@@ -35,7 +40,6 @@ ENV PUB_HOSTED_URL="https://pub.dev"
 # Install the pinned Flutter (cached until the pin moves)
 COPY --from=flutter-pin /flutter-version /flutter-version
 RUN git clone https://github.com/flutter/flutter.git -b "$(cat /flutter-version)" --depth 1 $FLUTTER_HOME \
-    && cd $FLUTTER_HOME \
     && flutter config --enable-web \
     && flutter precache --web
 
