@@ -58,7 +58,13 @@ const Map<String, Set<String>> constructorExemptions = {
 final RegExp _textWidget = RegExp(r'''\b(?:Text|SelectableText)\s*\(\s*['"]''');
 
 /// A named argument whose value starts with a string literal: `name: '`.
-final RegExp _namedLiteral = RegExp(r'''\b([A-Za-z_$][\w$]*)\s*:\s*r?['"]''');
+///
+/// The name has to open an argument — follow `(` or `,` — because the else
+/// branch of a ternary has the same shape: `ok ? detail : 'HTTP $status'` is
+/// a positional argument, not `detail:` (#270).
+final RegExp _namedLiteral = RegExp(
+  r'''(?<=[(,]\s*)\b([A-Za-z_$][\w$]*)\s*:\s*r?['"]''',
+);
 
 /// A letter in any of the five alphabets we ship.
 final RegExp _letter = RegExp(r'\p{L}', unicode: true);

@@ -38,56 +38,105 @@ const Set<String> _blockKeywords = {
 
 /// Blanks out comments and string contents, keeping every character position
 /// (and therefore every line number) intact.
+///
+/// What a string interpolates is code, and stays: `'${a ? 'x' : ''}$b'` reads
+/// `'${a ? ' ' : ''}$b'`, so a rule sees what the interpolation calls and the
+/// quotes nested in it never pair up with the outer ones (#262).
 String stripSource(String source) {
   final out = List<String>.from(source.split(''));
-  var i = 0;
-  final n = source.length;
-
-  void blank(int from, int to) {
-    for (var k = from; k < to && k < n; k++) {
+  final text = <(int, int)>[];
+  _scanCode(source, 0, text);
+  for (final (from, to) in text) {
+    for (var k = from; k < to; k++) {
       if (out[k] != '\n' && out[k] != '\r') out[k] = ' ';
     }
   }
+  return out.join();
+}
 
+bool _isIdentifierChar(String c) => RegExp(r'[A-Za-z0-9_$]').hasMatch(c);
+
+/// Scans code from [start], adding every comment and every string's text to
+/// [text], and returns where it stopped: the `}` that closes an interpolation
+/// when [inInterpolation], else the end of [src].
+int _scanCode(
+  String src,
+  int start,
+  List<(int, int)> text, {
+  bool inInterpolation = false,
+}) {
+  final n = src.length;
+  var i = start;
+  var depth = 0;
   while (i < n) {
-    final c = source[i];
-    final next = i + 1 < n ? source[i + 1] : '';
-
-    if (c == '/' && next == '/') {
-      var end = source.indexOf('\n', i);
+    final c = src[i];
+    if (src.startsWith('//', i)) {
+      var end = src.indexOf('\n', i);
       if (end < 0) end = n;
-      blank(i, end);
+      text.add((i, end));
       i = end;
-      continue;
-    }
-    if (c == '/' && next == '*') {
-      var end = source.indexOf('*/', i + 2);
+    } else if (src.startsWith('/*', i)) {
+      var end = src.indexOf('*/', i + 2);
       end = end < 0 ? n : end + 2;
-      blank(i, end);
+      text.add((i, end));
       i = end;
-      continue;
+    } else if (c == "'" || c == '"') {
+      i = _scanLiteral(src, i, text).end;
+    } else {
+      if (c == '{') depth++;
+      if (c == '}') {
+        if (depth == 0 && inInterpolation) return i;
+        depth--;
+      }
+      i++;
     }
-    if (c == "'" || c == '"') {
-      final triple = source.startsWith(c * 3, i);
-      final quote = triple ? c * 3 : c;
-      var j = i + quote.length;
-      while (j < n) {
-        if (source[j] == r'\') {
-          j += 2;
-          continue;
-        }
-        if (source.startsWith(quote, j)) break;
-        if (!triple && source[j] == '\n') break;
+  }
+  return n;
+}
+
+/// Scans the literal whose opening quote is at [quote]: its text goes to
+/// [text], the code of each `${…}` is scanned as code. Returns where its
+/// contents end (the closing quote) and where the literal ends (past it).
+({int contentEnd, int end}) _scanLiteral(
+  String src,
+  int quote,
+  List<(int, int)> text,
+) {
+  final n = src.length;
+  final c = src[quote];
+  final raw =
+      quote > 0 &&
+      src[quote - 1] == 'r' &&
+      (quote < 2 || !_isIdentifierChar(src[quote - 2]));
+  final mark = src.startsWith(c * 3, quote) ? c * 3 : c;
+  var j = quote + mark.length;
+  var from = j;
+  while (j < n) {
+    if (src.startsWith(mark, j)) {
+      text.add((from, j));
+      return (contentEnd: j, end: j + mark.length);
+    }
+    if (mark.length == 1 && src[j] == '\n') break;
+    if (!raw && src[j] == r'\') {
+      j += 2;
+    } else if (!raw && src.startsWith(r'${', j)) {
+      text.add((from, j));
+      j = _scanCode(src, j + 2, text, inInterpolation: true) + 1;
+      from = j;
+    } else if (!raw && RegExp(r'\$[A-Za-z_]').matchAsPrefix(src, j) != null) {
+      text.add((from, j));
+      j++;
+      while (j < n && RegExp('[A-Za-z0-9_]').hasMatch(src[j])) {
         j++;
       }
-      final end = j < n ? j + quote.length : n;
-      blank(i + quote.length, end - quote.length);
-      i = end;
-      continue;
+      from = j;
+    } else {
+      j++;
     }
-    i++;
   }
-  return out.join();
+  final end = j < n ? j : n;
+  text.add((from, end));
+  return (contentEnd: end, end: end);
 }
 
 /// 1-based line number of [index] in [source].
@@ -202,11 +251,7 @@ List<FunctionSpan> findFunctions(String stripped) {
     if (close < 0) continue;
     final end = bodyEnd(close + 1);
     if (end == null) continue;
-    spans.add(FunctionSpan(
-      name,
-      lineAt(stripped, i),
-      lineAt(stripped, end),
-    ));
+    spans.add(FunctionSpan(name, lineAt(stripped, i), lineAt(stripped, end)));
     i = close;
   }
 
@@ -214,11 +259,13 @@ List<FunctionSpan> findFunctions(String stripped) {
   for (final m in RegExp(r'\bget\s+([A-Za-z_]\w*)\s*').allMatches(stripped)) {
     final end = bodyEnd(m.end);
     if (end == null) continue;
-    spans.add(FunctionSpan(
-      m.group(1)!,
-      lineAt(stripped, m.start),
-      lineAt(stripped, end),
-    ));
+    spans.add(
+      FunctionSpan(
+        m.group(1)!,
+        lineAt(stripped, m.start),
+        lineAt(stripped, end),
+      ),
+    );
   }
 
   return spans;
@@ -232,22 +279,9 @@ List<FunctionSpan> findFunctions(String stripped) {
 String? literalAt(String source, int quote) {
   final c = source[quote];
   if (c != "'" && c != '"') return null;
-  final triple = source.startsWith(c * 3, quote);
-  final mark = triple ? c * 3 : c;
-  var j = quote + mark.length;
-  final buffer = StringBuffer();
-  while (j < source.length) {
-    if (source[j] == r'\') {
-      buffer.write(source.substring(j, j + 2 <= source.length ? j + 2 : j + 1));
-      j += 2;
-      continue;
-    }
-    if (source.startsWith(mark, j)) return buffer.toString();
-    if (!triple && source[j] == '\n') return buffer.toString();
-    buffer.write(source[j]);
-    j++;
-  }
-  return buffer.toString();
+  final start = source.startsWith(c * 3, quote) ? quote + 3 : quote + 1;
+  final end = _scanLiteral(source, quote, []).contentEnd;
+  return source.substring(start, end);
 }
 
 final RegExp _interpolation = RegExp(r'\$(?:\{[^}]*\}|[A-Za-z_]\w*)');
@@ -265,9 +299,10 @@ String ownText(String literal) => literal.replaceAll(_interpolation, '');
 /// reads `l10n.videos`, while `'Go book'` reads nothing.
 ///
 /// This is what "the code names it" means for a rule that looks for a name,
-/// because an interpolation is code that happens to live inside a string. A
-/// comment that spells an interpolation is restored too: the rule would
-/// rather keep a key than delete one that is read.
+/// because an interpolation is code that happens to live inside a string.
+/// `stripSource` keeps those already (#262); what this adds is a comment that
+/// spells an interpolation, restored too: the rule would rather keep a key
+/// than delete one that is read.
 String stripToCode(String source) {
   final chars = stripSource(source).split('');
   for (final match in _interpolation.allMatches(source)) {
