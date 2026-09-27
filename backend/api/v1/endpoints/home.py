@@ -26,9 +26,7 @@ async def get_home(
 ) -> HomeDashboard:
     """Rating, streak and recent lessons. No active goal is 404.
 
-    A lesson here is a group of answers sharing one `lesson_id` (#131); the
-    elo series it used to carry is gone with the `lessons` table and returns
-    with #62.
+    A lesson here is a group of answers sharing one `lesson_id`.
     """
     recent = await StudentAnswerRepository(db).list_recent_lessons_by_goal(
         goal.id, RECENT_LESSONS_LIMIT

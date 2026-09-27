@@ -2,7 +2,7 @@
 
 Everything configurable is a field here, and code reads it at call time as
 `settings.FIELD` - never through a copy taken into a module global at import
-time, which a test that patches `settings` would never reach (#215). The
+time, which a test that patches `settings` would never reach. The
 environment wins over the root `.env`, which pydantic-settings reads by itself:
 nothing else calls `load_dotenv` or reads `os.environ`.
 """
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str
     # The run's disposable test database, set by tools/test-db.sh for the length
-    # of `make back-test` / `make back-migrations` (#205). Nothing else sets it,
+    # of `make back-test` / `make back-migrations`. Nothing else sets it,
     # and the gates never read it from .env: the script's value wins.
     TEST_DATABASE_URL: str | None = None
 
@@ -71,15 +71,15 @@ class Settings(BaseSettings):
     GEMINI_PREMIUM_MODEL: str = "gemini-3.8-flash"
 
     # How many questions one Gemini call is asked for. **The size of a batch, not
-    # of a lesson** (#135) - the two were the same number until #134 and are not the
-    # same thing: a lesson is two minutes, and how many questions that is comes from
-    # the student's own answering pace (six to twelve, services/lessons/pacing.py).
+    # of a lesson** (#135): a lesson is two minutes, and how many questions that is
+    # comes from the student's own answering pace (six to twelve,
+    # services/lessons/pacing.py).
     #
     # Eight, in the user's own words: "pedir exatamente 8 e uma boa, nao sao
     # perguntas demais nem de menos; pedir demais pode diminuir a performance, ainda
     # mais quando nao temos contexto suficiente sobre o usuario". It is a fixed
-    # number and no longer a gap to fill, because the decision to generate is no
-    # longer about how full the bank is (services/lessons/generation.py).
+    # number, not a gap to fill, because the decision to generate is not about how
+    # full the bank is (services/lessons/generation.py).
     QUESTIONS_PER_GENERATION: int = 8
 
     # The placement (the user, 2026-09-26): what a new goal is given right after

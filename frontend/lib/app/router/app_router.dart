@@ -32,7 +32,7 @@ part 'app_router.g.dart';
 
 /// The app's go_router configuration.
 ///
-/// Signing in and out is routing (#224): the router listens to the session
+/// Signing in and out is routing: the router listens to the session
 /// ([signedInProvider]) and to the launch decision
 /// ([launchDestinationProvider]), and its redirects decide where the student
 /// goes — [_sessionRedirect] for a session that ended, [_launchRedirect] for
@@ -100,7 +100,7 @@ String? _launchRedirect(Ref ref) {
   if (!ref.exists(launchDestinationProvider)) return null;
   return switch (ref.read(launchDestinationProvider)) {
     AsyncData(:final value) => value.location,
-    // A decision that failed outright reads as signed out, as it always did.
+    // A decision that failed outright reads as signed out.
     AsyncError() => AppRoutes.start,
     _ => null,
   };
@@ -134,9 +134,8 @@ List<RouteBase> appRoutes(Ref ref) => [
 /// and the app is distributed through the web first, so that is the ordinary
 /// case rather than a corner. Every route that needs one therefore says in its
 /// `redirect` where the student goes when it is gone, and its builder only
-/// runs with a real one. Falling back to a fixture instead is the defect #139
-/// fixed: it showed a real student a fictitious one's questions, plan and
-/// results.
+/// runs with a real one. A fixture as the fallback would show a real student a
+/// fictitious one's questions, plan and results (#139).
 T? _extra<T>(GoRouterState state) {
   final extra = state.extra;
   return extra is T ? extra : null;
@@ -149,7 +148,7 @@ GoalDraft? _studyPlanDraft(Ref ref, GoRouterState state) =>
     _extra<GoalDraft>(state) ?? ref.read(pendingGoalDraftProvider);
 
 /// Goal creation: the prompt, the questions Gemini wrote for it, the plan, and
-/// the standard questions asked while the first lesson generates (#132).
+/// the standard questions asked while the first lesson generates.
 ///
 /// None of the three after the prompt can be fetched back after a refresh: the
 /// questions and the plan are Gemini's answers to what the student typed a

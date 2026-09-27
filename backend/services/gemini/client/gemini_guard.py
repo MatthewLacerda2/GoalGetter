@@ -39,7 +39,7 @@ async def run_gemini[**P, R](
     what went wrong upstream to the client.
 
     It answers what `use_case` answers, and the type checker holds `args` and
-    `kwargs` to `use_case`'s own signature (#209): an argument of the wrong type,
+    `kwargs` to `use_case`'s own signature: an argument of the wrong type,
     or one too many, fails `make back-types` rather than a request.
 
     Every call inside it retries on the short budget

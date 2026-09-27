@@ -7,11 +7,11 @@ part 'session.g.dart';
 /// one, false once a sign-out or a refused refresh cleared it.
 ///
 /// The router listens to this and its `redirect` decides where the student
-/// goes when it turns false (#224); nothing in `lib/core/` navigates. The
+/// goes when it turns false; nothing in `lib/core/` navigates. The
 /// three places that write or clear the tokens call [sync] afterwards:
 /// `AuthService.storeSession`, `AuthService.signOut` and the `ApiClient`'s
 /// `onSessionExpired`. A refresh that rotates the tokens leaves it true, and
-/// only a refresh the backend refuses ends it (#193).
+/// only a refresh the backend refuses ends it.
 @Riverpod(keepAlive: true)
 class SignedIn extends _$SignedIn {
   @override

@@ -1,13 +1,13 @@
 """The live suite's bookkeeping: what a run cost, and when it cannot run (#176).
 
 Every billed request is counted where all of them pass - the async side of the
-Gemini `Client` that `gemini_configs.get_client` builds (#216), and the YouTube
+Gemini `Client` that `gemini_configs.get_client` builds, and the YouTube
 Data API behind httpx -
 and the total is printed at the end of the run, so a run's cost is a number and
 not a guess. Link checks against ordinary web pages are counted apart: they
 reach the network but nobody bills them.
 
-**The count is also a ceiling** (#206). A live test makes one billed call - the
+**The count is also a ceiling.** A live test makes one billed call - the
 use case it names - unless its marker says otherwise (`live(calls=3)`), and a
 test that bills more fails. So a loop, a retry storm or a use case that grew a
 second call is a red run, not a larger bill nobody reads. A Gemini call that
@@ -67,7 +67,7 @@ def count_calls():
     async def send(self, request, *args, **kwargs):
         url = urlsplit(str(request.url))
         if url.hostname == GEMINI_HOST:
-            # Gemini's async client is an httpx.AsyncClient too (#216); its
+            # Gemini's async client is an httpx.AsyncClient too; its
             # calls are counted above, one per call, not here per request.
             return await real_send(self, request, *args, **kwargs)
         youtube = url.hostname == "www.googleapis.com" and url.path.startswith("/youtube/")

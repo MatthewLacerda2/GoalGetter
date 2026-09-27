@@ -70,7 +70,7 @@ async def _internal_error(_request: Request, _exc: Exception) -> JSONResponse:
 
 def install_error_handlers(app: FastAPI) -> None:
     # Starlette types a handler as taking any Exception; each of these takes
-    # the one class it is registered for, which is all it is ever given (#209).
+    # the one class it is registered for, which is all it is ever given.
     app.add_exception_handler(StarletteHTTPException, _http_error)  # type: ignore[arg-type]
     app.add_exception_handler(RequestValidationError, _invalid_request)  # type: ignore[arg-type]
     # Registered by its own class, though it is an HTTPException: Starlette

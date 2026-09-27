@@ -2,7 +2,7 @@ import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 
 /// One clarifying question of `POST /goals/objective-questions`: exactly four
 /// options, none of them "correct" (they profile the student), and the model
-/// that wrote it (#247).
+/// that wrote it.
 class ObjectiveQuestion {
   final String question;
   final List<String> options;
@@ -23,12 +23,12 @@ class ObjectiveQuestion {
 }
 
 /// The option the student picked for one question, and the whole seconds he
-/// spent on it (#174; see `QuestionTimer`). No duration is sent as none: the
+/// spent on it (see `QuestionTimer`). No duration is sent as none: the
 /// backend stores the answer either way.
 ///
 /// [aiModel] is its question's, sent back so `POST /goals` records who wrote
 /// the question: that request cannot know, the questions came from another
-/// one (#247). Without it the row says `"unknown"`.
+/// one. Without it the row says `"unknown"`.
 class ObjectiveAnswer {
   final String question;
   final String answer;
@@ -66,7 +66,7 @@ class GoalDraft {
 }
 
 /// One standard onboarding question, as `POST /goals` hands it over: keys, not
-/// sentences (#132).
+/// sentences.
 ///
 /// The four questions are written by us and live in the backend's
 /// `services/onboarding/standard_questions.py`; what the student reads is the
@@ -87,7 +87,7 @@ class StandardQuestion {
 }
 
 /// One answer to a standard question: the question's key, the key of the
-/// option picked, and the whole seconds he spent on it (#174).
+/// option picked, and the whole seconds he spent on it.
 class StandardAnswer {
   final String questionKey;
   final String optionKey;

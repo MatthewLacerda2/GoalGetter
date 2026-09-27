@@ -128,7 +128,7 @@ class StandardQuestionData(BaseModel):
 
 class GoalCreationResponse(BaseModel):
     """What the client gets after committing a goal: the persisted goal plus the
-    standard questions to ask while the chain generates its first batch (#132)."""
+    standard questions to ask while the chain generates its first batch."""
 
     id: UUID = Field(..., description="The created goal's id")
     name: str = Field(..., description="The goal name")

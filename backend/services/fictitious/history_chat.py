@@ -1,8 +1,8 @@
 # lint: data-file
-"""The tutor chat of each fictitious goal (#60, split out in #107).
+"""The tutor chat of each fictitious goal (#60).
 
 Invented by hand, never by Gemini. The hours are the student's wall clock
-(`core.clock.APP_TIMEZONE`, #92), not the server's.
+(`core.clock.APP_TIMEZONE`), not the server's.
 """
 
 # (prompt, reply bubbles, liked, days_ago, hour)

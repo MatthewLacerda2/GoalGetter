@@ -1,7 +1,7 @@
 # Backend tooling config. Ruff is the lint/format layer; the house rules Ruff
 # cannot express - file, endpoint and test length, and the repository pattern -
 # live in backend/tests/backend_linter.py. `make back-lint` runs all three, and
-# the import contracts at the end of this file (#211).
+# the import contracts at the end of this file.
 #
 # Ruff finds this file by walking up from each file it checks, so it governs
 # everything under backend/ no matter which directory the gate is invoked from.
@@ -28,10 +28,10 @@ src = [".."]
 # I   - isort: one import order, so a diff never argues about it.
 # UP  - pyupgrade: modern syntax only (`list[str]`, `str | None`).
 #
-# The families below (#210) each encode a rule this code already keeps, or a
-# bug it already had - chosen by what they found, not by how many exist:
-# ASYNC  - blocking calls inside `async def`. Zero hits when added: a free guard
-#          for an app that is async end to end. It cannot see a blocking call
+# The families below each encode a rule this code keeps, or a bug it had -
+# chosen by what they find, not by how many exist:
+# ASYNC  - blocking calls inside `async def`: a free guard for an app that is
+#          async end to end. It cannot see a blocking call
 #          behind a library (google-auth's certificate fetch was one, fixed by
 #          hand in core/security.py), so it is a floor, not a proof.
 # DTZ    - naive datetimes. core/clock.py's rule, mechanised: every moment is
@@ -59,7 +59,7 @@ src = [".."]
 # word lists in services/language/common_words.py, which read better as the
 # split strings they are); S (bandit: 750 hits, all `assert` in tests); ANN, D
 # (annotation and docstring coverage are the type checker's and the reader's
-# business, #209); ARG (FastAPI dependencies are unused arguments by design).
+# business); ARG (FastAPI dependencies are unused arguments by design).
 select = [
   "F", "E", "W", "B", "I", "UP",
   "ASYNC", "DTZ", "BLE", "G", "LOG", "TRY400", "FAST", "ISC", "RUF", "PT", "T20",
@@ -107,13 +107,11 @@ extend-immutable-calls = [
 ]
 
 [tool.ruff.format]
-# LF, as the repository's .gitattributes checks every text file out. This once
-# said "auto" because ~15 backend files were CRLF and pinning LF would have made
-# each one-line edit a whole-file diff; .gitattributes normalised them, and none
-# are CRLF any more, so the formatter pins what git already guarantees.
+# LF, as the repository's .gitattributes checks every text file out: the
+# formatter pins what git already guarantees.
 line-ending = "lf"
 
-# The layer boundaries (#211), as import contracts `make back-lint` checks with
+# The layer boundaries, as import contracts `make back-lint` checks with
 # import-linter. It builds the import graph of backend/ - every `import`, direct
 # or through other modules - and fails when an edge a contract forbids exists.
 # A contract is only as good as its reason, so each one carries it; and none
@@ -175,7 +173,7 @@ source_modules = ["backend.services.gemini"]
 forbidden_modules = ["backend.models", "backend.repositories"]
 
 [[tool.importlinter.contracts]]
-# One typed door to the SDK (#216): services/gemini/client/ holds the client,
+# One typed door to the SDK: services/gemini/client/ holds the client,
 # the retry, the guard and the call, and every use case goes through it. The
 # tests are the other importer: they fake the SDK's client and errors.
 name = "only services/gemini/client/ imports google.genai"
@@ -183,13 +181,13 @@ type = "protected"
 protected_modules = ["google.genai"]
 allowed_importers = ["backend.services.gemini.client", "backend.tests"]
 
-# pytest (#206). It lives beside ruff, and is found the same way: `make
+# pytest. It lives beside ruff, and is found the same way: `make
 # back-test` names backend/tests, and pytest looks for its config from there
 # upward, so this file is the config and backend/ the rootdir.
 #
-# Everything here fails rather than warns. A misspelt marker (`@pytest.mark.lvie`)
-# used to be a warning, and the test then ran in the default suite; an
-# un-awaited coroutine used to be a warning, and passed.
+# Everything here fails rather than warns. As a warning, a misspelt marker
+# (`@pytest.mark.lvie`) runs its test in the default suite, and an un-awaited
+# coroutine passes.
 [tool.pytest]
 minversion = "9.0"
 testpaths = ["tests"]
@@ -198,7 +196,7 @@ asyncio_mode = "auto"
 # strict_markers, strict_config, strict_xfail and strict_parametrization_ids.
 strict = true
 # The worktree is mounted into a container that runs as the invoking user: a
-# cache directory there is litter nobody reads (#205).
+# cache directory there is litter nobody reads.
 addopts = ["-p", "no:cacheprovider"]
 markers = [
   "live: calls the real Gemini/YouTube APIs and spends quota; lives in tests/live/ and nowhere else, and runs only with --live (#176). `live(calls=N)`: the billed calls it may make, 1 unless it says",
@@ -213,7 +211,7 @@ filterwarnings = [
   "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning:slowapi.extension",
 ]
 
-# Coverage, measured by every full `make back-test` (#206) and floored: the run
+# Coverage, measured by every full `make back-test` and floored: the run
 # fails when the app's coverage drops under `fail_under`. The floor is the
 # measured total when it was set, less a point of slack, so it catches a
 # feature landing untested, not a refactor moving lines around. Raise it when
@@ -231,7 +229,7 @@ fail_under = 90
 skip_covered = true
 show_missing = true
 
-# The type gate (#209): `make back-types`. mypy rather than pyright, for three
+# The type gate: `make back-types`. mypy rather than pyright, for three
 # reasons. It rejects an explicit `Any` (`disallow_any_explicit`), which is the
 # rule this gate exists for and which pyright has no setting for. It is a pip
 # package that runs in the backend image with no network, where pyright is a
@@ -242,8 +240,8 @@ show_missing = true
 # spelled out - a bare `dict` or `list` fails (`disallow_any_generics`), and an
 # explicit `Any` fails - and `dict[str, Any]` with it. What remains is judgement:
 # data crossing a layer is a Pydantic model, a dataclass or a TypedDict, not a dict.
-# Strict is affordable because it was reached, not aimed at: the whole backend
-# passed it the day the gate went in, with three narrow exceptions below.
+# Strict is affordable because the whole backend passes it, with the narrow
+# exceptions below.
 #
 # The cache lives in .mypy_cache at the repository root (gitignored): cold, the
 # whole backend with its libraries takes ~40 s; warm, a couple of seconds.
@@ -270,7 +268,7 @@ ignore_missing_imports = true
 # `make gemini`'s menu is a table of use cases whose functions all take
 # different arguments, so an entry's arguments are `Any` to the table; the
 # test beside it checks each entry's arguments against its function's own
-# signature (tests/test_tools/test_gemini_cli.py, #120). Only that rule is off.
+# signature (tests/test_tools/test_gemini_cli.py). Only that rule is off.
 [[tool.mypy.overrides]]
 module = ["backend.tools.gemini_cli"]
 disallow_any_explicit = false

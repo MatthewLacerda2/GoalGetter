@@ -173,7 +173,7 @@ back-image: ## Rebuild the backend image the gates run in (after a requirements.
 # (`>=`), so the two ends disagree. A machine BEHIND the pin fails `pub get`
 # loudly, with both numbers in the message; a machine AHEAD of it is silent, and
 # then the branch is green here having been analyzed by a version that will
-# never judge it (#147 - #119's drift, inverted).
+# never judge it (#147).
 #
 # This makes the silent direction behave like the loud one: the gate refuses to
 # call itself green when the analyzer it just ran is not the one CI will run.
@@ -196,24 +196,23 @@ front-version: ## Check this machine's Flutter is exactly frontend/pubspec.yaml'
 # The ARB files generate lib/l10n/generated/, which is gitignored - so it is
 # whatever the last branch in this worktree left behind. A branch that adds or
 # renames a key leaves it stale, and then every frontend gate fails on getters
-# that do exist (seen on `main` 2026-09-24 after #119 and #124: 12 undefined_getter
-# errors, zero of them real). CI never sees it, because a fresh checkout's
+# that do exist (12 undefined_getter errors on `main` on 2026-09-24, zero of
+# them real). CI never sees it, because a fresh checkout's
 # `flutter pub get` regenerates - so the gate lies only on the machine where the
 # work happens. Regenerating first costs a couple of seconds and removes the
 # whole class.
 gen-l10n: ## Regenerate lib/l10n/generated/ from the ARB files
 	@cd frontend && $(FLUTTER) gen-l10n
 
-# A warning fails this gate (#101): the backlog that justified letting them
-# through is gone. The infos are a separate, larger backlog, so they still
+# A warning fails this gate (#101). The infos are a separate, larger backlog, so they still
 # only report - `dart analyze` fails on warnings and not on infos by default,
 # the policy `flutter analyze --no-fatal-infos` spelled out.
 #
 # `dart analyze`, not `flutter analyze`: only the former runs analyzer plugins,
-# so riverpod_lint (analysis_options.yaml `plugins:`) was never a gate while
-# this read `flutter analyze` - a deliberate `missing_provider_scope` passed it
-# (#169). On everything else the two agree exactly: on 2026-09-26 both
-# reported the same 375 infos, rule by rule and line by line.
+# so only it gates riverpod_lint (analysis_options.yaml `plugins:`) - under
+# `flutter analyze` a deliberate `missing_provider_scope` passes (#169). On
+# everything else the two agree exactly: on 2026-09-26 both reported the same
+# 375 infos, rule by rule and line by line.
 # The packages, as pubspec.lock pins them, before anything is judged (#227).
 # `.dart_tool/` is whatever the last `pub get` in this worktree left, so a lock
 # that moved since - a pull, a branch switch - made `dart analyze` fail on
@@ -317,14 +316,13 @@ hooks: ## Point git at the versioned hooks in .githooks
 	@echo "blame.ignoreRevsFile -> .git-blame-ignore-revs"
 
 # `make migrate`: bring DATABASE_URL's database to the current head. Nothing
-# creates the schema on start any more (#157), so this is how a database gets
-# one - the compose stack runs the same command as its own `migrate` service.
+# creates the schema on start (#157), so this is how a database gets one - the
+# compose stack runs the same command as its own `migrate` service.
 # Useful ARGS:
-#   ARGS='stamp head'                a database whose tables were built by the
-#                                    old startup path: record it as already at
-#                                    head instead of building it again
-#   ARGS='downgrade base' then bare  a clean database, the reset that starting
-#                                    the backend used to give away
+#   ARGS='stamp head'                a database whose tables exist but that has
+#                                    no alembic version: record it as already
+#                                    at head instead of building it again
+#   ARGS='downgrade base' then bare  a clean database
 #   ARGS=current / ARGS=history      where this database is, and what there is
 migrate: env ## Apply migrations to DATABASE_URL (ARGS='stamp head', 'downgrade base', 'current', ...)
 	@$(DOCKER_RUN_DB) python -m alembic -c backend/alembic.ini $(if $(ARGS),$(ARGS),upgrade head)
@@ -351,15 +349,11 @@ claude-token: ## Sign in as "Fictitious Claude" on the running backend and write
 # worktree, so removing a worktree never takes it down. The backend reads the
 # main checkout's .env (mounted read-only, never copied).
 #
-# Since #157 it no longer wipes anything: the recipe runs `migrate` on the
-# preview database and starts a backend that creates no schema, so a rebuild
-# keeps the students that were in there. (It used to drop its schema on every
-# start, which is why `make claude` exists.)
+# A rebuild wipes nothing: the recipe runs `migrate` on the preview database
+# and starts a backend that creates no schema, so the students in there stay.
 #
-# It has its OWN database (#122). The preview used to take DATABASE_URL straight
-# from that .env, which is the shared dev database, so every `make preview`
-# wiped whatever anyone else had in there - the one thing left sharing after the
-# test databases were split per worktree (#64). The preview now gets
+# It has its OWN database (#122), not the shared dev one DATABASE_URL in that
+# .env names, so a `make preview` never touches anyone else's data. It gets
 # goalgetter_preview: a database on the dev server, so the URL is the dev one with the name swapped and no new
 # credential exists anywhere. It is read out of .env inside the recipe, handed
 # to the container by name (`-e DATABASE_URL`, never a value on a command line)
@@ -483,8 +477,8 @@ tf: ## Terraform on Google Cloud in the pinned image (ARGS='plan' by default)
 # backend on BACKEND_PORT is serving. Either way it is forwarded by name and
 # never echoed. A backend run by hand against another database wants that
 # database named: `DATABASE_URL=... make claude`. The schema must exist
-# (`make migrate`); since #157 nothing drops it, so this survives a restart and
-# only has to be run once. Idempotent; ARGS=--fresh deletes the student and
+# (`make migrate`); nothing drops it, so this survives a restart and only has
+# to be run once. Idempotent; ARGS=--fresh deletes the student and
 # rebuilds it.
 claude: env ## Seed "Fictitious Claude" with a lived-in history, then write .claude/token (ARGS=--fresh)
 	@set -e; export DATABASE_URL="$${DATABASE_URL:-$$($(PREVIEW_URL))}"; \

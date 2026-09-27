@@ -1,8 +1,8 @@
-"""Which eight questions a student gets, and why those (#134).
+"""Which questions a student gets, and why those (#134).
 
 Arithmetic, so every claim here is a number: no database, no network, no mock.
-What the tests pin is the shape of each term, the five claims the issue's
-definition of done is made of, and the one thing a comment cannot prove - that
+What the tests pin is the shape of each term, the claims `selection.py`'s
+docstring makes, and the one thing a comment cannot prove - that
 nothing in this path can reach Gemini.
 """
 
@@ -133,7 +133,7 @@ def test_a_lesson_is_never_one_question_written_four_ways():
 
 
 def test_the_lesson_aims_at_the_goals_frontier_and_not_at_its_description():
-    """#133: the target is the frontier row, and it can outrank the older question"""
+    """The target is the frontier row, and it can outrank the older question"""
     far = question("elsewhere", born=0, embedding=vector((9, 1.0)))
     near = question("on target", born=1, embedding=vector((7, 1.0)))
     frontier = Frontier(definition="robotics", definition_embedding=vector((7, 1.0)))
@@ -143,7 +143,7 @@ def test_the_lesson_aims_at_the_goals_frontier_and_not_at_its_description():
 
 
 def test_the_student_context_term_is_wired_and_weighs_nothing():
-    """#134: computed, provably zero, and turned on later with data in hand"""
+    """Computed, provably zero, and turned on later with data in hand"""
     bank = [question(f"q{i}", born=i, embedding=vector((i, 1.0))) for i in range(4)]
     aligned = StudentContext(
         state_embedding=vector((0, 1.0)), metacognition_embedding=vector((0, 1.0))
@@ -170,7 +170,7 @@ def test_cold_start_is_not_a_special_case_the_ranking_simply_falls_through():
 
 
 def test_the_whole_bank_is_scored_and_the_terms_are_readable_from_outside():
-    """#135 reads this: a bank nobody can be served from is what buys a generation"""
+    """The generation decision reads this: a bank nobody can be served from is what buys a generation"""
     spent = [question(f"spent{i}", born=i) for i in range(3)]
     fresh = question("fresh", born=9)
     history = [
@@ -223,11 +223,11 @@ def reachable(*roots: str) -> set:
 
 
 def test_no_gemini_call_can_be_reached_from_the_selection_path():
-    """#134's whole point: choosing questions is arithmetic, asserted not assumed"""
+    """The point of the selection: choosing questions is arithmetic, asserted not assumed"""
     closure = reachable(
         "backend.services.lessons.selection",
         "backend.services.lessons.pacing",
-        # The decision to *buy* questions is arithmetic too (#135): it reads
+        # The decision to *buy* questions is arithmetic too: it reads
         # what the selection scored and never asks a model anything.
         "backend.services.lessons.generation",
     )

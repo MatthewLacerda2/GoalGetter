@@ -4,8 +4,7 @@ library;
 /// A lesson in the recent-lessons list: the answers the backend marked as one
 /// batch. [date] is the student's calendar date they were given.
 ///
-/// There is no elo delta: a lesson's rating change has had no stored history
-/// since the backend stopped keeping a `lessons` row, and gets one with #62.
+/// There is no elo delta: GET /home carries no rating change per lesson.
 class RecentLesson {
   final String lessonId;
   final DateTime date;

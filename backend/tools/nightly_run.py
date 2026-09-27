@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The night's entry point (#89, #96): a process of its own, not a scheduler
+"""The night's entry point: a process of its own, not a scheduler
 inside the API.
 
 **Two jobs, one process, one at a time.** The night has two hours in it: the

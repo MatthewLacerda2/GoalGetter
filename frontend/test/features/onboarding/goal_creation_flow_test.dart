@@ -67,8 +67,8 @@ void main() {
     expect(api.lastAnswers!.single.answer, 'A few words');
   });
 
-  // #131: the end of onboarding is the first lesson, not the dashboard. #132:
-  // the wait in between is the standard questions, never a spinner and never
+  // The end of onboarding is the first lesson, not the dashboard, and the
+  // wait in between is the standard questions, never a spinner and never
   // an introduction screen. What happens when the bank is not ready yet is the
   // lesson screen's own 409 message with a retry (lesson_screen_test.dart),
   // never a bounce to home.

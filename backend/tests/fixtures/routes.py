@@ -2,8 +2,8 @@
 
 Read the way the OpenAPI generator reads them: since FastAPI 0.137 `app.routes`
 holds an included router as one opaque entry, so walking it finds only the
-routes declared on the app itself - which is how the default rate limit came to
-cover three routes (#274). `iter_route_contexts` walks the tree.
+routes declared on the app itself - three of them, for a check that walks it
+(#274). `iter_route_contexts` walks the tree.
 """
 
 import re

@@ -24,8 +24,8 @@ void main() {
     );
   });
 
-  // #227: these slots were left out because models use the same names — and
-  // a model's field is how a sentence reached `Text(variable)` unseen.
+  // #227: models use these names too — and a model's field is how a sentence
+  // reaches `Text(variable)` unseen.
   test('fails on a sentence in any named argument of a constructor', () {
     for (final source in [
       "const s = TextSpan(text: 'Tap here');",

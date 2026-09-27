@@ -1,9 +1,9 @@
 """The language the nightly chain writes to a student in (#173).
 
 The jobs have no message of his to read a language from, which is why every
-prompt now names one. It is his chosen language (`students.language`, #172);
-for a student who has not opened the app since that column arrived, the
-language his goals are written in; and English after that
+prompt names one. It is his chosen language (`students.language`); for a
+student who never chose one, the language his goals are written in; and
+English after that
 (`services/gemini/output_language.py` says why).
 """
 

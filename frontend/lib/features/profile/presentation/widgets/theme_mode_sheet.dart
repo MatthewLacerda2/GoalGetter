@@ -23,7 +23,7 @@ IconData _themeModeIcon(ThemeMode mode) {
 }
 
 /// The three theme options, beside the language picker on the profile page.
-/// A tap repaints the app at once and is remembered on the device (#178).
+/// A tap repaints the app at once and is remembered on the device.
 void showThemeModeSheet(BuildContext context, WidgetRef ref) {
   showModalBottomSheet<void>(
     context: context,

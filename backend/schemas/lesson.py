@@ -16,7 +16,7 @@ class LessonQuestionResponse(BaseModel):
 class LessonResponse(BaseModel):
     """POST /goals/{goal_id}/lessons: the questions of this lesson, in order.
 
-    There is no lesson id here, because there is no lesson yet (#131). Serving
+    There is no lesson id here, because there is no lesson yet. Serving
     writes nothing: a lesson only becomes a fact when its answers arrive, and
     the backend marks them then.
     """
@@ -37,8 +37,7 @@ class LessonAnswersRequest(BaseModel):
     """POST /goals/{goal_id}/lessons/answers: all answers at once.
 
     How many there are is up to the student: nothing recorded what was served,
-    so the backend cannot ask for a complete set and does not (the completeness
-    rule of #86 went with the `lessons` table). An empty submission is refused
+    so the backend cannot ask for a complete set and does not. An empty submission is refused
     here, because it would mint a lesson mark over nothing.
     """
 

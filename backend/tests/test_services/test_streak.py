@@ -60,7 +60,7 @@ def test_several_answers_on_one_day_count_once():
 
 
 def test_an_answer_at_22_brasilia_counts_for_that_day():
-    """#92: 22:00 in Sao Paulo is 01:00 UTC the next day. The day boundary is
+    """22:00 in Sao Paulo is 01:00 UTC the next day. The day boundary is
     the app's, not the server's, so this answer belongs to the 24th."""
     answered = datetime(2026, 9, 24, 22, tzinfo=ZoneInfo("America/Sao_Paulo"))
 

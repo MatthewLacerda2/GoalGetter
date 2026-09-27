@@ -84,7 +84,7 @@ def test_until_the_placement_is_answered_nothing_more_is_bought():
 
 
 def test_the_placement_size_is_read_when_deciding(monkeypatch):
-    """A patched setting reaches the rule: nothing copied it at import (#215)"""
+    """A patched setting reaches the rule: nothing copied it at import"""
     monkeypatch.setattr(settings, "PLACEMENT_SIZE", 3)
     easy = [entry(0.95), entry(0.95)]
 

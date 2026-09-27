@@ -1,14 +1,14 @@
 include: package:very_good_analysis/analysis_options.yaml
 
 # riverpod_lint 3 is an analysis_server_plugin: the analyzer loads it itself,
-# with no custom_lint in between (#164). `dart analyze` runs it and `flutter
-# analyze` does not, which is why `make front-lint` runs the former (#169).
+# with no custom_lint in between. `dart analyze` runs it and `flutter
+# analyze` does not, which is why `make front-lint` runs the former.
 plugins:
   riverpod_lint: ^3.1.9
 
 analyzer:
   # The lints whose finding is a bug rather than a style, promoted from info
-  # to warning so `make front-lint` fails on them now (#227), without waiting
+  # to warning so `make front-lint` fails on them, without waiting
   # for the style backlog of infos to clear. Each is enabled by
   # very_good_analysis already; this only changes how loud it is.
   errors:

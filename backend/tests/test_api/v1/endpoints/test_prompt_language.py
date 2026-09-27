@@ -1,7 +1,7 @@
 """Every endpoint that calls Gemini hands it the student's language (#173).
 
 The onboarding endpoints are public, so there is no student row: they read the
-`X-Student-Language` header (#172), and without one the language his prompt is
+`X-Student-Language` header, and without one the language his prompt is
 written in. The tutor reads `students.language`.
 """
 

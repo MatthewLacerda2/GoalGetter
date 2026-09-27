@@ -12,11 +12,11 @@ part of 'session.dart';
 /// one, false once a sign-out or a refused refresh cleared it.
 ///
 /// The router listens to this and its `redirect` decides where the student
-/// goes when it turns false (#224); nothing in `lib/core/` navigates. The
+/// goes when it turns false; nothing in `lib/core/` navigates. The
 /// three places that write or clear the tokens call [sync] afterwards:
 /// `AuthService.storeSession`, `AuthService.signOut` and the `ApiClient`'s
 /// `onSessionExpired`. A refresh that rotates the tokens leaves it true, and
-/// only a refresh the backend refuses ends it (#193).
+/// only a refresh the backend refuses ends it.
 
 @ProviderFor(SignedIn)
 final signedInProvider = SignedInProvider._();
@@ -25,21 +25,21 @@ final signedInProvider = SignedInProvider._();
 /// one, false once a sign-out or a refused refresh cleared it.
 ///
 /// The router listens to this and its `redirect` decides where the student
-/// goes when it turns false (#224); nothing in `lib/core/` navigates. The
+/// goes when it turns false; nothing in `lib/core/` navigates. The
 /// three places that write or clear the tokens call [sync] afterwards:
 /// `AuthService.storeSession`, `AuthService.signOut` and the `ApiClient`'s
 /// `onSessionExpired`. A refresh that rotates the tokens leaves it true, and
-/// only a refresh the backend refuses ends it (#193).
+/// only a refresh the backend refuses ends it.
 final class SignedInProvider extends $NotifierProvider<SignedIn, bool> {
   /// Whether a session is stored on this device: true once a sign-in stored
   /// one, false once a sign-out or a refused refresh cleared it.
   ///
   /// The router listens to this and its `redirect` decides where the student
-  /// goes when it turns false (#224); nothing in `lib/core/` navigates. The
+  /// goes when it turns false; nothing in `lib/core/` navigates. The
   /// three places that write or clear the tokens call [sync] afterwards:
   /// `AuthService.storeSession`, `AuthService.signOut` and the `ApiClient`'s
   /// `onSessionExpired`. A refresh that rotates the tokens leaves it true, and
-  /// only a refresh the backend refuses ends it (#193).
+  /// only a refresh the backend refuses ends it.
   SignedInProvider._()
     : super(
         from: null,
@@ -73,11 +73,11 @@ String _$signedInHash() => r'058caab0ca4e8660cf5b8d9a475787dfcaac9b88';
 /// one, false once a sign-out or a refused refresh cleared it.
 ///
 /// The router listens to this and its `redirect` decides where the student
-/// goes when it turns false (#224); nothing in `lib/core/` navigates. The
+/// goes when it turns false; nothing in `lib/core/` navigates. The
 /// three places that write or clear the tokens call [sync] afterwards:
 /// `AuthService.storeSession`, `AuthService.signOut` and the `ApiClient`'s
 /// `onSessionExpired`. A refresh that rotates the tokens leaves it true, and
-/// only a refresh the backend refuses ends it (#193).
+/// only a refresh the backend refuses ends it.
 
 abstract class _$SignedIn extends $Notifier<bool> {
   bool build();

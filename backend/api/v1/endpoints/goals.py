@@ -59,10 +59,10 @@ async def objective_questions(
     """
     Step 1: validate the prompt is a real goal, then generate clarifying
     multiple-choice questions. Each question names the model that wrote it, and
-    the app sends that back with its answer to `POST /goals` (#216).
+    the app sends that back with its answer to `POST /goals`.
 
     Public, so there is no student row: the language is the header the app
-    sends (#172), else the one the prompt is written in (#173).
+    sends, else the one the prompt is written in (`output_language`).
     """
     language = output_language(chosen, payload.prompt)
     validation = await run_gemini(get_prompt_validation, prompt=payload.prompt, language=language)
@@ -114,12 +114,12 @@ async def create_goal(
     """
     Step 3 (AUTHED): persist the goal the user approved in the preview, store the
     onboarding it came from, make it the active goal, then fire the student chain
-    in the background. No Gemini call of its own (#132): the wait it used to buy
-    introduction screens for is now the standard questions this returns.
+    in the background. No Gemini call of its own (#132): the student spends the
+    first batch's wait answering the standard questions this returns.
 
     The onboarding is *stored*, not handed to the chain: the chain's first step
     reads it from the database, so a run that fails is one the nightly run can do
-    over (#88). It is read **as it stood when this returned**, which is what keeps
+    over. It is read **as it stood when this returned**, which is what keeps
     the batch now in flight from seeing the standard questions the student is
     about to answer.
     """
@@ -159,7 +159,7 @@ async def standard_answers(
     Stored beside the rest of his onboarding, marked `ai_model = "system"`. The
     batch already in flight will not read them - `POST /goals` pinned its view of
     the onboarding to the moment it returned - and every generation after it
-    will (#132). Answers so far are worth keeping, so a partial list is normal
+    will. Answers so far are worth keeping, so a partial list is normal
     and an empty one is a no-op.
     """
     answers = [(a.question_key, a.option_key, a.total_seconds) for a in payload.answers]
@@ -197,7 +197,7 @@ async def set_active_goal(
 ) -> SetActiveGoalResponse:
     """Make one of the student's goals the active one (students.current_goal_id).
     Someone else's goal, or a missing one, is 404 (see get_owned_goal)."""
-    goal_id = goal.id  # read before commit: the production session expires on commit
+    goal_id = goal.id
     current_user.current_goal_id = goal_id
     await StudentRepository(db).update(current_user)
     await db.commit()

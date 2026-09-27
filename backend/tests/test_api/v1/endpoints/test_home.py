@@ -16,7 +16,7 @@ async def test_no_active_goal_is_404(auth_client, test_user, goal_factory):
 async def test_home_is_the_active_goals_dashboard(
     auth_client, test_user, goal_factory, lesson_factory
 ):
-    """A lesson on Home is the answers carrying one mark, counted together (#131)"""
+    """A lesson on Home is the answers carrying one mark, counted together"""
     goal = await goal_factory(test_user, name="Italian", rating=1215, active=True)
     await lesson_factory(goal, days_ago(1, hour=9), correct=1, size=2, seconds=20)
     last = await lesson_factory(goal, days_ago(1, hour=18), correct=4, size=4, seconds=25)
@@ -45,7 +45,7 @@ async def test_home_reads_only_the_active_goal(
     body = (await auth_client.get(ENDPOINT)).json()
 
     assert len(body["recent_lessons"]) == 1
-    assert body["current_streak"] == 2  # user-wide; yesterday is a day off (#204)
+    assert body["current_streak"] == 2  # user-wide; yesterday is a day off
 
 
 async def test_an_answer_at_2200_brasilia_is_that_days_lesson(

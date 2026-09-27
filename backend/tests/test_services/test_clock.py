@@ -61,7 +61,7 @@ def test_the_nightly_run_rolls_to_the_next_night_once_it_has_passed():
 
 
 def test_the_night_a_run_at_03_is_closing_out_started_at_03_the_day_before():
-    """What the nightly run means by "today" (#89): the 24 hours behind it, not
+    """What the nightly run means by "today": the 24 hours behind it, not
     the three that have passed since midnight."""
     assert previous_nightly_run(utc(2026, 9, 24, 6)) == utc(2026, 9, 23, 6)
 

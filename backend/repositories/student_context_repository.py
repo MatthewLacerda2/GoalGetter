@@ -7,7 +7,7 @@ from backend.repositories.base import BaseRepository
 
 
 class StudentContextRepository(BaseRepository[StudentContext]):
-    """The app's memory of a learner, per student (#87). A stale context is
+    """The app's memory of a learner, per student. A stale context is
     retired with `is_still_valid = False`, never deleted: it is progression
     history (see backend_contract.md, Student context)."""
 
@@ -28,7 +28,7 @@ class StudentContextRepository(BaseRepository[StudentContext]):
         return list(result.scalars().all())
 
     async def list_missing_embeddings(self, limit: int) -> list[StudentContext]:
-        """Contexts with either embedding still null, oldest first (#96).
+        """Contexts with either embedding still null, oldest first.
 
         Retired readings (`is_still_valid = False`) are included on purpose:
         they are progression history the student can read, and history is

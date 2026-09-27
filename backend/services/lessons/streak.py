@@ -1,9 +1,9 @@
 """The study streak: user-wide, computed from answers, never stored.
 
 A day is **studied** when the student answered at least one question that day,
-on any goal - there is no lesson row to have finished (#131). Days are the
-app's calendar days, in `core.clock.APP_TIMEZONE`, never the server's zone
-(#92), which made an answer given at 22:00 Brasilia count for the next day.
+on any goal - there is no lesson row to have finished. Days are the
+app's calendar days, in `core.clock.APP_TIMEZONE`, never the server's zone,
+which would make an answer given at 22:00 Brasilia count for the next day.
 
 **The rule (#204, the user, 2026-09-26): he may miss two days in a week and
 keep his streak; the third missed day in that week resets it** - like
@@ -21,7 +21,7 @@ proposed:
 And three choices of this module's own, each the kinder or the plainer reading:
 
 - **Today is not missed until it ends.** A student who has not studied yet
-  today still sees yesterday's streak - as before #204.
+  today still sees yesterday's streak.
 - **Days before his first answer are not missed days.** A student who starts
   on a Thursday has two days off for the rest of that week, not a week that
   already spent them on the days before he began.
@@ -43,7 +43,7 @@ from backend.core.clock import app_date
 from backend.core.clock import today as app_today
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 
-# Missed days a calendar week forgives; the next one resets the streak (#204).
+# Missed days a calendar week forgives; the next one resets the streak.
 DAYS_OFF_PER_WEEK = 2
 
 

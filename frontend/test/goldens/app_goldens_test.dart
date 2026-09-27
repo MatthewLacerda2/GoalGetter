@@ -2,7 +2,7 @@ import 'package:goal_getter/app/router/app_routes.dart';
 
 import 'golden_harness.dart';
 
-/// The launch and the tab shell: the splash that replaced `AuthGate` (#224),
+/// The launch and the tab shell: the splash,
 /// the start screen a visitor lands on, and each of the four tabs under the
 /// bottom navigation bar.
 void main() {

@@ -12,7 +12,7 @@ part 'auth_api.g.dart';
 /// They sit beside the transport rather than in a feature's `data/`, because a
 /// session is no one feature's: the start screen starts it, the profile ends
 /// it, and the client refreshes it. `AuthService` decides what to do with
-/// them; this is only the wire (#231).
+/// them; this is only the wire.
 class AuthApi {
   const AuthApi(this._api);
 

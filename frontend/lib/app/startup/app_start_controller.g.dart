@@ -61,7 +61,7 @@ String _$appStartControllerHash() =>
 /// asked once per visit to the splash.
 ///
 /// Auto-disposed and kept alive only by the splash screen watching it, so
-/// every visit asks again, as the old `AuthGate` did in its `initState`. The
+/// every visit asks again. The
 /// router listens to it without keeping it alive and redirects `/` once it
 /// has an answer.
 
@@ -72,7 +72,7 @@ final launchDestinationProvider = LaunchDestinationProvider._();
 /// asked once per visit to the splash.
 ///
 /// Auto-disposed and kept alive only by the splash screen watching it, so
-/// every visit asks again, as the old `AuthGate` did in its `initState`. The
+/// every visit asks again. The
 /// router listens to it without keeping it alive and redirects `/` once it
 /// has an answer.
 
@@ -90,7 +90,7 @@ final class LaunchDestinationProvider
   /// asked once per visit to the splash.
   ///
   /// Auto-disposed and kept alive only by the splash screen watching it, so
-  /// every visit asks again, as the old `AuthGate` did in its `initState`. The
+  /// every visit asks again. The
   /// router listens to it without keeping it alive and redirects `/` once it
   /// has an answer.
   LaunchDestinationProvider._()

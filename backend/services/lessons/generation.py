@@ -3,11 +3,10 @@
 **Gemini writes the questions; arithmetic decides whether it is worth writing
 any.** This is the arithmetic, and it is a read of the lesson selection's own
 output (`selection.py`): the nightly run builds tomorrow's lesson exactly as the
-endpoint would, and then asks a second question of the same eight - *is this
+endpoint would, and then asks a second question of that lesson - *is this
 still hard enough for him?*
 
-**It replaces counting rows (#91).** The old rule generated when the bank could
-not serve two lessons, and the size of a bank says nothing: a student sitting on
+**It does not count rows.** The size of a bank says nothing: a student sitting on
 two hundred questions he keeps missing does not need a two hundred and first, he
 needs the ones he misses, again. A question stays in rotation until it is
 answered right (the forgetting term), so the struggling student's bank already
@@ -66,8 +65,8 @@ GENERATE_ABOVE = round(TARGET_SCORE - TOLERANCE_BELOW, 2)
 class Verdict:
     """What the run decided about one goal, and the sentence that says why.
 
-    The reason is not decoration: the nightly run is watched by reading its log
-    (#89), and what there is to watch here is which of the two branches each
+    The reason is not decoration: the nightly run is watched by reading its log,
+    and what there is to watch here is which of the two branches each
     student's goal took and on what number.
     """
 

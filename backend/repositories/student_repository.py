@@ -12,7 +12,7 @@ class StudentRepository(DeletableRepository[Student]):
     async def list_ids(self) -> list[uuid.UUID]:
         """Every student's id, oldest first.
 
-        What the nightly run (#89) iterates. Ids only: the run decides per
+        What the nightly run iterates. Ids only: the run decides per
         student from that student's own rows, and holding every Student object
         in memory to read nothing off them would be waste that grows with the
         user base.

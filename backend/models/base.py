@@ -19,8 +19,8 @@ type Embedding = NDArray[np.float32] | list[float]
 
 
 class Base(DeclarativeBase):
-    """Every model's base, and the one place a Python type is given its column type
-    (#208). `Mapped[uuid.UUID]` is a Postgres UUID, `Mapped[datetime]` always
+    """Every model's base, and the one place a Python type is given its column type.
+    `Mapped[uuid.UUID]` is a Postgres UUID, `Mapped[datetime]` always
     carries its timezone and `Mapped[Embedding]` is a pgvector of the embedding
     model's width, so a model states only what is particular to one column.
     Nullability is the annotation's: `Mapped[str | None]` is NULL-able, `Mapped[str]`

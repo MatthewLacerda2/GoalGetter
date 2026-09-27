@@ -8,7 +8,7 @@ from backend.models.base import Base
 
 
 class BaseRepository[T: Base]:
-    """What every repository does the same way, written once (#208).
+    """What every repository does the same way, written once.
 
     A repository names its model (`model = Student`) and inherits `create`,
     `get_by_id` and `update`; it writes only the queries particular to its table,
@@ -17,8 +17,8 @@ class BaseRepository[T: Base]:
 
     **Deleting is not here.** Most tables are never deleted from on purpose - a
     frontier, a student context and an answer are history, and a goal's rows go
-    with the goal through ON DELETE CASCADE. A base that required `delete` made the
-    append-only `frontiers` implement it by raising; a table whose rows *are*
+    with the goal through ON DELETE CASCADE. A base that required `delete` would make
+    the append-only `frontiers` implement it by raising; a table whose rows *are*
     deleted says so by extending `DeletableRepository`, so "this table is
     append-only" is the absence of a method, not a method that fails.
     """

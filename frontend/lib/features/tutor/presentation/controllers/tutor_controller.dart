@@ -11,7 +11,7 @@ export 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.
 part 'tutor_controller.g.dart';
 
 /// The chat with the tutor on the active goal. [build] loads its newest page,
-/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again whenever the active goal changes; `ref.invalidate` loads it
 /// again too - the retry after a failed load.
 ///
 /// Every call made after the first page drops its answer once the chat it

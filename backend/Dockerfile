@@ -3,8 +3,8 @@ FROM python:3.14-slim
 WORKDIR /app
 
 # System packages only. No compiler and no libpq headers: on 3.14 every
-# dependency in requirements.txt ships a wheel, so the build compiles nothing
-# (#171). curl is the compose healthcheck.
+# dependency in requirements.txt ships a wheel, so the build compiles nothing.
+# curl is the compose healthcheck.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     curl \

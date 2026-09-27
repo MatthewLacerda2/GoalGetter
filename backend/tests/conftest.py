@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from hypothesis import settings as hypothesis_settings
 
-# The property tests (#207), made a gate: the same examples on every run
+# The property tests, made a gate: the same examples on every run
 # (`derandomize`) - a gate that goes red on one run in fifty is one nobody
 # believes - no example database written into the mounted worktree, and no
 # per-example deadline, which a loaded machine misses on arithmetic that is fine.
@@ -12,9 +12,9 @@ hypothesis_settings.load_profile("gate")
 
 # Import all fixtures so pytest can discover them. `environment` comes FIRST: it
 # pins every setting the suite reads, and nothing may import the settings before
-# it (#207). `network` next: it raises the network guard, which must be up before
-# any other module imports the app (#205). `waiting` after, for the same reason:
-# a module that binds `asyncio.sleep` on import must bind the guarded one (#206).
+# it. `network` next: it raises the network guard, which must be up before
+# any other module imports the app. `waiting` after, for the same reason:
+# a module that binds `asyncio.sleep` on import must bind the guarded one.
 pytest_plugins = [
     "backend.tests.fixtures.environment",
     "backend.tests.fixtures.network",
@@ -29,7 +29,7 @@ pytest_plugins = [
 ]
 
 # The markers themselves are registered in backend/pyproject.toml, where
-# `strict` makes any other name a failure (#206).
+# `strict` makes any other name a failure.
 LIVE = "live"
 DB = "db"
 LIVE_DIR = Path(__file__).parent / "live"
@@ -49,7 +49,7 @@ def pytest_addoption(parser):
 
 
 def misplaced(marked_live: bool, path: Path) -> bool:
-    """A live test lives in tests/live/, and only live tests do (#206).
+    """A live test lives in tests/live/, and only live tests do.
 
     One outside it runs nowhere: the default suite skips it and `make test-live`
     collects only that folder. One inside it unmarked runs in the default suite,
@@ -64,7 +64,7 @@ def pytest_collection_modifyitems(config, items):
 
     A live test in the wrong place stops the run. A test that reaches the
     database is marked `db`, so `-m "not db"` runs the rest with no Postgres
-    at all. And the two suites never mix (#176): by default every live test is
+    at all. And the two suites never mix: by default every live test is
     skipped, so `make check` and CI spend nothing; with --live only the live
     tests run, so `make test-live` spends nothing on the rest."""
     wrong = [
@@ -91,7 +91,7 @@ def pytest_collection_modifyitems(config, items):
 
 @pytest.hookimpl
 def pytest_terminal_summary(terminalreporter, config):
-    """pytest-randomly shuffles the order on every run (#206), so a failure that
+    """pytest-randomly shuffles the order on every run, so a failure that
     depends on it needs the seed to come back - and `-q` hides the header that
     carries it. `-p no:randomly` runs in file order."""
     seed = getattr(config.option, "randomly_seed", None)

@@ -19,7 +19,7 @@ async def bank_of(goal, question_factory, size, first=0):
 async def test_start_serves_the_bank_and_writes_nothing(
     auth_client, test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """Serving a lesson stores no row (#131): a lesson is not a table"""
+    """Serving a lesson stores no row: a lesson is not a table"""
     goal = await goal_factory(test_user)
     fresh = await question_factory(goal, "fresh", correct=2, created_at=at(1))
     missed = await question_factory(goal, "missed", created_at=at(0))
@@ -44,7 +44,7 @@ async def test_start_serves_the_bank_and_writes_nothing(
 async def test_a_quick_student_gets_more_questions_for_the_same_two_minutes(
     auth_client, test_db, test_user, student_factory, goal_factory, question_factory, answer_factory
 ):
-    """#134: nine seconds an answer, so two minutes is twelve questions, not eight"""
+    """Nine seconds an answer, so two minutes is twelve questions (#134)"""
     quick = await goal_factory(test_user, name="Quick")
     for question in await bank_of(quick, question_factory, 20):
         await answer_factory(
@@ -106,7 +106,7 @@ async def test_the_same_bank_at_the_same_hour_serves_the_same_lesson(
 async def test_no_gemini_client_is_ever_built_while_a_lesson_is_opened(
     auth_client, test_user, goal_factory, question_factory, monkeypatch
 ):
-    """#134: choosing questions is arithmetic - proved by making a call impossible"""
+    """Choosing questions is arithmetic - proved by making a call impossible"""
     import google.genai
 
     def forbidden(*args, **kwargs):

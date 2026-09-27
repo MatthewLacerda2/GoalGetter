@@ -1,9 +1,7 @@
 # Backend endpoints
 
-> Spec for the GoalGetter backend (FastAPI). It began as a description of the frontend's
-> mocks; every screen has run on the real API since #51–#57 and those mock files are gone.
-> What it is now is the contract's prose: Pydantic defines it, Flutter mirrors it by hand,
-> and since #213 a test checks that the two agree — `backend/openapi.json` is the
+> Spec for the GoalGetter backend (FastAPI): the contract's prose. Pydantic defines it,
+> Flutter mirrors it by hand, and a test checks that the two agree (#213) — `backend/openapi.json` is the
 > committed schema, and `frontend/test/contract/` fails when the app's routes or its
 > fixtures part from it. This file keeps what a schema cannot say: the behaviour.
 
@@ -103,7 +101,7 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     is_harmless, is_achievable — plus a `reasoning` string. Any false ⇒ 400 with
     that reasoning (the app shows it to the user and stops). Only if all three
     pass do we make the second call for the questions.
-  - **exactly 6 questions** (8 in #173, 6 since 2026-09-26; the time spent per
+  - **exactly 6 questions** (the user, 2026-09-26; the time spent per
     question will decide the number), 4 options each, no correct answer, each question and
     option at most 20 words — asked of the prompt, not enforced (an over-long
     one is logged). They never ask the student to rate his own level: what he
@@ -145,9 +143,8 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     request with the token. Ownership = the authenticated student.
   - does **not** re-generate the goal: it persists exactly the text the user
     approved, so what they said yes to is what they get (and it saves a call).
-  - **no Gemini call at all** (#132). It used to buy introduction screens — a
-    premium call per goal created — to fill the wait; the wait is now the
-    standard questions this response carries.
+  - **no Gemini call at all** (#132): the wait for the first batch is filled by
+    the standard questions this response carries.
   - `standard_questions` is `[{key, options: [key]}]` — **keys, never
     sentences**. What the student reads is the ARB entry each key maps to, in
     the five locales; the English the database stores for the prompts lives in
@@ -214,11 +211,10 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
     counted over the group; there is no lesson row to read them off (#131).
   - Dates are the app's calendar date (`core/clock.py`) of the group's last
     answer.
-  - **no `elo_history`, no per-lesson `elo_delta`.** They came off the `lessons`
-    table, which is gone, and nothing stores them now. The app shows no chart,
-    and each row ends with the day instead of an elo badge. The *source* exists
-    again since #62 — replaying `student_answers` gives the rating after any
-    answer — but no endpoint serves it yet.
+  - **no `elo_history`, no per-lesson `elo_delta`.** Nothing stores them. The app
+    shows no chart, and each row ends with the day. The *source* exists —
+    replaying `student_answers` gives the rating after any answer (#62) — but no
+    endpoint serves it yet.
 
 ---
 
@@ -277,9 +273,8 @@ backend mints over the answers when they arrive (#131).
 - **`POST /goals/{goal_id}/lessons/answers`** — submit the answers all at once;
   returns the result.
   request: `{ "answers": lesson_answer[] }` · response: `lesson_evaluation`
-  - **the completeness rule of #86 is gone.** Nothing recorded what was served,
-    so the backend cannot say "you left one out" and does not try: it grades
-    what arrives. The app still sends the whole lesson in order
+  - **no completeness rule.** Nothing records what was served, so the backend
+    cannot say "you left one out" and does not try: it grades what arrives. The app still sends the whole lesson in order
     (`lesson_controller.dart` returns to a gap rather than sending it), because
     that is the lesson the student did — not because the server insists.
   - graded **server-side** from the stored right index; nothing the client says
@@ -575,25 +570,6 @@ questions **never answered**. Call that the servable bank.
 number is different every night. Counted **per goal**: a deep bank in law says
 nothing about tomorrow's history lesson.
 
-**Superseded scheduling rule for memories** (the user's earlier intent, never
-implemented): check every student **daily**, but only regenerate if **≥3 days
-since the last generation** AND the student actually chatted or did a lesson in
-between. #90 replaced the three-day rule: the gate is the day's lesson (#89), and
-Gemini itself says what is stale.
-
-**History — the old nightly schedule (deleted 2026-09-21).** `backend/core/scheduler.py`
-wired four APScheduler daily crons: lesson creation (04:30), lesson context
-(02:00), chat context (03:00), mastery evaluation (05:00). All four job modules
-had already been deleted in Major/refactor (#41), so every import was broken; the
-file has now been removed too. Kept here as design history — note it split memory
-generation into **two** jobs (chats and lessons separately) and had a
-**mastery evaluation** job the current plan does not mention.
-
-**Decided: collapse to two nightly jobs.** One updates context/memories, one
-creates lessons — in that order, because lesson creation consumes the memories.
-Four jobs was over-splitting. That became the chain above, with resources as its
-third step, and the `nightly` service is what runs it.
-
 **Spirit: progression follows the student, not a syllabus.** Early prompting
 framed a goal as a fixed ladder of steps (chess: piece movement → endgames →
 tactics → openings). That is the wrong frame. A goal names *what the student
@@ -624,9 +600,7 @@ to be able to read what the app has written about them.
 
 **No reuse between students.** Nothing generated for one student is ever served
 to another — not questions, not resources, not contexts. Embedding columns exist
-for similarity work *within* a student, and the lesson-question embeddings that
-were once meant to share questions across students are not going to be used that
-way. The project has to be good without it (the user, 2026-09-23).
+for similarity work *within* a student, never to share across students. The project has to be good without it (the user, 2026-09-23).
 
 ---
 
@@ -634,8 +608,8 @@ way. The project has to be good without it (the user, 2026-09-23).
 
 Decided in conversation; recorded here so they survive the session.
 
-1. **Study plan becomes a goal description.** Users can't judge a study plan;
-   they can judge whether we understood the goal. Prompt change, pending.
+1. **A goal carries a description, not a study plan.** Users can't judge a study
+   plan; they can judge whether we understood the goal.
 2. **`resources.link` is not unique** (see Resources). Per-goal dedupe only;
    reusing another student's verified resources is **closed** (#87) — nothing is
    reused between students, resources included.
@@ -643,20 +617,15 @@ Decided in conversation; recorded here so they survive the session.
    reconstruct later. Note what it actually measures: **how often Gemini invents
    links**, not user behaviour. Build it *before* switching to Google search, so
    there's a baseline to compare against. ⬜ not built.
-4. **Move resource search to Google, keep Gemini for judgment.** Gemini writes
-   the search queries → Google Custom Search JSON API returns *real* URLs →
-   Gemini ranks and describes the results it gets back. Cheaper (results are
-   input tokens, not output), more deterministic, and no URL can be invented.
-   Validators stay as the safety net. YouTube still needs the Data API either
-   way. ✅ **done differently (#175)**: Gemini's own Google Search grounding
-   returns the real URLs, so Custom Search was not needed — see Resource
-   generation.
+4. **A search tool finds the URLs; Gemini only judges them** (#175). Gemini's
+   own Google Search grounding returns *real* URLs, so no URL can be invented,
+   and results are input tokens, not output. Validators stay as the safety net.
+   YouTube goes through the Data API. See Resource generation.
 5. **Embedding columns stay nullable** everywhere — generating them is never
    obligatory. Present on: chat messages (prompt + response), goals, resources,
-   student context (state + metacognition), lesson questions. ~~The
-   lesson-question one exists to **reuse questions across students**~~ —
-   **closed (#87, 2026-09-23): nothing is ever reused between students.** See
-   **No reuse between students** above.
+   student context (state + metacognition), lesson questions. None of them is
+   used to share anything between students: see **No reuse between students**
+   above.
 6. **Model split.** Two models, always: a **fast** one (cheaper, less sharp) and a
    **premium** one. They may be the same name when only one is worth using; the
    split is the rule, not the two names. Where each goes (the user, 2026-09-24):
@@ -668,15 +637,6 @@ Decided in conversation; recorded here so they survive the session.
    `backend/core/config.py`)
    and need a bump roughly monthly — last bumped 2026-09-21 to
    `gemini-3.5-flash-lite` / `gemini-3.8-flash`.
-
-### Build order agreed
-1. Backend correct & tested (mocked Gemini) ← we are here
-2. Integrate the screens against it
-3. Lock schemas, generate the **first** Alembic migration, stop dropping the DB
-4. Real Google OAuth, then the Cloudflare tunnel
-
-> Until step 3 the database **drops its whole schema on every backend start**.
-> There are no migrations yet (Alembic is scaffolded, `versions/` is empty).
 
 ---
 
@@ -725,13 +685,12 @@ resource_item           { "name": "...", "description": "...", "url": "https://.
 ---
 
 ## Cross-cutting notes
-- **elo** everywhere (the old SDK used `xp`). Elo is **per-goal**, stored as
+- **elo** everywhere. Elo is **per-goal**, stored as
   `goals.rating` (the user's rating *for that goal*); `goal.current_elo` and
   `home_dashboard.current_elo` read from it. `lesson_evaluation.elo` is the
   signed change applied to it for that lesson, written in one `UPDATE`
-  (`GoalRepository.set_rating`, #72/#62). Where that change went is **not**
-  recorded anywhere: the column that held it went with the `lessons` table
-  (#131). It no longer has to be — the rating is replayed from
+  (`GoalRepository.set_rating`, #62). Where that change went is **not**
+  recorded anywhere, and does not have to be: the rating is replayed from
   `student_answers`, so its history is derivable whenever a screen wants it.
   There is no rating on `students`: a rating is per goal (#62).
   Streak stays **per-user**.

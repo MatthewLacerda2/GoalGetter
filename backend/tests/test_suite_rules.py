@@ -32,7 +32,7 @@ def test_a_test_without_it_is_not(request):
 
 def unspecced_patches() -> list[str]:
     """Every `patch(target)` in the suite that replaces an async function with a
-    bare mock - one that answers any arguments at all (#207).
+    bare mock - one that answers any arguments at all.
 
     A use case called with its arguments swapped, missing or misnamed passes
     against a bare mock everywhere, and the live suite that would catch it runs

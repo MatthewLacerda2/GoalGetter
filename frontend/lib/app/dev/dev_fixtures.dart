@@ -52,8 +52,8 @@ class DevFixtures {
         plan: studyPlan,
       );
 
-  /// The standard onboarding questions as `POST /goals` answers with them
-  /// (#132): keys, in the order the backend's
+  /// The standard onboarding questions as `POST /goals` answers with them:
+  /// keys, in the order the backend's
   /// `services/onboarding/standard_questions.py` lists them. The screen draws
   /// the ARB sentences, so this fixture carries no prose of its own.
   static StandardQuestionsArgs get standardQuestions =>

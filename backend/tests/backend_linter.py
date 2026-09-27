@@ -8,8 +8,10 @@ import tokenize
 # (`python3 backend/tests/backend_linter.py`) by make and the hooks, where only
 # this folder is on the path.
 if __package__:
+    from backend.tests.comment_rules import comment_violations
     from backend.tests.hub_rules import hub_violations
 else:
+    from comment_rules import comment_violations  # type: ignore[import-not-found, no-redef]
     from hub_rules import hub_violations  # type: ignore[import-not-found, no-redef]
 
 # The database layer (#211). Outside repositories/ (and the few files that ARE
@@ -242,6 +244,9 @@ def check_source(source, norm_path):
             errors.append(
                 (0, f"File exceeds maximum line limit: {line_count}/{MAX_FILE_LINES} code lines")
             )
+
+    # And everywhere: comments state what is true now (comment_rules.py).
+    errors += comment_violations(source, norm_path)
 
     filename = os.path.basename(norm_path)
     is_endpoint = "backend/api/" in norm_path

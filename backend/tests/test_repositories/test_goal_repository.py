@@ -35,7 +35,7 @@ async def test_list_by_student_is_newest_first(test_db, test_user, student_facto
 async def test_set_rating_is_one_update_that_returns_the_rating_written(
     test_db, test_user, goal_factory
 ):
-    """The rating is replayed from the answers and written whole (#62), so the
+    """The rating is replayed from the answers and written whole, so the
     write is a value and not an increment - and it still moves `updated_at`."""
     past = datetime.now(UTC) - timedelta(days=3)
     goal = await goal_factory(test_user, rating=1200, created_at=past, updated_at=past)

@@ -72,7 +72,7 @@ async def send_message(
     """Send the student's message with this goal's recent history and the
     student's still-valid contexts; store and return the exchange.
 
-    The contexts are the student's, not the goal's (#87): what is specific to
+    The contexts are the student's, not the goal's: what is specific to
     this goal already reaches the prompt as its name and description."""
     repo = ChatMessageRepository(db)
     history = _history_turns(await repo.list_by_goal(goal.id, HISTORY_WINDOW))
@@ -85,7 +85,7 @@ async def send_message(
         StudentContextToChat(state=c.state, metacognition=c.metacognition)
         for c in await StudentContextRepository(db).list_valid(goal.student_id)
     ]
-    await db.commit()  # ends the reads: the connection is not held across Gemini (#219)
+    await db.commit()  # ends the reads: the connection is not held across Gemini
     reply = await run_gemini(
         gemini_messages_generator,
         messages=history,

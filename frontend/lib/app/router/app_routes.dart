@@ -36,7 +36,7 @@ class AppRoutes {
   static const devGoalDetail = '/dev/goal-detail';
 
   // The onboarding screens that need a go_router `extra` and so cannot be
-  // opened by URL in a real build (#139). Each of these dev-only paths builds
+  // opened by URL in a real build. Each of these dev-only paths builds
   // the same screen on a fixture, which is what makes it photographable.
   static const devGoalQuestions = '/dev/goal-questions';
   static const devStudyPlan = '/dev/study-plan';

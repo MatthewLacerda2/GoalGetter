@@ -25,7 +25,7 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
 
         The check and the revocation are one conditional UPDATE, so two sessions
         presenting the same token cannot both pass: the second one waits on the
-        first's row lock and then finds `revoked` already true (#218)."""
+        first's row lock and then finds `revoked` already true."""
         stmt = (
             update(RefreshToken)
             .where(

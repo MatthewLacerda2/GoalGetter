@@ -11,11 +11,11 @@
 ///  * **any named argument of a constructor**: `Tooltip(message: '…')`,
 ///    `TextSpan(text: '…')`, `Tab(text: '…')`, and our own
 ///    `StatData(text: '…')` or `GoalDetailSection(title: '…')`, whose field
-///    ends up in a `Text(variable)` further down. The rule used to list the
-///    slots that could hold nothing but prose (`hintText:`, `tooltip:`…) and
-///    left `text:`, `message:` and `title:` out because models use those names
-///    too — which is exactly how a sentence reached `Text(variable)` unseen
-///    (#227). A model built in `lib/` with a sentence in it is the same defect.
+///    ends up in a `Text(variable)` further down. Reading only the slots that
+///    hold nothing but prose (`hintText:`, `tooltip:`…) would leave `text:`,
+///    `message:` and `title:` out because models use those names too — which
+///    is how a sentence reaches `Text(variable)` unseen (#227). A model built
+///    in `lib/` with a sentence in it is the same defect.
 ///
 /// A constructor is a call whose name starts with a capital: `Foo(`, or
 /// `Foo.named(`. A lowercase call (`developer.log(…, name: 'api')`) is not
@@ -61,7 +61,7 @@ final RegExp _textWidget = RegExp(r'''\b(?:Text|SelectableText)\s*\(\s*['"]''');
 ///
 /// The name has to open an argument — follow `(` or `,` — because the else
 /// branch of a ternary has the same shape: `ok ? detail : 'HTTP $status'` is
-/// a positional argument, not `detail:` (#270).
+/// a positional argument, not `detail:`.
 final RegExp _namedLiteral = RegExp(
   r'''(?<=[(,]\s*)\b([A-Za-z_$][\w$]*)\s*:\s*r?['"]''',
 );

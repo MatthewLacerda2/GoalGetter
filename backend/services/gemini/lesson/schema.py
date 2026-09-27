@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 class AnsweredQuestion(BaseModel):
     """One question the student has already answered, as the generator is shown
-    it (#135). An input shape, like `GeminiStudentContext` - the two classes
+    it. An input shape, like `GeminiStudentContext` - the two classes
     below are what Gemini returns.
 
     **The prompt carries the questions themselves, never statistics about

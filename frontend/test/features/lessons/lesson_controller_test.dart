@@ -125,8 +125,7 @@ void main() {
 
   test('a question cannot be passed before it is answered', () async {
     // #86: the API refuses an incomplete lesson with a 400, so the controller
-    // must not be able to build one. It used to let the lesson move past an
-    // unanswered question.
+    // must not be able to build one.
     final fake = ApiFake({
       startKey: [(201, lessonJson(2))],
       answersKey: [(200, evaluationJson)],

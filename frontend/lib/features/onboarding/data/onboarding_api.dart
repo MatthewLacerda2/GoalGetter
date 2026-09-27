@@ -57,8 +57,8 @@ class OnboardingApi {
     );
   }
 
-  /// What the student told us about himself while his first lesson generated
-  /// (#132). No Gemini, nothing waiting on it: the caller does not await it and
+  /// What the student told us about himself while his first lesson generated.
+  /// No Gemini, nothing waiting on it: the caller does not await it and
   /// a failure costs one fact about him, never his lesson.
   Future<void> sendStandardAnswers(
     String goalId,

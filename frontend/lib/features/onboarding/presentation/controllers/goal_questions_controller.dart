@@ -60,8 +60,8 @@ final class GoalQuestionsState {
 
 /// The objective questions Gemini wrote for [prompt], one at a time. The
 /// screen owns how a question arrives (the slide, the pause that shows the
-/// pick); this owns what was answered and how long each question took
-/// (#174), and sends them all to `POST /goals/study-plan`.
+/// pick); this owns what was answered and how long each question took, and
+/// sends them all to `POST /goals/study-plan`.
 @riverpod
 class GoalQuestionsController extends _$GoalQuestionsController {
   late QuestionTimer _timer;

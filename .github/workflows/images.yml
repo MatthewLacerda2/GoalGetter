@@ -1,11 +1,11 @@
 name: images
 
 # Build every image docker-compose.yml builds (#230). Merging is deploying
-# (#105), and the deploy timer is where a broken Dockerfile, a broken
-# docker-compose.yml, or a release web build that fails where `flutter test`
-# passed used to surface first - safely, the old containers keep serving, but
-# silently, with main undeployable until someone read `make deploy-log`. Here
-# the same build fails the pull request instead.
+# (#105), and without this the deploy timer is where a broken Dockerfile, a
+# broken docker-compose.yml, or a release web build that fails where `flutter
+# test` passed would surface first - safely, the old containers keep serving,
+# but silently, with main undeployable until someone reads `make deploy-log`.
+# Here the same build fails the pull request instead.
 #
 # The build reads docker-compose.yml itself (`docker buildx bake` understands
 # compose files), so the contexts, Dockerfiles and build args are never copied

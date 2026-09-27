@@ -2,7 +2,7 @@
 
 It reads the student's still-valid contexts (written by step 1 a moment ago, or
 standing from an earlier run), the goal's current frontier - what the app is
-teaching him now, which step 1 may have moved a moment ago (#133) - and the
+teaching him now, which step 1 may have moved a moment ago - and the
 goal's bank with every question's latest answer.
 
 **It generates when tomorrow's lesson would be too easy, not when the bank is
@@ -12,9 +12,8 @@ with the same selection and the same pace, and then asks the arithmetic in
 for him. A student who keeps missing his questions gets nothing: his bank
 already holds what he needs, and the tokens would buy him nothing.
 
-Nothing here counts rows. The inventory rule this replaces (#91) topped the bank
-up to two lessons, and how full a bank is says nothing at all about whether the
-student still has something to learn from it.
+Nothing here counts rows: how full a bank is says nothing at all about whether
+the student still has something to learn from it.
 """
 
 import logging
@@ -48,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 # How many answered questions of each kind - right and wrong - the prompt
 # carries. Twenty in all, and they are what the generation is written from: real
-# material, never a summary of it (#135).
+# material, never a summary of it.
 #
 # Ten a side because that is about two lessons' worth of each: enough for the
 # model to see a pattern in what he misses rather than one accident, and few
@@ -72,7 +71,7 @@ async def run_questions_step(session: AsyncSession, student_id: uuid.UUID) -> in
         GeminiStudentContext(state=row.state, metacognition=row.metacognition) for row in readings
     ]
     # His pace, and so the size of tomorrow's lesson, is a fact about the person
-    # and not about a goal (#134) - read once, used for every bank below.
+    # and not about a goal - read once, used for every bank below.
     seconds = await StudentAnswerRepository(session).list_recent_seconds(student_id, PACE_WINDOW)
     language = await student_language(session, student_id, goals)
 

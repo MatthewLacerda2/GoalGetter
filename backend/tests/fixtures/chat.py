@@ -1,9 +1,8 @@
 """Tutor-chat fixtures, registered in the root conftest's `pytest_plugins`.
 
-They used to be imported by each tutor test module instead, to keep sibling
-branches off one shared conftest line. That cost every consumer a
-`# noqa: F811` on the fixture parameter, so they are registered here like the
-other six fixture modules."""
+Registered like the other fixture modules rather than imported by each tutor
+test module: an import costs every consumer a `# noqa: F811` on the fixture
+parameter."""
 
 from datetime import UTC, datetime, timedelta
 

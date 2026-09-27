@@ -1,16 +1,16 @@
-"""The one way a use case asks Gemini for something (#216).
+"""The one way a use case asks Gemini for something.
 
 Every use case under `services/gemini/<use-case>/` keeps its folder - the
 schema, the prompt, the function the rest of the app calls - and that function
-reaches Gemini through here and nowhere else. What used to be copied into each
-of them lives once:
+reaches Gemini through here and nowhere else. What every one of them needs
+lives here once:
 
 * the client, reused (`gemini_configs.get_client`);
 * the deadline and the retries, per billed call (`gemini_retry.call_with_retry`),
   so a use case that makes two calls retries each on its own;
 * an answer with nothing in it - a safety block, an empty candidate, text that
-  is not the schema - which becomes `GeminiNoAnswer` instead of a
-  `ValidationError` the student saw as a bare 500.
+  is not the schema - which becomes `GeminiNoAnswer` rather than a
+  `ValidationError` that would reach the student as a bare 500.
 
 `generate` is the typed call: it takes the schema and answers an instance of
 it. `grounded_search` is the one call whose answer is not a schema - the
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 type Contents = ContentListUnion | ContentListUnionDict
 
 # What `grounded_search` answers, named here so the callers that read it need
-# not import google.genai themselves (#211's contract keeps it inside client/).
+# not import google.genai themselves (an import contract keeps it inside client/).
 GroundedResponse = GenerateContentResponse
 
 # How much of an answer that failed to parse reaches the log: enough to see
@@ -49,8 +49,8 @@ class GeminiNoAnswer(Exception):
     """Gemini answered - and billed - but said nothing the caller can use.
 
     Not a bug of ours and not a transport failure, so it is never retried: a
-    blocked prompt is blocked again. A request turns it into a 502 (see
-    `gemini_guard.run_gemini`); #214 will give it a code of its own.
+    blocked prompt is blocked again. A request turns it into `gemini_no_answer`, a
+    502 (see `gemini_guard.run_gemini`).
     """
 
     def __init__(self, model: str, reason: str):

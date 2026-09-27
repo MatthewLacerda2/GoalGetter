@@ -1,5 +1,5 @@
 /// A lesson's time as the student reads it, on the finish screen and in the
-/// home screen's recent lessons alike (#231): minutes and seconds only.
+/// home screen's recent lessons alike: minutes and seconds only.
 ///
 /// A lesson is two minutes (SOUL.md), so hours never apply. Anything past
 /// 59:59 - the phone left on the table overnight - shows as 59:59 rather than

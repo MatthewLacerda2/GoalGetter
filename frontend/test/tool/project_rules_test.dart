@@ -131,7 +131,7 @@ void main() {
     });
 
     // The web half of a conditional import is named after the `if`, not
-    // before it, and reading only the first URI made it an orphan (#84).
+    // before it: reading only the first URI would make it an orphan.
     test('both halves of a conditional import are reached', () {
       expect(
         _projectRules({

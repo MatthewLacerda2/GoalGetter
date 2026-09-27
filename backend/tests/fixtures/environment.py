@@ -1,11 +1,11 @@
-"""The settings the suite runs on: these, and nothing the machine happens to hold (#207).
+"""The settings the suite runs on: these, and nothing the machine happens to hold.
 
 `backend.core.config` reads the environment and then the root `.env`. For the
-app that is the point; for the tests it was a hole. The local gate mounts the
-worktree, `.env` included, so it read the developer's real values - and twice in
-one night a branch was green here and red in CI, which has no `.env`: a real
-SECRET_KEY long enough where CI's was not (#260), a real GOOGLE_CLIENT_ID where
-CI had none (#264).
+app that is the point; for the tests it is a hole. The local gate mounts the
+worktree, `.env` included, so the suite would read the developer's real values
+and go green here on what is red in CI, which has no `.env`: a real SECRET_KEY
+long enough where CI's is not (#260), a real GOOGLE_CLIENT_ID where CI has none
+(#264).
 
 So this module, the first plugin the root conftest loads - before anything
 imports the settings - pins **every** setting the suite depends on, removes any
@@ -32,7 +32,7 @@ UNREACHABLE_HOST = "database-url-is-not-for-tests.invalid"
 
 PINNED = {
     "DATABASE_URL": f"postgresql+asyncpg://nobody:nothing@{UNREACHABLE_HOST}/none",
-    # 40 bytes: PyJWT warns under 32 for HS256, and a warning fails the run (#206).
+    # 40 bytes: PyJWT warns under 32 for HS256, and a warning fails the run.
     "SECRET_KEY": "the-test-suite-signs-with-this-key-only!",
     "GEMINI_API_KEY": "the-test-suite-has-no-gemini-key",
     "GOOGLE_CLIENT_ID": "the-test-suite.apps.googleusercontent.com",

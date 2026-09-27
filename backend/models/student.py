@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class Student(Base):
-    """The person. **There is no rating here** (#62): a rating is what the
+    """The person. **There is no rating here**: a rating is what the
     student is worth *on one goal*, replayed from the answers he gave under it,
     and a single number across every goal he ever opened would be an average of
     things that are not comparable. `goals.rating` is the only rating there is.
@@ -31,7 +31,7 @@ class Student(Base):
     created_at: Mapped[datetime] = mapped_column(default=clock.now)
     last_login: Mapped[datetime] = mapped_column(default=clock.now)
     # The language he chose in the app (`core/language.py`: a `Language` value).
-    # Null until the app first tells us, which is his next request (#172).
+    # Null until the app first tells us, which is his next request.
     language: Mapped[str | None] = mapped_column(String(2))
     # The active goal. Nullable + use_alter because students<->goals reference each
     # other (goals.student_id and students.current_goal_id), a mutual FK Postgres can

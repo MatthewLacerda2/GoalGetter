@@ -26,7 +26,7 @@ void main() {
       );
     });
 
-    // #227: a tint is a colour decision like the hex it tints.
+    // A tint is a colour decision like the hex it tints.
     test('fails on a colour derived with an alpha of its own', () {
       expect(
         _rules('final a = scheme.primary.withValues(alpha: 0.2);'),
@@ -46,7 +46,7 @@ void main() {
       );
     });
 
-    // #227: the fallback was a light-mode colour the dark theme could get.
+    // A screen's own fallback is a light-mode colour the dark theme gets.
     test('fails on the extension looked up with a fallback', () {
       expect(
         _rules(
@@ -89,7 +89,7 @@ void main() {
         _rules('const s = TextStyle(fontSize: 14);'),
         contains('no-font-size'),
       );
-      // #227: `\bfontSize` never saw BottomNavigationBar's own two.
+      // A plain `\bfontSize` misses BottomNavigationBar's own two.
       expect(
         _rules('final b = BottomNavigationBar(selectedFontSize: 10);'),
         contains('no-font-size'),
@@ -143,8 +143,8 @@ void main() {
     });
   });
 
-  // #227: the spacing rule covered EdgeInsets only, so a gap written as a
-  // SizedBox, an icon's size and a spinner's stroke all passed.
+  // Not only EdgeInsets: a gap written as a SizedBox, an icon's size and a
+  // spinner's stroke are spacing and size too (#227).
   group('no-size-literal', () {
     test('fails on a gap, an icon size and a stroke written as numbers', () {
       for (final source in [

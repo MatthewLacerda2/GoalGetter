@@ -1,4 +1,4 @@
-"""Reading the answer history: the table a lesson became (#131)."""
+"""Reading the answer history, where a lesson is the rows sharing one `lesson_id`."""
 
 from datetime import timedelta
 
@@ -83,7 +83,7 @@ async def test_answered_at_spans_goals_and_stops_at_this_student(
 async def test_the_goals_history_is_every_answer_in_order_with_its_correctness(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """What the rating is a function of (#62): one goal's answers, oldest first,
+    """What the rating is a function of: one goal's answers, oldest first,
     each already judged against its own question's right index."""
     goal = await goal_factory(test_user)
     elsewhere = await question_factory(await goal_factory(test_user, name="Chess"), "not here")
@@ -104,7 +104,7 @@ async def test_the_goals_history_is_every_answer_in_order_with_its_correctness(
 async def test_the_pace_is_read_across_goals_newest_first_and_skips_untimed_answers(
     test_db, test_user, student_factory, goal_factory, question_factory, answer_factory
 ):
-    """What sizes a lesson (#134): how fast this person answers, wherever he does it."""
+    """What sizes a lesson: how fast this person answers, wherever he does it."""
     italian = await goal_factory(test_user)
     chess = await goal_factory(test_user, name="Chess")
     theirs = await goal_factory(await student_factory(email="o@example.com", google_id="o"))

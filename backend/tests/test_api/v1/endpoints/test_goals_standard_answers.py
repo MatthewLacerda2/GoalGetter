@@ -41,7 +41,7 @@ async def test_the_answers_are_stored_as_the_student_read_them(
 
 
 async def test_a_standard_row_says_no_model_wrote_it(auth_client, test_db, test_user, goal_factory):
-    """One read of a student's onboarding tells ours from Gemini's (#132)"""
+    """One read of a student's onboarding tells ours from Gemini's"""
     goal = await goal_factory(test_user)
 
     await auth_client.post(url(goal), json={"answers": [answer(AGE, 0), answer(PURPOSE, 1)]})
@@ -89,7 +89,7 @@ async def test_someone_elses_goal_is_not_found(
 
 
 async def test_each_answer_keeps_how_long_he_took(auth_client, test_db, test_user, goal_factory):
-    """The seconds the app measured travel with the answer they belong to (#174)"""
+    """The seconds the app measured travel with the answer they belong to"""
     goal = await goal_factory(test_user)
     answers = [{**answer(AGE, 0), "total_seconds": 4}, {**answer(PURPOSE, 1), "total_seconds": 9}]
 
@@ -102,7 +102,7 @@ async def test_each_answer_keeps_how_long_he_took(auth_client, test_db, test_use
 async def test_an_answer_without_a_duration_is_still_stored(
     auth_client, test_db, test_user, goal_factory
 ):
-    """A missing duration loses the duration, not the answer (#174)"""
+    """A missing duration loses the duration, not the answer"""
     goal = await goal_factory(test_user)
 
     response = await auth_client.post(url(goal), json={"answers": [answer(AGE, 3)]})

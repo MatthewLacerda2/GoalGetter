@@ -13,7 +13,7 @@ part of 'home_controller.dart';
 ///
 /// The backend scopes GET /home to the active goal on its own; watching
 /// [activeGoalProvider] is what loads it again when the student switches
-/// goals (#220), since Home stays mounted under the goals list.
+/// goals, since Home stays mounted under the goals list.
 
 @ProviderFor(homeController)
 final homeControllerProvider = HomeControllerProvider._();
@@ -23,7 +23,7 @@ final homeControllerProvider = HomeControllerProvider._();
 ///
 /// The backend scopes GET /home to the active goal on its own; watching
 /// [activeGoalProvider] is what loads it again when the student switches
-/// goals (#220), since Home stays mounted under the goals list.
+/// goals, since Home stays mounted under the goals list.
 
 final class HomeControllerProvider
     extends
@@ -38,7 +38,7 @@ final class HomeControllerProvider
   ///
   /// The backend scopes GET /home to the active goal on its own; watching
   /// [activeGoalProvider] is what loads it again when the student switches
-  /// goals (#220), since Home stays mounted under the goals list.
+  /// goals, since Home stays mounted under the goals list.
   HomeControllerProvider._()
     : super(
         from: null,

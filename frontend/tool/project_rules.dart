@@ -121,8 +121,8 @@ List<ProjectViolation> missingTranslationViolations(
 ///
 /// Matched whole rather than URI-first because one directive may name more
 /// than one file: `import 'a.dart' if (dart.library.js_interop) 'b.dart';` is
-/// how a file picks its web half, and reading only the first URI made the
-/// other half look like a file nothing imports (#84).
+/// how a file picks its web half, and reading only the first URI would make
+/// the other half look like a file nothing imports.
 final RegExp _directive = RegExp(
   r'''(?:^|\n)\s*(?:import|export|part)\s+(?!of\b)([^;]+);''',
 );
@@ -190,7 +190,7 @@ Iterable<(int, String, String)> directiveUses(
 ///
 /// Reachability rather than "somebody imports it": two dead files importing
 /// each other are still dead, and a file only a test imports is code the app
-/// never runs (#227).
+/// never runs.
 List<ProjectViolation> orphanFileViolations(Map<String, String> sources) {
   final reached = <String>{};
   final queue = [...rootDartFiles.where(sources.containsKey)];

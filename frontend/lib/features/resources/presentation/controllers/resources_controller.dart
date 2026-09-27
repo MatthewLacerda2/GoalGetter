@@ -8,7 +8,7 @@ import 'package:goal_getter/features/resources/domain/resource_item.dart';
 
 part 'resources_controller.g.dart';
 
-/// The active goal's resources, loaded again when it changes (#220). Refresh
+/// The active goal's resources, loaded again when it changes. Refresh
 /// with `ref.invalidate`.
 @riverpod
 Future<GoalResources> resources(Ref ref) {

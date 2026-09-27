@@ -44,7 +44,7 @@ async def test_bank_history_is_scoped_to_the_goal(
 
 
 async def test_the_bank_comes_back_oldest_first(test_db, test_user, goal_factory):
-    """The id breaks a tie (#207). Written in neither order, so a query with no
+    """The id breaks a tie. Written in neither order, so a query with no
     ORDER BY - which answers in the order the rows were written - fails this."""
     goal = await goal_factory(test_user)
     for text, minute, key in (

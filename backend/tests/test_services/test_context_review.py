@@ -46,7 +46,7 @@ async def still_there(test_db, context) -> bool:
 async def test_nothing_outdated_and_nothing_new_is_a_no_op(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """The cheap answer #90 exists for: the reading still holds, so nothing moves"""
+    """The cheap answer the review exists for: the reading still holds, so nothing moves"""
     await studied(test_db, test_user, goal_factory, question_factory, answer_factory, "Beginner")
 
     calls = []

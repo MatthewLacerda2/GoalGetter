@@ -7,7 +7,7 @@ shuffled here, once, before the question is stored; from then on it is fixed and
 every screen shows the same order.
 
 It takes the question as plain values, not as Gemini's `LessonQuestionItem`:
-this is arithmetic, and arithmetic never imports the Gemini layer (#211, the
+this is arithmetic, and arithmetic never imports the Gemini layer (the
 import contracts in backend/pyproject.toml).
 """
 

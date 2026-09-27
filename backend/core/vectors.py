@@ -6,7 +6,7 @@ here - free to run, testable without a network, the same answer every time.
 
 One definition of cosine similarity for the whole backend. Two would eventually
 disagree on the edge cases that matter: a null column (the nightly backfill has
-not reached that row yet, #96) and a zero vector (an empty text that was never
+not reached that row yet) and a zero vector (an empty text that was never
 sent). Both are "nothing to compare", not "similarity zero", and a reader that
 confused the two would quietly treat an un-embedded row as an unrelated one.
 """

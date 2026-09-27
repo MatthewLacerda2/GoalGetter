@@ -5,9 +5,9 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 /// The one sentence the app says about a failed call, whichever shape shows it
 /// (`FailureView` or `showFailure`, both in `core/widgets/failure.dart`).
 ///
-/// One case per [ApiFailure] (#221), then whatever else was thrown:
+/// One case per [ApiFailure], then whatever else was thrown:
 ///
-///  * an answer from the backend — the message for its code (#214), never the
+///  * an answer from the backend — the message for its code, never the
 ///    body's `detail`, which is English for the log. The exception is a prompt
 ///    that is not a goal: its detail is Gemini's reasoning, written in the
 ///    student's language, and is the most useful thing to show him;

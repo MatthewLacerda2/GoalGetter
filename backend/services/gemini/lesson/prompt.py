@@ -27,7 +27,7 @@ EXERCISE_RULES = """Every exercise:
 
 def format_contexts(contexts: list[GeminiStudentContext]) -> str:
     """The student's still-valid contexts, newest first. They are written about
-    the person and not about this goal (#87), so several may apply at once."""
+    the person and not about this goal, so several may apply at once."""
     if not contexts:
         return "No reading of this student has been written yet."
     return "\n".join(
@@ -37,7 +37,7 @@ def format_contexts(contexts: list[GeminiStudentContext]) -> str:
 
 def format_right(answered: list[AnsweredQuestion]) -> str:
     """The questions he got right, plain: what he already holds, shown as his
-    own material rather than as a number (#135)."""
+    own material rather than as a number."""
     if not answered:
         return "None yet."
     return "\n".join([f'- "{a.question}" -> he answered "{a.correct}"' for a in answered])

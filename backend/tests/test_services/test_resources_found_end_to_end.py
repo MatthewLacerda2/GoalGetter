@@ -1,6 +1,6 @@
 """From the captured grounded response to stored links, with the web mocked (#175).
 
-The measure the issue asks for: of the response's eight grounding sources, which
+What is measured: of the response's eight grounding sources, which
 become resources, and that every one is a real page's address - never the
 redirect, never a URL the model wrote.
 """

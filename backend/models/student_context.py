@@ -18,7 +18,7 @@ class StudentContext(Base):
 
     It belongs to the **student**, not to a goal (#87). What the app knows about
     a person does not change when they switch from law to history, and writing
-    one context per goal paid Gemini once per goal to say much the same thing.
+    one context per goal would pay Gemini once per goal to say much the same thing.
     What is goal-specific reaches a prompt as the goal's own name and
     description.
 

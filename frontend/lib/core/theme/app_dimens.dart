@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 
-/// Corner radii and spacing, the two halves of the design system that used to
-/// be written by hand in every screen.
+/// Corner radii and spacing, the half of the design system [ThemeData] does not
+/// carry (colour and type come from it).
 ///
-/// Colour and type already came from [ThemeData]; radius and spacing did not,
-/// so the app grew thirteen different ways to round a corner and fifteen ways
-/// to pad a box. These are the tokens, and `tool/frontend_linter.dart` refuses
-/// a raw number outside `lib/core/theme/`.
+/// Written by hand in each screen, radius and spacing drift into a dozen ways
+/// to round a corner and to pad a box. These are the tokens, and
+/// `tool/frontend_linter.dart` refuses a raw number outside `lib/core/theme/`.
 
 /// The corner radii the design uses. Six, each with a job.
 ///
 /// `<name>` is the raw value, for the rare call that needs a `double`;
 /// `<name>Border` is the same value as a const [BorderRadius], so a decoration
-/// that used to be const stays const.
+/// built from it can stay const.
 abstract final class AppRadius {
   /// Fully rounded: page dots, pills, anything whose corner is its height.
   static const double pill = 999;
@@ -78,11 +77,9 @@ abstract final class AppSpacing {
 
   // --- Off the scale ---
   //
-  // The gaps screens wrote as `SizedBox(height: 10)` before the rule reached
-  // them (#227). Each keeps the value it had, so bringing gaps under the rule
-  // moved no pixel; named after the value, because that is all they are.
-  // Moving one onto the scale above is a visual change, to be made where a
-  // golden test (#226) shows it — and then the token goes.
+  // Gaps that sit between the steps of the scale above. Named after the value,
+  // because that is all they are. Moving one onto the scale is a visual
+  // change, to be made where a golden test shows it — and then the token goes.
 
   static const double gap3 = 3;
   static const double gap6 = 6;
@@ -205,7 +202,7 @@ abstract final class AppSizes {
   ///
   /// It is a token because two different buttons have to agree on it: the one
   /// the app draws, and the box Google's own rendered button is centred in on
-  /// the web (#84). Without one number the layout jumps when the GIS SDK
+  /// the web. Without one number the layout jumps when the GIS SDK
   /// finishes loading and the second replaces the first.
   static const double signInButton = 56;
 
@@ -214,7 +211,7 @@ abstract final class AppSizes {
   static const double googleButtonMaxWidth = 400;
 
   /// The app's icon at the top of the start screen, the one place it is
-  /// drawn inside the app rather than by the platform (#180).
+  /// drawn inside the app rather than by the platform.
   static const double startIcon = 88;
 
   /// A progress spinner standing in for a button's label or icon.

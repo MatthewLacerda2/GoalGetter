@@ -8,9 +8,8 @@ already use, so the app's stored preference is the enum's value as is.
 the choice on every request in the `X-Student-Language` header — from the start
 screen's selector, defaulting to the phone's language, and from the profile —
 and the backend mirrors it onto `students.language` whenever it differs
-(`api/v1/student_dependencies.py`). That one mechanism is also how a student who signed up
-before the column existed gets one: his next request fills it. Until then the
-column is null, which honestly means "not told yet".
+(`api/v1/student_dependencies.py`). Until the app first sends one the column is
+null, which honestly means "not told yet"."
 
 `services/language/detection.py` classifies a text, but never decides the
 student's language: a goal of "Chess" or "Python" says nothing about what he

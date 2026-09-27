@@ -24,7 +24,7 @@ async def test_create_goal_persists_and_asks_the_standard_questions(
     auth_client, test_db, test_user
 ):
     """Authed commit: persists the goal, sets it active, fires the chain, and hands
-    back the questions to ask while it runs (#132)"""
+    back the questions to ask while it runs"""
     with patch(CHAIN) as chain:
         response = await auth_client.post(ENDPOINT, json=BODY)
 
@@ -44,8 +44,8 @@ async def test_create_goal_persists_and_asks_the_standard_questions(
 
 
 async def test_create_goal_costs_no_gemini_call(auth_client):
-    """The introduction screens were the one synchronous call here, and they are
-    gone (#132): a premium call saved on every goal created"""
+    """Goal creation makes no synchronous Gemini call: the student answers the
+    standard questions while the chain runs, a premium call saved per goal (#132)"""
     with (
         patch(CHAIN, autospec=True),
         patch("backend.api.v1.endpoints.goals.run_gemini", autospec=True) as gemini,
@@ -59,9 +59,9 @@ async def test_create_goal_costs_no_gemini_call(auth_client):
 async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
     auth_client, test_db, test_user
 ):
-    """The answers are not handed to the chain, they are left where it reads them
-    (#88). Each row says who wrote the question it holds (#132): the model the
-    answer came back with (#216), and no guess when it came back with none"""
+    """The answers are not handed to the chain, they are left where it reads them.
+    Each row says who wrote the question it holds: the model the
+    answer came back with, and no guess when it came back with none"""
     answers = [
         {"question": "Experience?", "answer": "None", "ai_model": "gemini-then"},
         {"question": "Why?", "answer": "Fun"},
@@ -79,7 +79,7 @@ async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
 
 
 async def test_create_goal_stores_how_long_each_answer_took(auth_client, test_db, test_user):
-    """Each Gemini question keeps the seconds the app measured on it (#174); the
+    """Each Gemini question keeps the seconds the app measured on it; the
     student's own words are not timed, so their row has none"""
     timed = [
         {"question": "Experience?", "answer": "None", "total_seconds": 7},
@@ -101,7 +101,7 @@ async def test_create_goal_without_a_duration_still_stores_the_answer(
     auth_client, test_db, test_user
 ):
     """An older client, or a clock that could not be read, costs the duration and
-    never the answer (#174)"""
+    never the answer"""
     with patch(CHAIN):
         response = await auth_client.post(ENDPOINT, json=BODY)
 

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class OnboardingQuestion(Base):
     """What the student told us while creating a goal, kept until the chain's
-    first step turns it into a student context (#88).
+    first step turns it into a student context.
 
     How a row is written - which of the four option columns is filled, when
     `selected_option_index` is NULL, and what `ai_model` holds - is documented
@@ -42,14 +42,13 @@ class OnboardingQuestion(Base):
 
     # Who wrote the question: the Gemini model that generated it, or the
     # literal "system" for the four standard questions and for the row holding
-    # the student's own words (#132). NOT NULL - the column is in the initial
-    # migration, so there is no row from before it existed, and a row that
-    # cannot say where it came from is the one thing this column is for.
+    # the student's own words. NOT NULL: a row that cannot say where it came
+    # from is the one thing this column is for.
     ai_model: Mapped[str]
 
     selected_option_index: Mapped[int | None]
     # How long he spent on the question, in whole seconds, as the app measured
-    # it (#174) - named after `student_answers.total_seconds`, one word for one
+    # it - named after `student_answers.total_seconds`, one word for one
     # thing. Nullable: an older client or a clock that could not be read sends
     # none, and losing the duration must never lose the answer. NULL too on the
     # row holding the student's own words, which the app does not time. Stored

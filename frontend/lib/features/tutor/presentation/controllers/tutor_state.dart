@@ -6,7 +6,7 @@ import 'package:goal_getter/features/tutor/domain/chat_exchange.dart';
 ///
 /// Loading that page, and a failure to, are the controller's own `AsyncValue`
 /// (loading, error), so whatever the call throws lands in the error with its
-/// retry. Equality is hand-written, as the lesson's is (#223); exchanges
+/// retry. Equality is hand-written, as the lesson's is; exchanges
 /// compare by identity, being the server's objects, replaced whenever one
 /// changes.
 @immutable

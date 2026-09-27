@@ -11,7 +11,7 @@ part 'home_controller.g.dart';
 ///
 /// The backend scopes GET /home to the active goal on its own; watching
 /// [activeGoalProvider] is what loads it again when the student switches
-/// goals (#220), since Home stays mounted under the goals list.
+/// goals, since Home stays mounted under the goals list.
 @riverpod
 Future<HomeDashboard?> homeController(Ref ref) {
   ref.watch(activeGoalProvider);

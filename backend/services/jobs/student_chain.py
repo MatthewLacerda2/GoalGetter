@@ -1,7 +1,7 @@
 """One chain per student: context, then questions, then resources (#88).
 
 **One entry point.** `run_student_chain(student_id)` is what goal creation
-fires and what the nightly run (#89) will call for each student it does not
+fires and what the nightly run calls for each student it does not
 skip. There is no first-run variant: the steps read the database, and a student
 who has done nothing yet simply has nothing for them to find.
 
@@ -42,13 +42,13 @@ async def run_student_chain(
 
     `with_resources` is the one thing a caller decides about *what runs*,
     because resources are the one step that is not wanted every time: the
-    nightly run buys them once a week (#89), goal creation wants them for a
+    nightly run buys them once a week, goal creation wants them for a
     goal that has none. Everything else a step needs it reads for itself.
 
     `onboarding_as_of` decides nothing about what runs; it pins *how far* the
     onboarding is read. Goal creation passes the instant it finished writing,
     so this run - the first batch - cannot see the standard questions the
-    student starts answering the moment it returns (#132). Every other caller
+    student starts answering the moment it returns. Every other caller
     passes nothing and the whole onboarding is read, which is what makes the
     generation after the first the one those answers reach.
 
@@ -81,7 +81,7 @@ async def _run_safely(student_id: uuid.UUID, onboarding_as_of: datetime | None) 
 
 def kickoff_student_chain(student_id: uuid.UUID, onboarding_as_of: datetime | None = None) -> None:
     """Fire the chain on the running loop and return: goal creation answers
-    immediately and the standard questions (#132) buy the time.
+    immediately and the standard questions buy the time.
 
     The task is kept in a set so it is not garbage-collected mid-flight.
     """

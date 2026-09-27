@@ -5,7 +5,7 @@
 /// `ApiClient` sends nothing else, so this list is every call the app can
 /// make, complete by construction. `test/contract/api_contract_test.dart`
 /// checks each entry against the committed snapshot of the backend's API
-/// (`backend/openapi.json`, #213): a route the backend renamed or removed
+/// (`backend/openapi.json`): a route the backend renamed or removed
 /// fails `make frontend`, not the app.
 enum ApiRoute {
   signup('POST', '/auth/signup'),

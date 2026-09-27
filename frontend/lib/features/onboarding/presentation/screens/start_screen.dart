@@ -15,15 +15,13 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 /// app is in one glance — the icon and the name, a headline and a tagline,
 /// nothing a visitor has to read through. It never
 /// speaks of courses or of reaching a goal: a goal is what the student wants to
-/// learn about, and there is no finish line (`CLAUDE.md`, "How the app
-/// decides"). The headline and the tagline under it are the two phrasings the
+/// learn about, and there is no finish line (`SOUL.md`, "What it is"). The
+/// headline and the tagline under it are the two phrasings the
 /// user weighed; swapping the values of `startHeadline` and `startTagline` in
 /// the ARB files swaps which one leads.
 ///
 /// **How it looks**: the app's own theme, light or dark like every other
-/// screen. Until #180 it painted a dark gradient in both modes (#85), which
-/// made the one page a visitor judges the app by the one page that did not
-/// look like it.
+/// screen. The one page a visitor judges the app by must look like the app.
 ///
 /// **What it does** — two ways in, because the screen is reached two ways
 /// round. Signing in with Google ([GoogleSignInButton]) is what a returning
@@ -32,7 +30,7 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 /// very draft he was committing. Trying it without an account is the other:
 /// goal creation's first two steps are public (backend_contract.md, Goals), so
 /// anyone can describe what he wants to learn and see what the app makes of it
-/// before deciding to sign in at all (#84).
+/// before deciding to sign in at all.
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key, this.devLogin = AppConfig.devLogin});
 
@@ -60,7 +58,7 @@ class StartScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // The language, already the phone's: one tap fixes it when
-                  // the phone (or the browser) is wrong (#172).
+                  // the phone (or the browser) is wrong.
                   const Align(
                     alignment: Alignment.topLeft,
                     child: LanguageSelector(),

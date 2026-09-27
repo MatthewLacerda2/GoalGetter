@@ -6,10 +6,9 @@ tool and `responses/youtube_search.json` one YouTube `search.list`, both taken
 the code must read, rather than a shape a test author imagined.
 
 `responses/gemini/<use case>.json` is every call one `make gemini` use case
-makes, in order, as the API answers it (#207) - what the default suite replays
+makes, in order, as the API answers it - what the default suite replays
 through each use case's real parse path. The format is what
-`make gemini ARGS='--capture <use case> ...'` writes. The ones committed with
-#207 were written by hand in the captured wire shape rather than captured,
+`make gemini ARGS='--capture <use case> ...'` writes. Some were written by hand in the captured wire shape rather than captured,
 because capturing is a billed call per use case; the resource search's first
 call is the real capture above. Recapturing one replaces its file.
 

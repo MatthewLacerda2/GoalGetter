@@ -16,7 +16,7 @@ It does two things, in one pass, on a database that must be empty:
    against it and fails if there is anything to generate.
 
 The database is `TEST_DATABASE_URL`, which `make back-migrations` sets to a
-Postgres started for this run and removed after it (`tools/test-db.sh`, #205).
+Postgres started for this run and removed after it (`tools/test-db.sh`).
 One that is not empty is refused rather than reset
 (`backend/tools/disposable_database.py`): nothing here drops anything, and
 nothing here ever touches `DATABASE_URL`.

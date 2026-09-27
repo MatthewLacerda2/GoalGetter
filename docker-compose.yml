@@ -48,8 +48,8 @@ services:
     restart: unless-stopped
 
   # The schema, applied once, before anything that reads it (#157). Nothing
-  # creates tables on start any more: a container restart is the normal result
-  # of a push, and the old startup path would have dropped every student.
+  # else creates tables: a container restart is the normal result of a push,
+  # and a schema rebuilt on start would drop every student with it.
   #
   # Its own service rather than the backend's lifespan, because `backend` and
   # `nightly` share this image and start together - two processes racing to

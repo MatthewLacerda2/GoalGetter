@@ -18,7 +18,7 @@ from backend.tests.fixtures.captured import recorded
 from backend.tests.fixtures.code import modules_under
 from backend.tools import gemini_cli
 
-# The doors to Gemini a use case may call (#216). Anything that calls one of
+# The doors to Gemini a use case may call. Anything that calls one of
 # them is a use case, whatever it is named.
 SHARED_CALLS = (gemini_call.generate, gemini_call.grounded_search)
 
@@ -35,7 +35,7 @@ def _callee(module, func: ast.expr):
 
 def gemini_use_cases() -> set:
     """Every function under `services/gemini/` that calls Gemini, read off the
-    code (#212): a new use case is found the moment it makes its first call,
+    code: a new use case is found the moment it makes its first call,
     with nobody having to list it anywhere."""
     found = set()
     for module in modules_under("services/gemini"):
@@ -85,7 +85,7 @@ def test_missing_arguments_are_refused_before_any_call(capsys):
 
 
 def test_capture_alone_runs_the_sample_and_asks_for_the_recording(monkeypatch):
-    """The sample is what the replay test builds its call with (#207)"""
+    """The sample is what the replay test builds its call with"""
     asked = []
 
     def run(*call):
@@ -110,20 +110,18 @@ def test_a_capture_is_saved_in_the_shape_the_replay_reads(tmp_path):
 
 @pytest.mark.parametrize("case", gemini_cli.USE_CASES, ids=lambda case: case.name)
 def test_the_arguments_an_entry_builds_are_the_ones_its_function_takes(case):
-    """The gate #120 asked for: every door opens.
+    """Every door opens: each entry's call site is exercised.
 
-    Two entries had been broken for weeks because a use case's inputs changed
-    under them (#116) and nothing exercised the call site - the command may
-    never call Gemini from the suite, so the only thing left to check is the
-    *shape* of what it would have sent. Arity alone would not have caught
-    either one: both passed the right number of arguments, as strings, where
-    the function wanted a list of models. So each argument is validated against
-    its parameter's annotation, strictly, which is exactly the mismatch.
+    The command may never call Gemini from the suite, so the only thing left to
+    check is the *shape* of what it would send. Arity alone is not enough: an
+    entry can pass the right number of arguments, as strings, where the function
+    wants a list of models (#116) - a use case's inputs change under an entry
+    nothing calls. So each argument is validated against its parameter's
+    annotation, strictly, which is exactly that mismatch.
 
-    The alternative weighed in the issue - having the build smoke import the
-    registry - was not enough for the same reason: importing the module proves
-    the names resolve, and both bugs were in code that imported perfectly well
-    and only failed at the call.
+    Having the build smoke import the registry would not be enough for the same
+    reason: importing the module proves the names resolve, and a broken call
+    site imports perfectly well and only fails at the call.
     """
     arguments = case.build(list(case.sample))
     signature = inspect.signature(case.call)

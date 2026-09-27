@@ -23,7 +23,7 @@ final class PlanCommitting extends StudyPlanState {}
 final class PlanNeedsSignIn extends StudyPlanState {}
 
 /// The goal exists and is the active one: [goal] carries the standard
-/// questions to ask while its first lesson generates (#132).
+/// questions to ask while its first lesson generates.
 final class PlanCommitted extends StudyPlanState {
   PlanCommitted(this.goal);
 

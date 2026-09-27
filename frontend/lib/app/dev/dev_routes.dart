@@ -14,9 +14,9 @@ import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_
 /// The routes that exist only in a `--dart-define=DEV_MENU=true` build.
 ///
 /// They live here, beside the fixtures they show, because this is the one
-/// directory allowed to name [DevFixtures]: invented content reaching a real
-/// student is the defect #139 fixed, and `tool/frontend_linter.dart` now
-/// refuses a fixture named anywhere else. `app_router.dart` spreads this list
+/// directory allowed to name [DevFixtures]: invented content must never reach
+/// a real student, and `tool/frontend_linter.dart` refuses a fixture named
+/// anywhere else. `app_router.dart` spreads this list
 /// behind `if (AppConfig.devMenu)`, so none of these paths exist in a
 /// production build.
 final List<RouteBase> devRoutes = [

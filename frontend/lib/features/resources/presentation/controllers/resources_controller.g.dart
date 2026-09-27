@@ -8,13 +8,13 @@ part of 'resources_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The active goal's resources, loaded again when it changes (#220). Refresh
+/// The active goal's resources, loaded again when it changes. Refresh
 /// with `ref.invalidate`.
 
 @ProviderFor(resources)
 final resourcesProvider = ResourcesProvider._();
 
-/// The active goal's resources, loaded again when it changes (#220). Refresh
+/// The active goal's resources, loaded again when it changes. Refresh
 /// with `ref.invalidate`.
 
 final class ResourcesProvider
@@ -25,7 +25,7 @@ final class ResourcesProvider
           FutureOr<GoalResources>
         >
     with $FutureModifier<GoalResources>, $FutureProvider<GoalResources> {
-  /// The active goal's resources, loaded again when it changes (#220). Refresh
+  /// The active goal's resources, loaded again when it changes. Refresh
   /// with `ref.invalidate`.
   ResourcesProvider._()
     : super(

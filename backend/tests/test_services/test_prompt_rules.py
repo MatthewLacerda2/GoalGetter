@@ -3,13 +3,13 @@
 No Gemini call: each prompt is rendered from its builder. A rule is pinned by a phrase the prompt has to contain:
 
 - the student's language, **named** (Portuguese and German here, so a prompt
-  that always says English fails), where the old prompts guessed it;
+  that always says English fails), never left for the model to guess;
 - rule 1, his self-report is an *opinion*, and rule 2, the app teaches him
   *as far as he can go*, wherever Gemini reasons about him;
 - rule 7, the shortest output: a phrase of each prompt's own, below.
 
 `PROMPTS` is keyed by `make gemini`'s use cases, and has to cover every one of
-them (#212). That list is itself checked against every function that calls
+them. That list is itself checked against every function that calls
 Gemini (`test_gemini_cli.py`), so a new use case cannot reach Gemini without a
 prompt here.
 """
@@ -44,7 +44,7 @@ ANSWERS = [ObjectiveAnswer(question="How much do you already know?", answer="A l
 
 
 def resource_prompts(language: Language) -> str:
-    """Both of the resource search's prompts (#175), as `search_resources` names
+    """Both of the resource search's prompts, as `search_resources` names
     the language in them."""
     tongue = language.english_name
     return "\n".join(

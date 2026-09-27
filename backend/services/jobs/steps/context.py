@@ -7,8 +7,8 @@ What it does is decided by what it finds, never by a flag:
   goal creation stored and from the goal he is working on (the active one:
   a paused goal is not refreshed, the user, 2026-09-26);
 * otherwise it asks Gemini to **review** the readings that stand: which of them
-  have gone stale, what is now missing (#90), and whether any goal's frontier
-  has been outgrown (#133).
+  have gone stale, what is missing, and whether any goal's frontier has been
+  outgrown.
 
 **The review is not a rewrite.** Regenerating the whole context every night
 paid a premium call to produce much the same paragraphs. So the prompt carries
@@ -71,10 +71,11 @@ async def run_context_step(
 
     False is a normal outcome, and there are two of them: a student with no
     goals, who has nothing to be written about and costs nothing; and a review
-    that found nothing stale and nothing to add, which is what #90 is for.
+    that found nothing stale and nothing to add, the cheap outcome the review is
+    built around.
 
     `onboarding_as_of` is how far back the onboarding is read - the chain's
-    caller decides it, and only goal creation sets one (#132).
+    caller decides it, and only goal creation sets one.
     """
     goals = await GoalRepository(session).list_active(student_id)
     if not goals:
@@ -110,7 +111,7 @@ async def _first_impression(
 
     The onboarding is read from the database, not received as an argument, so
     this runs the same whether goal creation fired it a second ago or the
-    nightly run picked it up after that attempt failed (#88).
+    nightly run picked it up after that attempt failed.
     """
     questions_answers = _told_us(rows)
     logger.info(
@@ -143,9 +144,9 @@ async def _review(
     """Show the model what the app believes and let it say what no longer holds.
 
     The chats are in the prompt even though the nightly run does not count them
-    as activity (#89): what a student asks the tutor is evidence about them,
+    as activity: what a student asks the tutor is evidence about them,
     and only the *gate* is lessons-only. It is also the evidence a frontier
-    move reads - what he asks about is what he is interested in (#133).
+    move reads - what he asks about is what he is interested in.
 
     `goals` are the rows, not the prompt's view of them, because a move is
     written back against a goal and checked against its embedding.
@@ -238,14 +239,14 @@ def _told_us(rows: list[OnboardingQuestion]) -> list[tuple[str, str]]:
 
     `OnboardingRepository.answer_of` is the single rule that reads a row back,
     so nothing here has to know which of the three shapes it is in - or which
-    of them a model wrote and which we did (#132).
+    of them a model wrote and which we did.
     """
     return [(row.question, OnboardingRepository.answer_of(row)) for row in rows]
 
 
 def _goals_seen(goals: list[Goal], definitions: list[str]) -> list[StudentGoal]:
     """The student's goals as a prompt reads them: what he asked for, and the
-    frontier we are teaching him at today (#133)."""
+    frontier we are teaching him at today."""
     return [
         StudentGoal(name=goal.name or "", description=goal.description or "", frontier=definition)
         for goal, definition in zip(goals, definitions, strict=True)
@@ -257,7 +258,7 @@ def _answer_seen(answer: StudentAnswer, question: Question) -> RecentAnswer:
     picked (its text, not its index), and how long they took.
 
     Correctness is worked out here rather than read: `student_answers` stores
-    no `is_correct` (#131).
+    no `is_correct`.
     """
     options = [question.option_a, question.option_b, question.option_c, question.option_d]
     index = answer.selected_index

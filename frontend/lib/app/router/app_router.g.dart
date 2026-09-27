@@ -10,7 +10,7 @@ part of 'app_router.dart';
 // ignore_for_file: type=lint, type=warning
 /// The app's go_router configuration.
 ///
-/// Signing in and out is routing (#224): the router listens to the session
+/// Signing in and out is routing: the router listens to the session
 /// ([signedInProvider]) and to the launch decision
 /// ([launchDestinationProvider]), and its redirects decide where the student
 /// goes — [_sessionRedirect] for a session that ended, [_launchRedirect] for
@@ -23,7 +23,7 @@ final goRouterProvider = GoRouterProvider._();
 
 /// The app's go_router configuration.
 ///
-/// Signing in and out is routing (#224): the router listens to the session
+/// Signing in and out is routing: the router listens to the session
 /// ([signedInProvider]) and to the launch decision
 /// ([launchDestinationProvider]), and its redirects decide where the student
 /// goes — [_sessionRedirect] for a session that ended, [_launchRedirect] for
@@ -36,7 +36,7 @@ final class GoRouterProvider
     with $Provider<GoRouter> {
   /// The app's go_router configuration.
   ///
-  /// Signing in and out is routing (#224): the router listens to the session
+  /// Signing in and out is routing: the router listens to the session
   /// ([signedInProvider]) and to the launch decision
   /// ([launchDestinationProvider]), and its redirects decide where the student
   /// goes — [_sessionRedirect] for a session that ended, [_launchRedirect] for

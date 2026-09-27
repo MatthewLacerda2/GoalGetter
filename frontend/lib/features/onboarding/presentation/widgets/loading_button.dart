@@ -3,7 +3,7 @@ import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The filled button that sends an onboarding step: its label, or a spinner
 /// in the label's place while the call is in flight. The goal prompt and the
-/// study plan both send with it (#231).
+/// study plan both send with it.
 class LoadingButton extends StatelessWidget {
   const LoadingButton({
     super.key,

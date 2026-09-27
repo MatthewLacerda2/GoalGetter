@@ -1,11 +1,11 @@
-"""The rule every user of the disposable test database keeps (#205): it builds
+"""The rule every user of the disposable test database keeps: it builds
 only on a database that is empty.
 
 `tools/test-db.sh` starts a Postgres for one run, so the database the pytest
 fixtures and `make back-migrations` receive was born seconds ago with nothing in
 it. Checking that is what turns "the tests use a throwaway database" from a
 convention into a guarantee: a TEST_DATABASE_URL that names a database holding
-anything at all - the live one, the retired long-lived `postgres_test`, a run
+anything at all - the live one, the long-lived compose `postgres_test`, a run
 that somehow survived - is refused before a single statement changes it. So
 nothing here ever drops, truncates or resets anything; the container's removal is
 the only undo there is.

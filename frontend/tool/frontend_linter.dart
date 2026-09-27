@@ -30,7 +30,9 @@
 /// for us written in English like the code and never shipped to a student.
 ///
 /// Rules 1 and 2 hold for `test/` and `tool/` too, and a test is at most 50
-/// code lines (`tool/test_rules.dart`).
+/// code lines (`tool/test_rules.dart`). So does the comment rule: at most three
+/// issue references per file, and no sentence dated "since #N"
+/// (`tool/comment_rules.dart`).
 ///
 /// Four more rules answer for the project rather than for one file — dead ARB
 /// keys, half-done translations, orphan files and unused members. They live in
@@ -46,6 +48,7 @@ library;
 
 import 'dart:io';
 
+import 'comment_rules.dart';
 import 'dart_source.dart';
 import 'design_rules.dart';
 import 'hub_rules.dart';
@@ -54,6 +57,7 @@ import 'project_rules.dart';
 import 'string_rules.dart';
 import 'test_rules.dart';
 
+export 'comment_rules.dart';
 export 'dart_source.dart';
 export 'dead_members.dart';
 export 'design_rules.dart';
@@ -170,6 +174,7 @@ List<Violation> lintSource(String path, String source) {
   final isTest = path.startsWith('test/');
   final violations = [
     ...lengthViolations(source, stripped, isTest: isTest),
+    ...commentViolations(source),
     if (isTest) ...testLengthViolations(source),
   ];
   if (path.startsWith('lib/')) {

@@ -13,7 +13,7 @@ from backend.repositories.base import BaseRepository
 @dataclass
 class LessonSummary:
     """One lesson as Home reads it: the answers that carry the same mark,
-    counted together (#131). There is no row behind it - the grouping *is* the
+    counted together. There is no row behind it - the grouping *is* the
     lesson, which is why accuracy and seconds are computed and not stored."""
 
     lesson_id: uuid.UUID
@@ -24,11 +24,11 @@ class LessonSummary:
 
 @dataclass
 class AnswerRecord:
-    """One answer as the rating model reads it (#62): which question, when, and
+    """One answer as the rating model reads it: which question, when, and
     whether it was right.
 
     Correctness is computed in SQL from the question's own right index, because
-    `student_answers` deliberately stores no copy of it (#131). The moment is
+    `student_answers` deliberately stores no copy of it. The moment is
     here because the model walks the history in order: a question is anchored at
     the rating the goal had when it was generated.
     """
@@ -39,7 +39,7 @@ class AnswerRecord:
 
 
 # Whether one answer was right, as SQL. The only definition there is: the
-# column was deliberately not stored (#131).
+# column was deliberately not stored.
 _IS_RIGHT = StudentAnswer.selected_index == Question.right_answer_index
 
 
@@ -80,7 +80,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
 
     async def list_history_by_goal(self, goal_id: uuid.UUID) -> list[AnswerRecord]:
         """Every answer this goal ever received, oldest first - the history the
-        rating is a function of (#62).
+        rating is a function of.
 
         Ordered by the moment, then by the answer's place in its lesson, so a
         batch written in one transaction is replayed in the order it was given
@@ -154,9 +154,11 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
     async def list_recent_seconds(self, student_id: uuid.UUID, limit: int) -> list[int]:
         """How long each of the student's last `limit` answers took, newest first.
 
-        **The only read of the answering time there is** (#134): it sizes the
-        lesson - two minutes of questions at his own pace - and nothing else.
-        How long he took says nothing about whether a question is right for him.
+        **The only read of the answering time that decides anything** (#134):
+        it sizes the lesson - two minutes of questions at his own pace - and
+        nothing else. How long he took says nothing about whether a question is
+        right for him. (The context step shows each recent answer's time to
+        Gemini, `services/jobs/steps/context.py`, as something to read.)
 
         Across goals, like `list_recent_by_student` and for the same reason: how
         fast a person answers is a fact about the person, so his second goal
@@ -180,7 +182,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
     async def last_answered_at(self, student_id: uuid.UUID) -> datetime | None:
         """When this student last answered a question, on any goal, or None.
 
-        The nightly run's whole gate (#89) is this one moment: a day counts
+        The nightly run's whole gate is this one moment: a day counts
         because the student answered something in it. Chat activity is
         deliberately not part of it.
         """
@@ -193,7 +195,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
 
         Timestamps, not dates: the streak buckets them by the app's calendar
         day in Python (services/lessons/streak.py), so the rule does not depend
-        on the database session's time zone (#92).
+        on the database session's time zone.
         """
         result = await self.db.execute(self._answered_at(student_id))
         return list(result.scalars().all())

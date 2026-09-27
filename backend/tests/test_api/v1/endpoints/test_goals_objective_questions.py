@@ -83,7 +83,7 @@ async def test_geminis_quota_is_a_503_of_its_own_not_a_429(client):
 
 
 async def test_a_refused_gemini_key_is_a_502_not_a_sign_out(client):
-    """#214: Gemini's 401 is about our key; as a 401 the app would sign him out"""
+    """Gemini's 401 is about our key; as a 401 the app would sign him out"""
     with patch(VALIDATE, side_effect=_gemini_error(401, "API key not valid"), autospec=True):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 502
@@ -94,7 +94,7 @@ async def test_a_refused_gemini_key_is_a_502_not_a_sign_out(client):
 
 
 async def test_a_blocked_prompt_is_a_502_not_a_500(client):
-    """#216: Gemini answering with no text is its failure, named as such - and
+    """Gemini answering with no text is its failure, named as such - and
     never a 401 or 403, which the app would read as being signed out"""
     with fake_gemini(BLOCKED):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})

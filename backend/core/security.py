@@ -49,7 +49,7 @@ def _invalid_google_token() -> ApiError:
 
 
 def _google_unreachable() -> ApiError:
-    """Google did not answer: nothing is known about the token, so not a 401 (#186)."""
+    """Google did not answer: nothing is known about the token, so not a 401."""
     return ApiError(ErrorCode.GOOGLE_UNREACHABLE)
 
 
@@ -66,8 +66,8 @@ class GoogleIdentity(TypedDict):
 def _verify_id_token(token: str) -> GoogleIdentity:
     """google-auth fetches Google's certificates with `requests`, synchronously:
     called on the event loop, one slow fetch stalls every request in flight, so
-    `verify_google_token` runs this in a worker thread (#210). The certificates
-    are kept for as long as Google says they stay valid, not refetched per call (#258)."""
+    `verify_google_token` runs this in a worker thread. The certificates are
+    kept for as long as Google says they stay valid, not refetched per call."""
     idinfo = id_token.verify_oauth2_token(token, GOOGLE_CERTS, settings.GOOGLE_CLIENT_ID)
     return GoogleIdentity(
         sub=idinfo["sub"],
@@ -140,7 +140,7 @@ def verify_token(token: str) -> dict[str, object]:
 
     `exp` is checked here, on `clock.now()` - the clock `create_access_token`
     stamped it with - and not by PyJWT, which reads the machine's time: with
-    two clocks, a test that freezes the app's got expiry backwards (#206).
+    two clocks, a test that freezes the app's got expiry backwards.
     """
     try:
         payload: dict[str, object] = jwt.decode(

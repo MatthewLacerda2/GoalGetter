@@ -8,7 +8,7 @@ everything every night leaves exactly the same database behind as one that
 embeds only what is null. It just costs money.
 
 Every moment is written in UTC and converted, never built in the ambient zone -
-the same discipline as the clock's own tests (#92). Midnight in
+the same discipline as the clock's own tests. Midnight in
 America/Sao_Paulo is 03:00 UTC; 03:00 there is 06:00 UTC.
 """
 
