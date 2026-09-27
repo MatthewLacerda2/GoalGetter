@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,8 +22,8 @@ GROUP_BY_TYPE = {
 
 @router.get("", response_model=ResourcesResponse)
 async def list_resources(
-    goal: Goal = Depends(get_active_goal),
-    db: AsyncSession = Depends(get_db),
+    goal: Annotated[Goal, Depends(get_active_goal)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """The active goal's curated resources, grouped by kind. No active goal is 404;
     a goal whose background search has not finished yet has three empty lists."""

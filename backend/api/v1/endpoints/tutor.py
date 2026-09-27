@@ -2,6 +2,7 @@
 without one). The API speaks in exchanges: one row per prompt + reply."""
 
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -48,10 +49,12 @@ def _history_turns(exchanges: list[ChatMessage]) -> list[GeminiChatMessage]:
 
 @router.get("/messages", response_model=list[ChatExchange])
 async def list_messages(
-    goal: Goal = Depends(get_active_goal),
-    db: AsyncSession = Depends(get_db),
-    before: datetime | None = Query(None, description="Only exchanges older than this created_at"),
-    limit: int = Query(PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
+    goal: Annotated[Goal, Depends(get_active_goal)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    before: Annotated[
+        datetime | None, Query(description="Only exchanges older than this created_at")
+    ] = None,
+    limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
 ):
     """The active goal's exchanges, newest first. Pass the last one's
     `created_at` as `before` for the next (older) page."""
@@ -61,9 +64,9 @@ async def list_messages(
 @router.post("/messages", response_model=ChatExchange, status_code=status.HTTP_201_CREATED)
 async def send_message(
     payload: TutorMessageRequest,
-    goal: Goal = Depends(get_active_goal),
-    current_user: Student = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
+    goal: Annotated[Goal, Depends(get_active_goal)],
+    current_user: Annotated[Student, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Send the student's message with this goal's recent history and the
     student's still-valid contexts; store and return the exchange.
@@ -107,8 +110,8 @@ async def send_message(
 async def like_message(
     message_id: UUID,
     payload: LikeRequest,
-    goal: Goal = Depends(get_active_goal),
-    db: AsyncSession = Depends(get_db),
+    goal: Annotated[Goal, Depends(get_active_goal)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Set the like on a reply. An exchange outside the active goal (someone
     else's, or another goal's) is 404, so its existence never leaks."""

@@ -9,6 +9,8 @@ to submit *to*: the answers arrive as one batch, and the backend marks them
 with a `lesson_id` of its own as it saves them.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,7 +42,9 @@ LESSONS_NOT_READY = "Lessons are still being prepared"
 @router.post(
     "/{goal_id}/lessons", response_model=LessonResponse, status_code=status.HTTP_201_CREATED
 )
-async def start_lesson(goal: Goal = Depends(get_owned_goal), db: AsyncSession = Depends(get_db)):
+async def start_lesson(
+    goal: Annotated[Goal, Depends(get_owned_goal)], db: Annotated[AsyncSession, Depends(get_db)]
+):
     """Open a lesson: two minutes of questions at the threshold of what he knows (#134).
 
     Both halves of that are arithmetic and neither is a constant this endpoint
@@ -80,8 +84,8 @@ def _served(question: Question) -> LessonQuestionResponse:
 @router.post("/{goal_id}/lessons/answers", response_model=LessonEvaluation)
 async def submit_lesson_answers(
     payload: LessonAnswersRequest,
-    goal: Goal = Depends(get_owned_goal),
-    db: AsyncSession = Depends(get_db),
+    goal: Annotated[Goal, Depends(get_owned_goal)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Grade the batch server-side, store it under one fresh `lesson_id`, move the rating.
 
