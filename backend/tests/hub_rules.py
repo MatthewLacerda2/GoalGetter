@@ -245,10 +245,7 @@ HUBS = (
     ),
     Hub(
         "Route",
-        # main.py keeps the three routes it declares on the app: slowapi's
-        # default limit sees only the app's own routes, not an included
-        # router's (#274). They move under api/ with that fix.
-        (r"backend/api/", r"backend/main\.py$"),
+        (r"backend/api/",),
         routes,
         "every route is declared under api/, on a router main.py includes",
     ),

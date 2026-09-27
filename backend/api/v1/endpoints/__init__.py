@@ -1,10 +1,11 @@
 from fastapi import APIRouter
 
-from backend.api.v1.endpoints import auth, goals, home, lessons, me, resources, tutor
+from backend.api.v1.endpoints import auth, check, goals, home, lessons, me, resources, tutor
 
 router = APIRouter()
 
 router.include_router(auth.router, prefix="/auth", tags=["auth"])
+router.include_router(check.router, prefix="/check", tags=["check"])
 router.include_router(goals.router, prefix="/goals", tags=["goals"])
 router.include_router(home.router, prefix="/home", tags=["home"])
 router.include_router(lessons.router, prefix="/goals", tags=["lessons"])

@@ -1,18 +1,16 @@
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
-from slowapi.middleware import SlowAPIMiddleware
 
+from backend.api.public_files import router as public_files_router
 from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.config import settings
 from backend.core.cors import PRODUCTION_ORIGINS, cors_origin_regex
 from backend.core.errors.handlers import install_error_handlers
 from backend.core.errors.response import ERROR_RESPONSES
 from backend.core.logging_middleware import LoggingMiddleware
-from backend.core.rate_limiter import limiter
-from backend.llms import get_llms_txt
+from backend.core.rate_limiter import default_rate_limit
 
 # App-wide log format. Nothing logs from this module itself; the middleware and
 # the services take their loggers from here.
@@ -33,6 +31,8 @@ app = FastAPI(
     openapi_url="/api/v1/openapi.json",
     docs_url="/api/v1/docs",  # Move docs to /api/v1/docs
     redoc_url="/api/v1/redoc",  # Move redoc to /api/v1/redoc
+    # Every route's default rate limit, checked after routing (#274).
+    dependencies=[Depends(default_rate_limit)],
 )
 
 app.add_middleware(
@@ -44,30 +44,10 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Student-Language"],
 )
 
-app.state.limiter = limiter
-app.add_middleware(SlowAPIMiddleware)
-
 # Every error answers {"code", "detail"}, the code from core/errors/codes.py
 # (#214), and every route under /api/v1 declares that body for its 4xx and 5xx.
 install_error_handlers(app)
 
 app.add_middleware(LoggingMiddleware)
 app.include_router(api_v1_router, prefix="/api/v1", responses=ERROR_RESPONSES)
-
-
-@app.get("/api/v1/check")
-async def root(request: Request) -> dict[str, str]:
-    return {"message": "Welcome to GoalGetter API"}
-
-
-SECURITY_TXT = "Contact: matheus.l1996@gmail.com\n"
-
-
-@app.get("/security.txt", response_class=PlainTextResponse)
-async def security_txt_fallback() -> str:
-    return SECURITY_TXT
-
-
-@app.get("/llms.txt", response_class=PlainTextResponse)
-async def llms_txt() -> str:
-    return get_llms_txt()
+app.include_router(public_files_router)

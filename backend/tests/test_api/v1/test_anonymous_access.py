@@ -6,14 +6,10 @@ route, and a route whose copy was forgotten was a route nobody checked. A new
 route that is meant to be open goes into `PUBLIC`, with the reason, on purpose.
 """
 
-import re
-import uuid
-
 import pytest
-from fastapi.routing import APIRoute, iter_route_contexts
 
 from backend.core.errors.codes import ErrorCode
-from backend.main import app
+from backend.tests.fixtures.routes import endpoints, with_made_up_ids
 
 # Open to a caller with no token, and why.
 PUBLIC = {
@@ -27,22 +23,6 @@ PUBLIC = {
     ("GET", "/security.txt"): "a public file",
     ("GET", "/llms.txt"): "a public file",
 }
-
-_PARAMETER = re.compile(r"\{[^}]+\}")
-
-
-def endpoints() -> list[tuple[str, str]]:
-    """Every method and path the app serves, the docs aside (they are Starlette
-    routes, not API routes). Read the way the OpenAPI generator reads them:
-    `app.routes` alone holds an included router as one opaque entry."""
-    return sorted(
-        (method, context.path)
-        for context in iter_route_contexts(app.routes)
-        if isinstance(context.original_route, APIRoute)
-        if context.path
-        for method in context.methods or ()
-    )
-
 
 PROTECTED = [endpoint for endpoint in endpoints() if endpoint not in PUBLIC]
 
@@ -61,6 +41,6 @@ def test_the_check_below_has_routes_to_check():
 async def test_a_request_without_a_token_is_401(client, method, path):
     """Before the body is read and before anything is looked up: a made-up id in
     the path must not turn it into a 404 that tells a stranger what exists"""
-    response = await client.request(method, _PARAMETER.sub(str(uuid.uuid4()), path))
+    response = await client.request(method, with_made_up_ids(path))
 
     assert (response.status_code, response.json()["code"]) == (401, ErrorCode.NOT_SIGNED_IN)
