@@ -20,7 +20,6 @@ on:
     types: [opened, reopened, ready_for_review, synchronize]
     paths:
       - "backend/services/gemini/**"
-      - "backend/utils/gemini/**"
       - "backend/services/resources/**"
       - "backend/tests/live/**"
       - "backend/requirements.txt"
@@ -50,7 +49,7 @@ jobs:
           fi
           if [ -n "$BASE" ]; then
             others="$(git diff --name-only "$BASE" HEAD | grep -vx 'backend/requirements.txt' \
-              | grep -E '^(backend/services/gemini/|backend/utils/gemini/|backend/services/resources/|backend/tests/live/|\.github/workflows/live\.yml$)' || true)"
+              | grep -E '^(backend/services/gemini/|backend/services/resources/|backend/tests/live/|\.github/workflows/live\.yml$)' || true)"
             genai="$(git diff "$BASE" HEAD -- backend/requirements.txt | grep -E '^[+-]google-genai' || true)"
             if [ -z "$others" ] && [ -z "$genai" ]; then
               skip "backend/requirements.txt changed, but not its google-genai line."
@@ -78,5 +77,4 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://unused@127.0.0.1:1/unused
           TEST_DATABASE_URL: postgresql+asyncpg://unused@127.0.0.1:1/unused
           SECRET_KEY: unused
-          GOOGLE_REDIRECT_URI: http://localhost/callback
         run: make test-live PY_LIVE=python

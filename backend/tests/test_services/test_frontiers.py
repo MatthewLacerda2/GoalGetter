@@ -16,6 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
+from backend.core.config import settings
 from backend.models.frontier import Frontier
 from backend.models.student_context import StudentContext
 from backend.repositories.frontier_repository import FrontierRepository
@@ -25,7 +26,6 @@ from backend.services.jobs.steps.context import run_context_step
 from backend.services.jobs.steps.questions import run_questions_step
 from backend.tests.fixtures.jobs import ELSEWHERE, SUBJECT, chain_gemini, review
 from backend.tests.fixtures.lessons import at
-from backend.utils.envs import PLACEMENT_SIZE
 
 LESSON = "backend.services.gemini.lesson.lesson_generation"
 CIRCUITS = "Understand circuits."
@@ -209,7 +209,7 @@ async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
     # Plenty he can answer beside the one he missed: a generation is only bought
     # for a student the bank has become too easy for (#135), and once the goal
     # holds the placement's worth of answers.
-    for i in range(PLACEMENT_SIZE):
+    for i in range(settings.PLACEMENT_SIZE):
         held = await question_factory(goal, text=f"What is Ohm's law? ({i})")
         await answer_factory(held, correct=True, answered_at=at(11 + i))
     await test_db.commit()

@@ -1,7 +1,7 @@
+from backend.core.config import settings
 from backend.core.language import Language
 from backend.services.gemini.lesson.prompt import EXERCISE_RULES, LEVEL_RULES, format_contexts
 from backend.services.gemini.student_context.schema import GeminiStudentContext
-from backend.utils.envs import PLACEMENT_SIZE
 
 
 def get_placement_prompt(
@@ -18,7 +18,7 @@ def get_placement_prompt(
     What the app has read about him so far (his own words, not a measurement):
     {format_contexts(contexts)}
 
-    Write exactly {PLACEMENT_SIZE} exercises about what he asked, ordered from the most
+    Write exactly {settings.PLACEMENT_SIZE} exercises about what he asked, ordered from the most
     basic to moderately advanced. The first ones anyone could answer after hearing of
     the subject; each next one a small step past the previous. They are his first
     lessons: every exercise must teach him one fact or idea, and together they show

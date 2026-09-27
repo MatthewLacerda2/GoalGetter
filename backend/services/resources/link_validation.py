@@ -14,8 +14,8 @@ import re
 
 import httpx
 
+from backend.core.config import settings
 from backend.models.resource import Resource, StudyResourceType
-from backend.utils.envs import YOUTUBE_API_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -118,13 +118,13 @@ async def youtube_picture(client: httpx.AsyncClient, url: str) -> str | None:
     if lookup is None:
         logger.info("Dropping %s: not a recognisable YouTube link", url)
         return None
-    if not YOUTUBE_API_KEY:
+    if not settings.YOUTUBE_API_KEY:
         logger.warning("YOUTUBE_API_KEY unset - cannot verify %s, dropping it", url)
         return None
 
     endpoint, params = lookup
     response = await _fetch(
-        client, f"{YOUTUBE_API}/{endpoint}", params={**params, "key": YOUTUBE_API_KEY}
+        client, f"{YOUTUBE_API}/{endpoint}", params={**params, "key": settings.YOUTUBE_API_KEY}
     )
     if response is None:
         return None

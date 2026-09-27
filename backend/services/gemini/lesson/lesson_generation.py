@@ -1,9 +1,9 @@
+from backend.core.config import settings
 from backend.core.language import Language
+from backend.services.gemini.client.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.lesson.prompt import get_lesson_generation_prompt
 from backend.services.gemini.lesson.schema import AnsweredQuestion, GeminiLessonQuestionsResponse
 from backend.services.gemini.student_context.schema import GeminiStudentContext
-from backend.utils.envs import GEMINI_FAST_MODEL
-from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 
 
 def generate_lesson_questions(
@@ -30,7 +30,7 @@ def generate_lesson_questions(
     `QUESTIONS_PER_GENERATION`; the old variable count existed to fill a gap in
     the bank, and there is no gap to fill any more (#135)."""
     client = get_client()
-    model = GEMINI_FAST_MODEL
+    model = settings.GEMINI_FAST_MODEL
     full_prompt = get_lesson_generation_prompt(
         goal_name=goal_name,
         goal_description=goal_description,

@@ -34,11 +34,11 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from backend.core import clock
+from backend.core.vectors import cosine
 from backend.models.question import Question
 from backend.models.student_context import StudentContext
 from backend.repositories.student_answer_repository import AnswerRecord
 from backend.services.lessons.rasch import GUESS, expected_score, replay
-from backend.utils.vectors import cosine
 
 # Where content belongs: his chance of answering correctly, aimed at 0.75.
 #

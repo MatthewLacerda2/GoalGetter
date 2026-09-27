@@ -60,7 +60,7 @@ services:
   # No `restart:` here on purpose: this is a one-shot that must be allowed to
   # finish. `unless-stopped` would run it again forever.
   #
-  # A migration only uses DATABASE_URL; the other three are what the settings
+  # A migration only uses DATABASE_URL; the other two are what the settings
   # object requires before it will load at all (backend/core/config.py).
   migrate:
     build:
@@ -70,7 +70,6 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/goalgetter
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
       SECRET_KEY: ${SECRET_KEY}
     depends_on:
       postgres:
@@ -85,14 +84,14 @@ services:
     # No TZ here on purpose (#92): the container stays UTC and the app converts
     # to backend/core/clock.APP_TIMEZONE wherever a calendar day matters. A zone
     # set here would be invisible to pytest, CI and the seeder - see clock.py.
+    # Only what the API reads (#215): the tests' database and the unused OAuth
+    # redirect/project are not passed. Pool sizes stay at their defaults, whose
+    # sum against `--workers 4` is in backend/core/config.py (#219).
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/goalgetter
-      TEST_DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_TEST_PASSWORD}@postgres_test:5432/goalgetter_test
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
       SECRET_KEY: ${SECRET_KEY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
       # Without it the resource job drops every YouTube link (it cannot verify them).
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
     # No host port, on purpose. nginx reaches the API at `backend:8000` over the
@@ -132,14 +131,12 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: goalgetter_nightly
+    # SECRET_KEY only because the settings require it to load; the night signs
+    # no tokens and verifies no Google sign-in, so GOOGLE_CLIENT_ID is not here.
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/goalgetter
-      TEST_DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_TEST_PASSWORD}@postgres_test:5432/goalgetter_test
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
       SECRET_KEY: ${SECRET_KEY}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
     depends_on:
       postgres:

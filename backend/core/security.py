@@ -17,9 +17,13 @@ from backend.core.database import get_db
 from backend.core.language import Language, requested_language
 from backend.models.student import Student
 from backend.repositories.student_repository import StudentRepository
-from backend.utils.envs import GOOGLE_CLIENT_ID, JWT_AUDIENCE, JWT_ISSUER
 
 logger = logging.getLogger(__name__)
+
+# Who signs the app's own tokens and who they are for. Constants, not settings:
+# a token names them, so changing either signs every student out.
+JWT_ISSUER = "https://goalsgetter.org/api/v1"
+JWT_AUDIENCE = "https://goalsgetter.org/api/v1"
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
@@ -66,7 +70,7 @@ async def verify_google_token(token: str) -> dict:
     client is told which, never the exception's text: that goes to the log.
     """
     try:
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_CLIENT_ID)
         return {
             "sub": idinfo["sub"],  # Google's unique user ID
             "email": idinfo["email"],

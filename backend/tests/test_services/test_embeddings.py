@@ -20,13 +20,13 @@ import numpy as np
 import pytest
 
 from backend.core import clock
+from backend.core.vectors import NUM_DIMENSIONS
 from backend.models.resource import Resource, StudyResourceType
 from backend.models.student_context import StudentContext
 from backend.repositories.frontier_repository import FrontierRepository
 from backend.services.jobs.embeddings import run_embeddings
 from backend.tests.fixtures.jobs import Session
 from backend.tools import nightly_run
-from backend.utils.envs import NUM_DIMENSIONS
 
 EMBEDDINGS = "backend.services.jobs.embeddings"
 

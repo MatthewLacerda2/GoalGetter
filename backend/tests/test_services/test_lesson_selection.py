@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from backend.core.vectors import NUM_DIMENSIONS
 from backend.models.frontier import Frontier
 from backend.models.question import Question
 from backend.models.student_context import StudentContext
@@ -29,7 +30,6 @@ from backend.services.lessons.selection import (
     select_lesson_questions,
     threshold_score,
 )
-from backend.utils.envs import NUM_DIMENSIONS
 
 T0 = datetime(2026, 9, 1, tzinfo=UTC)
 NOW = T0 + timedelta(days=10)

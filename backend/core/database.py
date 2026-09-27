@@ -1,15 +1,15 @@
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from backend.core.config import settings
 
-load_dotenv()
-
+# One engine per process, and so one pool per process: its size is on the
+# settings, next to the sum that keeps every process under Postgres's
+# `max_connections` (#219).
 engine = create_async_engine(
     settings.DATABASE_URL,  # Already has postgresql+asyncpg://
-    pool_size=10,
-    max_overflow=100,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
 )
 
 # expire_on_commit=False: endpoints read what they just committed (the new id,

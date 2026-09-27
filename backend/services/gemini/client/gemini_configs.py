@@ -2,15 +2,20 @@ import logging
 from typing import Any
 
 import numpy as np
-from dotenv import load_dotenv
 from google.genai import Client
 from google.genai.types import Content, EmbedContentConfig, GenerateContentConfig, Part, Tool
 
 from backend.core.config import settings
-from backend.utils.envs import EMBEDDING_MODEL, NUM_DIMENSIONS
+from backend.core.vectors import NUM_DIMENSIONS
 
 logger = logging.getLogger(__name__)
-load_dotenv()
+
+# The model that writes every stored vector. A constant beside the call rather
+# than a setting (#215): each vector column holds this model's vectors at
+# NUM_DIMENSIONS, and a different model is a different space - comparing its
+# vectors with the ones already stored would be meaningless, so changing it
+# means re-embedding every row, not editing an environment variable.
+EMBEDDING_MODEL = "gemini-embedding-2"
 
 
 def get_client():

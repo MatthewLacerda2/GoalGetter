@@ -35,9 +35,9 @@ import logging
 from dataclasses import dataclass
 
 from backend.core.database import AsyncSessionLocal
+from backend.services.gemini.client.gemini_configs import get_gemini_embeddings_batch
+from backend.services.gemini.client.gemini_guard import run_gemini_background
 from backend.services.jobs.embedding_columns import SOURCES, EmbeddingColumn, EmbeddingSource
-from backend.utils.gemini.gemini_configs import get_gemini_embeddings_batch
-from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 

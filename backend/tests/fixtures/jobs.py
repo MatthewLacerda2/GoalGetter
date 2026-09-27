@@ -17,6 +17,7 @@ from unittest.mock import AsyncMock, patch
 
 import numpy as np
 
+from backend.core.vectors import NUM_DIMENSIONS
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse, LessonQuestionItem
 from backend.services.gemini.resources.search_resources import ResourceSearch
@@ -27,7 +28,6 @@ from backend.services.gemini.student_context.schema import (
     GeminiStudentContext,
     GeminiStudentContextResponse,
 )
-from backend.utils.envs import NUM_DIMENSIONS
 
 CONTEXT = "backend.services.jobs.steps.context"
 QUESTIONS = "backend.services.jobs.steps.questions"

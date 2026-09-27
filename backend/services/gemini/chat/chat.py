@@ -1,5 +1,6 @@
 from google.genai.types import GenerateContentResponse
 
+from backend.core.config import settings
 from backend.core.language import Language
 from backend.services.gemini.chat.prompt import chat_system_prompt
 from backend.services.gemini.chat.schema import (
@@ -7,8 +8,7 @@ from backend.services.gemini.chat.schema import (
     GeminiChatResponse,
     StudentContextToChat,
 )
-from backend.utils.envs import GEMINI_FAST_MODEL
-from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
+from backend.services.gemini.client.gemini_configs import get_client, get_gemini_config
 
 
 def gemini_messages_generator(
@@ -19,7 +19,7 @@ def gemini_messages_generator(
     language: Language,
 ) -> GeminiChatResponse:
     client = get_client()
-    model = GEMINI_FAST_MODEL
+    model = settings.GEMINI_FAST_MODEL
     config = get_gemini_config(GeminiChatResponse.model_json_schema())
 
     # Generate system prompt

@@ -14,7 +14,7 @@ answered right (the forgetting term), so the struggling student's bank already
 holds tomorrow.
 
 **Before either branch, the placement** (the user, 2026-09-26). A bank with
-nothing in it is a goal created minutes ago: it gets `PLACEMENT_SIZE` questions,
+nothing in it is a goal created minutes ago: it gets `settings.PLACEMENT_SIZE` questions,
 written by their own prompt to find where he is. And until the goal holds that
 many *answers*, nothing more is bought - he has not been measured yet, so there
 is nothing to write the next batch from.
@@ -31,8 +31,8 @@ has to rescue one; it is buying for the days after tomorrow.
 from dataclasses import dataclass
 from statistics import fmean
 
+from backend.core.config import settings
 from backend.services.lessons.selection import TARGET_SCORE, TOLERANCE_BELOW, Ranked
-from backend.utils.envs import PLACEMENT_SIZE, QUESTIONS_PER_GENERATION
 
 # The predicted accuracy at or above which tomorrow's lesson counts as too easy,
 # and below which the bank is already holding what he needs.
@@ -74,8 +74,8 @@ class Verdict:
     generate: bool
     predicted: float | None
     reason: str
-    # The goal's first batch: `PLACEMENT_SIZE` questions from the placement
-    # prompt instead of `QUESTIONS_PER_GENERATION` from the lesson one.
+    # The goal's first batch: `settings.PLACEMENT_SIZE` questions from the placement
+    # prompt instead of `settings.QUESTIONS_PER_GENERATION` from the lesson one.
     placement: bool = False
 
 
@@ -94,15 +94,15 @@ def decide(lesson: list[Ranked], answers: int) -> Verdict:
         return Verdict(
             True,
             None,
-            f"placement: {PLACEMENT_SIZE} questions, the bank is empty so this is the "
+            f"placement: {settings.PLACEMENT_SIZE} questions, the bank is empty so this is the "
             "goal's first batch",
             placement=True,
         )
-    if answers < PLACEMENT_SIZE:
+    if answers < settings.PLACEMENT_SIZE:
         return Verdict(
             False,
             None,
-            f"nothing: {answers} answers, under the {PLACEMENT_SIZE} that measure him",
+            f"nothing: {answers} answers, under the {settings.PLACEMENT_SIZE} that measure him",
         )
 
     predicted = fmean(entry.expected for entry in lesson)
@@ -116,6 +116,6 @@ def decide(lesson: list[Ranked], answers: int) -> Verdict:
     return Verdict(
         True,
         predicted,
-        f"generating {QUESTIONS_PER_GENERATION}, one step past what he holds: tomorrow's "
+        f"generating {settings.QUESTIONS_PER_GENERATION}, one step past what he holds: tomorrow's "
         f"{len(lesson)} predict {predicted:.2f} accuracy, at or over {GENERATE_ABOVE:.2f}",
     )

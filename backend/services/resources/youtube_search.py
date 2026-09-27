@@ -18,10 +18,10 @@ import logging
 
 import httpx
 
+from backend.core.config import settings
 from backend.core.language import Language
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.resources.link_validation import REQUEST_TIMEOUT, YOUTUBE_API
-from backend.utils.envs import YOUTUBE_API_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ async def search_videos(
 ) -> list[Resource]:
     """Up to three videos for `query`, preferring the student's language.
     Nothing raises: a failed search is no videos tonight, not a failed chain."""
-    if not YOUTUBE_API_KEY or not query.strip():
+    if not settings.YOUTUBE_API_KEY or not query.strip():
         logger.warning("No YouTube search: %s", "no key" if query.strip() else "no query")
         return []
     try:
@@ -48,7 +48,7 @@ async def search_videos(
                 "q": query,
                 "maxResults": VIDEOS,
                 "relevanceLanguage": language.value,
-                "key": YOUTUBE_API_KEY,
+                "key": settings.YOUTUBE_API_KEY,
             },
             timeout=REQUEST_TIMEOUT,
         )

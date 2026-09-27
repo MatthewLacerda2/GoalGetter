@@ -70,3 +70,22 @@ async def test_send_without_active_goal_is_404(auth_client, test_user, goal_fact
         response = await auth_client.post(ENDPOINT, json={"message": "hi"})
     assert response.status_code == 404
     gemini.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_send_holds_no_transaction_while_gemini_answers(
+    auth_client, test_db, test_user, goal_factory
+):
+    """Its connection is back in the pool for the slow call, not pinned by it (#219)"""
+    await goal_factory(test_user, active=True)
+    holding = []
+
+    def gemini(*_args):
+        holding.append(test_db.in_transaction())
+        return REPLY
+
+    with patch(GEMINI, side_effect=gemini):
+        response = await auth_client.post(ENDPOINT, json={"message": "hi"})
+
+    assert response.status_code == 201
+    assert holding == [False]

@@ -13,13 +13,13 @@ he can answer, which the old rule would have left alone.
 
 import pytest
 
+from backend.core.config import settings
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionRepository
 from backend.services.gemini.lesson.prompt import get_lesson_generation_prompt
 from backend.services.jobs.steps.questions import run_questions_step
 from backend.tests.fixtures.jobs import chain_gemini, generated
 from backend.tests.fixtures.lessons import at
-from backend.utils.envs import PLACEMENT_SIZE, QUESTIONS_PER_GENERATION
 
 # Italian, so the option the student picked reads as a belief and not as "b".
 ITALIAN = ("hello", "goodbye", "please", "thank you")
@@ -89,12 +89,17 @@ async def test_a_student_who_never_misses_gets_eight_one_step_past_what_he_holds
     await answered(test_db, goal, question_factory, answer_factory, right=10, wrong=0)
 
     calls = []
-    with chain_gemini(test_db, calls, questions=generated(*[0] * QUESTIONS_PER_GENERATION)):
-        assert await run_questions_step(test_db, str(test_user.id)) == QUESTIONS_PER_GENERATION
+    with chain_gemini(
+        test_db, calls, questions=generated(*[0] * settings.QUESTIONS_PER_GENERATION)
+    ):
+        assert (
+            await run_questions_step(test_db, str(test_user.id))
+            == settings.QUESTIONS_PER_GENERATION
+        )
 
     prompt = get_lesson_generation_prompt(*asked(calls))
     assert "1400" not in prompt and "difficulty" not in prompt
-    assert f"Write exactly {QUESTIONS_PER_GENERATION} exercises" in prompt
+    assert f"Write exactly {settings.QUESTIONS_PER_GENERATION} exercises" in prompt
     assert "one\n    step past what he got right" in prompt
 
 
@@ -154,8 +159,8 @@ async def test_an_empty_bank_is_the_placement_written_from_what_he_typed(
     await test_db.commit()
 
     calls = []
-    with chain_gemini(test_db, calls, questions=generated(*[0] * PLACEMENT_SIZE)):
-        assert await run_questions_step(test_db, str(test_user.id)) == PLACEMENT_SIZE
+    with chain_gemini(test_db, calls, questions=generated(*[0] * settings.PLACEMENT_SIZE)):
+        assert await run_questions_step(test_db, str(test_user.id)) == settings.PLACEMENT_SIZE
 
     name, typed, _, _ = dict(calls)["placement"]
     assert (name, typed) == ("Digital China", "understand modern China")

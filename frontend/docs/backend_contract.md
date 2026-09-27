@@ -636,7 +636,8 @@ Decided in conversation; recorded here so they survive the session.
    questions, the study plan — and for the student
    context, because both decide what the student gets for a long time;
    **fast** for what is generated constantly: the tutor's replies, lesson
-   questions, and the resource search. Model names live in `backend/utils/envs.py`
+   questions, and the resource search. Model names are settings (`GEMINI_FAST_MODEL`, `GEMINI_PREMIUM_MODEL` in
+   `backend/core/config.py`)
    and need a bump roughly monthly — last bumped 2026-09-21 to
    `gemini-3.5-flash-lite` / `gemini-3.8-flash`.
 

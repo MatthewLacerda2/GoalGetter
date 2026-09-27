@@ -31,11 +31,11 @@ nothing in this app is ever blocked by a missing embedding.
 
 import logging
 
+from backend.core.vectors import cosine
 from backend.models.frontier import Frontier
 from backend.repositories.frontier_repository import FrontierRepository
-from backend.utils.gemini.gemini_configs import get_gemini_embeddings
-from backend.utils.gemini.gemini_guard import run_gemini_background
-from backend.utils.vectors import cosine
+from backend.services.gemini.client.gemini_configs import get_gemini_embeddings
+from backend.services.gemini.client.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 

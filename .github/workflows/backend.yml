@@ -73,7 +73,6 @@ jobs:
           TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
           GEMINI_API_KEY: test-key
           SECRET_KEY: test-secret
-          GOOGLE_REDIRECT_URI: http://localhost/callback
         run: make back-migrations PY=python
 
       # `make back-test PY=python` - the same target, and the same pytest
@@ -86,5 +85,4 @@ jobs:
           # Tests mock Gemini; these exist only so settings can load.
           GEMINI_API_KEY: test-key
           SECRET_KEY: test-secret
-          GOOGLE_REDIRECT_URI: http://localhost/callback
         run: make back-test PY=python
