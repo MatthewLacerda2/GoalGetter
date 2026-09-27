@@ -24,9 +24,41 @@ class StateMessage extends StatelessWidget {
   final VoidCallback? onAction;
 
   @override
+  Widget build(BuildContext context) => StateLayout(
+    icon: icon,
+    iconColor: Theme.of(context).colorScheme.primary,
+    heading: title,
+    text: body,
+    actionLabel: actionLabel,
+    onAction: onAction,
+  );
+}
+
+/// The layout [StateMessage] and `FailureView` share: an icon, a heading, a
+/// line of text and a button, centred in the empty space. Each of the two says
+/// what it is about; this only lays it out, once, so the two cannot drift
+/// apart (#231).
+class StateLayout extends StatelessWidget {
+  const StateLayout({
+    super.key,
+    required this.icon,
+    required this.iconColor,
+    this.heading,
+    this.text,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String? heading;
+  final String? text;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -36,21 +68,22 @@ class StateMessage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: AppSizes.stateIcon, color: scheme.primary),
+            Icon(icon, size: AppSizes.stateIcon, color: iconColor),
             const SizedBox(height: AppSpacing.md),
-            Text(
-              title,
-              style: theme.textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            if (body != null) ...[
-              const SizedBox(height: AppSpacing.xs),
+            if (heading != null)
               Text(
-                body!,
+                heading!,
+                style: theme.textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+            if (heading != null && text != null)
+              const SizedBox(height: AppSpacing.xs),
+            if (text != null)
+              Text(
+                text!,
                 style: theme.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
-            ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSpacing.xl),
               ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),

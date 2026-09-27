@@ -69,11 +69,11 @@ final RegExp _declaration = RegExp(
 );
 
 /// `lib/features/<feature>/<layer>/…`
-final RegExp _featurePath = RegExp(r'^lib/features/([^/]+)/([^/]+)/');
+final RegExp _featurePath = RegExp('^lib/features/([^/]+)/([^/]+)/');
 
 /// `lib/features/<feature>/presentation/(screens|widgets)/…`
 final RegExp _drawnPath = RegExp(
-  r'^lib/features/([^/]+)/presentation/(?:screens|widgets)/',
+  '^lib/features/([^/]+)/presentation/(?:screens|widgets)/',
 );
 
 String _normal(String path) => path.replaceAll(r'\', '/');
@@ -175,7 +175,7 @@ List<Violation> crossFeaturePresentation(String path, String source) {
           source,
           end,
           'cross-feature-presentation',
-          "A widget two features draw with lives in lib/core/widgets/ "
+          'A widget two features draw with lives in lib/core/widgets/ '
               "('$target' belongs to the $other feature): move it there",
         ),
   ];

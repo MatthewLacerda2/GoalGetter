@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/question_card.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/standard_questions_controller.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/standard_question_text.dart';
@@ -124,26 +125,13 @@ class _QuestionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(AppRadius.card),
-            ),
-            child: Text(
-              standardQuestionLabel(l10n, question.key) ?? '',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: scheme.onSurface,
-              ),
-            ),
+          QuestionCard(
+            question: standardQuestionLabel(l10n, question.key) ?? '',
           ),
           const SizedBox(height: AppSpacing.xl),
           for (final optionKey in question.optionKeys)

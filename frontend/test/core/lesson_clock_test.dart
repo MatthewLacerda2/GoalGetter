@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:goal_getter/features/lessons/presentation/widgets/lesson_clock.dart';
+import 'package:goal_getter/core/widgets/lesson_clock.dart';
 
 void main() {
   test('minutes and seconds only, clamped at 59:59', () {

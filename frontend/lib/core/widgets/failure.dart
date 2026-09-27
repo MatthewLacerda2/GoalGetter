@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/core/utils/error_text.dart';
+import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 /// Where a failure snackbar sits. The user finds merit in both.
@@ -43,39 +44,13 @@ class FailureView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xxl,
-          vertical: AppSpacing.xl,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off, size: AppSizes.stateIcon, color: scheme.error),
-            const SizedBox(height: AppSpacing.md),
-            if (title != null) ...[
-              Text(
-                title!,
-                style: theme.textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-            ],
-            Text(
-              errorText(error, l10n),
-              style: theme.textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: AppSpacing.xl),
-              ElevatedButton(onPressed: onRetry, child: Text(l10n.retry)),
-            ],
-          ],
-        ),
-      ),
+    return StateLayout(
+      icon: Icons.cloud_off,
+      iconColor: Theme.of(context).colorScheme.error,
+      heading: title,
+      text: errorText(error, l10n),
+      actionLabel: onRetry == null ? null : l10n.retry,
+      onAction: onRetry,
     );
   }
 }

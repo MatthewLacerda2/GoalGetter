@@ -8,6 +8,7 @@ import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/goal_prompt_controller.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/loading_button.dart';
 
 /// Step 1 of goal creation: what the student wants to learn. Its controller
 /// sends it to `POST /goals/objective-questions`; a 400 there is Gemini saying
@@ -135,7 +136,10 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.card),
-          borderSide: BorderSide(color: theme.colorScheme.primary, width: AppStroke.thick),
+          borderSide: BorderSide(
+            color: theme.colorScheme.primary,
+            width: AppStroke.thick,
+          ),
         ),
         contentPadding: const EdgeInsets.all(AppSpacing.md),
       ),
@@ -150,33 +154,12 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
 
   /// Sends the prompt; a spinner takes the label while the call is in flight.
   Widget _nextButton(AppLocalizations l10n, {required bool isLoading}) {
-    final scheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: double.infinity,
-      child: FilledButton(
+      child: LoadingButton(
+        label: l10n.next,
+        isLoading: isLoading,
         onPressed: isLoading ? null : _onEnterPressed,
-        style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-          ),
-        ),
-        child: isLoading
-            ? SizedBox(
-                height: AppSizes.spinner,
-                width: AppSizes.spinner,
-                child: CircularProgressIndicator(
-                  strokeWidth: AppStroke.thick,
-                  valueColor: AlwaysStoppedAnimation<Color>(scheme.onPrimary),
-                ),
-              )
-            : Text(
-                l10n.next,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: scheme.onPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
       ),
     );
   }

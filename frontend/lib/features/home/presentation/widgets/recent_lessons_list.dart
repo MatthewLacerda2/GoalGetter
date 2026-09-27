@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/core/widgets/lesson_clock.dart';
 
 /// The user's most recent lessons for the active goal. Each row shows accuracy,
 /// time taken and the day it was done. Capped so the dashboard fits the screen.
@@ -69,12 +70,6 @@ class _RecentLessonRow extends StatelessWidget {
 
   const _RecentLessonRow({required this.lesson});
 
-  String _formatTime(int seconds) {
-    final m = seconds ~/ 60;
-    final s = (seconds % 60).toString().padLeft(2, '0');
-    return '$m:$s';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -96,7 +91,7 @@ class _RecentLessonRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.gap3),
           Text(
-            _formatTime(lesson.durationSeconds),
+            formatLessonClock(Duration(seconds: lesson.durationSeconds)),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const Spacer(),

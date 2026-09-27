@@ -59,7 +59,10 @@ Future<_RecordingAuth> _pumpStart(
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final backend = FakeBackend({});
   await backend.start({'access_token': ''});
-  final auth = _RecordingAuth(api: AuthApi(backend.api), storage: backend.storage);
+  final auth = _RecordingAuth(
+    api: AuthApi(backend.api),
+    storage: backend.storage,
+  );
   final router = GoRouter(initialLocation: AppRoutes.start, routes: [
     GoRoute(
       path: AppRoutes.start,

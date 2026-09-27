@@ -9,6 +9,7 @@ import 'package:goal_getter/features/onboarding/presentation/controllers/goal_qu
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/question_card.dart';
 
 /// Step 2 of goal creation: one objective question at a time, drawn from its
 /// controller. The last answer sends everything to `POST /goals/study-plan`; a
@@ -159,7 +160,6 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
 
   Widget _questionView(GoalQuestionsState state) {
     final question = widget.questions[state.index];
-    final scheme = Theme.of(context).colorScheme;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: SlideTransition(
@@ -169,21 +169,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(AppRadius.card),
-                ),
-                child: Text(
-                  question.question,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: scheme.onSurface,
-                  ),
-                ),
-              ),
+              QuestionCard(question: question.question),
               const SizedBox(height: AppSpacing.xl),
               for (final option in question.options)
                 QuestionOptionTile(
