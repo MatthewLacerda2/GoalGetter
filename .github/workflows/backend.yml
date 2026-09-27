@@ -10,6 +10,7 @@ on:
       - "docker-compose.yml"
       - "Makefile"
       - ".github/workflows/backend.yml"
+      - "tools/test-db.sh"
 
 jobs:
   backend:
@@ -17,20 +18,6 @@ jobs:
     # `synchronize` also fires for pushes to a draft, so guard here too.
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
-    services:
-      # pgvector, matching docker-compose. Tests connect on 5435 (see the
-      # port mapping) because that is what the local test database uses.
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: goalgetter_test
-        ports:
-          - 5435:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -63,26 +50,30 @@ jobs:
       - name: Build smoke
         run: make back-build PY_OFFLINE=python
 
-      # The schema gate (#157): `alembic upgrade head` on an empty database,
-      # then `alembic check` against the models. It resets TEST_DATABASE_URL's
-      # schema first, which on a runner is the service container above - the
-      # same database pytest then builds its tables in.
+      # The two gates that need a database start their own, the way they do
+      # locally (tools/test-db.sh, #205): a pgvector Postgres - the image
+      # production runs - that exists for that one step and is removed after it.
+      # TEST_DB_MODE=published is the one difference: pytest runs on the runner
+      # here, not in a container that could join the database's network, so the
+      # port is published on 127.0.0.1 instead. The script exports
+      # TEST_DATABASE_URL and DATABASE_URL itself; the keys below exist only so
+      # the settings load (the tests mock Gemini).
+      #
+      # The schema gate (#157): `alembic upgrade head` on the empty database,
+      # then `alembic check` against the models.
       - name: Migrations
         env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
-          TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
+          TEST_DB_MODE: published
           GEMINI_API_KEY: test-key
           SECRET_KEY: test-secret
-        run: make back-migrations PY=python
+        run: make back-migrations PY_TESTDB=python
 
-      # `make back-test PY=python` - the same target, and the same pytest
-      # invocation, a developer runs. The settings arrive as real environment
-      # variables here, so the target's `env` prerequisite finds nothing to seed.
+      # `make back-test PY_TESTDB=python` - the same target, and the same pytest
+      # invocation, a developer runs, on a database of its own that the session
+      # fixture migrates.
       - name: Pytest
         env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
-          TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:5435/goalgetter_test
-          # Tests mock Gemini; these exist only so settings can load.
+          TEST_DB_MODE: published
           GEMINI_API_KEY: test-key
           SECRET_KEY: test-secret
-        run: make back-test PY=python
+        run: make back-test PY_TESTDB=python

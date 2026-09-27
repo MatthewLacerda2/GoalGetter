@@ -7,7 +7,7 @@ from. The tests build tables from the models, so a model changed without a
 migration leaves a green suite and a deploy that breaks - the two descriptions
 drift in silence. This is the gate that breaks that silence.
 
-It does two things, in one pass, on a database it resets first:
+It does two things, in one pass, on a database that must be empty:
 
 1. **Builds the schema from the migrations, from empty.** `alembic upgrade head`
    on a schema with nothing in it, which is the only way to know the history
@@ -15,10 +15,11 @@ It does two things, in one pass, on a database it resets first:
 2. **Compares that schema with the models.** `alembic check` autogenerates
    against it and fails if there is anything to generate.
 
-The database is `TEST_DATABASE_URL` - the one every worktree already owns (see
-`make test-db`), and the one whose contents are disposable by definition: the
-pytest fixtures drop every table at session start. Nothing here ever touches
-`DATABASE_URL`.
+The database is `TEST_DATABASE_URL`, which `make back-migrations` sets to a
+Postgres started for this run and removed after it (`tools/test-db.sh`, #205).
+One that is not empty is refused rather than reset
+(`backend/tools/disposable_database.py`): nothing here drops anything, and
+nothing here ever touches `DATABASE_URL`.
 
 Usage::
 
@@ -38,33 +39,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-import psycopg2
-
 from backend.core.config import settings
+from backend.tools.disposable_database import alembic_url, require_empty
 
 ALEMBIC_INI = Path(__file__).resolve().parent.parent / "alembic.ini"
 
 MISSING_URL = (
     "TEST_DATABASE_URL is not set, so there is no database this gate is allowed "
-    "to reset. Run `make test-db` to give this worktree its own."
+    "to build on. Run it as `make back-migrations`, which starts a disposable one."
 )
-
-
-def sync_url(url: str) -> str:
-    """psycopg2's form of an asyncpg URL: alembic drives a plain DBAPI."""
-    return url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
-
-
-def reset_schema(url: str) -> None:
-    """Empty the database, so `upgrade head` starts where production started."""
-    connection = psycopg2.connect(url.replace("postgresql+psycopg2://", "postgresql://"))
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("DROP SCHEMA public CASCADE")
-            cursor.execute("CREATE SCHEMA public")
-        connection.commit()
-    finally:
-        connection.close()
 
 
 def alembic(url: str, *args: str) -> int:
@@ -93,9 +76,9 @@ def main(argv: list[str]) -> int:
     if not settings.TEST_DATABASE_URL:
         print(MISSING_URL, file=sys.stderr)
         return 1
-    url = sync_url(settings.TEST_DATABASE_URL)
+    require_empty(settings.TEST_DATABASE_URL)
+    url = alembic_url(settings.TEST_DATABASE_URL)
 
-    reset_schema(url)
     failed = alembic(url, "upgrade", "head")
     if failed:
         print(

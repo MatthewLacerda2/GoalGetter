@@ -1,7 +1,10 @@
 import pytest
 
-# Import all fixtures so pytest can discover them
+# Import all fixtures so pytest can discover them. `network` comes FIRST: importing
+# it replaces DATABASE_URL and raises the network guard, and both must happen
+# before any other module imports the settings or the app (#205).
 pytest_plugins = [
+    "backend.tests.fixtures.network",
     "backend.tests.fixtures.database",
     "backend.tests.fixtures.auth",
     "backend.tests.fixtures.users",
@@ -9,7 +12,6 @@ pytest_plugins = [
     "backend.tests.fixtures.goals",
     "backend.tests.fixtures.lessons",
     "backend.tests.fixtures.chat",
-    "backend.tests.fixtures.network",
 ]
 
 LIVE = "live"
