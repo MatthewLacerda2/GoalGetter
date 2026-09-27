@@ -142,13 +142,14 @@ def test_onboarding_asks_for_six_short_questions_and_no_self_rating():
 @pytest.mark.parametrize("name", ["lesson", "placement"])
 def test_exercises_are_short_plain_and_not_given_away_by_their_shape(name):
     """The user's rules of 2026-09-26: 20 words, an instruction is allowed, and
-    the wrong options plausible and as long as the right one"""
+    plain options - "The beating heart" gave the answer away by its adjective"""
     render, _, _ = PROMPTS[name]
     prompt = " ".join(render(Language.ENGLISH).split())
 
     assert "at most 20 words, and so is each option" in prompt
     assert "May be a question or an instruction" in prompt
-    assert "about as long as the right one" in prompt
+    assert "no adjective or filler that hints at the answer" in prompt
+    assert "All four the same kind of thing" in prompt
 
 
 def test_the_study_plan_does_not_narrow_what_he_asked():

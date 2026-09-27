@@ -19,8 +19,10 @@ EXERCISE_RULES = """Every exercise:
     - May be a question or an instruction ("Pick the ...", "Which of these ...").
     - Is at most 20 words, and so is each option.
     - Is simple and plain: no jargon he has not been taught by an earlier exercise.
-    - Has wrong options that are plausible - real confusions a learner has - and about
-      as long as the right one, so nothing gives the answer away but knowing it."""
+    - Has plain options: just the thing itself ("Heart", not "The beating heart"), no
+      adjective or filler that hints at the answer. All four the same kind of thing.
+    - Has wrong options that are plausible - real confusions a learner has - so nothing
+      gives the answer away but knowing it."""
 
 
 def format_contexts(contexts: list[GeminiStudentContext]) -> str:

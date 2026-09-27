@@ -82,9 +82,10 @@ Eastern capital"* — not only something ending in a question mark.
 **Short and fair:**
 - **20 words at most**, for every exercise and every option — onboarding and lessons.
   In practice long text does not fit, and the cap makes length almost deterministic.
-- **The shape never gives the answer away:** wrong options are plausible, real confusions
-  a learner has, and about as long as the right one; and the right one's position is
-  drawn by the code, not chosen by Gemini.
+- **The shape never gives the answer away:** options are plain — the thing itself,
+  "Heart", not "The beating heart", whose adjective hints at it — all four the same kind
+  of thing; wrong options are plausible, real confusions a learner has; and the right
+  one's position is drawn by the code, not chosen by Gemini.
 
 **A lesson is two minutes** — not a number of exercises. *"As questões e lições são
 breves para que o aluno não sinta que demora demais fazer uma lição."* That is why the
