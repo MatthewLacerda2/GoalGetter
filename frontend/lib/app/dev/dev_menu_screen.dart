@@ -66,7 +66,7 @@ class DevMenuScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dev — all screens'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(28),
+          preferredSize: const Size.fromHeight(AppSizes.devBanner),
           child: Padding(
             padding: const EdgeInsets.only(
               left: AppSpacing.md,
@@ -98,7 +98,7 @@ class DevMenuScreen extends StatelessWidget {
               child: Text(
                 section.title.toUpperCase(),
                 style: theme.textTheme.labelMedium?.copyWith(
-                  letterSpacing: 1.2,
+                  letterSpacing: AppType.labelSpacing,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -151,8 +151,8 @@ class _DevTile extends StatelessWidget {
       ),
       trailing: entry.needsArgs
           ? Icon(Icons.data_object,
-              size: 18, color: theme.colorScheme.onSurfaceVariant)
-          : const Icon(Icons.chevron_right, size: 18),
+              size: AppIconSize.sm, color: theme.colorScheme.onSurfaceVariant)
+          : const Icon(Icons.chevron_right, size: AppIconSize.sm),
       // push (not go) so the device back button returns to this menu.
       onTap: () => context.push(entry.route, extra: extra),
     );

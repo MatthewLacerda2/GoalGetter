@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/widgets/main_screen_icon.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The authenticated area's bottom-navigation scaffold.
 ///
@@ -61,9 +62,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         showSelectedLabels: true,
         showUnselectedLabels: true,
-        selectedFontSize: 10,
-        unselectedFontSize: 10,
-        iconSize: 28,
+        iconSize: AppIconSize.nav,
         enableFeedback: false,
         items: _navItems(context),
         currentIndex: navigationShell.currentIndex,

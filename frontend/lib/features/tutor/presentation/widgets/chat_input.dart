@@ -64,12 +64,12 @@ class _MessageField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.bubble),
           borderSide: BorderSide(
-            color: scheme.outline.withValues(alpha: 0.4),
+            color: scheme.outline.withValues(alpha: AppOpacity.medium),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.bubble),
-          borderSide: BorderSide(color: scheme.primary, width: 1.5),
+          borderSide: BorderSide(color: scheme.primary, width: AppStroke.focus),
         ),
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
@@ -98,9 +98,9 @@ class _SendButton extends StatelessWidget {
       onPressed: isSending ? null : onSendMessage,
       icon: isSending
           ? SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: primary),
+              width: AppSizes.spinner,
+              height: AppSizes.spinner,
+              child: CircularProgressIndicator(strokeWidth: AppStroke.thick, color: primary),
             )
           : Icon(Icons.send),
       color: primary,

@@ -142,12 +142,12 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(6),
+          preferredSize: const Size.fromHeight(AppSizes.progressBar),
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: scheme.surfaceContainer,
             valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
-            minHeight: 6,
+            minHeight: AppSizes.progressBar,
           ),
         ),
       ),
@@ -184,7 +184,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 24.0),
+              const SizedBox(height: AppSpacing.xl),
               for (final option in question.options)
                 QuestionOptionTile(
                   option: option,
@@ -211,7 +211,7 @@ class _Generating extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           Text(label, style: Theme.of(context).textTheme.titleMedium),
         ],
       ),

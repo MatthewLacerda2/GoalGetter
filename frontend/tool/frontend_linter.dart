@@ -1,36 +1,37 @@
 /// House rules for the Flutter side, the mirror of `backend/tests/backend_linter.py`.
 ///
-/// Nine rules on every hand-written file under `lib/`:
+/// On every hand-written file under `lib/`:
 ///
 ///  1. a `.dart` file is at most 400 lines;
 ///  2. a function or method is at most 60 code lines (comments free, blanks count);
-///  3. no colour literal (`Colors.*`, `Color(0x…)`, `Color.fromARGB(…)`);
+///  3. no colour literal, written or derived (`Colors.*`, `Color(0x…)`,
+///     `.withValues(alpha: 0.2)`), and no fallback on the colour extension;
 ///  4. no `fontSize:` — type comes from `Theme.of(context).textTheme`;
-///  5. no radius or padding literal — they come from `AppRadius` / `AppSpacing`;
+///  5. no radius, padding or size literal — they come from `AppRadius`,
+///     `AppSpacing` and `AppSizes`;
 ///  6. no user-facing string written in Dart — it comes from the ARB files;
 ///  7. no widget named after a failure outside `lib/core/`;
-///  8. no `DevFixtures` named outside `lib/app/dev/`;
+///  8. no `DevFixtures` named, and nothing imported from `lib/app/dev/` but
+///     `devRoutes`, outside `lib/app/dev/`;
 ///  9. no file under `lib/core/` imports `lib/app/`;
 /// 10. no screen or widget imports a feature's `data/`: a controller does;
 /// 11. a feature's `presentation/` holds `controllers/`, `screens/` and
 ///     `widgets/`, and nothing else.
 ///
-/// Rules 9-11 are about the shape of `lib/` rather than the text of a file:
-/// which layer may import which, and where a file of a feature goes. They and
-/// the reasoning behind them live in `tool/layer_rules.dart` — read it before
-/// adding a file to a feature.
+/// Rules 3-5 live in `tool/design_rules.dart`, rule 6 in
+/// `tool/string_rules.dart`, and rules 8-11 — the shape of `lib/` rather than
+/// the text of a file — in `tool/layer_rules.dart`: read the one you are
+/// about to trip. Rules 3-5 exempt `lib/core/theme/`, where the values live;
+/// rules 6 and 8 exempt `lib/app/dev/`, the dev menu and its fixtures, a tool
+/// for us written in English like the code and never shipped to a student.
 ///
-/// Rules 3-5 exist so the theme is the only place a colour, a type size, a
-/// corner or a gap is decided. `lib/core/theme/` is where those values live, so
-/// it is the one directory exempt from them. Rules 6 and 8 are both about
-/// `lib/app/dev/`, the one directory exempt from them: the dev menu and its
-/// fixtures are a tool for us, written in English like the code and never
-/// shipped to a student. Rule 6 keeps every sentence a student reads in all
-/// five locales; rule 8 keeps the invented student out of the app entirely.
+/// Rules 1 and 2 hold for `test/` and `tool/` too, and a test is at most 50
+/// code lines (`tool/test_rules.dart`).
 ///
-/// Three more rules answer for the project rather than for one file — dead ARB
-/// keys, half-done translations and orphan files. They live in
-/// `tool/project_rules.dart` and run once, after the files.
+/// Four more rules answer for the project rather than for one file — dead ARB
+/// keys, half-done translations, orphan files and unused members. They live in
+/// `tool/project_rules.dart` and run once, after the files; only `lib/` counts
+/// as a reader, so a test does not keep dead code alive.
 ///
 /// The per-file checks run on *stripped* source: comments removed and string
 /// contents blanked, so a hex colour inside a doc comment or a literal string
@@ -42,25 +43,25 @@ library;
 import 'dart:io';
 
 import 'dart_source.dart';
+import 'design_rules.dart';
 import 'layer_rules.dart';
 import 'project_rules.dart';
+import 'string_rules.dart';
+import 'test_rules.dart';
 
 export 'dart_source.dart';
+export 'dead_members.dart';
+export 'design_rules.dart';
 export 'layer_rules.dart';
 export 'project_rules.dart';
+export 'string_rules.dart';
+export 'test_rules.dart';
 
 /// A file is at most this many raw lines (CLAUDE.md, frontend house rules).
 const int maxFileLines = 400;
 
 /// A function or method is at most this many code lines.
 const int maxFunctionLines = 60;
-
-/// The one directory allowed to write raw design values.
-const String themeDir = 'lib/core/theme/';
-
-/// The one directory allowed to write user-facing strings in Dart and to name
-/// the fixtures: the dev menu is a tool for us, not a screen for a student.
-const String devDir = 'lib/app/dev/';
 
 /// The name endings that say "this widget is how a failure is shown".
 const List<String> failureSuffixes = [
@@ -70,59 +71,27 @@ const List<String> failureSuffixes = [
   'FailureView',
 ];
 
-/// The directories the linter reads: `lib/` is what it judges, the others are
-/// read so a file that only a test reaches does not look like an orphan.
+/// The directories the linter reads: `lib/` is what the per-file rules judge,
+/// and all of them are held to the length rules.
 const List<String> sourceDirs = ['lib', 'test', 'tool', 'integration_test'];
 
 /// True when [path] is a hand-written file the rules apply to.
 bool isLintedPath(String path) {
-  final p = path.replaceAll('\\', '/');
+  final p = path.replaceAll(r'\', '/');
   if (!p.endsWith('.dart')) return false;
-  if (p.endsWith('.g.dart') || p.endsWith('.freezed.dart')) return false;
+  if (isGeneratedPath(p)) return false;
   if (p.contains('/l10n/generated/')) return false;
   return true;
 }
 
-/// True when [path] may write raw colours, sizes, radii and spacing.
-bool isThemeFile(String path) => path.replaceAll('\\', '/').contains(themeDir);
-
-/// True when [path] may write user-facing strings in Dart and name a fixture.
-bool isDevFile(String path) => path.replaceAll('\\', '/').contains(devDir);
-
-final RegExp _colorsDot = RegExp(r'\bColors\.[A-Za-z]');
-final RegExp _colorHex = RegExp(r'\bColor\s*\(\s*0x');
-final RegExp _colorFromArgb = RegExp(r'\bColor\.from(?:ARGB|RGBO)\s*\(');
-final RegExp _fontSize = RegExp(r'\bfontSize\s*:');
-final RegExp _radiusCall = RegExp(
-  r'\b(?:BorderRadius|BorderRadiusDirectional|Radius)\.[A-Za-z]+\s*\(',
-);
-final RegExp _edgeInsetsCall = RegExp(
-  r'\bEdgeInsets(?:Directional)?\.[A-Za-z]+\s*\(',
-);
-final RegExp _bareNumber = RegExp(r'(?<![A-Za-z0-9_$.])\d');
+/// True when [path] is written by `build_runner`.
+bool isGeneratedPath(String path) =>
+    path.endsWith('.g.dart') || path.endsWith('.freezed.dart');
 
 /// The invented student. A fixture reaching a build a student runs is how
 /// someone gets shown another student's questions, plan or lesson result
 /// (#139), so the name may only be written where the fixtures live.
 final RegExp _devFixtures = RegExp(r'\bDevFixtures\b');
-
-/// The slots a sentence a student reads goes through.
-///
-/// Deliberately narrow: a `Text`, the `…Text:` fields of a form field, the
-/// tooltip and the semantic labels are slots that can hold nothing but prose.
-/// `title:`, `label:`, `text:`, `content:` and `message:` are not on the list
-/// — they are also the field names of our own models (the lesson stats, the
-/// dev fixtures) and of `MaterialApp.title`, which is the product name, so
-/// matching them would fail data that is not a sentence at all. A sentence
-/// reaching a screen through one of those fields is still caught, because it
-/// is a `Text` by the time it is drawn.
-final RegExp _textWidget = RegExp(
-  r'''\b(?:Text|SelectableText)\s*\(\s*['"]''',
-);
-final RegExp _textArgument = RegExp(
-  r'''\b(?:hintText|labelText|helperText|errorText|tooltip|semanticLabel'''
-  r'''|semanticsLabel)\s*:\s*['"]''',
-);
 
 /// A class declaration and what it extends: `class Foo extends Bar`.
 ///
@@ -135,7 +104,8 @@ final RegExp _classDeclaration = RegExp(
 
 /// Widgets in [stripped] whose name says they are how a failure is shown.
 List<Violation> failureWidgets(String stripped) {
-  const help = 'A failure is a snackbar or a FailureView, both in '
+  const help =
+      'A failure is a snackbar or a FailureView, both in '
       'lib/core/widgets/failure.dart: call one instead of writing a third '
       'shape here';
   return [
@@ -150,149 +120,85 @@ List<Violation> failureWidgets(String stripped) {
   ];
 }
 
-/// Numeric literal anywhere in the balanced argument list opening at [open].
-bool _hasNumericArgument(String stripped, int open) {
-  final close = matchBracket(stripped, open);
-  if (close < 0) return false;
-  return _bareNumber.hasMatch(stripped.substring(open + 1, close));
-}
-
-/// A letter in any of the five alphabets we ship.
-final RegExp _letter = RegExp(r'\p{L}', unicode: true);
-
-/// True when the literal whose quote is at [quote] is a string a student reads
-/// rather than a value a screen formats.
+/// The two length rules, which hold for every hand-written file.
 ///
-/// `stripSource` keeps the quotes and blanks what is between them, so the
-/// literal is read back out of the raw [source] at the same index. Two cases
-/// are a sentence:
-///
-///  * a literal that interpolates nothing and is not blank. Whatever it is,
-///    the screen draws exactly it — `'Retry'`, and the `'  ·  '` between two
-///    facts, which is as much a decision about the layout of a language as
-///    the words around it.
-///  * a literal that frames interpolated values *and spells a word of its
-///    own*: `'${days}d'` is a sentence, because the d of day is a t in German.
-///    `'$percent%'` and `'$index / $total'` are not: a percent sign, a slash
-///    and a space read the same in all five locales, and a key holding
-///    punctuation is a key nobody would keep in step.
-bool _isHardcodedText(String source, int quote) {
-  final literal = literalAt(source, quote);
-  if (literal == null) return false;
-  final own = ownText(literal);
-  if (!hasInterpolation(literal)) return own.trim().isNotEmpty;
-  return _letter.hasMatch(own);
-}
-
-/// Every violation in one file. [path] decides which rules apply.
-List<Violation> lintSource(String path, String source) {
+/// A test file's `main` is exempt from the function rule: it is the list of
+/// the file's tests, and `test-length` measures each of them.
+List<Violation> lengthViolations(
+  String source,
+  String stripped, {
+  bool isTest = false,
+}) {
   final violations = <Violation>[];
   final rawLines = source.split('\n');
   if (rawLines.isNotEmpty && rawLines.last.isEmpty) rawLines.removeLast();
   if (rawLines.length > maxFileLines) {
-    violations.add(Violation(
-      0,
-      'file-length',
-      'File exceeds the line limit: ${rawLines.length}/$maxFileLines lines',
-    ));
+    violations.add(
+      Violation(
+        0,
+        'file-length',
+        'File exceeds the line limit: ${rawLines.length}/$maxFileLines lines',
+      ),
+    );
   }
-
-  final stripped = stripSource(source);
-
   for (final span in findFunctions(stripped)) {
+    if (isTest && span.name == 'main') continue;
     final length = codeLineCount(source, span.startLine, span.endLine);
     if (length > maxFunctionLines) {
-      violations.add(Violation(
-        span.startLine,
-        'function-length',
-        "Function '${span.name}' exceeds the line limit: "
-        '$length/$maxFunctionLines code lines',
-      ));
+      violations.add(
+        Violation(
+          span.startLine,
+          'function-length',
+          "Function '${span.name}' exceeds the line limit: "
+              '$length/$maxFunctionLines code lines',
+        ),
+      );
     }
   }
+  return violations;
+}
 
-  void report(
-    RegExp pattern,
-    String rule,
-    String message, {
-    bool Function(int index)? when,
-  }) {
-    for (final match in pattern.allMatches(stripped)) {
-      if (when != null && !when(match.end - 1)) continue;
-      violations.add(Violation(lineAt(stripped, match.start), rule, message));
+/// Every violation in one file. [path] decides which rules apply.
+List<Violation> lintSource(String path, String source) {
+  final stripped = stripSource(source);
+  final isTest = path.startsWith('test/');
+  final violations = [
+    ...lengthViolations(source, stripped, isTest: isTest),
+    if (isTest) ...testLengthViolations(source),
+  ];
+  if (path.startsWith('lib/')) {
+    violations.addAll(designViolations(path, stripped));
+    if (!isDevFile(path)) {
+      violations.addAll(stringViolations(source, stripped));
+      for (final match in _devFixtures.allMatches(stripped)) {
+        violations.add(
+          Violation(
+            lineAt(stripped, match.start),
+            'no-dev-fixture',
+            'Invented data belongs to the dev menu, in lib/app/dev/: a screen '
+                'whose data did not reach it recovers it, or sends the student '
+                'to a screen where the state is real',
+          ),
+        );
+      }
     }
+    // Only lib/core/ may define a widget named after a failure.
+    if (!isCoreFile(path)) violations.addAll(failureWidgets(stripped));
+    violations.addAll(layerViolations(path, source));
   }
-
-  if (!isThemeFile(path)) {
-    const colourHelp = 'Colour literals belong in the theme: use '
-        'Theme.of(context).colorScheme or the CustomColors extension';
-    report(_colorsDot, 'no-color-literal', colourHelp);
-    report(_colorHex, 'no-color-literal', colourHelp);
-    report(_colorFromArgb, 'no-color-literal', colourHelp);
-
-    report(
-      _fontSize,
-      'no-font-size',
-      'Type sizes belong in the theme: use Theme.of(context).textTheme',
-    );
-
-    report(
-      _radiusCall,
-      'no-radius-literal',
-      'Corner radii belong in the theme: use an AppRadius token',
-      when: (index) => _hasNumericArgument(stripped, index),
-    );
-    report(
-      _edgeInsetsCall,
-      'no-spacing-literal',
-      'Padding and margins belong in the theme: use an AppSpacing token',
-      when: (index) => _hasNumericArgument(stripped, index),
-    );
-  }
-
-  if (!isDevFile(path)) {
-    const stringHelp = 'User-facing strings belong in the ARB files: add a key '
-        'to lib/l10n/app_en.arb and the other locales, then read it through '
-        'AppLocalizations';
-    report(
-      _textWidget,
-      'hardcoded-string',
-      stringHelp,
-      when: (index) => _isHardcodedText(source, index),
-    );
-    report(
-      _textArgument,
-      'hardcoded-string',
-      stringHelp,
-      when: (index) => _isHardcodedText(source, index),
-    );
-
-    report(
-      _devFixtures,
-      'no-dev-fixture',
-      'Invented data belongs to the dev menu, in lib/app/dev/: a screen whose '
-          'data did not reach it recovers it, or sends the student to a screen '
-          'where the state is real',
-    );
-  }
-
-  // Only lib/core/ may define a widget named after a failure.
-  if (!isCoreFile(path)) violations.addAll(failureWidgets(stripped));
-  violations.addAll(layerViolations(path, source));
-
   violations.sort((a, b) => a.line.compareTo(b.line));
   return violations;
 }
 
-/// Every hand-written Dart file of the frontend, keyed by its path.
-Map<String, String> _readDartSources() {
+/// Every Dart file under [sourceDirs] that [keep] accepts, keyed by its path.
+Map<String, String> _readDartSources(bool Function(String path) keep) {
   final sources = <String, String>{};
   for (final name in sourceDirs) {
     final dir = Directory(name);
     if (!dir.existsSync()) continue;
     for (final file in dir.listSync(recursive: true).whereType<File>()) {
-      final path = file.path.replaceAll('\\', '/');
-      if (!isLintedPath(path)) continue;
+      final path = file.path.replaceAll(r'\', '/');
+      if (!keep(path)) continue;
       sources[path] = file.readAsStringSync();
     }
   }
@@ -305,10 +211,10 @@ Map<String, String> _readArbSources() {
   final sources = <String, String>{};
   if (!dir.existsSync()) return sources;
   for (final file in dir.listSync().whereType<File>()) {
-    final name = file.path.replaceAll('\\', '/').split('/').last;
+    final name = file.path.replaceAll(r'\', '/').split('/').last;
     if (!name.startsWith('app_') || !name.endsWith('.arb')) continue;
-    sources[name.substring('app_'.length, name.length - '.arb'.length)] =
-        file.readAsStringSync();
+    sources[name.substring('app_'.length, name.length - '.arb'.length)] = file
+        .readAsStringSync();
   }
   return sources;
 }
@@ -319,9 +225,8 @@ void main() {
     exit(1);
   }
 
-  final sources = _readDartSources();
-  final paths = sources.keys.where((path) => path.startsWith('lib/')).toList()
-    ..sort();
+  final sources = _readDartSources(isLintedPath);
+  final paths = sources.keys.toList()..sort();
 
   var total = 0;
   for (final path in paths) {
@@ -334,7 +239,11 @@ void main() {
     total += violations.length;
   }
 
-  final project = projectViolations(sources, _readArbSources());
+  final project = projectViolations(
+    sources,
+    _readArbSources(),
+    generated: _readDartSources(isGeneratedPath),
+  );
   if (project.isNotEmpty) {
     stdout.writeln('  Project:');
     for (final violation in project) {

@@ -16,8 +16,8 @@ class StatWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.chip),
-        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12),
-        border: Border.all(color: statData.color, width: 2),
+        color: Theme.of(context).colorScheme.outline.withValues(alpha: AppOpacity.faint),
+        border: Border.all(color: statData.color, width: AppStroke.thick),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -39,7 +39,7 @@ class StatWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 0.6,
+                letterSpacing: AppType.captionSpacing,
               ),
               textAlign: TextAlign.center,
             ),
@@ -52,9 +52,9 @@ class StatWidget extends StatelessWidget {
                 Icon(
                   statData.icon,
                   color: statData.color,
-                  size: 24,
+                  size: AppIconSize.lg,
                 ),
-                SizedBox(width: 12.0),
+                SizedBox(width: AppSpacing.sm),
                 Text(
                   statData.text,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(

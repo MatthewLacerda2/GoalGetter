@@ -29,7 +29,7 @@ class FinishLessonScreen extends StatelessWidget {
             children: [
               Expanded(child: _Summary(evaluation: evaluation)),
               const _ContinueButton(),
-              SizedBox(height: 8.0),
+              SizedBox(height: AppSpacing.xs),
             ],
           ),
         ),
@@ -59,12 +59,12 @@ class _Summary extends StatelessWidget {
       title: l10n.lessonAccuracy,
       icon: Icons.check_circle,
       text: '${evaluation.studentAccuracy.toStringAsFixed(0)}%',
-      color: theme.extension<CustomColors>()?.success ?? AppTheme.success,
+      color: CustomColors.of(context).success,
     );
     final eloStat = StatData(
       title: l10n.elo,
       icon: Icons.trending_up,
-      text: '${elo >= 0 ? '+' : ''}$elo',
+      text: elo >= 0 ? '+$elo' : '$elo',
       color: theme.colorScheme.secondary,
     );
     return Column(
@@ -77,19 +77,19 @@ class _Summary extends StatelessWidget {
             color: theme.colorScheme.onSurface,
           ),
         ),
-        SizedBox(height: 24),
+        SizedBox(height: AppSpacing.xl),
         Icon(
           Icons.check_circle,
           color: theme.colorScheme.secondary,
-          size: 140,
+          size: AppIconSize.hero,
         ),
-        SizedBox(height: 60),
+        SizedBox(height: AppSpacing.gap60),
         Row(
           children: [
             Expanded(child: StatWidget(statData: timeSpent)),
-            SizedBox(width: 12.0),
+            SizedBox(width: AppSpacing.sm),
             Expanded(child: StatWidget(statData: accuracy)),
-            SizedBox(width: 12.0),
+            SizedBox(width: AppSpacing.sm),
             Expanded(child: StatWidget(statData: eloStat)),
           ],
         ),

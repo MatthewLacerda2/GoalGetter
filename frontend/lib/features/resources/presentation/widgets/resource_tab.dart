@@ -63,7 +63,7 @@ class _ResourceCard extends StatelessWidget {
             children: [
               if (image != null && image.isNotEmpty) ...[
                 _Thumb(url: image),
-                const SizedBox(width: 14.0),
+                const SizedBox(width: AppSpacing.gap14),
               ],
               Expanded(
                 child: Column(
@@ -73,7 +73,7 @@ class _ResourceCard extends StatelessWidget {
                       resource.name,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(height: 4.0),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
                       resource.description,
                       style: Theme.of(context).textTheme.bodySmall,
@@ -81,10 +81,10 @@ class _ResourceCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 10.0),
+              const SizedBox(width: AppSpacing.gap10),
               Icon(
                 Icons.open_in_new,
-                size: 18,
+                size: AppIconSize.sm,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ],
@@ -103,13 +103,13 @@ class _Thumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fallback = Container(
-      width: 56,
-      height: 56,
+      width: AppSizes.thumbnail,
+      height: AppSizes.thumbnail,
       color: Theme.of(context).colorScheme.surfaceContainer,
       child: Icon(
         Icons.link,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
-        size: 24,
+        size: AppIconSize.lg,
       ),
     );
 
@@ -117,8 +117,8 @@ class _Thumb extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppRadius.control),
       child: Image.network(
         url,
-        width: 56,
-        height: 56,
+        width: AppSizes.thumbnail,
+        height: AppSizes.thumbnail,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => fallback,
         loadingBuilder: (context, child, progress) =>

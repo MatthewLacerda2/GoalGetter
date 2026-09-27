@@ -18,9 +18,9 @@ class FakeTutorApi implements TutorApi {
   FakeTutorApi(this.stored);
 
   final List<ChatExchange> stored;
-  Object? listError;
-  Object? sendError;
-  Object? likeError;
+  Exception? listError;
+  Exception? sendError;
+  Exception? likeError;
 
   /// When set, [send] answers only once it completes.
   Future<void>? sendHeld;

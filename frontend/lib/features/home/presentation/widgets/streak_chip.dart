@@ -19,14 +19,14 @@ class StreakChip extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: orange.withValues(alpha: 0.14),
+        color: orange.withValues(alpha: AppOpacity.soft),
         borderRadius: BorderRadius.circular(AppRadius.chip),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.local_fire_department, color: orange, size: 18),
-          const SizedBox(width: 6.0),
+          Icon(Icons.local_fire_department, color: orange, size: AppIconSize.sm),
+          const SizedBox(width: AppSpacing.gap6),
           Text(
             '$count',
             style: Theme.of(context).textTheme.labelLarge?.copyWith(

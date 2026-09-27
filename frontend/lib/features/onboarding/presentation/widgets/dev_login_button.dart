@@ -53,9 +53,9 @@ class _DevLoginButtonState extends ConsumerState<DevLoginButton> {
         onPressed: _isLoading ? null : _signIn,
         icon: _isLoading
             ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                width: AppSizes.spinner,
+                height: AppSizes.spinner,
+                child: CircularProgressIndicator(strokeWidth: AppStroke.thick),
               )
             : const Icon(Icons.science_outlined),
         label: Text(AppLocalizations.of(context).continueAsFictitiousUser),

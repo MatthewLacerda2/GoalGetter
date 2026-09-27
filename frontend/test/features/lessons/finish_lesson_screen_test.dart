@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/theme/app_palette.dart';
 import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
@@ -97,7 +98,7 @@ void main() {
     expect(tile(tester, 'TIME'), (scheme.primary, Icons.timer, '00:06'));
     expect(
       tile(tester, 'ACCURACY'),
-      (AppTheme.success, Icons.check_circle, '67%'),
+      (AppPalette.light.success, Icons.check_circle, '67%'),
     );
     expect(tile(tester, 'ELO'), (scheme.secondary, Icons.trending_up, '+12'));
   });

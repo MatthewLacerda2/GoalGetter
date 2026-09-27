@@ -4,19 +4,27 @@ import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/core/theme/app_palette.dart';
 
 /// 1. CUSTOM SEMANTIC TOKENS (Tailwind-like custom design tokens)
-/// Retrieve via `Theme.of(context).extension<CustomColors>()!.success`
+///
+/// Read with [CustomColors.of]. Both themes carry the extension, so the lookup
+/// cannot miss; a `?? fallback` could only ever paint the dark theme with a
+/// light-mode colour, and `tool/frontend_linter.dart` refuses the nullable
+/// lookup outside this directory (#227).
 class CustomColors extends ThemeExtension<CustomColors> {
-  final Color? success; // elo gained (green)
-  final Color? lost; // elo lost (blue)
-  final Color? errorMuted;
-  final Color? accentMuted;
+  final Color success; // elo gained (green)
+  final Color lost; // elo lost (blue)
+  final Color errorMuted;
+  final Color accentMuted;
 
   const CustomColors({
-    this.success,
-    this.lost,
-    this.errorMuted,
-    this.accentMuted,
+    required this.success,
+    required this.lost,
+    required this.errorMuted,
+    required this.accentMuted,
   });
+
+  /// The semantic colours of the theme around [context].
+  static CustomColors of(BuildContext context) =>
+      Theme.of(context).extension<CustomColors>()!;
 
   @override
   CustomColors copyWith({
@@ -37,10 +45,10 @@ class CustomColors extends ThemeExtension<CustomColors> {
   CustomColors lerp(ThemeExtension<CustomColors>? other, double t) {
     if (other is! CustomColors) return this;
     return CustomColors(
-      success: Color.lerp(success, other.success, t),
-      lost: Color.lerp(lost, other.lost, t),
-      errorMuted: Color.lerp(errorMuted, other.errorMuted, t),
-      accentMuted: Color.lerp(accentMuted, other.accentMuted, t),
+      success: Color.lerp(success, other.success, t)!,
+      lost: Color.lerp(lost, other.lost, t)!,
+      errorMuted: Color.lerp(errorMuted, other.errorMuted, t)!,
+      accentMuted: Color.lerp(accentMuted, other.accentMuted, t)!,
     );
   }
 }
@@ -71,14 +79,8 @@ class AppTheme {
   /// "No fill", for a Material whose child paints its own background.
   static const transparent = Colors.transparent;
 
-  /// The three semantic colours [CustomColors] carries, as plain constants.
-  /// They exist for the two callers that cannot reach a [BuildContext]'s
-  /// theme: the dev fixtures, and the `??` fallback on an extension lookup.
-  static final success = AppPalette.light.success;
-  static final lost = AppPalette.light.lost;
-  static final streak = AppPalette.light.secondary;
-
   // --- Type scale ---
+  static const double _fontSize10 = 10;
   static const double _fontSize12 = 12;
   static const double _fontSize14 = 14;
   static const double _fontSize16 = 16;
@@ -253,6 +255,10 @@ class AppTheme {
         unselectedItemColor: colorScheme.onSurfaceVariant,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
+        // Font size only: the bar takes the rest from its own defaults, as it
+        // did when this was the widget's `selectedFontSize: 10`.
+        selectedLabelStyle: const TextStyle(fontSize: _fontSize10),
+        unselectedLabelStyle: const TextStyle(fontSize: _fontSize10),
       ),
 
       appBarTheme: AppBarTheme(

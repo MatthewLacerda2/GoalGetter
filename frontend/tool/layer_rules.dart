@@ -31,6 +31,15 @@ const String appDir = 'lib/app/';
 /// What every feature is built on.
 const String coreDir = 'lib/core/';
 
+/// The dev menu and its invented student: nothing a student runs may reach it.
+const String devDir = 'lib/app/dev/';
+
+/// The one thing that may cross out of [devDir]: the list of routes the router
+/// spreads behind `if (AppConfig.devMenu)`.
+final RegExp _devImport = RegExp(
+  r'''^import\s+['"][^'"]*dev_routes\.dart['"]\s+show\s+devRoutes\s*;$''',
+);
+
 /// The three folders a feature's `presentation/` holds.
 const List<String> presentationFolders = ['controllers', 'screens', 'widgets'];
 
@@ -58,6 +67,30 @@ List<Violation> coreImportsApp(String path, String source) => [
           'core-imports-app',
           'lib/core/ is what the app is built on and may not import '
               "lib/app/ ('$target'): expose state the app listens to",
+        ),
+];
+
+/// True when [path] may write user-facing strings in Dart and name a fixture.
+bool isDevFile(String path) => _normal(path).contains(devDir);
+
+/// Directives outside [devDir] that reach into it, other than
+/// `import '…/dev_routes.dart' show devRoutes;`.
+///
+/// The `DevFixtures` name rule reads names, so a `typedef Fx = DevFixtures`
+/// (or a re-export, or a top-level `final` holding a fixture) in `lib/app/dev/`
+/// carried the invented student out under another name (#227). Only
+/// `devRoutes` crossing the boundary makes every such alias unreachable: the
+/// importer cannot see a name the `show` does not list.
+List<Violation> devImports(String path, String source) => [
+  if (!isDevFile(path))
+    for (final (end, target, text) in directiveUses(_normal(path), source))
+      if (target.startsWith(devDir) && !_devImport.hasMatch(text))
+        Violation(
+          lineAt(source, end),
+          'no-dev-fixture',
+          'lib/app/dev/ is reached only as '
+              "`import '.../dev_routes.dart' show devRoutes;`: the dev menu "
+              'and its fixtures stay out of what a student runs',
         ),
 ];
 
@@ -100,6 +133,7 @@ List<Violation> presentationLayout(String path) {
 /// Every rule of this file on one file.
 List<Violation> layerViolations(String path, String source) => [
   ...coreImportsApp(path, source),
+  ...devImports(path, source),
   ...presentationImportsData(path, source),
   ...presentationLayout(path),
 ];

@@ -89,6 +89,21 @@ if grep '^frontend/' <<<"$changed" | grep -qv '^frontend/docs/'; then
   else
     echo "→ frontend gates (make frontend)"
     make frontend || fail=1
+    # The generated providers (#225), only when the push can have staled one:
+    # it changes a file that parts a `.g.dart`, a `.g.dart` itself, or the
+    # packages that generate them. build_runner takes a minute or two, which
+    # a push touching no provider should not pay.
+    gen_inputs=''
+    while IFS= read -r f; do
+      case "$f" in
+        frontend/lib/*.g.dart | frontend/pubspec.yaml | frontend/pubspec.lock) gen_inputs+="$f " ;;
+        frontend/lib/*.dart) [ -f "$f" ] && grep -q "^part '.*\.g\.dart';" "$f" && gen_inputs+="$f " ;;
+      esac
+    done < <(grep '^frontend/' <<<"$changed" | sort -u)
+    if [ -n "$gen_inputs" ]; then
+      echo "→ generated providers (make front-codegen): $gen_inputs"
+      make front-codegen || fail=1
+    fi
   fi
 fi
 

@@ -56,7 +56,7 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-deps front-lint front-test front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -163,12 +163,50 @@ gen-l10n: ## Regenerate lib/l10n/generated/ from the ARB files
 # this read `flutter analyze` - a deliberate `missing_provider_scope` passed it
 # (#169). On everything else the two agree exactly: on 2026-09-26 both
 # reported the same 375 infos, rule by rule and line by line.
-front-lint: front-version gen-l10n ## Frontend dart line limits + dart analyze (with riverpod_lint)
+# The packages, as pubspec.lock pins them, before anything is judged (#227).
+# `.dart_tool/` is whatever the last `pub get` in this worktree left, so a lock
+# that moved since - a pull, a branch switch - made `dart analyze` fail on
+# imports that do resolve (30 `uri_does_not_exist` in tool/generate_icons.dart
+# on 2026-09-26): the same false red gen-l10n exists to prevent, one layer down.
+# `--enforce-lockfile` installs exactly the lock, and fails instead of
+# resolving anew when pubspec.yaml changed without the `pub get` that rewrites
+# it - the same command CI runs (#192). With nothing to do it costs ~1.3s, and
+# says nothing unless it fails.
+front-deps: ## Install exactly frontend/pubspec.lock's packages (pub get --enforce-lockfile)
+	@cd frontend && out="$$($(FLUTTER) pub get --enforce-lockfile 2>&1)" || { echo "$$out"; exit 1; }
+
+front-lint: front-version front-deps gen-l10n ## Frontend house rules (tool/frontend_linter.dart) + dart analyze (with riverpod_lint)
 	@cd frontend && $(DART) run tool/frontend_linter.dart
 	@cd frontend && $(DART) analyze
 
-front-test: front-version gen-l10n ## Frontend widget/unit tests
-	@cd frontend && $(FLUTTER) test
+# `make front-test FILE=test/features/lessons/lesson_screen_test.dart` runs one
+# file (a directory works too); the path is relative to frontend/.
+front-test: front-version front-deps gen-l10n ## Frontend widget/unit tests (FILE=test/... runs one)
+	@cd frontend && $(FLUTTER) test $(FILE)
+
+# The Riverpod providers are generated into committed `*.g.dart` files (#225),
+# and nothing else notices when one is stale: it compiles and runs the old
+# provider shape. This regenerates them all and fails if that changed or
+# orphaned any - so the fix for a red run is the run itself: commit what it
+# rewrote. CI runs it on every frontend pull request, and the pre-push hook
+# when the push touches a generator input. It is not part of `make frontend`:
+# build_runner takes 1-2 minutes, which every push would pay for a check that
+# only a push changing a provider can fail.
+front-codegen: front-version front-deps ## Regenerate the *.g.dart providers (build_runner); fail if they were stale
+	@cd frontend && sums() { find lib -name '*.g.dart' -exec md5sum {} + | sort -k2; }; \
+	before="$$(sums)"; log="$$(mktemp)"; \
+	$(DART) run build_runner build --delete-conflicting-outputs >"$$log" 2>&1 \
+	  || { cat "$$log"; rm -f "$$log"; exit 1; }; rm -f "$$log"; \
+	after="$$(sums)"; stale=0; \
+	if [ "$$before" != "$$after" ]; then \
+	  echo "Stale generated files, now regenerated - commit them:"; \
+	  diff <(echo "$$before") <(echo "$$after") | sed -nE 's/^[<>] [0-9a-f]+ +/  /p' | sort -u; stale=1; \
+	fi; \
+	for g in $$(find lib -name '*.g.dart'); do \
+	  grep -qF "part '$$(basename "$$g")';" "$${g%.g.dart}.dart" 2>/dev/null \
+	    || { echo "  $$g: no source parts it any more - delete it"; stale=1; }; \
+	done; \
+	[ "$$stale" -eq 0 ] && echo "→ generated providers are fresh"; exit $$stale
 
 # The scripts that decide whether a push leaves the machine (the hooks) and
 # whether production moves (the deploy script), and the Dockerfiles the deploy

@@ -7,6 +7,45 @@ plugins:
   riverpod_lint: ^3.1.9
 
 analyzer:
+  # The lints whose finding is a bug rather than a style, promoted from info
+  # to warning so `make front-lint` fails on them now (#227), without waiting
+  # for the style backlog of infos to clear. Each is enabled by
+  # very_good_analysis already; this only changes how loud it is.
+  errors:
+    # A Future nobody awaits: its failure is lost, and its order is not
+    # the order written (goal_prompt_screen, goal_questions_screen had one).
+    unawaited_futures: warning
+    # A `BuildContext` used after an `await`, when the widget may be gone.
+    use_build_context_synchronously: warning
+    # `x as T` on a nullable `x`: a null becomes a TypeError far from its cause.
+    cast_nullable_to_non_nullable: warning
+    # A method call on `dynamic`: a typo is a runtime NoSuchMethodError.
+    avoid_dynamic_calls: warning
+    # `throw 'text'`: nothing that catches `Exception` sees it.
+    only_throw_errors: warning
+    # An `async` function returning void: its caller cannot await it.
+    avoid_void_async: warning
+    # A catch that swallows the failure whole.
+    empty_catches: warning
+    # A subscription or a stream never closed: a leak, and events after dispose.
+    cancel_subscriptions: warning
+    # Control flow out of `finally`, which discards the exception in flight.
+    control_flow_in_finally: warning
+    throw_in_finally: warning
+    # Equality that cannot be true, or does not agree with its hash.
+    hash_and_equals: warning
+    test_types_in_equals: warning
+    # A statement with no effect, a condition that is always the same.
+    unnecessary_statements: warning
+    literal_only_boolean_expressions: warning
+    no_duplicate_case_values: warning
+    # `x!` on a type parameter that may itself be nullable.
+    null_check_on_nullable_type_parameter: warning
+    # Two adjacent strings missing the space between them: a typo in a
+    # sentence the student reads.
+    missing_whitespace_between_adjacent_strings: warning
+    # State created with logic in createState, which Flutter may call again.
+    no_logic_in_create_state: warning
   exclude:
     - "lib/**/*.g.dart"
     - "lib/**/*.freezed.dart"

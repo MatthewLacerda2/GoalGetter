@@ -21,7 +21,7 @@ class StartLessonButton extends StatelessWidget {
         icon: Icon(
           Icons.play_arrow,
           color: Theme.of(context).colorScheme.onPrimary,
-          size: 26,
+          size: AppIconSize.action,
         ),
         label: Text(
           AppLocalizations.of(context).startLesson,

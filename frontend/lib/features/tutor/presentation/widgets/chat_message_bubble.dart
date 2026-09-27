@@ -32,7 +32,7 @@ class ChatMessageBubble extends StatelessWidget {
         bubble.text,
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           color: fromTutor ? colors.onSurface : colors.onPrimary,
-          height: 1.6,
+          height: AppType.readingHeight,
         ),
       ),
     );
@@ -57,7 +57,7 @@ class ChatMessageBubble extends StatelessWidget {
                 child: GestureDetector(
                   onDoubleTap: fromTutor ? onToggleLike : null,
                   child: Opacity(
-                    opacity: bubble.status == BubbleStatus.sent ? 1 : 0.6,
+                    opacity: bubble.status == BubbleStatus.sent ? 1 : AppOpacity.pending,
                     child: body,
                   ),
                 ),
@@ -83,7 +83,7 @@ class _Heart extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return IconButton(
       onPressed: onTap,
-      iconSize: 18,
+      iconSize: AppIconSize.sm,
       visualDensity: VisualDensity.compact,
       tooltip: AppLocalizations.of(context).tutorLikeReply,
       icon: Icon(

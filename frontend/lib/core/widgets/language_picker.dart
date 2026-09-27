@@ -33,8 +33,8 @@ class LanguageFlag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 32,
-      height: 24,
+      width: AppSizes.flagWidth,
+      height: AppSizes.flagHeight,
       child: ClipRRect(
         borderRadius: AppRadius.hairlineBorder,
         child: CountryFlag.fromCountryCode(_languageFlags[language] ?? 'US'),

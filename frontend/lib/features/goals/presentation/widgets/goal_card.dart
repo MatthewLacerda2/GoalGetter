@@ -34,7 +34,7 @@ class GoalCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.card),
         side: BorderSide(
           color: goal.isActive ? scheme.primary : scheme.outline,
-          width: goal.isActive ? 2 : 1,
+          width: goal.isActive ? AppStroke.thick : AppStroke.hairline,
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -56,13 +56,13 @@ class GoalCard extends StatelessWidget {
                   if (goal.isActive) const ActiveGoalBadge(),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.xxs),
               Text(
                 '${l10n.elo} ${goal.currentElo}',
                 style: theme.textTheme.labelLarge
                     ?.copyWith(color: scheme.secondary),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 preview.isNotEmpty ? preview : l10n.noDescription,
                 maxLines: 2,
@@ -84,14 +84,14 @@ class ActiveGoalBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final success =
-        Theme.of(context).extension<CustomColors>()?.success ?? AppTheme.success;
+        CustomColors.of(context).success;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: success.withValues(alpha: 0.2),
+        color: success.withValues(alpha: AppOpacity.tint),
         borderRadius: BorderRadius.circular(AppRadius.control),
       ),
       child: Text(

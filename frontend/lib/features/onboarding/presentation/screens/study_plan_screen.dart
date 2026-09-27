@@ -91,21 +91,21 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         plan.goalName,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          height: 1.2,
+                          height: AppType.headingHeight,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.lg),
                       _Description(markdown: plan.description),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.lg),
               _Actions(
                 isLoading: isLoading,
                 onConfirm: isLoading ? null : _controller.confirm,
@@ -127,7 +127,7 @@ class _Description extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final body = theme.textTheme.bodyLarge?.copyWith(height: 1.6);
+    final body = theme.textTheme.bodyLarge?.copyWith(height: AppType.readingHeight);
 
     return MarkdownBody(
       data: markdown,
@@ -138,7 +138,7 @@ class _Description extends StatelessWidget {
           fontWeight: FontWeight.bold,
           color: theme.colorScheme.primary,
         ),
-        blockSpacing: 10.0,
+        blockSpacing: AppSpacing.gap10,
       ),
     );
   }
@@ -180,7 +180,7 @@ class _Actions extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 12.0),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           flex: 2,
           child: FilledButton(
@@ -193,10 +193,10 @@ class _Actions extends StatelessWidget {
             ),
             child: isLoading
                 ? SizedBox(
-                    height: 20,
-                    width: 20,
+                    height: AppSizes.spinner,
+                    width: AppSizes.spinner,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2,
+                      strokeWidth: AppStroke.thick,
                       valueColor: AlwaysStoppedAnimation<Color>(
                         scheme.onPrimary,
                       ),

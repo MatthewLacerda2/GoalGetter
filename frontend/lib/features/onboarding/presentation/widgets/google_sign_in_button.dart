@@ -179,14 +179,14 @@ class _GoogleButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         icon: isLoading
             ? SizedBox(
-                width: 20,
-                height: 20,
+                width: AppSizes.spinner,
+                height: AppSizes.spinner,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: AppStroke.thick,
                   valueColor: AlwaysStoppedAnimation<Color>(onBlue),
                 ),
               )
-            : FaIcon(FontAwesomeIcons.google, color: onBlue, size: 20),
+            : FaIcon(FontAwesomeIcons.google, color: onBlue, size: AppIconSize.md),
         label: Text(
           isLoading ? l10n.signingIn : l10n.startWithGoogle,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -196,7 +196,7 @@ class _GoogleButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.googleBlue,
           foregroundColor: onBlue,
-          elevation: 2,
+          elevation: AppSizes.googleButtonElevation,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.chip),
           ),
