@@ -44,8 +44,13 @@ analyze and test runs, and the backend tests in Docker, are heavy, and several a
 will bury this machine. A buried machine makes the gates **lie** — tests time out
 competing for a core and go red over nothing in the diff.
 
-- **At most two agents running Flutter gates at the same time.** A third is not faster;
-  it makes all three untrustworthy.
+- **At most five worktrees at once** (the user, 2026-09-27). The limit counts worktrees,
+  not agents or issues: one agent may fold several issues into one, and a finished
+  agent's worktree still counts until it is removed. Disk and conflicts are why. So a
+  worktree is removed by name, with its test database, as soon as its pull request merges
+  or no longer needs it, and only then is the next one created.
+- **At most two agents running Flutter gates at the same time**, inside those five. A
+  third is not faster; it makes all three untrustworthy.
 - **A red gate under load is re-run, not believed.** Check `uptime` first; once load is
   near the core count, the result means nothing either way.
 - Do not write down how long a gate takes. It depends on the machine and on what else
@@ -114,7 +119,14 @@ make's. Both have happened in this repo. The same goes for a merge: a truncated 
 **Read the end of the output, and read the real exit status** — run the gate on its own
 line, or `set -o pipefail`.
 
+**A log goes to the session's scratchpad, never beside the repo.** Saving a gate's output
+with `> ../f173.log` from a worktree dumps it in `~/Desktop/Repos`, where nothing cleans
+it: 43 such files had piled up there by 2026-09-27. Name the scratchpad path in the brief.
+
 ## Briefing a subagent
+
+**Never the Fable model** (the user, 2026-09-27): no `model: "fable"` on an agent, in a
+workflow, or anywhere else. Leave the model unset so the agent inherits it.
 
 Give it, in this order:
 
