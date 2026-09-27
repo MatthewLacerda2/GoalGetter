@@ -35,7 +35,10 @@ List<ChatBubbleData> chatBubbles(
       ChatBubbleData(
         text: pending.text,
         fromTutor: false,
-        status: pending.failed ? BubbleStatus.failed : BubbleStatus.sending,
+        status: switch (pending) {
+          FailedMessage() => BubbleStatus.failed,
+          SendingMessage() => BubbleStatus.sending,
+        },
       ),
   ];
   for (final exchange in exchanges.reversed) {

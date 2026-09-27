@@ -1,13 +1,11 @@
-import 'dart:async';
-
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
+import 'package:clock/clock.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/lessons/data/lessons_api.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 export 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
 
@@ -19,217 +17,154 @@ part 'lesson_controller.g.dart';
 /// has been answered right.
 ///
 /// The batch is what the backend marks as a lesson, so it is sent whole and in
-/// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
+/// order, once: only a [FirstRound] is ever submitted, and a gap in it is
+/// returned to rather than sent.
+///
+/// Every decision about the lesson's flow is taken here; the screen draws the
+/// [LessonState] it is handed. Time is read from `package:clock`, so a test
+/// decides how long a question was on screen.
+///
+/// Opening is [build]: the screen watching the provider opens a lesson, and
+/// `ref.invalidate` opens a new one - the retry after a failed start.
 @riverpod
 class LessonController extends _$LessonController {
+  /// The goal the lesson was opened on, which its answers are sent to.
+  late String _goalId;
+
   @override
-  LessonState build() {
-    ref.onDispose(() {
-      _disposed = true;
-      _timer?.cancel();
-    });
-    return const LessonState();
-  }
-
-  Timer? _timer;
-  DateTime _startTime = DateTime.now();
-  bool _disposed = false;
-  String? _goalId;
-  bool _hasSubmittedAnswers = false;
-
-  /// Opens a new lesson; also the retry after a failed start.
-  Future<void> start() async {
-    _timer?.cancel();
-    _hasSubmittedAnswers = false;
-    state = const LessonState(isLoading: true);
-
+  Future<LessonState> build() async {
     final goalId = ref.read(settingsStorageProvider).readCurrentGoalId();
-    if (goalId == null || goalId.isEmpty) {
-      state = const LessonState(
-        isLoading: false,
-        startFailure: LessonFailure(LessonStartFailureKind.noActiveGoal),
-      );
-      return;
-    }
-
+    if (goalId == null || goalId.isEmpty) return const LessonNoActiveGoal();
     final LessonSession session;
     try {
       session = await ref.read(lessonsApiProvider).start(goalId);
     } on ApiException catch (e) {
-      if (_disposed) return;
-      final kind = e.status == LessonsApi.notReadyStatus
-          ? LessonStartFailureKind.notReady
-          : LessonStartFailureKind.failed;
-      state = LessonState(isLoading: false, startFailure: LessonFailure(kind, e));
-      return;
-    } on Exception catch (e) {
-      if (_disposed) return;
-      state = LessonState(
-        isLoading: false,
-        startFailure: LessonFailure(LessonStartFailureKind.failed, e),
-      );
-      return;
+      if (e.status == LessonsApi.notReadyStatus) return const LessonNotReady();
+      rethrow;
     }
-    if (_disposed) return;
-    if (session.questions.isEmpty) {
-      // The backend answers 409 for an empty bank; treat an empty 201 the same.
-      state = const LessonState(
-        isLoading: false,
-        startFailure: LessonFailure(LessonStartFailureKind.notReady),
-      );
-      return;
-    }
-
+    // The backend answers 409 for an empty bank; treat an empty 201 the same.
+    if (session.questions.isEmpty) return const LessonNotReady();
     _goalId = goalId;
-    _startTime = DateTime.now();
-    _startTimer();
-    state = LessonState(
-      isLoading: false,
-      questions: [
-        for (final (i, q) in session.questions.indexed)
-          LessonQuestionState(apiQuestion: q, startTime: i == 0 ? _startTime : null),
-      ],
+    return LessonAnswering.start(
+      const FirstRound(),
+      session.questions,
+      clock.now(),
     );
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      state = state.copyWith(totalTimeSpent: DateTime.now().difference(_startTime));
-    });
-  }
+  /// The question on screen, when one is.
+  LessonAnswering? get _answering => switch (state) {
+    AsyncData(value: final LessonAnswering answering) => answering,
+    _ => null,
+  };
 
   void selectChoice(int index) {
-    if (!state.isAnswerRevealed) {
-      state = state.copyWith(selectedChoiceIndex: index);
-    }
+    final answering = _answering;
+    if (answering == null || answering.isRevealed) return;
+    state = AsyncData(answering.withPick(index));
   }
 
+  /// Enters the tapped choice: the question is graded on screen, and the time
+  /// it was up is what the backend records for it (at least 2 s, at most an
+  /// hour).
   void submitAnswer() {
-    final selected = state.selectedChoiceIndex;
-    if (selected == null) return;
-
-    final currentIdx = state.currentQuestionIndex;
-    final currentQuestion = state.questions[currentIdx];
-    final startedAt = currentQuestion.startTime;
-    final secondsSpent = startedAt == null
+    final answering = _answering;
+    final choice = answering?.pick;
+    if (answering == null || choice == null || answering.isRevealed) return;
+    final shownAt = answering.current.shownAt;
+    final seconds = shownAt == null
         ? 2
-        : DateTime.now().difference(startedAt).inSeconds.clamp(2, 3600);
-
-    final isCorrect = selected == currentQuestion.apiQuestion.correctAnswerIndex;
-    final updatedQuestions = List<LessonQuestionState>.from(state.questions);
-    updatedQuestions[currentIdx] = currentQuestion.copyWith(
-      status: isCorrect ? LessonQuestionStatus.correct : LessonQuestionStatus.incorrect,
-      studentAnswerIndex: selected,
-      secondsSpent: secondsSpent,
+        : clock.now().difference(shownAt).inSeconds.clamp(2, 3600);
+    state = AsyncData(
+      answering.enter(LessonAttempt(choice: choice, secondsSpent: seconds)),
     );
-
-    state = state.copyWith(questions: updatedQuestions, isAnswerRevealed: true);
   }
 
+  /// Past an entered question: the next one, the submit at the end of the
+  /// first round, or what follows a review round.
   Future<void> nextQuestion() async {
-    final currentIdx = state.currentQuestionIndex;
-    if (currentIdx < state.questions.length - 1) {
-      final updatedQuestions = List<LessonQuestionState>.from(state.questions);
-      updatedQuestions[currentIdx + 1] =
-          updatedQuestions[currentIdx + 1].copyWith(startTime: DateTime.now());
-
-      state = state.copyWith(
-        questions: updatedQuestions,
-        currentQuestionIndex: currentIdx + 1,
-        clearSelection: true,
-        isAnswerRevealed: false,
-      );
-    } else if (!state.isReviewMode && !_hasSubmittedAnswers) {
-      await _submitEvaluation();
-    } else {
-      // A review round ends only when he gets every one right: the ones he
-      // missed again come back, round after round (the user, 2026-09-26).
-      final missedAgain = state.questions
-          .where((q) => q.status == LessonQuestionStatus.incorrect)
-          .toList();
-      if (state.isReviewMode && missedAgain.isNotEmpty) {
-        startReviewMode(missedAgain);
-      } else {
-        state = state.copyWith(isCompleted: true);
-      }
+    final answering = _answering;
+    if (answering == null || !answering.isRevealed) return;
+    if (!answering.isLast) {
+      state = AsyncData(answering.show(answering.index + 1, clock.now()));
+      return;
+    }
+    switch (answering.round) {
+      case FirstRound():
+        await _submit(answering);
+      case ReviewRound(:final evaluation):
+        // A review round ends only when he gets every one right: the ones he
+        // missed again come back, round after round (the user, 2026-09-26).
+        final missed = answering.missed;
+        state = AsyncData(
+          missed.isEmpty
+              ? LessonFinished(evaluation)
+              : LessonAnswering.start(
+                  ReviewRound(evaluation),
+                  missed,
+                  clock.now(),
+                ),
+        );
     }
   }
 
   /// Sends the answers again after a failed submit. They were kept in state.
-  Future<void> retrySubmit() => _submitEvaluation();
-
-  /// Puts the student back on question [index], its clock restarted.
-  ///
-  /// The backend takes whatever comes, so a gap would simply be a lesson the
-  /// student was credited less for than he did. It is returned to instead of
-  /// sent. The screen does not let one open - a question is answered before
-  /// the next is shown - and this keeps that true of the controller itself.
-  void _resumeAt(int index) {
-    final questions = List<LessonQuestionState>.from(state.questions);
-    questions[index] = questions[index].copyWith(startTime: DateTime.now());
-    state = state.copyWith(
-      questions: questions,
-      currentQuestionIndex: index,
-      clearSelection: true,
-      isAnswerRevealed: false,
-    );
+  Future<void> retrySubmit() async {
+    final answering = _answering;
+    if (answering != null && answering.round is FirstRound) {
+      await _submit(answering);
+    }
   }
 
-  Future<void> _submitEvaluation() async {
-    if (state.isSubmitting || _hasSubmittedAnswers) return;
-    final unanswered = state.questions.indexWhere((q) => !q.isAnswered);
-    if (unanswered != -1) {
-      _resumeAt(unanswered);
-      return;
-    }
-    final answers = [
-      for (final q in state.questions)
-        LessonAnswer(
-          questionId: q.apiQuestion.id,
-          choiceIndex: q.studentAnswerIndex!,
-          secondsSpent: q.secondsSpent!,
-        ),
-    ];
-    state = state.copyWith(isSubmitting: true, clearSubmitFailure: true);
-
-    try {
-      final evaluation = await ref
-          .read(lessonsApiProvider)
-          .submit(_goalId!, answers);
-      if (!_disposed) _finish(evaluation);
-    } on Exception catch (e) {
-      if (_disposed) return;
-      state = state.copyWith(
-        isSubmitting: false,
-        submitFailure: LessonFailure(null, e),
+  /// From the screen that announces it, into the first review round.
+  void startReview() {
+    if (state case AsyncData(
+      value: LessonReviewIntro(:final missed, :final evaluation),
+    )) {
+      state = AsyncData(
+        LessonAnswering.start(ReviewRound(evaluation), missed, clock.now()),
       );
     }
   }
 
-  void _finish(LessonEvaluation evaluation) {
-    _hasSubmittedAnswers = true;
-    _timer?.cancel();
-    // Home's rating, streak and recent lessons moved.
-    ref.invalidate(homeControllerProvider);
-    state = state.copyWith(
-      evaluationResponse: evaluation,
-      isSubmitting: false,
-      isCompleted: true,
-    );
-  }
-
-  void startReviewMode(List<LessonQuestionState> incorrectQuestions) {
-    final now = DateTime.now();
-    state = state.copyWith(
-      questions: [
-        for (final (i, q) in incorrectQuestions.indexed)
-          LessonQuestionState(apiQuestion: q.apiQuestion, startTime: i == 0 ? now : null),
-      ],
-      currentQuestionIndex: 0,
-      clearSelection: true,
-      isAnswerRevealed: false,
-      isReviewMode: true,
-      isCompleted: false,
-    );
+  Future<void> _submit(LessonAnswering answering) async {
+    // The backend takes whatever comes, so a gap would simply be a lesson the
+    // student was credited less for than he did. It is returned to instead of
+    // sent. The screen does not let one open - a question is answered before
+    // the next is shown - and this keeps that true of the controller itself.
+    final gap = answering.questions.indexWhere((q) => q.attempt == null);
+    if (gap != -1) {
+      state = AsyncData(answering.show(gap, clock.now()));
+      return;
+    }
+    final answers = [
+      for (final q in answering.questions)
+        LessonAnswer(
+          questionId: q.question.id,
+          choiceIndex: q.attempt!.choice,
+          secondsSpent: q.attempt!.secondsSpent,
+        ),
+    ];
+    state = const AsyncData(LessonSubmitting());
+    // This build's ref: unmounted once the provider is disposed or rebuilt,
+    // so a late answer never lands on a lesson that is no longer this one.
+    final opened = ref;
+    try {
+      final evaluation = await opened
+          .read(lessonsApiProvider)
+          .submit(_goalId, answers);
+      if (!opened.mounted) return;
+      // Home's rating, streak and recent lessons moved.
+      opened.invalidate(homeControllerProvider);
+      final missed = answering.missed;
+      state = AsyncData(
+        missed.isEmpty
+            ? LessonFinished(evaluation)
+            : LessonReviewIntro(missed: missed, evaluation: evaluation),
+      );
+    } on Exception catch (e) {
+      if (!opened.mounted) return;
+      state = AsyncData(answering.withRound(FirstRound(submitFailure: e)));
+    }
   }
 }

@@ -1,9 +1,93 @@
 import 'package:flutter/material.dart';
 
 import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_theme.dart';
+import 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 /// The pieces the lesson screen is made of, one widget each, so answering a
 /// question rebuilds the tile that changed rather than the whole screen.
+
+/// A question of the lesson as the student answers it: the progress, the
+/// question, its choices and the one button. It draws [state] and hands every
+/// tap to the controller through the callbacks.
+class LessonQuestionPage extends StatelessWidget {
+  const LessonQuestionPage({
+    required this.state,
+    required this.onSelect,
+    required this.onEnter,
+    required this.onContinue,
+    super.key,
+  });
+
+  final LessonAnswering state;
+  final ValueChanged<int> onSelect;
+  final VoidCallback onEnter;
+  final VoidCallback onContinue;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final question = state.current.question;
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        children: [
+          LessonProgressRow(index: state.index, total: state.questions.length),
+          const SizedBox(height: 32),
+          LessonQuestionCard(question: question.question),
+          const SizedBox(height: 40),
+          Expanded(
+            child: ListView.builder(
+              itemCount: question.choices.length,
+              itemBuilder: (context, index) => LessonChoiceTile(
+                label: question.choices[index],
+                fill: _choiceFill(context, index),
+                onTap: () => onSelect(index),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          LessonAnswerButton(
+            label: state.isRevealed ? l10n.continuate : l10n.enter,
+            color: _buttonColor(context),
+            onPressed: state.selectedChoice == null
+                ? null
+                : (state.isRevealed ? onContinue : onEnter),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Color _success(BuildContext context) =>
+      Theme.of(context).extension<CustomColors>()?.success ?? AppTheme.success;
+
+  /// Tapped, before the answer is entered; after it, right, wrong or neither.
+  Color _choiceFill(BuildContext context, int index) {
+    final scheme = Theme.of(context).colorScheme;
+    final isSelected = state.selectedChoice == index;
+    if (!state.isRevealed) {
+      return isSelected
+          ? scheme.primary.withValues(alpha: 0.2)
+          : scheme.surfaceContainerHigh;
+    }
+    if (index == state.current.question.correctAnswerIndex) {
+      return _success(context).withValues(alpha: 0.2);
+    }
+    if (isSelected) return scheme.error.withValues(alpha: 0.2);
+    return scheme.outline.withValues(alpha: 0.12);
+  }
+
+  /// Grey until a choice is tapped; once entered, whether it was right.
+  Color _buttonColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    if (state.selectedChoice == null) return scheme.outline;
+    if (!state.isRevealed) return scheme.primary;
+    return state.current.isCorrect ? _success(context) : scheme.error;
+  }
+}
 
 /// "3 / 10" and the bar that fills with it.
 class LessonProgressRow extends StatelessWidget {

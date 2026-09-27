@@ -43,9 +43,8 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
 
   Future<void> _send() async {
     final text = _textController.text;
-    if (text.trim().isEmpty || ref.read(tutorControllerProvider).isSending) {
-      return;
-    }
+    final chat = ref.read(tutorControllerProvider).value;
+    if (text.trim().isEmpty || (chat is TutorChat && chat.isSending)) return;
     _textController.clear();
     final failure = await _controller.send(text);
     if (failure == null || !mounted) return;
@@ -74,9 +73,9 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(tutorControllerProvider);
+    final tutor = ref.watch(tutorControllerProvider);
     ref.listen(tutorControllerProvider, (previous, next) {
-      if (previous?.exchanges.length != next.exchanges.length) {
+      if (_exchangeCount(previous?.value) != _exchangeCount(next.value)) {
         WidgetsBinding.instance.addPostFrameCallback(
           (_) => _loadOlderNearTop(),
         );
@@ -85,29 +84,36 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: switch (state.load) {
-        TutorLoad.loading => const Center(child: CircularProgressIndicator()),
-        TutorLoad.noActiveGoal => const _NoActiveGoal(),
-        TutorLoad.failed => FailureView(
-          error: state.loadFailure,
+      body: tutor.when(
+        // A retry loads the page again: the spinner, not the old failure.
+        skipLoadingOnRefresh: false,
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => FailureView(
+          error: error,
           title: AppLocalizations.of(context).tutorLoadFailed,
-          onRetry: _controller.load,
+          onRetry: () => ref.invalidate(tutorControllerProvider),
         ),
-        TutorLoad.ready => Column(
-          children: [
-            Expanded(child: _chat(state)),
-            ChatInput(
-              controller: _textController,
-              onSendMessage: _send,
-              isSending: state.isSending,
-            ),
-          ],
-        ),
-      },
+        data: (state) => switch (state) {
+          TutorNoActiveGoal() => const _NoActiveGoal(),
+          TutorChat() => Column(
+            children: [
+              Expanded(child: _chat(state)),
+              ChatInput(
+                controller: _textController,
+                onSendMessage: _send,
+                isSending: state.isSending,
+              ),
+            ],
+          ),
+        },
+      ),
     );
   }
 
-  Widget _chat(TutorState state) {
+  int? _exchangeCount(TutorState? state) =>
+      state is TutorChat ? state.exchanges.length : null;
+
+  Widget _chat(TutorChat state) {
     final bubbles = chatBubbles(state.exchanges, state.pending);
     if (bubbles.isEmpty) {
       return Center(
@@ -117,14 +123,17 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
         ),
       );
     }
-    final showTop = state.isLoadingMore || state.loadMoreFailed;
+    final showTop = switch (state.older) {
+      LoadingOlderPages() || OlderPagesFailed() => true,
+      NoOlderPages() || MoreOlderPages() => false,
+    };
     return ListView.builder(
       controller: _scrollController,
       reverse: true,
       padding: const EdgeInsets.only(top: AppSpacing.xs, bottom: AppSpacing.xs),
       itemCount: bubbles.length + (showTop ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index == bubbles.length) return _OlderStatus(state);
+        if (index == bubbles.length) return _OlderStatus(state.older);
         final bubble = bubbles[index];
         final id = bubble.exchangeId;
         return ChatMessageBubble(
@@ -147,20 +156,21 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
 
 /// The row above the oldest bubble: a spinner, or the retry of a failed page.
 class _OlderStatus extends ConsumerWidget {
-  const _OlderStatus(this.state);
+  const _OlderStatus(this.older);
 
-  final TutorState state;
+  final OlderPages older;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (state.isLoadingMore) {
+    final older = this.older;
+    if (older is! OlderPagesFailed) {
       return const Padding(
         padding: EdgeInsets.all(AppSpacing.md),
         child: Center(child: CircularProgressIndicator()),
       );
     }
     return FailureView(
-      error: state.loadMoreFailure,
+      error: older.cause,
       title: AppLocalizations.of(context).tutorOlderFailed,
       onRetry: () =>
           ref.read(tutorControllerProvider.notifier).loadOlder(retry: true),

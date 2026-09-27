@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:goal_getter/l10n/generated/app_localizations.dart';
+
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
-import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
-
-import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
-import 'package:goal_getter/core/widgets/state_message.dart';
-import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
 import 'package:goal_getter/features/lessons/presentation/lesson_clock.dart';
-import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
+import 'package:goal_getter/features/lessons/presentation/widgets/lesson_cannot_start.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_question_view.dart';
+import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
+/// The lesson, drawn from the [LessonState] its controller is in. It decides
+/// nothing about the lesson's flow: watching the controller opens a lesson,
+/// and each state is drawn as it comes, the finished one by handing over to
+/// the finish route.
 class LessonScreen extends ConsumerStatefulWidget {
   const LessonScreen({super.key});
 
@@ -24,279 +27,172 @@ class LessonScreen extends ConsumerStatefulWidget {
 }
 
 class _LessonScreenState extends ConsumerState<LessonScreen> {
+  /// The last question drawn. It stays under the review intro as it slides
+  /// in, and under the finish screen as that replaces this one.
+  LessonAnswering? _lastQuestion;
+
+  LessonController get _controller =>
+      ref.read(lessonControllerProvider.notifier);
+
   @override
-  void initState() {
-    super.initState();
-    // Deferred to after the first frame: start() writes to the provider, and
-    // Riverpod forbids modifying a provider while the widget tree is building.
-    // Calling it directly here threw, and because start() is an unawaited
-    // async call the error was swallowed, leaving the spinner forever.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      ref.read(lessonControllerProvider.notifier).start();
-    });
+  Widget build(BuildContext context) {
+    final lesson = ref.watch(lessonControllerProvider);
+    ref.listen(
+      lessonControllerProvider,
+      (previous, next) => _onChanged(previous?.value, next.value),
+    );
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: lesson.when(
+        // A retry opens a new lesson: the spinner, not the old failure.
+        skipLoadingOnRefresh: false,
+        loading: () => const SafeArea(child: _Spinner()),
+        error: (error, _) => SafeArea(child: LessonCannotStart(error)),
+        data: (state) => switch (state) {
+          LessonNotReady() || LessonNoActiveGoal() => SafeArea(
+            child: LessonCannotStart(state),
+          ),
+          _ => Stack(
+            fit: StackFit.expand,
+            children: [
+              // Only a question being answered takes taps or is read out;
+              // one under the review intro or the finish is a backdrop.
+              IgnorePointer(
+                ignoring: state is! LessonAnswering,
+                child: ExcludeSemantics(
+                  excluding: state is! LessonAnswering,
+                  child: SafeArea(child: _underneath(state)),
+                ),
+              ),
+              _ReviewIntro(
+                visible: state is LessonReviewIntro,
+                onContinue: _controller.startReview,
+              ),
+            ],
+          ),
+        },
+      ),
+    );
   }
 
-  void _handleCompletion(LessonState state) {
-    final incorrectQuestions = state.questions
-        .where((q) => q.status == LessonQuestionStatus.incorrect)
-        .toList();
+  /// The question being answered, or the spinner while the answers are sent.
+  Widget _underneath(LessonState state) {
+    if (state is LessonAnswering) _lastQuestion = state;
+    final question = state is LessonSubmitting ? null : _lastQuestion;
+    if (question == null) return const _Spinner();
+    return LessonQuestionPage(
+      state: question,
+      onSelect: _controller.selectChoice,
+      onEnter: _controller.submitAnswer,
+      onContinue: _controller.nextQuestion,
+    );
+  }
 
-    if (incorrectQuestions.isNotEmpty && !state.isReviewMode) {
-      Navigator.of(context).push(
-        PageRouteBuilder<void>(
-          pageBuilder: (context, animation, secondaryAnimation) => InfoScreen(
-            icon: Icons.quiz,
-            descriptionText:
-                AppLocalizations.of(context).nowLetSCorrectYourMistakes,
-            buttonText: AppLocalizations.of(context).continuate,
-            onButtonPressed: () {
-              Navigator.of(context).pop();
-              ref.read(lessonControllerProvider.notifier).startReviewMode(incorrectQuestions);
-            },
-          ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return SlideTransition(
-              position: animation.drive(
-                Tween(
-                  begin: Offset(1.0, 0.0),
-                  end: Offset.zero,
-                ).chain(CurveTween(curve: Curves.easeInOut)),
-              ),
-              child: child,
-            );
-          },
-        ),
-      );
-    } else {
+  /// The lesson ended, or the answers did not reach the server. The answers
+  /// stay on screen either way, so a failed submit is said over them.
+  void _onChanged(LessonState? previous, LessonState? next) {
+    if (next is LessonFinished && previous is! LessonFinished) {
       context.pushReplacement(
         AppRoutes.lessonFinish,
-        extra: _finishArgs(state),
+        extra: _finishArgs(next.evaluation),
+      );
+    }
+    final failed = _submitFailure(next);
+    if (failed != null && _submitFailure(previous) == null) {
+      showFailure(
+        context,
+        failed,
+        title: AppLocalizations.of(context).lessonSubmitFailed,
+        onRetry: _controller.retrySubmit,
       );
     }
   }
 
-  /// The server's evaluation. Without one - the review round, which is never
-  /// submitted - the elo shows as a dash and the time is the app's own count.
-  FinishLessonArgs _finishArgs(LessonState state) {
+  Object? _submitFailure(LessonState? state) => switch (state) {
+    LessonAnswering(round: FirstRound(:final submitFailure)) => submitFailure,
+    _ => null,
+  };
+
+  /// The server's evaluation of the lesson's first round, as three tiles.
+  FinishLessonArgs _finishArgs(LessonEvaluation evaluation) {
     final l10n = AppLocalizations.of(context);
-    final evaluation = state.evaluationResponse;
-    final elo = evaluation?.elo;
+    final theme = Theme.of(context);
+    final elo = evaluation.elo;
     return FinishLessonArgs(
       title: l10n.lessonFinishedTitle,
       icon: Icons.check_circle,
       timeSpent: StatData(
         title: l10n.lessonTime,
         icon: Icons.timer,
-        text: formatLessonClock(evaluation != null
-            ? Duration(seconds: evaluation.totalSecondsSpent)
-            : state.totalTimeSpent),
-        color: Theme.of(context).colorScheme.primary,
+        text: formatLessonClock(
+          Duration(seconds: evaluation.totalSecondsSpent),
+        ),
+        color: theme.colorScheme.primary,
       ),
       accuracy: StatData(
         title: l10n.lessonAccuracy,
         icon: Icons.check_circle,
-        text: '${(evaluation?.studentAccuracy ?? 0).toStringAsFixed(0)}%',
-        color:
-            Theme.of(context).extension<CustomColors>()?.success ??
-            AppTheme.success,
+        text: '${evaluation.studentAccuracy.toStringAsFixed(0)}%',
+        color: theme.extension<CustomColors>()?.success ?? AppTheme.success,
       ),
       elo: StatData(
         title: l10n.elo,
         icon: Icons.trending_up,
-        text: elo == null ? '—' : '${elo >= 0 ? '+' : ''}$elo',
-        color: Theme.of(context).colorScheme.secondary,
+        text: '${elo >= 0 ? '+' : ''}$elo',
+        color: theme.colorScheme.secondary,
       ),
     );
   }
+}
 
-  Color getChoiceFillColor(LessonState state, int index) {
-    if (!state.isAnswerRevealed) {
-      return state.selectedChoiceIndex == index
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-          : Theme.of(context).colorScheme.surfaceContainerHigh;
-    }
+class _Spinner extends StatelessWidget {
+  const _Spinner();
 
-    final currentQuestion = state.questions[state.currentQuestionIndex];
-    final isCorrectAnswer =
-        index == currentQuestion.apiQuestion.correctAnswerIndex;
-    final isSelectedAnswer = state.selectedChoiceIndex == index;
+  @override
+  Widget build(BuildContext context) => Center(
+    child: CircularProgressIndicator(
+      color: Theme.of(context).colorScheme.primary,
+    ),
+  );
+}
 
-    if (isCorrectAnswer) {
-      final success =
-          Theme.of(context).extension<CustomColors>()?.success ??
-          AppTheme.success;
-      return success.withValues(alpha: 0.2);
-    }
-    if (isSelectedAnswer && !isCorrectAnswer) {
-      return Theme.of(context).colorScheme.error.withValues(alpha: 0.2);
-    }
-    return Theme.of(context).colorScheme.outline.withValues(alpha: 0.12);
-  }
+/// The screen that says the mistakes come next. It slides in from the right
+/// over the last answered question and back out over the first one to
+/// correct: the transition it had when it was a pushed page.
+class _ReviewIntro extends StatelessWidget {
+  const _ReviewIntro({required this.visible, required this.onContinue});
 
-  Color getButtonColor(LessonState state) {
-    if (state.selectedChoiceIndex == null) {
-      return Theme.of(context).colorScheme.outline;
-    }
-
-    if (!state.isAnswerRevealed) {
-      return Theme.of(context).colorScheme.primary;
-    }
-    final currentQuestion = state.questions[state.currentQuestionIndex];
-    final isCorrect =
-        state.selectedChoiceIndex == currentQuestion.apiQuestion.correctAnswerIndex;
-    final success =
-        Theme.of(context).extension<CustomColors>()?.success ??
-        AppTheme.success;
-    return isCorrect ? success : Theme.of(context).colorScheme.error;
-  }
-
-  /// What takes the whole screen instead of the question: the spinner while
-  /// the lesson loads or an answer is in flight, or a lesson that never
-  /// opened. A failed submit is not here - the answers are still on screen,
-  /// so it is a snackbar (see [build]).
-  Widget? _blocker(LessonState state, LessonController controller) {
-    if (state.isLoading || state.isSubmitting) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      );
-    }
-    final failure = state.startFailure;
-    if (failure != null) return _cannotStart(failure, controller.start);
-    return null;
-  }
-
-  /// The lesson could not open: the question bank is still being built (409),
-  /// there is no active goal, or the call failed and can be tried again. The
-  /// first two are states, not failures; only the third is a [FailureView].
-  Widget _cannotStart(
-    LessonFailure<LessonStartFailureKind> failure,
-    VoidCallback onRetry,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    final Widget message = switch (failure.kind) {
-      LessonStartFailureKind.notReady => StateMessage(
-        icon: Icons.hourglass_top,
-        title: l10n.lessonsStillPreparing,
-        body: l10n.lessonsStillPreparingBody,
-        actionLabel: l10n.checkAgain,
-        onAction: onRetry,
-      ),
-      LessonStartFailureKind.noActiveGoal => StateMessage(
-        icon: Icons.flag_outlined,
-        title: l10n.noActiveGoal,
-        body: l10n.lessonNoActiveGoalBody,
-        actionLabel: l10n.lessonPickGoal,
-        onAction: () => context.go(AppRoutes.goals),
-      ),
-      LessonStartFailureKind.failed => FailureView(
-        error: failure.cause,
-        title: l10n.lessonStartFailed,
-        onRetry: onRetry,
-      ),
-    };
-    return Column(
-      children: [
-        Expanded(child: message),
-        TextButton(
-          onPressed: () => context.go(AppRoutes.home),
-          child: Text(l10n.lessonBackHome),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-      ],
-    );
-  }
-
-  /// The answers, one tile each; the fill colour says how each one stands.
-  Widget _choices(LessonState state, LessonQuestionState question) {
-    return ListView.builder(
-      itemCount: question.apiQuestion.choices.length,
-      itemBuilder: (context, index) => LessonChoiceTile(
-        label: question.apiQuestion.choices[index],
-        fill: getChoiceFillColor(state, index),
-        onTap: () => ref
-            .read(lessonControllerProvider.notifier)
-            .selectChoice(index),
-      ),
-    );
-  }
-
-  /// The lesson ended, or the answers did not reach the server. The answers
-  /// stay on screen either way, so a failed submit is said over them.
-  void _onStateChanged(
-    LessonState? previous,
-    LessonState next,
-    LessonController controller,
-  ) {
-    if (next.isCompleted && !(previous?.isCompleted ?? false)) {
-      _handleCompletion(next);
-    }
-    final failed = next.submitFailure;
-    if (failed != null && previous?.submitFailure == null) {
-      showFailure(
-        context,
-        failed.cause,
-        title: AppLocalizations.of(context).lessonSubmitFailed,
-        onRetry: controller.retrySubmit,
-      );
-    }
-  }
+  final bool visible;
+  final VoidCallback onContinue;
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(lessonControllerProvider);
-    final controller = ref.read(lessonControllerProvider.notifier);
-
-    ref.listen<LessonState>(
-      lessonControllerProvider,
-      (previous, next) => _onStateChanged(previous, next, controller),
-    );
-
-    final blocker = _blocker(state, controller);
-    if (blocker != null) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(child: blocker),
-      );
-    }
-
-    final currentQuestion = state.questions[state.currentQuestionIndex];
     final l10n = AppLocalizations.of(context);
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            children: [
-              LessonProgressRow(
-                index: state.currentQuestionIndex,
-                total: state.questions.length,
-              ),
-              SizedBox(height: 32),
-              LessonQuestionCard(
-                question: currentQuestion.apiQuestion.question,
-              ),
-              SizedBox(height: 40),
-              Expanded(child: _choices(state, currentQuestion)),
-              SizedBox(height: 16.0),
-              LessonAnswerButton(
-                label: state.isAnswerRevealed ? l10n.continuate : l10n.enter,
-                color: getButtonColor(state),
-                onPressed: state.selectedChoiceIndex == null
-                    ? null
-                    : (state.isAnswerRevealed
-                          ? controller.nextQuestion
-                          : controller.submitAnswer),
-              ),
-              SizedBox(height: 8.0),
-            ],
-          ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (child, animation) => SlideTransition(
+        position: animation.drive(
+          Tween(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).chain(CurveTween(curve: Curves.easeInOut)),
         ),
+        child: child,
       ),
+      layoutBuilder: (current, previous) => Stack(
+        fit: StackFit.expand,
+        children: [...previous, ?current],
+      ),
+      child: visible
+          ? InfoScreen(
+              key: const ValueKey('review-intro'),
+              icon: Icons.quiz,
+              descriptionText: l10n.nowLetSCorrectYourMistakes,
+              buttonText: l10n.continuate,
+              onButtonPressed: onContinue,
+            )
+          : const SizedBox.shrink(),
     );
   }
 }

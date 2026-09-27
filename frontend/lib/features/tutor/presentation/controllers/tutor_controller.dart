@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/domain/chat_exchange.dart';
@@ -10,53 +8,72 @@ export 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.
 
 part 'tutor_controller.g.dart';
 
+/// The chat with the tutor on the active goal. [build] loads its newest page;
+/// `ref.invalidate` loads it again - the retry after a failed load.
+///
+/// Every call made after the first page holds on to the ref of the build it
+/// started in, and drops its answer when that ref is no longer mounted: the
+/// provider was disposed, or rebuilt into another chat.
 @riverpod
 class TutorController extends _$TutorController {
-  TutorApi get _api => ref.read(tutorApiProvider);
-
   @override
-  TutorState build() {
-    Future.microtask(load);
-    return const TutorState();
-  }
-
-  /// Loads the newest page, replacing whatever was there.
-  Future<void> load() async {
-    if (state.load != TutorLoad.loading) state = const TutorState();
+  Future<TutorState> build() async {
     try {
-      final page = await _api.list();
-      state = TutorState(
-        load: TutorLoad.ready,
+      final page = await ref.read(tutorApiProvider).list();
+      return TutorChat(
         exchanges: page.reversed.toList(),
-        hasMore: page.length == TutorApi.pageSize,
+        older: _olderThan(page),
       );
     } on ApiException catch (e) {
-      final noGoal = e.status == 404 && e.detail == TutorApi.noActiveGoal;
-      state = TutorState(
-        load: noGoal ? TutorLoad.noActiveGoal : TutorLoad.failed,
-        loadFailure: e,
-      );
-    } on Exception catch (e) {
-      state = TutorState(load: TutorLoad.failed, loadFailure: e);
+      if (e.status == 404 && e.detail == TutorApi.noActiveGoal) {
+        return const TutorNoActiveGoal();
+      }
+      rethrow;
     }
+  }
+
+  /// A full page means there may be more before it.
+  static OlderPages _olderThan(List<ChatExchange> page) =>
+      page.length == TutorApi.pageSize
+      ? const MoreOlderPages()
+      : const NoOlderPages();
+
+  /// The chat on screen, when there is one.
+  TutorChat? get _chat => switch (state) {
+    AsyncData(value: final TutorChat chat) => chat,
+    _ => null,
+  };
+
+  /// Applies [change] to the chat on screen, when there still is one.
+  void _update(TutorChat Function(TutorChat) change) {
+    final chat = _chat;
+    if (chat != null) state = AsyncData(change(chat));
   }
 
   /// Loads the page before the oldest loaded exchange. After a failure only
   /// an explicit [retry] tries again, so scrolling does not hammer the server.
   Future<void> loadOlder({bool retry = false}) async {
-    final s = state;
-    if (s.load != TutorLoad.ready || !s.hasMore || s.isLoadingMore) return;
-    if (s.loadMoreFailed && !retry) return;
-    state = s.copyWith(isLoadingMore: true, loadMoreFailure: null);
+    final chat = _chat;
+    final canLoad = switch (chat?.older) {
+      MoreOlderPages() => true,
+      OlderPagesFailed() => retry,
+      _ => false,
+    };
+    if (chat == null || !canLoad) return;
+    state = AsyncData(chat.withOlder(const LoadingOlderPages()));
+    final opened = ref;
     try {
-      final page = await _api.list(before: s.exchanges.first.createdAt);
-      state = state.copyWith(
-        exchanges: [...page.reversed, ...state.exchanges],
-        hasMore: page.length == TutorApi.pageSize,
-        isLoadingMore: false,
+      final page = await opened
+          .read(tutorApiProvider)
+          .list(before: chat.exchanges.first.createdAt);
+      if (!opened.mounted) return;
+      _update(
+        (c) => c
+            .withExchanges([...page.reversed, ...c.exchanges])
+            .withOlder(_olderThan(page)),
       );
     } on Exception catch (e) {
-      state = state.copyWith(isLoadingMore: false, loadMoreFailure: e);
+      if (opened.mounted) _update((c) => c.withOlder(OlderPagesFailed(e)));
     }
   }
 
@@ -65,17 +82,20 @@ class TutorController extends _$TutorController {
   /// the caller gives the text back to the student and says why.
   Future<Object?> send(String text) async {
     final message = text.trim();
-    if (message.isEmpty || state.isSending) return null;
-    state = state.copyWith(pending: PendingSend(message));
+    final chat = _chat;
+    if (message.isEmpty || chat == null || chat.isSending) return null;
+    state = AsyncData(chat.withPending(SendingMessage(message)));
+    final opened = ref;
     try {
-      final exchange = await _api.send(message);
-      state = state.copyWith(
-        exchanges: [...state.exchanges, exchange],
-        pending: null,
-      );
+      final exchange = await opened.read(tutorApiProvider).send(message);
+      if (opened.mounted) {
+        _update(
+          (c) => c.withExchanges([...c.exchanges, exchange]).withPending(null),
+        );
+      }
       return null;
     } on Exception catch (e) {
-      state = state.copyWith(pending: PendingSend(message, failed: true));
+      if (opened.mounted) _update((c) => c.withPending(FailedMessage(message)));
       return e;
     }
   }
@@ -84,19 +104,26 @@ class TutorController extends _$TutorController {
   /// the backend threw, with the like put back, or null when it was saved.
   Future<Object?> setLike(String exchangeId, bool isLiked) async {
     _replace(exchangeId, (e) => e.copyWith(isLiked: isLiked));
+    final opened = ref;
     try {
-      final saved = await _api.setLike(exchangeId, isLiked);
-      _replace(exchangeId, (_) => saved);
+      final saved = await opened
+          .read(tutorApiProvider)
+          .setLike(exchangeId, isLiked);
+      if (opened.mounted) _replace(exchangeId, (_) => saved);
       return null;
     } on Exception catch (error) {
-      _replace(exchangeId, (e) => e.copyWith(isLiked: !isLiked));
+      if (opened.mounted) {
+        _replace(exchangeId, (e) => e.copyWith(isLiked: !isLiked));
+      }
       return error;
     }
   }
 
   void _replace(String id, ChatExchange Function(ChatExchange) update) {
-    state = state.copyWith(
-      exchanges: [for (final e in state.exchanges) e.id == id ? update(e) : e],
+    _update(
+      (chat) => chat.withExchanges([
+        for (final e in chat.exchanges) e.id == id ? update(e) : e,
+      ]),
     );
   }
 }

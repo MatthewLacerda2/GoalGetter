@@ -1,8 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/app/router/route_args.dart';
+import 'package:goal_getter/core/utils/provider_retry.dart';
+import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
+import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 import '../api_fake.dart';
 import 'lesson_json.dart';
@@ -15,6 +24,48 @@ ElevatedButton enterButton(WidgetTester tester) =>
 List<dynamic> answersSent(ApiFake fake) {
   final body = fake.requests.lastWhere((r) => r.$1 == answersKey).$2;
   return (jsonDecode(body) as Map<String, dynamic>)['answers'] as List;
+}
+
+/// Taps choice [label], then "Enter", then "Continue!".
+Future<void> answer(WidgetTester tester, String label) async {
+  await tester.tap(find.text(label));
+  await tester.pump();
+  await tester.tap(find.byType(ElevatedButton)); // Enter
+  await tester.pump();
+  await tester.tap(find.byType(ElevatedButton)); // Continue
+  await tester.pumpAndSettle();
+}
+
+/// The lesson inside a router, whose finish route shows the elo it was handed.
+Future<void> pumpRouted(WidgetTester tester, List<Override> overrides) async {
+  final router = GoRouter(
+    initialLocation: AppRoutes.lesson,
+    routes: [
+      GoRoute(path: AppRoutes.lesson, builder: (_, __) => const LessonScreen()),
+      GoRoute(
+        path: AppRoutes.lessonFinish,
+        builder: (_, state) =>
+            Text('finished ${(state.extra! as FinishLessonArgs).elo.text}'),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
+  await tester.pumpWidget(ProviderScope(
+    retry: noAutomaticRetry,
+    overrides: overrides,
+    child: MaterialApp.router(
+      locale: const Locale('en'),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: router,
+    ),
+  ));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -87,6 +138,52 @@ void main() {
     expect(find.text('Your answers were not saved'), findsOneWidget);
     expect(find.text('boom'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Question 0?'), findsOneWidget);
+  });
+
+  testWidgets('a missed question comes back after the review intro, then the '
+      'finish screen', (tester) async {
+    final fake = ApiFake({
+      startKey: [(201, lessonJson(2))],
+      answersKey: [(200, evaluationJson)],
+      'GET /home': [(404, '{"detail": "No active goal"}')],
+    });
+    await pumpRouted(tester, await fake.overrides());
+
+    await answer(tester, 'a'); // right
+    await answer(tester, 'a'); // wrong: question 1's answer is 'b'
+    expect(find.text("Now let's correct your mistakes"), findsOneWidget);
+    expect(tester.getTopLeft(find.byType(InfoScreen)).dx, 0);
+
+    // The intro's own button; the answered question lies under it.
+    await tester.tap(find.descendant(
+      of: find.byType(InfoScreen),
+      matching: find.text('Continue!'),
+    ));
+    // It slides back out to the right, as the page it used to be popped.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(tester.getTopLeft(find.byType(InfoScreen)).dx, greaterThan(0));
+    await tester.pumpAndSettle();
+    expect(find.text("Now let's correct your mistakes"), findsNothing);
+    expect(find.text('Question 1?'), findsOneWidget);
+    expect(find.text('1 / 1'), findsOneWidget);
+
+    await answer(tester, 'b');
+    expect(find.text('finished +12'), findsOneWidget);
+    expect(fake.count(answersKey), 1);
+  });
+
+  testWidgets('a failed start offers a retry that opens a new lesson',
+      (tester) async {
+    final fake = ApiFake({
+      startKey: [(500, '{"detail": "boom"}'), (201, lessonJson(1))],
+    });
+    await pumpScreen(tester, await fake.overrides(), const LessonScreen());
+    expect(find.text('boom'), findsOneWidget);
+
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
     expect(find.text('Question 0?'), findsOneWidget);
   });
 }
