@@ -27,3 +27,11 @@ class GeminiOnboardingQuestionsResponse(BaseModel):
     questions: list[OnboardingQuestionItem] = Field(
         description="List of onboarding questions to evaluate user baseline knowledge"
     )
+
+
+class OnboardingQuestions(BaseModel):
+    """The questions and the model that wrote them (#216). Not a schema Gemini
+    fills: `ai_model` is what the call was made with, never what it claims."""
+
+    questions: list[OnboardingQuestionItem]
+    ai_model: str

@@ -1,7 +1,8 @@
 """The live suite's bookkeeping: what a run cost, and when it cannot run (#176).
 
-Every billed request is counted where all of them pass - the Gemini `Client`
-that `gemini_configs.get_client` builds, and the YouTube Data API behind httpx -
+Every billed request is counted where all of them pass - the async side of the
+Gemini `Client` that `gemini_configs.get_client` builds (#216), and the YouTube
+Data API behind httpx -
 and the total is printed at the end of the run, so a run's cost is a number and
 not a guess. Link checks against ordinary web pages are counted apart: they
 reach the network but nobody bills them.
@@ -23,6 +24,8 @@ GEMINI_EMBED = "Gemini embed_content"
 YOUTUBE = "YouTube Data API"
 LINK_CHECK = "link checks (not billed)"
 
+GEMINI_HOST = "generativelanguage.googleapis.com"
+
 
 @pytest.fixture(scope="session", autouse=True)
 def count_calls():
@@ -31,22 +34,27 @@ def count_calls():
 
     def client(*args, **kwargs):
         built = real_client(*args, **kwargs)
-        generate, embed = built.models.generate_content, built.models.embed_content
+        models = built.aio.models
+        generate, embed = models.generate_content, models.embed_content
 
-        def counted_generate(*a, **kw):
+        async def counted_generate(*a, **kw):
             CALLS[GEMINI_GENERATE] += 1
-            return generate(*a, **kw)
+            return await generate(*a, **kw)
 
-        def counted_embed(*a, **kw):
+        async def counted_embed(*a, **kw):
             CALLS[GEMINI_EMBED] += 1
-            return embed(*a, **kw)
+            return await embed(*a, **kw)
 
-        built.models.generate_content = counted_generate
-        built.models.embed_content = counted_embed
+        models.generate_content = counted_generate
+        models.embed_content = counted_embed
         return built
 
     async def send(self, request, *args, **kwargs):
         url = urlsplit(str(request.url))
+        if url.hostname == GEMINI_HOST:
+            # Gemini's async client is an httpx.AsyncClient too (#216); its
+            # calls are counted above, one per call, not here per request.
+            return await real_send(self, request, *args, **kwargs)
         youtube = url.hostname == "www.googleapis.com" and url.path.startswith("/youtube/")
         CALLS[YOUTUBE if youtube else LINK_CHECK] += 1
         return await real_send(self, request, *args, **kwargs)

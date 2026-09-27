@@ -27,20 +27,20 @@ SCHEMA_CASES = [case for case in USE_CASES if case.name != "resource-search"]
 
 
 @pytest.mark.parametrize("case", SCHEMA_CASES, ids=lambda case: case.name)
-def test_the_answer_parses_into_the_schema(case):
+async def test_the_answer_parses_into_the_schema(case):
     returns = inspect.signature(case.call).return_annotation
 
-    result = case.call(*case.build(list(case.sample)))
+    result = await case.call(*case.build(list(case.sample)))
 
     assert isinstance(result, returns), f"{case.name} answered {type(result).__name__}"
 
 
-def test_n_texts_embed_into_n_vectors():
+async def test_n_texts_embed_into_n_vectors():
     """#163: google-genai once read a list of texts as one content and answered
     one averaged vector for all of them. Two texts is the smallest batch."""
     texts = ["a knight fork", "a pawn endgame"]
 
-    vectors = get_gemini_embeddings_batch(texts)
+    vectors = await get_gemini_embeddings_batch(texts)
 
     assert len(vectors) == len(texts), f"asked for {len(texts)}, got {len(vectors)}"
     assert all(vector.shape == (NUM_DIMENSIONS,) for vector in vectors)

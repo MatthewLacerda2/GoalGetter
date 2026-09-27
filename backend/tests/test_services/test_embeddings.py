@@ -53,7 +53,7 @@ def gemini(test_db, calls, error=None):
     of spending fourteen seconds of backoff in the suite.
     """
 
-    def embed(texts):
+    async def embed(texts):
         calls.append(list(texts))
         if error is not None:
             raise error

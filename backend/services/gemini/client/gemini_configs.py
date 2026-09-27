@@ -1,4 +1,6 @@
+import asyncio
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
@@ -7,6 +9,7 @@ from google.genai.types import Content, EmbedContentConfig, GenerateContentConfi
 
 from backend.core.config import settings
 from backend.core.vectors import NUM_DIMENSIONS
+from backend.services.gemini.client.gemini_retry import call_with_retry
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +21,33 @@ logger = logging.getLogger(__name__)
 EMBEDDING_MODEL = "gemini-embedding-2"
 
 
-def get_client():
-    return Client(api_key=settings.GEMINI_API_KEY)
+@dataclass
+class _Shared:
+    loop: asyncio.AbstractEventLoop | None = None
+    client: Client | None = None
+
+
+_shared = _Shared()
+
+
+def get_client() -> Client:
+    """The one Gemini client, reused by every call (#216).
+
+    One per event loop, not one per process: the SDK's async side keeps an
+    httpx connection pool, and a pool opened on one loop cannot be used from
+    another. The server and the nightly run each have a single loop, so there
+    it is one client for good; a test or `make gemini` that starts a new loop
+    gets a new one. Before #216 every call built its own `Client` - and a
+    `Client` nobody held a name to was garbage-collected mid-call, closing the
+    connection under it (seen on the preview, 2026-09-26).
+
+    `Client` is resolved from this module at call time, which is what the live
+    suite and `make gemini` wrap to count and record every call.
+    """
+    loop = asyncio.get_running_loop()
+    if _shared.loop is not loop or _shared.client is None:
+        _shared.loop, _shared.client = loop, Client(api_key=settings.GEMINI_API_KEY)
+    return _shared.client
 
 
 def get_gemini_config(json_schema: dict[str, Any]) -> GenerateContentConfig:
@@ -37,12 +65,12 @@ def get_gemini_config_plain_text(tools: list[Tool] | None = None) -> GenerateCon
     )
 
 
-def get_gemini_embeddings(text: str) -> np.ndarray:
+async def get_gemini_embeddings(text: str) -> np.ndarray:
 
-    return get_gemini_embeddings_batch([text])[0]
+    return (await get_gemini_embeddings_batch([text]))[0]
 
 
-def get_gemini_embeddings_batch(texts: list[str]) -> list[np.ndarray]:
+async def get_gemini_embeddings_batch(texts: list[str]) -> list[np.ndarray]:
     """Embed many texts in one request - what the nightly backfill spends (#96).
 
     `embed_content` takes a list and answers a list in the same order, so N
@@ -56,20 +84,22 @@ def get_gemini_embeddings_batch(texts: list[str]) -> list[np.ndarray]:
     backfill that runs every night at midnight already has all the time it
     needs; what it cannot have is state it is not allowed to store.
 
-    Blocking, like every other call in this module: reach it through
-    `run_gemini_background`, which runs it off the event loop and retries.
+    One billed call, so it goes through `call_with_retry` like every generation:
+    the deadline and the retries are the caller's budget
+    (`run_gemini_background`).
     """
     client = get_client()
 
     # One Content per text, never the bare strings. From google-genai 2.x on, a
     # `gemini-embedding-2` model reads a list of strings as the parts of ONE
     # multimodal content and answers ONE aggregated vector for all of them (#163).
-    response = client.models.embed_content(
-        model=EMBEDDING_MODEL,
-        contents=[Content(parts=[Part(text=text)]) for text in texts],
-        config=EmbedContentConfig(
-            output_dimensionality=NUM_DIMENSIONS,
+    response = await call_with_retry(
+        lambda: client.aio.models.embed_content(
+            model=EMBEDDING_MODEL,
+            contents=[Content(parts=[Part(text=text)]) for text in texts],
+            config=EmbedContentConfig(output_dimensionality=NUM_DIMENSIONS),
         ),
+        "embed_content",
     )
 
     return [np.array(embedding.values, dtype=np.float32) for embedding in response.embeddings]

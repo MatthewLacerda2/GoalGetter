@@ -27,6 +27,7 @@ Usage::
     make gemini ARGS='tutor-reply "Chess" "Learn chess openings" "How do I start?"'
 """
 
+import asyncio
 import json
 import sys
 import traceback
@@ -243,9 +244,10 @@ USE_CASES: list[UseCase] = [
 class Recorder:
     """Captures every `generate_content` response's raw text.
 
-    The use cases each build their own client through `gemini_configs.get_client`,
-    which resolves `Client` from its own module at call time - so replacing that
-    one name wraps every use case at once, and none of them has to know.
+    Every use case reaches Gemini through the client `gemini_configs.get_client`
+    builds, which resolves `Client` from its own module at call time - so
+    replacing that one name wraps every use case at once, and none of them has
+    to know. Installed before the first call, so no client predates it.
     """
 
     raw: list[str] = field(default_factory=list)
@@ -255,14 +257,14 @@ class Recorder:
 
         def factory(*args, **kwargs):
             client = real_client(*args, **kwargs)
-            generate = client.models.generate_content
+            generate = client.aio.models.generate_content
 
-            def recording(*call_args, **call_kwargs):
-                response = generate(*call_args, **call_kwargs)
+            async def recording(*call_args, **call_kwargs):
+                response = await generate(*call_args, **call_kwargs)
                 self.raw.append(response.text or "")
                 return response
 
-            client.models.generate_content = recording
+            client.aio.models.generate_content = recording
             return client
 
         gemini_configs.Client = factory
@@ -325,7 +327,7 @@ def run(case: UseCase, args: list[str]) -> int:
 
     failure = None
     try:
-        result = case.call(*case.build(args))
+        result = asyncio.run(case.call(*case.build(args)))
     except Exception as error:
         result, failure = None, error
 

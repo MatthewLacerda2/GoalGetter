@@ -13,16 +13,10 @@ Videos are not found here: the second call writes a search query, and
 import logging
 from dataclasses import dataclass
 
-from google.genai import types
-
 from backend.core.config import settings
 from backend.core.language import Language
 from backend.models.resource import Resource, StudyResourceType
-from backend.services.gemini.client.gemini_configs import (
-    get_client,
-    get_gemini_config,
-    get_gemini_config_plain_text,
-)
+from backend.services.gemini.client.gemini_call import generate, grounded_search
 from backend.services.gemini.resources.grounding import WebSource, numbered, web_sources
 from backend.services.gemini.resources.prompt import describe_prompt, search_prompt
 from backend.services.gemini.resources.schema import DescribedSource, DescribedSources
@@ -42,7 +36,7 @@ class ResourceSearch:
     video_query: str
 
 
-def search_resources(
+async def search_resources(
     goal_id: str,
     goal_name: str,
     goal_description: str,
@@ -58,25 +52,24 @@ def search_resources(
 
     No embedding is bought here: `description_embedding` stays null until the
     midnight batch fills it (#96), so a link that fails validation costs nothing.
+
+    Two billed calls, each retried on its own (#216): a failure describing the
+    sources asks again for the description, never for the search.
     """
-    client = get_client()
     context = student_context or "nothing yet"
     tongue = language.english_name
 
-    found = client.models.generate_content(
-        model=settings.GEMINI_FAST_MODEL,
-        contents=search_prompt(goal_name, goal_description, context, existing_links or [], tongue),
-        config=get_gemini_config_plain_text(tools=[types.Tool(google_search=types.GoogleSearch())]),
+    found = await grounded_search(
+        settings.GEMINI_FAST_MODEL,
+        search_prompt(goal_name, goal_description, context, existing_links or [], tongue),
     )
     sources = web_sources(found)
     logger.info("The grounded search found %d web sources", len(sources))
 
-    described = DescribedSources.model_validate_json(
-        client.models.generate_content(
-            model=settings.GEMINI_FAST_MODEL,
-            contents=describe_prompt(goal_name, context, numbered(sources), tongue),
-            config=get_gemini_config(DescribedSources.model_json_schema()),
-        ).text
+    described = await generate(
+        settings.GEMINI_FAST_MODEL,
+        describe_prompt(goal_name, context, numbered(sources), tongue),
+        DescribedSources,
     )
     return ResourceSearch(pages_from(goal_id, sources, described.resources), described.video_query)
 

@@ -13,13 +13,13 @@ from backend.core.language import Language
 from backend.services.gemini.chat.schema import GeminiChatResponse
 from backend.services.gemini.onboarding.schema import (
     GeminiGoalValidation,
-    GeminiOnboardingQuestionsResponse,
     GeminiStudyPlan,
+    OnboardingQuestions,
 )
 
 GOALS = "backend.api.v1.endpoints.goals"
 VALID = GeminiGoalValidation(makes_sense=True, is_harmless=True, is_achievable=True, reasoning="x")
-NONE = GeminiOnboardingQuestionsResponse(questions=[])
+NONE = OnboardingQuestions(questions=[], ai_model="gemini-test")
 PLAN = GeminiStudyPlan(goal_name="Xadrez", description="Aberturas.")
 
 

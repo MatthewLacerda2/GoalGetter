@@ -19,7 +19,9 @@ from backend.tests.test_services.test_resource_search import described, run
 async def test_the_captured_sources_become_the_pages_they_redirect_to():
     sources = grounded_response().candidates[0].grounding_metadata.grounding_chunks
     landing = {c.web.uri: f"https://{c.web.title}/page{n}" for n, c in enumerate(sources)}
-    found, _ = run(described(*((n, "webpage") for n in range(3)), *((n, "pdf") for n in (3, 4))))
+    found, _ = await run(
+        described(*((n, "webpage") for n in range(3)), *((n, "pdf") for n in (3, 4)))
+    )
     # Where each redirect lands: pages, one page that is gone, one real PDF.
     web = {**landing, **{final: httpx.Response(200) for final in landing.values()}}
     web[landing[sources[1].web.uri]] = httpx.Response(404)

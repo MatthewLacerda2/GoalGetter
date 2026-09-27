@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.core import clock
-from backend.core.config import settings
 from backend.core.database import get_db
 from backend.core.language import Language, requested_language
 from backend.core.rate_limiter import limiter
@@ -58,7 +57,8 @@ async def objective_questions(
 ):
     """
     Step 1: validate the prompt is a real goal, then generate clarifying
-    multiple-choice questions. Blocking Gemini calls run off the event loop.
+    multiple-choice questions. Each question names the model that wrote it, and
+    the app sends that back with its answer to `POST /goals` (#216).
 
     Public, so there is no student row: the language is the header the app
     sends (#172), else the one the prompt is written in (#173).
@@ -73,7 +73,9 @@ async def objective_questions(
     )
     return [
         ObjectiveQuestion(
-            question=q.question, options=[q.option_a, q.option_b, q.option_c, q.option_d]
+            question=q.question,
+            options=[q.option_a, q.option_b, q.option_c, q.option_d],
+            ai_model=generated.ai_model,
         )
         for q in generated.questions
     ]
@@ -121,8 +123,7 @@ async def create_goal(
     await OnboardingRepository(db).save_onboarding(
         goal.id,
         payload.prompt,
-        [(a.question, a.answer, a.total_seconds) for a in payload.answers],
-        settings.GEMINI_PREMIUM_MODEL,
+        [(a.question, a.answer, a.total_seconds, a.ai_model) for a in payload.answers],
     )
     student_id = str(current_user.id)
     current_user.current_goal_id = goal.id

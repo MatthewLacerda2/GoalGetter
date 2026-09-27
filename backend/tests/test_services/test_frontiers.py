@@ -10,10 +10,6 @@ real with its *client* replaced, so the assertion is on the text Gemini would
 have received.
 """
 
-from contextlib import contextmanager
-from types import SimpleNamespace
-from unittest.mock import patch
-
 import pytest
 
 from backend.core.config import settings
@@ -24,10 +20,10 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse
 from backend.services.jobs.steps.context import run_context_step
 from backend.services.jobs.steps.questions import run_questions_step
+from backend.tests.fixtures.gemini_client import answer, fake_gemini
 from backend.tests.fixtures.jobs import ELSEWHERE, SUBJECT, chain_gemini, review
 from backend.tests.fixtures.lessons import at
 
-LESSON = "backend.services.gemini.lesson.lesson_generation"
 CIRCUITS = "Understand circuits."
 
 
@@ -186,18 +182,10 @@ async def test_the_review_prompt_sees_the_frontier_beside_what_he_asked_for(
     assert (seen.description, seen.frontier) == (CIRCUITS, "Robotics.")
 
 
-@contextmanager
-def a_recording_client(prompts: list[str]):
+def a_recording_client():
     """The question generator run for real, with only its client replaced: what
     the prompt says is the thing under test, and no call leaves the machine."""
-
-    def generate_content(model, contents, config):
-        prompts.append(contents)
-        return SimpleNamespace(text=GeminiLessonQuestionsResponse(questions=[]).model_dump_json())
-
-    client = SimpleNamespace(models=SimpleNamespace(generate_content=generate_content))
-    with patch(LESSON + ".get_client", lambda: client):
-        yield
+    return fake_gemini(answer(GeminiLessonQuestionsResponse(questions=[])))
 
 
 @pytest.mark.asyncio
@@ -214,14 +202,14 @@ async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
         await answer_factory(held, correct=True, answered_at=at(11 + i))
     await test_db.commit()
 
-    prompts: list[str] = []
-    with a_recording_client(prompts):
+    with a_recording_client() as gemini:
         await run_questions_step(test_db, str(test_user.id))
 
         await FrontierRepository(test_db).create(Frontier(goal_id=goal.id, definition="Robotics."))
         await test_db.commit()
         await run_questions_step(test_db, str(test_user.id))
 
+    prompts = [call.contents for call in gemini.calls]
     before, after = (f'What to teach him now: "{text}"' for text in (CIRCUITS, "Robotics."))
     assert before in prompts[0] and after not in prompts[0]
     assert after in prompts[1] and CIRCUITS in prompts[1]

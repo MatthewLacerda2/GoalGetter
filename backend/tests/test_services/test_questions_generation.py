@@ -153,9 +153,7 @@ async def test_an_empty_bank_is_the_placement_written_from_what_he_typed(
     goal = await goal_factory(
         test_user, active=True, name="Digital China", description="Tech giants."
     )
-    await OnboardingRepository(test_db).save_onboarding(
-        goal.id, "understand modern China", [], "gemini-test"
-    )
+    await OnboardingRepository(test_db).save_onboarding(goal.id, "understand modern China", [])
     await test_db.commit()
 
     calls = []

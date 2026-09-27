@@ -6,9 +6,10 @@ from google.genai.errors import APIError
 from backend.services.gemini.onboarding.onboarding_prompts import ONBOARDING_QUESTIONS
 from backend.services.gemini.onboarding.schema import (
     GeminiGoalValidation,
-    GeminiOnboardingQuestionsResponse,
     OnboardingQuestionItem,
+    OnboardingQuestions,
 )
+from backend.tests.fixtures.gemini_client import BLOCKED, fake_gemini
 
 VALID = GeminiGoalValidation(
     makes_sense=True, is_harmless=True, is_achievable=True, reasoning="learn to play guitar"
@@ -17,13 +18,14 @@ INVALID = GeminiGoalValidation(
     makes_sense=False, is_harmless=True, is_achievable=True, reasoning="that is not a goal"
 )
 
-QUESTIONS = GeminiOnboardingQuestionsResponse(
+QUESTIONS = OnboardingQuestions(
     questions=[
         OnboardingQuestionItem(
             question=f"Q{i}", option_a="a", option_b="b", option_c="c", option_d="d"
         )
         for i in range(ONBOARDING_QUESTIONS)
-    ]
+    ],
+    ai_model="gemini-wrote-these",
 )
 
 ENDPOINT = "/api/v1/goals/objective-questions"
@@ -41,6 +43,7 @@ async def test_objective_questions_valid_goal(client):
     assert len(body) == ONBOARDING_QUESTIONS == 6
     assert body[0]["question"] == "Q0"
     assert body[0]["options"] == ["a", "b", "c", "d"]
+    assert {q["ai_model"] for q in body} == {"gemini-wrote-these"}
 
 
 @pytest.mark.asyncio
@@ -70,3 +73,14 @@ async def test_objective_questions_gemini_error_passthrough(client):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 429
     assert "RESOURCE_EXHAUSTED" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_a_blocked_prompt_is_a_502_not_a_500(client):
+    """#216: Gemini answering with no text is its failure, named as such - and
+    never a 401 or 403, which the app would read as being signed out"""
+    with fake_gemini(BLOCKED):
+        response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Gemini gave no usable answer"

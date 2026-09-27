@@ -14,6 +14,9 @@ class ObjectiveQuestion(BaseModel):
 
     question: str
     options: list[str] = Field(..., description="Exactly 4 options")
+    ai_model: str = Field(
+        ..., description="The model that wrote this question; sent back on its answer"
+    )
 
     @field_validator("options")
     @classmethod
@@ -28,6 +31,12 @@ class ObjectiveAnswer(BaseModel):
 
     question: str
     answer: str = Field(..., description="The selected option")
+    ai_model: str | None = Field(
+        None,
+        max_length=100,
+        description="The `ai_model` of the question answered, as objective-questions sent it; "
+        "null when the client kept none",
+    )
     total_seconds: int | None = Field(
         None,
         ge=0,
