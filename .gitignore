@@ -1,200 +1,70 @@
-# Miscellaneous
-*.class
+# What this repository's own tools write, and nothing else (#229): a pattern
+# here names a path something in this repo can produce. Each platform folder
+# under frontend/ (android, ios, linux, macos, windows) keeps the .gitignore
+# `flutter create` gave it, which covers that platform's build state; this file
+# covers the rest.
+
+# --- Secrets and per-machine settings ----------------------------------------
+# Every service's settings; `make env` seeds it. .env.example is the template.
+.env
+# The Cloudflare/Google credentials; terraform.tfvars.example is the template.
+terraform.tfvars
+# Claude Code: the dev-login bearer (`make claude-token`) and this machine's
+# permission grants.
+.claude/token
+.claude/settings.local.json
+
+# --- Backend (Python) ---------------------------------------------------------
+# The gates run with PYTHONDONTWRITEBYTECODE and `-p no:cacheprovider`, but a
+# bare `python`/`pytest` (CI, or by hand) writes both.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+# `ruff check` / `ruff format` (make back-lint).
+.ruff_cache/
+# pytest.ini's addopts write coverage whenever pytest runs without the
+# Makefile's `-o addopts=""`.
+.coverage
+coverage.xml
+htmlcov/
+# Nothing needs a venv (every tool runs in the backend image), but one may exist.
+.venv/
+
+# --- Frontend (Flutter) -------------------------------------------------------
 # No blanket *.lock (#192): frontend/pubspec.lock is committed, because an
 # application pins what it resolved - only a published package leaves it out.
-*.log
-*.swp
-.buildlog/
-.history
-
-# Python
-*.py[cod]
-*$py.class
-*.so
-.Python
-__pycache__/
-*.egg-info/
-dist/
-build/
-eggs/
-.eggs/
-lib/
-lib64/
-# Exception: don't ignore Dart package lib directories
-!frontend/lib/
-parts/
-sdist/
-var/
-wheels/
-*.egg
-MANIFEST
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Virtual Environments
-venv/
-env/
-ENV/
-.venv/
-env.bak/
-venv.bak/
-
-# Pytest
-.pytest_cache/
-.tox/
-.hypothesis/
-.coverage
-htmlcov/
-*.cover
-.cache
-nosetests.xml
-coverage.xml
-*.coveragerc
-
-# FastAPI
-*.db
-*.sqlite
-*.sqlite3
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-*env.txt
-
-# Alembic
-alembic/versions/*.pyc
-
-# Flutter repo-specific
-/bin/cache/
-/bin/internal/bootstrap.bat
-/bin/internal/bootstrap.sh
-/bin/mingit/
-/dev/benchmarks/mega_gallery/
-/dev/bots/.recipe_deps
-/dev/bots/android_tools/
-/dev/devicelab/ABresults*.json
-/dev/docs/doc/
-/dev/docs/flutter.docs.zip
-/dev/docs/lib/
-/dev/docs/pubspec.yaml
-/dev/integration_tests/**/xcuserdata
-/dev/integration_tests/**/Pods
-/packages/flutter/coverage/
-version
-analysis_benchmark.json
-
-# packages file containing multi-root paths
-.packages.generated
-
-# Flutter/Dart/Pub related
-**/doc/api/
 .dart_tool/
-.flutter-plugins
 .flutter-plugins-dependencies
-**/generated_plugin_registrant.dart
-.packages
-.pub-preload-cache/
-.pub/
-build/
-flutter_*.png
-linked_*.ds
-unlinked.ds
-unlinked_spec.ds
-
-# Android related
-**/android/**/gradle-wrapper.jar
-.gradle/
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
-*.jks
-
-# iOS/XCode related
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vagrant/
-**/ios/**/DerivedData/
-**/ios/**/Icon?
-**/ios/**/Pods/
-**/ios/**/.symlinks/
-**/ios/**/profile
-**/ios/**/xcuserdata
-**/ios/.generated/
-**/ios/Flutter/.last_build_id
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
-
-# macOS
-**/Flutter/ephemeral/
-**/Pods/
-**/macos/Flutter/GeneratedPluginRegistrant.swift
-**/macos/Flutter/ephemeral
-**/xcuserdata/
-
-# Windows
-**/windows/flutter/generated_plugin_registrant.cc
-**/windows/flutter/generated_plugin_registrant.h
-**/windows/flutter/generated_plugins.cmake
-
-# Linux
-**/linux/flutter/generated_plugin_registrant.cc
-**/linux/flutter/generated_plugin_registrant.h
-**/linux/flutter/generated_plugins.cmake
-
-# Coverage
-coverage/
-
-# Symbols
-app.*.symbols
-
-# Exceptions to above rules.
-!**/ios/**/default.mode1v3
-!**/ios/**/default.mode2v3
-!**/ios/**/default.pbxuser
-!**/ios/**/default.perspectivev3
-!/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-
-# Project-specific
-.claude/token
-auxpy.py
-auxmd.md
-debug.txt
+frontend/build/
+# `flutter test --coverage`.
+frontend/coverage/
+# Regenerated from the ARB files by `flutter pub get` and `make gen-l10n`.
 frontend/lib/l10n/generated/
+# Plugin registrants `flutter pub get` rewrites on every run. Android's and
+# iOS's are covered by their own platform .gitignore.
+frontend/linux/flutter/generated_plugin*
+frontend/windows/flutter/generated_plugin*
+frontend/macos/Flutter/GeneratedPluginRegistrant.swift
 
-# Terraform
-terraform.tfvars
-*.tfstate
-*.tfstate.backup
+# --- Terraform ----------------------------------------------------------------
+# State (and its backups and lock) holds secrets in plain text, and lives only
+# on the machine that applies it.
 .terraform/
-# Headless screenshots (make shot)
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# --- Local tooling output -----------------------------------------------------
+# Headless screenshots (make shot).
 shots/
 # The deploy timer's state: the live commit, a failed one, its lock (#105).
 .deploy/
+# Crash logs: Flutter's flutter_NN.log, Terraform's crash.log.
+*.log
+
+# --- Editors ------------------------------------------------------------------
+# IntelliJ / Android Studio per-machine project files, VS Code, vim.
+.idea/
+*.iml
+.vscode/
+*.swp
