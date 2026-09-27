@@ -3,8 +3,8 @@ from backend.services.gemini.student_context.schema import GeminiStudentContext,
 
 
 def format_goals(goals: list[StudentGoal]) -> str:
-    """Every goal the student is studying, name and description. A context is
-    written about the person, so the prompt sees all of them at once (#87)."""
+    """The goals the prompt is given, name and description - the jobs pass the
+    active one only (2026-09-26). A context is written about the person (#87)."""
     if not goals:
         return "The student has no goals yet."
     return "\n".join([f'- "{goal.name}": {goal.description}' for goal in goals])

@@ -90,7 +90,7 @@
     },
     "createNewGoal": "Create new goal",
     "@createNewGoal": {
-        "description": "Label for create new goal"
+        "description": "Goals list: the floating button that starts a new goal"
     },
     "signOut": "Sign out",
     "@signOut": {
@@ -158,8 +158,6 @@
     "@noActiveGoal": { "description": "Home empty state when no active goal" },
     "manageGoals": "Manage goals",
     "@manageGoals": { "description": "Profile: manage goals tile" },
-    "manageGoalsSubtitle": "View, switch, and delete",
-    "@manageGoalsSubtitle": { "description": "Profile: manage goals subtitle" },
     "notifications": "Notifications",
     "@notifications": { "description": "Profile: notifications tile" },
     "theme": "Theme",
@@ -208,8 +206,6 @@
     "@lessonAccuracy": { "description": "Finish lesson screen: accuracy stat" },
     "homeLoadFailed": "Could not load your dashboard",
     "@homeLoadFailed": { "description": "Home: GET /home failed" },
-    "profileLoadFailed": "Could not load your profile",
-    "@profileLoadFailed": { "description": "Profile: GET /me failed" },
     "retry": "Retry",
     "@retry": { "description": "Button: retry a failed load" },
     "serverUnreachable": "Could not reach the server. Check your connection and try again.",
@@ -218,16 +214,6 @@
     "@goalsLoadFailed": { "description": "Goals list: GET /goals failed" },
     "activeGoalBadge": "Active",
     "@activeGoalBadge": { "description": "Goals: badge on the active goal" },
-    "goalCreatedOn": "Created {date}",
-    "@goalCreatedOn": {
-        "description": "Goals: creation date",
-        "placeholders": { "date": { "type": "String" } }
-    },
-    "goalUpdatedOn": "Updated {date}",
-    "@goalUpdatedOn": {
-        "description": "Goals: last update date",
-        "placeholders": { "date": { "type": "String" } }
-    },
     "setActiveGoalFailed": "Could not make this your active goal",
     "@setActiveGoalFailed": {
         "description": "Goal detail: set-active failed"
@@ -284,14 +270,6 @@
     "@startHeadline": { "description": "Start screen: the big line that says what the app is. It and startTagline are the two candidates for it: swapping their values swaps which one is the headline" },
     "startTagline": "Tailor-made teaching",
     "@startTagline": { "description": "Start screen: the line under the headline" },
-    "startPointSubject": "Any subject you name",
-    "@startPointSubject": { "description": "Start screen: the student names what he wants to learn about, anything" },
-    "startPointDaily": "Two minutes a day",
-    "@startPointDaily": { "description": "Start screen: a lesson is about two minutes, once a day" },
-    "startPointLevel": "Always at your level",
-    "@startPointLevel": { "description": "Start screen: the questions are always at the student's level" },
-    "startPointTutor": "A tutor to ask anything",
-    "@startPointTutor": { "description": "Start screen: a chat tutor answers any question" },
     "appWordmark": "Goal Getter",
     "@appWordmark": {
         "description": "Start screen: the wordmark, the product name as it is drawn"
@@ -299,10 +277,6 @@
     "profileVersionTag": "ELO · v0.1 prototype",
     "@profileVersionTag": {
         "description": "Profile: the build tag at the foot of the screen"
-    },
-    "statSeparator": "  ·  ",
-    "@statSeparator": {
-        "description": "Profile header: between the goal count and the streak"
     },
     "tutorLoadFailed": "Could not load your chat",
     "@tutorLoadFailed": {
@@ -332,15 +306,15 @@
     "@standardOptionPurposeProject": { "description": "Standard onboarding: learning for a project" },
     "standardOptionPurposeCuriosity": "Curiosity, nothing more",
     "@standardOptionPurposeCuriosity": { "description": "Standard onboarding: learning out of curiosity" },
-    "standardQuestionLevel": "How much do you already know about it?",
+    "standardQuestionLevel": "How much have you already studied it?",
     "@standardQuestionLevel": { "description": "Standard onboarding question: how much the student already knows" },
-    "standardOptionLevelNothing": "Nothing at all",
+    "standardOptionLevelNothing": "Never studied it",
     "@standardOptionLevelNothing": { "description": "Standard onboarding: knows nothing" },
-    "standardOptionLevelLittle": "A little, here and there",
+    "standardOptionLevelLittle": "Read or watched a little about it",
     "@standardOptionLevelLittle": { "description": "Standard onboarding: knows a little" },
-    "standardOptionLevelEnough": "Enough to get by",
+    "standardOptionLevelEnough": "Studied it for a while",
     "@standardOptionLevelEnough": { "description": "Standard onboarding: knows enough to get by" },
-    "standardOptionLevelDeep": "I know it well and want to go deeper",
+    "standardOptionLevelDeep": "Studied it for years",
     "@standardOptionLevelDeep": { "description": "Standard onboarding: knows it well" },
     "standardQuestionTime": "How much time can you give it on a normal day?",
     "@standardQuestionTime": { "description": "Standard onboarding question: time available on a normal day" },

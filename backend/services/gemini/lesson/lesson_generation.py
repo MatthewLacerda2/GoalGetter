@@ -10,8 +10,6 @@ def generate_lesson_questions(
     goal_name: str,
     goal_description: str,
     frontier: str,
-    rating: int,
-    target_difficulty: int,
     contexts: list[GeminiStudentContext],
     answered_right: list[AnsweredQuestion] | None,
     answered_wrong: list[AnsweredQuestion] | None,
@@ -24,10 +22,9 @@ def generate_lesson_questions(
     description is what he asked for on day one, and the frontier is the
     threshold the app is teaching him at tonight.
 
-    `target_difficulty` is a rating, above the student's own, and it reaches the
-    prompt as that number rather than as the word "harder" (#135): a batch is
-    bought because the bank has become too easy, so it has to be written for
-    where he is going.
+    **No difficulty number reaches the prompt** (the user, 2026-09-26): a model
+    cannot tell what "difficulty 1232" means. It is shown what he got right and
+    asked for the simplest exercises one step past it - the evidence itself.
 
     **How many is not an argument.** Every generation asks for exactly
     `QUESTIONS_PER_GENERATION`; the old variable count existed to fill a gap in
@@ -38,8 +35,6 @@ def generate_lesson_questions(
         goal_name=goal_name,
         goal_description=goal_description,
         frontier=frontier,
-        rating=rating,
-        target_difficulty=target_difficulty,
         contexts=contexts,
         answered_right=answered_right,
         answered_wrong=answered_wrong,

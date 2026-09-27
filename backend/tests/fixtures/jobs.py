@@ -134,6 +134,7 @@ def chain_gemini(
         patch(CONTEXT + ".gemini_generate_student_context", recorder(calls, "context", FIRST)),
         patch(CONTEXT + ".gemini_review_student_context", recorder(calls, "review", reviewed)),
         patch(QUESTIONS + ".generate_lesson_questions", recorder(calls, "questions", questions)),
+        patch(QUESTIONS + ".generate_placement_questions", recorder(calls, "placement", questions)),
         patch(FRONTIER + ".get_gemini_embeddings", recorder(calls, "embedding", embedding)),
         patch(
             RESOURCES + ".search_resources",

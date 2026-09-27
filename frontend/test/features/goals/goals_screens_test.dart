@@ -34,21 +34,48 @@ final _twoGoals = [
 ];
 
 void main() {
-  testWidgets('the list shows every field, and a tap opens the detail',
+  testWidgets('the list shows each goal, and a tap opens the detail',
       (tester) async {
     final backend = await open(tester, {'GET /goals': _twoGoals});
 
     expect(find.text('Chess'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('Elo 1100'), findsNWidgets(2));
-    expect(find.textContaining('Created Sep 1, 2026'), findsNWidgets(2));
+    // Neither the card nor the detail dates a goal.
+    expect(find.textContaining('Created'), findsNothing);
+    expect(find.textContaining('Sep 1, 2026'), findsNothing);
 
     await tester.tap(find.text('Chess'));
     await tester.pumpAndSettle();
 
     expect(find.text('Set as current goal'), findsOneWidget);
-    expect(find.textContaining('Updated Sep 20, 2026'), findsOneWidget);
+    expect(find.textContaining('Updated'), findsNothing);
+    expect(find.textContaining('Sep 20, 2026'), findsNothing);
     expect(backend.calls, ['GET /goals'], reason: 'the detail never fetches');
+  });
+
+  testWidgets('the create button opens goal creation', (tester) async {
+    await open(tester, {'GET /goals': _twoGoals});
+
+    await tester.tap(find.text('Create new goal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('landed /onboarding/goal'), findsOneWidget);
+  });
+
+  // With no goals the empty state's own action is the way in; the floating
+  // button would say the same thing twice.
+  testWidgets('an empty list offers only the first-goal action',
+      (tester) async {
+    await open(tester, {'GET /goals': [(200, '[]')]});
+
+    expect(find.byType(FloatingActionButton), findsNothing);
+    expect(find.text('Create new goal'), findsNothing);
+
+    await tester.tap(find.text('Create first goal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('landed /onboarding/goal'), findsOneWidget);
   });
 
   testWidgets('a failed load shows the error and a retry that reloads',

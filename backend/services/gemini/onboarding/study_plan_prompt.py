@@ -24,9 +24,11 @@ def get_study_plan_prompt(prompt: str, answers: list[ObjectiveAnswer], language:
     ## Task
 
     Write a short study plan tailored to THIS user. It has two parts:
-    - goal_name: a short, clear name for what they will learn
-    - description: tell the user the NEXT thing they should study and WHY, based on
-      their answers. Frame it as "here's what to focus on next, and here's why".
+    - goal_name: a short, clear name for what he asked to learn - as broad as he asked
+      it. Never narrower: "understand modern China" is not "China's tech giants".
+    - description: what the app will teach him, starting from the basics, and why it
+      suits him given his answers. Cover the subject as he asked it; do not pick one
+      aspect of it for him.
 
 
     ## Writing rules

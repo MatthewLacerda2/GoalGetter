@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:goal_getter/app/theme/app_theme.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
-
-/// A goal's date the way the goals screens print it, in the device's zone.
-String formatGoalDate(BuildContext context, DateTime date) {
-  final locale = Localizations.localeOf(context).toLanguageTag();
-  return DateFormat.yMMMd(locale).format(date.toLocal());
-}
 
 /// The description without its markdown marks, for a one-glance preview.
 String plainPreview(String markdown) => markdown
@@ -19,8 +12,8 @@ String plainPreview(String markdown) => markdown
     .replaceAll(RegExp(r'\s+'), ' ')
     .trim();
 
-/// One goal in the goals list. Carries every field of `GET /goals` (the user
-/// wants the list itself to answer "what are my goals"); tap opens the detail.
+/// One goal in the goals list: name, rating and a preview of the description
+/// (the list itself answers "what are my goals"); tap opens the detail.
 class GoalCard extends StatelessWidget {
   const GoalCard({super.key, required this.goal, required this.onTap});
 
@@ -77,31 +70,10 @@ class GoalCard extends StatelessWidget {
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(color: scheme.onSurfaceVariant),
               ),
-              const SizedBox(height: 8),
-              GoalDates(goal: goal),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-/// "Created …  ·  Updated …".
-class GoalDates extends StatelessWidget {
-  const GoalDates({super.key, required this.goal});
-
-  final Goal goal;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    return Text(
-      '${l10n.goalCreatedOn(formatGoalDate(context, goal.createdAt))}'
-      '  ·  ${l10n.goalUpdatedOn(formatGoalDate(context, goal.updatedAt))}',
-      style: theme.textTheme.bodySmall
-          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
     );
   }
 }

@@ -38,7 +38,7 @@ async def test_objective_questions_valid_goal(client):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 200
     body = response.json()
-    assert len(body) == ONBOARDING_QUESTIONS == 8
+    assert len(body) == ONBOARDING_QUESTIONS == 6
     assert body[0]["question"] == "Q0"
     assert body[0]["options"] == ["a", "b", "c", "d"]
 

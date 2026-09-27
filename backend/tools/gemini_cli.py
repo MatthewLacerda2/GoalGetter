@@ -45,13 +45,13 @@ from backend.services.gemini.lesson.lesson_generation import generate_lesson_que
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
+from backend.services.gemini.placement import generate_placement_questions
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.services.gemini.student_context.schema import GeminiStudentContext, StudentGoal
 from backend.services.gemini.student_context.student_context import (
     gemini_generate_student_context,
     gemini_review_student_context,
 )
-from backend.services.lessons.generation import GENERATION_MARGIN
 from backend.utils.envs import GEMINI_FAST_MODEL, GEMINI_PREMIUM_MODEL
 from backend.utils.gemini import gemini_configs
 
@@ -157,31 +157,29 @@ USE_CASES: list[UseCase] = [
     UseCase(
         "lesson-questions",
         GEMINI_FAST_MODEL,
-        "<goal-name> <goal-description> <frontier> <rating> <state> <metacognition>",
-        6,
-        lambda a: (
-            a[0],
-            a[1],
-            a[2],
-            int(a[3]),
-            int(a[3]) + GENERATION_MARGIN,
-            _context(a[4], a[5]),
-            [],
-            [],
-            CLI_LANGUAGE,
-        ),
+        "<goal-name> <goal-description> <frontier> <state> <metacognition>",
+        5,
+        lambda a: (a[0], a[1], a[2], _context(a[3], a[4]), [], [], CLI_LANGUAGE),
         generate_lesson_questions,
         sample=(
             "Chess",
             "Learn chess openings",
             "Rook and pawn endgames",
-            "1200",
             "Knows the moves",
             "Impatient",
         ),
-        note="the questions aim at the frontier, not the description (#133), and "
-        "at the rating plus the generation margin (#135); nothing answered yet, "
-        "so the prompt shows no questions of his own",
+        note="the exercises aim at the frontier, not the description (#133); nothing "
+        "answered yet, so the prompt shows no exercises of his own",
+    ),
+    UseCase(
+        "placement",
+        GEMINI_FAST_MODEL,
+        "<goal-name> <what-he-typed> <state> <metacognition>",
+        4,
+        lambda a: (a[0], a[1], _context(a[2], a[3]), CLI_LANGUAGE),
+        generate_placement_questions,
+        sample=("Modern China", "i wanna understand modern day china", "New to it", "Curious"),
+        note="a new goal's first PLACEMENT_SIZE exercises, from the most basic up",
     ),
     UseCase(
         "student-context",

@@ -21,6 +21,7 @@ EXPECTED = {
     "study-plan",
     "tutor-reply",
     "lesson-questions",
+    "placement",
     "student-context",
     "context-review",
     "resource-search",

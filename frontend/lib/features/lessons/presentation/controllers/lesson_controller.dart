@@ -8,15 +8,15 @@ import 'package:goal_getter/features/home/presentation/controllers/home_controll
 import 'package:goal_getter/features/lessons/data/lessons_api.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
-import 'package:goal_getter/features/profile/presentation/controllers/profile_controller.dart';
 
 export 'package:goal_getter/features/lessons/presentation/controllers/lesson_state.dart';
 
 part 'lesson_controller.g.dart';
 
 /// Runs one lesson on the active goal: open it, answer each question once
-/// (graded inline for feedback), submit those answers as one batch, then a
-/// review round of the wrong ones that is never submitted.
+/// (graded inline for feedback), submit those answers as one batch, then
+/// review rounds of the wrong ones - never submitted - until every one of them
+/// has been answered right.
 ///
 /// The batch is what the backend marks as a lesson, so it is sent whole and in
 /// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
@@ -142,7 +142,16 @@ class LessonController extends _$LessonController {
     } else if (!state.isReviewMode && !_hasSubmittedAnswers) {
       await _submitEvaluation();
     } else {
-      state = state.copyWith(isCompleted: true);
+      // A review round ends only when he gets every one right: the ones he
+      // missed again come back, round after round (the user, 2026-09-26).
+      final missedAgain = state.questions
+          .where((q) => q.status == LessonQuestionStatus.incorrect)
+          .toList();
+      if (state.isReviewMode && missedAgain.isNotEmpty) {
+        startReviewMode(missedAgain);
+      } else {
+        state = state.copyWith(isCompleted: true);
+      }
     }
   }
 
@@ -200,9 +209,8 @@ class LessonController extends _$LessonController {
   void _finish(LessonEvaluation evaluation) {
     _hasSubmittedAnswers = true;
     _timer?.cancel();
-    // Home's rating, streak and recent lessons, and Profile's streak, moved.
+    // Home's rating, streak and recent lessons moved.
     ref.invalidate(homeControllerProvider);
-    ref.invalidate(profileControllerProvider);
     state = state.copyWith(
       evaluationResponse: evaluation,
       isSubmitting: false,

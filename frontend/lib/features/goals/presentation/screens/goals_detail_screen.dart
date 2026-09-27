@@ -154,8 +154,6 @@ class _GoalSummary extends StatelessWidget {
             color: theme.colorScheme.secondary,
           ),
         ),
-        const SizedBox(height: 4),
-        GoalDates(goal: goal),
         const SizedBox(height: 16),
         if (goal.description.isNotEmpty)
           MarkdownBody(data: goal.description)

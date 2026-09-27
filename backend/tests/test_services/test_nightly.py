@@ -69,7 +69,7 @@ async def test_a_student_who_did_nothing_costs_no_gemini_call(
     test_db, test_user, goal_factory, lesson_factory
 ):
     """The skip is the point: not a cheaper run, no run"""
-    goal = await goal_factory(test_user)
+    goal = await goal_factory(test_user, active=True)
     await lesson_factory(goal, LAST_WEEK)
     await test_db.commit()
 
@@ -85,8 +85,9 @@ async def test_a_student_who_did_nothing_costs_no_gemini_call(
 async def test_a_student_who_answered_something_gets_context_then_questions(
     test_db, test_user, goal_factory, lesson_factory
 ):
-    """Six nights a week the chain stops after the second step"""
-    goal = await goal_factory(test_user)
+    """Six nights a week the chain stops after the second step. One lesson is
+    under the placement's answers, so that step buys nothing yet"""
+    goal = await goal_factory(test_user, active=True)
     await lesson_factory(goal, WEDNESDAY_EVENING)
     await test_db.commit()
 
@@ -94,7 +95,7 @@ async def test_a_student_who_answered_something_gets_context_then_questions(
     with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
         assert await run_nightly(THURSDAY_RUN) == (1, 1)
 
-    assert [name for name, _ in calls] == ["context", "questions"]
+    assert [name for name, _ in calls] == ["context"]
 
 
 @pytest.mark.asyncio
@@ -102,7 +103,7 @@ async def test_resources_are_searched_on_monday_and_only_then(
     test_db, test_user, goal_factory, lesson_factory
 ):
     """The same student, the same lesson, one night later in the week"""
-    goal = await goal_factory(test_user)
+    goal = await goal_factory(test_user, active=True)
     await lesson_factory(goal, SUNDAY_EVENING)
     await test_db.commit()
 
@@ -110,7 +111,7 @@ async def test_resources_are_searched_on_monday_and_only_then(
     with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
         assert await run_nightly(MONDAY_RUN) == (1, 1)
 
-    assert [name for name, _ in calls] == ["context", "questions", "resources"]
+    assert [name for name, _ in calls] == ["context", "resources"]
 
 
 @pytest.mark.asyncio
@@ -118,7 +119,7 @@ async def test_a_chat_is_not_activity(
     test_db, test_user, goal_factory, exchange_factory, lesson_factory
 ):
     """'Chat activity does not count for this; only lessons' (the user)"""
-    goal = await goal_factory(test_user)
+    goal = await goal_factory(test_user, active=True)
     await exchange_factory(goal)
     await test_db.commit()
 
@@ -159,7 +160,7 @@ async def test_running_it_by_hand_logs_the_decision_it_took(
     test_db, test_user, goal_factory, lesson_factory, caplog
 ):
     """'It must be runnable by hand for one student' - and say what it decided"""
-    goal = await goal_factory(test_user)
+    goal = await goal_factory(test_user, active=True)
     await lesson_factory(goal, LAST_WEEK)
     await test_db.commit()
 

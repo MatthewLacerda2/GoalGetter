@@ -12,14 +12,10 @@ from datetime import UTC, datetime
 import pytest
 
 from backend.models.question import Question
-from backend.services.lessons.generation import (
-    GENERATE_ABOVE,
-    GENERATION_MARGIN,
-    decide,
-)
-from backend.services.lessons.rasch import GUESS, K_MIN, SCALE, expected_score
+from backend.services.lessons.generation import GENERATE_ABOVE, decide
+from backend.services.lessons.rasch import GUESS, expected_score
 from backend.services.lessons.selection import TARGET_SCORE, TOLERANCE_BELOW, Ranked
-from backend.utils.envs import QUESTIONS_PER_GENERATION
+from backend.utils.envs import PLACEMENT_SIZE
 
 T0 = datetime(2026, 9, 1, tzinfo=UTC)
 
@@ -47,44 +43,42 @@ def test_the_line_is_the_hard_edge_of_the_band_the_selection_serves():
     assert expected_score(1200, 1223) == pytest.approx(GENERATE_ABOVE, abs=1e-3)
 
 
-def test_the_margin_is_what_the_batch_itself_pays_him():
-    """Eight answers at the accuracy this gate fires at, at a settled K"""
-    assert GENERATION_MARGIN == 32
-    assert GENERATION_MARGIN == round(QUESTIONS_PER_GENERATION * K_MIN * (1 - GENERATE_ABOVE))
-    # Which is just past the hard edge of what the selection would serve him:
-    # 23 points. Aiming in the hundreds would buy questions it then refuses.
-    edge = SCALE * 0.05799
-    assert edge < GENERATION_MARGIN < 3 * edge
-
-
 def test_a_lesson_he_would_mostly_miss_buys_nothing():
     """He is not short of material, he is short of practice"""
-    verdict = decide([entry(0.3), entry(0.4), entry(0.5)], rating=1200)
+    verdict = decide([entry(0.3), entry(0.4), entry(0.5)], answers=PLACEMENT_SIZE)
 
     assert verdict.generate is False
     assert verdict.predicted == pytest.approx(0.4)
     assert "0.40" in verdict.reason and "under 0.60" in verdict.reason
 
 
-def test_a_lesson_he_would_walk_through_buys_eight_above_him():
-    """Too easy is the whole reason to spend a call, and it is spent on where
-    he is going, not on where he is"""
-    verdict = decide([entry(0.9), entry(0.9)], rating=1400)
+def test_a_lesson_he_would_walk_through_buys_eight():
+    """Too easy is the whole reason to spend a call"""
+    verdict = decide([entry(0.9), entry(0.9)], answers=PLACEMENT_SIZE)
 
-    assert verdict.generate is True
-    assert verdict.target == 1400 + GENERATION_MARGIN == 1432
-    assert "difficulty 1432" in verdict.reason
+    assert (verdict.generate, verdict.placement) == (True, False)
+    assert "one step past what he holds" in verdict.reason
 
 
 def test_the_line_itself_generates():
     """The user's "se passar de" is strict: exactly 40% wrong still buys eight"""
-    assert decide([entry(GENERATE_ABOVE)], rating=1200).generate is True
-    assert decide([entry(GENERATE_ABOVE - 0.001)], rating=1200).generate is False
+    assert decide([entry(GENERATE_ABOVE)], answers=PLACEMENT_SIZE).generate is True
+    assert decide([entry(GENERATE_ABOVE - 0.001)], answers=PLACEMENT_SIZE).generate is False
 
 
-def test_an_empty_bank_is_a_goal_created_minutes_ago():
-    """The one branch with no mean to take: there is nothing to be too easy yet"""
-    verdict = decide([], rating=1200)
+def test_an_empty_bank_is_the_placement():
+    """A goal created minutes ago gets its placement: nothing to be too easy yet"""
+    verdict = decide([], answers=0)
 
-    assert (verdict.generate, verdict.predicted) == (True, None)
-    assert "first batch" in verdict.reason
+    assert (verdict.generate, verdict.placement, verdict.predicted) == (True, True, None)
+    assert f"placement: {PLACEMENT_SIZE}" in verdict.reason
+
+
+def test_until_the_placement_is_answered_nothing_more_is_bought():
+    """The user's rule: under 18 answers he has not been measured, so however easy
+    the lesson looks, there is nothing to write the next batch from"""
+    easy = [entry(0.95), entry(0.95)]
+
+    assert decide(easy, answers=PLACEMENT_SIZE - 1).generate is False
+    assert "17 answers, under the 18" in decide(easy, answers=PLACEMENT_SIZE - 1).reason
+    assert decide(easy, answers=PLACEMENT_SIZE).generate is True

@@ -12,6 +12,7 @@ import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
+import 'package:goal_getter/features/lessons/presentation/lesson_clock.dart';
 import 'package:goal_getter/app/theme/app_dimens.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_question_view.dart';
 
@@ -34,13 +35,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       if (!mounted) return;
       ref.read(lessonControllerProvider.notifier).start();
     });
-  }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 
   void _handleCompletion(LessonState state) {
@@ -94,7 +88,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       timeSpent: StatData(
         title: l10n.lessonTime,
         icon: Icons.timer,
-        text: _formatDuration(evaluation != null
+        text: formatLessonClock(evaluation != null
             ? Duration(seconds: evaluation.totalSecondsSpent)
             : state.totalTimeSpent),
         color: Theme.of(context).colorScheme.primary,

@@ -11,7 +11,16 @@ from backend.core.config import settings
 # number and no longer a gap to fill, because the decision to generate is no
 # longer about how full the bank is (services/lessons/generation.py).
 QUESTIONS_PER_GENERATION = 8
-NUM_QUESTIONS_PER_EVALUATION = 8
+
+# The placement (the user, 2026-09-26): what a new goal is given right after
+# onboarding, and how many answers it must hold before the nightly run buys it
+# anything more. One number for both on purpose.
+#
+# Eighteen is three lessons at the six-question floor - *"creio que ajuda bem a
+# definir o quanto o usuário sabe"*. And until he has answered that many (answers,
+# not distinct questions: one he answered twice counts twice), the app has not
+# measured him yet, so there is nothing to write the next batch from.
+PLACEMENT_SIZE = 18
 NUM_DIMENSIONS = 3072
 EMBEDDING_MODEL = "gemini-embedding-2"
 GEMINI_FAST_MODEL = "gemini-3.5-flash-lite"

@@ -12,8 +12,8 @@ import 'package:goal_getter/l10n/generated/app_localizations.dart';
 /// The app's front door, and the only place a student signs in.
 ///
 /// **What it says** (#180): the page a visitor decides on, so it says what the
-/// app is in one glance — the icon and the name, a headline, and four short
-/// lines a visitor reads without scrolling or waiting for a carousel. It never
+/// app is in one glance — the icon and the name, a headline and a tagline,
+/// nothing a visitor has to read through. It never
 /// speaks of courses or of reaching a goal: a goal is what the student wants to
 /// learn about, and there is no finish line (`CLAUDE.md`, "How the app
 /// decides"). The headline and the tagline under it are the two phrasings the
@@ -62,7 +62,7 @@ class StartScreen extends StatelessWidget {
                   // The language, already the phone's: one tap fixes it when
                   // the phone (or the browser) is wrong (#172).
                   const Align(
-                    alignment: Alignment.topRight,
+                    alignment: Alignment.topLeft,
                     child: LanguageSelector(),
                   ),
                   const Padding(
@@ -80,7 +80,7 @@ class StartScreen extends StatelessWidget {
   }
 }
 
-/// The icon and the name, the headline, and what the app does in four lines.
+/// The icon and the name, the headline and the tagline under it.
 class _Pitch extends StatelessWidget {
   const _Pitch();
 
@@ -121,51 +121,7 @@ class _Pitch extends StatelessWidget {
             color: theme.colorScheme.primary,
           ),
         ),
-        const SizedBox(height: AppSpacing.xl),
-        // One block, left-aligned inside and centred as a whole, so the icons
-        // line up whatever the length of each sentence.
-        IntrinsicWidth(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Point(Icons.lightbulb_outline, l10n.startPointSubject),
-              _Point(Icons.timer_outlined, l10n.startPointDaily),
-              _Point(Icons.trending_up, l10n.startPointLevel),
-              _Point(Icons.chat_bubble_outline, l10n.startPointTutor),
-            ],
-          ),
-        ),
       ],
-    );
-  }
-}
-
-/// One line of the pitch: an icon in the accent, then the sentence.
-class _Point extends StatelessWidget {
-  const _Point(this.icon, this.text);
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
-      child: Row(
-        children: [
-          Icon(icon, color: theme.colorScheme.primary),
-          const SizedBox(width: AppSpacing.sm),
-          Flexible(
-            child: Text(
-              text,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

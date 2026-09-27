@@ -103,10 +103,6 @@ void main() {
     for (final line in [
       'Learn whatever you want',
       'Tailor-made teaching',
-      'Any subject you name',
-      'Two minutes a day',
-      'Always at your level',
-      'A tutor to ask anything',
     ]) {
       expect(find.text(line), findsOneWidget);
     }
@@ -114,6 +110,8 @@ void main() {
         .widgetList<Text>(find.byType(Text))
         .map((t) => t.data?.toLowerCase() ?? '');
     expect(words.where((w) => w.contains('course')), isEmpty);
+    // No list of selling points under the headline (the user, 2026-09-26).
+    expect(find.text('Two minutes a day'), findsNothing);
   }, variant: _modes);
 
   testWidgets('it wears the theme of the mode the app is in', (tester) async {

@@ -93,8 +93,8 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     is_harmless, is_achievable — plus a `reasoning` string. Any false ⇒ 400 with
     that reasoning (the app shows it to the user and stops). Only if all three
     pass do we make the second call for the questions.
-  - **exactly 8 questions** (#173, for now: the time spent per question will
-    decide the number), 4 options each, no correct answer, each question and
+  - **exactly 6 questions** (8 in #173, 6 since 2026-09-26; the time spent per
+    question will decide the number), 4 options each, no correct answer, each question and
     option at most 20 words — asked of the prompt, not enforced (an over-long
     one is logged). They never ask the student to rate his own level: what he
     says about himself is his opinion, and the lessons measure him.

@@ -3,6 +3,27 @@ from backend.services.gemini.lesson.schema import AnsweredQuestion
 from backend.services.gemini.student_context.schema import GeminiStudentContext
 from backend.utils.envs import QUESTIONS_PER_GENERATION
 
+# What every exercise must be, lesson or placement (the user, 2026-09-26).
+# "Exercise", not "question", on purpose: an item may be an instruction ("Pick
+# the Middle Eastern capital"), and a model told "question" ends everything in a
+# question mark. The option order is shuffled in code after it answers
+# (services/lessons/shuffle.py), so where it puts the right one does not matter.
+# Rules 1 and 2 of #173, for any prompt that writes exercises for him.
+LEVEL_RULES = """His level is what he got right, not what he or the app's reading says about it:
+    a self-assessment is his opinion. And what he says he wants to reach is not a
+    ceiling: the app teaches him as far as he can go."""
+
+EXERCISE_RULES = """Every exercise:
+    - Is multiple choice: exactly 4 options, one right; give its index as
+      correct_option_index (0-3).
+    - May be a question or an instruction ("Pick the ...", "Which of these ...").
+    - Is at most 20 words, and so is each option.
+    - Is simple and plain: no jargon he has not been taught by an earlier exercise.
+    - Has plain options: just the thing itself ("Heart", not "The beating heart"), no
+      adjective or filler that hints at the answer. All four the same kind of thing.
+    - Has wrong options that are plausible - real confusions a learner has - so nothing
+      gives the answer away but knowing it."""
+
 
 def format_contexts(contexts: list[GeminiStudentContext]) -> str:
     """The student's still-valid contexts, newest first. They are written about
@@ -43,53 +64,35 @@ def get_lesson_generation_prompt(
     goal_name: str,
     goal_description: str,
     frontier: str,
-    rating: int,
-    target_difficulty: int,
     contexts: list[GeminiStudentContext],
     answered_right: list[AnsweredQuestion] | None,
     answered_wrong: list[AnsweredQuestion] | None,
     language: Language,
 ) -> str:
     return f"""
-    <Context>
-    You are an AI Tutor creating study questions for a student.
-    The student's goal: "{goal_name}"
-    What he asked for on day one: "{goal_description}"
-    **What to teach him now - his current frontier: "{frontier}"**
-    The student's current skill rating: {rating} (like a chess rating; higher rating means more advanced/difficult questions are expected)
-    **Write these questions at difficulty {target_difficulty}**, above his current rating on purpose: this batch is not the lesson he does tomorrow, it is what he moves on to once he has worked through what he already has.
+    You write exercises for a student learning "{goal_name}". Their purpose is that he
+    learns something every day, even if it is little: they teach, they do not test.
 
-    What the app knows about this learner - their mastery and gaps (State), and
-    how they think and react (Metacognition). It is written about the person,
-    so it covers everything they study, not only this goal:
+    What he asked for on day one: "{goal_description}"
+    What to teach him now: "{frontier}"
+
+    What the app has read about him (it covers everything he studies, not only this
+    subject; use it to judge how he learns, never as a topic):
     {format_contexts(contexts)}
 
-    Questions of this goal he has answered correctly - what he already holds:
+    Exercises of this subject he got right - what he has shown he knows:
     {format_right(answered_right or [])}
 
-    Questions of this goal he has answered wrongly, with the option he picked -
-    what he believes instead:
+    Exercises he got wrong, with the option he picked - what he believes instead:
     {format_wrong(answered_wrong or [])}
-    </Context>
 
-    <Task>
-    Generate a list of exactly {QUESTIONS_PER_GENERATION} multiple-choice study questions customized to the student's current needs, skill rating, and weaknesses.
-    </Task>
+    Write exactly {QUESTIONS_PER_GENERATION} exercises, as simple as possible while one
+    step past what he got right. With nothing right yet, that is the most basic of the
+    subject. Some may revisit what he got wrong, from another angle.
 
-    <Guidelines>
-    - Each question must have exactly 4 options: Option A, Option B, Option C, and Option D.
-    - One option must be the correct option, and its index must be specified as correct_option_index (0 for A, 1 for B, 2 for C, 3 for D).
-    - Match the difficulty of the questions to the target difficulty ({target_difficulty}), not to what he is answering comfortably today.
-    - **How much of this batch revisits what he keeps getting wrong and how much of it takes him forward is your judgement**, from the frontier, the questions above and what the context says about him. There is no fixed ratio.
-    - Target the questions directly at fixing the student's weaknesses/flaws described in their State, or challenging their cognitive style as noted in their Metacognition.
-    - **Ask about the frontier.** The day-one description is background: it
-      says where the student came from, not what to ask him about. A goal has
-      no finish line, and the frontier is where he has been taken since.
-    - The questions are about this goal only. The student's context may mention other subjects they study; use it to judge how they learn, never as a topic to ask about.
-    - Keep questions educational and didactically sound.
-    - His level is what his answers above show, not what he or the context says he thinks it is: a self-assessment is his opinion.
-    - Do not stop at what he said he wants to reach. The app teaches him as far as he can go; his stated ambition is not a ceiling.
-    - Write every question and option in {language.english_name}.
-    - Keep each question and option as short as it can be while staying clear; return only the questions.
-    </Guidelines>
+    {LEVEL_RULES}
+
+    {EXERCISE_RULES}
+    - Write every exercise and option in {language.english_name}.
+    - Return only the exercises.
     """

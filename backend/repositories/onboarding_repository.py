@@ -132,6 +132,22 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
+    async def prompt_of(self, goal_id) -> str | None:
+        """What the student typed for this goal, in his own words - the
+        free-text row. None for a goal created without an onboarding.
+
+        The goal's own name and description are Gemini's study plan, and they
+        can be narrower than what he asked for ("understand modern China"
+        became "digital China and business", 2026-09-26); this is the one
+        record of what he actually said.
+        """
+        stmt = select(OnboardingQuestion.option_a).where(
+            OnboardingQuestion.goal_id == goal_id,
+            OnboardingQuestion.question == PROMPT_QUESTION,
+        )
+        result = await self.db.execute(stmt)
+        return result.scalars().first()
+
     async def update(self, entity: OnboardingQuestion) -> OnboardingQuestion:
         await self.db.flush()
         return entity

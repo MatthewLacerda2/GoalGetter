@@ -10,7 +10,6 @@ import 'package:goal_getter/features/profile/presentation/screens/profile_screen
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/api_fake.dart';
-import '../features/profile/profile_screen_test.dart' show meJson;
 
 /// The real [GoalGetterApp], routed straight to the profile page, over a
 /// device whose stored preferences are [stored].
@@ -18,10 +17,7 @@ Future<SharedPreferences> pumpApp(
   WidgetTester tester, {
   Map<String, String> stored = const {},
 }) async {
-  final fake = ApiFake({
-    'GET /me': [(200, meJson)],
-    'GET /goals': [(200, '[]')],
-  });
+  final fake = ApiFake({});
   final overrides = await fake.overrides();
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('user_language', 'en');

@@ -88,14 +88,12 @@ class DevFixtures {
             "By week three you'll hold a simple conversation about daily life.",
       );
 
-  static Goal get goalDetail => Goal(
+  static Goal get goalDetail => const Goal(
         id: 'goal_italian',
         name: 'Learn Italian',
         description:
             'Reach conversational fluency in Italian — hold a 10-minute chat '
             'about daily life, food, and travel without switching to English.',
-        createdAt: DateTime(2026, 5, 31),
-        updatedAt: DateTime(2026, 6, 6),
         currentElo: 920,
         isActive: true,
       );

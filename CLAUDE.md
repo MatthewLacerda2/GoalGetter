@@ -8,48 +8,26 @@ Gemini API (project `goalgetter-ai-tutor-1996`).
 
 ## What GoalGetter is
 
-An AI tutor. A student names something they want to learn — a *goal* — and the app
-teaches it through short lessons, a chat mentor, and curated resources, adapting to
-the student over time. Generative AI is what makes it possible: the content is
-generated and curated per student.
+An AI tutor: a student names what he wants to learn and the app teaches it, a little
+every day. The point is that he leaves every day having learned something; the metric is
+that he comes back tomorrow.
 
-A goal names *what the student wants to learn about*, not a course with a finish
-line. Progression is measured against the student, not against a syllabus. The
-endpoint spec and the product decisions behind it live in
-`frontend/docs/backend_contract.md`; read it before changing onboarding, lessons, or
+The rules that shape almost every change, in one line each:
+
+- **Gemini writes content; arithmetic decides what appears** — selection, measurement,
+  whether to generate, where the right option sits. And Gemini is the tool of last resort:
+  where a tool exists (Google Search, the YouTube API), the tool does it.
+- **His answers are the measurement**; what he says about himself is his opinion, and
+  what he says he wants to reach is not a ceiling.
+- **Exercises teach, they do not test**: the simplest possible, one step past what he has
+  shown he knows. 20 words at most. Nothing is reused between students.
+- **Every prompt is in English, names his language, and asks for the shortest output.**
+
+**[`SOUL.md`](SOUL.md) is the project's philosophy** — the business rules and the reasoning
+behind them. It is optional reading: open it when a decision is subjective, when a
+business rule is unclear, or before changing anything a student sees. The endpoint spec
+is `frontend/docs/backend_contract.md`; read it before changing onboarding, lessons, or
 the background jobs.
-
-## How the app decides
-
-Four rules the user settled on 2026-09-24. They are why the code looks the way it does,
-and an issue that needs one of them broken is the wrong shape.
-
-- **Gemini writes content; arithmetic decides what appears.** Writing a question, a tutor
-  reply or a resource's description is his. Choosing which questions a student gets, measuring
-  how he is doing, and deciding whether it is worth generating more are deterministic
-  formulas — testable without a network and free to run. The selection runs several times
-  a day per student: as a model call it would be the app's largest cost and its least
-  predictable behaviour. **And he is the tool of last resort** (2026-09-26): where a tool
-  exists for the job, the tool does it. Google Search finds pages and the YouTube Data API
-  finds videos; Gemini never supplies a link from memory, because he invents them (#175).
-- **Content sits at the threshold of what the student knows** — always challenged, never
-  handed more than he can take, because both extremes stop him progressing. That is a
-  number: the chance he answers correctly, aimed at about 0.75. Classical Item Response
-  Theory would aim at 0.5, which measures the student best; we are not optimising
-  measurement, we are optimising that he comes back tomorrow.
-- **The product goal is that he learns; the metric is that he returns every day.** A
-  lesson is about two minutes — eight questions — because that is what keeps coming back
-  cheap. More answers is also more evidence about him, so short and daily beats long and
-  occasional twice over.
-- **The goal is where he started, not where he is going.** When a student has learned
-  everything a goal holds, the app moves him outward — to what that knowledge is useful
-  for and what he seems interested in — rather than stopping. The target lives in its own
-  append-only history — the `frontiers` table (#133), newest row wins — and the goal's own
-  description stays as what he asked for on day one.
-
-The rating is the student's ability in the Rasch sense, and a question's difficulty is
-derived from his own answers — never tagged by Gemini, and never a column. Nothing is ever
-reused between students: not questions, not resources, not contexts.
 
 ## Stack
 
@@ -390,7 +368,8 @@ remind him and ask.
   thin bank but buys **eight questions per studying student per goal** on any night when
   tomorrow's lesson would be too easy (#135) — so a deep bank no longer saves anything, and
   a student who keeps missing his questions is now the cheap case rather than the expensive
-  one. Since #175 the resources step also spends **one YouTube `search.list` per goal-run
+  one. A new goal's first batch is the **18-exercise placement**, and nothing more is bought
+  for a goal until it holds 18 answers (`PLACEMENT_SIZE`, 2026-09-26). Since #175 the resources step also spends **one YouTube `search.list` per goal-run
   (100 of the free 10,000 daily units)** and no longer embeds up front — the midnight
   backfill does. `make nightly ARGS='--once'` and `make embeddings` run them by hand.
 - **The tailnet preview is plain HTTP on :8093.** `tailscale serve` (HTTPS on the

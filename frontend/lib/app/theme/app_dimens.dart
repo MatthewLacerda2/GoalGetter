@@ -87,6 +87,10 @@ abstract final class AppSizes {
   /// — and that calculation has to know how tall the snackbar is.
   static const double snackBarBand = 96;
 
+  /// What a scrolling list leaves under its last item so a floating action
+  /// button (56 high, 16 off the edge) never covers it.
+  static const double fabClearance = 88;
+
   /// The icon of a whole-screen state: a failure, an empty list, a wait.
   static const double stateIcon = 48;
 
