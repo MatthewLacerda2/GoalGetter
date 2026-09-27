@@ -13,7 +13,8 @@ of the content lives next to it by subject, each file data like this one
 
 Lesson plan: each entry is (days_ago, hour, correct answers out of
 LESSON_SIZE). The active goal has lessons on 14 of the last 15 days, two on a
-couple of days, and a gap 6 days ago, so the streak is 6 and not 15.
+couple of days, and a gap 6 days ago: a day off, which keeps the streak but
+does not add to it (#204), so the streak is 14 and not 15.
 """
 
 from backend.services.fictitious.history_chat import GUITAR_CHAT, ITALIAN_CHAT, PYTHON_CHAT

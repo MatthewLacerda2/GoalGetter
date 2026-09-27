@@ -728,10 +728,12 @@ resource_item           { "name": "...", "description": "...", "url": "https://.
 - **`students.current_goal_id`** is the single source of truth for the active
   goal — drives `/home`, `/resources`, `/tutor/*`, and each goal's `is_active`.
 - **Streak** is just `current_streak` (a number) on `/me` and `/home`. No streak
-  table/endpoint, no weekly breakdown. The rule (`services/lessons/streak.py`):
-  consecutive days with at least one finished lesson on any goal, counted back
-  from today, or from yesterday when there is none today yet. Days are the
-  server's local date; time zones can come later.
+  table/endpoint, no weekly breakdown. The rule (`services/lessons/streak.py`,
+  #204): the days he answered at least one question, on any goal. He may miss
+  two days in a calendar week (Monday to Sunday) and keep it; the third missed
+  day in that week resets it. A forgiven day keeps the streak but does not add
+  to it, and today is not missed until it ends. Days are the app's calendar
+  days (`core.clock.APP_TIMEZONE`, #92).
 - **`chat_exchange`** replaced the mock-derived per-message `chat_message`
   (#54): one exchange = prompt + reply bubbles, with `is_liked` and `created_at`.
 - **LLM-backed** (⚙️ via `llms.py`): objective-questions, study-plan, create
