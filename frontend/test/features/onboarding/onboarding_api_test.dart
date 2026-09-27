@@ -46,6 +46,7 @@ void main() {
     ], sent);
     final questions = await api.objectiveQuestions('Learn Italian');
     expect(questions.single.options, ['a', 'b', 'c', 'd']);
+    expect(questions.single.aiModel, 'gemini');
     expect(sent.single.url.path, '/api/v1/goals/objective-questions');
     expect(jsonDecode(sent.single.body), {'prompt': 'Learn Italian'});
   });
@@ -89,7 +90,12 @@ void main() {
     expect(jsonDecode(sent.single.body), {
       'prompt': draft.prompt,
       'answers': [
-        {'question': 'Level?', 'answer': 'None', 'total_seconds': 7},
+        {
+          'question': 'Level?',
+          'answer': 'None',
+          'total_seconds': 7,
+          'ai_model': 'gemini-flash',
+        },
       ],
       'goal_name': plan.goalName,
       'description': plan.description,

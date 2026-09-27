@@ -70,6 +70,33 @@ void main() {
     expect(_rules(r"final t = Text('$index / $total');"), isEmpty);
     expect(_rules("final t = Text('');"), isEmpty);
     expect(_rules(r"final s = StatData(text: '+$elo');"), isEmpty);
+    // #262: the nested quotes were read as a literal spelling `${elo >= 0 ? `.
+    expect(
+      _rules(r"final s = StatData(text: '${elo >= 0 ? '+' : ''}$elo');"),
+      isEmpty,
+    );
+  });
+
+  // #270: `detail : 'HTTP …'` is a ternary's else branch, not `detail:`.
+  test("passes on a ternary's else branch passed positionally", () {
+    expect(
+      _rules(r"final e = ApiException(s, ok ? detail : 'HTTP $s', raw);"),
+      isEmpty,
+    );
+    expect(
+      _rules(
+        "final e = Foo(\n  a,\n  ok\n      ? detail\n      : 'Retry',\n);",
+      ),
+      isEmpty,
+    );
+    expect(
+      _rules("const f = Foo(text: 'Retry');"),
+      contains('hardcoded-string'),
+    );
+    expect(
+      _rules("const f = Foo(a,\n  text: 'Retry');"),
+      contains('hardcoded-string'),
+    );
   });
 
   test('passes on an identifier, and on a call that is not a constructor', () {

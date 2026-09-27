@@ -103,7 +103,9 @@ class GoalQuestionsController extends _$GoalQuestionsController {
     _timer.show(state.index);
   }
 
-  /// Sends every answer, with the seconds each took, for the study plan.
+  /// Sends every answer, with the seconds each took and the model that wrote
+  /// its question, for the study plan. The same answers become the draft that
+  /// `POST /goals` stores.
   Future<void> requestPlan() async {
     state = state.copyWith(plan: PlanLoading());
     final answers = [
@@ -112,6 +114,7 @@ class GoalQuestionsController extends _$GoalQuestionsController {
           question: questions[i].question,
           answer: state.answers[i] ?? '',
           totalSeconds: _timer.secondsOn(i),
+          aiModel: questions[i].aiModel,
         ),
     ];
     try {

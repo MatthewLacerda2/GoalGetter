@@ -1,38 +1,52 @@
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 
 /// One clarifying question of `POST /goals/objective-questions`: exactly four
-/// options, none of them "correct" (they profile the student).
+/// options, none of them "correct" (they profile the student), and the model
+/// that wrote it (#247).
 class ObjectiveQuestion {
   final String question;
   final List<String> options;
+  final String aiModel;
 
-  const ObjectiveQuestion({required this.question, required this.options});
+  const ObjectiveQuestion({
+    required this.question,
+    required this.options,
+    required this.aiModel,
+  });
 
   factory ObjectiveQuestion.fromJson(Map<String, dynamic> json) =>
       ObjectiveQuestion(
         question: json['question'] as String,
         options: List<String>.from(json['options'] as List),
+        aiModel: json['ai_model'] as String,
       );
 }
 
 /// The option the student picked for one question, and the whole seconds he
 /// spent on it (#174; see `QuestionTimer`). No duration is sent as none: the
 /// backend stores the answer either way.
+///
+/// [aiModel] is its question's, sent back so `POST /goals` records who wrote
+/// the question: that request cannot know, the questions came from another
+/// one (#247). Without it the row says `"unknown"`.
 class ObjectiveAnswer {
   final String question;
   final String answer;
   final int? totalSeconds;
+  final String? aiModel;
 
   const ObjectiveAnswer({
     required this.question,
     required this.answer,
     this.totalSeconds,
+    this.aiModel,
   });
 
   Map<String, dynamic> toJson() => {
     'question': question,
     'answer': answer,
     if (totalSeconds != null) 'total_seconds': totalSeconds,
+    if (aiModel != null) 'ai_model': aiModel,
   };
 }
 

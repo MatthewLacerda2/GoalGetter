@@ -25,6 +25,7 @@ class DevFixtures {
               'I can hold a simple conversation',
               'I studied it before and forgot',
             ],
+            aiModel: 'gemini-3.8-flash',
           ),
           ObjectiveQuestion(
             question: 'How much time can you commit to learning daily?',
@@ -34,6 +35,7 @@ class DevFixtures {
               '30 to 60 minutes',
               'More than 60 minutes',
             ],
+            aiModel: 'gemini-3.8-flash',
           ),
         ],
       );
@@ -44,6 +46,7 @@ class DevFixtures {
           ObjectiveAnswer(
             question: 'What is your current experience with Italian?',
             answer: 'I know a few words',
+            aiModel: 'gemini-3.8-flash',
           ),
         ],
         plan: studyPlan,

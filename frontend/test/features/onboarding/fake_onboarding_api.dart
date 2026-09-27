@@ -7,6 +7,7 @@ import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 const question = ObjectiveQuestion(
   question: 'How much Italian do you know?',
   options: ['None', 'A few words', 'Basic chats', 'Fluent'],
+  aiModel: 'gemini-flash',
 );
 
 const plan = StudyPlan(goalName: 'Travel Italian', description: 'Greetings.');
@@ -14,7 +15,12 @@ const plan = StudyPlan(goalName: 'Travel Italian', description: 'Greetings.');
 const draft = GoalDraft(
   prompt: 'Learn Italian well enough to travel',
   answers: [
-    ObjectiveAnswer(question: 'Level?', answer: 'None', totalSeconds: 7),
+    ObjectiveAnswer(
+      question: 'Level?',
+      answer: 'None',
+      totalSeconds: 7,
+      aiModel: 'gemini-flash',
+    ),
   ],
   plan: plan,
 );

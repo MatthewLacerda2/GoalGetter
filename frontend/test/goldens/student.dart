@@ -118,10 +118,12 @@ const goalQuestions = GoalQuestionsArgs(
         'I play casually',
         'I play in a club',
       ],
+      aiModel: 'gemini-3.8-flash',
     ),
     ObjectiveQuestion(
       question: 'How much time can you give it each day?',
       options: ['Under 15 minutes', '15 to 30', '30 to 60', 'Over an hour'],
+      aiModel: 'gemini-3.8-flash',
     ),
   ],
 );
@@ -132,6 +134,7 @@ const goalDraft = GoalDraft(
     ObjectiveAnswer(
       question: 'How well do you know the rules?',
       answer: 'I know how the pieces move',
+      aiModel: 'gemini-3.8-flash',
     ),
   ],
   plan: StudyPlan(

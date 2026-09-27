@@ -72,7 +72,7 @@ final class GoalQuestionsControllerProvider
 }
 
 String _$goalQuestionsControllerHash() =>
-    r'9edeff76635f6be94d9bce070571088b42b16aee';
+    r'e6f945381363e3490fc0e829c1e2b3592a0543ac';
 
 /// The objective questions Gemini wrote for [prompt], one at a time. The
 /// screen owns how a question arrives (the slide, the pause that shows the
