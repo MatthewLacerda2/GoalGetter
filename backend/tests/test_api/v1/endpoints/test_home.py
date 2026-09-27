@@ -50,7 +50,7 @@ async def test_home_reads_only_the_active_goal(
     body = (await auth_client.get(ENDPOINT)).json()
 
     assert len(body["recent_lessons"]) == 1
-    assert body["current_streak"] == 1
+    assert body["current_streak"] == 2  # user-wide; yesterday is a day off (#204)
 
 
 @pytest.mark.asyncio

@@ -65,8 +65,11 @@ async def test_every_goal_ends_above_where_it_started(test_db):
 
 @pytest.mark.asyncio
 async def test_the_streak_is_real(test_db):
+    """The gap six days ago is a day off, not a reset (#204), so the streak
+    passes it; the empty days before the goal began reset it, so it stops at
+    the fourteen days studied."""
     student = (await seed_fictitious_student(test_db)).student
-    assert 1 < await student_streak(test_db, student.id) < 14
+    assert 6 < await student_streak(test_db, student.id) <= 14
 
 
 @pytest.mark.asyncio
