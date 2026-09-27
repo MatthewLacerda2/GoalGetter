@@ -44,7 +44,7 @@ COMMIT = {"prompt": "guitar", "answers": [ANSWER], "goal_name": "Guitar", "descr
     ],
 )
 async def test_an_over_long_onboarding_text_never_reaches_gemini(client, endpoint, body):
-    with patch(GOALS_GEMINI) as gemini:
+    with patch(GOALS_GEMINI, autospec=True) as gemini:
         response = await client.post(endpoint, json=body)
     assert response.status_code == 422
     gemini.assert_not_called()
@@ -71,7 +71,7 @@ async def test_an_over_long_tutor_message_never_reaches_gemini(
 ):
     await goal_factory(test_user, active=True)
     message = "x" * (TUTOR_MESSAGE_MAX_LENGTH + 1)
-    with patch(TUTOR_GEMINI) as gemini:
+    with patch(TUTOR_GEMINI, autospec=True) as gemini:
         response = await auth_client.post("/api/v1/tutor/messages", json={"message": message})
     assert response.status_code == 422
     gemini.assert_not_called()
@@ -81,7 +81,7 @@ async def test_a_tutor_message_at_the_limit_is_answered(auth_client, test_user, 
     await goal_factory(test_user, active=True)
     message = "x" * TUTOR_MESSAGE_MAX_LENGTH
     reply = GeminiChatResponse(messages=["Ok."])
-    with patch(TUTOR_GEMINI, return_value=reply) as gemini:
+    with patch(TUTOR_GEMINI, return_value=reply, autospec=True) as gemini:
         response = await auth_client.post("/api/v1/tutor/messages", json={"message": message})
     assert response.status_code == 201
     gemini.assert_called_once()

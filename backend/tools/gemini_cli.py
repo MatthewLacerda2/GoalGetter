@@ -262,7 +262,7 @@ class Recorder:
     """
 
     raw: list[str] = field(default_factory=list)
-    responses: list = field(default_factory=list)
+    responses: list[BaseModel] = field(default_factory=list)
 
     def install(self) -> None:
         real_client = gemini_configs.Client
@@ -333,7 +333,7 @@ def menu() -> str:
     return "\n".join(lines)
 
 
-def save(responses: list, path: Path) -> None:
+def save(responses: list[BaseModel], path: Path) -> None:
     """A run's responses as the replay reads them: a JSON list, one per call."""
     calls = [response.model_dump(mode="json", exclude_none=True) for response in responses]
     path.write_text(json.dumps(calls, ensure_ascii=False, indent=1) + "\n")

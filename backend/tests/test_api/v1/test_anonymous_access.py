@@ -12,6 +12,7 @@ import uuid
 import pytest
 from fastapi.routing import APIRoute, iter_route_contexts
 
+from backend.core.errors.codes import ErrorCode
 from backend.main import app
 
 # Open to a caller with no token, and why.
@@ -61,4 +62,4 @@ async def test_a_request_without_a_token_is_401(client, method, path):
     the path must not turn it into a 404 that tells a stranger what exists"""
     response = await client.request(method, _PARAMETER.sub(str(uuid.uuid4()), path))
 
-    assert response.status_code == 401, response.text
+    assert (response.status_code, response.json()["code"]) == (401, ErrorCode.NOT_SIGNED_IN)

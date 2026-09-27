@@ -46,7 +46,10 @@ async def test_create_goal_persists_and_asks_the_standard_questions(
 async def test_create_goal_costs_no_gemini_call(auth_client):
     """The introduction screens were the one synchronous call here, and they are
     gone (#132): a premium call saved on every goal created"""
-    with patch(CHAIN), patch("backend.api.v1.endpoints.goals.run_gemini") as gemini:
+    with (
+        patch(CHAIN, autospec=True),
+        patch("backend.api.v1.endpoints.goals.run_gemini", autospec=True) as gemini,
+    ):
         response = await auth_client.post(ENDPOINT, json=BODY)
 
     assert response.status_code == 201

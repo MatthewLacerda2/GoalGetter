@@ -34,7 +34,10 @@ GENERATE = "backend.api.v1.endpoints.goals.generate_onboarding_questions"
 
 async def test_objective_questions_valid_goal(client):
     """Public endpoint (no auth): valid goal -> 4-option questions"""
-    with patch(VALIDATE, return_value=VALID), patch(GENERATE, return_value=QUESTIONS):
+    with (
+        patch(VALIDATE, return_value=VALID, autospec=True),
+        patch(GENERATE, return_value=QUESTIONS, autospec=True),
+    ):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 200
     body = response.json()
@@ -46,7 +49,10 @@ async def test_objective_questions_valid_goal(client):
 
 async def test_objective_questions_invalid_goal(client):
     """Invalid goal -> 400 with the validation reasoning, questions never generated"""
-    with patch(VALIDATE, return_value=INVALID), patch(GENERATE) as gen:
+    with (
+        patch(VALIDATE, return_value=INVALID, autospec=True),
+        patch(GENERATE, autospec=True) as gen,
+    ):
         response = await client.post(ENDPOINT, json={"prompt": "asdfgh"})
     assert response.status_code == 400
     assert response.json() == {"code": "not_a_goal", "detail": "that is not a goal"}
@@ -69,7 +75,7 @@ def _gemini_error(status: int, message: str) -> APIError:
 async def test_geminis_quota_is_a_503_of_its_own_not_a_429(client):
     """#214: Gemini's 429 is our quota, not the student's pace - and its message
     stays in the log"""
-    with patch(VALIDATE, side_effect=_gemini_error(429, "RESOURCE_EXHAUSTED")):
+    with patch(VALIDATE, side_effect=_gemini_error(429, "RESOURCE_EXHAUSTED"), autospec=True):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 503
     assert response.json()["code"] == "gemini_quota_exhausted"
@@ -78,7 +84,7 @@ async def test_geminis_quota_is_a_503_of_its_own_not_a_429(client):
 
 async def test_a_refused_gemini_key_is_a_502_not_a_sign_out(client):
     """#214: Gemini's 401 is about our key; as a 401 the app would sign him out"""
-    with patch(VALIDATE, side_effect=_gemini_error(401, "API key not valid")):
+    with patch(VALIDATE, side_effect=_gemini_error(401, "API key not valid"), autospec=True):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
     assert response.status_code == 502
     assert response.json() == {

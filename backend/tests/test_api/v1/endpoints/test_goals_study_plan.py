@@ -17,7 +17,7 @@ BODY = {
 
 async def test_study_plan_success(client):
     """Public endpoint (no auth): valid request -> goal name + markdown description"""
-    with patch(GENERATE, return_value=PLAN) as gen:
+    with patch(GENERATE, return_value=PLAN, autospec=True) as gen:
         response = await client.post(ENDPOINT, json=BODY)
     assert response.status_code == 200
     body = response.json()

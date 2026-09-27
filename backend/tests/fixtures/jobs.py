@@ -162,7 +162,11 @@ def chain_gemini(
             ResourceSearch(list(found), "a query"),
         ),
         patch(RESOURCES + ".search_videos", AsyncMock(return_value=[])),
-        patch(RESOURCES + ".validate_resources", side_effect=lambda proposed, client: proposed),
+        patch(
+            RESOURCES + ".validate_resources",
+            side_effect=lambda proposed, client: proposed,
+            autospec=True,
+        ),
         patch(CHAIN + ".AsyncSessionLocal", return_value=Session(test_db)),
         patch(NIGHTLY + ".AsyncSessionLocal", return_value=Session(test_db)),
     ):

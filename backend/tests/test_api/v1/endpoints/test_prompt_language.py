@@ -24,9 +24,11 @@ PLAN = GeminiStudyPlan(goal_name="Xadrez", description="Aberturas.")
 async def onboarding_languages(client, prompt: str, headers: dict) -> list[Language]:
     """The language each onboarding call was given, in order."""
     with (
-        patch(GOALS + ".get_prompt_validation", return_value=VALID) as validate,
-        patch(GOALS + ".generate_onboarding_questions", return_value=NONE) as generate,
-        patch(GOALS + ".generate_study_plan", return_value=PLAN) as plan,
+        patch(GOALS + ".get_prompt_validation", return_value=VALID, autospec=True) as validate,
+        patch(
+            GOALS + ".generate_onboarding_questions", return_value=NONE, autospec=True
+        ) as generate,
+        patch(GOALS + ".generate_study_plan", return_value=PLAN, autospec=True) as plan,
     ):
         await client.post(
             "/api/v1/goals/objective-questions", json={"prompt": prompt}, headers=headers
@@ -59,7 +61,11 @@ async def test_the_tutor_writes_in_the_students_language(
     await test_db.commit()
     reply = GeminiChatResponse(messages=["Oui."])
 
-    with patch("backend.api.v1.endpoints.tutor.gemini_messages_generator", return_value=reply) as g:
+    with patch(
+        "backend.api.v1.endpoints.tutor.gemini_messages_generator",
+        return_value=reply,
+        autospec=True,
+    ) as g:
         await auth_client.post("/api/v1/tutor/messages", json={"message": "How do I start?"})
 
     assert g.call_args.kwargs["language"] == Language.FRENCH
