@@ -14,10 +14,15 @@ from backend.core.language import Language
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.services.resources.found_pages import page_resources
 from backend.services.resources.link_validation import validate_resources
-from backend.services.resources.youtube_search import search_videos
+from backend.services.resources.youtube_search import VIDEOS, search_videos
 from backend.tools.gemini_cli import UNSAVED_GOAL_ID, USE_CASES
 
-pytestmark = [pytest.mark.live, pytest.mark.usefixtures("gemini_key", "youtube_key")]
+# Billed: the grounded search and the description of its sources (Gemini), one
+# video search, and the validator's lookup of each video it returns (YouTube).
+pytestmark = [
+    pytest.mark.live(calls=2 + 1 + VIDEOS),
+    pytest.mark.usefixtures("gemini_key", "youtube_key"),
+]
 
 SAMPLE = next(case for case in USE_CASES if case.name == "resource-search").sample
 

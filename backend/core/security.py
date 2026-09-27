@@ -126,6 +126,10 @@ def verify_token(token: str) -> dict:
 
     Raises:
         HTTPException: If the token is invalid
+
+    `exp` is checked here, on `clock.now()` - the clock `create_access_token`
+    stamped it with - and not by PyJWT, which reads the machine's time: with
+    two clocks, a test that freezes the app's got expiry backwards (#206).
     """
     try:
         payload = jwt.decode(
@@ -134,7 +138,11 @@ def verify_token(token: str) -> dict:
             algorithms=["HS256"],
             issuer=JWT_ISSUER,
             audience=JWT_AUDIENCE,
+            options={"verify_exp": False, "require": ["exp"]},
         )
+        # PyJWT's own rule: expired once now reaches exp, a NumericDate.
+        if not isinstance(payload["exp"], int) or payload["exp"] <= clock.now().timestamp():
+            raise jwt.ExpiredSignatureError("Signature has expired")
         return payload
     except jwt.PyJWTError as err:
         raise HTTPException(

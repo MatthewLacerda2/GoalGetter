@@ -98,6 +98,10 @@ class Guard:
     def check(self, sock, address):
         if sock.family in (socket.AF_INET, socket.AF_INET6):
             if (address[0], address[1]) not in self.endpoints:
+                # Closed here because the refusal is not an OSError, so a caller
+                # like `socket.create_connection` does not close it on its way
+                # out - and an unclosed socket is a ResourceWarning (#206).
+                sock.close()
                 refuse(f"{address[0]}:{address[1]}")
 
     def install(self):

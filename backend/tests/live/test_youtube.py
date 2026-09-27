@@ -15,7 +15,8 @@ from backend.services.resources.link_validation import youtube_picture
 from backend.services.resources.youtube_search import search_videos
 from backend.tools.gemini_cli import UNSAVED_GOAL_ID
 
-pytestmark = [pytest.mark.live, pytest.mark.usefixtures("youtube_key")]
+# Billed: the search, and the validator's lookup of the video it found.
+pytestmark = [pytest.mark.live(calls=2), pytest.mark.usefixtures("youtube_key")]
 
 WATCH = re.compile(r"^https://www\.youtube\.com/watch\?v=[A-Za-z0-9_-]{11}$")
 

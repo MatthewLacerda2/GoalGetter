@@ -31,6 +31,7 @@ google-genai==2.25.0
 pytest==9.1.1
 pytest-asyncio==1.4.0
 pytest-cov==7.1.0
+pytest-randomly==5.0.0
 ruff==0.16.9
 vulture==2.16
 import-linter==2.15

@@ -108,6 +108,11 @@ that parts a `.g.dart`).
   `DATABASE_URL` is a host that cannot resolve, so a job that opens
   `AsyncSessionLocal` without the test's session fails loudly (`fixtures/network.py`).
   CI runs the same targets with `PY_TESTDB=python TEST_DB_MODE=published`.
+  Its config is `[tool.pytest]` in `backend/pyproject.toml` (#206): an unknown marker,
+  a warning, a real `sleep` or a live test outside `tests/live/` fails the run, the
+  order is shuffled (pytest-randomly; the seed is the run's last line), and the whole
+  suite is held to a coverage floor. `FILE=`, `K=` and `ARGS=` run part of it, unmeasured;
+  `make back-pure` runs the tests not marked `db` with no database, in seconds.
 
 Ruff and vulture are in `backend/requirements.txt`, so they live in the backend
 image the way pytest does: that image is where every Python tool runs locally,
@@ -214,7 +219,8 @@ wrong; tests must never be complex.
    Gemini, YouTube or link-validation code or the `google-genai` pin, and on its Run
    workflow button. A live test asserts a contract, never words (the answer parses; N
    texts embed into N vectors; a recommended resource survives validation), makes one
-   call per use case on the smallest input, and the run prints how many calls it made.
+   call per use case on the smallest input, and the run prints how many calls it made — a
+   test that bills more than its `live(calls=N)` marker allows (default 1) fails.
 3. Implement the endpoint until the tests pass. An endpoint that fails its tests is
    not ready.
 

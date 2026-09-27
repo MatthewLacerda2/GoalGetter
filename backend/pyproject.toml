@@ -182,3 +182,51 @@ name = "only services/gemini/client/ imports google.genai"
 type = "protected"
 protected_modules = ["google.genai"]
 allowed_importers = ["backend.services.gemini.client", "backend.tests"]
+
+# pytest (#206). It lives beside ruff, and is found the same way: `make
+# back-test` names backend/tests, and pytest looks for its config from there
+# upward, so this file is the config and backend/ the rootdir.
+#
+# Everything here fails rather than warns. A misspelt marker (`@pytest.mark.lvie`)
+# used to be a warning, and the test then ran in the default suite; an
+# un-awaited coroutine used to be a warning, and passed.
+[tool.pytest]
+minversion = "9.0"
+testpaths = ["tests"]
+# Every `async def test_` is an asyncio test; no decorator needed.
+asyncio_mode = "auto"
+# strict_markers, strict_config, strict_xfail and strict_parametrization_ids.
+strict = true
+# The worktree is mounted into a container that runs as the invoking user: a
+# cache directory there is litter nobody reads (#205).
+addopts = ["-p", "no:cacheprovider"]
+markers = [
+  "live: calls the real Gemini/YouTube APIs and spends quota; lives in tests/live/ and nowhere else, and runs only with --live (#176). `live(calls=N)`: the billed calls it may make, 1 unless it says",
+  "db: reaches the run's Postgres. Applied by tests/conftest.py to every test that uses the test_db fixture, never by hand; `-m 'not db'` runs the rest with no database",
+]
+# Every warning is an error, except two a dependency raises on import, which we
+# cannot fix and which say nothing about our code. Each is pinned to the module
+# that raises it, so the same deprecation in our code still fails.
+filterwarnings = [
+  "error",
+  "ignore:'_UnionGenericAlias' is deprecated:DeprecationWarning:google.genai.types",
+  "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning:slowapi.extension",
+]
+
+# Coverage, measured by every full `make back-test` (#206) and floored: the run
+# fails when the app's coverage drops under `fail_under`. The floor is the
+# measured total when it was set, less a point of slack, so it catches a
+# feature landing untested, not a refactor moving lines around. Raise it when
+# the total rises; never lower it to make a red run green. A selected run
+# (`make back-test K=...`) covers a slice and is not measured.
+[tool.coverage.run]
+source = ["backend"]
+omit = ["backend/tests/*"]
+branch = true
+# Outside the mounted worktree: the container discards it, CI does not care.
+data_file = "/tmp/goalgetter-backend.coverage"
+
+[tool.coverage.report]
+fail_under = 90
+skip_covered = true
+show_missing = true

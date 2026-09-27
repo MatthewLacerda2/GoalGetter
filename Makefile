@@ -56,7 +56,7 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-deps front-lint front-test front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-pure back-image migrate front-version front-deps front-lint front-test front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -108,9 +108,28 @@ back-revision: env ## Draft a migration from the models (M="what changed")
 
 # The suite on a database that exists for this run only: started empty,
 # migrated by the session fixture, rolled back test by test, and removed with
-# its container at the end - pass, fail or Ctrl-C.
-back-test: env ## Backend pytest, on a disposable migrated database of its own
-	@$(WITH_TEST_DB) $(PY_TESTDB) -m pytest backend/tests -o addopts="" -q -p no:cacheprovider
+# its container at the end - pass, fail or Ctrl-C. pytest's own configuration
+# (strict markers, warnings as errors) is backend/pyproject.toml's.
+#
+# A selector runs part of it (#206): FILE= a file or a node id
+# (backend/tests/test_x.py::test_y), K= a -k expression, ARGS= any other pytest
+# flag (a --randomly-seed to replay an order, -x, -m "not db"). The whole suite
+# also measures coverage against [tool.coverage] fail_under; a selected run
+# covers a slice of the code, so it is not measured.
+TEST_SELECTOR = $(FILE)$(K)$(ARGS)
+PYTEST_TARGET = $(or $(FILE),backend/tests) $(if $(K),-k '$(K)') $(ARGS)
+PYTEST_COVERAGE = $(if $(TEST_SELECTOR),,--cov --cov-config=backend/pyproject.toml)
+back-test: env ## Backend pytest, on a disposable migrated database of its own (FILE= K= ARGS= select)
+	@$(WITH_TEST_DB) $(PY_TESTDB) -m pytest $(PYTEST_TARGET) $(PYTEST_COVERAGE) -q
+
+# The tests that need no database (the `db` marker is on every one that does,
+# see tests/conftest.py), with no database and no network: seconds, anywhere
+# the image is. Not a gate - back-test runs these too - but the quick loop for
+# arithmetic. TEST_DATABASE_URL is blanked, so a test that does reach for the
+# database fails saying so instead of finding the one .env names.
+back-pure: ## Backend pytest without the database tests, and without a database (K= ARGS= select)
+	@$(subst --network none,--network none -e TEST_DATABASE_URL=,$(DOCKER_RUN_OFFLINE)) python \
+	  -m pytest $(or $(FILE),backend/tests) -m 'not db' $(if $(K),-k '$(K)') $(ARGS) -q
 
 # Every backend gate runs in this image, so an image older than
 # backend/requirements.txt fails with a bare "No module named ruff". Rebuilding
@@ -373,11 +392,12 @@ gemini: env ## Run one Gemini use case for real (SPENDS QUOTA; no ARGS lists the
 # `make test-live`: the live suite (#176) - one real call per Gemini use case,
 # the embedding batch, the resource search through link validation, and one
 # YouTube search. It asserts contracts, never words, and prints how many calls
-# it made. It SPENDS REAL QUOTA, so no gate depends on it: `make check` and the
+# it made - and fails a test that billed more than its use case makes (#206,
+# tests/live/conftest.py). It SPENDS REAL QUOTA, so no gate depends on it: `make check` and the
 # every-push CI skip these tests, and the default suite fails any test that
 # reaches the network at all. Ask the user before running it.
 test-live: env ## The live suite against the real Gemini and YouTube APIs (SPENDS QUOTA)
-	@$(PY_LIVE) -m pytest backend/tests/live --live -o addopts="" -q -rs -p no:cacheprovider
+	@$(PY_LIVE) -m pytest backend/tests/live --live -q -rs
 
 # `make nightly ARGS='--student <id>'`: the nightly run (#89) by hand, now,
 # instead of at 03:00, logging every decision it takes - which students it
