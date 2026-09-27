@@ -98,6 +98,14 @@ that matters runs on the merge, not on the branch**: merge everything locally, r
   which starts a disposable database for each run and cannot reach this one (#205). An agent
   that needs a running backend gets a database of its own, named in its brief.
   Changing the *schema* is fine when the issue says so; using that one database is not.
+- **The shared backend gate image.** `make back-image` builds one tag every worktree runs
+  its backend gates in. A branch that adds a tool to `backend/requirements.txt` rebuilds
+  it, and every other branch loses that tool: on 2026-09-27 import-linter, pytest-randomly
+  and mypy each vanished from siblings' gates as three branches took turns. An agent that
+  needs a rebuilt image builds its own by name (`BACKEND_IMAGE=goalgetter-backend-<issue>
+  make back-image`, then every gate with that `BACKEND_IMAGE`) and removes it by name
+  when done. The batch rebuilds the shared tag once, from `main`, after the last merge
+  that changed requirements.
 
 ## Make the agent measure
 
@@ -122,6 +130,21 @@ line, or `set -o pipefail`.
 **A log goes to the session's scratchpad, never beside the repo.** Saving a gate's output
 with `> ../f173.log` from a worktree dumps it in `~/Desktop/Repos`, where nothing cleans
 it: 43 such files had piled up there by 2026-09-27. Name the scratchpad path in the brief.
+
+## When green is not the same green
+
+- **A local gate reads the real `.env`; CI has placeholders.** A test that leans on a real
+  value passes here and fails there. On 2026-09-27 it happened twice: an 11-byte
+  `SECRET_KEY` in CI tripped PyJWT's key-length warning once warnings became errors
+  (#206), and an empty `GOOGLE_CLIENT_ID` left a signed test token with no audience
+  (#258). A branch is ready when CI is green, not when the local gate is.
+- **A `live` check that passed may have run nothing.** Without the repository's API-key
+  secrets the live workflow skips itself and concludes `success` (#265). Read its log
+  before calling a Gemini change proven against the real API.
+- **Merge on the sum means rebase and gate again** whenever `main` moved after a branch
+  went green, even if GitHub still says `MERGEABLE`. A PR rebased before a sibling landed
+  was never tested with that sibling: its new tests never ran under the sibling's
+  stricter config, or its schema never met the sibling's snapshot check.
 
 ## Briefing a subagent
 
