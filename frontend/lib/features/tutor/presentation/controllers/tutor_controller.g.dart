@@ -51,7 +51,7 @@ final class TutorControllerProvider
   TutorController create() => TutorController();
 }
 
-String _$tutorControllerHash() => r'75373aa3f8901a41e09ac718dad5377affb8788a';
+String _$tutorControllerHash() => r'581354f0049c9dfa6365c2cda52ea3ff08bee7af';
 
 /// The chat with the tutor on the active goal. [build] loads its newest page,
 /// again whenever the active goal changes (#220); `ref.invalidate` loads it

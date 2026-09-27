@@ -81,7 +81,7 @@ final class LessonControllerProvider
   LessonController create() => LessonController();
 }
 
-String _$lessonControllerHash() => r'89e08a7b8ca53be66d454fd3307d10fb018ee69b';
+String _$lessonControllerHash() => r'bc2df458399bf4f0bf518f56774d0ce27814796f';
 
 /// Runs one lesson on the active goal: open it, answer each question once
 /// (graded inline for feedback), submit those answers as one batch, then
