@@ -48,12 +48,9 @@ class ApiException extends ApiFailure {
     } on FormatException {
       // Not JSON (a proxy error page, an empty body): keep the status.
     }
-    final forTheLog = detail is String && detail.isNotEmpty
-        ? detail
-        : 'HTTP $status';
     return ApiException(
       status,
-      forTheLog,
+      detail is String && detail.isNotEmpty ? detail : 'HTTP $status',
       code: ErrorCode.fromWire(code),
       path: path,
     );
