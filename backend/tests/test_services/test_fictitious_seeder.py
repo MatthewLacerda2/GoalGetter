@@ -119,3 +119,20 @@ async def test_the_seeded_hours_are_the_students_wall_clock(test_db):
     assert len(late) == 1
     assert late[0].answered_at.tzinfo is not None
     assert clock.app_date(late[0].answered_at) == date(2026, 9, 14)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("minute", [0, 5])
+async def test_a_moment_ago_is_today_just_after_midnight(test_db, minute):
+    """#233: the plan's last lesson is "today, a moment ago". Seeded between
+    00:00 and 00:30 app-local, half an hour ago is yesterday - yet every answer
+    of that lesson must fall on today, and the chat about it after it."""
+    seeded_at = clock.app_moment(date(2026, 9, 24), 0, minute)
+    result = await seed_fictitious_student(test_db, now=seeded_at)
+    goal = await active_goal(test_db, result)
+    latest = (await lessons_of(test_db, goal.id))[0]
+    answers = await StudentAnswerRepository(test_db).list_by_lesson(latest.lesson_id)
+    chat = (await ChatMessageRepository(test_db).list_by_goal(goal.id, 1))[0]
+
+    assert {clock.app_date(a.created_at) for a in answers} == {date(2026, 9, 24)}
+    assert chat.created_at > latest.answered_at
