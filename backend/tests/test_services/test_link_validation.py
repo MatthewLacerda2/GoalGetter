@@ -1,5 +1,4 @@
 import httpx
-import pytest
 
 from backend.models.resource import Resource, StudyResourceType
 from backend.services.resources.link_validation import validate_resources
@@ -53,7 +52,6 @@ def pages(*links, kind=StudyResourceType.webpage):
     return [make(kind, link) for link in links]
 
 
-@pytest.mark.asyncio
 async def test_a_google_redirect_is_stored_as_the_page_it_lands_on():
     """The grounding source is a redirect; the resource keeps the real address"""
     (page,) = pages(REDIRECT + "abc")
@@ -63,7 +61,6 @@ async def test_a_google_redirect_is_stored_as_the_page_it_lands_on():
     assert page.link == LESSONS
 
 
-@pytest.mark.asyncio
 async def test_only_a_page_that_is_gone_is_dropped():
     """404 and 410 go; a 403 bot wall is a page that exists, and stays"""
     gone, removed, walled, broken = pages(*(REDIRECT + n for n in "abcd"))
@@ -85,7 +82,6 @@ async def test_only_a_page_that_is_gone_is_dropped():
     assert walled.link == "https://c.dev/x"
 
 
-@pytest.mark.asyncio
 async def test_a_redirect_that_stays_on_google_is_never_stored():
     (page,) = pages(REDIRECT + "abc")
     client = web_client({REDIRECT + "abc": httpx.Response(200)})
@@ -93,7 +89,6 @@ async def test_a_redirect_that_stays_on_google_is_never_stored():
     assert await validate_resources([page], client=client) == []
 
 
-@pytest.mark.asyncio
 async def test_pdf_must_really_be_a_pdf():
     """An HTML page pretending to be an ebook is dropped; a real PDF, or a
     .pdf behind a bot wall, is kept"""

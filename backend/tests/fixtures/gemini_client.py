@@ -55,7 +55,7 @@ class FakeModels:
         self.calls.append(SimpleNamespace(model=model, contents=contents, config=config))
         outcome = self.outcomes[min(len(self.calls) - 1, len(self.outcomes) - 1)]
         if outcome is HANG:
-            await asyncio.sleep(3600)
+            await asyncio.Event().wait()  # until cancelled; a sleep would be refused
         if isinstance(outcome, BaseException):
             raise outcome
         return outcome

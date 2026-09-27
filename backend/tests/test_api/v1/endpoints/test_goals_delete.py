@@ -1,6 +1,5 @@
 import uuid
 
-import pytest
 from sqlalchemy import select
 
 from backend.models.goal import Goal
@@ -25,7 +24,6 @@ async def add_resource(db, goal):
     await db.flush()
 
 
-@pytest.mark.asyncio
 async def test_delete_active_goal_clears_it_and_its_resources(
     auth_client, test_db, test_user, goal_factory
 ):
@@ -43,7 +41,6 @@ async def test_delete_active_goal_clears_it_and_its_resources(
     ).first() is None
 
 
-@pytest.mark.asyncio
 async def test_delete_inactive_goal_keeps_the_active_one(
     auth_client, test_db, test_user, goal_factory
 ):
@@ -55,7 +52,6 @@ async def test_delete_inactive_goal_keeps_the_active_one(
     assert test_user.current_goal_id == active.id
 
 
-@pytest.mark.asyncio
 async def test_delete_someone_elses_goal_is_404(
     auth_client, test_db, student_factory, goal_factory
 ):
@@ -67,6 +63,5 @@ async def test_delete_someone_elses_goal_is_404(
     assert (await test_db.execute(select(Goal).where(Goal.id == theirs.id))).first() is not None
 
 
-@pytest.mark.asyncio
 async def test_delete_requires_auth(client):
     assert (await client.delete(endpoint(uuid.uuid4()))).status_code == 401

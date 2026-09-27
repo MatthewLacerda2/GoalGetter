@@ -2,15 +2,12 @@
 message of his to read one from, so it is `students.language`, else the
 language his goals are written in."""
 
-import pytest
-
 from backend.core.language import Language
 from backend.models.student_context import StudentContext
 from backend.services.jobs.student_chain import run_student_chain
 from backend.tests.fixtures.jobs import chain_gemini
 
 
-@pytest.mark.asyncio
 async def test_every_step_is_given_his_chosen_language(test_db, test_user, goal_factory):
     await goal_factory(test_user, active=True)
     test_user.language = "de"
@@ -27,7 +24,6 @@ async def test_every_step_is_given_his_chosen_language(test_db, test_user, goal_
     }
 
 
-@pytest.mark.asyncio
 async def test_without_a_choice_the_language_of_his_goals(test_db, test_user, goal_factory):
     await goal_factory(
         test_user, active=True, name="Xadrez", description="Eu quero aprender as aberturas"

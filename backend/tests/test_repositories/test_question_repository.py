@@ -1,12 +1,10 @@
 import numpy as np
-import pytest
 
 from backend.core.vectors import NUM_DIMENSIONS
 from backend.repositories.question_repository import QuestionRepository
 from backend.tests.fixtures.lessons import at
 
 
-@pytest.mark.asyncio
 async def test_bank_history_reports_only_the_latest_answer(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -31,7 +29,6 @@ async def test_bank_history_reports_only_the_latest_answer(
     )
 
 
-@pytest.mark.asyncio
 async def test_bank_history_is_scoped_to_the_goal(
     test_db, test_user, goal_factory, question_factory
 ):
@@ -43,7 +40,6 @@ async def test_bank_history_is_scoped_to_the_goal(
     assert [h.question.id for h in history] == [mine.id]
 
 
-@pytest.mark.asyncio
 async def test_list_missing_embeddings_leaves_the_embedded_rows_in_the_database(
     test_db, test_user, goal_factory, question_factory
 ):
@@ -65,7 +61,6 @@ async def test_list_missing_embeddings_leaves_the_embedded_rows_in_the_database(
     assert [row.id for row in found] == [pending.id]
 
 
-@pytest.mark.asyncio
 async def test_list_missing_embeddings_stops_at_the_cap_it_is_given(
     test_db, test_user, goal_factory, question_factory
 ):

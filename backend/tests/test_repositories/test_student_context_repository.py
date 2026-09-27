@@ -1,10 +1,7 @@
-import pytest
-
 from backend.models.student_context import StudentContext
 from backend.repositories.student_context_repository import StudentContextRepository
 
 
-@pytest.mark.asyncio
 async def test_list_valid_skips_retired_and_other_students(test_db, test_user, student_factory):
     """A context belongs to the student (#87): every goal of theirs reads the
     same ones, and a retired one is kept but not read."""

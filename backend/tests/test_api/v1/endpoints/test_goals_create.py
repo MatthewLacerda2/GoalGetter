@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import pytest
 from sqlalchemy import select
 
 from backend.models.goal import Goal
@@ -21,7 +20,6 @@ BODY = {
 }
 
 
-@pytest.mark.asyncio
 async def test_create_goal_persists_and_asks_the_standard_questions(
     auth_client, test_db, test_user
 ):
@@ -45,7 +43,6 @@ async def test_create_goal_persists_and_asks_the_standard_questions(
     assert chain.call_args.args == (str(test_user.id),)
 
 
-@pytest.mark.asyncio
 async def test_create_goal_costs_no_gemini_call(auth_client):
     """The introduction screens were the one synchronous call here, and they are
     gone (#132): a premium call saved on every goal created"""
@@ -56,7 +53,6 @@ async def test_create_goal_costs_no_gemini_call(auth_client):
     gemini.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test_create_goal_requires_auth(client):
     """No Authorization header -> rejected, goal never created"""
     with patch(CHAIN) as chain:
@@ -65,7 +61,6 @@ async def test_create_goal_requires_auth(client):
     chain.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
     auth_client, test_db, test_user
 ):
@@ -88,7 +83,6 @@ async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
     ]
 
 
-@pytest.mark.asyncio
 async def test_create_goal_stores_how_long_each_answer_took(auth_client, test_db, test_user):
     """Each Gemini question keeps the seconds the app measured on it (#174); the
     student's own words are not timed, so their row has none"""
@@ -108,7 +102,6 @@ async def test_create_goal_stores_how_long_each_answer_took(auth_client, test_db
     ]
 
 
-@pytest.mark.asyncio
 async def test_create_goal_without_a_duration_still_stores_the_answer(
     auth_client, test_db, test_user
 ):

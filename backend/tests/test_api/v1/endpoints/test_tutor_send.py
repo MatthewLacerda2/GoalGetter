@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import pytest
 from google.genai.errors import APIError
 from sqlalchemy import select
 
@@ -14,7 +13,6 @@ GEMINI = "backend.api.v1.endpoints.tutor.gemini_messages_generator"
 REPLY = GeminiChatResponse(messages=["Short answer.", "Try it now."])
 
 
-@pytest.mark.asyncio
 async def test_send_persists_the_exchange(auth_client, test_db, test_user, goal_factory):
     goal = await goal_factory(test_user, active=True)
     with patch(GEMINI, return_value=REPLY):
@@ -31,7 +29,6 @@ async def test_send_persists_the_exchange(auth_client, test_db, test_user, goal_
     assert (row.goal_id, row.tutor_responses) == (goal.id, ["Short answer.", "Try it now."])
 
 
-@pytest.mark.asyncio
 async def test_send_gives_gemini_the_window_oldest_first(
     auth_client, test_db, test_user, goal_factory, exchange_factory
 ):
@@ -52,7 +49,6 @@ async def test_send_gives_gemini_the_window_oldest_first(
     assert (name, description) == (goal.name, goal.description)
 
 
-@pytest.mark.asyncio
 async def test_send_keeps_gemini_status_code(auth_client, test_db, test_user, goal_factory):
     await goal_factory(test_user, active=True)
     err = APIError.__new__(APIError)
@@ -63,7 +59,6 @@ async def test_send_keeps_gemini_status_code(auth_client, test_db, test_user, go
     assert (await test_db.execute(select(ChatMessage))).first() is None
 
 
-@pytest.mark.asyncio
 async def test_send_without_active_goal_is_404(auth_client, test_user, goal_factory):
     await goal_factory(test_user)
     with patch(GEMINI) as gemini:
@@ -72,7 +67,6 @@ async def test_send_without_active_goal_is_404(auth_client, test_user, goal_fact
     gemini.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test_send_holds_no_transaction_while_gemini_answers(
     auth_client, test_db, test_user, goal_factory
 ):

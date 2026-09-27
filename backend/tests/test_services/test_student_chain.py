@@ -51,7 +51,6 @@ async def answered_the_standard_questions(test_db, goal):
     return as_of
 
 
-@pytest.mark.asyncio
 async def test_the_chain_runs_context_then_questions_then_resources(
     test_db, test_user, goal_factory
 ):
@@ -66,7 +65,6 @@ async def test_the_chain_runs_context_then_questions_then_resources(
     assert [name for name, _ in calls] == ["context", "placement", "resources"]
 
 
-@pytest.mark.asyncio
 async def test_the_first_run_reads_the_onboarding_from_the_database(
     test_db, test_user, goal_factory
 ):
@@ -86,7 +84,6 @@ async def test_the_first_run_reads_the_onboarding_from_the_database(
     assert [(c.state, c.metacognition) for c in stored] == [("Beginner", "Curious")]
 
 
-@pytest.mark.asyncio
 async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
     test_db, test_user, goal_factory
 ):
@@ -115,7 +112,6 @@ async def test_questions_and_resources_read_the_context_the_chain_just_wrote(
     assert sorted(h.question.text for h in bank) == ["Q0", "Q1"]
 
 
-@pytest.mark.asyncio
 async def test_a_later_run_reviews_the_context_and_buys_nothing_for_what_went_wrong(
     test_db, test_user, goal_factory, question_factory, answer_factory, exchange_factory
 ):
@@ -143,7 +139,6 @@ async def test_a_later_run_reviews_the_context_and_buys_nothing_for_what_went_wr
     assert [c["prompt"] for c in chats] == ["q0"]
 
 
-@pytest.mark.asyncio
 async def test_the_resource_search_is_told_which_links_the_goal_already_has(
     test_db, test_user, goal_factory
 ):
@@ -164,7 +159,6 @@ async def test_the_resource_search_is_told_which_links_the_goal_already_has(
     assert links == ["https://held.dev/a", "https://new.dev/b"]
 
 
-@pytest.mark.asyncio
 async def test_resources_never_run_without_a_context(test_db, test_user, goal_factory):
     """'You cannot have resources without memory' - no context, no search"""
     await goal_factory(test_user, active=True)
@@ -176,7 +170,6 @@ async def test_resources_never_run_without_a_context(test_db, test_user, goal_fa
     assert calls == []
 
 
-@pytest.mark.asyncio
 async def test_the_caller_can_ask_for_a_chain_without_resources(test_db, test_user, goal_factory):
     """What the nightly run does six nights a week (#89): resources are weekly"""
     goal = await goal_factory(test_user, active=True)
@@ -190,7 +183,6 @@ async def test_the_caller_can_ask_for_a_chain_without_resources(test_db, test_us
     assert await ResourceRepository(test_db).list_by_goal(goal.id) == []
 
 
-@pytest.mark.asyncio
 async def test_a_failed_step_keeps_what_the_steps_before_it_wrote(test_db, test_user, goal_factory):
     """Questions blow up: the context stays committed, resources never run"""
     goal = await goal_factory(test_user, active=True)
@@ -207,7 +199,6 @@ async def test_a_failed_step_keeps_what_the_steps_before_it_wrote(test_db, test_
     assert await ResourceRepository(test_db).list_by_goal(goal.id) == []
 
 
-@pytest.mark.asyncio
 async def test_the_kickoff_never_raises_into_goal_creation(test_db, test_user, goal_factory):
     """Fire-and-forget: the failure is logged, the request that fired it is long gone"""
     goal = await goal_factory(test_user, active=True)
@@ -221,7 +212,6 @@ async def test_the_kickoff_never_raises_into_goal_creation(test_db, test_user, g
     assert len(await StudentContextRepository(test_db).list_valid(test_user.id)) == 1
 
 
-@pytest.mark.asyncio
 async def test_only_the_active_goal_is_worked_on(test_db, test_user, goal_factory):
     """The user, 2026-09-26: a goal he is not working on is paused, not
     unlearned - nothing is written for it until he picks it again. Law is paused;
@@ -240,7 +230,6 @@ async def test_only_the_active_goal_is_worked_on(test_db, test_user, goal_factor
     assert await QuestionRepository(test_db).list_bank_history(history.id) != []
 
 
-@pytest.mark.asyncio
 async def test_a_student_with_no_goals_spends_nothing(test_db, test_user):
     """Nothing to write about, nothing to generate for: no Gemini call at all"""
     calls = []
@@ -250,7 +239,6 @@ async def test_a_student_with_no_goals_spends_nothing(test_db, test_user):
     assert calls == []
 
 
-@pytest.mark.asyncio
 async def test_the_batch_goal_creation_fires_never_reads_the_standard_questions(
     test_db, test_user, goal_factory
 ):
@@ -271,7 +259,6 @@ async def test_the_batch_goal_creation_fires_never_reads_the_standard_questions(
     assert dict(calls)["context"][2] == [PROMPT_PAIR, *ANSWERS]
 
 
-@pytest.mark.asyncio
 async def test_the_generation_after_it_does_read_them(test_db, test_user, goal_factory):
     """Same chain, same student, no cutoff: every run but goal creation's own"""
     goal = await goal_factory(test_user, active=True)
@@ -285,7 +272,6 @@ async def test_the_generation_after_it_does_read_them(test_db, test_user, goal_f
     assert dict(calls)["context"][2] == [PROMPT_PAIR, *ANSWERS, STANDARD_PAIR]
 
 
-@pytest.mark.asyncio
 async def test_a_review_is_told_what_the_student_said_about_himself(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):

@@ -17,7 +17,6 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import numpy as np
-import pytest
 
 from backend.core import clock
 from backend.core.vectors import NUM_DIMENSIONS
@@ -75,7 +74,6 @@ def tally(tallies, column: str):
     return next(item for item in tallies if item.column == column)
 
 
-@pytest.mark.asyncio
 async def test_a_row_that_already_has_its_vector_is_not_sent(
     test_db, test_user, goal_factory, question_factory
 ):
@@ -94,7 +92,6 @@ async def test_a_row_that_already_has_its_vector_is_not_sent(
     assert tally(tallies, "questions.text_embedding").queued == 1
 
 
-@pytest.mark.asyncio
 async def test_half_an_embedded_row_only_sends_the_half_that_is_null(
     test_db, test_user, goal_factory, exchange_factory
 ):
@@ -118,7 +115,6 @@ async def test_half_an_embedded_row_only_sends_the_half_that_is_null(
     assert tally(tallies, "chat_messages.tutor_response_embedding").filled == 1
 
 
-@pytest.mark.asyncio
 async def test_a_night_with_nothing_null_makes_no_gemini_call_at_all(
     test_db, test_user, goal_factory, question_factory
 ):
@@ -139,7 +135,6 @@ async def test_a_night_with_nothing_null_makes_no_gemini_call_at_all(
     assert sum(item.filled for item in tallies) == 0
 
 
-@pytest.mark.asyncio
 async def test_a_failed_batch_leaves_the_rows_null_for_the_next_run(
     test_db, test_user, goal_factory, question_factory
 ):
@@ -161,7 +156,6 @@ async def test_a_failed_batch_leaves_the_rows_null_for_the_next_run(
     assert question.text_embedding is not None
 
 
-@pytest.mark.asyncio
 async def test_an_empty_text_is_never_sent_and_stays_null(test_db, test_user, goal_factory):
     """A goal with no description has nothing to say; a zero vector would lie"""
     goal = await goal_factory(test_user, description="   ")
@@ -176,7 +170,6 @@ async def test_an_empty_text_is_never_sent_and_stays_null(test_db, test_user, go
     assert tally(tallies, "goals.description_embedding").left == 1
 
 
-@pytest.mark.asyncio
 async def test_every_one_of_the_eight_columns_is_filled(
     test_db, test_user, goal_factory, question_factory, exchange_factory
 ):
@@ -225,7 +218,6 @@ async def test_every_one_of_the_eight_columns_is_filled(
     )
 
 
-@pytest.mark.asyncio
 async def test_a_tutor_reply_is_embedded_as_one_text_not_as_its_bubbles(
     test_db, test_user, goal_factory, exchange_factory
 ):
@@ -252,7 +244,6 @@ def test_the_backfill_fires_at_midnight_three_hours_before_the_chain():
     assert chain - backfill == timedelta(hours=clock.NIGHTLY_RUN_HOUR - clock.EMBEDDING_RUN_HOUR)
 
 
-@pytest.mark.asyncio
 async def test_the_runner_waits_for_whichever_hour_comes_first():
     """One process, one loop, one job at a time - never the two at once"""
     slept = []

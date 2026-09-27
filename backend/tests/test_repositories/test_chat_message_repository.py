@@ -1,9 +1,6 @@
-import pytest
-
 from backend.repositories.chat_message_repository import ChatMessageRepository
 
 
-@pytest.mark.asyncio
 async def test_list_by_goal_is_newest_first_before_cursor(
     test_db, test_user, goal_factory, exchange_factory
 ):
@@ -19,7 +16,6 @@ async def test_list_by_goal_is_newest_first_before_cursor(
     ]
 
 
-@pytest.mark.asyncio
 async def test_exchange_goes_with_its_goal(test_db, test_user, goal_factory, exchange_factory):
     """goal_id is ON DELETE CASCADE at the database level."""
     goal = await goal_factory(test_user)

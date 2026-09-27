@@ -39,7 +39,7 @@ class Recorder:
         self.calls += 1
         outcome = self.outcomes[min(self.calls - 1, len(self.outcomes) - 1)]
         if outcome is HANG:
-            await asyncio.sleep(3600)
+            await asyncio.Event().wait()  # until cancelled; a sleep would be refused
         if isinstance(outcome, BaseException):
             raise outcome
         return outcome
@@ -71,7 +71,6 @@ def no_waiting(monkeypatch):
         )
 
 
-@pytest.mark.asyncio
 async def test_transient_failure_then_success():
     call, clock = Recorder(api_error(503), "answer"), Clock()
 
@@ -82,7 +81,6 @@ async def test_transient_failure_then_success():
     assert clock.delays == [BACKGROUND_BUDGET.first_delay]
 
 
-@pytest.mark.asyncio
 async def test_a_call_that_never_landed_is_retried():
     call, clock = Recorder(httpx.ConnectTimeout("upstream gone"), "answer"), Clock()
 
@@ -90,7 +88,6 @@ async def test_a_call_that_never_landed_is_retried():
     assert call.calls == 2
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("code", [400, 401, 402, 403, 404])
 async def test_permanent_failure_is_not_retried(code):
     """Depleted credit (402), the key, a rejected request: asked once, then raised."""
@@ -103,7 +100,6 @@ async def test_permanent_failure_is_not_retried(code):
     assert clock.delays == []
 
 
-@pytest.mark.asyncio
 async def test_a_bug_in_our_code_is_not_retried():
     call = Recorder(ValueError("bad schema"))
 
@@ -113,7 +109,6 @@ async def test_a_bug_in_our_code_is_not_retried():
     assert call.calls == 1
 
 
-@pytest.mark.asyncio
 async def test_budget_is_bounded_and_backs_off():
     call, clock = Recorder(api_error(503)), Clock()
 
@@ -124,7 +119,6 @@ async def test_budget_is_bounded_and_backs_off():
     assert clock.delays == [2.0, 4.0, 8.0]
 
 
-@pytest.mark.asyncio
 async def test_a_waiting_user_gets_the_shorter_budget():
     call, clock = Recorder(api_error(429)), Clock()
 
@@ -135,7 +129,6 @@ async def test_a_waiting_user_gets_the_shorter_budget():
     assert sum(clock.delays) < 1.0
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("code", [402, 429])
 async def test_request_surfaces_geminis_status_code(no_waiting, code):
     call = Recorder(api_error(code))
@@ -146,7 +139,6 @@ async def test_request_surfaces_geminis_status_code(no_waiting, code):
     assert raised.value.status_code == code
 
 
-@pytest.mark.asyncio
 async def test_request_retries_then_answers(no_waiting):
     call = Recorder(api_error(503), "reply")
 
@@ -154,7 +146,6 @@ async def test_request_retries_then_answers(no_waiting):
     assert call.calls == 2
 
 
-@pytest.mark.asyncio
 async def test_unreachable_gemini_is_a_504(no_waiting):
     call = Recorder(httpx.ConnectError("no route"))
 
@@ -165,7 +156,6 @@ async def test_unreachable_gemini_is_a_504(no_waiting):
     assert call.calls == 2
 
 
-@pytest.mark.asyncio
 async def test_background_work_raises_the_error_unchanged(no_waiting):
     call = Recorder(api_error(500))
 
@@ -176,7 +166,6 @@ async def test_background_work_raises_the_error_unchanged(no_waiting):
     assert call.calls == 4
 
 
-@pytest.mark.asyncio
 async def test_a_call_that_hangs_past_its_deadline_fails():
     """#216: nothing bounded a call before, and a hung one held its worker."""
     call, clock = Recorder(HANG), Clock()
@@ -188,7 +177,6 @@ async def test_a_call_that_hangs_past_its_deadline_fails():
     assert call.calls == 2
 
 
-@pytest.mark.asyncio
 async def test_a_slow_call_is_asked_again_and_can_answer():
     call = Recorder(HANG, "answer")
     budget = RetryBudget(attempts=2, first_delay=0, timeout=TINY)
@@ -196,7 +184,6 @@ async def test_a_slow_call_is_asked_again_and_can_answer():
     assert await call_with_retry(call, "test", budget=budget, sleep=Clock()) == "answer"
 
 
-@pytest.mark.asyncio
 async def test_a_request_past_its_deadline_is_a_504(no_waiting):
     call = Recorder(HANG)
 
@@ -207,7 +194,6 @@ async def test_a_request_past_its_deadline_is_a_504(no_waiting):
     assert call.calls == REQUEST_BUDGET.attempts
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("code", [401, 403])
 async def test_a_refused_key_is_never_a_401_to_the_app(no_waiting, code):
     """The app reads a 401 as "you are signed out"; our key is not his session"""
@@ -217,7 +203,6 @@ async def test_a_refused_key_is_never_a_401_to_the_app(no_waiting, code):
     assert raised.value.status_code == 502
 
 
-@pytest.mark.asyncio
 async def test_the_budget_is_the_callers(no_waiting):
     """A use case does not say how hard to try: the entry point it runs in does"""
     request, background = Recorder(api_error(503)), Recorder(api_error(503))

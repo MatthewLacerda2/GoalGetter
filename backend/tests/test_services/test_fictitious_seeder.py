@@ -25,7 +25,6 @@ async def lessons_of(db, goal_id, limit=50):
     return await StudentAnswerRepository(db).list_recent_lessons_by_goal(goal_id, limit)
 
 
-@pytest.mark.asyncio
 async def test_the_student_is_fictitious_claude(test_db):
     student = (await seed_fictitious_student(test_db)).student
     assert student.name == "Fictitious Claude"
@@ -33,7 +32,6 @@ async def test_the_student_is_fictitious_claude(test_db):
     assert student.email == "fictitious-claude@fictitious.invalid"
 
 
-@pytest.mark.asyncio
 async def test_it_creates_the_history(test_db):
     result = await seed_fictitious_student(test_db)
     goal = await active_goal(test_db, result)
@@ -56,7 +54,6 @@ async def test_it_creates_the_history(test_db):
     assert len(await StudentContextRepository(test_db).list_valid(result.student.id)) == 1
 
 
-@pytest.mark.asyncio
 async def test_every_goal_ends_above_where_it_started(test_db):
     """The seeded elo lands only on the goal's rating (#131) and is not invented
     (#62): it is what replaying the seeded answers actually pays."""
@@ -64,7 +61,6 @@ async def test_every_goal_ends_above_where_it_started(test_db):
         assert goal.rating > START_RATING
 
 
-@pytest.mark.asyncio
 async def test_the_streak_is_real(test_db):
     """The gap six days ago is a day off, not a reset (#204), so the streak
     passes it; the empty days before the goal began reset it, so it stops at
@@ -73,7 +69,6 @@ async def test_the_streak_is_real(test_db):
     assert 6 < await student_streak(test_db, student.id) <= 14
 
 
-@pytest.mark.asyncio
 async def test_a_rerun_writes_nothing(test_db):
     first = await seed_fictitious_student(test_db)
     goal = await active_goal(test_db, first)
@@ -86,7 +81,6 @@ async def test_a_rerun_writes_nothing(test_db):
     assert len(await ChatMessageRepository(test_db).list_by_goal(goal.id, 50)) == 8
 
 
-@pytest.mark.asyncio
 async def test_fresh_rebuilds_the_student(test_db):
     first = await seed_fictitious_student(test_db)
     fresh = await seed_fictitious_student(test_db, fresh=True)
@@ -97,7 +91,6 @@ async def test_fresh_rebuilds_the_student(test_db):
     assert await lessons_of(test_db, first.goals[0].id) == []
 
 
-@pytest.mark.asyncio
 async def test_it_reuses_a_student_dev_login_made(test_db, student_factory):
     """`make claude-token` may have run first: the history goes on that row."""
     existing = await student_factory(
@@ -110,7 +103,6 @@ async def test_it_reuses_a_student_dev_login_made(test_db, student_factory):
     assert result.student.id == existing.id
 
 
-@pytest.mark.asyncio
 async def test_the_seeded_hours_are_the_students_wall_clock(test_db):
     """#92: history_data's hours are the student's. The plan has a lesson 10
     days ago at 22:00, which is 01:00 UTC the next day - it must read back at
@@ -126,7 +118,6 @@ async def test_the_seeded_hours_are_the_students_wall_clock(test_db):
     assert clock.app_date(late[0].answered_at) == date(2026, 9, 14)
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("minute", [0, 5])
 async def test_a_moment_ago_is_today_just_after_midnight(test_db, minute):
     """#233: the plan's last lesson is "today, a moment ago". Seeded between

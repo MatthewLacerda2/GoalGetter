@@ -14,8 +14,6 @@ evidence of anything.
 
 from datetime import UTC, datetime, timedelta
 
-import pytest
-
 from backend.models.frontier import Frontier
 from backend.repositories.frontier_repository import FrontierRepository
 
@@ -24,7 +22,6 @@ async def history(test_db, goal) -> list[str]:
     return [row.definition for row in await FrontierRepository(test_db).list_by_goal(goal.id)]
 
 
-@pytest.mark.asyncio
 async def test_a_new_goal_has_exactly_one_frontier_and_it_is_its_description(
     test_db, test_user, goal_factory
 ):
@@ -36,7 +33,6 @@ async def test_a_new_goal_has_exactly_one_frontier_and_it_is_its_description(
     assert current.definition == "Understand circuits."
 
 
-@pytest.mark.asyncio
 async def test_the_first_frontier_is_dated_with_the_goal_not_with_tonight(
     test_db, test_user, goal_factory
 ):
@@ -48,7 +44,6 @@ async def test_the_first_frontier_is_dated_with_the_goal_not_with_tonight(
     assert current.created_at == past
 
 
-@pytest.mark.asyncio
 async def test_a_goal_with_no_description_still_has_a_frontier(test_db, test_user, goal_factory):
     """As empty as what it was written from - but there, so no reader branches"""
     goal = await goal_factory(test_user, description=None)
@@ -56,7 +51,6 @@ async def test_a_goal_with_no_description_still_has_a_frontier(test_db, test_use
     assert await history(test_db, goal) == [""]
 
 
-@pytest.mark.asyncio
 async def test_the_current_frontier_is_the_newest_and_the_history_stays_in_order(
     test_db, test_user, goal_factory
 ):
@@ -75,7 +69,6 @@ async def test_the_current_frontier_is_the_newest_and_the_history_stays_in_order
     ]
 
 
-@pytest.mark.asyncio
 async def test_a_frontier_is_never_deleted(test_db, test_user, goal_factory):
     """The history is where the student has been taken; it does not shrink"""
     goal = await goal_factory(test_user)

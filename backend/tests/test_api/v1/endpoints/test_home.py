@@ -1,14 +1,11 @@
 from datetime import timedelta
 
-import pytest
-
 from backend.core import clock
 from backend.tests.fixtures.lessons import days_ago
 
 ENDPOINT = "/api/v1/home"
 
 
-@pytest.mark.asyncio
 async def test_no_active_goal_is_404(auth_client, test_user, goal_factory):
     await goal_factory(test_user)
     response = await auth_client.get(ENDPOINT)
@@ -16,7 +13,6 @@ async def test_no_active_goal_is_404(auth_client, test_user, goal_factory):
     assert response.json()["detail"] == "No active goal"
 
 
-@pytest.mark.asyncio
 async def test_home_is_the_active_goals_dashboard(
     auth_client, test_user, goal_factory, lesson_factory
 ):
@@ -38,7 +34,6 @@ async def test_home_is_the_active_goals_dashboard(
     }
 
 
-@pytest.mark.asyncio
 async def test_home_reads_only_the_active_goal(
     auth_client, test_user, goal_factory, lesson_factory
 ):
@@ -53,7 +48,6 @@ async def test_home_reads_only_the_active_goal(
     assert body["current_streak"] == 2  # user-wide; yesterday is a day off (#204)
 
 
-@pytest.mark.asyncio
 async def test_an_answer_at_2200_brasilia_is_that_days_lesson(
     auth_client, test_user, goal_factory, question_factory, answer_factory
 ):

@@ -1,10 +1,7 @@
-import pytest
-
 from backend.repositories.refresh_token_repository import RefreshTokenRepository
 from backend.services.auth import token_rotation
 
 
-@pytest.mark.asyncio
 async def test_logout_success(client, test_db, test_user):
     """Test successful logout revokes the refresh token"""
     token = await token_rotation.issue(test_db, test_user.id)

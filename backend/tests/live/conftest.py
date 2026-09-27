@@ -6,6 +6,12 @@ Data API behind httpx -
 and the total is printed at the end of the run, so a run's cost is a number and
 not a guess. Link checks against ordinary web pages are counted apart: they
 reach the network but nobody bills them.
+
+**The count is also a ceiling** (#206). A live test makes one billed call - the
+use case it names - unless its marker says otherwise (`live(calls=3)`), and a
+test that bills more fails. So a loop, a retry storm or a use case that grew a
+second call is a red run, not a larger bill nobody reads. A Gemini call that
+raised is not billed and not counted against it; it is printed apart.
 """
 
 from collections import Counter
@@ -21,8 +27,10 @@ CALLS: Counter[str] = Counter()
 
 GEMINI_GENERATE = "Gemini generate_content"
 GEMINI_EMBED = "Gemini embed_content"
+GEMINI_FAILED = "Gemini calls that raised (not billed)"
 YOUTUBE = "YouTube Data API"
 LINK_CHECK = "link checks (not billed)"
+UNBILLED = (GEMINI_FAILED, LINK_CHECK)
 
 GEMINI_HOST = "generativelanguage.googleapis.com"
 
@@ -37,13 +45,20 @@ def count_calls():
         models = built.aio.models
         generate, embed = models.generate_content, models.embed_content
 
+        async def counted(name, call, *a, **kw):
+            try:
+                answer = await call(*a, **kw)
+            except BaseException:
+                CALLS[GEMINI_FAILED] += 1
+                raise
+            CALLS[name] += 1
+            return answer
+
         async def counted_generate(*a, **kw):
-            CALLS[GEMINI_GENERATE] += 1
-            return await generate(*a, **kw)
+            return await counted(GEMINI_GENERATE, generate, *a, **kw)
 
         async def counted_embed(*a, **kw):
-            CALLS[GEMINI_EMBED] += 1
-            return await embed(*a, **kw)
+            return await counted(GEMINI_EMBED, embed, *a, **kw)
 
         models.generate_content = counted_generate
         models.embed_content = counted_embed
@@ -68,6 +83,20 @@ def count_calls():
         httpx.AsyncClient.send = real_send
 
 
+def billed() -> int:
+    return sum(n for name, n in CALLS.items() if name not in UNBILLED)
+
+
+@pytest.fixture(autouse=True)
+def within_budget(request, count_calls):
+    """Fail the test that billed more calls than its use case makes."""
+    allowed = request.node.get_closest_marker("live").kwargs.get("calls", 1)
+    before = billed()
+    yield
+    spent = billed() - before
+    assert spent <= allowed, f"billed {spent} calls; this use case makes {allowed}"
+
+
 @pytest.fixture
 def gemini_key():
     """Skip, with the reason, rather than fail on a machine with no key."""
@@ -85,8 +114,7 @@ def youtube_key():
 def pytest_terminal_summary(terminalreporter, config):
     if not config.getoption("--live"):
         return
-    billed = sum(n for name, n in CALLS.items() if name != LINK_CHECK)
     terminalreporter.section("live suite: calls made")
-    for name in (GEMINI_GENERATE, GEMINI_EMBED, YOUTUBE, LINK_CHECK):
-        terminalreporter.write_line(f"{name:<28} {CALLS[name]}")
-    terminalreporter.write_line(f"{'billed calls in total':<28} {billed}")
+    for name in (GEMINI_GENERATE, GEMINI_EMBED, YOUTUBE, GEMINI_FAILED, LINK_CHECK):
+        terminalreporter.write_line(f"{name:<38} {CALLS[name]}")
+    terminalreporter.write_line(f"{'billed calls in total':<38} {billed()}")

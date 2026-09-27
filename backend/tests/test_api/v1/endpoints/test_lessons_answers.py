@@ -2,7 +2,6 @@
 
 import uuid
 
-import pytest
 import pytest_asyncio
 
 from backend.repositories.student_answer_repository import StudentAnswerRepository
@@ -40,7 +39,6 @@ async def opened(test_user, goal_factory, question_factory):
     return goal, first, second
 
 
-@pytest.mark.asyncio
 async def test_answers_are_graded_server_side_and_move_the_rating(
     auth_client, test_db, test_user, opened
 ):
@@ -65,7 +63,6 @@ async def test_answers_are_graded_server_side_and_move_the_rating(
     assert stored == {first.id: 1, second.id: 3}
 
 
-@pytest.mark.asyncio
 async def test_one_submission_is_one_lesson_id_and_two_are_two(
     auth_client, test_db, test_user, opened
 ):
@@ -86,7 +83,6 @@ async def test_one_submission_is_one_lesson_id_and_two_are_two(
         assert [a.question_id for a in batch] == [first.id, second.id]
 
 
-@pytest.mark.asyncio
 async def test_answering_the_same_question_again_adds_a_row_rather_than_replacing_one(
     auth_client, test_db, test_user, opened
 ):
@@ -101,7 +97,6 @@ async def test_answering_the_same_question_again_adds_a_row_rather_than_replacin
     assert len({a.lesson_id for a in history}) == 2
 
 
-@pytest.mark.asyncio
 async def test_a_partial_submission_is_accepted(auth_client, test_db, test_user, opened):
     """The completeness rule of #86 is gone: nothing recorded what was served"""
     goal, first, _ = opened
@@ -113,14 +108,12 @@ async def test_a_partial_submission_is_accepted(auth_client, test_db, test_user,
     assert len(await stored_answers(test_db, test_user)) == 1
 
 
-@pytest.mark.asyncio
 async def test_no_answers_at_all_is_422(auth_client, opened):
     """An empty batch would mint a lesson mark over nothing"""
     goal, _, _ = opened
     assert (await auth_client.post(url(goal.id), json={"answers": []})).status_code == 422
 
 
-@pytest.mark.asyncio
 async def test_a_full_lesson_is_graded(
     auth_client, test_db, test_user, goal_factory, question_factory
 ):
@@ -146,7 +139,6 @@ async def test_a_full_lesson_is_graded(
     assert [a.total_seconds for a in stored] == [15] * LESSON
 
 
-@pytest.mark.asyncio
 async def test_a_submit_bumps_the_goals_updated_at_and_moves_the_rating(
     auth_client, test_db, test_user, goal_factory, question_factory
 ):
@@ -161,7 +153,6 @@ async def test_a_submit_bumps_the_goals_updated_at_and_moves_the_rating(
     assert goal.updated_at > at(60)
 
 
-@pytest.mark.asyncio
 async def test_a_question_outside_the_goals_bank_is_422_and_stores_nothing(
     auth_client, test_db, test_user, goal_factory, question_factory, opened
 ):
@@ -173,7 +164,6 @@ async def test_a_question_outside_the_goals_bank_is_422_and_stores_nothing(
     assert await stored_answers(test_db, test_user) == []
 
 
-@pytest.mark.asyncio
 async def test_the_same_question_twice_in_one_batch_is_422(auth_client, opened):
     """Inside one lesson a question is asked once; twice is a broken client"""
     goal, first, _ = opened
@@ -181,14 +171,12 @@ async def test_the_same_question_twice_in_one_batch_is_422(auth_client, opened):
     assert (await auth_client.post(url(goal.id), json=body)).status_code == 422
 
 
-@pytest.mark.asyncio
 async def test_an_unknown_question_id_is_422(auth_client, opened):
     goal, _, _ = opened
     body = {"answers": [{"question_id": str(uuid.uuid4()), "choice_index": 0, "seconds_spent": 1}]}
     assert (await auth_client.post(url(goal.id), json=body)).status_code == 422
 
 
-@pytest.mark.asyncio
 async def test_someone_elses_goal_is_404(auth_client, student_factory, goal_factory, opened):
     _, first, _ = opened
     other = await student_factory(email="o@example.com", google_id="other")
@@ -197,7 +185,6 @@ async def test_someone_elses_goal_is_404(auth_client, student_factory, goal_fact
     assert (await auth_client.post(url(foreign.id), json=body)).status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_two_identical_histories_end_at_the_same_rating(
     auth_client, test_db, test_user, goal_factory, question_factory
 ):

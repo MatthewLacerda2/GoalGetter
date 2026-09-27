@@ -1,9 +1,6 @@
-import pytest
-
 from backend.schemas.student import TokenResponse
 
 
-@pytest.mark.asyncio
 async def test_signup_new_user(client, mock_google_verify):
     """Test signing up a new user with a valid Google token"""
     mock_google_verify.side_effect = lambda t, r, c: {
@@ -20,7 +17,6 @@ async def test_signup_new_user(client, mock_google_verify):
     assert token_response.student.email == "new_user@example.com"
 
 
-@pytest.mark.asyncio
 async def test_signup_existing_user(client, mock_google_verify, test_user):
     """Test signing up with an existing Google account (login behavior)"""
     mock_google_verify.side_effect = lambda t, r, c: {
@@ -37,7 +33,6 @@ async def test_signup_existing_user(client, mock_google_verify, test_user):
     assert token_response.student.email == test_user.email
 
 
-@pytest.mark.asyncio
 async def test_signup_invalid_token(client, mock_google_verify):
     """Test signing up with an invalid Google token"""
     mock_google_verify.side_effect = Exception("Invalid token")
@@ -47,7 +42,6 @@ async def test_signup_invalid_token(client, mock_google_verify):
     assert response.status_code == 401
 
 
-@pytest.mark.asyncio
 async def test_signup_missing_token(client):
     """Test signing up without providing an authorization header"""
     response = await client.post("/api/v1/auth/signup")

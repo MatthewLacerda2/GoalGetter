@@ -10,8 +10,6 @@ real with its *client* replaced, so the assertion is on the text Gemini would
 have received.
 """
 
-import pytest
-
 from backend.core.config import settings
 from backend.models.frontier import Frontier
 from backend.models.student_context import StudentContext
@@ -46,7 +44,6 @@ async def history(test_db, goal) -> list[str]:
     return [row.definition for row in await FrontierRepository(test_db).list_by_goal(goal.id)]
 
 
-@pytest.mark.asyncio
 async def test_a_night_that_moves_nothing_writes_no_row(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -61,7 +58,6 @@ async def test_a_night_that_moves_nothing_writes_no_row(
     assert [name for name, _ in calls] == ["review"]
 
 
-@pytest.mark.asyncio
 async def test_a_move_appends_a_row_and_leaves_the_one_before_it(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -76,7 +72,6 @@ async def test_a_move_appends_a_row_and_leaves_the_one_before_it(
     assert (await FrontierRepository(test_db).current(goal.id)).definition == "Robotics."
 
 
-@pytest.mark.asyncio
 async def test_a_frontier_on_a_different_subject_is_refused(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -99,7 +94,6 @@ async def test_a_frontier_on_a_different_subject_is_refused(
     assert await history(test_db, goal) == [CIRCUITS]
 
 
-@pytest.mark.asyncio
 async def test_a_move_is_written_when_there_is_nothing_to_check_it_against(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -113,7 +107,6 @@ async def test_a_move_is_written_when_there_is_nothing_to_check_it_against(
     assert await history(test_db, goal) == [CIRCUITS, "Robotics."]
 
 
-@pytest.mark.asyncio
 async def test_the_embedding_the_check_paid_for_is_kept_on_the_row(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -136,7 +129,6 @@ async def test_the_embedding_the_check_paid_for_is_kept_on_the_row(
     assert [name for name, _ in calls] == ["review", "embedding"]
 
 
-@pytest.mark.asyncio
 async def test_a_definition_that_repeats_the_current_frontier_is_not_a_move(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -150,7 +142,6 @@ async def test_a_definition_that_repeats_the_current_frontier_is_not_a_move(
     assert await history(test_db, goal) == [CIRCUITS]
 
 
-@pytest.mark.asyncio
 async def test_an_index_the_model_invented_or_repeated_moves_nothing_twice(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -165,7 +156,6 @@ async def test_an_index_the_model_invented_or_repeated_moves_nothing_twice(
     assert await history(test_db, goal) == [CIRCUITS, "Robotics."]
 
 
-@pytest.mark.asyncio
 async def test_the_review_prompt_sees_the_frontier_beside_what_he_asked_for(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -188,7 +178,6 @@ def a_recording_client():
     return fake_gemini(answer(GeminiLessonQuestionsResponse(questions=[])))
 
 
-@pytest.mark.asyncio
 async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):

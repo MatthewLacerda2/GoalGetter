@@ -2,14 +2,11 @@
 
 from datetime import timedelta
 
-import pytest
-
 from backend.core import clock
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.tests.fixtures.lessons import at, days_ago
 
 
-@pytest.mark.asyncio
 async def test_the_same_question_on_three_days_is_three_rows_read_back_in_order(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -32,7 +29,6 @@ async def test_the_same_question_on_three_days_is_three_rows_read_back_in_order(
     assert len({a.lesson_id for a in history}) == 3
 
 
-@pytest.mark.asyncio
 async def test_a_lesson_is_the_answers_that_share_its_mark_in_the_order_asked(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -49,7 +45,6 @@ async def test_a_lesson_is_the_answers_that_share_its_mark_in_the_order_asked(
     assert [a.question_id for a in batch] == [first.id, second.id]
 
 
-@pytest.mark.asyncio
 async def test_recent_lessons_group_by_the_mark_newest_first_and_only_that_goal(
     test_db, test_user, goal_factory, lesson_factory
 ):
@@ -66,7 +61,6 @@ async def test_recent_lessons_group_by_the_mark_newest_first_and_only_that_goal(
     assert lessons[0].total_seconds == 40
 
 
-@pytest.mark.asyncio
 async def test_answered_at_spans_goals_and_stops_at_this_student(
     test_db, test_user, student_factory, goal_factory, lesson_factory
 ):
@@ -86,7 +80,6 @@ async def test_answered_at_spans_goals_and_stops_at_this_student(
     }
 
 
-@pytest.mark.asyncio
 async def test_the_goals_history_is_every_answer_in_order_with_its_correctness(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -108,7 +101,6 @@ async def test_the_goals_history_is_every_answer_in_order_with_its_correctness(
     assert [record.answered_at for record in history] == [days_ago(days) for days in (3, 2, 1)]
 
 
-@pytest.mark.asyncio
 async def test_the_pace_is_read_across_goals_newest_first_and_skips_untimed_answers(
     test_db, test_user, student_factory, goal_factory, question_factory, answer_factory
 ):

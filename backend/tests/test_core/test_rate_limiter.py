@@ -85,14 +85,12 @@ async def from_peer(rate_limited):
         yield post
 
 
-@pytest.mark.asyncio
 async def test_two_students_behind_nginx_do_not_share_a_bucket(from_peer):
     first = [await from_peer(NGINX, "198.51.100.1") for _ in range(ONBOARDING_LIMIT + 1)]
     assert first == [200] * ONBOARDING_LIMIT + [429]
     assert await from_peer(NGINX, "198.51.100.2") == 200
 
 
-@pytest.mark.asyncio
 async def test_a_forged_header_from_a_public_peer_does_not_pick_a_bucket(from_peer):
     forged = [await from_peer(OUTSIDER, f"198.51.100.{n}") for n in range(ONBOARDING_LIMIT + 1)]
     assert forged == [200] * ONBOARDING_LIMIT + [429]

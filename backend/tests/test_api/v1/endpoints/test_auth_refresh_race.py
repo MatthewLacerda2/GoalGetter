@@ -10,7 +10,6 @@ import asyncio
 import uuid
 from unittest.mock import patch
 
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import func, select
@@ -62,7 +61,6 @@ async def _rows(student_id):
         return await session.scalar(stmt)
 
 
-@pytest.mark.asyncio
 async def test_two_concurrent_refreshes_with_one_token_yield_one_pair(committing_client):
     """Before #218 both passed the `revoked` check and both got a pair. Now one
     wins; the other finds the token already rotated, which is a replay, so it is

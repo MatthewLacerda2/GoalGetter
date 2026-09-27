@@ -1,7 +1,6 @@
 """Videos come from the YouTube Data API's search, on a captured response (#175)."""
 
 import httpx
-import pytest
 
 from backend.core.config import settings
 from backend.core.language import Language
@@ -13,7 +12,6 @@ GOAL = "00000000-0000-0000-0000-000000000001"
 SEARCH = "https://www.googleapis.com/youtube/v3/search"
 
 
-@pytest.mark.asyncio
 async def test_every_video_is_an_id_the_search_returned(monkeypatch):
     monkeypatch.setattr(settings, "YOUTUBE_API_KEY", "test-key")
     asked = []
@@ -31,7 +29,6 @@ async def test_every_video_is_an_id_the_search_returned(monkeypatch):
     assert request.url.params["maxResults"] == "3"
 
 
-@pytest.mark.asyncio
 async def test_a_failed_search_is_no_videos_not_a_failure(monkeypatch):
     monkeypatch.setattr(settings, "YOUTUBE_API_KEY", "test-key")
     quota = web_client({SEARCH: httpx.Response(403, json={"error": {}})})
@@ -41,7 +38,6 @@ async def test_a_failed_search_is_no_videos_not_a_failure(monkeypatch):
     assert await search_videos(down, GOAL, "q", Language.ENGLISH) == []
 
 
-@pytest.mark.asyncio
 async def test_no_key_no_search(monkeypatch):
     monkeypatch.setattr(settings, "YOUTUBE_API_KEY", "")
     asked = []

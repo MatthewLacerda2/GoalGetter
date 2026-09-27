@@ -1,6 +1,5 @@
 import uuid
 
-import pytest
 from sqlalchemy import select
 
 from backend.models.student_answer import StudentAnswer
@@ -17,7 +16,6 @@ async def bank_of(goal, question_factory, size, first=0):
     return [await question_factory(goal, f"q{i}", created_at=at(i)) for i in range(first, size)]
 
 
-@pytest.mark.asyncio
 async def test_start_serves_the_bank_and_writes_nothing(
     auth_client, test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -43,7 +41,6 @@ async def test_start_serves_the_bank_and_writes_nothing(
     assert [row[0] for row in stored.all()] == [missed.id]
 
 
-@pytest.mark.asyncio
 async def test_a_quick_student_gets_more_questions_for_the_same_two_minutes(
     auth_client, test_db, test_user, student_factory, goal_factory, question_factory, answer_factory
 ):
@@ -63,7 +60,6 @@ async def test_a_quick_student_gets_more_questions_for_the_same_two_minutes(
     assert len(served) > MIN_QUESTIONS
 
 
-@pytest.mark.asyncio
 async def test_a_student_who_thinks_hard_gets_the_floor_of_six(
     auth_client, test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -82,7 +78,6 @@ async def test_a_student_who_thinks_hard_gets_the_floor_of_six(
     assert len(served) == MIN_QUESTIONS == 6
 
 
-@pytest.mark.asyncio
 async def test_a_students_first_lesson_is_the_floor(
     auth_client, test_user, goal_factory, question_factory
 ):
@@ -93,7 +88,6 @@ async def test_a_students_first_lesson_is_the_floor(
     assert len((await auth_client.post(url(goal.id))).json()["questions"]) == MIN_QUESTIONS
 
 
-@pytest.mark.asyncio
 async def test_the_same_bank_at_the_same_hour_serves_the_same_lesson(
     auth_client, test_user, goal_factory, question_factory
 ):
@@ -109,7 +103,6 @@ async def test_the_same_bank_at_the_same_hour_serves_the_same_lesson(
     assert served[0] == served[1] == served[2]
 
 
-@pytest.mark.asyncio
 async def test_no_gemini_client_is_ever_built_while_a_lesson_is_opened(
     auth_client, test_user, goal_factory, question_factory, monkeypatch
 ):
@@ -129,7 +122,6 @@ async def test_no_gemini_client_is_ever_built_while_a_lesson_is_opened(
     assert len(response.json()["questions"]) == MIN_QUESTIONS
 
 
-@pytest.mark.asyncio
 async def test_a_bank_shorter_than_a_lesson_serves_what_it_has(
     auth_client, test_user, goal_factory, question_factory
 ):
@@ -143,7 +135,6 @@ async def test_a_bank_shorter_than_a_lesson_serves_what_it_has(
     assert len(response.json()["questions"]) == 3
 
 
-@pytest.mark.asyncio
 async def test_start_on_an_empty_bank_is_409(auth_client, test_user, goal_factory):
     """The first bank is still being generated: say so, open nothing"""
     goal = await goal_factory(test_user)
@@ -154,7 +145,6 @@ async def test_start_on_an_empty_bank_is_409(auth_client, test_user, goal_factor
     assert response.json()["detail"] == "Lessons are still being prepared"
 
 
-@pytest.mark.asyncio
 async def test_start_on_someone_elses_goal_is_404(
     auth_client, test_user, student_factory, goal_factory, question_factory
 ):
@@ -165,7 +155,6 @@ async def test_start_on_someone_elses_goal_is_404(
     assert (await auth_client.post(url(goal.id))).status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_start_requires_auth(client, test_user, goal_factory):
     goal = await goal_factory(test_user)
     assert (await client.post(url(goal.id))).status_code == 401

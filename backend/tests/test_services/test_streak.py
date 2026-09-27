@@ -67,7 +67,6 @@ def test_an_answer_at_22_brasilia_counts_for_that_day():
     assert current_streak([answered], TODAY) == 1
 
 
-@pytest.mark.asyncio
 async def test_one_answer_is_enough_to_make_a_day_count(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -78,7 +77,6 @@ async def test_one_answer_is_enough_to_make_a_day_count(
     assert await student_streak(test_db, test_user.id) == 1
 
 
-@pytest.mark.asyncio
 async def test_the_day_boundary_is_the_students_midnight_not_the_servers(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):

@@ -8,7 +8,6 @@ redirect, never a URL the model wrote.
 import re
 
 import httpx
-import pytest
 
 from backend.services.resources.found_pages import page_resources
 from backend.services.resources.link_validation import validate_resources
@@ -18,7 +17,6 @@ from backend.tests.test_services.test_resource_search import described, run
 GOAL = "00000000-0000-0000-0000-000000000001"
 
 
-@pytest.mark.asyncio
 async def test_the_captured_sources_become_the_pages_they_redirect_to():
     sources = grounded_response().candidates[0].grounding_metadata.grounding_chunks
     landing = {c.web.uri: f"https://{c.web.title}/page{n}" for n, c in enumerate(sources)}

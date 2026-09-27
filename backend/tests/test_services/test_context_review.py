@@ -9,8 +9,6 @@ also checks the row is still in the table: it is progression history the
 student is meant to be able to read.
 """
 
-import pytest
-
 from backend.models.student_context import StudentContext
 from backend.repositories.student_context_repository import StudentContextRepository
 from backend.services.jobs.steps.context import run_context_step
@@ -45,7 +43,6 @@ async def still_there(test_db, context) -> bool:
     return row is not None and row.is_still_valid is False
 
 
-@pytest.mark.asyncio
 async def test_nothing_outdated_and_nothing_new_is_a_no_op(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -60,7 +57,6 @@ async def test_nothing_outdated_and_nothing_new_is_a_no_op(
     assert await standing(test_db, test_user) == ["Beginner"]
 
 
-@pytest.mark.asyncio
 async def test_an_outdated_context_is_retired_and_stays_in_the_table(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -77,7 +73,6 @@ async def test_an_outdated_context_is_retired_and_stays_in_the_table(
     assert await still_there(test_db, beginner)
 
 
-@pytest.mark.asyncio
 async def test_a_new_context_is_stored_beside_the_one_it_did_not_retire(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -91,7 +86,6 @@ async def test_a_new_context_is_stored_beside_the_one_it_did_not_retire(
     assert sorted(await standing(test_db, test_user)) == ["Beginner", "Reads music"]
 
 
-@pytest.mark.asyncio
 async def test_the_contexts_reach_the_prompt_newest_first(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -108,7 +102,6 @@ async def test_the_contexts_reach_the_prompt_newest_first(
     assert await standing(test_db, test_user) == ["Newer"]
 
 
-@pytest.mark.asyncio
 async def test_an_index_the_model_invented_or_repeated_is_dropped_not_raised(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
@@ -125,7 +118,6 @@ async def test_an_index_the_model_invented_or_repeated_is_dropped_not_raised(
     assert await still_there(test_db, beginner)
 
 
-@pytest.mark.asyncio
 async def test_a_student_with_no_reading_yet_still_gets_a_first_impression(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):

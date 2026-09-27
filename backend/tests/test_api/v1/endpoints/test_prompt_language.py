@@ -7,8 +7,6 @@ written in. The tutor reads `students.language`.
 
 from unittest.mock import patch
 
-import pytest
-
 from backend.core.language import Language
 from backend.services.gemini.chat.schema import GeminiChatResponse
 from backend.services.gemini.onboarding.schema import (
@@ -39,7 +37,6 @@ async def onboarding_languages(client, prompt: str, headers: dict) -> list[Langu
     return [call.call_args.args[-1] for call in (validate, generate, plan)]
 
 
-@pytest.mark.asyncio
 async def test_onboarding_writes_in_the_language_the_app_sent(client):
     languages = await onboarding_languages(
         client, "I want to learn chess", {"X-Student-Language": "pt"}
@@ -48,14 +45,12 @@ async def test_onboarding_writes_in_the_language_the_app_sent(client):
     assert languages == [Language.PORTUGUESE] * 3
 
 
-@pytest.mark.asyncio
 async def test_onboarding_without_the_header_writes_in_the_language_he_typed(client):
     languages = await onboarding_languages(client, "Quiero aprender ajedrez", {})
 
     assert languages == [Language.SPANISH] * 3
 
 
-@pytest.mark.asyncio
 async def test_the_tutor_writes_in_the_students_language(
     auth_client, test_db, test_user, goal_factory
 ):
