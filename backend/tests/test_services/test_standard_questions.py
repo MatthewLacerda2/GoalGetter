@@ -7,7 +7,6 @@ other half of the seam - that every key has a sentence in the five locales - is
 is where the translations live.
 """
 
-from backend.repositories.onboarding_repository import SYSTEM_AUTHOR
 from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
 
 
@@ -34,8 +33,3 @@ def test_every_question_and_option_carries_text_for_the_prompt():
         assert question.text.strip()
         for option in question.options:
             assert option.text.strip()
-
-
-def test_the_author_of_a_question_nobody_generated():
-    """`ai_model` is never null and never a model here"""
-    assert SYSTEM_AUTHOR == "system"

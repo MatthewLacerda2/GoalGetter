@@ -25,6 +25,12 @@ Usage::
     python -m backend.tools.gemini_cli                      # list the use cases
     python -m backend.tools.gemini_cli <use-case> [arg ...]
     make gemini ARGS='tutor-reply "Chess" "Learn chess openings" "How do I start?"'
+    make gemini ARGS='--capture tutor-reply'   # the sample, saved for the tests
+
+`--capture` also writes every response the run received, as the API sent it,
+to `backend/tests/fixtures/responses/gemini/<use-case>.json` - the recording the
+default suite replays through that use case's parse path (#207). With no
+arguments it runs the use case's sample, which is what the replay is built with.
 """
 
 import asyncio
@@ -34,6 +40,7 @@ import traceback
 import uuid
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field, fields, is_dataclass
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
@@ -64,6 +71,10 @@ UNSAVED_GOAL_ID = uuid.UUID(int=0)
 # Every prompt names the student's language (#173); the command writes to an
 # English-speaking student. Edit this to see another language's output.
 CLI_LANGUAGE = Language.ENGLISH
+
+# Where `--capture` writes a run's responses: the recordings the default suite
+# replays (backend/tests/fixtures/captured.py `recorded`).
+CAPTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "responses" / "gemini"
 
 
 @dataclass(frozen=True)
@@ -251,6 +262,7 @@ class Recorder:
     """
 
     raw: list[str] = field(default_factory=list)
+    responses: list = field(default_factory=list)
 
     def install(self) -> None:
         real_client = gemini_configs.Client
@@ -265,6 +277,7 @@ class Recorder:
             async def recording(*call_args: Any, **call_kwargs: Any) -> Any:
                 response = await generate(*call_args, **call_kwargs)
                 self.raw.append(response.text or "")
+                self.responses.append(response)
                 return response
 
             client.aio.models.generate_content = recording  # type: ignore[method-assign]
@@ -305,6 +318,7 @@ def menu() -> str:
         "",
         "  python -m backend.tools.gemini_cli <use-case> [arg ...]",
         '  make gemini ARGS=\'<use-case> "arg" "arg"\'',
+        "  make gemini ARGS='--capture <use-case>'   # also save the responses for the tests",
         "",
         "!! Every run SPENDS REAL QUOTA on this project's Gemini key. !!",
         "",
@@ -319,7 +333,13 @@ def menu() -> str:
     return "\n".join(lines)
 
 
-def run(case: UseCase, args: list[str]) -> int:
+def save(responses: list, path: Path) -> None:
+    """A run's responses as the replay reads them: a JSON list, one per call."""
+    calls = [response.model_dump(mode="json", exclude_none=True) for response in responses]
+    path.write_text(json.dumps(calls, ensure_ascii=False, indent=1) + "\n")
+
+
+def run(case: UseCase, args: list[str], capture: bool = False) -> int:
     """Call one use case for real. Never called from the test suite."""
     recorder = Recorder()
     recorder.install()
@@ -348,24 +368,30 @@ def run(case: UseCase, args: list[str]) -> int:
         print("\nThe call above failed. The raw text is printed in full above it.")
         return 1
     print(render(result))
+    if capture:
+        save(recorder.responses, CAPTURES / f"{case.name}.json")
+        print(f"\n{len(recorder.responses)} response(s) saved to {CAPTURES / case.name}.json")
     return 0
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) < 2 or argv[1] in ("-h", "--help"):
+    capture = argv[1:2] == ["--capture"]
+    if len(argv) < 2 + capture or argv[1] in ("-h", "--help"):
         print(menu())
         return 0
 
-    wanted, args = argv[1], argv[2:]
+    wanted, args = argv[1 + capture], argv[2 + capture :]
     case = next((c for c in USE_CASES if c.name == wanted), None)
     if case is None:
         print(f"Unknown use case {wanted!r}.\n", file=sys.stderr)
         print(menu(), file=sys.stderr)
         return 2
+    if capture and not args:
+        args = list(case.sample)
     if len(args) < case.least_args:
         print(f"{case.name} needs: {case.usage}", file=sys.stderr)
         return 2
-    return run(case, args)
+    return run(case, args, capture)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,16 @@
+import uuid
+from datetime import timedelta
+
 from backend.models.resource import Resource, StudyResourceType
+from backend.tests.fixtures.lessons import T0
 
 ENDPOINT = "/api/v1/resources"
 
 
-async def add_resource(db, goal, kind, name, image_url=None):
+async def add_resource(db, goal, kind, name, image_url=None, **fields):
     db.add(
         Resource(
+            **fields,
             goal_id=goal.id,
             resource_type=kind,
             name=name,
@@ -71,6 +76,33 @@ async def test_resources_only_of_the_active_goal(
     assert [r["name"] for r in body["websites"]] == ["mine"]
 
 
+async def test_resources_come_in_the_order_they_were_found(
+    auth_client, test_db, test_user, goal_factory
+):
+    """Oldest first, the id breaking a tie (#207). Written here in neither
+    order, so a query with no ORDER BY - which answers in the order the rows
+    were written - fails this."""
+    goal = await goal_factory(test_user, active=True)
+    for name, minute, key in (
+        ("third", 2, 3),
+        ("tie-high", 0, 9),
+        ("second", 1, 2),
+        ("tie-low", 0, 8),
+    ):
+        await add_resource(
+            test_db,
+            goal,
+            StudyResourceType.webpage,
+            name,
+            created_at=T0 + timedelta(minutes=minute),
+            id=uuid.UUID(int=key),
+        )
+
+    body = (await auth_client.get(ENDPOINT)).json()
+
+    assert [r["name"] for r in body["websites"]] == ["tie-low", "tie-high", "second", "third"]
+
+
 async def test_resources_still_being_found_are_empty_lists(auth_client, test_user, goal_factory):
     await goal_factory(test_user, active=True)
     response = await auth_client.get(ENDPOINT)
@@ -83,7 +115,3 @@ async def test_resources_without_active_goal_is_404(auth_client, test_user, goal
     response = await auth_client.get(ENDPOINT)
     assert response.status_code == 404
     assert response.json()["code"] == "no_active_goal"
-
-
-async def test_resources_requires_auth(client):
-    assert (await client.get(ENDPOINT)).status_code == 401

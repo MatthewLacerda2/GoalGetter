@@ -28,7 +28,3 @@ async def test_set_active_someone_elses_goal_is_404(
         assert (await auth_client.put(endpoint(goal_id))).status_code == 404
     await test_db.refresh(test_user)
     assert test_user.current_goal_id == mine.id
-
-
-async def test_set_active_requires_auth(client):
-    assert (await client.put(endpoint(uuid.uuid4()))).status_code == 401

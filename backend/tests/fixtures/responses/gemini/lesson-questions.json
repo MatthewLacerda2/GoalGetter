@@ -1,0 +1,32 @@
+[
+ {
+  "candidates": [
+   {
+    "content": {
+     "parts": [
+      {
+       "text": "{\"questions\": [{\"question\": \"A rook and pawn against a rook: where should your rook stand?\", \"option_a\": \"Behind the pawn\", \"option_b\": \"In front of it\", \"option_c\": \"Beside the king\", \"option_d\": \"In a corner\", \"correct_option_index\": 0}, {\"question\": \"What does the Lucena position let you do?\", \"option_a\": \"Promote the pawn\", \"option_b\": \"Force a draw\", \"option_c\": \"Win a rook\", \"option_d\": \"Castle late\", \"correct_option_index\": 0}, {\"question\": \"In the Philidor position, the defending rook guards...\", \"option_a\": \"The sixth rank\", \"option_b\": \"The first rank\", \"option_c\": \"A diagonal\", \"option_d\": \"The pawn\", \"correct_option_index\": 0}]}"
+      }
+     ],
+     "role": "model"
+    },
+    "finish_reason": "STOP",
+    "index": 0
+   }
+  ],
+  "model_version": "gemini-3.5-flash-lite",
+  "response_id": "rp-lq-01",
+  "usage_metadata": {
+   "candidates_token_count": 162,
+   "prompt_token_count": 690,
+   "prompt_tokens_details": [
+    {
+     "modality": "TEXT",
+     "token_count": 690
+    }
+   ],
+   "total_token_count": 852
+  },
+  "automatic_function_calling_history": []
+ }
+]

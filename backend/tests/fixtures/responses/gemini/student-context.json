@@ -1,0 +1,32 @@
+[
+ {
+  "candidates": [
+   {
+    "content": {
+     "parts": [
+      {
+       "text": "{\"state\": \"Knows how the pieces move; loses games to early tactics.\", \"metacognition\": \"Motivated by beating his brother; learns from concrete games.\"}"
+      }
+     ],
+     "role": "model"
+    },
+    "finish_reason": "STOP",
+    "index": 0
+   }
+  ],
+  "model_version": "gemini-3.8-flash",
+  "response_id": "rp-sc-01",
+  "usage_metadata": {
+   "candidates_token_count": 37,
+   "prompt_token_count": 402,
+   "prompt_tokens_details": [
+    {
+     "modality": "TEXT",
+     "token_count": 402
+    }
+   ],
+   "total_token_count": 439
+  },
+  "automatic_function_calling_history": []
+ }
+]

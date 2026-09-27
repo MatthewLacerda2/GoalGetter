@@ -1,0 +1,32 @@
+[
+ {
+  "candidates": [
+   {
+    "content": {
+     "parts": [
+      {
+       "text": "{\"messages\": [\"Start with the centre: move a pawn to e4 or d4.\", \"Then bring out a knight before the bishops.\"]}"
+      }
+     ],
+     "role": "model"
+    },
+    "finish_reason": "STOP",
+    "index": 0
+   }
+  ],
+  "model_version": "gemini-3.5-flash-lite",
+  "response_id": "rp-tr-01",
+  "usage_metadata": {
+   "candidates_token_count": 28,
+   "prompt_token_count": 356,
+   "prompt_tokens_details": [
+    {
+     "modality": "TEXT",
+     "token_count": 356
+    }
+   ],
+   "total_token_count": 384
+  },
+  "automatic_function_calling_history": []
+ }
+]

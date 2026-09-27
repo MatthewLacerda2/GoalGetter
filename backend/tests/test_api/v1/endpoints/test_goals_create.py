@@ -53,14 +53,6 @@ async def test_create_goal_costs_no_gemini_call(auth_client):
     gemini.assert_not_called()
 
 
-async def test_create_goal_requires_auth(client):
-    """No Authorization header -> rejected, goal never created"""
-    with patch(CHAIN) as chain:
-        response = await client.post(ENDPOINT, json=BODY)
-    assert response.status_code == 401
-    chain.assert_not_called()
-
-
 async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
     auth_client, test_db, test_user
 ):

@@ -1,0 +1,32 @@
+[
+ {
+  "candidates": [
+   {
+    "content": {
+     "parts": [
+      {
+       "text": "{\"makes_sense\": true, \"is_harmless\": true, \"is_achievable\": true, \"reasoning\": \"The user wants to learn common chess openings.\"}"
+      }
+     ],
+     "role": "model"
+    },
+    "finish_reason": "STOP",
+    "index": 0
+   }
+  ],
+  "model_version": "gemini-3.8-flash",
+  "response_id": "rp-gv-01",
+  "usage_metadata": {
+   "candidates_token_count": 32,
+   "prompt_token_count": 412,
+   "prompt_tokens_details": [
+    {
+     "modality": "TEXT",
+     "token_count": 412
+    }
+   ],
+   "total_token_count": 444
+  },
+  "automatic_function_calling_history": []
+ }
+]

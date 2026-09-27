@@ -83,3 +83,20 @@ async def test_non_youtube_link_typed_as_youtube_is_dropped(monkeypatch):
 
     assert await validate_resources([resource], client=as_async_client(client)) == []
     assert client.calls == []
+
+
+async def test_an_api_that_refuses_the_request_drops_the_video(monkeypatch):
+    """A 4xx - a spent quota, a refused key - is no answer about the video, even
+    with a body that reads like one (#207: nothing gave `_fetch` a 4xx before)"""
+    monkeypatch.setattr(settings, "YOUTUBE_API_KEY", "test-key")
+    resource = make(StudyResourceType.youtube, CHANNEL_URL)
+    client = FakeClient(
+        {
+            "youtube/v3/channels": FakeResponse(
+                403, payload=youtube_payload({"high": {"url": AVATAR}})
+            )
+        }
+    )
+
+    assert await validate_resources([resource], client=client) == []
+    assert resource.image_url is None

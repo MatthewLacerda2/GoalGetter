@@ -5,6 +5,14 @@ tool and `responses/youtube_search.json` one YouTube `search.list`, both taken
 2026-09-26 with the user's permission - no key, no headers. They are the shape
 the code must read, rather than a shape a test author imagined.
 
+`responses/gemini/<use case>.json` is every call one `make gemini` use case
+makes, in order, as the API answers it (#207) - what the default suite replays
+through each use case's real parse path. The format is what
+`make gemini ARGS='--capture <use case> ...'` writes. The ones committed with
+#207 were written by hand in the captured wire shape rather than captured,
+because capturing is a billed call per use case; the resource search's first
+call is the real capture above. Recapturing one replaces its file.
+
 `web_client` stands in for the internet: a real `httpx.AsyncClient` whose
 transport answers from a table, so redirects are followed by httpx itself and
 no socket is ever opened.
@@ -17,11 +25,18 @@ import httpx
 from google.genai import types
 
 RESPONSES = Path(__file__).parent / "responses"
+GEMINI_RESPONSES = RESPONSES / "gemini"
 
 
 def grounded_response() -> types.GenerateContentResponse:
     raw = json.loads((RESPONSES / "grounded_response.json").read_text())
     return types.GenerateContentResponse.model_validate(raw)
+
+
+def recorded(use_case: str, folder: Path = GEMINI_RESPONSES) -> list[types.GenerateContentResponse]:
+    """Every response one use case's run received, in the order it asked."""
+    raw = json.loads((folder / f"{use_case}.json").read_text())
+    return [types.GenerateContentResponse.model_validate(call) for call in raw]
 
 
 def youtube_search() -> dict:

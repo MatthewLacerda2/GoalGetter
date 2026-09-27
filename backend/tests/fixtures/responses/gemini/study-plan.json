@@ -1,0 +1,32 @@
+[
+ {
+  "candidates": [
+   {
+    "content": {
+     "parts": [
+      {
+       "text": "{\"goal_name\": \"Chess basics\", \"description\": \"Start with how each piece moves, then **simple checkmates**: they turn every game into a plan.\"}"
+      }
+     ],
+     "role": "model"
+    },
+    "finish_reason": "STOP",
+    "index": 0
+   }
+  ],
+  "model_version": "gemini-3.8-flash",
+  "response_id": "rp-sp-01",
+  "usage_metadata": {
+   "candidates_token_count": 35,
+   "prompt_token_count": 488,
+   "prompt_tokens_details": [
+    {
+     "modality": "TEXT",
+     "token_count": 488
+    }
+   ],
+   "total_token_count": 523
+  },
+  "automatic_function_calling_history": []
+ }
+]

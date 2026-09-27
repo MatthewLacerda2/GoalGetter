@@ -5,6 +5,11 @@ for real paces, and that the floor of six is what a student we know nothing
 about gets.
 """
 
+from statistics import median
+
+from hypothesis import assume, given
+from hypothesis import strategies as st
+
 from backend.services.lessons.pacing import (
     LESSON_SECONDS,
     MAX_QUESTIONS,
@@ -13,11 +18,31 @@ from backend.services.lessons.pacing import (
     lesson_size,
 )
 
+paces = st.lists(st.one_of(st.none(), st.integers(min_value=-5, max_value=600)), max_size=40)
 
-def test_two_minutes_is_what_was_decided_and_six_is_the_floor():
-    assert LESSON_SECONDS == 120
-    assert MIN_QUESTIONS == 6
-    assert MAX_QUESTIONS == 2 * MIN_QUESTIONS
+
+@given(paces)
+def test_a_lesson_is_never_under_the_floor_or_over_the_cap(seconds):
+    assert MIN_QUESTIONS <= lesson_size(seconds) <= MAX_QUESTIONS
+
+
+@given(st.lists(st.integers(min_value=8, max_value=24), min_size=1, max_size=40))
+def test_between_the_bounds_the_lesson_is_two_minutes_of_his_pace(seconds):
+    """Half a question either way: the count is rounded, the two minutes are not.
+    Paces of 8-24 s straddle the band where neither bound decides (10-20 s)."""
+    size = lesson_size(seconds)
+    pace = median(seconds[:PACE_WINDOW])
+    assume(MIN_QUESTIONS < size < MAX_QUESTIONS)
+
+    assert abs(size * pace - LESSON_SECONDS) <= pace / 2
+
+
+@given(paces, paces)
+def test_only_the_last_window_of_answers_sets_the_pace(recent, older):
+    """Newest first: what came before the window is not his pace any more"""
+    window = (recent + [30] * PACE_WINDOW)[:PACE_WINDOW]
+
+    assert lesson_size(window + older) == lesson_size(window)
 
 
 def test_a_student_with_no_timed_answers_gets_the_floor_not_a_guess():

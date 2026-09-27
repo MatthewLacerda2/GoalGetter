@@ -127,8 +127,13 @@ back-revision: env ## Draft a migration from the models (M="what changed")
 TEST_SELECTOR = $(FILE)$(K)$(ARGS)
 PYTEST_TARGET = $(or $(FILE),backend/tests) $(if $(K),-k '$(K)') $(ARGS)
 PYTEST_COVERAGE = $(if $(TEST_SELECTOR),,--cov --cov-config=backend/pyproject.toml)
+# The suite reads no .env (#207): backend/tests/fixtures/environment.py pins every
+# setting it needs, and this hides the worktree's .env from its container behind
+# an empty file - so the gate here sees what CI sees, which has none. Only when
+# one exists: a bind mount onto a missing file would create it in the worktree.
+NO_DOTENV = $(if $(wildcard .env),-v /dev/null:/app/.env:ro)
 back-test: env ## Backend pytest, on a disposable migrated database of its own (FILE= K= ARGS= select)
-	@$(WITH_TEST_DB) $(PY_TESTDB) -m pytest $(PYTEST_TARGET) $(PYTEST_COVERAGE) -q
+	@$(WITH_TEST_DB) $(subst -w /app,$(NO_DOTENV) -w /app,$(PY_TESTDB)) -m pytest $(PYTEST_TARGET) $(PYTEST_COVERAGE) -q
 
 # The tests that need no database (the `db` marker is on every one that does,
 # see tests/conftest.py), with no database and no network: seconds, anywhere
@@ -136,7 +141,7 @@ back-test: env ## Backend pytest, on a disposable migrated database of its own (
 # arithmetic. TEST_DATABASE_URL is blanked, so a test that does reach for the
 # database fails saying so instead of finding the one .env names.
 back-pure: ## Backend pytest without the database tests, and without a database (K= ARGS= select)
-	@$(subst --network none,--network none -e TEST_DATABASE_URL=,$(DOCKER_RUN_OFFLINE)) python \
+	@$(subst -w /app,$(NO_DOTENV) -w /app,$(subst --network none,--network none -e TEST_DATABASE_URL=,$(DOCKER_RUN_OFFLINE))) python \
 	  -m pytest $(or $(FILE),backend/tests) -m 'not db' $(if $(K),-k '$(K)') $(ARGS) -q
 
 # Every backend gate runs in this image, so an image older than

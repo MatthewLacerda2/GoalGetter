@@ -14,6 +14,7 @@ from pydantic import TypeAdapter
 from backend.schemas.goal import ObjectiveAnswer
 from backend.services.gemini.client import gemini_call
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation
+from backend.tests.fixtures.captured import recorded
 from backend.tests.fixtures.code import modules_under
 from backend.tools import gemini_cli
 
@@ -51,7 +52,7 @@ def gemini_use_cases() -> set:
 
 @pytest.fixture(autouse=True)
 def never_calls_gemini(monkeypatch):
-    def fuse(case, args):
+    def fuse(case, args, capture=False):
         raise AssertionError(f"the test suite tried to spend real quota on {case.name}")
 
     monkeypatch.setattr(gemini_cli, "run", fuse)
@@ -81,6 +82,25 @@ def test_an_unknown_use_case_is_refused():
 def test_missing_arguments_are_refused_before_any_call(capsys):
     assert gemini_cli.main(["gemini_cli", "lesson-questions", "Chess"]) == 2
     assert "<metacognition>" in capsys.readouterr().err
+
+
+def test_capture_alone_runs_the_sample_and_asks_for_the_recording(monkeypatch):
+    """The sample is what the replay test builds its call with (#207)"""
+    asked = []
+    monkeypatch.setattr(gemini_cli, "run", lambda *call: asked.append(call) or 0)
+
+    assert gemini_cli.main(["gemini_cli", "--capture", "study-plan"]) == 0
+
+    ((case, args, capture),) = asked
+    assert (case.name, args, capture) == ("study-plan", list(case.sample), True)
+
+
+def test_a_capture_is_saved_in_the_shape_the_replay_reads(tmp_path):
+    calls = recorded("resource-search")
+
+    gemini_cli.save(calls, tmp_path / "resource-search.json")
+
+    assert recorded("resource-search", tmp_path) == calls
 
 
 @pytest.mark.parametrize("case", gemini_cli.USE_CASES, ids=lambda case: case.name)

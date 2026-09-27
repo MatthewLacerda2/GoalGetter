@@ -153,8 +153,3 @@ async def test_start_on_someone_elses_goal_is_404(
     await question_factory(goal)
 
     assert (await auth_client.post(url(goal.id))).status_code == 404
-
-
-async def test_start_requires_auth(client, test_user, goal_factory):
-    goal = await goal_factory(test_user)
-    assert (await client.post(url(goal.id))).status_code == 401

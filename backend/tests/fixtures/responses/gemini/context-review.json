@@ -1,0 +1,32 @@
+[
+ {
+  "candidates": [
+   {
+    "content": {
+     "parts": [
+      {
+       "text": "{\"reviewed\": [{\"index\": 0, \"is_outdated\": false}], \"new_contexts\": [], \"frontiers\": []}"
+      }
+     ],
+     "role": "model"
+    },
+    "finish_reason": "STOP",
+    "index": 0
+   }
+  ],
+  "model_version": "gemini-3.8-flash",
+  "response_id": "rp-cr-01",
+  "usage_metadata": {
+   "candidates_token_count": 21,
+   "prompt_token_count": 575,
+   "prompt_tokens_details": [
+    {
+     "modality": "TEXT",
+     "token_count": 575
+    }
+   ],
+   "total_token_count": 596
+  },
+  "automatic_function_calling_history": []
+ }
+]

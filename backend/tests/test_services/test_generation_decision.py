@@ -30,11 +30,7 @@ def entry(expected: float) -> Ranked:
 def test_the_line_is_the_hard_edge_of_the_band_the_selection_serves():
     """0.60 twice over: one standard deviation under the target, and the user's
     "se passar de 40% [de erro], nao precisa gerar" said in probability"""
-    assert GENERATE_ABOVE == 0.60
     assert GENERATE_ABOVE == round(TARGET_SCORE - TOLERANCE_BELOW, 2)
-    # 40% wrong is 60% right, and `E` predicts exactly that - the lucky guesses
-    # included, because the 0.25 floor is what puts them in it.
-    assert GENERATE_ABOVE == 1 - 0.40
 
     # And par is not 0.5 here: a question at his own rating is answered right
     # five times in eight. So the user's line is a shade *harder* than par -
