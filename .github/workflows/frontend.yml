@@ -55,6 +55,11 @@ jobs:
       - name: Lint and analyze
         run: make front-lint
 
+      # jscpd (#231): a block written twice instead of once in its hub. It runs
+      # from the image the Makefile pins, on the Docker the runner has.
+      - name: Duplicates
+        run: make front-dup
+
       - name: Test
         run: make front-test
 

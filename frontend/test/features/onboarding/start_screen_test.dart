@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/api/auth_api.dart';
 import 'package:goal_getter/core/theme/app_palette.dart';
 import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
@@ -58,7 +59,10 @@ Future<_RecordingAuth> _pumpStart(
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final backend = FakeBackend({});
   await backend.start({'access_token': ''});
-  final auth = _RecordingAuth(api: backend.api, storage: backend.storage);
+  final auth = _RecordingAuth(
+    api: AuthApi(backend.api),
+    storage: backend.storage,
+  );
   final router = GoRouter(initialLocation: AppRoutes.start, routes: [
     GoRoute(
       path: AppRoutes.start,

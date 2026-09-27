@@ -100,7 +100,13 @@ void main() {
   });
 
   test('passes on an identifier, and on a call that is not a constructor', () {
-    expect(_rules("final r = GoRoute(path: '/home', builder: b);"), isEmpty);
+    expect(
+      _rules(
+        "final r = GoRoute(path: '/home', builder: b);",
+        path: 'lib/app/router/app_router.dart',
+      ),
+      isEmpty,
+    );
     expect(_rules("developer.log('offline', name: 'api');"), isEmpty);
     expect(
       _rules("const id = String.fromEnvironment('ID', defaultValue: 'x');"),

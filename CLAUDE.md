@@ -76,13 +76,14 @@ After changing an `@riverpod` function or class, run **`make front-codegen`** (b
 CI runs it on every frontend pull request (the pre-push hook, when the push touches a file
 that parts a `.g.dart`).
 
-`make backend` is six gates, cheapest first:
+`make backend` is seven gates, cheapest first:
 
 - **`make back-lint`** — the house rules below (`backend/tests/backend_linter.py`),
   the layer contracts (import-linter), then `ruff check` and `ruff format --check`. The
   rule set, the contracts, and the reason for each choice in them, is
   `backend/pyproject.toml`. **`make back-fix`** applies what ruff checks, so start
   there rather than editing by hand.
+- **`make back-dup`** — jscpd: the same block written twice (see the hub rule below).
 - **`make back-deadcode`** — `vulture`: a function, class or method no other
   module reaches. The whitelist for what only FastAPI, SQLAlchemy, `enum` or `mock`
   calls lives in `backend/tools/deadcode.py`, five names long, each naming its
@@ -209,6 +210,42 @@ the backend tests; if it fails, you have things to fix.
   imports `google.genai`. A broken contract is fixed by moving the code, never by an
   exemption. Whether an endpoint may call a repository directly is **not decided** and
   has no contract.
+- **Everything used more than once lives in its hub** (#231). Nothing is written where
+  it is used: each kind of thing has one home, everything else imports it from there, and
+  you look for it there without searching. The repository rule above is this rule applied
+  to queries. `make back-lint` (`backend/tests/hub_rules.py`) and `make front-lint`
+  (`frontend/tool/hub_rules.dart`) fail a mapped kind defined anywhere else, reading what
+  the code does — what a class inherits, what a call or an import resolves to, which type
+  it handles — **never a name** (#212). Tests are exempt. The map:
+
+  | Kind | Backend hub |
+  |---|---|
+  | A query | `repositories/` |
+  | A table (ORM class) | `models/` |
+  | A Pydantic model | `schemas/` (API bodies), `services/gemini/<use-case>/schema.py` (what Gemini returns), `core/config.py` (settings), `core/errors/` (the error body) |
+  | A route (a router, or a route on the app) | `api/` (and, until #274, the three `main.py` declares on the app) |
+  | An HTTP error | `core/errors/`: raise `ApiError(ErrorCode.X)`; a new error is a new `ErrorCode` |
+  | The Gemini SDK | `services/gemini/client/` (an import contract) |
+  | The environment (`os.environ`, dotenv) | `core/config.py`, read as `settings` (`tools/` sets it for the processes it starts) |
+  | The wall clock | `core/clock.py` |
+
+  | Kind | Frontend hub |
+  |---|---|
+  | HTTP (`package:http`) | `lib/core/api/` |
+  | A backend call (`ApiClient`, `ApiRoute`) | a `data/` layer: `features/*/data/<feature>_api.dart`, or `lib/core/api/` |
+  | JSON (`Map<String, dynamic>`, the codec) | `features/*/domain/` (`fromJson`), `features/*/data/` (request bodies), `lib/core/api/` |
+  | A model an API returns | its feature's `domain/`: a `data/` file declares its API class only |
+  | A route (`GoRoute`, `GoRouter`) | `lib/app/router/` (the dev menu's: `lib/app/dev/`) |
+  | A widget or formatter two features draw with | `lib/core/widgets/` |
+  | Colour, type, radius, spacing, size | `lib/core/theme/` |
+  | A string a student reads | the ARB files |
+
+  A value type (a dataclass, a Dart record) is not on the map: it lives beside the
+  function that returns it — a query's result in its repository — and its users import
+  it from there. **Written twice is caught too:** `make back-dup` / `make front-dup`
+  (jscpd, in `make backend` / `make frontend` and CI) fail any block of 60 tokens or
+  more that appears twice in the application code; the fix is to write it once, in its
+  hub, and import it.
 
 When a file or endpoint outgrows its limit, one of two things is true. Either the
 vision is unclear — then clap back at the user: ask, or point out what is wrong or

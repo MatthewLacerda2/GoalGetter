@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/api/auth_api.dart';
 import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
@@ -88,7 +89,7 @@ Future<(GoRouter, FakeGoogle, SettingsStorage)> pumpStart(
   // FakeBackend stores a token by default; a visitor about to sign in has
   // none, which is what sends him to this screen in the first place.
   await backend.start({'access_token': ''});
-  final google = FakeGoogle(api: backend.api, storage: backend.storage)
+  final google = FakeGoogle(api: AuthApi(backend.api), storage: backend.storage)
     ..sdkIsBroken = googleIsBroken
     ..signInIsBroken = googleIsBroken;
   addTearDown(google.tokens.close);

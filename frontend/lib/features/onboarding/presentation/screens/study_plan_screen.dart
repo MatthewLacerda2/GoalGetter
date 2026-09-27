@@ -10,6 +10,7 @@ import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/study_plan_controller.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/loading_button.dart';
 
 /// Step 3 of goal creation: the goal's name, a short AI-generated summary of
 /// what the student will study (markdown), and confirm / start over.
@@ -127,7 +128,9 @@ class _Description extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final body = theme.textTheme.bodyLarge?.copyWith(height: AppType.readingHeight);
+    final body = theme.textTheme.bodyLarge?.copyWith(
+      height: AppType.readingHeight,
+    );
 
     return MarkdownBody(
       data: markdown,
@@ -183,32 +186,10 @@ class _Actions extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           flex: 2,
-          child: FilledButton(
+          child: LoadingButton(
+            label: l10n.startLearning,
+            isLoading: isLoading,
             onPressed: onConfirm,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.card),
-              ),
-            ),
-            child: isLoading
-                ? SizedBox(
-                    height: AppSizes.spinner,
-                    width: AppSizes.spinner,
-                    child: CircularProgressIndicator(
-                      strokeWidth: AppStroke.thick,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        scheme.onPrimary,
-                      ),
-                    ),
-                  )
-                : Text(
-                    l10n.startLearning,
-                    style: label?.copyWith(
-                      color: scheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
           ),
         ),
       ],

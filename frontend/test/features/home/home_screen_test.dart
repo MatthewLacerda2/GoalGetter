@@ -28,7 +28,7 @@ void main() {
     expect(find.text('1042'), findsOneWidget);
     expect(find.text('5'), findsOneWidget); // streak
     expect(find.text('80%'), findsOneWidget);
-    expect(find.text('1:35'), findsOneWidget);
+    expect(find.text('01:35'), findsOneWidget);
     // The day closes the row where the elo badge used to (#131).
     expect(find.text(DateFormat.MMMd('en').format(DateTime.now())),
         findsOneWidget);

@@ -5,7 +5,7 @@ import 'package:goal_getter/app/router/app_routes.dart';
 
 import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
-import 'package:goal_getter/features/lessons/presentation/widgets/lesson_clock.dart';
+import 'package:goal_getter/core/widgets/lesson_clock.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';

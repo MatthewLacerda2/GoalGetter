@@ -109,7 +109,7 @@ void main() {
       );
       expect(
         _rules(
-          "import 'package:goal_getter/core/api/api_providers.dart';",
+          "import 'package:goal_getter/core/utils/settings_storage.dart';",
           path: 'lib/app/router/app_router.dart',
         ),
         isEmpty,
