@@ -9,29 +9,56 @@ part of 'lesson_controller.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Runs one lesson on the active goal: open it, answer each question once
-/// (graded inline for feedback), submit those answers as one batch, then a
-/// review round of the wrong ones that is never submitted.
+/// (graded inline for feedback), submit those answers as one batch, then
+/// review rounds of the wrong ones - never submitted - until every one of them
+/// has been answered right.
 ///
 /// The batch is what the backend marks as a lesson, so it is sent whole and in
-/// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
+/// order, once: only a [FirstRound] is ever submitted, and a gap in it is
+/// returned to rather than sent.
+///
+/// Every decision about the lesson's flow is taken here; the screen draws the
+/// [LessonState] it is handed. Time is read from `package:clock`, so a test
+/// decides how long a question was on screen.
+///
+/// Opening is [build]: the screen watching the provider opens a lesson, and
+/// `ref.invalidate` opens a new one - the retry after a failed start.
 
 @ProviderFor(LessonController)
 final lessonControllerProvider = LessonControllerProvider._();
 
 /// Runs one lesson on the active goal: open it, answer each question once
-/// (graded inline for feedback), submit those answers as one batch, then a
-/// review round of the wrong ones that is never submitted.
+/// (graded inline for feedback), submit those answers as one batch, then
+/// review rounds of the wrong ones - never submitted - until every one of them
+/// has been answered right.
 ///
 /// The batch is what the backend marks as a lesson, so it is sent whole and in
-/// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
+/// order, once: only a [FirstRound] is ever submitted, and a gap in it is
+/// returned to rather than sent.
+///
+/// Every decision about the lesson's flow is taken here; the screen draws the
+/// [LessonState] it is handed. Time is read from `package:clock`, so a test
+/// decides how long a question was on screen.
+///
+/// Opening is [build]: the screen watching the provider opens a lesson, and
+/// `ref.invalidate` opens a new one - the retry after a failed start.
 final class LessonControllerProvider
-    extends $NotifierProvider<LessonController, LessonState> {
+    extends $AsyncNotifierProvider<LessonController, LessonState> {
   /// Runs one lesson on the active goal: open it, answer each question once
-  /// (graded inline for feedback), submit those answers as one batch, then a
-  /// review round of the wrong ones that is never submitted.
+  /// (graded inline for feedback), submit those answers as one batch, then
+  /// review rounds of the wrong ones - never submitted - until every one of them
+  /// has been answered right.
   ///
   /// The batch is what the backend marks as a lesson, so it is sent whole and in
-  /// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
+  /// order, once: only a [FirstRound] is ever submitted, and a gap in it is
+  /// returned to rather than sent.
+  ///
+  /// Every decision about the lesson's flow is taken here; the screen draws the
+  /// [LessonState] it is handed. Time is read from `package:clock`, so a test
+  /// decides how long a question was on screen.
+  ///
+  /// Opening is [build]: the screen watching the provider opens a lesson, and
+  /// `ref.invalidate` opens a new one - the retry after a failed start.
   LessonControllerProvider._()
     : super(
         from: null,
@@ -49,36 +76,37 @@ final class LessonControllerProvider
   @$internal
   @override
   LessonController create() => LessonController();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(LessonState value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<LessonState>(value),
-    );
-  }
 }
 
-String _$lessonControllerHash() => r'36c9c384fcb1eb2a8b84529075385c0e40f6d715';
+String _$lessonControllerHash() => r'67217fadedadc6c0f187e4d18fcca2122feebfa9';
 
 /// Runs one lesson on the active goal: open it, answer each question once
-/// (graded inline for feedback), submit those answers as one batch, then a
-/// review round of the wrong ones that is never submitted.
+/// (graded inline for feedback), submit those answers as one batch, then
+/// review rounds of the wrong ones - never submitted - until every one of them
+/// has been answered right.
 ///
 /// The batch is what the backend marks as a lesson, so it is sent whole and in
-/// order, once - see [_resumeAt] and `_hasSubmittedAnswers`.
+/// order, once: only a [FirstRound] is ever submitted, and a gap in it is
+/// returned to rather than sent.
+///
+/// Every decision about the lesson's flow is taken here; the screen draws the
+/// [LessonState] it is handed. Time is read from `package:clock`, so a test
+/// decides how long a question was on screen.
+///
+/// Opening is [build]: the screen watching the provider opens a lesson, and
+/// `ref.invalidate` opens a new one - the retry after a failed start.
 
-abstract class _$LessonController extends $Notifier<LessonState> {
-  LessonState build();
+abstract class _$LessonController extends $AsyncNotifier<LessonState> {
+  FutureOr<LessonState> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<LessonState, LessonState>;
+    final ref = this.ref as $Ref<AsyncValue<LessonState>, LessonState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<LessonState, LessonState>,
-              LessonState,
+              AnyNotifier<AsyncValue<LessonState>, LessonState>,
+              AsyncValue<LessonState>,
               Object?,
               Object?
             >;

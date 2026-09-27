@@ -21,7 +21,7 @@ void main() {
   test('the pending message is the newest bubble, with its status', () {
     final bubbles = chatBubbles([
       exchange(1),
-    ], const PendingSend('ciao', failed: true));
+    ], const FailedMessage('ciao'));
     expect(bubbles.first.text, 'ciao');
     expect(bubbles.first.status, BubbleStatus.failed);
   });

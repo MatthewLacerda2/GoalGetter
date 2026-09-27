@@ -3,14 +3,6 @@
 /// /answers).
 library;
 
-/// How the student did on a question, as the lesson screen tracks it.
-enum LessonQuestionStatus {
-  correct,
-  incorrect,
-  notAnswered,
-  correctAfterRetry,
-}
-
 /// A single multiple-choice question shown during a lesson.
 ///
 /// `correctAnswerIndex` comes from the server on purpose: the app grades inline
