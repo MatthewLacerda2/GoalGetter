@@ -91,7 +91,7 @@ def rate_limited():
 
 @pytest.mark.usefixtures("rate_limited")
 async def test_the_default_rate_limit_carries_a_code(client):
-    """On a route of an included router, as every route but three was (#274)."""
+    """On a route of an included router, where every route lives (#274)."""
     statuses = [(await client.get("/api/v1/me")).status_code for _ in range(11)]
     refused = await client.get("/api/v1/me")
 
