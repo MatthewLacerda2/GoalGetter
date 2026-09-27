@@ -1,5 +1,6 @@
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,18 +14,25 @@ class GoalsApi {
   final ApiClient _api;
 
   /// Every goal of the student, newest first.
-  Future<List<Goal>> list() => _api.get(
-        '/goals',
+  Future<List<Goal>> list() => _api.send(
+        ApiRoute.listGoals,
         (json) => [
           for (final goal in json! as List)
             Goal.fromJson(goal as Map<String, dynamic>),
         ],
       );
 
-  Future<void> setActive(String goalId) =>
-      _api.put('/goals/$goalId/set-active', ApiClient.ignoreBody);
+  Future<void> setActive(String goalId) => _api.send(
+        ApiRoute.setActiveGoal,
+        ApiClient.ignoreBody,
+        params: {'goal_id': goalId},
+      );
 
-  Future<void> delete(String goalId) => _api.delete('/goals/$goalId');
+  Future<void> delete(String goalId) => _api.send(
+        ApiRoute.deleteGoal,
+        ApiClient.ignoreBody,
+        params: {'goal_id': goalId},
+      );
 }
 
 @riverpod

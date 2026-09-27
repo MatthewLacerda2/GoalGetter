@@ -60,7 +60,8 @@ class FakeGoogle extends AuthService {
 
 /// What POST /auth/signup answers: the session the app then runs on.
 const _session = '{"access_token": "fresh", "refresh_token": "r2",'
-    ' "student": {"name": "Ada"}}';
+    ' "student": {"id": "s1", "google_id": "gid-1",'
+    ' "email": "ada@example.com", "name": "Ada"}}';
 
 final _routesProvider = Provider<List<RouteBase>>(appRoutes);
 
@@ -73,7 +74,7 @@ String _at(GoRouter router) =>
 /// [held] is the draft the student was committing when he was sent here.
 Future<(GoRouter, FakeGoogle, SettingsStorage)> pumpStart(
   WidgetTester tester, {
-  Reply signup = (200, _session),
+  Reply signup = (201, _session),
   Reply goals = (200, '[]'),
   GoalDraft? held,
   bool googleIsBroken = false,

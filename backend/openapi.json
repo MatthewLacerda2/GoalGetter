@@ -1,0 +1,2198 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "GoalGetter API",
+    "description": "API for the GoalGetter app",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/auth/signup": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Signup",
+        "description": "Sign up or sign in using Google OAuth2 token.\nCreates a new account if the user doesn't exist, or returns existing account info.",
+        "operationId": "signup_api_v1_auth_signup_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "description": "Login using Google OAuth2 token.",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuth2Request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh Tokens",
+        "description": "Refresh access and refresh tokens. Implements Refresh Token Rotation (RTR):\nthe token presented is revoked and replaced, and presenting one that was\nalready replaced revokes its successors (`services/auth/token_rotation.py`).",
+        "operationId": "refresh_tokens_api_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenRefreshResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout",
+        "description": "Revoke a refresh token (logout).",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/account": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Delete Account",
+        "operationId": "delete_account_api_v1_auth_account_delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/objective-questions": {
+      "post": {
+        "tags": [
+          "goals"
+        ],
+        "summary": "Objective Questions",
+        "description": "Step 1: validate the prompt is a real goal, then generate clarifying\nmultiple-choice questions. Each question names the model that wrote it, and\nthe app sends that back with its answer to `POST /goals` (#216).\n\nPublic, so there is no student row: the language is the header the app\nsends (#172), else the one the prompt is written in (#173).",
+        "operationId": "objective_questions_api_v1_goals_objective_questions_post",
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObjectiveQuestionsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectiveQuestion"
+                  },
+                  "title": "Response Objective Questions Api V1 Goals Objective Questions Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/study-plan": {
+      "post": {
+        "tags": [
+          "goals"
+        ],
+        "summary": "Study Plan",
+        "description": "Step 2: generate a stateless study-plan preview (goal name + markdown\ndescription) from the prompt and the user's onboarding answers. Not persisted.",
+        "operationId": "study_plan_api_v1_goals_study_plan_post",
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalCreationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyPlanResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals": {
+      "post": {
+        "tags": [
+          "goals"
+        ],
+        "summary": "Create Goal",
+        "description": "Step 3 (AUTHED): persist the goal the user approved in the preview, store the\nonboarding it came from, make it the active goal, then fire the student chain\nin the background. No Gemini call of its own (#132): the wait it used to buy\nintroduction screens for is now the standard questions this returns.\n\nThe onboarding is *stored*, not handed to the chain: the chain's first step\nreads it from the database, so a run that fails is one the nightly run can do\nover (#88). It is read **as it stood when this returned**, which is what keeps\nthe batch now in flight from seeing the standard questions the student is\nabout to answer.",
+        "operationId": "create_goal_api_v1_goals_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalCommitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalCreationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "goals"
+        ],
+        "summary": "List Goals",
+        "description": "Every goal of the student, newest first, with all the fields the goals list and\nthe goal detail screen show (there is no per-goal GET).",
+        "operationId": "list_goals_api_v1_goals_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GoalResponse"
+                  },
+                  "title": "Response List Goals Api V1 Goals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/{goal_id}/standard-answers": {
+      "post": {
+        "tags": [
+          "goals"
+        ],
+        "summary": "Standard Answers",
+        "description": "What the student told us about himself while his first batch generated.\n\nStored beside the rest of his onboarding, marked `ai_model = \"system\"`. The\nbatch already in flight will not read them - `POST /goals` pinned its view of\nthe onboarding to the moment it returned - and every generation after it\nwill (#132). Answers so far are worth keeping, so a partial list is normal\nand an empty one is a no-op.",
+        "operationId": "standard_answers_api_v1_goals__goal_id__standard_answers_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Goal Id"
+            }
+          },
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StandardAnswersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/{goal_id}/set-active": {
+      "put": {
+        "tags": [
+          "goals"
+        ],
+        "summary": "Set Active Goal",
+        "description": "Make one of the student's goals the active one (students.current_goal_id).\nSomeone else's goal, or a missing one, is 404 (see get_owned_goal).",
+        "operationId": "set_active_goal_api_v1_goals__goal_id__set_active_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Goal Id"
+            }
+          },
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetActiveGoalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/{goal_id}": {
+      "delete": {
+        "tags": [
+          "goals"
+        ],
+        "summary": "Delete Goal",
+        "description": "Delete a goal and everything under it. The database does the cascading\n(ON DELETE CASCADE on the goal's rows, SET NULL on students.current_goal_id), so\nthe in-memory student is refreshed afterwards: it may still hold the old id.",
+        "operationId": "delete_goal_api_v1_goals__goal_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Goal Id"
+            }
+          },
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/home": {
+      "get": {
+        "tags": [
+          "home"
+        ],
+        "summary": "Get Home",
+        "description": "Rating, streak and recent lessons. No active goal is 404.\n\nA lesson here is a group of answers sharing one `lesson_id` (#131); the\nelo series it used to carry is gone with the `lessons` table and returns\nwith #62.",
+        "operationId": "get_home_api_v1_home_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeDashboard"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/{goal_id}/lessons": {
+      "post": {
+        "tags": [
+          "lessons"
+        ],
+        "summary": "Start Lesson",
+        "description": "Open a lesson: two minutes of questions at the threshold of what he knows (#134).\n\nBoth halves of that are arithmetic and neither is a constant this endpoint\nknows. **How many** comes from his own answering pace (`pacing.py`), and\n**which** from a ranking over the goal's bank (`selection.py`) - his chance\nof getting each one right, how due it is, how far it is from the rest of the\nlesson and from the goal's current frontier, and whether he has ever seen it.\n\nNo Gemini call happens here or anywhere below it. Everything this reads was\nwritten by a nightly job or by the student himself.",
+        "operationId": "start_lesson_api_v1_goals__goal_id__lessons_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Goal Id"
+            }
+          },
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/{goal_id}/lessons/answers": {
+      "post": {
+        "tags": [
+          "lessons"
+        ],
+        "summary": "Submit Lesson Answers",
+        "description": "Grade the batch server-side, store it under one fresh `lesson_id`, move the rating.\n\nAn answer naming a question outside this goal's bank, or naming one twice,\nis a 422 and stores nothing.\n\nThe rating is **replayed**, not nudged (#62): the answers are written first,\nand then the whole history - this lesson included - is walked to the number\nthe student is worth now. `elo` is what that costs him or pays him, the\ndifference against the rating the goal was carrying.",
+        "operationId": "submit_lesson_answers_api_v1_goals__goal_id__lessons_answers_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Goal Id"
+            }
+          },
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonAnswersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonEvaluation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Get Me",
+        "operationId": "get_me_api_v1_me_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/resources": {
+      "get": {
+        "tags": [
+          "resources"
+        ],
+        "summary": "List Resources",
+        "description": "The active goal's curated resources, grouped by kind. No active goal is 404;\na goal whose background search has not finished yet has three empty lists.",
+        "operationId": "list_resources_api_v1_resources_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourcesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tutor/messages": {
+      "get": {
+        "tags": [
+          "tutor"
+        ],
+        "summary": "List Messages",
+        "description": "The active goal's exchanges, newest first. Pass the last one's\n`created_at` as `before` for the next (older) page.",
+        "operationId": "list_messages_api_v1_tutor_messages_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only exchanges older than this created_at",
+              "title": "Before"
+            },
+            "description": "Only exchanges older than this created_at"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatExchange"
+                  },
+                  "title": "Response List Messages Api V1 Tutor Messages Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "tutor"
+        ],
+        "summary": "Send Message",
+        "description": "Send the student's message with this goal's recent history and the\nstudent's still-valid contexts; store and return the exchange.\n\nThe contexts are the student's, not the goal's (#87): what is specific to\nthis goal already reaches the prompt as its name and description.",
+        "operationId": "send_message_api_v1_tutor_messages_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TutorMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatExchange"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tutor/messages/{message_id}/like": {
+      "put": {
+        "tags": [
+          "tutor"
+        ],
+        "summary": "Like Message",
+        "description": "Set the like on a reply. An exchange outside the active goal (someone\nelse's, or another goal's) is 404, so its existence never leaks.",
+        "operationId": "like_message_api_v1_tutor_messages__message_id__like_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Message Id"
+            }
+          },
+          {
+            "name": "x-student-language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The student's chosen language: en, pt, es, fr or de",
+              "title": "X-Student-Language"
+            },
+            "description": "The student's chosen language: en, pt, es, fr or de"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LikeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatExchange"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/check": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root_api_v1_check_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/security.txt": {
+      "get": {
+        "summary": "Security Txt Fallback",
+        "operationId": "security_txt_fallback_security_txt_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "summary": "Llms Txt",
+        "operationId": "llms_txt_llms_txt_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChatExchange": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "What the student sent"
+          },
+          "responses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Responses",
+            "description": "The tutor's reply, one bubble per string"
+          },
+          "is_liked": {
+            "type": "boolean",
+            "title": "Is Liked",
+            "description": "Whether the student liked the reply"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "The pagination cursor (`before`)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "prompt",
+          "responses",
+          "is_liked",
+          "created_at"
+        ],
+        "title": "ChatExchange",
+        "description": "One exchange: the student's prompt and the tutor's reply bubbles. The\nclient renders it as one user bubble plus one tutor bubble per response."
+      },
+      "GoalCommitRequest": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Prompt",
+            "description": "What the user wants to learn"
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectiveAnswer"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Answers",
+            "description": "Answers to the objective questions"
+          },
+          "goal_name": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Goal Name",
+            "description": "The approved goal name from the preview"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 3000,
+            "minLength": 1,
+            "title": "Description",
+            "description": "The approved markdown description from the preview"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt",
+          "answers",
+          "goal_name",
+          "description"
+        ],
+        "title": "GoalCommitRequest",
+        "description": "Step 3 (POST /goals): commit the goal the user approved in the preview. Carries\nthe approved goal_name + description so we persist exactly what they saw (no\nre-generation), plus the prompt/answers the async jobs need for context."
+      },
+      "GoalCreationRequest": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Prompt",
+            "description": "What the user wants to learn"
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectiveAnswer"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Answers",
+            "description": "Answers to the objective questions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt",
+          "answers"
+        ],
+        "title": "GoalCreationRequest",
+        "description": "Shared by step 2 (study-plan preview) and step 3 (create goal): the prompt\nplus the user's answers to the objective questions."
+      },
+      "GoalCreationResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "The created goal's id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "The goal name"
+          },
+          "standard_questions": {
+            "items": {
+              "$ref": "#/components/schemas/StandardQuestionData"
+            },
+            "type": "array",
+            "title": "Standard Questions",
+            "description": "Questions to ask while the first batch generates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "standard_questions"
+        ],
+        "title": "GoalCreationResponse",
+        "description": "What the client gets after committing a goal: the persisted goal plus the\nstandard questions to ask while the chain generates its first batch (#132)."
+      },
+      "GoalResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "current_elo": {
+            "type": "integer",
+            "title": "Current Elo",
+            "description": "The student's rating for this goal (goals.rating)"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Whether this is the student's active goal (students.current_goal_id)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Bumped whenever the goal row changes, e.g. the rating after a lesson"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "current_elo",
+          "is_active",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "GoalResponse",
+        "description": "One goal in GET /goals. Carries every field the goals list and the goal detail\nscreen show, so the detail screen needs no fetch of its own."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HomeDashboard": {
+        "properties": {
+          "goal_name": {
+            "type": "string",
+            "title": "Goal Name"
+          },
+          "current_elo": {
+            "type": "integer",
+            "title": "Current Elo"
+          },
+          "current_streak": {
+            "type": "integer",
+            "title": "Current Streak",
+            "description": "User-wide, not per goal"
+          },
+          "recent_lessons": {
+            "items": {
+              "$ref": "#/components/schemas/RecentLesson"
+            },
+            "type": "array",
+            "title": "Recent Lessons",
+            "description": "Newest first, bounded"
+          }
+        },
+        "type": "object",
+        "required": [
+          "goal_name",
+          "current_elo",
+          "current_streak",
+          "recent_lessons"
+        ],
+        "title": "HomeDashboard",
+        "description": "GET /home: the active goal's dashboard."
+      },
+      "Language": {
+        "type": "string",
+        "enum": [
+          "en",
+          "pt",
+          "es",
+          "fr",
+          "de"
+        ],
+        "title": "Language"
+      },
+      "LessonAnswerItem": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Question Id"
+          },
+          "choice_index": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Choice Index"
+          },
+          "seconds_spent": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seconds Spent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "choice_index",
+          "seconds_spent"
+        ],
+        "title": "LessonAnswerItem",
+        "description": "One answer, in the order the student gave it - which is what the stored\n`position` records."
+      },
+      "LessonAnswersRequest": {
+        "properties": {
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/LessonAnswerItem"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Answers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answers"
+        ],
+        "title": "LessonAnswersRequest",
+        "description": "POST /goals/{goal_id}/lessons/answers: all answers at once.\n\nHow many there are is up to the student: nothing recorded what was served,\nso the backend cannot ask for a complete set and does not (the completeness\nrule of #86 went with the `lessons` table). An empty submission is refused\nhere, because it would mint a lesson mark over nothing."
+      },
+      "LessonEvaluation": {
+        "properties": {
+          "total_seconds_spent": {
+            "type": "integer",
+            "title": "Total Seconds Spent"
+          },
+          "student_accuracy": {
+            "type": "number",
+            "title": "Student Accuracy",
+            "description": "0..100"
+          },
+          "elo": {
+            "type": "integer",
+            "title": "Elo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_seconds_spent",
+          "student_accuracy",
+          "elo"
+        ],
+        "title": "LessonEvaluation",
+        "description": "The server's grading of a lesson. `elo` is the signed change applied to the goal's rating."
+      },
+      "LessonQuestionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "choices": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Choices",
+            "description": "Exactly 4 choices"
+          },
+          "correct_answer_index": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Correct Answer Index"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "question",
+          "choices",
+          "correct_answer_index"
+        ],
+        "title": "LessonQuestionResponse",
+        "description": "A served multiple-choice question. `correct_answer_index` is included on\npurpose: the app grades inline for feedback; the server re-grades on submit."
+      },
+      "LessonResponse": {
+        "properties": {
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/LessonQuestionResponse"
+            },
+            "type": "array",
+            "title": "Questions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "questions"
+        ],
+        "title": "LessonResponse",
+        "description": "POST /goals/{goal_id}/lessons: the questions of this lesson, in order.\n\nThere is no lesson id here, because there is no lesson yet (#131). Serving\nwrites nothing: a lesson only becomes a fact when its answers arrive, and\nthe backend marks them then."
+      },
+      "LikeRequest": {
+        "properties": {
+          "is_liked": {
+            "type": "boolean",
+            "title": "Is Liked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_liked"
+        ],
+        "title": "LikeRequest",
+        "description": "PUT /tutor/messages/{id}/like: set (not toggle) the like on a reply."
+      },
+      "OAuth2Request": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token",
+            "description": "Google OAuth2 access token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token"
+        ],
+        "title": "OAuth2Request"
+      },
+      "ObjectiveAnswer": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Question"
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Answer",
+            "description": "The selected option"
+          },
+          "ai_model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Model",
+            "description": "The `ai_model` of the question answered, as objective-questions sent it; null when the client kept none"
+          },
+          "total_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Seconds",
+            "description": "Seconds from the question appearing to it being answered; null when unmeasured"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question",
+          "answer"
+        ],
+        "title": "ObjectiveAnswer",
+        "description": "The user's answer to one objective question (unselected options omitted)."
+      },
+      "ObjectiveQuestion": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Options",
+            "description": "Exactly 4 options"
+          },
+          "ai_model": {
+            "type": "string",
+            "title": "Ai Model",
+            "description": "The model that wrote this question; sent back on its answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question",
+          "options",
+          "ai_model"
+        ],
+        "title": "ObjectiveQuestion",
+        "description": "A clarifying multiple-choice question with exactly 4 options (no 'correct' one — these profile the user)."
+      },
+      "ObjectiveQuestionsRequest": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Prompt",
+            "description": "What the user wants to learn"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "title": "ObjectiveQuestionsRequest",
+        "description": "Step 1 of goal creation: the raw thing the user says they want to learn."
+      },
+      "RecentLesson": {
+        "properties": {
+          "lesson_id": {
+            "type": "string",
+            "title": "Lesson Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "accuracy": {
+            "type": "number",
+            "title": "Accuracy",
+            "description": "0..100"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "title": "Duration Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lesson_id",
+          "date",
+          "accuracy",
+          "duration_seconds"
+        ],
+        "title": "RecentLesson",
+        "description": "A lesson on Home: the answers that carry one `lesson_id`, counted\ntogether (#131). `date` is the app's calendar date they were given.\n\nThere is no `elo_delta`: how the rating moves over a lesson has no stored\nhistory since the `lessons` table went, and gets one again with #62."
+      },
+      "ResourceItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "The stored, validated link"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url",
+            "description": "Only YouTube resources carry a picture"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "url"
+        ],
+        "title": "ResourceItem",
+        "description": "One curated resource, as the resources screen shows it."
+      },
+      "ResourcesResponse": {
+        "properties": {
+          "youtube": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceItem"
+            },
+            "type": "array",
+            "title": "Youtube"
+          },
+          "books": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceItem"
+            },
+            "type": "array",
+            "title": "Books",
+            "description": "Resources of type pdf"
+          },
+          "websites": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceItem"
+            },
+            "type": "array",
+            "title": "Websites",
+            "description": "Resources of type webpage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "youtube",
+          "books",
+          "websites"
+        ],
+        "title": "ResourcesResponse",
+        "description": "GET /resources: the active goal's resources, grouped by kind. A goal whose\nbackground search has not finished yet returns three empty lists."
+      },
+      "SetActiveGoalResponse": {
+        "properties": {
+          "goal_id": {
+            "type": "string",
+            "title": "Goal Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "goal_id"
+        ],
+        "title": "SetActiveGoalResponse",
+        "description": "PUT /goals/{goal_id}/set-active: the goal that is now active."
+      },
+      "StandardAnswer": {
+        "properties": {
+          "question_key": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Question Key",
+            "description": "The question's key"
+          },
+          "option_key": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Option Key",
+            "description": "The key of the option picked"
+          },
+          "total_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Seconds",
+            "description": "Seconds from the question appearing to it being answered; null when unmeasured"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_key",
+          "option_key"
+        ],
+        "title": "StandardAnswer",
+        "description": "One answer to a standard question, both sides of it a key."
+      },
+      "StandardAnswersRequest": {
+        "properties": {
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/StandardAnswer"
+            },
+            "type": "array",
+            "title": "Answers",
+            "description": "The answers given, in any order"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answers"
+        ],
+        "title": "StandardAnswersRequest",
+        "description": "What the student answered before his first lesson. Partial by design: he\nmay skip out at any question, and what he did answer is still worth keeping."
+      },
+      "StandardQuestionData": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key",
+            "description": "The question's key, an ARB entry on the client"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Options",
+            "description": "The four option keys, in the order asked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "options"
+        ],
+        "title": "StandardQuestionData",
+        "description": "One standard onboarding question, as keys (#132).\n\nKeys, never sentences: what the student reads is the ARB entry the frontend\nlooks the key up in, in each of the five locales, while the English the\ndatabase stores lives in `services/onboarding/standard_questions.py` where\na prompt can read it."
+      },
+      "StudentResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "google_id": {
+            "type": "string",
+            "title": "Google Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "google_id",
+          "email",
+          "name"
+        ],
+        "title": "StudentResponse"
+      },
+      "StudyPlanResponse": {
+        "properties": {
+          "goal_name": {
+            "type": "string",
+            "title": "Goal Name",
+            "description": "Short, clear name for what the user will learn"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Markdown: the next thing to study and why"
+          }
+        },
+        "type": "object",
+        "required": [
+          "goal_name",
+          "description"
+        ],
+        "title": "StudyPlanResponse",
+        "description": "Stateless preview the user reviews before committing to the goal."
+      },
+      "TokenRefreshRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token",
+            "description": "Active refresh token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "TokenRefreshRequest"
+      },
+      "TokenRefreshResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token",
+            "description": "New JWT access token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token",
+            "description": "New rotated refresh token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token"
+        ],
+        "title": "TokenRefreshResponse"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token",
+            "description": "JWT access token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token",
+            "description": "Rotated long-lived refresh token"
+          },
+          "student": {
+            "$ref": "#/components/schemas/StudentResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "student"
+        ],
+        "title": "TokenResponse"
+      },
+      "TutorMessageRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message",
+            "description": "The student's message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "TutorMessageRequest",
+        "description": "POST /tutor/messages: what the student says to the tutor."
+      },
+      "UserProfile": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "member_since": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Member Since",
+            "description": "students.created_at"
+          },
+          "current_streak": {
+            "type": "integer",
+            "title": "Current Streak"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Language"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "students.language: null until the app has sent X-Student-Language"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "member_since",
+          "current_streak",
+          "language"
+        ],
+        "title": "UserProfile",
+        "description": "GET /me: the signed-in student's profile header."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

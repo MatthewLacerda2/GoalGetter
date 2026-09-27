@@ -67,6 +67,12 @@ if grep -qE '^(backend/|tools/test-db\.sh)' <<<"$changed"; then
   fi
 fi
 
+# backend/openapi.json is the API the frontend is checked against (#213): a
+# push that moves it can break the app, so it is a frontend change too.
+if grep -q '^backend/openapi\.json$' <<<"$changed"; then
+  changed+=$'\nfrontend/'
+fi
+
 # frontend/docs/ is prose (the backend contract lives there), so a push that
 # only touches it is not a Flutter change.
 if grep '^frontend/' <<<"$changed" | grep -qv '^frontend/docs/'; then

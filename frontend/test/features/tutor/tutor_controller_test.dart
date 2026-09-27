@@ -150,9 +150,12 @@ void main() {
 
   group('an answer the app cannot read, or none at all (#221)', () {
     test('a chat that cannot be read is the error', () async {
-      final c = await loadedOver(ApiFake({
-        _listKey: [(200, '{"exchanges": []}')],
-      }));
+      final c = await loadedOver(ApiFake(
+        {
+          _listKey: [(200, '{"exchanges": []}')],
+        },
+        malformed: {_listKey},
+      ));
       await c
           .read(tutorControllerProvider.future)
           .then<void>((_) {}, onError: (Object _) {});
@@ -160,10 +163,13 @@ void main() {
     });
 
     test('a reply that cannot be read fails the message', () async {
-      final c = await loadedOver(ApiFake({
-        _listKey: [(200, '[]')],
-        _sendKey: [(201, '{"id": 7}')],
-      }));
+      final c = await loadedOver(ApiFake(
+        {
+          _listKey: [(200, '[]')],
+          _sendKey: [(201, '{"id": 7}')],
+        },
+        malformed: {_sendKey},
+      ));
       await c.read(tutorControllerProvider.future);
 
       expect(await c.tutor.send('ciao'), isA<MalformedResponse>());

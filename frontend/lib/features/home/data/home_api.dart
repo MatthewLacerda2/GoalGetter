@@ -1,6 +1,7 @@
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -20,8 +21,8 @@ class HomeApi {
   /// `No active goal`). Any other failure throws an `ApiFailure`.
   Future<HomeDashboard?> fetch() async {
     try {
-      return await _api.get(
-        '/home',
+      return await _api.send(
+        ApiRoute.home,
         (json) => HomeDashboard.fromJson(json! as Map<String, dynamic>),
       );
     } on ApiException catch (e) {

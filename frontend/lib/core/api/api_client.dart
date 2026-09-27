@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -30,10 +31,10 @@ typedef JsonReader<T> = T Function(Object? json);
 ///   on every attempt, so a replay after a refresh carries the new token. A
 ///   caller that sets its own Authorization (signup sends the Google token)
 ///   keeps it.
-/// - On a 401 from a path outside [authPaths], refreshes once and replays the
-///   request. The refresh is shared by every request that 401s at the same
-///   time: the backend rotates refresh tokens, so N parallel refreshes would
-///   revoke each other and log the user out.
+/// - On a 401 from a route outside [authRoutes], refreshes once and replays
+///   the request. The refresh is shared by every request that 401s at the
+///   same time: the backend rotates refresh tokens, so N parallel refreshes
+///   would revoke each other and log the user out.
 /// - A refresh the backend refuses (401: the refresh token is revoked,
 ///   expired or unknown), or a replay that still 401s, clears the session and
 ///   calls [onSessionExpired] (the session provider turns false, and the
@@ -52,7 +53,10 @@ typedef JsonReader<T> = T Function(Object? json);
 /// domain object, so no answer leaves this class unread: a shape the app
 /// cannot parse is caught at the one place every answer passes through.
 ///
-/// Paths are relative to `/api/v1`: `get('/goals', readGoals)`.
+/// A call names its [ApiRoute], never a path string, so every call the app
+/// can make is one entry of that enum — the list the contract test checks
+/// against the backend's OpenAPI (#213):
+/// `send(ApiRoute.setActiveGoal, ignoreBody, params: {'goal_id': id})`.
 class ApiClient {
   ApiClient({
     required http.Client httpClient,
@@ -74,12 +78,11 @@ class ApiClient {
 
   /// Routes that issue tokens or are the refresh itself: a 401 from them is
   /// final, never a reason to refresh.
-  static const authPaths = {
-    '/auth/signup',
-    '/auth/login',
-    '/auth/dev-login',
-    '/auth/refresh',
-    '/auth/logout',
+  static const authRoutes = {
+    ApiRoute.signup,
+    ApiRoute.devLogin,
+    ApiRoute.refresh,
+    ApiRoute.logout,
   };
 
   /// The reader of an answer nothing reads.
@@ -92,47 +95,37 @@ class ApiClient {
 
   Future<bool>? _refreshing;
 
-  Future<T> get<T>(String path, JsonReader<T> read) =>
-      _read('GET', path, read);
-
-  Future<T> post<T>(
-    String path,
+  /// Calls [route] — its [params] filling the path's placeholders, [query]
+  /// appended — and reads the answer with [read].
+  Future<T> send<T>(
+    ApiRoute route,
     JsonReader<T> read, {
-    Object? body,
-    Map<String, String>? headers,
-  }) =>
-      _read('POST', path, read, body: body, headers: headers);
-
-  Future<T> put<T>(String path, JsonReader<T> read, {Object? body}) =>
-      _read('PUT', path, read, body: body);
-
-  Future<void> delete(String path) => _read('DELETE', path, ignoreBody);
-
-  /// Sends the request and reads its answer with [read].
-  Future<T> _read<T>(
-    String method,
-    String path,
-    JsonReader<T> read, {
+    Map<String, String> params = const {},
+    Map<String, String>? query,
     Object? body,
     Map<String, String>? headers,
   }) async {
-    final response = await _send(method, path, body, headers);
+    var path = route.path(params);
+    if (query != null && query.isNotEmpty) {
+      path = '$path?${Uri(queryParameters: query).query}';
+    }
+    final response = await _send(route, path, body, headers);
     return _decode(response, path, read);
   }
 
   /// The answer to the request, after the refresh-and-replay of a 401; any
   /// non-2xx left is thrown as [ApiException].
   Future<http.Response> _send(
-    String method,
+    ApiRoute route,
     String path,
     Object? body,
     Map<String, String>? headers,
   ) async {
     Future<http.Response> attempt() =>
-        _transport(_request(method, path, body, headers), path);
+        _transport(_request(route.method, path, body, headers), path);
     var response = await attempt();
 
-    if (response.statusCode == 401 && !authPaths.contains(path)) {
+    if (response.statusCode == 401 && !authRoutes.contains(route)) {
       final refreshed = await _refreshOnce();
       if (refreshed) response = await attempt();
       if (!refreshed || response.statusCode == 401) {
@@ -214,10 +207,11 @@ class ApiClient {
   /// refresh token (or there is none). Any other failure throws, so every
   /// request sharing this refresh fails with it and the session survives.
   Future<bool> _runRefresh() async {
-    const path = '/auth/refresh';
+    final path = ApiRoute.refresh.path();
     final refreshToken = _storage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) return false;
-    final request = http.Request('POST', Uri.parse('$_baseUrl$apiPrefix$path'))
+    final request = http.Request(
+        ApiRoute.refresh.method, Uri.parse('$_baseUrl$apiPrefix$path'))
       ..headers['Content-Type'] = 'application/json'
       ..headers['Accept'] = 'application/json'
       ..body = jsonEncode({'refresh_token': refreshToken});

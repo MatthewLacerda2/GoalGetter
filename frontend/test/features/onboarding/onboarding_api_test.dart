@@ -7,22 +7,22 @@ import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../contract/contract_client.dart';
 import 'fake_onboarding_api.dart';
 
-/// An [OnboardingApi] on a backend answering [body] with [status]; the sent
-/// requests land in [sent].
+/// An [OnboardingApi] on a backend answering [body] (none when null) with
+/// [status]; the sent requests land in [sent].
 Future<OnboardingApi> apiAnswering(
-  Object body,
+  Object? body,
   List<http.Request> sent, {
   int status = 200,
 }) async {
   SharedPreferences.setMockInitialValues({});
-  final client = MockClient((request) async {
+  final client = contractClient((request) async {
     sent.add(request);
-    return http.Response(jsonEncode(body), status);
+    return http.Response(body == null ? '' : jsonEncode(body), status);
   });
   return OnboardingApi(
     ApiClient(
@@ -40,6 +40,7 @@ void main() {
       {
         'question': 'Q?',
         'options': ['a', 'b', 'c', 'd'],
+        'ai_model': 'gemini',
       },
     ], sent);
     final questions = await api.objectiveQuestions('Learn Italian');
@@ -89,7 +90,7 @@ void main() {
 
   test('the standard answers go to the goal that asked them', () async {
     final sent = <http.Request>[];
-    final api = await apiAnswering('', sent, status: 204);
+    final api = await apiAnswering(null, sent, status: 204);
 
     await api.sendStandardAnswers('g1', const [
       StandardAnswer(questionKey: 'age', optionKey: '18to24', totalSeconds: 3),

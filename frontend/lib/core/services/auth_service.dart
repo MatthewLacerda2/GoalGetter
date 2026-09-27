@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/core/services/session.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
@@ -69,15 +70,19 @@ class AuthService {
   /// Dev only: signs in as the backend's `Fictitious <name>` student.
   Future<void> signInAsFictitious(String name) async {
     await storeSession(
-      await _api.post('/auth/dev-login', _tokenResponse, body: {'name': name}),
+      await _api.send(
+        ApiRoute.devLogin,
+        _tokenResponse,
+        body: {'name': name},
+      ),
     );
   }
 
   /// Creates or fetches the student for a Google token (POST /auth/signup is
   /// idempotent) and stores the session.
   Future<void> signupWithGoogle(String googleToken) async {
-    final response = await _api.post(
-      '/auth/signup',
+    final response = await _api.send(
+      ApiRoute.signup,
       _tokenResponse,
       headers: {'Authorization': 'Bearer $googleToken'},
     );
@@ -159,8 +164,8 @@ class AuthService {
     final refreshToken = _storage.getRefreshToken();
     if (refreshToken != null && refreshToken.isNotEmpty) {
       try {
-        await _api.post(
-          '/auth/logout',
+        await _api.send(
+          ApiRoute.logout,
           ApiClient.ignoreBody,
           body: {'refresh_token': refreshToken},
         );

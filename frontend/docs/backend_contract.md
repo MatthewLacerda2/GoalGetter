@@ -2,8 +2,10 @@
 
 > Spec for the GoalGetter backend (FastAPI). It began as a description of the frontend's
 > mocks; every screen has run on the real API since #51–#57 and those mock files are gone.
-> What it is now is the contract itself: Pydantic defines it, Flutter mirrors it by hand,
-> and nothing checks that the two agree — so this file is where they are kept honest.
+> What it is now is the contract's prose: Pydantic defines it, Flutter mirrors it by hand,
+> and since #213 a test checks that the two agree — `backend/openapi.json` is the
+> committed schema, and `frontend/test/contract/` fails when the app's routes or its
+> fixtures part from it. This file keeps what a schema cannot say: the behaviour.
 
 **Conventions**
 

@@ -6,7 +6,8 @@ import '../api_fake.dart';
 
 const meJson = '{"id": "s1", "name": "Fictitious Claude",'
     ' "email": "claude@example.com",'
-    ' "member_since": "2026-09-01T10:00:00", "current_streak": 9}';
+    ' "member_since": "2026-09-01T10:00:00", "current_streak": 9,'
+    ' "language": "en"}';
 
 Future<ApiFake> pumpProfile(WidgetTester tester, (int, String) me) async {
   final fake = ApiFake({

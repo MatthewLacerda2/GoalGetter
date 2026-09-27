@@ -82,7 +82,9 @@ for both, and see it pass **before pushing**.
 - **`make back-build`** — imports the app and generates the OpenAPI. It needs no
   database: it pins placeholder settings before the import and runs with no
   network at all, so a broken import or an unresolvable response model surfaces
-  in a second.
+  in a second. It writes that OpenAPI to **`backend/openapi.json`**, which is
+  committed, and fails when the write changed it: the API moved, so read the diff
+  and commit it (#213). That is how every API change shows in a pull request.
 - **`make back-migrations`** — `alembic upgrade head` on an empty database, then
   `alembic check` against the models. The migrations are what builds the database —
   the test suite's too — but only this gate compares the result with the models, so a
@@ -197,9 +199,17 @@ changes.
 
 The Flutter side is then updated **by hand** to match. We do not generate a client
 SDK: generated code duplicated the frontend's domain models and went stale the moment
-the API changed. Do not regenerate or import `client_sdk/`. `/api/v1/openapi.json`
-stays the source of truth — read it and write the API layer under
-`frontend/lib/core/api/`, reusing the existing domain models.
+the API changed. The source of truth is the committed snapshot, `backend/openapi.json`
+(`make back-build` keeps it current). The calls live in `frontend/lib/features/*/data/`,
+one API class per feature, reusing the feature's domain models; `core/api/` holds only
+the client and `ApiRoute`, the enum of every method and path the app calls — the
+client takes nothing else. The contract test (`frontend/test/contract/`) reads the
+snapshot and fails `make frontend` when an `ApiRoute` is not served, or when a fixture
+a fake backend answers with is not what the backend could send: every fake answers
+through `contractClient`, which checks each reply against its response schema
+(missing, invented or mistyped fields, an undeclared success status). A new call is a
+new `ApiRoute`; a fixture that is wrong on purpose is named in the fake's `malformed`.
+A string enum mirrored on both sides is checked there too (`schemaEnum`).
 
 ## Worktrees, ports and dev servers
 
