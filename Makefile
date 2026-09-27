@@ -84,7 +84,10 @@ back-fix: ## Auto-fix exactly what back-lint checks (ruff check --fix + ruff for
 back-deadcode: ## Backend whole-program dead-code gate (vulture; whitelist in backend/tools/deadcode.py)
 	@$(PY) -m backend.tools.deadcode
 
-back-build: ## Backend build smoke: import the app and generate the OpenAPI (no database)
+# It also rewrites backend/openapi.json, the committed snapshot of the API
+# (#213), and fails when that changed it: the API moved, so read the diff and
+# commit it. The frontend's contract test reads the same file.
+back-build: ## Backend build smoke: import the app, write the OpenAPI snapshot, fail if it changed (no database)
 	@$(PY_OFFLINE) -m backend.tools.build_smoke
 
 # In `make backend` rather than beside it, because it is the same failure the

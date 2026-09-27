@@ -8,17 +8,17 @@ import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../contract/contract_client.dart';
+import '../features/fake_backend.dart';
 import 'app_harness.dart';
 
 /// Session expiry through the app's own router (#224): the API client only
 /// clears the session, and the router's redirect is what moves the student.
 /// Everything but the network and Google is the real app.
 
-const _activeGoal = '[{"id": "g1", "name": "Chess", "description": "Openings.",'
-    ' "current_elo": 1000, "is_active": true}]';
+final _activeGoal = '[${goalJson('g1', active: true, name: 'Chess')}]';
 
 const _home = '{"goal_name": "Chess", "current_elo": 1000,'
     ' "current_streak": 0, "recent_lessons": []}';
@@ -29,7 +29,7 @@ const _expired = '{"detail": "expired"}';
 /// [homeStatus] (401: his access token expired), POST /goals says the token
 /// expired, and POST /auth/refresh answers [refreshStatus].
 http.Client _backend(int refreshStatus, int homeStatus) =>
-    MockClient((request) async {
+    contractClient((request) async {
       final path = request.url.path.replaceFirst('/api/v1', '');
       return switch ('${request.method} $path') {
         'GET /goals' => http.Response(_activeGoal, 200),

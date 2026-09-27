@@ -1,5 +1,6 @@
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/features/tutor/domain/chat_exchange.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -22,32 +23,31 @@ class TutorApi {
     String? before,
     int limit = pageSize,
   }) async {
-    final query = Uri(
-      queryParameters: {
-        if (before != null) 'before': before,
-        'limit': '$limit',
-      },
-    ).query;
-    return _api.get(
-      '/tutor/messages?$query',
+    return _api.send(
+      ApiRoute.tutorMessages,
       (json) => [
         for (final e in json! as List)
           ChatExchange.fromJson(e as Map<String, dynamic>),
       ],
+      query: {
+        if (before != null) 'before': before,
+        'limit': '$limit',
+      },
     );
   }
 
   /// Calls Gemini on the backend; a Gemini failure keeps its status code.
-  Future<ChatExchange> send(String message) => _api.post(
-        '/tutor/messages',
+  Future<ChatExchange> send(String message) => _api.send(
+        ApiRoute.sendTutorMessage,
         _exchange,
         body: {'message': message},
       );
 
   /// Sets (not toggles) the like on the exchange's reply.
-  Future<ChatExchange> setLike(String id, bool isLiked) => _api.put(
-        '/tutor/messages/$id/like',
+  Future<ChatExchange> setLike(String id, bool isLiked) => _api.send(
+        ApiRoute.likeTutorMessage,
         _exchange,
+        params: {'message_id': id},
         body: {'is_liked': isLiked},
       );
 

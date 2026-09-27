@@ -11,19 +11,23 @@ import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../contract/contract_client.dart';
 
 /// A backend that answers `'<METHOD> <path>'` (path under /api/v1) with
 /// canned `(status, body)` replies, handed out in order (the last repeats),
 /// and records every request's key and body. Unknown routes answer 599. A
 /// route in [held] answers once its future completes — never, for one that
-/// does not ([never]).
+/// does not ([never]). Every reply is checked against the backend's API
+/// (`contractClient`), except at the keys in [malformed]: the ones a test
+/// answers wrongly on purpose.
 class ApiFake {
-  ApiFake(this.replies, {this.held = const {}});
+  ApiFake(this.replies, {this.held = const {}, this.malformed = const {}});
 
   final Map<String, List<(int, String)>> replies;
   final Map<String, Future<void>> held;
+  final Set<String> malformed;
 
   /// A hold that is never let go: the request is never answered.
   static Future<void> get never => Completer<void>().future;
@@ -40,7 +44,7 @@ class ApiFake {
     });
     final storage = SettingsStorage(await SharedPreferences.getInstance());
     final api = ApiClient(
-      httpClient: MockClient((request) async {
+      httpClient: contractClient((request) async {
         final key =
             '${request.method} ${request.url.path.replaceFirst('/api/v1', '')}';
         requests.add((key, request.body));
@@ -49,7 +53,7 @@ class ApiFake {
         if (queue == null) return http.Response('{"detail": "no route"}', 599);
         final (status, body) = queue.length > 1 ? queue.removeAt(0) : queue[0];
         return http.Response(body, status);
-      }),
+      }, malformed: malformed),
       storage: storage,
       baseUrl: 'http://api.test',
     );

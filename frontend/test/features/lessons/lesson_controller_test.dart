@@ -243,19 +243,25 @@ void main() {
 
   group('an answer the app cannot read, or none at all (#221)', () {
     test('a lesson that cannot be read is the error, not a spinner', () async {
-      final fake = ApiFake({
-        startKey: [(201, '{"questions": "soon"}')],
-      });
+      final fake = ApiFake(
+        {
+          startKey: [(201, '{"questions": "soon"}')],
+        },
+        malformed: {startKey},
+      );
       final c = await openedOver(fake);
       expect(c.async.error, isA<MalformedResponse>());
     });
 
     test('a result that cannot be read keeps the answers, with the failure',
         () async {
-      final fake = ApiFake({
-        startKey: [(201, lessonJson(1))],
-        answersKey: [(200, '{"elo": "twelve"}')],
-      });
+      final fake = ApiFake(
+        {
+          startKey: [(201, lessonJson(1))],
+          answersKey: [(200, '{"elo": "twelve"}')],
+        },
+        malformed: {answersKey},
+      );
       final c = await openedOver(fake);
       await c.answer(0);
 

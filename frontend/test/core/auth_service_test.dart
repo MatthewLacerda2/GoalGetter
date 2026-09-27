@@ -5,8 +5,9 @@ import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../contract/contract_client.dart';
 
 /// Every key the app stores, so sign-out has something to delete.
 const _everything = {
@@ -25,7 +26,7 @@ Future<(AuthService, SharedPreferences, List<http.Request>)> signedIn(
   SharedPreferences.setMockInitialValues(_everything);
   final prefs = await SharedPreferences.getInstance();
   final sent = <http.Request>[];
-  final client = MockClient((request) async {
+  final client = contractClient((request) async {
     sent.add(request);
     return http.Response('', logoutStatus);
   });

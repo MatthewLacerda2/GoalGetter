@@ -1,5 +1,6 @@
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_api.g.dart';
@@ -16,7 +17,7 @@ class ProfileApi {
 
   final ApiClient _api;
 
-  Future<void> me() => _api.get('/me', ApiClient.ignoreBody);
+  Future<void> me() => _api.send(ApiRoute.me, ApiClient.ignoreBody);
 }
 
 @riverpod

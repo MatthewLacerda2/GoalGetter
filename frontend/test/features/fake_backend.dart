@@ -10,8 +10,9 @@ import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../contract/contract_client.dart';
 
 /// A canned answer: status and JSON body.
 typedef Reply = (int, String);
@@ -31,7 +32,7 @@ class FakeBackend {
     SharedPreferences.setMockInitialValues({'access_token': 'a', ...stored});
     storage = SettingsStorage(await SharedPreferences.getInstance());
     api = ApiClient(
-      httpClient: MockClient((request) async {
+      httpClient: contractClient((request) async {
         final key =
             '${request.method} ${request.url.path.replaceFirst('/api/v1', '')}';
         calls.add(key);

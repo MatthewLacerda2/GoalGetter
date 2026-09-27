@@ -1,5 +1,6 @@
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -18,8 +19,8 @@ class OnboardingApi {
   /// A 400 means Gemini judged [prompt] not to be a goal: its `detail` is
   /// Gemini's reasoning, meant for the student.
   Future<List<ObjectiveQuestion>> objectiveQuestions(String prompt) async {
-    return _api.post(
-      '/goals/objective-questions',
+    return _api.send(
+      ApiRoute.objectiveQuestions,
       (json) => [
         for (final e in json! as List)
           ObjectiveQuestion.fromJson(e as Map<String, dynamic>),
@@ -32,8 +33,8 @@ class OnboardingApi {
     String prompt,
     List<ObjectiveAnswer> answers,
   ) async {
-    return _api.post(
-      '/goals/study-plan',
+    return _api.send(
+      ApiRoute.studyPlan,
       (json) => StudyPlan.fromJson(json! as Map<String, dynamic>),
       body: {
         'prompt': prompt,
@@ -44,8 +45,8 @@ class OnboardingApi {
 
   /// Creates the goal and makes it the student's active one.
   Future<CreatedGoal> create(GoalDraft draft) async {
-    return _api.post(
-      '/goals',
+    return _api.send(
+      ApiRoute.createGoal,
       (json) => CreatedGoal.fromJson(json! as Map<String, dynamic>),
       body: {
         'prompt': draft.prompt,
@@ -63,9 +64,10 @@ class OnboardingApi {
     String goalId,
     List<StandardAnswer> answers,
   ) async {
-    await _api.post(
-      '/goals/$goalId/standard-answers',
+    await _api.send(
+      ApiRoute.standardAnswers,
       ApiClient.ignoreBody,
+      params: {'goal_id': goalId},
       body: {'answers': answers.map((a) => a.toJson()).toList()},
     );
   }

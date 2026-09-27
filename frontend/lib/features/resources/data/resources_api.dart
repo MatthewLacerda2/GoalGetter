@@ -1,5 +1,6 @@
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -17,8 +18,8 @@ class ResourcesApi {
 
   final ApiClient _api;
 
-  Future<GoalResources> fetch() => _api.get(
-        '/resources',
+  Future<GoalResources> fetch() => _api.send(
+        ApiRoute.resources,
         (json) => GoalResources.fromJson(json! as Map<String, dynamic>),
       );
 }

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/api_route.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -68,7 +69,10 @@ void main() {
       baseUrl: 'http://api.test',
     );
 
-    final results = await Future.wait([api.get('/goals', asIs), api.get('/goals', asIs)]);
+    final results = await Future.wait([
+      api.send(ApiRoute.listGoals, asIs),
+      api.send(ApiRoute.listGoals, asIs),
+    ]);
 
     expect(backend.refreshCalls, 1);
     expect(results, [<dynamic>[], <dynamic>[]]);
@@ -88,7 +92,7 @@ void main() {
     );
 
     await expectLater(
-      api.get('/goals', asIs),
+      api.send(ApiRoute.listGoals, asIs),
       throwsA(isA<ApiException>().having((e) => e.status, 'status', 401)),
     );
     expect(expired, 1);
@@ -109,7 +113,7 @@ void main() {
     );
 
     await expectLater(
-      api.get('/goals', asIs),
+      api.send(ApiRoute.listGoals, asIs),
       throwsA(isA<ApiException>().having((e) => e.status, 'status', 503)),
       reason: 'not a 401: a screen reading 401 as signed-out must not here',
     );
@@ -129,7 +133,7 @@ void main() {
     );
 
     await expectLater(
-      api.get('/goals', asIs),
+      api.send(ApiRoute.listGoals, asIs),
       throwsA(isA<ServerUnreachable>()),
     );
     expect(expired, 0);
@@ -145,7 +149,10 @@ void main() {
       baseUrl: 'http://api.test',
     );
 
-    await expectLater(api.post('/auth/dev-login', asIs), throwsA(isA<ApiException>()));
+    await expectLater(
+      api.send(ApiRoute.devLogin, asIs),
+      throwsA(isA<ApiException>()),
+    );
     expect(backend.refreshCalls, 0);
   });
 
@@ -169,9 +176,9 @@ void main() {
       baseUrl: 'http://api.test',
     );
 
-    await api.get('/goals', asIs);
+    await api.send(ApiRoute.listGoals, asIs);
     await storage.writeUserLanguage('de');
-    await api.post('/auth/dev-login', asIs);
+    await api.send(ApiRoute.devLogin, asIs);
 
     expect(sent, ['pt', 'de']);
   });
@@ -187,7 +194,7 @@ void main() {
     test('a body the reader cannot read is a MalformedResponse', () async {
       final api = await answering(() async => http.Response('{"a": 1}', 200));
       await expectLater(
-        api.get('/goals', (json) => json! as List),
+        api.send(ApiRoute.listGoals, (json) => json! as List),
         throwsA(
           isA<MalformedResponse>()
               .having((e) => e.path, 'path', '/goals')
@@ -199,7 +206,7 @@ void main() {
     test('a 2xx that is not JSON is a MalformedResponse', () async {
       final api = await answering(() async => http.Response('<html>', 200));
       await expectLater(
-        api.get('/goals', asIs),
+        api.send(ApiRoute.listGoals, asIs),
         throwsA(isA<MalformedResponse>()),
       );
     });
@@ -209,7 +216,7 @@ void main() {
         () async => throw http.ClientException('Connection refused'),
       );
       await expectLater(
-        api.get('/goals', asIs),
+        api.send(ApiRoute.listGoals, asIs),
         throwsA(isA<ServerUnreachable>()),
       );
     });
@@ -217,7 +224,7 @@ void main() {
     testWidgets('no answer within the timeout is TimedOut', (tester) async {
       final api = await answering(() => Completer<http.Response>().future);
       Object? failure;
-      unawaited(api.get('/goals', asIs).then<void>(
+      unawaited(api.send(ApiRoute.listGoals, asIs).then<void>(
             (_) {},
             onError: (Object e) => failure = e,
           ));
@@ -227,5 +234,28 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       expect(failure, isA<TimedOut>());
     });
+  });
+
+  test('a route fills its placeholders and appends its query', () async {
+    final urls = <String>[];
+    final api = ApiClient(
+      httpClient: MockClient((request) async {
+        urls.add('${request.method} ${request.url}');
+        return http.Response('[]', 200);
+      }),
+      storage: await signedInStorage(),
+      baseUrl: 'http://api.test',
+    );
+
+    await api.send(ApiRoute.setActiveGoal, ApiClient.ignoreBody,
+        params: {'goal_id': 'a b'});
+    await api.send(ApiRoute.tutorMessages, asIs, query: {'limit': '20'});
+
+    expect(urls, [
+      'PUT http://api.test/api/v1/goals/a%20b/set-active',
+      'GET http://api.test/api/v1/tutor/messages?limit=20',
+    ]);
+    expect(() => ApiRoute.setActiveGoal.path(), throwsArgumentError,
+        reason: 'a placeholder left unfilled is a programming error');
   });
 }

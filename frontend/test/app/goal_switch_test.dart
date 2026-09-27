@@ -2,8 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 
+import '../contract/contract_client.dart';
+import '../features/fake_backend.dart';
 import 'app_harness.dart';
 
 /// Switching goals through the app's own route table (#220): Profile pushes
@@ -19,10 +20,9 @@ class _TwoGoals {
   static const _names = {'g1': 'Chess', 'g2': 'Italian'};
 
   String _goal(String id) =>
-      '{"id": "$id", "name": "${_names[id]}", "description": "About it.",'
-      ' "current_elo": 1000, "is_active": ${id == active}}';
+      goalJson(id, active: id == active, name: _names[id]!);
 
-  http.Client get client => MockClient((request) async {
+  http.Client get client => contractClient((request) async {
         final key =
             '${request.method} ${request.url.path.replaceFirst('/api/v1', '')}';
         calls.add(key);

@@ -5,6 +5,9 @@ on:
     types: [opened, reopened, ready_for_review, synchronize]
     paths:
       - "frontend/**"
+      # The API the frontend's contract test reads (#213): a backend change
+      # that moves it is checked against the app in the same pull request.
+      - "backend/openapi.json"
       - "Makefile"
       - ".github/workflows/frontend.yml"
 
