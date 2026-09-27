@@ -56,13 +56,13 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-migrations back-revision back-test back-image migrate front-version front-lint front-test ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
 	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
-check: backend frontend ## Run every gate (backend + frontend)
+check: backend frontend ops-lint ## Run every gate (backend + frontend + shell scripts and Dockerfiles)
 
 backend: back-lint back-deadcode back-build back-migrations back-test ## Backend: lint + dead code + build smoke + migrations + pytest
 
@@ -166,6 +166,31 @@ front-lint: front-version gen-l10n ## Frontend dart line limits + dart analyze (
 
 front-test: front-version gen-l10n ## Frontend widget/unit tests
 	@cd frontend && $(FLUTTER) test
+
+# The scripts that decide whether a push leaves the machine (the hooks) and
+# whether production moves (the deploy script), and the Dockerfiles the deploy
+# builds (#230). Neither linter is installed here, so both run from images
+# pinned by tag and digest: the same binary here and on a runner, and a bump is
+# a reviewed diff. The worktree is mounted read-only with no network.
+#
+# The file lists come from git, so a new script or Dockerfile is linted the day
+# it is committed. The Makefile's own recipes are not linted: extracting them
+# means re-implementing make's escaping, and `make -n` is no shortcut - it still
+# runs every recipe line that names $(MAKE), which `preview` does.
+#
+# Every finding fails, infos included. hadolint's exceptions, each with its
+# reason, are .hadolint.yaml (and an inline `# hadolint ignore=` for one line).
+SHELLCHECK_IMAGE := koalaman/shellcheck:v0.11.0@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+HADOLINT_IMAGE   := hadolint/hadolint:v2.15.1@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d
+LINT_RUN          = docker run --rm --network none -v "$(CURDIR)":/mnt:ro -w /mnt
+SHELL_SCRIPTS     = $(shell git ls-files '*.sh' '.githooks/*')
+DOCKERFILES       = $(shell git ls-files '*Dockerfile')
+
+ops-lint: ## Shell scripts (shellcheck) and Dockerfiles (hadolint)
+	@echo "→ shellcheck: $(SHELL_SCRIPTS)"
+	@$(LINT_RUN) $(SHELLCHECK_IMAGE) $(SHELL_SCRIPTS)
+	@echo "→ hadolint: $(DOCKERFILES)"
+	@$(LINT_RUN) $(HADOLINT_IMAGE) hadolint $(DOCKERFILES)
 
 # On a runner there is no main checkout to copy from, and the settings arrive as
 # real environment variables from the workflow (CI=true on GitHub) - so having no

@@ -1,0 +1,73 @@
+name: images
+
+# Build every image docker-compose.yml builds (#230). Merging is deploying
+# (#105), and the deploy timer is where a broken Dockerfile, a broken
+# docker-compose.yml, or a release web build that fails where `flutter test`
+# passed used to surface first - safely, the old containers keep serving, but
+# silently, with main undeployable until someone read `make deploy-log`. Here
+# the same build fails the pull request instead.
+#
+# The build reads docker-compose.yml itself (`docker buildx bake` understands
+# compose files), so the contexts, Dockerfiles and build args are never copied
+# into this file to drift. Nothing is pushed or loaded: the build is the check.
+#
+# Paths: whatever goes into an image. The tests and the docs never do (both
+# .dockerignores leave the tests out), so a change to them alone does not
+# rebuild anything.
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+    paths: &paths
+      - "backend/**"
+      - "!backend/tests/**"
+      - "frontend/**"
+      - "!frontend/test/**"
+      - "!frontend/docs/**"
+      - "docker-compose.yml"
+      - ".github/workflows/images.yml"
+  # main too, only to fill the cache: GitHub lets a pull request read the cache
+  # its base branch wrote but not another pull request's, so without this every
+  # new pull request would clone and precache Flutter from nothing.
+  push:
+    branches: [main]
+    paths: *paths
+
+# A newer push to the same pull request makes the running build moot.
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: docker compose images
+    if: ${{ github.event_name == 'push' || !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      # The compose file itself: an unknown service in depends_on or a bad key
+      # fails here in a second. The deploy's secrets are not on a runner, so
+      # compose warns that they are unset; that is expected.
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
+
+      - uses: docker/setup-buildx-action@v4
+
+      # The Flutter layer (clone + precache, the slow part) is cached in the
+      # GitHub Actions cache, one scope per image; `mode=max` keeps the
+      # intermediate stages, which is where that layer lives - the image that
+      # ships is only nginx. migrate and nightly are the backend's build
+      # exactly, so they read its scope and BuildKit builds it once.
+      - name: Build every compose image
+        uses: docker/bake-action@v7
+        with:
+          source: .
+          files: docker-compose.yml
+          set: |
+            backend.cache-from=type=gha,scope=backend
+            backend.cache-to=type=gha,scope=backend,mode=max
+            migrate.cache-from=type=gha,scope=backend
+            nightly.cache-from=type=gha,scope=backend
+            frontend.cache-from=type=gha,scope=frontend
+            frontend.cache-to=type=gha,scope=frontend,mode=max

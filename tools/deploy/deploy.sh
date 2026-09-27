@@ -29,7 +29,10 @@ flock -n 9 || { echo "deploy: another run holds the lock"; exit 0; }
 log() { echo "deploy: $*"; }
 
 [ "$(git rev-parse --abbrev-ref HEAD)" = main ] || { log "main checkout is not on main - skipping"; exit 0; }
-git diff --quiet && git diff --cached --quiet || { log "main checkout has local changes - skipping"; exit 0; }
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  log "main checkout has local changes - skipping"
+  exit 0
+fi
 
 git fetch -q origin main
 target="$(git rev-parse origin/main)"

@@ -1,0 +1,11 @@
+# hadolint's configuration for `make ops-lint` (#230). Every other rule fails
+# the gate, infos included; a single line that has a reason to differ says so
+# with an inline `# hadolint ignore=` beside its reason.
+ignored:
+  # Pin versions in `apt-get install` / `apk add`. The base images are already
+  # pinned by release (python:3.14-slim, debian:trixie-slim, nginx:alpine), and
+  # a Debian or Alpine archive keeps only the current version of a package:
+  # an exact `curl=8.x-y` stops resolving at the next point release, and the
+  # deploy fails the way #162 did when an archive moved under the image.
+  - DL3008
+  - DL3018

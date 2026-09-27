@@ -86,6 +86,17 @@ if grep '^frontend/' <<<"$changed" | grep -qv '^frontend/docs/'; then
   fi
 fi
 
+# The shell scripts and Dockerfiles (#230) - this hook among them - and the
+# Makefile that says how they are linted. The linters run in pinned images.
+if grep -qE '(\.sh$|^\.githooks/|Dockerfile$|^\.hadolint\.yaml$|^Makefile$)' <<<"$changed"; then
+  if ! docker info >/dev/null 2>&1; then
+    echo "→ shell and Dockerfile lint skipped (docker is not available)"
+  else
+    echo "→ shell and Dockerfile lint (make ops-lint)"
+    make ops-lint || fail=1
+  fi
+fi
+
 if [ "$fail" -ne 0 ]; then
   echo "push aborted - the gates above are red. Fix them, or use --no-verify deliberately."
   exit 1

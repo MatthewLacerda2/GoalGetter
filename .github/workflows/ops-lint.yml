@@ -1,0 +1,27 @@
+name: ops-lint
+
+# shellcheck on the shell scripts and hadolint on the Dockerfiles (#230): the
+# hooks decide whether a push leaves the machine, the deploy script whether
+# production moves, and the Dockerfiles what it builds. Same `make` target a
+# developer runs; the linters come from the images the Makefile pins, so the
+# runner needs nothing but the Docker it already has.
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+    paths:
+      - "**.sh"
+      - "**/Dockerfile"
+      - ".githooks/**"
+      - ".hadolint.yaml"
+      - "Makefile"
+      - ".github/workflows/ops-lint.yml"
+
+jobs:
+  lint:
+    name: shellcheck · hadolint
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Lint shell scripts and Dockerfiles
+        run: make ops-lint
