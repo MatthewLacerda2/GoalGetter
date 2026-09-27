@@ -39,7 +39,10 @@ void main() {
   });
 
   test('fails on a format that spells a word of its own', () {
-    expect(_rules(r"final t = Text('${days}d');"), contains('hardcoded-string'));
+    expect(
+      _rules(r"final t = Text('${days}d');"),
+      contains('hardcoded-string'),
+    );
     expect(
       _rules(r"final s = StatData(text: '$count days');"),
       contains('hardcoded-string'),
@@ -48,7 +51,7 @@ void main() {
 
   test('fails on a literal the screen draws exactly, even punctuation', () {
     expect(
-      _rules(r"final t = Text('  ·  ');"),
+      _rules("final t = Text('  ·  ');"),
       contains('hardcoded-string'),
     );
   });

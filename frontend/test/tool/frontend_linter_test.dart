@@ -147,8 +147,7 @@ void main() {
     test('fails on reaching lib/app/dev/ for anything but devRoutes', () {
       const router = 'lib/app/router/app_router.dart';
       for (final source in [
-        "import 'package:goal_getter/app/dev/dev_fixtures.dart';\n"
-            'final g = Fixtures.goalDraft;',
+        "import 'package:goal_getter/app/dev/dev_fixtures.dart';",
         "import 'package:goal_getter/app/dev/dev_routes.dart';",
         "import '../dev/dev_routes.dart' show devRoutes, Fx;",
         "export 'package:goal_getter/app/dev/dev_routes.dart';",

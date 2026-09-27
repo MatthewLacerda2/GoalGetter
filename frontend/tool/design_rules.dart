@@ -13,7 +13,7 @@
 ///    decision as the hex it tints, and 14 of them lived in screens;
 ///  * a colour looked up with a fallback (`extension<CustomColors>()?.success
 ///    ?? …`): the fallback was a fixed light-mode value, so the dark theme
-///    could paint with it. [CustomColors.of] cannot miss, so the lookup that
+///    could paint with it. `CustomColors.of` cannot miss, so the lookup that
 ///    can is refused outright;
 ///  * a type size, including the `selectedFontSize:` a widget takes directly;
 ///  * a radius or a padding, as a number inside `BorderRadius.*`, `Radius.*`
@@ -70,7 +70,7 @@ final RegExp _edgeInsetsCall = RegExp(
 /// rule.
 final RegExp _sizeArgument = RegExp(
   r'\b(?![A-Za-z]*[fF]ontSize\b)[A-Za-z]*'
-  r'(?:[sS]ize|[wW]idth|[hH]eight|[sS]pacing|[eE]levation|[eE]xtent'
+  '(?:[sS]ize|[wW]idth|[hH]eight|[sS]pacing|[eE]levation|[eE]xtent'
   r'|[tT]hickness|[iI]ndent|[dD]imension|[rR]adius)\s*:(?!:)',
 );
 
