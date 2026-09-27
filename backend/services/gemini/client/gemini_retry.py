@@ -127,7 +127,7 @@ async def call_with_retry[R](
     `call` sends a fresh request each time it is called; `name` says which one
     in the log. The budget is the caller's (`using_budget`) unless one is given.
     Raises the last error once the budget is spent, or the first one if it was
-    never worth repeating - callers translate it (an HTTPException for a
+    never worth repeating - callers translate it (an ApiError for a
     request, a log line for a background job).
     """
     budget = budget or _budget.get()

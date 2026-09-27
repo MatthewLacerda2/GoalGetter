@@ -20,7 +20,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 error_msg = b"".join(response_body).decode()
             except UnicodeDecodeError:
                 error_msg = "[Binary or Undecodable Error Body]"
-            logger.error("Error Body: %s", error_msg)
+            # A 4xx is the client's request refused - a missing goal, an expired
+            # token - and routine; only a 5xx is a failure worth an ERROR (#214).
+            level = logging.ERROR if response.status_code >= 500 else logging.INFO
+            logger.log(level, "Error Body: %s", error_msg)
 
             response = Response(
                 content=b"".join(response_body),

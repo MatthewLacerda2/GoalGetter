@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.api.v1.student_dependencies import get_current_user
 from backend.core import clock
 from backend.core.database import get_db
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.core.language import Language, requested_language
 from backend.core.rate_limiter import limiter
 from backend.models.goal import Goal
@@ -65,7 +67,7 @@ async def objective_questions(
     language = output_language(chosen, payload.prompt)
     validation = await run_gemini(get_prompt_validation, payload.prompt, language)
     if not is_goal_validated(validation):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=validation.reasoning)
+        raise ApiError(ErrorCode.NOT_A_GOAL, validation.reasoning)
 
     generated = await run_gemini(
         generate_onboarding_questions, payload.prompt, validation.reasoning, language

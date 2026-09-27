@@ -84,8 +84,8 @@ that parts a `.g.dart`).
   `backend/pyproject.toml`. **`make back-fix`** applies what ruff checks, so start
   there rather than editing by hand.
 - **`make back-deadcode`** — `vulture`: a function, class or method no other
-  module reaches. The whitelist for what only FastAPI, SQLAlchemy or `mock`
-  calls lives in `backend/tools/deadcode.py`, four names long, each naming its
+  module reaches. The whitelist for what only FastAPI, SQLAlchemy, `enum` or `mock`
+  calls lives in `backend/tools/deadcode.py`, five names long, each naming its
   caller. Growing it is how this gate stops working — delete the code instead,
   and if it really is a framework entry point, say which framework.
 - **`make back-build`** — imports the app and generates the OpenAPI. It needs no

@@ -11,11 +11,13 @@ with a `lesson_id` of its own as it saves them.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.core.database import get_db
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.models.goal import Goal
 from backend.models.question import Question
 from backend.repositories.frontier_repository import FrontierRepository
@@ -35,8 +37,6 @@ from backend.services.lessons.rasch import replay
 from backend.services.lessons.selection import select_lesson_questions
 
 router = APIRouter()
-
-LESSONS_NOT_READY = "Lessons are still being prepared"
 
 
 @router.post(
@@ -66,7 +66,7 @@ async def start_lesson(
         context=contexts[0] if contexts else None,
     )
     if not questions:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=LESSONS_NOT_READY)
+        raise ApiError(ErrorCode.LESSONS_NOT_READY)
 
     return LessonResponse(questions=[_served(question) for question in questions])
 
@@ -101,9 +101,7 @@ async def submit_lesson_answers(
     try:
         graded = grade_lesson(bank, payload.answers)
     except UnknownQuestionError as err:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(err)
-        ) from err
+        raise ApiError(ErrorCode.UNKNOWN_QUESTION, str(err)) from err
     answers = StudentAnswerRepository(db)
     await answers.create_many(graded.answers)
 

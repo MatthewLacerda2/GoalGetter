@@ -40,4 +40,4 @@ async def test_history_caps_the_limit(auth_client, test_user, goal_factory):
 async def test_history_without_active_goal_is_404(auth_client):
     response = await auth_client.get(ENDPOINT)
     assert response.status_code == 404
-    assert response.json()["detail"] == "No active goal"
+    assert response.json()["code"] == "no_active_goal"

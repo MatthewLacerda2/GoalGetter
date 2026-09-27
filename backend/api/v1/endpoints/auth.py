@@ -1,13 +1,14 @@
-import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.student_dependencies import get_current_user, remember_language
 from backend.core import clock
 from backend.core.config import settings
 from backend.core.database import get_db
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.core.language import Language, requested_language
 from backend.core.security import (
     create_access_token,
@@ -26,8 +27,6 @@ from backend.schemas.student import (
 )
 from backend.services.auth import token_rotation
 from backend.services.fictitious.identity import fictitious_identity
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -81,7 +80,7 @@ async def login(oauth_data: OAuth2Request, db: Annotated[AsyncSession, Depends(g
     student_repo = StudentRepository(db)
     user = await student_repo.get_by_google_id(user_info["sub"])
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise ApiError(ErrorCode.STUDENT_NOT_FOUND)
     user.last_login = clock.now()
     await student_repo.update(user)
     return await _token_response(db, user)
@@ -89,9 +88,10 @@ async def login(oauth_data: OAuth2Request, db: Annotated[AsyncSession, Depends(g
 
 def require_dev_login():
     """404 unless DEV_LOGIN is on, so production answers as if the route did not
-    exist. Read per request (not at import) so tests can flip the setting."""
+    exist - the same code and body as an unknown route. Read per request (not at
+    import) so tests can flip the setting."""
     if not settings.DEV_LOGIN:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
+        raise ApiError(ErrorCode.ROUTE_NOT_FOUND)
 
 
 @router.post(
@@ -137,9 +137,7 @@ async def refresh_tokens(
     # Committed before a refusal too: a replayed token revokes its successors.
     await db.commit()
     if rotated is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token"
-        )
+        raise ApiError(ErrorCode.INVALID_REFRESH_TOKEN)
     student_id, new_refresh_token = rotated
     student = await StudentRepository(db).get_by_id(student_id)
     return TokenRefreshResponse(
@@ -163,22 +161,10 @@ async def delete_account(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[Student, Depends(get_current_user)],
 ):
-    try:
-        student_repo = StudentRepository(db)
-        success = await student_repo.delete(current_user.id)
-
-        if not success:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-        await db.commit()
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        await db.rollback()
-        logger.exception("Error deleting account")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error deleting account",
-        ) from e
+    """Delete the signed-in student. Anything that fails on the way is a 500
+    `internal_error` (core/errors/handlers.py), and the session closes without
+    committing, so nothing is half deleted."""
+    if not await StudentRepository(db).delete(current_user.id):
+        raise ApiError(ErrorCode.STUDENT_NOT_FOUND)
+    await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

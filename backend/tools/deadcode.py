@@ -66,9 +66,13 @@ IGNORE_DECORATORS = [
 ]
 
 # Names read dynamically: vulture cannot see a getattr string, nor a framework
-# calling a method it knows by convention. Every entry names its caller. Four
-# is the whole list on purpose - a fifth should be argued for, not added.
+# calling a method it knows by convention. Every entry names its caller. Five
+# is the whole list on purpose - a sixth should be argued for, not added.
 IGNORE_NAMES = [
+    # The stdlib's EnumType reads it: an enum whose `__new__` takes more than
+    # the value (core/errors/codes.py: code, status, sentence) must set it, the
+    # way `http.HTTPStatus` does. Nothing in the project reads it by name.
+    "_value_",
     # Starlette calls this override on every request (core/logging_middleware.py).
     "dispatch",
     # A SQLAlchemy column on Student. The endpoints write it; the only reader is

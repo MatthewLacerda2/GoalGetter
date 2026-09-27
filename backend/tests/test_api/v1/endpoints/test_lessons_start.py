@@ -142,7 +142,7 @@ async def test_start_on_an_empty_bank_is_409(auth_client, test_user, goal_factor
     response = await auth_client.post(url(goal.id))
 
     assert response.status_code == 409
-    assert response.json()["detail"] == "Lessons are still being prepared"
+    assert response.json()["code"] == "lessons_not_ready"
 
 
 async def test_start_on_someone_elses_goal_is_404(

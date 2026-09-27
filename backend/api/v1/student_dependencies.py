@@ -8,11 +8,13 @@ imports none of them. What stays in core is the token arithmetic it builds on
 
 import logging
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import get_db
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.core.language import Language, requested_language
 from backend.core.security import security, verify_token
 from backend.models.student import Student
@@ -62,9 +64,7 @@ async def _user_from_token(credentials: HTTPAuthorizationCredentials, db: AsyncS
     payload = verify_token(credentials.credentials)
     google_id = payload.get("sub")
     if not google_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload"
-        )
+        raise ApiError(ErrorCode.INVALID_TOKEN)
 
     student = await StudentRepository(db).get_by_google_id(google_id)
     if student is None:
@@ -72,7 +72,5 @@ async def _user_from_token(credentials: HTTPAuthorizationCredentials, db: AsyncS
         # deleted): the session really is over, so 401 — signing him out is
         # the right thing — but said, not folded into "invalid token".
         logger.warning("Token for a student who no longer exists")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Student no longer exists"
-        )
+        raise ApiError(ErrorCode.STUDENT_NO_LONGER_EXISTS)
     return student

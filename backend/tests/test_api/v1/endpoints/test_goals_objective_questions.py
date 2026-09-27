@@ -49,7 +49,7 @@ async def test_objective_questions_invalid_goal(client):
     with patch(VALIDATE, return_value=INVALID), patch(GENERATE) as gen:
         response = await client.post(ENDPOINT, json={"prompt": "asdfgh"})
     assert response.status_code == 400
-    assert response.json()["detail"] == "that is not a goal"
+    assert response.json() == {"code": "not_a_goal", "detail": "that is not a goal"}
     gen.assert_not_called()
 
 
@@ -59,15 +59,32 @@ async def test_objective_questions_missing_prompt(client):
     assert response.status_code == 422
 
 
-async def test_objective_questions_gemini_error_passthrough(client):
-    """A Gemini API error is surfaced with its own status code, not a raw 500"""
+def _gemini_error(status: int, message: str) -> APIError:
     err = APIError.__new__(APIError)
-    err.code = 429
-    err.message = "RESOURCE_EXHAUSTED"
-    with patch(VALIDATE, side_effect=err):
+    err.code = status
+    err.message = message
+    return err
+
+
+async def test_geminis_quota_is_a_503_of_its_own_not_a_429(client):
+    """#214: Gemini's 429 is our quota, not the student's pace - and its message
+    stays in the log"""
+    with patch(VALIDATE, side_effect=_gemini_error(429, "RESOURCE_EXHAUSTED")):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
-    assert response.status_code == 429
-    assert "RESOURCE_EXHAUSTED" in response.json()["detail"]
+    assert response.status_code == 503
+    assert response.json()["code"] == "gemini_quota_exhausted"
+    assert "RESOURCE_EXHAUSTED" not in response.json()["detail"]
+
+
+async def test_a_refused_gemini_key_is_a_502_not_a_sign_out(client):
+    """#214: Gemini's 401 is about our key; as a 401 the app would sign him out"""
+    with patch(VALIDATE, side_effect=_gemini_error(401, "API key not valid")):
+        response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
+    assert response.status_code == 502
+    assert response.json() == {
+        "code": "gemini_key_rejected",
+        "detail": "Gemini refused our API key",
+    }
 
 
 async def test_a_blocked_prompt_is_a_502_not_a_500(client):
@@ -77,4 +94,4 @@ async def test_a_blocked_prompt_is_a_502_not_a_500(client):
         response = await client.post(ENDPOINT, json={"prompt": "I want to learn guitar"})
 
     assert response.status_code == 502
-    assert response.json()["detail"] == "Gemini gave no usable answer"
+    assert response.json()["code"] == "gemini_no_answer"
