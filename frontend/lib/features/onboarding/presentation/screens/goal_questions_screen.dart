@@ -9,7 +9,7 @@ import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/question_timer.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// Step 2 of goal creation: one objective question at a time. The last answer
 /// sends everything to `POST /goals/study-plan`; a failure there keeps every

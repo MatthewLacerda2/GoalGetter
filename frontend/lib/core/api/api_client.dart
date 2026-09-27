@@ -31,7 +31,8 @@ String resolveBaseUrl(String configured) {
 ///   revoke each other and log the user out.
 /// - A refresh the backend refuses (401: the refresh token is revoked,
 ///   expired or unknown), or a replay that still 401s, clears the session and
-///   calls [onSessionExpired] (the app sends the user to the start screen).
+///   calls [onSessionExpired] (the session provider turns false, and the
+///   router's redirect sends the user to the start screen).
 /// - A refresh that fails for any other reason — a 5xx, no network — keeps the
 ///   session: it throws the refresh's own [ApiException] (never the 401 that
 ///   triggered it, which screens read as signed-out) or the network exception.

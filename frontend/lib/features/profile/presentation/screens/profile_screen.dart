@@ -11,7 +11,7 @@ import 'package:goal_getter/core/utils/theme_mode_provider.dart';
 import 'package:goal_getter/core/widgets/language_picker.dart';
 import 'package:goal_getter/features/profile/data/profile_api.dart';
 import 'package:goal_getter/features/profile/presentation/widgets/theme_mode_sheet.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key});

@@ -1,12 +1,15 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/core/services/session.dart';
 import 'package:goal_getter/app/dev/dev_routes.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/app/home/home_shell.dart';
-import 'package:goal_getter/app/startup/auth_gate.dart';
+import 'package:goal_getter/app/startup/app_start_controller.dart';
+import 'package:goal_getter/app/startup/splash_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
@@ -24,26 +27,91 @@ import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goal_detail_route.dart';
 
+part 'app_router.g.dart';
+
 /// The app's go_router configuration.
 ///
-/// `AuthGate` (the `/` splash) resolves auth/onboarding state and redirects via
-/// `context.go`; auth is not a route guard yet. Rich objects are passed via
-/// `extra` (see route_args.dart), and the routes that need one guard it in
-/// their `redirect` (see [_extra]); paths in [AppRoutes] are the single source
-/// of truth.
-final goRouterProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
+/// Signing in and out is routing (#224): the router listens to the session
+/// ([signedInProvider]) and to the launch decision
+/// ([launchDestinationProvider]), and its redirects decide where the student
+/// goes — [_sessionRedirect] for a session that ended, [_launchRedirect] for
+/// the `/` splash. Rich objects are passed via `extra` (see route_args.dart),
+/// and the routes that need one guard it in their `redirect` (see [_extra]);
+/// paths in [AppRoutes] are the single source of truth.
+@Riverpod(keepAlive: true)
+GoRouter goRouter(Ref ref) {
+  final changed = ValueNotifier<int>(0);
+  ref
+    ..listen(signedInProvider, (_, __) => changed.value++)
+    // Weak: the splash owns the decision, so it is asked again on every
+    // visit; the router only hears when it lands. Not when it starts: that is
+    // the splash building, and a router rebuilt mid-build throws. A weak
+    // listen neither creates nor keeps the provider alive, which the lint
+    // cannot see.
+    // ignore: riverpod_lint/only_use_keep_alive_inside_keep_alive
+    ..listen(
+      launchDestinationProvider,
+      (_, next) {
+        if (!next.isLoading) changed.value++;
+      },
+      weak: true,
+    );
+  final router = GoRouter(
     initialLocation: AppConfig.devMenu ? AppRoutes.dev : AppRoutes.splash,
+    refreshListenable: changed,
+    redirect: (_, state) => _sessionRedirect(ref, state),
     routes: appRoutes(ref),
   );
-});
+  ref.onDispose(() {
+    router.dispose();
+    changed.dispose();
+  });
+  return router;
+}
+
+/// The paths a visitor may be on without a session: the splash, the start
+/// screen, and goal creation up to the plan, which asks him to sign in only
+/// when he commits to it. The dev menu's own paths stay open too.
+const _visitorPaths = {
+  AppRoutes.splash,
+  AppRoutes.start,
+  AppRoutes.goalPrompt,
+  AppRoutes.goalQuestions,
+  AppRoutes.studyPlan,
+};
+
+/// Without a session, every other path is the start screen: a session that
+/// ended (a refused refresh, a sign-out) moves the student there wherever he
+/// was, and a signed-out visitor who opens one by URL lands there directly
+/// rather than after its first request is refused.
+String? _sessionRedirect(Ref ref, GoRouterState state) {
+  if (ref.read(signedInProvider)) return null;
+  final path = state.matchedLocation;
+  if (_visitorPaths.contains(path)) return null;
+  if (AppConfig.devMenu && path.startsWith(AppRoutes.dev)) return null;
+  return AppRoutes.start;
+}
+
+/// The splash stays up until [launchDestinationProvider] answers, then gives
+/// way to where it says. Nothing is asked here: the splash screen asks, and
+/// until it has, there is no decision to read.
+String? _launchRedirect(Ref ref) {
+  if (!ref.exists(launchDestinationProvider)) return null;
+  return switch (ref.read(launchDestinationProvider)) {
+    AsyncData(:final value) => value.location,
+    // A decision that failed outright reads as signed out, as it always did.
+    AsyncError() => AppRoutes.start,
+    _ => null,
+  };
+}
 
 /// Every route of the app, in one list, so a test walks the table the app
 /// itself runs on rather than a copy of it that cannot disagree with it.
 List<RouteBase> appRoutes(Ref ref) => [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (_, __) => const AuthGate(),
+        redirect: (_, __) => _launchRedirect(ref),
+        builder: (_, __) => const SplashScreen(),
       ),
       GoRoute(
         path: AppRoutes.start,

@@ -8,10 +8,6 @@
     "@next": {
         "description": "Rótulo para botão próximo"
     },
-    "done": "Pronto",
-    "@done": {
-        "description": "Label for done button"
-    },
     "createGoal": "Criar Meta",
     "@createGoal": {
         "description": "Label para botão criar meta"

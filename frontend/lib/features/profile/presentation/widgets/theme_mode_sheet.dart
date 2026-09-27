@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/core/utils/theme_mode_provider.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 

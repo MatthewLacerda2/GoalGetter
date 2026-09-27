@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:goal_getter/app/theme/app_dimens.dart';
-import 'package:goal_getter/app/theme/app_palette.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_palette.dart';
 
 /// 1. CUSTOM SEMANTIC TOKENS (Tailwind-like custom design tokens)
 /// Retrieve via `Theme.of(context).extension<CustomColors>()!.success`
@@ -48,7 +48,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
 /// 2. THE MAIN THEME CONFIGURATION
 ///
 /// Radius and spacing live next door in `app_dimens.dart`, and colours in
-/// `app_palette.dart`; this file spends them. Nothing outside `lib/app/theme/`
+/// `app_palette.dart`; this file spends them. Nothing outside `lib/core/theme/`
 /// may write a colour, a font size, a radius or a padding as a literal —
 /// `tool/frontend_linter.dart` enforces it.
 ///

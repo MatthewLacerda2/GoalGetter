@@ -8,10 +8,6 @@
     "@next": {
         "description": "Label for next button"
     },
-    "done": "Done",
-    "@done": {
-        "description": "Label for done button"
-    },
     "createGoal": "Create Goal",
     "@createGoal": {
         "description": "Label for create goal button"

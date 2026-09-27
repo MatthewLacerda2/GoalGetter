@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
 import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/core/services/session.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -16,12 +17,19 @@ part 'auth_service.g.dart';
 /// (access token, refresh token, student). Two ways in: Google (the token goes
 /// to POST /auth/signup) and, in DEV_LOGIN builds, POST /auth/dev-login.
 class AuthService {
-  AuthService({required ApiClient api, required SettingsStorage storage})
-      : _api = api,
+  AuthService({
+    required ApiClient api,
+    required SettingsStorage storage,
+    this.onSessionChanged,
+  })  : _api = api,
         _storage = storage;
 
   final ApiClient _api;
   final SettingsStorage _storage;
+
+  /// Called after a session is stored or cleared, so whoever mirrors it
+  /// (`signedInProvider`, which the router listens to) reads it again.
+  final void Function()? onSessionChanged;
 
   static const List<String> _scopes = ['email', 'profile', 'openid'];
 
@@ -43,6 +51,7 @@ class AuthService {
     await _storage.setUserInfo(
       tokenResponse['student'] as Map<String, dynamic>,
     );
+    onSessionChanged?.call();
   }
 
   /// Dev only: signs in as the backend's `Fictitious <name>` student.
@@ -130,7 +139,8 @@ class AuthService {
   /// Sign-out: revoke the refresh token server-side (best effort: a dead
   /// network or an already-revoked token must not keep the student signed
   /// in), sign out of Google if it was ever initialized, then delete every
-  /// stored key. The caller navigates to the start screen.
+  /// stored key. The router, told through [onSessionChanged], moves the
+  /// student to the start screen.
   Future<void> signOut() async {
     final refreshToken = _storage.getRefreshToken();
     if (refreshToken != null && refreshToken.isNotEmpty) {
@@ -151,6 +161,7 @@ class AuthService {
       }
     }
     await _storage.clearAll();
+    onSessionChanged?.call();
   }
 }
 
@@ -159,5 +170,6 @@ AuthService authService(Ref ref) {
   return AuthService(
     api: ref.watch(apiClientProvider),
     storage: ref.watch(settingsStorageProvider),
+    onSessionChanged: () => ref.read(signedInProvider.notifier).sync(),
   );
 }

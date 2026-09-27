@@ -1,7 +1,6 @@
-import 'package:goal_getter/app/router/app_router.dart';
-import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/config/app_config.dart';
+import 'package:goal_getter/core/services/session.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -19,12 +18,15 @@ http.Client httpClient(Ref ref) {
 
 /// Kept alive on purpose: the client owns the in-flight refresh that every
 /// concurrent 401 shares, so a rebuilt client would refresh twice.
+///
+/// An ended session only updates [signedInProvider]; the router listens to it
+/// and sends the student to the start screen.
 @Riverpod(keepAlive: true)
 ApiClient apiClient(Ref ref) {
   return ApiClient(
     httpClient: ref.watch(httpClientProvider),
     storage: ref.watch(settingsStorageProvider),
     baseUrl: resolveBaseUrl(AppConfig.baseUrl),
-    onSessionExpired: () => ref.read(goRouterProvider).go(AppRoutes.start),
+    onSessionExpired: () => ref.read(signedInProvider.notifier).sync(),
   );
 }

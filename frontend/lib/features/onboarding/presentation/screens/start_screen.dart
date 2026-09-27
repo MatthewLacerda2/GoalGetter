@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/core/widgets/language_picker.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/dev_login_button.dart';

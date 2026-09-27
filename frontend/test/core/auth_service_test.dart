@@ -19,8 +19,9 @@ const _everything = {
 };
 
 Future<(AuthService, SharedPreferences, List<http.Request>)> signedIn(
-  int logoutStatus,
-) async {
+  int logoutStatus, {
+  void Function()? onSessionChanged,
+}) async {
   SharedPreferences.setMockInitialValues(_everything);
   final prefs = await SharedPreferences.getInstance();
   final sent = <http.Request>[];
@@ -34,7 +35,12 @@ Future<(AuthService, SharedPreferences, List<http.Request>)> signedIn(
     storage: storage,
     baseUrl: 'http://api.test',
   );
-  return (AuthService(api: api, storage: storage), prefs, sent);
+  final auth = AuthService(
+    api: api,
+    storage: storage,
+    onSessionChanged: onSessionChanged,
+  );
+  return (auth, prefs, sent);
 }
 
 void main() {
@@ -54,5 +60,20 @@ void main() {
     await auth.signOut();
 
     expect(prefs.getKeys(), isEmpty);
+  });
+
+  test('sign-out tells the session, once every key is gone', () async {
+    List<String>? keysWhenTold;
+    late SharedPreferences prefs;
+    final (auth, p, _) = await signedIn(
+      204,
+      onSessionChanged: () => keysWhenTold = prefs.getKeys().toList(),
+    );
+    prefs = p;
+
+    await auth.signOut();
+
+    expect(keysWhenTold, isEmpty,
+        reason: 'the router reads the session when told: it must be gone');
   });
 }

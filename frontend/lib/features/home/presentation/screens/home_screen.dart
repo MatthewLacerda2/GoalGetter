@@ -12,7 +12,7 @@ import 'package:goal_getter/features/home/presentation/widgets/elo_chip.dart';
 import 'package:goal_getter/features/home/presentation/widgets/recent_lessons_list.dart';
 import 'package:goal_getter/features/home/presentation/widgets/start_lesson_button.dart';
 import 'package:goal_getter/features/home/presentation/widgets/streak_chip.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The landing dashboard shown to a logged-in user (the first bottom-nav tab).
 ///

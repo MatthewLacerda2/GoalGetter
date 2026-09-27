@@ -8,7 +8,7 @@ import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goal_actions.dart';
 import 'package:goal_getter/features/goals/presentation/widgets/goal_card.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 enum _Busy { none, activating, deleting }
 

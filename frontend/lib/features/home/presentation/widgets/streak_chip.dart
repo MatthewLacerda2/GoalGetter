@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// Streak indicator (top-right of Home): a flame pill with the current streak
 /// count — the counterpart to the elo chip on the left. The streak is a

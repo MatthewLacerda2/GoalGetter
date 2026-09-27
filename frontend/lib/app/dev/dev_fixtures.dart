@@ -5,7 +5,7 @@ import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
-import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/core/theme/app_theme.dart';
 
 /// Fixtures for the dev menu (see dev_menu_screen.dart).
 ///

@@ -13,7 +13,7 @@ import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// Step 3 of goal creation: the goal's name, a short AI-generated summary of
 /// what the student will study (markdown), and confirm / start over.
@@ -58,9 +58,15 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
         );
       }
     } on ApiException catch (e) {
-      // A 401 the client could not refresh has already sent the student to
-      // sign in; the held draft brings them back.
-      if (mounted && e.status != 401) _sayItFailed(e);
+      // A 401 the client could not refresh ended the session. The plan is
+      // open to visitors, so the router leaves him here: he goes to sign in
+      // as if he had none, and the held draft brings him back.
+      if (!mounted) return;
+      if (e.status == 401) {
+        context.go(AppRoutes.start);
+      } else {
+        _sayItFailed(e);
+      }
     } on Exception catch (e) {
       if (mounted) _sayItFailed(e);
     } finally {

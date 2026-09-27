@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/question_timer.dart';

@@ -7,13 +7,13 @@ import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
-import 'package:goal_getter/app/theme/app_theme.dart';
+import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
 import 'package:goal_getter/features/lessons/presentation/lesson_clock.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_question_view.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {

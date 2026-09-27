@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/features/home/domain/home_dashboard.dart';
-import 'package:goal_getter/app/theme/app_dimens.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// The user's most recent lessons for the active goal. Each row shows accuracy,
 /// time taken and the day it was done. Capped so the dashboard fits the screen.
