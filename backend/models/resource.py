@@ -1,15 +1,17 @@
 import uuid
+from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from pgvector.sqlalchemy import Vector
-from sqlalchemy import Column, DateTime, ForeignKey, Index, String
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Index
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core import clock
-from backend.models.base import Base
-from backend.utils.envs import NUM_DIMENSIONS
+from backend.models.base import Base, Embedding
+
+if TYPE_CHECKING:
+    from backend.models.goal import Goal
 
 
 class StudyResourceType(Enum):
@@ -22,17 +24,17 @@ class Resource(Base):
     __tablename__ = "resources"
     __table_args__ = (Index("idx_resource_goal_id", "goal_id"),)
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)
-    resource_type = Column(SQLEnum(StudyResourceType), nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    language = Column(String, nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    goal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("goals.id", ondelete="CASCADE"))
+    resource_type: Mapped[StudyResourceType] = mapped_column(SQLEnum(StudyResourceType))
+    name: Mapped[str]
+    description: Mapped[str]
+    language: Mapped[str]
     # Deliberately NOT unique: two students may be recommended the same channel,
     # and sharing/reusing another student's resources is a road we want open.
-    link = Column(String, nullable=False)
-    image_url = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
-    description_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
+    link: Mapped[str]
+    image_url: Mapped[str | None]
+    created_at: Mapped[datetime] = mapped_column(default=clock.now)
+    description_embedding: Mapped[Embedding | None]
 
-    goal = relationship("Goal", back_populates="resources")
+    goal: Mapped[Goal] = relationship(back_populates="resources")

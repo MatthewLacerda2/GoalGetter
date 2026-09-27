@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import delete as sql_delete
 from sqlalchemy import select
 
 from backend.models.goal import Goal
@@ -57,11 +56,7 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
     (#174).
     """
 
-    async def create(self, entity: OnboardingQuestion) -> OnboardingQuestion:
-        self.db.add(entity)
-        await self.db.flush()
-        await self.db.refresh(entity)
-        return entity
+    model = OnboardingQuestion
 
     async def save_onboarding(
         self, goal_id, prompt: str, answers: list[tuple[str, str, int | None]], ai_model: str
@@ -104,11 +99,6 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         await self.db.flush()
         return rows
 
-    async def get_by_id(self, entity_id: str) -> OnboardingQuestion | None:
-        stmt = select(OnboardingQuestion).where(OnboardingQuestion.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
-
     async def list_by_student(
         self, student_id, as_of: datetime | None = None
     ) -> list[OnboardingQuestion]:
@@ -147,15 +137,6 @@ class OnboardingRepository(BaseRepository[OnboardingQuestion]):
         )
         result = await self.db.execute(stmt)
         return result.scalars().first()
-
-    async def update(self, entity: OnboardingQuestion) -> OnboardingQuestion:
-        await self.db.flush()
-        return entity
-
-    async def delete(self, entity_id: str) -> bool:
-        stmt = sql_delete(OnboardingQuestion).where(OnboardingQuestion.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.rowcount > 0
 
     @staticmethod
     def answer_of(row: OnboardingQuestion) -> str:

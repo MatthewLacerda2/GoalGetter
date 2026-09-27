@@ -5,12 +5,13 @@ from datetime import date
 import pytest
 
 from backend.core import clock
+from backend.models.goal import START_RATING
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.fictitious.history_data import LESSON_SIZE, START_RATING
+from backend.services.fictitious.history_data import LESSON_SIZE
 from backend.services.fictitious.seeder import seed_fictitious_student
 from backend.services.lessons.streak import student_streak
 

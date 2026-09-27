@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from sqlalchemy import delete as sql_delete
 from sqlalchemy import or_, select
 
 from backend.models.chat_message import ChatMessage
@@ -10,16 +9,7 @@ from backend.repositories.base import BaseRepository
 class ChatMessageRepository(BaseRepository[ChatMessage]):
     """Tutor-chat exchanges (one row = prompt + the tutor's reply bubbles)."""
 
-    async def create(self, entity: ChatMessage) -> ChatMessage:
-        self.db.add(entity)
-        await self.db.flush()
-        await self.db.refresh(entity)
-        return entity
-
-    async def get_by_id(self, entity_id) -> ChatMessage | None:
-        stmt = select(ChatMessage).where(ChatMessage.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
+    model = ChatMessage
 
     async def list_by_goal(
         self, goal_id, limit: int, before: datetime | None = None
@@ -69,12 +59,3 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
-
-    async def update(self, entity: ChatMessage) -> ChatMessage:
-        await self.db.flush()
-        return entity
-
-    async def delete(self, entity_id) -> bool:
-        stmt = sql_delete(ChatMessage).where(ChatMessage.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.rowcount > 0

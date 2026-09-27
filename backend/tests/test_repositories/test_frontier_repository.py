@@ -82,7 +82,5 @@ async def test_a_frontier_is_never_deleted(test_db, test_user, goal_factory):
     repository = FrontierRepository(test_db)
     current = await repository.current(goal.id)
 
-    with pytest.raises(NotImplementedError):
-        await repository.delete(current.id)
-
+    assert not hasattr(repository, "delete")
     assert await repository.get_by_id(current.id) is not None

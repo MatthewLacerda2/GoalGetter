@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from sqlalchemy import delete as sql_delete
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import distinct_on
 
@@ -26,11 +25,7 @@ class QuestionHistory:
 
 
 class QuestionRepository(BaseRepository[Question]):
-    async def create(self, entity: Question) -> Question:
-        self.db.add(entity)
-        await self.db.flush()
-        await self.db.refresh(entity)
-        return entity
+    model = Question
 
     async def create_many(self, entities: list[Question]) -> list[Question]:
         if not entities:
@@ -38,11 +33,6 @@ class QuestionRepository(BaseRepository[Question]):
         self.db.add_all(entities)
         await self.db.flush()
         return entities
-
-    async def get_by_id(self, entity_id: str) -> Question | None:
-        stmt = select(Question).where(Question.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
 
     async def list_by_goal(self, goal_id) -> list[Question]:
         """The goal's whole bank. What a submission is checked against: an
@@ -102,12 +92,3 @@ class QuestionRepository(BaseRepository[Question]):
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
-
-    async def update(self, entity: Question) -> Question:
-        await self.db.flush()
-        return entity
-
-    async def delete(self, entity_id: str) -> bool:
-        stmt = sql_delete(Question).where(Question.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.rowcount > 0

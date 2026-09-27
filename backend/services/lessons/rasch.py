@@ -25,6 +25,7 @@ and a lost update repairs itself on the next submission.
 import math
 from dataclasses import dataclass
 
+from backend.models.goal import START_RATING
 from backend.models.question import Question
 from backend.repositories.student_answer_repository import AnswerRecord
 
@@ -33,8 +34,6 @@ GUESS = 0.25
 # The elo point. 400 of them are 10:1 odds - the constant that makes a rating
 # here mean what a rating means anywhere else.
 SCALE = 400.0
-# Must agree with goals.rating's column default (models/goal.py).
-START_RATING = 1200
 
 # K decays with evidence, the way a provisional chess rating does. The curve is
 # hyperbolic - K_MIN + (K_MAX - K_MIN) * K_HALF / (K_HALF + answers) - so it

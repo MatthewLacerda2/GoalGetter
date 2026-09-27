@@ -11,10 +11,10 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from backend.models.goal import START_RATING
 from backend.models.question import Question
 from backend.repositories.student_answer_repository import AnswerRecord
 from backend.services.lessons.rasch import (
-    START_RATING,
     difficulty,
     expected_score,
     k_factor,

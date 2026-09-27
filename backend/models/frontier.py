@@ -1,13 +1,15 @@
 import uuid
+from datetime import datetime
+from typing import TYPE_CHECKING
 
-from pgvector.sqlalchemy import Vector
-from sqlalchemy import Column, DateTime, ForeignKey, Index, String
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Index
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core import clock
-from backend.models.base import Base
-from backend.utils.envs import NUM_DIMENSIONS
+from backend.models.base import Base, Embedding
+
+if TYPE_CHECKING:
+    from backend.models.goal import Goal
 
 
 class Frontier(Base):
@@ -33,10 +35,10 @@ class Frontier(Base):
     __tablename__ = "frontiers"
     __table_args__ = (Index("idx_frontier_goal_id", "goal_id"),)
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    goal_id = Column(UUID(as_uuid=True), ForeignKey("goals.id", ondelete="CASCADE"), nullable=False)
-    definition = Column(String, nullable=False)
-    definition_embedding = Column(Vector(NUM_DIMENSIONS), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=clock.now)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    goal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("goals.id", ondelete="CASCADE"))
+    definition: Mapped[str]
+    definition_embedding: Mapped[Embedding | None]
+    created_at: Mapped[datetime] = mapped_column(default=clock.now)
 
-    goal = relationship("Goal", back_populates="frontiers")
+    goal: Mapped[Goal] = relationship(back_populates="frontiers")

@@ -1,4 +1,3 @@
-from sqlalchemy import delete as sql_delete
 from sqlalchemy import select
 from sqlalchemy import update as sql_update
 
@@ -6,10 +5,12 @@ from backend.core import clock
 from backend.models.frontier import Frontier
 from backend.models.goal import Goal
 from backend.models.student import Student
-from backend.repositories.base import BaseRepository
+from backend.repositories.base import DeletableRepository
 
 
-class GoalRepository(BaseRepository[Goal]):
+class GoalRepository(DeletableRepository[Goal]):
+    model = Goal
+
     async def create(self, entity: Goal) -> Goal:
         """Store a goal and, with it, the first frontier of that goal (#133).
 
@@ -38,11 +39,6 @@ class GoalRepository(BaseRepository[Goal]):
         await self.db.flush()
         await self.db.refresh(entity)
         return entity
-
-    async def get_by_id(self, entity_id: str) -> Goal | None:
-        stmt = select(Goal).where(Goal.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
 
     async def list_by_student(self, student_id) -> list[Goal]:
         """The student's goals, newest first."""
@@ -106,12 +102,3 @@ class GoalRepository(BaseRepository[Goal]):
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
-
-    async def update(self, entity: Goal) -> Goal:
-        await self.db.flush()
-        return entity
-
-    async def delete(self, entity_id: str) -> bool:
-        stmt = sql_delete(Goal).where(Goal.id == entity_id)
-        result = await self.db.execute(stmt)
-        return result.rowcount > 0

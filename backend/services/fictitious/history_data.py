@@ -29,7 +29,6 @@ from backend.services.fictitious.history_resources import (
 )
 
 LESSON_SIZE = 5
-START_RATING = 1200  # the Goal.rating column default
 
 ITALIAN_LESSONS = [
     (14, 20, 2),
