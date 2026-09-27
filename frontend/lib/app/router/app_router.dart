@@ -21,6 +21,7 @@ import 'package:goal_getter/features/home/presentation/screens/home_screen.dart'
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
 import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/finish_lesson_screen.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
@@ -208,17 +209,9 @@ final List<RouteBase> _lessonRoutes = [
   GoRoute(
     path: AppRoutes.lessonFinish,
     redirect: (_, state) =>
-        _extra<FinishLessonArgs>(state) == null ? AppRoutes.home : null,
-    builder: (_, state) {
-      final args = _extra<FinishLessonArgs>(state)!;
-      return FinishLessonScreen(
-        title: args.title,
-        icon: args.icon,
-        timeSpent: args.timeSpent,
-        accuracy: args.accuracy,
-        elo: args.elo,
-      );
-    },
+        _extra<LessonEvaluation>(state) == null ? AppRoutes.home : null,
+    builder: (_, state) =>
+        FinishLessonScreen(evaluation: _extra<LessonEvaluation>(state)!),
   ),
 ];
 

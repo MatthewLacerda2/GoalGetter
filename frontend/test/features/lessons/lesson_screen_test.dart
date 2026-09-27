@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
@@ -45,7 +45,7 @@ Future<void> pumpRouted(WidgetTester tester, List<Override> overrides) async {
       GoRoute(
         path: AppRoutes.lessonFinish,
         builder: (_, state) =>
-            Text('finished ${(state.extra! as FinishLessonArgs).elo.text}'),
+            Text('finished ${(state.extra! as LessonEvaluation).elo}'),
       ),
     ],
   );
@@ -170,7 +170,7 @@ void main() {
     expect(find.text('1 / 1'), findsOneWidget);
 
     await answer(tester, 'b');
-    expect(find.text('finished +12'), findsOneWidget);
+    expect(find.text('finished 12'), findsOneWidget);
     expect(fake.count(answersKey), 1);
   });
 

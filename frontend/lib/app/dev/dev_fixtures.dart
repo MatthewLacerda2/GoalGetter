@@ -1,11 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
-import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
-import 'package:goal_getter/core/theme/app_theme.dart';
 
 /// Fixtures for the dev menu (see dev_menu_screen.dart).
 ///
@@ -98,26 +95,11 @@ class DevFixtures {
         isActive: true,
       );
 
-  static FinishLessonArgs get finishLesson => FinishLessonArgs(
-        title: 'Greetings & Introductions',
-        icon: Icons.emoji_events,
-        timeSpent: StatData(
-          title: 'Time',
-          icon: Icons.timer_outlined,
-          text: '4:32',
-          color: AppTheme.lost,
-        ),
-        accuracy: StatData(
-          title: 'Accuracy',
-          icon: Icons.check_circle_outline,
-          text: '87%',
-          color: AppTheme.success,
-        ),
-        elo: StatData(
-          title: 'Elo',
-          icon: Icons.trending_up,
-          text: '+24',
-          color: AppTheme.streak,
-        ),
-      );
+  /// A lesson's result, as the server evaluates it: 4:32 spent, 87% right,
+  /// 24 points gained.
+  static const finishLesson = LessonEvaluation(
+    totalSecondsSpent: 272,
+    studentAccuracy: 87,
+    elo: 24,
+  );
 }
