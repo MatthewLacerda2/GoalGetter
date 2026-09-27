@@ -79,7 +79,7 @@ async def test_resources_only_of_the_active_goal(
 async def test_resources_come_in_the_order_they_were_found(
     auth_client, test_db, test_user, goal_factory
 ):
-    """Oldest first, the id breaking a tie (#207). Written here in neither
+    """Oldest first, the id breaking a tie. Written here in neither
     order, so a query with no ORDER BY - which answers in the order the rows
     were written - fails this."""
     goal = await goal_factory(test_user, active=True)

@@ -9,7 +9,7 @@ from backend.services.gemini.student_context.schema import (
 
 def format_goals(goals: list[StudentGoal]) -> str:
     """The goals the prompt is given, name and description - the jobs pass the
-    active one only (2026-09-26). A context is written about the person (#87)."""
+    active one only (the user, 2026-09-26). A context is written about the person."""
     if not goals:
         return "The student has no goals yet."
     return "\n".join([f'- "{goal.name}": {goal.description}' for goal in goals])
@@ -67,8 +67,8 @@ def get_student_context_prompt(
 
 
 def format_numbered_goals(goals: list[StudentGoal]) -> str:
-    """Every goal numbered, with what he asked for and where we are taking him
-    (#133). The number is the position in this list and nothing else - it is
+    """Every goal numbered, with what he asked for and where we are taking him.
+    The number is the position in this list and nothing else - it is
     never an id, and it means nothing after this call returns.
 
     The day-one description stays in the prompt beside the frontier because it
@@ -88,7 +88,7 @@ def format_numbered_goals(goals: list[StudentGoal]) -> str:
 
 def format_numbered_contexts(contexts: list[GeminiStudentContext]) -> str:
     """The readings the app is standing behind, numbered so the model can point
-    at one (#90). The number is the position in this list and nothing else - it
+    at one. The number is the position in this list and nothing else - it
     is never an id, and it means nothing after this call returns."""
     if not contexts:
         return "No reading of this student has been written yet."
@@ -103,7 +103,7 @@ def format_numbered_contexts(contexts: list[GeminiStudentContext]) -> str:
 def format_onboarding(questions_answers: list[tuple[str, str]] | None) -> str:
     """What the student said about himself while creating his goals: his own
     words, the questions Gemini asked him, and the standard ones we ask
-    everyone (#132). The same lines the first impression was written from, and
+    everyone. The same lines the first impression was written from, and
     they stay true long after a reading of him has gone stale."""
     if not questions_answers:
         return "The student told us nothing about himself."
@@ -118,7 +118,7 @@ def get_context_review_prompt(
     questions_answers: list[tuple[str, str]] | None,
     language: Language,
 ) -> str:
-    """Ask what went stale and what is missing, rather than for a rewrite (#90).
+    """Ask what went stale and what is missing, rather than for a rewrite.
 
     Rewriting the whole reading every night paid a premium call to produce much
     the same paragraphs. Here the model reads what already stands and answers

@@ -99,7 +99,7 @@ async def test_the_shared_call_speaks_the_sdks_async_api(monkeypatch):
 
 
 def test_nothing_outside_the_client_reaches_the_sdk():
-    """No use case holds a client of its own (#216): only the client package
+    """No use case holds a client of its own: only the client package
     touches the SDK's `Client`, `get_client`, or the module that builds it."""
     doors = (Client, gemini_configs.get_client, gemini_configs)
     reaching = {

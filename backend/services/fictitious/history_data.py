@@ -5,16 +5,16 @@ Nothing here comes from Gemini or YouTube: it is written by hand to make Home,
 Profile, the goals list, the tutor chat and the resources screen look
 lived-in. Times are relative to the moment of seeding (`days_ago`, `hour`), so
 the streak is real whenever the seeder runs; the hours are the student's wall
-clock, `core.clock.APP_TIMEZONE` (#92).
+clock, `core.clock.APP_TIMEZONE`.
 
 This module is the assembly point - `GOALS` is what the seeder reads. The bulk
-of the content lives next to it by subject, each file data like this one
-(#107): `history_questions`, `history_chat`, `history_resources`.
+of the content lives next to it by subject, each file data like this one:
+`history_questions`, `history_chat`, `history_resources`.
 
 Lesson plan: each entry is (days_ago, hour, correct answers out of
 LESSON_SIZE). The active goal has lessons on 14 of the last 15 days, two on a
 couple of days, and a gap 6 days ago: a day off, which keeps the streak but
-does not add to it (#204), so the streak is 14 and not 15.
+does not add to it, so the streak is 14 and not 15.
 """
 
 from collections.abc import Sequence

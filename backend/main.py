@@ -19,11 +19,10 @@ logging.basicConfig(
 )
 
 
-# There is no lifespan here on purpose (#157). Starting the app used to drop the
-# public schema and rebuild it from the models, which was free while the tables
-# were still moving and is fatal with a real student in the database. The schema
-# is owned by backend/alembic/versions/ now, applied by the `migrate` service
-# before this one starts (docker-compose.yml). By hand: `make migrate`.
+# There is no lifespan here on purpose (#157): a schema built on start would be
+# rebuilt on every deploy, with the students in it. The schema is owned by
+# backend/alembic/versions/, applied by the `migrate` service before this one
+# starts (docker-compose.yml). By hand: `make migrate`.
 app = FastAPI(
     title="GoalGetter API",
     description="API for the GoalGetter app",

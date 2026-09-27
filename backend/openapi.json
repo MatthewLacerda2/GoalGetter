@@ -333,7 +333,7 @@
           "goals"
         ],
         "summary": "Objective Questions",
-        "description": "Step 1: validate the prompt is a real goal, then generate clarifying\nmultiple-choice questions. Each question names the model that wrote it, and\nthe app sends that back with its answer to `POST /goals` (#216).\n\nPublic, so there is no student row: the language is the header the app\nsends (#172), else the one the prompt is written in (#173).",
+        "description": "Step 1: validate the prompt is a real goal, then generate clarifying\nmultiple-choice questions. Each question names the model that wrote it, and\nthe app sends that back with its answer to `POST /goals`.\n\nPublic, so there is no student row: the language is the header the app\nsends, else the one the prompt is written in (`output_language`).",
         "operationId": "objective_questions_api_v1_goals_objective_questions_post",
         "parameters": [
           {
@@ -481,7 +481,7 @@
           "goals"
         ],
         "summary": "Create Goal",
-        "description": "Step 3 (AUTHED): persist the goal the user approved in the preview, store the\nonboarding it came from, make it the active goal, then fire the student chain\nin the background. No Gemini call of its own (#132): the wait it used to buy\nintroduction screens for is now the standard questions this returns.\n\nThe onboarding is *stored*, not handed to the chain: the chain's first step\nreads it from the database, so a run that fails is one the nightly run can do\nover (#88). It is read **as it stood when this returned**, which is what keeps\nthe batch now in flight from seeing the standard questions the student is\nabout to answer.",
+        "description": "Step 3 (AUTHED): persist the goal the user approved in the preview, store the\nonboarding it came from, make it the active goal, then fire the student chain\nin the background. No Gemini call of its own (#132): the student spends the\nfirst batch's wait answering the standard questions this returns.\n\nThe onboarding is *stored*, not handed to the chain: the chain's first step\nreads it from the database, so a run that fails is one the nightly run can do\nover. It is read **as it stood when this returned**, which is what keeps\nthe batch now in flight from seeing the standard questions the student is\nabout to answer.",
         "operationId": "create_goal_api_v1_goals_post",
         "security": [
           {
@@ -627,7 +627,7 @@
           "goals"
         ],
         "summary": "Standard Answers",
-        "description": "What the student told us about himself while his first batch generated.\n\nStored beside the rest of his onboarding, marked `ai_model = \"system\"`. The\nbatch already in flight will not read them - `POST /goals` pinned its view of\nthe onboarding to the moment it returned - and every generation after it\nwill (#132). Answers so far are worth keeping, so a partial list is normal\nand an empty one is a no-op.",
+        "description": "What the student told us about himself while his first batch generated.\n\nStored beside the rest of his onboarding, marked `ai_model = \"system\"`. The\nbatch already in flight will not read them - `POST /goals` pinned its view of\nthe onboarding to the moment it returned - and every generation after it\nwill. Answers so far are worth keeping, so a partial list is normal\nand an empty one is a no-op.",
         "operationId": "standard_answers_api_v1_goals__goal_id__standard_answers_post",
         "security": [
           {
@@ -854,7 +854,7 @@
           "home"
         ],
         "summary": "Get Home",
-        "description": "Rating, streak and recent lessons. No active goal is 404.\n\nA lesson here is a group of answers sharing one `lesson_id` (#131); the\nelo series it used to carry is gone with the `lessons` table and returns\nwith #62.",
+        "description": "Rating, streak and recent lessons. No active goal is 404.\n\nA lesson here is a group of answers sharing one `lesson_id`.",
         "operationId": "get_home_api_v1_home_get",
         "security": [
           {
@@ -921,7 +921,7 @@
           "lessons"
         ],
         "summary": "Start Lesson",
-        "description": "Open a lesson: two minutes of questions at the threshold of what he knows (#134).\n\nBoth halves of that are arithmetic and neither is a constant this endpoint\nknows. **How many** comes from his own answering pace (`pacing.py`), and\n**which** from a ranking over the goal's bank (`selection.py`) - his chance\nof getting each one right, how due it is, how far it is from the rest of the\nlesson and from the goal's current frontier, and whether he has ever seen it.\n\nNo Gemini call happens here or anywhere below it. Everything this reads was\nwritten by a nightly job or by the student himself.",
+        "description": "Open a lesson: two minutes of questions at the threshold of what he knows.\n\nBoth halves of that are arithmetic and neither is a constant this endpoint\nknows. **How many** comes from his own answering pace (`pacing.py`), and\n**which** from a ranking over the goal's bank (`selection.py`) - his chance\nof getting each one right, how due it is, how far it is from the rest of the\nlesson and from the goal's current frontier, and whether he has ever seen it.\n\nNo Gemini call happens here or anywhere below it. Everything this reads was\nwritten by a nightly job or by the student himself.",
         "operationId": "start_lesson_api_v1_goals__goal_id__lessons_post",
         "security": [
           {
@@ -998,7 +998,7 @@
           "lessons"
         ],
         "summary": "Submit Lesson Answers",
-        "description": "Grade the batch server-side, store it under one fresh `lesson_id`, move the rating.\n\nAn answer naming a question outside this goal's bank, or naming one twice,\nis a 422 and stores nothing.\n\nThe rating is **replayed**, not nudged (#62): the answers are written first,\nand then the whole history - this lesson included - is walked to the number\nthe student is worth now. `elo` is what that costs him or pays him, the\ndifference against the rating the goal was carrying.",
+        "description": "Grade the batch server-side, store it under one fresh `lesson_id`, move the rating.\n\nAn answer naming a question outside this goal's bank, or naming one twice,\nis a 422 and stores nothing.\n\nThe rating is **replayed**, not nudged: the answers are written first,\nand then the whole history - this lesson included - is walked to the number\nthe student is worth now. `elo` is what that costs him or pays him, the\ndifference against the rating the goal was carrying.",
         "operationId": "submit_lesson_answers_api_v1_goals__goal_id__lessons_answers_post",
         "security": [
           {
@@ -1318,7 +1318,7 @@
           "tutor"
         ],
         "summary": "Send Message",
-        "description": "Send the student's message with this goal's recent history and the\nstudent's still-valid contexts; store and return the exchange.\n\nThe contexts are the student's, not the goal's (#87): what is specific to\nthis goal already reaches the prompt as its name and description.",
+        "description": "Send the student's message with this goal's recent history and the\nstudent's still-valid contexts; store and return the exchange.\n\nThe contexts are the student's, not the goal's: what is specific to\nthis goal already reaches the prompt as its name and description.",
         "operationId": "send_message_api_v1_tutor_messages_post",
         "security": [
           {
@@ -1607,7 +1607,7 @@
           "detail"
         ],
         "title": "ErrorResponse",
-        "description": "The body of every error the API answers (#214)."
+        "description": "The body of every error the API answers."
       },
       "GoalCommitRequest": {
         "properties": {
@@ -1708,7 +1708,7 @@
           "standard_questions"
         ],
         "title": "GoalCreationResponse",
-        "description": "What the client gets after committing a goal: the persisted goal plus the\nstandard questions to ask while the chain generates its first batch (#132)."
+        "description": "What the client gets after committing a goal: the persisted goal plus the\nstandard questions to ask while the chain generates its first batch."
       },
       "GoalResponse": {
         "properties": {
@@ -1849,7 +1849,7 @@
           "answers"
         ],
         "title": "LessonAnswersRequest",
-        "description": "POST /goals/{goal_id}/lessons/answers: all answers at once.\n\nHow many there are is up to the student: nothing recorded what was served,\nso the backend cannot ask for a complete set and does not (the completeness\nrule of #86 went with the `lessons` table). An empty submission is refused\nhere, because it would mint a lesson mark over nothing."
+        "description": "POST /goals/{goal_id}/lessons/answers: all answers at once.\n\nHow many there are is up to the student: nothing recorded what was served,\nso the backend cannot ask for a complete set and does not. An empty submission is refused\nhere, because it would mint a lesson mark over nothing."
       },
       "LessonEvaluation": {
         "properties": {
@@ -1927,7 +1927,7 @@
           "questions"
         ],
         "title": "LessonResponse",
-        "description": "POST /goals/{goal_id}/lessons: the questions of this lesson, in order.\n\nThere is no lesson id here, because there is no lesson yet (#131). Serving\nwrites nothing: a lesson only becomes a fact when its answers arrive, and\nthe backend marks them then."
+        "description": "POST /goals/{goal_id}/lessons: the questions of this lesson, in order.\n\nThere is no lesson id here, because there is no lesson yet. Serving\nwrites nothing: a lesson only becomes a fact when its answers arrive, and\nthe backend marks them then."
       },
       "LikeRequest": {
         "properties": {
@@ -2081,7 +2081,7 @@
           "duration_seconds"
         ],
         "title": "RecentLesson",
-        "description": "A lesson on Home: the answers that carry one `lesson_id`, counted\ntogether (#131). `date` is the app's calendar date they were given.\n\nThere is no `elo_delta`: how the rating moves over a lesson has no stored\nhistory since the `lessons` table went, and gets one again with #62."
+        "description": "A lesson on Home: the answers that carry one `lesson_id`, counted\ntogether. `date` is the app's calendar date they were given.\n\nThere is no `elo_delta`: nothing stores how the rating moved over one\nlesson."
       },
       "ResourceItem": {
         "properties": {

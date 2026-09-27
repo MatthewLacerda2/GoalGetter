@@ -86,7 +86,7 @@ async def run_embeddings() -> list[Tally]:
         # Each entry of SOURCES is checked against its own model where it is
         # written; one loop over six models cannot name them all, and a row only
         # ever meets the `text` of the table it was read from - so the loop reads
-        # every source as a source of `Base` rows (#209).
+        # every source as a source of `Base` rows.
         for source in cast("tuple[EmbeddingSource[Base], ...]", SOURCES):
             tallies += await _fill_table(session, source)
 

@@ -8,7 +8,7 @@ from backend.repositories.student_answer_repository import StudentAnswerReposito
 from backend.tests.fixtures.lessons import at
 
 # The lesson this module submits. A literal, because how many questions a lesson
-# holds is the student's own pace (#134) and no constant says eight any more.
+# holds is the student's own pace, and no constant in the code says eight.
 LESSON = 8
 
 
@@ -45,7 +45,7 @@ async def test_answers_are_graded_server_side_and_move_the_rating(
     """Right, then wrong despite the client's claims: 50%, and 50% is below par.
 
     Both questions are new, so both are worth what the goal was worth when they
-    were generated: E is 0.625 against each (#62), because a quarter of any
+    were generated: E is 0.625 against each, because a quarter of any
     right answer is the four options. One right and one wrong is under that, so
     a lesson graded 50% costs rating: 1200 -> 1190.
     """
@@ -66,7 +66,7 @@ async def test_answers_are_graded_server_side_and_move_the_rating(
 async def test_one_submission_is_one_lesson_id_and_two_are_two(
     auth_client, test_db, test_user, opened
 ):
-    """The mark the backend mints groups a batch and nothing else (#131)"""
+    """The mark the backend mints groups a batch and nothing else"""
     goal, first, second = opened
     body = {"answers": [answer(first, 1), answer(second, 1)]}
 
@@ -98,7 +98,7 @@ async def test_answering_the_same_question_again_adds_a_row_rather_than_replacin
 
 
 async def test_a_partial_submission_is_accepted(auth_client, test_db, test_user, opened):
-    """The completeness rule of #86 is gone: nothing recorded what was served"""
+    """There is no completeness rule: nothing records what was served"""
     goal, first, _ = opened
 
     response = await auth_client.post(url(goal.id), json={"answers": [answer(first, 1)]})
@@ -188,7 +188,7 @@ async def test_someone_elses_goal_is_404(auth_client, student_factory, goal_fact
 async def test_two_identical_histories_end_at_the_same_rating(
     auth_client, test_db, test_user, goal_factory, question_factory
 ):
-    """Nothing random is left in grading (#62): the same answers over the same
+    """Nothing in grading is random: the same answers over the same
     history land on the same number, and two goals are the proof."""
     outcomes = []
     for name in ("Italian", "Guitar"):

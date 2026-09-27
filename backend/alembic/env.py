@@ -11,7 +11,7 @@ from sqlalchemy import engine_from_config, pool
 config = context.config
 
 # Interpret the config file for Python logging - except when the pytest fixtures
-# migrate their disposable database in-process (#205): fileConfig would disable
+# migrate their disposable database in-process: fileConfig would disable
 # every logger that already exists, and the tests read some of them.
 if config.config_file_name is not None and config.attributes.get("configure_logger", True):
     fileConfig(config.config_file_name)

@@ -3,7 +3,7 @@
 The scaffolding is in `fixtures/jobs.py`; what this module asserts is the
 chain's own promises - the order of the steps, that each reads what the one
 before it wrote, that a failure stops the chain and keeps what was written, and
-that the caller decides whether resources are wanted at all (#89).
+that the caller decides whether resources are wanted at all.
 """
 
 import asyncio
@@ -28,7 +28,7 @@ ANSWERS = [("Experience?", "None")]
 PROMPT_PAIR = ("What do you want to learn?", "I want Italian")
 MODEL = "gemini-test"
 
-# One standard answer and the pair the prompt reads it back as (#132).
+# One standard answer and the pair the prompt reads it back as.
 STANDARD = [("age", "18to24")]
 STANDARD_PAIR = ("How old are you?", "18 to 24")
 
@@ -116,7 +116,7 @@ async def test_a_later_run_reviews_the_context_and_buys_nothing_for_what_went_wr
     test_db, test_user, goal_factory, question_factory, answer_factory, exchange_factory
 ):
     """History exists, so the same entry point reviews instead of introducing -
-    and the question he missed is the bank already holding tomorrow (#135), so
+    and the question he missed is the bank already holding tomorrow, so
     the night stops after the review"""
     goal = await goal_factory(test_user, active=True)
     await onboarded(test_db, goal)
@@ -171,7 +171,7 @@ async def test_resources_never_run_without_a_context(test_db, test_user, goal_fa
 
 
 async def test_the_caller_can_ask_for_a_chain_without_resources(test_db, test_user, goal_factory):
-    """What the nightly run does six nights a week (#89): resources are weekly"""
+    """What the nightly run does six nights a week: resources are weekly"""
     goal = await goal_factory(test_user, active=True)
     await onboarded(test_db, goal)
 
@@ -242,7 +242,7 @@ async def test_a_student_with_no_goals_spends_nothing(test_db, test_user):
 async def test_the_batch_goal_creation_fires_never_reads_the_standard_questions(
     test_db, test_user, goal_factory
 ):
-    """#132: the student answers them while this run is in flight, so they are
+    """The student answers them while this run is in flight, so they are
     memory for the generations after it, never an input this one waits for.
 
     The guarantee is the cutoff `POST /goals` passes, not the speed of a human:

@@ -20,7 +20,7 @@ def question_factory(test_db):
     """A bank question for a goal. The right choice is `correct` (default 0).
 
     `options` names the four choices where a test cares what they say: the
-    generation prompt carries the option the student picked (#135), so proving
+    generation prompt carries the option the student picked, so proving
     that needs four options a test can tell apart.
     """
 
@@ -77,7 +77,7 @@ def lesson_factory(test_db, question_factory, answer_factory):
     """One lesson: `size` answers of `goal` sharing a minted `lesson_id`, given
     at `answered_at`, the first `correct` of them right.
 
-    There is no lesson row to create (#131) - a lesson is exactly this batch -
+    There is no lesson row to create - a lesson is exactly this batch -
     so what comes back is the mark the batch carries.
     """
 

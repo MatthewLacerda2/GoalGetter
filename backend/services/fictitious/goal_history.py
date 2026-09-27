@@ -2,10 +2,10 @@
 bank, the answers of past lessons, tutor chat, resources and student context.
 The content is hardcoded in history_data.py.
 
-A lesson here is what it is everywhere else since #131 - a batch of answers
+A lesson here is what it is everywhere else - a batch of answers
 sharing one minted `lesson_id`. Nothing is written for the lessons themselves,
 so the goal's rating is the only place the seeded elo lands - and it is not
-invented either (#62): once the answers are written, the goal's rating is what
+invented either: once the answers are written, the goal's rating is what
 replaying them says, exactly as a real submission would have left it."""
 
 import uuid
@@ -32,7 +32,7 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.fictitious.history_data import LESSON_SIZE, GoalSpec
 from backend.services.lessons.rasch import replay
 
-# How far past today's midnight "a moment ago" starts at the earliest (#233).
+# How far past today's midnight "a moment ago" starts at the earliest.
 # A seeded lesson's answers precede its moment by at most LESSON_SIZE * 27
 # seconds (_seed_lessons), so five minutes keeps the whole lesson on today.
 _TODAY_FLOOR = timedelta(minutes=5)
@@ -40,13 +40,13 @@ _TODAY_FLOOR = timedelta(minutes=5)
 
 def moment(now: datetime, days_ago: int, hour: int | None, minute: int = 0) -> datetime:
     """An aware moment `days_ago` days before `now`, at `hour:minute` on the
-    app's wall clock (#92) - the hours in history_data are the student's, so
+    app's wall clock - the hours in history_data are the student's, so
     22:00 has to be 22:00 in APP_TIMEZONE and not in whatever zone the seeder
     happens to run in. `hour=None` means "today, a moment ago": `30 - minute`
     minutes before now, so a lesson (minute 0) lands before the chat about it
     (minute 20).
 
-    Seeded just after midnight, half an hour ago is yesterday (#233), so that
+    Seeded just after midnight, half an hour ago is yesterday, so that
     base is clamped to `_TODAY_FLOOR` past today's midnight. Seeded before
     00:25 that puts a moment in the future, by 25 minutes at most - the only way
     a lesson that takes time fits on a day that has barely begun. `minute` is
@@ -69,7 +69,7 @@ def plan_lessons(
 ) -> list[PlannedLesson]:
     """The lessons in order: when each was answered, which questions it served,
     and how many of them went right. Questions rotate through the bank. No elo
-    here any more - the rating is read off the answers once they exist (#62)."""
+    here - the rating is read off the answers once they exist (`_seed_rating`)."""
     size = min(LESSON_SIZE, bank_size)
     planned = []
     for i, (days_ago, hour, correct) in enumerate(plan):

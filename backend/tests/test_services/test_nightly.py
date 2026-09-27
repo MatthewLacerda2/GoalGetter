@@ -5,10 +5,10 @@ resources - is pinned without a database or a clock. The rest drives the real
 job against the test session with every Gemini call recorded, because the thing
 worth proving about a skip is not the return value but that **nothing was
 called**: a student who answered nothing costs nothing, not even a cheap call.
-Since #131 the gate reads the answers themselves - there is no lesson row.
+The gate reads the answers themselves - there is no lesson row.
 
 Every moment here is written in UTC and converted, never built in the ambient
-zone - the same discipline as the clock's own tests (#92). 03:00 in
+zone - the same discipline as the clock's own tests. 03:00 in
 America/Sao_Paulo is 06:00 UTC.
 """
 
@@ -58,7 +58,7 @@ def test_the_day_before_the_last_run_is_over_however_recent_it_felt():
 
 
 def test_an_answer_at_the_very_moment_of_the_last_run_counts():
-    """The window is `[previous run, this run]`, closed at the start (#207)"""
+    """The window is `[previous run, this run]`, closed at the start"""
     assert decide(utc(2026, 9, 23, 6), THURSDAY_RUN).run is True
 
 

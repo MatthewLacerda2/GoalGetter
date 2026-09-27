@@ -99,7 +99,7 @@ HORIZON_DAYS = 1.0
 HORIZON_GROWTH = 2.5
 
 # What a term is worth when there is nothing to compute it from: an embedding
-# the nightly backfill has not reached yet (#96), a lesson with nothing chosen
+# the nightly backfill has not reached yet, a lesson with nothing chosen
 # so far. The midpoint, so a missing vector neither argues for a question nor
 # against it - a neutral of 1.0 would quietly make un-embedded questions the
 # most diverse things in the bank, and a neutral of 0.0 the least.
@@ -152,7 +152,7 @@ WEIGHT_COVERAGE = 0.4
 # first answer moves a rating against how much a repeat does.
 WEIGHT_NOVELTY = 0.5
 
-# Zero, deliberately (#134). The term is wired and computed: how close the
+# Zero, deliberately. The term is wired and computed: how close the
 # question sits to what Gemini wrote about this student - what he knows
 # (`state`) and how he thinks (`metacognition`). It is the weakest of the
 # signals, it is a vector of a sentence about a person rather than of anything
@@ -182,7 +182,7 @@ class Ranked:
     `expected` is carried beside `threshold` rather than folded into it because
     the bell is not invertible: `threshold` says *how well* a question sits at
     the target, and a question far too easy scores there exactly like one far
-    too hard. The generation decision (#135) asks which of the two it is, so it
+    too hard. The generation decision asks which of the two it is, so it
     needs the chance itself and not the bell's reading of it.
     """
 
@@ -357,13 +357,13 @@ def select_lesson(
     Gemini into a lost day of study. The bank only grows, so a short lesson
     repairs itself.
 
-    `frontier` is the goal's current `Frontier` (#133) - where he is being taken,
+    `frontier` is the goal's current `Frontier` - where he is being taken,
     never `goals.description`, which is only what he asked for on day one.
 
     The lesson endpoint wants only the questions and takes them through
-    `select_lesson_questions`. The nightly generation (#135) wants the terms:
+    `select_lesson_questions`. The nightly generation wants the terms:
     what it decides is whether this lesson is already too easy for him, and that
-    is a read of the `expected` these entries carry - the same eight, the same
+    is a read of the `expected` these entries carry - the same questions, the same
     arithmetic, asked a second question.
     """
     return _fill(rank_bank(bank, history, frontier, context, now), size)

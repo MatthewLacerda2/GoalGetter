@@ -62,7 +62,7 @@ async def _rows(student_id):
 
 
 async def test_two_concurrent_refreshes_with_one_token_yield_one_pair(committing_client):
-    """Before #218 both passed the `revoked` check and both got a pair. Now one
+    """Both would pass a plain `revoked` check and both get a pair. One
     wins; the other finds the token already rotated, which is a replay, so it is
     refused and also revokes the winner's successor (`token_rotation`)."""
     client, token, student_id = committing_client

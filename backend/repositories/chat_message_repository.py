@@ -38,7 +38,7 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
         return list(result.scalars().all())
 
     async def list_missing_embeddings(self, limit: int) -> list[ChatMessage]:
-        """Exchanges with either embedding still null, oldest first (#96).
+        """Exchanges with either embedding still null, oldest first.
 
         One query covers both columns: a row whose reply alone is missing is
         fetched once, and the backfill fills only the column that is null.

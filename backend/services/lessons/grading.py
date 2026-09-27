@@ -25,15 +25,15 @@ def grade_lesson(bank: list[Question], submitted: list[LessonAnswerItem]) -> Gra
     Nothing the client says about correctness is read: only which choice it
     picked, and how long it took (time is self-reported by nature).
 
-    **The lesson id is minted here**, not received (#131). Nothing was written
-    when the questions were served, so the mark can only be made now, and one
+    **The lesson id is minted here**, not received (#131). Nothing is written
+    when the questions are served, so the mark can only be made now, and one
     submission is one mark across every answer it carries. It points at no row:
     it says these answers arrived together.
 
-    There is no completeness rule any more. Nothing recorded what was served,
-    so "you left one out" is a sentence the backend can no longer say (it was
-    #86's 400); what it can still say is that an answer names a question that
-    is not this student's, which is what the check below is.
+    There is no completeness rule: nothing records what was served, so "you
+    left one out" is not a sentence the backend can say. What it can say is
+    that an answer names a question that is not this student's, which is what
+    the check below is.
     """
     by_id = {question.id: question for question in bank}
     ids = [answer.question_id for answer in submitted]

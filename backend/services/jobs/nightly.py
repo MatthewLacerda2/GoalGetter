@@ -3,7 +3,7 @@
 **Who is served** is decided in `nightly_decision.py` - the rules, and why a
 day is not the calendar day. It is its own module because it is arithmetic,
 and arithmetic never reaches Gemini, not even through the chain this module
-runs (#211, the import contracts in backend/pyproject.toml).
+runs (the import contracts in backend/pyproject.toml).
 
 **One student at a time.** Gemini is called serially for the same reason the
 chain is a chain: the rate limit must never be the reason a night fails. And a

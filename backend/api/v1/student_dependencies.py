@@ -1,7 +1,7 @@
 """The FastAPI dependency that resolves the signed-in student.
 
-It lives in api/, beside `goal_dependencies.py`, rather than in `core/security.py`
-(#211): it reads the database, and core/ is the floor every layer imports, so it
+It lives in api/, beside `goal_dependencies.py`, rather than in `core/security.py`:
+it reads the database, and core/ is the floor every layer imports, so it
 imports none of them. What stays in core is the token arithmetic it builds on
 (`verify_token`) and the bearer scheme (`security`).
 """
@@ -39,7 +39,7 @@ async def get_current_user(
 ) -> Student:
     """
     Get the current authenticated user from the JWT token, and keep his
-    language up to date with the one the app sent (#172, `core/language.py`).
+    language up to date with the one the app sent (`core/language.py`).
 
     **This dependency commits, on purpose (#218).** The language must reach the
     database even on a GET that commits nothing, because the nightly jobs write
@@ -58,8 +58,8 @@ async def get_current_user(
 
 async def _user_from_token(credentials: HTTPAuthorizationCredentials, db: AsyncSession) -> Student:
     """The student the token names. Only a problem with the token answers 401,
-    because the app reads 401 as "your session ended" and signs the student out
-    (#186). Anything else — the database down, a bug in the lookup — is left to
+    because the app reads 401 as "your session ended" and signs the student out.
+    Anything else — the database down, a bug in the lookup — is left to
     raise and answers 500, which the app does not read as a sign-out."""
     payload = verify_token(credentials.credentials)
     google_id = payload.get("sub")

@@ -21,7 +21,7 @@ async def test_list_by_goal_is_newest_first_before_cursor(
 
 
 async def test_exchanges_of_one_moment_come_back_highest_id_first(test_db, test_user, goal_factory):
-    """The id breaks a tie in both newest-first reads (#207). Written lowest id
+    """The id breaks a tie in both newest-first reads. Written lowest id
     first - the order a read without the tie-break, or with it reversed, answers."""
     goal = await goal_factory(test_user)
     for key in (1, 2, 3):

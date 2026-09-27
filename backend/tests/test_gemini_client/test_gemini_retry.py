@@ -177,7 +177,7 @@ async def test_background_work_raises_the_error_unchanged(no_waiting):
 
 
 async def test_a_call_that_hangs_past_its_deadline_fails():
-    """#216: nothing bounded a call before, and a hung one held its worker."""
+    """An unbounded call that hangs holds its worker for as long as it hangs."""
     call, clock = Recorder(HANG), Clock()
     budget = RetryBudget(attempts=2, first_delay=0, timeout=TINY)
 

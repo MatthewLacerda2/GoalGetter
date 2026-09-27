@@ -22,7 +22,7 @@ async def gemini_generate_student_context(
     language: Language,
 ) -> GeminiStudentContextResponse:
     """The first reading of a learner, from their onboarding and the goal they
-    are working on (#87, 2026-09-26). One context per student, not one per goal."""
+    are working on (the user, 2026-09-26). One context per student, not one per goal."""
     model = settings.GEMINI_PREMIUM_MODEL
     full_prompt = get_student_context_prompt(
         goals=goals,
@@ -45,14 +45,14 @@ async def gemini_review_student_context(
     questions_answers: list[tuple[str, str]] | None,
     language: Language,
 ) -> GeminiContextReview:
-    """Ask which of the student's standing readings went stale, and what to add
-    (#90). Replaces the periodic rewrite: the model is already reading the
+    """Ask which of the student's standing readings went stale, and what to add,
+    rather than rewriting them: the model is already reading the
     recent lessons, so it is the one that says what changed - and "nothing
     changed" is an answer it is allowed to give cheaply.
 
     `questions_answers` is what the student told us about himself while creating
-    his goals - the standard questions included, which the first batch never saw
-    (#132). Facts about a person do not go stale the way a reading of him does,
+    his goals - the standard questions included, which the first batch never saw.
+    Facts about a person do not go stale the way a reading of him does,
     so they are shown to every review rather than only to the first impression.
     """
     full_prompt = get_context_review_prompt(

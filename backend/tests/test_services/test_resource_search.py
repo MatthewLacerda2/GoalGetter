@@ -98,8 +98,8 @@ async def test_both_prompts_name_the_language_and_the_second_holds_no_link():
 
 
 async def test_a_failed_description_is_asked_again_without_searching_again():
-    """#216: the two calls are billed apart and retried apart. A 429 on the
-    description used to re-run the grounded search along with it"""
+    """The two calls are billed apart and retried apart: a 429 on the
+    description never re-runs the grounded search"""
     found, gemini = await run(described((1, "webpage")), Language.PORTUGUESE, api_error(429))
 
     search, first, second = (call.contents for call in gemini.calls)

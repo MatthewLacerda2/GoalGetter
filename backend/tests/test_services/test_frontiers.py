@@ -4,8 +4,8 @@ The frontier is reconsidered inside the context review, so these exercise the
 context step - with Gemini mocked, as everywhere. What is under test is what
 the step does with the answer: an append, or nothing at all.
 
-The last test is the one the issue asks for by name, and it is the only one
-here that lets the real prompt be built: the question generator is called for
+The last test pins what the frontier is for - generation aims at it - and it
+is the only one here that lets the real prompt be built: the question generator is called for
 real with its *client* replaced, so the assertion is on the text Gemini would
 have received.
 """
@@ -181,10 +181,10 @@ def a_recording_client():
 async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """The claim the issue is for: generation aims at the frontier, not the goal"""
+    """What the frontier is for: generation aims at the frontier, not the goal"""
     goal = await studied(test_db, test_user, goal_factory, question_factory, answer_factory)
     # Plenty he can answer beside the one he missed: a generation is only bought
-    # for a student the bank has become too easy for (#135), and once the goal
+    # for a student the bank has become too easy for, and once the goal
     # holds the placement's worth of answers.
     for i in range(settings.PLACEMENT_SIZE):
         held = await question_factory(goal, text=f"What is Ohm's law? ({i})")

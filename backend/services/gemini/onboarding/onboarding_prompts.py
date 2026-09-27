@@ -1,8 +1,8 @@
 from backend.core.language import Language
 
-# How many questions onboarding asks: 8 in #173, 6 since 2026-09-26 (the user).
-# The time each student spends per question (#174) is what will decide the
-# right number later.
+# How many questions onboarding asks (the user, 2026-09-26). The time each
+# student spends per question (`onboarding_questions.total_seconds`) is what
+# should decide the right number later.
 ONBOARDING_QUESTIONS = 6
 
 # The longest a question, or any one of its options, may be. Words, not

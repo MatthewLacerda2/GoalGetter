@@ -3,7 +3,7 @@ from backend.repositories.student_context_repository import StudentContextReposi
 
 
 async def test_list_valid_skips_retired_and_other_students(test_db, test_user, student_factory):
-    """A context belongs to the student (#87): every goal of theirs reads the
+    """A context belongs to the student: every goal of theirs reads the
     same ones, and a retired one is kept but not read."""
     stranger = await student_factory(email="other@example.com", google_id="other")
     repo = StudentContextRepository(test_db)

@@ -5,7 +5,7 @@ that the student has lessons to do every day. Generation runs at night, when
 Google's servers are quiet and nobody is studying - by then the student either
 did today's lesson or was not going to. A student who did no lesson that day is
 skipped *entirely*: no context, no questions, no call at all. A day counts
-because he answered at least one question in it (#131) - there is no lesson
+because he answered at least one question in it - there is no lesson
 row. Chat activity does not count; only answers do. Resources are rare - Monday only, and only for
 a student who studied in the past week.
 
@@ -16,7 +16,7 @@ is everyone. The day the run closes out is the 24 hours behind it - see
 
 Arithmetic, and kept apart from `nightly.py` for that reason: the rule decides
 whether Gemini is called at all, so this module must never reach it, not even
-through the chain `nightly.py` runs (#211, the import contracts in
+through the chain `nightly.py` runs (the import contracts in
 backend/pyproject.toml).
 """
 
@@ -34,7 +34,7 @@ class Decision:
     """What the run decided about one student, and the sentence that says why.
 
     The reason is not decoration: running the job by hand for one student is
-    how its behaviour is watched (#89), and what there is to watch is exactly
+    how its behaviour is watched, and what there is to watch is exactly
     these sentences.
     """
 

@@ -1,5 +1,5 @@
 # lint: data-file
-"""The curated resources of each fictitious goal (#60, split out in #107).
+"""The curated resources of each fictitious goal (#60).
 
 Real links, chosen by hand: nothing here was scraped or verified through the
 YouTube API.

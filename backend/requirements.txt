@@ -1,5 +1,5 @@
 # What backend/ imports, and nothing it merely happened to have installed.
-# Exact pins on these; pip resolves everything underneath them (#163).
+# Exact pins on these; pip resolves everything underneath them.
 # A new line here means a new import under backend/ or a new gate tool.
 
 # The API
@@ -32,7 +32,7 @@ pytest==9.1.1
 pytest-asyncio==1.4.0
 pytest-cov==7.1.0
 pytest-randomly==5.0.0
-# Property tests: the arithmetic (Rasch, pacing) checked on inputs nobody wrote (#207)
+# Property tests: the arithmetic (Rasch, pacing) checked on inputs nobody wrote
 hypothesis==6.168.2
 ruff==0.16.9
 vulture==2.16

@@ -30,10 +30,11 @@ class StudentAnswer(Base):
     mark when it saves the batch - the client never sends one - so it says only
     "these answers arrived together". Nothing else in the schema points at it.
 
-    `position` is where the answer sat inside its lesson, 0-based. It is stored
-    now and read by nothing yet, on purpose (the user, 2026-09-24): insertion
-    order is an accident of the payload, and the order the student was asked in
-    is a fact worth recording before we know what to do with it.
+    `position` is where the answer sat inside its lesson, 0-based. Stored on
+    purpose (the user, 2026-09-24): insertion order is an accident of the
+    payload, and the order the student was asked in is a fact worth recording.
+    A lesson's answers, and the rating walk over the whole history, are read
+    back in that order (`repositories/student_answer_repository.py`).
     """
 
     __tablename__ = "student_answers"

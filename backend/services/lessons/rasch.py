@@ -43,8 +43,8 @@ SCALE = 400.0
 #     answers seen    0     10     40    200    -> forever
 #     K              40     34     25     15         10
 #
-# K_HALF is 40 answers: five lessons, a goal's first week. A lesson is eight
-# answers, so a first lesson can move the rating some 40 points and a settled
+# K_HALF is 40 answers: five lessons, a goal's first week. A lesson is about eight
+# answers (`pacing.py`), so a first lesson can move the rating some 40 points and a settled
 # one some 15 - enough to still mean something, not enough for one bad evening
 # to undo a month.
 K_MAX = 40.0
@@ -70,7 +70,7 @@ class GoalRatings:
     """What the history says, once: the rating it leaves the student at, how
     much evidence produced it, and what each bank question is worth to him.
 
-    `difficulty` is the whole bank, answered or not - the selection (#134) ranks
+    `difficulty` is the whole bank, answered or not - the selection ranks
     by `expected_score(rating, difficulty[question_id])`.
     """
 
@@ -111,7 +111,7 @@ def replay(
     """Walk one goal's whole history, oldest answer first, and arrive at today.
 
     Every answer is one update, because the answer is the event that carries
-    information - there is no lesson row to hang a delta on (#131), and eight
+    information - there is no lesson row to hang a delta on, and eight
     answers are eight pieces of evidence, not one.
 
     A question is anchored at the rating the student had when it was generated,

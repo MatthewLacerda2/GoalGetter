@@ -2,7 +2,7 @@
 
 `fixtures/waiting.py` refuses every positive `asyncio.sleep` and `time.sleep`.
 These tests are that claim checked from the outside - including the retry path,
-whose default wait is the one that used to cost two tests half a second each.
+whose default wait is half a second or more per retry.
 """
 
 import asyncio

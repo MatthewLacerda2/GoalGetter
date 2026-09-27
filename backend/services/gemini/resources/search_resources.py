@@ -1,4 +1,4 @@
-"""Web pages and PDFs for one goal, found by Google and described by Gemini (#175).
+"""Web pages and PDFs for one goal, found by Google and described by Gemini.
 
 Two calls. The first has the Google Search tool and does the finding; its text
 is thrown away and only its grounding sources are kept (`grounding.py`). The
@@ -10,7 +10,7 @@ Videos are not found here: the second call writes a search query, and
 `services/resources/youtube_search.py` asks the YouTube Data API for them.
 
 What comes back is content - `FoundPage`s - never `Resource` rows: the Gemini
-layer writes content and the caller decides what the database holds (#211, the
+layer writes content and the caller decides what the database holds (the
 import contracts in backend/pyproject.toml). `services/resources/found_pages.py`
 turns them into rows.
 """
@@ -66,9 +66,9 @@ async def search_resources(
     the caller still dedupes, because asking is not obeying.
 
     No embedding is bought here: `description_embedding` stays null until the
-    midnight batch fills it (#96), so a link that fails validation costs nothing.
+    midnight batch fills it, so a link that fails validation costs nothing.
 
-    Two billed calls, each retried on its own (#216): a failure describing the
+    Two billed calls, each retried on its own: a failure describing the
     sources asks again for the description, never for the search.
     """
     context = student_context or "nothing yet"

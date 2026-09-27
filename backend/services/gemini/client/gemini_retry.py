@@ -14,13 +14,13 @@ transport failures that happen before any status code exists
 
 **One attempt is one billed call** (#216). `call_with_retry` is handed a single
 request to repeat, never a function that makes several: the resource search
-makes two calls, and a 429 on the second one used to re-run the first (a
-grounded search, the dearer of the two) along with it.
+makes two calls, and a retry around both would answer a 429 on the second by
+re-running the first (a grounded search, the dearer of the two) along with it.
 
 **Every attempt has a deadline** (`RetryBudget.timeout`). A call that hangs is
 cancelled when it passes, and counts as a transport failure: asked again while
-the budget lasts, then raised. Before #216 nothing bounded it, and a hung call
-held its worker thread until the connection gave up on its own.
+the budget lasts, then raised. Unbounded, a hung call would hold its worker
+thread until the connection gave up on its own.
 
 Two budgets, because the caller decides how long a failure may take:
 

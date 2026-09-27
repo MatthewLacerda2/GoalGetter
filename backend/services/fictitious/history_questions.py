@@ -1,5 +1,5 @@
 # lint: data-file
-"""The question bank of each fictitious goal (#60, split out in #107).
+"""The question bank of each fictitious goal (#60).
 
 Invented by hand, never by Gemini. Read as data; `history_data.GOALS` wires
 each list to its goal.

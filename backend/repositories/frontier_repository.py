@@ -13,7 +13,7 @@ class FrontierRepository(BaseRepository[Frontier]):
 
     So a definition is never rewritten - moving the target is a new row - and the
     only field anything updates is the null embedding the midnight backfill fills
-    in (#96). There is no `delete` (it is a `BaseRepository`, not a
+    in. There is no `delete` (it is a `BaseRepository`, not a
     `DeletableRepository`): deleting the goal takes its frontiers with it, which
     the database does on its own (ON DELETE CASCADE)."""
 
@@ -48,9 +48,9 @@ class FrontierRepository(BaseRepository[Frontier]):
         return list(result.scalars().all())
 
     async def list_missing_embeddings(self, limit: int) -> list[Frontier]:
-        """Frontiers whose definition embedding is still null, oldest first (#96).
+        """Frontiers whose definition embedding is still null, oldest first.
 
-        The old rows are in the queue like the current one: the history is what
+        The earlier rows are in the queue like the current one: the history is what
         a later similarity question would be asked about.
         """
         stmt = (

@@ -15,10 +15,10 @@ async def generate_lesson_questions(
     answered_wrong: list[AnsweredQuestion] | None,
     language: Language,
 ) -> GeminiLessonQuestionsResponse:
-    """Questions for one goal, written for the student the contexts describe
-    (#87): the same student-wide contexts the tutor reads, plus this goal.
+    """Questions for one goal, written for the student the contexts describe:
+    the same student-wide contexts the tutor reads, plus this goal.
 
-    They aim at `frontier`, not at the goal's description (#133): the
+    They aim at `frontier`, not at the goal's description: the
     description is what he asked for on day one, and the frontier is the
     threshold the app is teaching him at tonight.
 
@@ -27,8 +27,9 @@ async def generate_lesson_questions(
     asked for the simplest exercises one step past it - the evidence itself.
 
     **How many is not an argument.** Every generation asks for exactly
-    `QUESTIONS_PER_GENERATION`; the old variable count existed to fill a gap in
-    the bank, and there is no gap to fill any more (#135)."""
+    `QUESTIONS_PER_GENERATION`: generation is decided by whether tomorrow's
+    lesson is too easy (`services/lessons/generation.py`), not by a gap in the
+    bank to fill."""
     full_prompt = get_lesson_generation_prompt(
         goal_name=goal_name,
         goal_description=goal_description,

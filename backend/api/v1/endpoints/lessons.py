@@ -4,7 +4,7 @@ Mounted at `/goals` next to `goals.router`. The bank is built by the student
 chain (services/jobs/student_chain.py), never at request time: an empty bank is
 a 409.
 
-**A lesson is not a row** (#131). Serving writes nothing, so there is no lesson
+**A lesson is not a row**. Serving writes nothing, so there is no lesson
 to submit *to*: the answers arrive as one batch, and the backend marks them
 with a `lesson_id` of its own as it saves them.
 """
@@ -45,7 +45,7 @@ router = APIRouter()
 async def start_lesson(
     goal: Annotated[Goal, Depends(get_owned_goal)], db: Annotated[AsyncSession, Depends(get_db)]
 ) -> LessonResponse:
-    """Open a lesson: two minutes of questions at the threshold of what he knows (#134).
+    """Open a lesson: two minutes of questions at the threshold of what he knows.
 
     Both halves of that are arithmetic and neither is a constant this endpoint
     knows. **How many** comes from his own answering pace (`pacing.py`), and
@@ -92,7 +92,7 @@ async def submit_lesson_answers(
     An answer naming a question outside this goal's bank, or naming one twice,
     is a 422 and stores nothing.
 
-    The rating is **replayed**, not nudged (#62): the answers are written first,
+    The rating is **replayed**, not nudged: the answers are written first,
     and then the whole history - this lesson included - is walked to the number
     the student is worth now. `elo` is what that costs him or pays him, the
     difference against the rating the goal was carrying.

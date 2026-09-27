@@ -55,14 +55,14 @@ async def test_it_creates_the_history(test_db):
 
 
 async def test_every_goal_ends_above_where_it_started(test_db):
-    """The seeded elo lands only on the goal's rating (#131) and is not invented
-    (#62): it is what replaying the seeded answers actually pays."""
+    """The seeded elo lands only on the goal's rating and is not invented:
+    it is what replaying the seeded answers actually pays."""
     for goal in (await seed_fictitious_student(test_db)).goals:
         assert goal.rating > START_RATING
 
 
 async def test_the_streak_is_real(test_db):
-    """The gap six days ago is a day off, not a reset (#204), so the streak
+    """The gap six days ago is a day off, not a reset, so the streak
     passes it; the empty days before the goal began reset it, so it stops at
     the fourteen days studied."""
     student = (await seed_fictitious_student(test_db)).student
@@ -104,7 +104,7 @@ async def test_it_reuses_a_student_dev_login_made(test_db, student_factory):
 
 
 async def test_the_seeded_hours_are_the_students_wall_clock(test_db):
-    """#92: history_data's hours are the student's. The plan has a lesson 10
+    """history_data's hours are the student's. The plan has a lesson 10
     days ago at 22:00, which is 01:00 UTC the next day - it must read back at
     22:00 app-local, on the day the student lived it and not the one after."""
     seeded_at = clock.app_moment(date(2026, 9, 24), 12)

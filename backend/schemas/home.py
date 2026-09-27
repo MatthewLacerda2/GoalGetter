@@ -6,10 +6,10 @@ from pydantic import BaseModel, Field
 
 class RecentLesson(BaseModel):
     """A lesson on Home: the answers that carry one `lesson_id`, counted
-    together (#131). `date` is the app's calendar date they were given.
+    together. `date` is the app's calendar date they were given.
 
-    There is no `elo_delta`: how the rating moves over a lesson has no stored
-    history since the `lessons` table went, and gets one again with #62.
+    There is no `elo_delta`: nothing stores how the rating moved over one
+    lesson.
     """
 
     lesson_id: UUID

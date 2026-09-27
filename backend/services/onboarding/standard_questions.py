@@ -72,8 +72,8 @@ STANDARD_QUESTIONS: tuple[StandardQuestion, ...] = (
     ),
     # How much he has been *around* the subject, not how much he thinks he
     # knows: asking him to rate his own level is his opinion, and his answers
-    # are the measurement (SOUL.md; the user, 2026-09-26). The keys kept their
-    # old names so no stored answer or client build breaks; the text is new.
+    # are the measurement (SOUL.md; the user, 2026-09-26). The keys name an
+    # older wording and stay as they are: stored answers and shipped clients send them.
     StandardQuestion(
         key="level",
         text="How much have you already studied it?",

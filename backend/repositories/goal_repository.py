@@ -68,14 +68,14 @@ class GoalRepository(DeletableRepository[Goal]):
     async def set_rating(self, goal_id: uuid.UUID, rating: int) -> int:
         """Write the goal's rating, and return it.
 
-        The rating is *replayed* from the whole answer history (#62), never
+        The rating is *replayed* from the whole answer history, never
         incremented, so what is written is a fact about the history and not the
-        result of a read-then-write: two lessons finishing at once can no longer
+        result of a read-then-write: two lessons finishing at once cannot
         lose a delta between them, and a rating that somehow drifted is repaired
         by the next submission rather than carried forever.
 
         `updated_at` is set here because a Core-style UPDATE does not fire the
-        column's ORM `onupdate` (#72), and the goals list reads it as "last
+        column's ORM `onupdate`, and the goals list reads it as "last
         studied". The session's copy of the goal is synchronized ("fetch"), so a
         later flush cannot write a stale rating back over it.
         """
@@ -90,7 +90,7 @@ class GoalRepository(DeletableRepository[Goal]):
         return result.scalar_one()
 
     async def list_missing_embeddings(self, limit: int) -> list[Goal]:
-        """Goals whose description embedding is still null, oldest first (#96).
+        """Goals whose description embedding is still null, oldest first.
 
         A goal may have no description at all (the column is nullable), and
         such a row is returned like any other: deciding what an empty text

@@ -2,8 +2,8 @@
 
 google-auth fetches the certificates on every verification, through whatever
 transport it is handed, and a plain `google.auth.transport.requests.Request()`
-caches nothing: every sign-in paid a round trip to Google before it could check
-a signature. `CachedGoogleCerts` is that transport with a memory: a successful
+caches nothing: every sign-in would pay a round trip to Google before it could
+check a signature. `CachedGoogleCerts` is that transport with a memory: a successful
 GET is kept for as long as Google's `Cache-Control: max-age` says, less the
 `Age` the response already carries, and a response with no max-age, or not a
 200, is not kept.
@@ -11,7 +11,7 @@ GET is kept for as long as Google's `Cache-Control: max-age` says, less the
 In-process rather than google-auth's documented CacheControl session: this
 serves one URL and reads one header, which is less code than the dependency, and
 a miss - once every few hours - opens a fresh `requests` session, so no session
-is ever shared between the worker threads verification runs on (#210).
+is ever shared between the worker threads verification runs on.
 """
 
 import re

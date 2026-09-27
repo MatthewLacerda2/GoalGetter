@@ -1,7 +1,7 @@
-"""The suite runs on the settings it pins, and on nothing the machine holds (#207).
+"""The suite runs on the settings it pins, and on nothing the machine holds.
 
-Two branches in one night were green locally and red in CI because the local
-run read the developer's `.env` (#260, #264). `fixtures/environment.py` closes
+A local run that reads the developer's `.env` goes green on what is red in CI,
+which has none (#260, #264). `fixtures/environment.py` closes
 that; this is what says it stayed closed.
 """
 

@@ -1,10 +1,10 @@
 """The keys the app answers the standard questions with, turned into what the
 database stores (#132).
 
-The resolving used to live in `repositories/onboarding_repository.py`, which
-then had to import this package; a repository reaching up into services is the
-wrong way round (#211). Now the repository is handed `StandardAnswer`s - the
-sentences and the index - and never learns that keys exist.
+The resolving lives here and not in `repositories/onboarding_repository.py`
+because a repository reaching up into services is the wrong way round (#211).
+The repository is handed `StandardAnswer`s - the sentences and the index - and
+never learns that keys exist.
 """
 
 import logging

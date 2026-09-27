@@ -1,5 +1,5 @@
-"""Scaffolding for the background-job tests: the chain (#88), the nightly run
-(#89) and the two steps it calls (#90, #91).
+"""Scaffolding for the background-job tests: the chain, the nightly run
+and the steps they call.
 
 Not a pytest plugin - these are helpers the job tests import, like
 `fixtures/lessons.at`. They live here because four test modules need the same
@@ -40,13 +40,13 @@ NIGHTLY = "backend.services.jobs.nightly"
 
 FIRST = GeminiStudentContextResponse(state="Beginner", metacognition="Curious", ai_model="m")
 
-# The answer #90 exists to make cheap: nothing went stale, nothing to add.
+# The answer the context review exists to make cheap: nothing went stale, nothing to add.
 NOTHING_CHANGED = GeminiContextReview()
 
 
 def review(outdated=(), added=(), moved=()) -> GeminiContextReview:
     """A review naming the indexes it found outdated, the readings to add and
-    the goals whose frontier has moved on (#133).
+    the goals whose frontier has moved on.
 
     `outdated` and `moved` may carry an index that was never shown, or one
     twice: that is the model hallucinating, and the step drops it rather than
@@ -120,7 +120,7 @@ def recorder(calls: list, name: str, result, like):
 
     The arguments are recorded in the order `like` - the use case it stands in
     for - declares them, however the caller passed them: the jobs pass them by
-    name (#209), and the tests read them by position."""
+    name, and the tests read them by position."""
     signature = inspect.signature(like)
 
     async def record(*args, **kwargs):

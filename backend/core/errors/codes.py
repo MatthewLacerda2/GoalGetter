@@ -79,7 +79,7 @@ class ErrorCode(StrEnum):
         "Could not reach Google",
     )
     GEMINI_NO_ANSWER = "gemini_no_answer", HTTPStatus.BAD_GATEWAY, "Gemini gave no usable answer"
-    # Gemini's 401/403: our API key, not his session (#214).
+    # Gemini's 401/403: our API key, not his session.
     GEMINI_KEY_REJECTED = (
         "gemini_key_rejected",
         HTTPStatus.BAD_GATEWAY,

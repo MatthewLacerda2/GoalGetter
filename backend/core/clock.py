@@ -36,10 +36,10 @@ from zoneinfo import ZoneInfo
 APP_TIMEZONE = ZoneInfo("America/Sao_Paulo")
 
 # "My night, the computer's" (the user, 2026-09-23): the hour, in APP_TIMEZONE,
-# at which the nightly jobs run. What those jobs do is #89; this is only when.
+# at which the nightly jobs run. What those jobs do is backend/services/jobs/; this is only when.
 NIGHTLY_RUN_HOUR = 3
 
-# Midnight, in APP_TIMEZONE: the hour the embedding backfill runs (#96). The
+# Midnight, in APP_TIMEZONE: the hour the embedding backfill runs. The
 # user's own suggestion, and three hours of clearance before NIGHTLY_RUN_HOUR is
 # the point of it - the backfill is the cheap job and must be finished, not
 # competing for the same quota, when the chain starts asking for real
@@ -56,7 +56,7 @@ def now() -> datetime:
 
 def as_utc(moment: datetime) -> datetime:
     """`moment` as an aware UTC value. A naive one is read as UTC, which is how
-    asyncpg already stored the naive defaults this module replaces."""
+    asyncpg stores a naive value in a `timestamptz` column."""
     return moment.replace(tzinfo=UTC) if moment.tzinfo is None else moment.astimezone(UTC)
 
 
@@ -99,7 +99,7 @@ def _next_run_at(hour: int, after: datetime | None) -> datetime:
 def next_nightly_run(after: datetime | None = None) -> datetime:
     """The next NIGHTLY_RUN_HOUR in APP_TIMEZONE strictly after `after`, in UTC.
 
-    What waits on it is `backend/tools/nightly_run.py` (#89); the schedule
+    What waits on it is `backend/tools/nightly_run.py`; the schedule
     itself lives here so that the hour is defined once and a test can pin it.
     """
     return _next_run_at(NIGHTLY_RUN_HOUR, after)
@@ -108,7 +108,7 @@ def next_nightly_run(after: datetime | None = None) -> datetime:
 def next_embedding_run(after: datetime | None = None) -> datetime:
     """The next EMBEDDING_RUN_HOUR in APP_TIMEZONE strictly after `after`, in UTC.
 
-    The same process waits on both hours (#96): `backend/tools/nightly_run.py`
+    The same process waits on both hours: `backend/tools/nightly_run.py`
     sleeps to whichever comes first and runs that one job, so the two never
     overlap however long either takes.
     """
@@ -118,7 +118,7 @@ def next_embedding_run(after: datetime | None = None) -> datetime:
 def previous_nightly_run(before: datetime | None = None) -> datetime:
     """The last NIGHTLY_RUN_HOUR in APP_TIMEZONE strictly before `before`, in UTC.
 
-    **This is what the nightly run means by "today" (#89).** The run fires at
+    **This is what the nightly run means by "today".** The run fires at
     03:00, three hours into a calendar day on which nobody has studied yet - so
     reading `today()` there would skip every student who did their lesson the
     evening before, which is every student. The day the run closes out is the

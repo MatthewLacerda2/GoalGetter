@@ -10,14 +10,14 @@ that no longer validates, a route whose response model references a deleted
 type - all of it surfaces here, in about a second, with no database.
 
 The OpenAPI it generates is then written to `backend/openapi.json`, which is
-committed (#213). When the file changed, the gate fails: the API moved and the
+committed. When the file changed, the gate fails: the API moved and the
 snapshot was not regenerated with it. The rewrite has already happened by then,
 so the fix is to read `git diff backend/openapi.json` and commit it - and that
 diff is how every API change shows up in a pull request. The frontend reads the
 same file (`frontend/test/contract/`) and fails when a route it calls or a
 fixture it answers with no longer matches.
 
-No database is needed and none may be touched: the app has no lifespan (#157),
+No database is needed and none may be touched: the app has no lifespan,
 and importing the module never opens a connection (`create_async_engine` is
 lazy). This script therefore
 pins placeholder settings *before* the import, so the app assembles against
@@ -79,8 +79,8 @@ def main() -> int:
 
     schema = app.openapi()
     # Counted from the OpenAPI, not `app.routes`: FastAPI 0.141 keeps each
-    # included router as one entry there, so that number stopped moving when an
-    # endpoint went away (#170). An operation is one method on one path.
+    # included router as one entry there, so that number does not move when an
+    # endpoint goes away. An operation is one method on one path.
     paths = schema.get("paths", {})
     operations = sum(1 for item in paths.values() for key in item if key in HTTP_METHODS)
     if not write_snapshot(schema):

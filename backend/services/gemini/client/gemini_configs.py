@@ -34,15 +34,15 @@ _shared = _Shared()
 
 
 def get_client() -> Client:
-    """The one Gemini client, reused by every call (#216).
+    """The one Gemini client, reused by every call.
 
     One per event loop, not one per process: the SDK's async side keeps an
     httpx connection pool, and a pool opened on one loop cannot be used from
     another. The server and the nightly run each have a single loop, so there
     it is one client for good; a test or `make gemini` that starts a new loop
-    gets a new one. Before #216 every call built its own `Client` - and a
-    `Client` nobody held a name to was garbage-collected mid-call, closing the
-    connection under it (seen on the preview, 2026-09-26).
+    gets a new one. It is held here because a `Client` nobody holds a name to
+    is garbage-collected mid-call, closing the connection under it (seen on the
+    preview, 2026-09-26).
 
     `Client` is resolved from this module at call time, which is what the live
     suite and `make gemini` wrap to count and record every call.
@@ -75,7 +75,7 @@ async def get_gemini_embeddings(text: str) -> NDArray[np.float32]:
 
 
 async def get_gemini_embeddings_batch(texts: list[str]) -> list[NDArray[np.float32]]:
-    """Embed many texts in one request - what the nightly backfill spends (#96).
+    """Embed many texts in one request - what the nightly backfill spends.
 
     `embed_content` takes a list and answers a list in the same order, so N
     texts cost one round trip instead of N. That is the "batch mode" the
@@ -84,9 +84,9 @@ async def get_gemini_embeddings_batch(texts: list[str]) -> list[NDArray[np.float
 
     Not Gemini's asynchronous Batch API. That one is cheaper again, but it
     answers hours later through a job handle somebody has to remember, and
-    remembering means a column - which #96 explicitly does not create. A
-    backfill that runs every night at midnight already has all the time it
-    needs; what it cannot have is state it is not allowed to store.
+    remembering means a column the schema does not have. A backfill that runs
+    every night at midnight already has all the time it needs; what it cannot
+    have is state it has nowhere to store.
 
     One billed call, so it goes through `call_with_retry` like every generation:
     the deadline and the retries are the caller's budget

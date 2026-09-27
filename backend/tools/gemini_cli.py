@@ -29,7 +29,7 @@ Usage::
 
 `--capture` also writes every response the run received, as the API sent it,
 to `backend/tests/fixtures/responses/gemini/<use-case>.json` - the recording the
-default suite replays through that use case's parse path (#207). With no
+default suite replays through that use case's parse path. With no
 arguments it runs the use case's sample, which is what the replay is built with.
 """
 
@@ -68,7 +68,7 @@ from backend.services.gemini.student_context.student_context import (
 # the Resource rows it builds, and nothing that uses this stores them.
 UNSAVED_GOAL_ID = uuid.UUID(int=0)
 
-# Every prompt names the student's language (#173); the command writes to an
+# Every prompt names the student's language; the command writes to an
 # English-speaking student. Edit this to see another language's output.
 CLI_LANGUAGE = Language.ENGLISH
 
@@ -85,12 +85,12 @@ class UseCase:
     the example in the menu, and it is what the gate calls `build` with: see
     `backend/tests/test_tools/test_gemini_cli.py`, which type-checks the
     arguments this entry builds against the signature of the function it
-    calls. Without it nothing catches a use case whose inputs changed (#120) -
+    calls. Without it nothing catches a use case whose inputs changed -
     the arity usually still matches, so only the types give it away.
 
     `model_setting` names the settings field that holds the model, not the
     model itself: the table is built at import, and a name read here would be a
-    copy a patched or overridden setting never reaches (#215).
+    copy a patched or overridden setting never reaches.
     """
 
     name: str
@@ -121,11 +121,11 @@ def _turn(message: str) -> list[GeminiChatMessage]:
 
 
 def _goal(name: str, description: str, frontier: str = "") -> list[StudentGoal]:
-    """One goal, as the context generators read a student's goals (#116). They
+    """One goal, as the context generators read a student's goals. They
     take the list because a context is written about the person, not the goal;
     from the command line one is enough to see the prompt work.
 
-    `frontier` is where the app is taking him now (#133). Empty means the
+    `frontier` is where the app is taking him now. Empty means the
     prompt shows the description as the frontier, which is where a goal starts.
     """
     return [StudentGoal(name=name, description=description, frontier=frontier)]
@@ -133,7 +133,7 @@ def _goal(name: str, description: str, frontier: str = "") -> list[StudentGoal]:
 
 def _context(state: str, metacognition: str) -> list[GeminiStudentContext]:
     """One standing reading of the student, as the prompts that consume a
-    context read them (#116): a list, newest first."""
+    context read them: a list, newest first."""
     return [GeminiStudentContext(state=state, metacognition=metacognition)]
 
 

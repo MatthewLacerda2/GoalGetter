@@ -5,10 +5,9 @@ student picked - and runs the step against it. Nothing mocks the rule: what is
 asserted is either that Gemini was never called, or what it was called with, and
 the prompt is rendered from those arguments and read.
 
-The inventory rule this replaces (#91) counted the servable bank. Two of the
-tests below are the cases where the two rules disagree: a short bank he keeps
-missing, which the old rule would have topped up, and a deep bank of questions
-he can answer, which the old rule would have left alone.
+The rule does not count the servable bank. Two of the tests below pin that: a
+short bank he keeps missing buys nothing, and a deep bank of questions he can
+answer still buys more.
 """
 
 from backend.core.config import settings
@@ -63,8 +62,8 @@ async def test_a_student_who_keeps_missing_his_questions_gets_nothing(
 async def test_a_short_bank_he_keeps_missing_is_still_nothing(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """Three questions is less than a lesson, and the old rule (#91) would have
-    topped it up. Nothing counts rows now: he is not short of material"""
+    """Three questions is less than a lesson, and still nothing is bought:
+    nothing counts rows, and he is not short of material"""
     goal = await goal_factory(test_user, active=True)
     await answered(test_db, goal, question_factory, answer_factory, right=0, wrong=3)
 
@@ -99,7 +98,7 @@ async def test_a_student_who_never_misses_gets_eight_one_step_past_what_he_holds
 async def test_a_deep_bank_he_can_answer_still_buys_eight(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """Twenty questions he has never seen: the old rule called that covered.
+    """Twenty questions he has never seen, and eight more are bought anyway.
     A bank being large says nothing - he can answer these, so he needs more"""
     goal = await goal_factory(test_user, active=True)
     await answered(test_db, goal, question_factory, answer_factory, right=10, wrong=0)
@@ -191,7 +190,7 @@ async def test_each_goal_is_decided_on_its_own(
 async def test_the_questions_aim_at_the_frontier_and_not_at_the_description(
     test_db, test_user, goal_factory, question_factory, answer_factory
 ):
-    """#133: the day-one description is background, the frontier is the target"""
+    """The day-one description is background, the frontier is the target"""
     goal = await goal_factory(test_user, active=True)
     await answered(test_db, goal, question_factory, answer_factory, right=10, wrong=0)
 

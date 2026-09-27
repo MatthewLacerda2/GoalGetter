@@ -17,7 +17,7 @@ class ResourceRepository(BaseRepository[Resource]):
         return entities
 
     async def list_by_goal(self, goal_id: uuid.UUID) -> list[Resource]:
-        """The goal's resources, oldest first (#207): the order they were found
+        """The goal's resources, oldest first: the order they were found
         in, so a weekly search appends to the list instead of reshuffling it,
         and a batch keeps the order its search ranked it in. The id breaks a
         tie, so the same rows always come back in the same order."""
@@ -42,7 +42,7 @@ class ResourceRepository(BaseRepository[Resource]):
         return set(result.scalars().all())
 
     async def list_missing_embeddings(self, limit: int) -> list[Resource]:
-        """Resources whose description embedding is still null, oldest first (#96).
+        """Resources whose description embedding is still null, oldest first.
 
         The resource search already embeds what it stores, so this normally
         finds only what that call could not finish - which is the whole point

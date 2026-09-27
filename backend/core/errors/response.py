@@ -4,7 +4,7 @@ from backend.core.errors.codes import ErrorCode
 
 
 class ErrorResponse(BaseModel):
-    """The body of every error the API answers (#214)."""
+    """The body of every error the API answers."""
 
     code: ErrorCode = Field(description="What went wrong. The app switches on this.")
     detail: str = Field(description="The same, in English, for a person reading a log.")
