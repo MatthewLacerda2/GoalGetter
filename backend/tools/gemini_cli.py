@@ -38,7 +38,7 @@ import json
 import sys
 import traceback
 import uuid
-from collections.abc import Callable, Coroutine
+from collections.abc import Callable, Coroutine, Sequence
 from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import Path
 from typing import Any
@@ -333,7 +333,7 @@ def menu() -> str:
     return "\n".join(lines)
 
 
-def save(responses: list[BaseModel], path: Path) -> None:
+def save(responses: Sequence[BaseModel], path: Path) -> None:
     """A run's responses as the replay reads them: a JSON list, one per call."""
     calls = [response.model_dump(mode="json", exclude_none=True) for response in responses]
     path.write_text(json.dumps(calls, ensure_ascii=False, indent=1) + "\n")

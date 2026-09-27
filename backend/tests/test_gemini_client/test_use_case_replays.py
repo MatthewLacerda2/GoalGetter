@@ -65,5 +65,5 @@ async def test_the_recorded_answer_parses_into_what_the_caller_gets(case):
 
     assert isinstance(result, returns), f"{case.name} answered {type(result).__name__}"
     assert len(gemini.calls) == len(calls)  # each recorded call asked once, none retried
-    lost = said(json.loads(calls[-1].text)) - said(plain(result))
+    lost = said(json.loads(calls[-1].text or "")) - said(plain(result))
     assert not lost, f"{case.name} lost or moved what Gemini said: {lost}"

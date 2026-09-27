@@ -39,6 +39,7 @@ def endpoints() -> list[tuple[str, str]]:
         (method, context.path)
         for context in iter_route_contexts(app.routes)
         if isinstance(context.original_route, APIRoute)
+        if context.path
         for method in context.methods or ()
     )
 

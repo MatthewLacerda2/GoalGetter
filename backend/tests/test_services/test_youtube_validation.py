@@ -98,5 +98,5 @@ async def test_an_api_that_refuses_the_request_drops_the_video(monkeypatch):
         }
     )
 
-    assert await validate_resources([resource], client=client) == []
+    assert await validate_resources([resource], client=as_async_client(client)) == []
     assert resource.image_url is None

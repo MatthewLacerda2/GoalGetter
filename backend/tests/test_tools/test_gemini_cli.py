@@ -87,7 +87,12 @@ def test_missing_arguments_are_refused_before_any_call(capsys):
 def test_capture_alone_runs_the_sample_and_asks_for_the_recording(monkeypatch):
     """The sample is what the replay test builds its call with (#207)"""
     asked = []
-    monkeypatch.setattr(gemini_cli, "run", lambda *call: asked.append(call) or 0)
+
+    def run(*call):
+        asked.append(call)
+        return 0
+
+    monkeypatch.setattr(gemini_cli, "run", run)
 
     assert gemini_cli.main(["gemini_cli", "--capture", "study-plan"]) == 0
 
