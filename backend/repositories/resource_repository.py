@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select
 
 from backend.models.resource import Resource
@@ -14,12 +16,12 @@ class ResourceRepository(BaseRepository[Resource]):
         await self.db.flush()
         return entities
 
-    async def list_by_goal(self, goal_id: str) -> list[Resource]:
+    async def list_by_goal(self, goal_id: uuid.UUID) -> list[Resource]:
         stmt = select(Resource).where(Resource.goal_id == goal_id)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def existing_links(self, goal_id: str, links: list[str]) -> set[str]:
+    async def existing_links(self, goal_id: uuid.UUID, links: list[str]) -> set[str]:
         """Which of these links this goal already holds.
 
         Scoped to the goal on purpose: the same link under a different goal is

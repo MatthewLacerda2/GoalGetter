@@ -7,12 +7,19 @@ language his goals are written in; and English after that
 (`services/gemini/output_language.py` says why).
 """
 
+import uuid
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.core.language import Language
+from backend.models.goal import Goal
 from backend.repositories.student_repository import StudentRepository
 from backend.services.gemini.output_language import output_language
 
 
-async def student_language(session, student_id, goals) -> Language:
+async def student_language(
+    session: AsyncSession, student_id: uuid.UUID, goals: list[Goal]
+) -> Language:
     student = await StudentRepository(session).get_by_id(student_id)
-    typed = [text for goal in goals for text in (goal.name, goal.description or "")]
+    typed = [text for goal in goals for text in (goal.name or "", goal.description or "")]
     return output_language(student.language if student else None, *typed)

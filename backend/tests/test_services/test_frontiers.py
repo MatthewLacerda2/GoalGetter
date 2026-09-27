@@ -52,7 +52,7 @@ async def test_a_night_that_moves_nothing_writes_no_row(
 
     calls = []
     with chain_gemini(test_db, calls):
-        assert await run_context_step(test_db, str(test_user.id)) is False
+        assert await run_context_step(test_db, test_user.id) is False
 
     assert await history(test_db, goal) == [CIRCUITS]
     assert [name for name, _ in calls] == ["review"]
@@ -66,7 +66,7 @@ async def test_a_move_appends_a_row_and_leaves_the_one_before_it(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(moved=[(0, "Robotics.")])):
-        assert await run_context_step(test_db, str(test_user.id)) is True
+        assert await run_context_step(test_db, test_user.id) is True
 
     assert await history(test_db, goal) == [CIRCUITS, "Robotics."]
     assert (await FrontierRepository(test_db).current(goal.id)).definition == "Robotics."
@@ -89,7 +89,7 @@ async def test_a_frontier_on_a_different_subject_is_refused(
     with chain_gemini(
         test_db, calls, reviewed=review(moved=[(0, "Baroque opera.")]), embedding=ELSEWHERE
     ):
-        assert await run_context_step(test_db, str(test_user.id)) is False
+        assert await run_context_step(test_db, test_user.id) is False
 
     assert await history(test_db, goal) == [CIRCUITS]
 
@@ -102,7 +102,7 @@ async def test_a_move_is_written_when_there_is_nothing_to_check_it_against(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(moved=[(0, "Robotics.")])):
-        await run_context_step(test_db, str(test_user.id))
+        await run_context_step(test_db, test_user.id)
 
     assert await history(test_db, goal) == [CIRCUITS, "Robotics."]
 
@@ -122,7 +122,7 @@ async def test_the_embedding_the_check_paid_for_is_kept_on_the_row(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(moved=[(0, "Robotics.")])):
-        await run_context_step(test_db, str(test_user.id))
+        await run_context_step(test_db, test_user.id)
 
     rows = await FrontierRepository(test_db).list_by_goal(goal.id)
     assert rows[-1].definition_embedding is not None
@@ -137,7 +137,7 @@ async def test_a_definition_that_repeats_the_current_frontier_is_not_a_move(
 
     calls = []
     with chain_gemini(test_db, calls, reviewed=review(moved=[(0, CIRCUITS)])):
-        assert await run_context_step(test_db, str(test_user.id)) is False
+        assert await run_context_step(test_db, test_user.id) is False
 
     assert await history(test_db, goal) == [CIRCUITS]
 
@@ -151,7 +151,7 @@ async def test_an_index_the_model_invented_or_repeated_moves_nothing_twice(
     calls = []
     moves = [(7, "Nowhere."), (0, "Robotics."), (0, "Robotics again.")]
     with chain_gemini(test_db, calls, reviewed=review(moved=moves)):
-        assert await run_context_step(test_db, str(test_user.id)) is True
+        assert await run_context_step(test_db, test_user.id) is True
 
     assert await history(test_db, goal) == [CIRCUITS, "Robotics."]
 
@@ -166,7 +166,7 @@ async def test_the_review_prompt_sees_the_frontier_beside_what_he_asked_for(
 
     calls = []
     with chain_gemini(test_db, calls):
-        await run_context_step(test_db, str(test_user.id))
+        await run_context_step(test_db, test_user.id)
 
     [seen] = dict(calls)["review"][0]
     assert (seen.description, seen.frontier) == (CIRCUITS, "Robotics.")
@@ -192,11 +192,11 @@ async def test_moving_the_frontier_changes_what_the_prompt_asks_for(
     await test_db.commit()
 
     with a_recording_client() as gemini:
-        await run_questions_step(test_db, str(test_user.id))
+        await run_questions_step(test_db, test_user.id)
 
         await FrontierRepository(test_db).create(Frontier(goal_id=goal.id, definition="Robotics."))
         await test_db.commit()
-        await run_questions_step(test_db, str(test_user.id))
+        await run_questions_step(test_db, test_user.id)
 
     prompts = [call.contents for call in gemini.calls]
     before, after = (f'What to teach him now: "{text}"' for text in (CIRCUITS, "Robotics."))

@@ -30,7 +30,8 @@ SAMPLE = next(case for case in USE_CASES if case.name == "resource-search").samp
 async def test_at_least_one_recommended_resource_survives_validation():
     """What the resources step does, minus storing: the grounded search, the
     video search on its query, and validation."""
-    search = await search_resources(*SAMPLE, None, [], Language.ENGLISH)
+    goal_name, goal_description = SAMPLE
+    search = await search_resources(goal_name, goal_description, None, [], Language.ENGLISH)
     async with httpx.AsyncClient() as client:
         videos = await search_videos(client, UNSAVED_GOAL_ID, search.video_query, Language.ENGLISH)
         recommended = page_resources(UNSAVED_GOAL_ID, search.pages) + videos

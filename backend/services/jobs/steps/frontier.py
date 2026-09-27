@@ -31,11 +31,17 @@ nothing in this app is ever blocked by a missing embedding.
 
 import logging
 
+import numpy as np
+from numpy.typing import NDArray
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.core.vectors import cosine
 from backend.models.frontier import Frontier
+from backend.models.goal import Goal
 from backend.repositories.frontier_repository import FrontierRepository
 from backend.services.gemini.client.gemini_configs import get_gemini_embeddings
 from backend.services.gemini.client.gemini_guard import run_gemini_background
+from backend.services.gemini.student_context.schema import FrontierMove
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +50,7 @@ logger = logging.getLogger(__name__)
 MIN_SIMILARITY = 0.30
 
 
-async def current_definitions(session, goals) -> list[str]:
+async def current_definitions(session: AsyncSession, goals: list[Goal]) -> list[str]:
     """What we are teaching the student today, one definition per goal, in the
     order the goals came in.
 
@@ -53,14 +59,16 @@ async def current_definitions(session, goals) -> list[str]:
     written before this existed.
     """
     repository = FrontierRepository(session)
-    definitions = []
+    definitions: list[str] = []
     for goal in goals:
         current = await repository.current(goal.id)
         definitions.append(current.definition if current else (goal.description or ""))
     return definitions
 
 
-async def apply_frontier_moves(session, goals, definitions: list[str], moves) -> int:
+async def apply_frontier_moves(
+    session: AsyncSession, goals: list[Goal], definitions: list[str], moves: list[FrontierMove]
+) -> int:
     """Append the frontiers the review moved, and return how many rows were
     written. Zero is the normal night.
 
@@ -85,7 +93,7 @@ async def apply_frontier_moves(session, goals, definitions: list[str], moves) ->
     return written
 
 
-async def _append(repository: FrontierRepository, goal, definition: str) -> int:
+async def _append(repository: FrontierRepository, goal: Goal, definition: str) -> int:
     """Write one move, unless it is the app wandering off. Returns 1 or 0.
 
     The embedding is taken here rather than left to the midnight backfill
@@ -115,7 +123,7 @@ async def _append(repository: FrontierRepository, goal, definition: str) -> int:
     return 1
 
 
-async def _embedding_of(definition: str):
+async def _embedding_of(definition: str) -> NDArray[np.float32] | None:
     """The proposal as a vector, or None if Gemini would not answer. A night
     that cannot embed still teaches; it just cannot check."""
     try:

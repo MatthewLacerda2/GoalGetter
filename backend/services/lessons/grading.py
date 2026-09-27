@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from backend.models.question import Question
 from backend.models.student_answer import StudentAnswer
+from backend.schemas.lesson import LessonAnswerItem
 
 
 class UnknownQuestionError(ValueError):
@@ -18,7 +19,7 @@ class GradedLesson:
     accuracy: float  # 0..100
 
 
-def grade_lesson(bank: list[Question], submitted: list) -> GradedLesson:
+def grade_lesson(bank: list[Question], submitted: list[LessonAnswerItem]) -> GradedLesson:
     """Grade a submission **server-side**, from the stored right index.
 
     Nothing the client says about correctness is read: only which choice it

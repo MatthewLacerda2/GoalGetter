@@ -94,7 +94,7 @@ class Guard:
         if self.host:
             port = database.port or 5432
             for *_, address in socket.getaddrinfo(self.host, port, type=socket.SOCK_STREAM):
-                self.endpoints.add((address[0], port))
+                self.endpoints.add((str(address[0]), port))
 
     def lookup_allowed(self, host) -> bool:
         host = host.decode() if isinstance(host, bytes) else host
@@ -116,7 +116,7 @@ class Guard:
             socket.socket.connect_ex,
             socket.socket.sendto,
             socket.socket.sendmsg,
-            subprocess.Popen._execute_child,
+            subprocess.Popen._execute_child,  # type: ignore[attr-defined]  # private: patched to refuse
             os.system,
             os.posix_spawn,
             os.posix_spawnp,
@@ -154,7 +154,7 @@ class Guard:
         socket.socket.connect_ex = guarded_connect_ex
         socket.socket.sendto = guarded_sendto
         socket.socket.sendmsg = guarded_sendmsg
-        subprocess.Popen._execute_child = no_process
+        subprocess.Popen._execute_child = no_process  # type: ignore[attr-defined]  # private: patched to refuse
         os.system = os.posix_spawn = os.posix_spawnp = no_process
         self.installed = True
 
@@ -167,7 +167,7 @@ class Guard:
             socket.socket.connect_ex,
             socket.socket.sendto,
             socket.socket.sendmsg,
-            subprocess.Popen._execute_child,
+            subprocess.Popen._execute_child,  # type: ignore[attr-defined]  # private: patched to refuse
             os.system,
             os.posix_spawn,
             os.posix_spawnp,

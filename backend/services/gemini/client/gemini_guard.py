@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Awaitable, Callable
 
 from google.genai.errors import APIError
 
@@ -31,9 +32,15 @@ def _api_error_code(status: int | None) -> ErrorCode:
     return ErrorCode.GEMINI_FAILED
 
 
-async def run_gemini(use_case, *args):
+async def run_gemini[**P, R](
+    use_case: Callable[P, Awaitable[R]], *args: P.args, **kwargs: P.kwargs
+) -> R:
     """Run a Gemini use case for a request a user is waiting on, and surface
     what went wrong upstream to the client.
+
+    It answers what `use_case` answers, and the type checker holds `args` and
+    `kwargs` to `use_case`'s own signature (#209): an argument of the wrong type,
+    or one too many, fails `make back-types` rather than a request.
 
     Every call inside it retries on the short budget
     (backend/services/gemini/client/gemini_retry.py), so a single blip does not
@@ -58,7 +65,7 @@ async def run_gemini(use_case, *args):
     """
     try:
         with using_budget(REQUEST_BUDGET):
-            return await use_case(*args)
+            return await use_case(*args, **kwargs)
     except GeminiNoAnswer as err:
         logger.warning("Gemini gave no answer: %s", err)
         raise ApiError(ErrorCode.GEMINI_NO_ANSWER) from err
@@ -73,7 +80,9 @@ async def run_gemini(use_case, *args):
         raise ApiError(ErrorCode.GEMINI_UNREACHABLE) from err
 
 
-async def run_gemini_background(use_case, *args):
+async def run_gemini_background[**P, R](
+    use_case: Callable[P, Awaitable[R]], *args: P.args, **kwargs: P.kwargs
+) -> R:
     """Run a Gemini use case for work nobody is waiting on.
 
     Same policy, a longer budget: a background job may back off for seconds
@@ -81,4 +90,4 @@ async def run_gemini_background(use_case, *args):
     backend/services/jobs/ logs it, and the nightly run is what fills the gap.
     """
     with using_budget(BACKGROUND_BUDGET):
-        return await use_case(*args)
+        return await use_case(*args, **kwargs)

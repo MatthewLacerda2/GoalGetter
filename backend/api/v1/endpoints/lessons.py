@@ -44,7 +44,7 @@ router = APIRouter()
 )
 async def start_lesson(
     goal: Annotated[Goal, Depends(get_owned_goal)], db: Annotated[AsyncSession, Depends(get_db)]
-):
+) -> LessonResponse:
     """Open a lesson: two minutes of questions at the threshold of what he knows (#134).
 
     Both halves of that are arithmetic and neither is a constant this endpoint
@@ -74,7 +74,7 @@ async def start_lesson(
 def _served(question: Question) -> LessonQuestionResponse:
     """One bank question as the app draws it. Always four options."""
     return LessonQuestionResponse(
-        id=str(question.id),
+        id=question.id,
         question=question.text,
         choices=[question.option_a, question.option_b, question.option_c, question.option_d],
         correct_answer_index=question.right_answer_index,
@@ -86,7 +86,7 @@ async def submit_lesson_answers(
     payload: LessonAnswersRequest,
     goal: Annotated[Goal, Depends(get_owned_goal)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> LessonEvaluation:
     """Grade the batch server-side, store it under one fresh `lesson_id`, move the rating.
 
     An answer naming a question outside this goal's bank, or naming one twice,

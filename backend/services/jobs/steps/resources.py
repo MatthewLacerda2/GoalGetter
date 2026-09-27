@@ -13,10 +13,13 @@ new rather than for what is already on the screen.
 """
 
 import logging
+import uuid
 
 import httpx
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.language import Language
+from backend.models.goal import Goal
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
@@ -30,7 +33,7 @@ from backend.services.resources.youtube_search import search_videos
 logger = logging.getLogger(__name__)
 
 
-async def run_resources_step(session, student_id) -> int:
+async def run_resources_step(session: AsyncSession, student_id: uuid.UUID) -> int:
     """Search, verify and store resources for the student's active goal - a
     paused one is not refreshed (the user, 2026-09-26).
     Returns how many stuck. Returns 0 without calling Gemini when the app has
@@ -50,25 +53,32 @@ async def run_resources_step(session, student_id) -> int:
     return total
 
 
-async def _resources_for_goal(session, goal, reading: str, language: Language) -> int:
+async def _resources_for_goal(
+    session: AsyncSession, goal: Goal, reading: str, language: Language
+) -> int:
     repository = ResourceRepository(session)
     held = [resource.link for resource in await repository.list_by_goal(goal.id)]
 
     # Nobody is waiting on it, so each of its calls retries on the background
     # budget (backend/services/gemini/client/gemini_retry.py).
     search = await run_gemini_background(
-        search_resources, goal.name, goal.description, reading, held, language
+        search_resources,
+        goal_name=goal.name or "",
+        goal_description=goal.description or "",
+        student_context=reading,
+        existing_links=held,
+        language=language,
     )
     async with httpx.AsyncClient() as client:
-        videos = await search_videos(client, str(goal.id), search.video_query, language)
-        found = page_resources(str(goal.id), search.pages) + videos
+        videos = await search_videos(client, goal.id, search.video_query, language)
+        found = page_resources(goal.id, search.pages) + videos
         logger.info("Found %d resources for goal %s", len(found), goal.id)
         verified = await validate_resources(found, client=client)
 
     # A page is only known by its address once its redirect is followed, and two
     # sources may land on one page: dedupe after validation, against the goal
     # and within the batch.
-    already = await repository.existing_links(str(goal.id), [r.link for r in verified])
+    already = await repository.existing_links(goal.id, [r.link for r in verified])
     fresh = []
     for resource in verified:
         if resource.link not in already:

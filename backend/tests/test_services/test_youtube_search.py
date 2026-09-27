@@ -1,5 +1,7 @@
 """Videos come from the YouTube Data API's search, on a captured response (#175)."""
 
+import uuid
+
 import httpx
 
 from backend.core.config import settings
@@ -8,7 +10,7 @@ from backend.models.resource import StudyResourceType
 from backend.services.resources.youtube_search import search_videos
 from backend.tests.fixtures.captured import web_client, youtube_search
 
-GOAL = "00000000-0000-0000-0000-000000000001"
+GOAL = uuid.UUID(int=1)
 SEARCH = "https://www.googleapis.com/youtube/v3/search"
 
 

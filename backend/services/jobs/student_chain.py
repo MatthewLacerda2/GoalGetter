@@ -22,6 +22,7 @@ what makes "the next run" a certainty rather than a hope.
 
 import asyncio
 import logging
+import uuid
 from datetime import datetime
 
 from backend.core.database import AsyncSessionLocal
@@ -33,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 async def run_student_chain(
-    student_id: str,
+    student_id: uuid.UUID,
     with_resources: bool = True,
     onboarding_as_of: datetime | None = None,
 ) -> tuple[bool, int, int]:
@@ -71,14 +72,14 @@ async def run_student_chain(
     return wrote_context, questions, resources
 
 
-async def _run_safely(student_id: str, onboarding_as_of: datetime | None) -> None:
+async def _run_safely(student_id: uuid.UUID, onboarding_as_of: datetime | None) -> None:
     try:
         await run_student_chain(student_id, onboarding_as_of=onboarding_as_of)
     except Exception:
         logger.exception("Chain for student %s failed", student_id)
 
 
-def kickoff_student_chain(student_id: str, onboarding_as_of: datetime | None = None) -> None:
+def kickoff_student_chain(student_id: uuid.UUID, onboarding_as_of: datetime | None = None) -> None:
     """Fire the chain on the running loop and return: goal creation answers
     immediately and the standard questions (#132) buy the time.
 
@@ -89,4 +90,4 @@ def kickoff_student_chain(student_id: str, onboarding_as_of: datetime | None = N
     task.add_done_callback(_running.discard)
 
 
-_running: set[asyncio.Task] = set()
+_running: set[asyncio.Task[None]] = set()

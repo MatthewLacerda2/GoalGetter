@@ -48,6 +48,7 @@ import argparse
 import sys
 
 from vulture import Vulture
+from vulture.core import Item
 
 # Below 60, vulture starts guessing; at 60 and above a finding is worth reading.
 MIN_CONFIDENCE = 60
@@ -88,18 +89,18 @@ IGNORE_NAMES = [
 EXCLUDE = ["*/alembic/*", "*/venv/*", "*/.venv/*", "*/__pycache__/*"]
 
 
-def gated(items):
+def gated(items: list[Item]) -> list[Item]:
     """Keep the finding kinds the gate blocks on (policy point 1 above)."""
     return [item for item in items if item.typ != "variable"]
 
 
-def collect(paths):
+def collect(paths: list[str]) -> list[Item]:
     vulture = Vulture(ignore_names=IGNORE_NAMES, ignore_decorators=IGNORE_DECORATORS)
     vulture.scavenge(paths, exclude=EXCLUDE)
     return gated(vulture.get_unused_code(min_confidence=MIN_CONFIDENCE))
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("paths", nargs="*", default=["backend"])
     parser.add_argument("--warn", action="store_true", help="report findings but exit 0")

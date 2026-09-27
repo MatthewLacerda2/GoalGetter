@@ -16,8 +16,12 @@ knows how many there are.
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import Protocol
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.models.base import Base
+from backend.models.chat_message import ChatMessage
 from backend.repositories.chat_message_repository import ChatMessageRepository
 from backend.repositories.frontier_repository import FrontierRepository
 from backend.repositories.goal_repository import GoalRepository
@@ -26,16 +30,25 @@ from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
 
 
+class EmbeddingRepository[M: Base](Protocol):
+    """What the backfill needs of a table's repository: its unembedded rows, and
+    a way to write one back."""
+
+    async def list_missing_embeddings(self, limit: int) -> list[M]: ...
+
+    async def update(self, entity: M) -> M: ...
+
+
 @dataclass(frozen=True)
-class EmbeddingColumn:
+class EmbeddingColumn[M: Base]:
     """One nullable vector column and the text it is an embedding of."""
 
     attribute: str
-    text: Callable[[Any], str | None]
+    text: Callable[[M], str | None]
 
 
 @dataclass(frozen=True)
-class EmbeddingSource:
+class EmbeddingSource[M: Base]:
     """One table: the repository that lists its unembedded rows, and its columns.
 
     The repository is the class, not an instance - the job holds the session
@@ -43,17 +56,19 @@ class EmbeddingSource:
     """
 
     table: str
-    repository: type
-    columns: tuple[EmbeddingColumn, ...]
+    repository: Callable[[AsyncSession], EmbeddingRepository[M]]
+    columns: tuple[EmbeddingColumn[M], ...]
 
 
-def _tutor_reply(row) -> str:
+def _tutor_reply(row: ChatMessage) -> str:
     """The tutor's reply as one text. It is stored as the array of chat bubbles
     the screen draws; what it *says* is the bubbles read in order."""
     return " ".join(row.tutor_responses or ())
 
 
-SOURCES: tuple[EmbeddingSource, ...] = (
+# Each entry's model is its repository's, so every `text` is checked against
+# the columns that model really has.
+SOURCES = (
     EmbeddingSource(
         "chat_messages",
         ChatMessageRepository,

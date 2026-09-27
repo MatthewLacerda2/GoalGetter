@@ -63,7 +63,7 @@ async def _user_from_token(credentials: HTTPAuthorizationCredentials, db: AsyncS
     raise and answers 500, which the app does not read as a sign-out."""
     payload = verify_token(credentials.credentials)
     google_id = payload.get("sub")
-    if not google_id:
+    if not isinstance(google_id, str) or not google_id:
         raise ApiError(ErrorCode.INVALID_TOKEN)
 
     student = await StudentRepository(db).get_by_google_id(google_id)

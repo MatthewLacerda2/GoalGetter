@@ -50,7 +50,7 @@ def test_the_captured_response_offers_its_six_web_sources_and_no_video_page():
 async def test_every_link_is_a_grounding_source_and_no_link_the_model_wrote_is():
     """The eleven URLs in the text never reach a resource"""
     response = grounded_response()
-    written = set(re.findall(r"https?://[^\s)\]]+", response.text)) - {
+    written = set(re.findall(r"https?://[^\s)\]]+", response.text or "")) - {
         c.web.uri for c in response.candidates[0].grounding_metadata.grounding_chunks
     }
     assert "https://lichess.org/study/embed/Xy3x9iuz/1x8vj0h3" in written

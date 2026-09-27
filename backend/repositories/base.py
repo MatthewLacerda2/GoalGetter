@@ -51,5 +51,6 @@ class DeletableRepository[T: Base](BaseRepository[T]):
         the children instead of the ORM loading them first. False when no row
         had that id."""
         key = inspect(self.model).primary_key[0]
-        result = await self.db.execute(sql_delete(self.model).where(key == entity_id))
-        return result.rowcount > 0
+        stmt = sql_delete(self.model).where(key == entity_id).returning(key)
+        result = await self.db.execute(stmt)
+        return result.first() is not None

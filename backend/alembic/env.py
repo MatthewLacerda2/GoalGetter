@@ -1,6 +1,8 @@
 from logging.config import fileConfig
+from typing import Literal
 
 from alembic import context
+from alembic.autogenerate.api import AutogenContext
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import engine_from_config, pool
 
@@ -39,7 +41,7 @@ def database_url() -> str:
     return url
 
 
-def render_item(type_, obj, autogen_context) -> str | bool:
+def render_item(type_: str, obj: object, autogen_context: AutogenContext) -> str | Literal[False]:
     """Render pgvector's column type with the import it needs.
 
     Autogenerate writes `pgvector.sqlalchemy.Vector(dim=768)` for an embedding

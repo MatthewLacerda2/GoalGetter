@@ -24,7 +24,7 @@ GROUP_BY_TYPE = {
 async def list_resources(
     goal: Annotated[Goal, Depends(get_active_goal)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> ResourcesResponse:
     """The active goal's curated resources, grouped by kind. No active goal is 404;
     a goal whose background search has not finished yet has three empty lists."""
     groups: dict[str, list[ResourceItem]] = {group: [] for group in GROUP_BY_TYPE.values()}

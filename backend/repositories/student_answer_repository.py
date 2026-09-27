@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from sqlalchemy import case, func, select
+from sqlalchemy import Select, case, func, select
 
 from backend.models.goal import Goal
 from backend.models.question import Question
@@ -16,7 +16,7 @@ class LessonSummary:
     counted together (#131). There is no row behind it - the grouping *is* the
     lesson, which is why accuracy and seconds are computed and not stored."""
 
-    lesson_id: str
+    lesson_id: uuid.UUID
     answered_at: datetime
     total_seconds: int
     accuracy: float  # 0..100
@@ -53,7 +53,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         await self.db.flush()
         return entities
 
-    async def list_by_lesson(self, lesson_id) -> list[StudentAnswer]:
+    async def list_by_lesson(self, lesson_id: uuid.UUID) -> list[StudentAnswer]:
         """The answers that arrived in one submission, in the order they were
         asked - which is what `position` is for."""
         stmt = (
@@ -64,7 +64,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def list_for_question(self, question_id) -> list[StudentAnswer]:
+    async def list_for_question(self, question_id: uuid.UUID) -> list[StudentAnswer]:
         """Every answer this question ever received, oldest first.
 
         The history the whole change exists for: the same question answered on
@@ -78,7 +78,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def list_history_by_goal(self, goal_id) -> list[AnswerRecord]:
+    async def list_history_by_goal(self, goal_id: uuid.UUID) -> list[AnswerRecord]:
         """Every answer this goal ever received, oldest first - the history the
         rating is a function of (#62).
 
@@ -95,7 +95,9 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         result = await self.db.execute(stmt)
         return [AnswerRecord(question, moment, right) for question, moment, right in result.all()]
 
-    async def list_recent_lessons_by_goal(self, goal_id, limit: int) -> list[LessonSummary]:
+    async def list_recent_lessons_by_goal(
+        self, goal_id: uuid.UUID, limit: int
+    ) -> list[LessonSummary]:
         """The goal's last `limit` lessons, newest first, as Home shows them.
 
         A lesson is a `lesson_id` shared by a batch of answers, so this is a
@@ -121,16 +123,16 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         result = await self.db.execute(stmt)
         return [
             LessonSummary(
-                lesson_id=str(lesson_id),
+                lesson_id=lesson_id,
                 answered_at=moment,
-                total_seconds=int(seconds),
+                total_seconds=seconds or 0,
                 accuracy=round(100 * right / total, 1),
             )
             for lesson_id, moment, seconds, total, right in result.all()
         ]
 
     async def list_recent_by_student(
-        self, student_id, limit: int
+        self, student_id: uuid.UUID, limit: int
     ) -> list[tuple[StudentAnswer, Question]]:
         """The student's most recent answers on any goal, newest first, each
         paired with the question it answered.
@@ -149,7 +151,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         result = await self.db.execute(stmt)
         return [(answer, question) for answer, question in result.all()]
 
-    async def list_recent_seconds(self, student_id, limit: int) -> list[int]:
+    async def list_recent_seconds(self, student_id: uuid.UUID, limit: int) -> list[int]:
         """How long each of the student's last `limit` answers took, newest first.
 
         **The only read of the answering time there is** (#134): it sizes the
@@ -173,9 +175,9 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
             .limit(limit)
         )
         result = await self.db.execute(stmt)
-        return list(result.scalars().all())
+        return [seconds for seconds in result.scalars().all() if seconds is not None]
 
-    async def last_answered_at(self, student_id) -> datetime | None:
+    async def last_answered_at(self, student_id: uuid.UUID) -> datetime | None:
         """When this student last answered a question, on any goal, or None.
 
         The nightly run's whole gate (#89) is this one moment: a day counts
@@ -186,7 +188,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def list_answered_at_by_student(self, student_id) -> list[datetime]:
+    async def list_answered_at_by_student(self, student_id: uuid.UUID) -> list[datetime]:
         """When each of the student's answers was given, on any goal, newest first.
 
         Timestamps, not dates: the streak buckets them by the app's calendar
@@ -197,7 +199,7 @@ class StudentAnswerRepository(BaseRepository[StudentAnswer]):
         return list(result.scalars().all())
 
     @staticmethod
-    def _answered_at(student_id):
+    def _answered_at(student_id: uuid.UUID) -> Select[datetime]:
         return (
             select(StudentAnswer.created_at)
             .join(Question, Question.id == StudentAnswer.question_id)

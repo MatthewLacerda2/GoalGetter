@@ -76,7 +76,7 @@ After changing an `@riverpod` function or class, run **`make front-codegen`** (b
 CI runs it on every frontend pull request (the pre-push hook, when the push touches a file
 that parts a `.g.dart`).
 
-`make backend` is five gates, cheapest first:
+`make backend` is six gates, cheapest first:
 
 - **`make back-lint`** — the house rules below (`backend/tests/backend_linter.py`),
   the layer contracts (import-linter), then `ruff check` and `ruff format --check`. The
@@ -94,6 +94,15 @@ that parts a `.g.dart`).
   in a second. It writes that OpenAPI to **`backend/openapi.json`**, which is
   committed, and fails when the write changed it: the API moved, so read the diff
   and commit it (#213). That is how every API change shows in a pull request.
+- **`make back-types`** — mypy, `strict`, over all of `backend/` (#209): every
+  function annotated, no explicit `Any` in our own code, no bare `dict` or `list`.
+  Data that crosses a layer is a Pydantic model, a dataclass or a `TypedDict`, never
+  `dict[str, ...]` standing in for one. Tests are held to a looser standard (their
+  bodies are checked, their signatures need not be). The configuration and the
+  reason for each exception is `[tool.mypy]` in `backend/pyproject.toml`. The first
+  run in a worktree takes ~40 s filling `.mypy_cache`; after that, seconds. A call
+  through `run_gemini`/`run_gemini_background` passes a use case's arguments **by
+  name**: the checker catches an argument of the wrong type, not two strings swapped.
 - **`make back-migrations`** — `alembic upgrade head` on an empty database, then
   `alembic check` against the models. The migrations are what builds the database —
   the test suite's too — but only this gate compares the result with the models, so a
@@ -114,7 +123,7 @@ that parts a `.g.dart`).
   suite is held to a coverage floor. `FILE=`, `K=` and `ARGS=` run part of it, unmeasured;
   `make back-pure` runs the tests not marked `db` with no database, in seconds.
 
-Ruff and vulture are in `backend/requirements.txt`, so they live in the backend
+Ruff, vulture and mypy are in `backend/requirements.txt`, so they live in the backend
 image the way pytest does: that image is where every Python tool runs locally,
 since there is no venv here. CI has no image and overrides the interpreter
 (`make back-lint PY=python`).
@@ -127,7 +136,7 @@ since there is no venv here. CI has no image and overrides the interpreter
 - Setup failures read as such: `back-test` failing on `GEMINI_API_KEY` wants
   `make env`; a test database that never comes up prints its own log (the image is
   `pgvector/pgvector:pg18`, the stack's own);
-  missing Dart packages want `make setup`; `No module named ruff` (or vulture)
+  missing Dart packages want `make setup`; `No module named ruff` (or vulture, or mypy)
   means the backend image predates `backend/requirements.txt` — `make back-image`; a
   frontend gate failing on the Flutter version means the SDK moved without the pin, so bump
   `environment.flutter` and let the same pull request re-analyze.

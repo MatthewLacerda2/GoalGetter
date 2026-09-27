@@ -9,6 +9,7 @@ invented either (#62): once the answers are written, the goal's rating is what
 replaying them says, exactly as a real submission would have left it."""
 
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -28,7 +29,7 @@ from backend.repositories.question_repository import QuestionRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.fictitious.history_data import LESSON_SIZE
+from backend.services.fictitious.history_data import LESSON_SIZE, GoalSpec
 from backend.services.lessons.rasch import replay
 
 # How far past today's midnight "a moment ago" starts at the earliest (#233).
@@ -63,7 +64,9 @@ class PlannedLesson:
     correct: int
 
 
-def plan_lessons(plan: list, bank_size: int, now: datetime) -> list[PlannedLesson]:
+def plan_lessons(
+    plan: Sequence[tuple[int, int | None, int]], bank_size: int, now: datetime
+) -> list[PlannedLesson]:
     """The lessons in order: when each was answered, which questions it served,
     and how many of them went right. Questions rotate through the bank. No elo
     here any more - the rating is read off the answers once they exist (#62)."""
@@ -80,7 +83,9 @@ def plan_lessons(plan: list, bank_size: int, now: datetime) -> list[PlannedLesso
     return planned
 
 
-async def _seed_lessons(db: AsyncSession, bank: list[Question], planned: list[PlannedLesson]):
+async def _seed_lessons(
+    db: AsyncSession, bank: list[Question], planned: list[PlannedLesson]
+) -> None:
     """Each lesson as one batch of answers under a minted `lesson_id`: the first
     `correct` right, the rest wrong. Answer times are made up but add up to the
     lesson's."""
@@ -107,7 +112,7 @@ async def _seed_lessons(db: AsyncSession, bank: list[Question], planned: list[Pl
         )
 
 
-async def _seed_rating(db: AsyncSession, goal: Goal, bank: list[Question]):
+async def _seed_rating(db: AsyncSession, goal: Goal, bank: list[Question]) -> None:
     """The rating the seeded answers actually earn (#62).
 
     `updated_at` is assigned explicitly so the column's ORM `onupdate` does not
@@ -120,7 +125,7 @@ async def _seed_rating(db: AsyncSession, goal: Goal, bank: list[Question]):
     await GoalRepository(db).update(goal)
 
 
-async def seed_goal(db: AsyncSession, student: Student, spec: dict, now: datetime) -> Goal:
+async def seed_goal(db: AsyncSession, student: Student, spec: GoalSpec, now: datetime) -> Goal:
     """Create one goal of history_data.GOALS with everything under it."""
     created = moment(now, spec["created_days_ago"], 18)
     planned = plan_lessons(spec["lessons"], len(spec["questions"]), now)

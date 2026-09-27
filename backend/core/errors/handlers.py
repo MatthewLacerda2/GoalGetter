@@ -13,6 +13,7 @@ Four ways an error leaves the app, one handler each:
 """
 
 import logging
+from collections.abc import Mapping
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -35,7 +36,7 @@ _FRAMEWORK_CODES = {
 
 
 def error_response(
-    code: ErrorCode, detail: str | None = None, headers: dict[str, str] | None = None
+    code: ErrorCode, detail: str | None = None, headers: Mapping[str, str] | None = None
 ) -> JSONResponse:
     body = ErrorResponse(code=code, detail=detail or code.sentence)
     return JSONResponse(body.model_dump(mode="json"), status_code=code.status, headers=headers)
@@ -70,9 +71,11 @@ async def _internal_error(_request: Request, _exc: Exception) -> JSONResponse:
 
 
 def install_error_handlers(app: FastAPI) -> None:
-    app.add_exception_handler(StarletteHTTPException, _http_error)
-    app.add_exception_handler(RequestValidationError, _invalid_request)
+    # Starlette types a handler as taking any Exception; each of these takes
+    # the one class it is registered for, which is all it is ever given (#209).
+    app.add_exception_handler(StarletteHTTPException, _http_error)  # type: ignore[arg-type]
+    app.add_exception_handler(RequestValidationError, _invalid_request)  # type: ignore[arg-type]
     # Registered by its own class: slowapi's middleware looks the handler up by
     # the exact type it raised, not by its HTTPException base.
-    app.add_exception_handler(RateLimitExceeded, _too_many_requests)
+    app.add_exception_handler(RateLimitExceeded, _too_many_requests)  # type: ignore[arg-type]
     app.add_exception_handler(Exception, _internal_error)

@@ -41,12 +41,13 @@ async def test_send_gives_gemini_the_window_oldest_first(
     with patch(GEMINI, return_value=REPLY) as gemini:
         await auth_client.post(ENDPOINT, json={"message": "next?"})
 
-    history, contexts, name, description, _language = gemini.call_args.args
+    asked = gemini.call_args.kwargs
+    history, contexts = asked["messages"], asked["contexts"]
     kept = range(2, HISTORY_WINDOW + 2)  # the two oldest fall out of the window
     expected = [t for i in kept for t in (("user", f"q{i}"), ("model", f"a{i}\nb{i}"))]
     assert [(m.role, m.message) for m in history] == [*expected, ("user", "next?")]
     assert [(c.state, c.metacognition) for c in contexts] == [("beginner", "curious")]
-    assert (name, description) == (goal.name, goal.description)
+    assert (asked["goal_name"], asked["goal_description"]) == (goal.name, goal.description)
 
 
 async def test_send_names_geminis_failure(auth_client, test_db, test_user, goal_factory):
@@ -75,7 +76,7 @@ async def test_send_holds_no_transaction_while_gemini_answers(
     await goal_factory(test_user, active=True)
     holding = []
 
-    def gemini(*_args):
+    def gemini(**_kwargs):
         holding.append(test_db.in_transaction())
         return REPLY
 

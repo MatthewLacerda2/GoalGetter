@@ -66,7 +66,12 @@ async def test_a_hung_call_fails_on_its_deadline():
 
 async def test_one_client_serves_every_call(monkeypatch):
     built = []
-    monkeypatch.setattr(gemini_configs, "Client", lambda **kw: built.append(kw) or object())
+
+    def client(**kw):
+        built.append(kw)
+        return object()
+
+    monkeypatch.setattr(gemini_configs, "Client", client)
 
     first, second = gemini_configs.get_client(), gemini_configs.get_client()
 

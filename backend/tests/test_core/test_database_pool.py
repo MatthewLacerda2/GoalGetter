@@ -7,6 +7,9 @@ count in docker-compose.yml - so raising either without redoing it goes red.
 
 import re
 from pathlib import Path
+from typing import cast
+
+from sqlalchemy.pool import QueuePool
 
 from backend.core.config import settings
 from backend.core.database import engine
@@ -29,12 +32,14 @@ def _api_workers() -> int:
 
 
 def test_the_engine_is_built_from_the_settings():
-    assert engine.pool.size() == settings.DB_POOL_SIZE
-    assert engine.pool._max_overflow == settings.DB_MAX_OVERFLOW
+    pool = cast(QueuePool, engine.pool)
+    assert pool.size() == settings.DB_POOL_SIZE
+    assert pool._max_overflow == settings.DB_MAX_OVERFLOW
 
 
 def test_every_process_fits_under_max_connections():
-    per_process = engine.pool.size() + engine.pool._max_overflow
+    pool = cast(QueuePool, engine.pool)
+    per_process = pool.size() + pool._max_overflow
     processes = _api_workers() + OTHER_APP_PROCESSES
     assert processes * per_process + MIGRATE + PSQL_AND_SPARE <= MAX_CONNECTIONS
 

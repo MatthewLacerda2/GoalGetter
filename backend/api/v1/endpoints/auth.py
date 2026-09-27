@@ -11,6 +11,7 @@ from backend.core.errors.api_error import ApiError
 from backend.core.errors.codes import ErrorCode
 from backend.core.language import Language, requested_language
 from backend.core.security import (
+    GoogleIdentity,
     create_access_token,
     verify_google_token,
     verify_google_token_header,
@@ -41,17 +42,17 @@ async def _token_response(db: AsyncSession, student: Student) -> TokenResponse:
         access_token=create_access_token(data={"sub": student.google_id}),
         refresh_token=refresh_token_str,
         student=StudentResponse(
-            id=str(student.id), google_id=student.google_id, email=student.email, name=student.name
+            id=student.id, google_id=student.google_id, email=student.email, name=student.name
         ),
     )
 
 
 @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def signup(
-    user_info: Annotated[dict, Depends(verify_google_token_header)],
+    user_info: Annotated[GoogleIdentity, Depends(verify_google_token_header)],
     db: Annotated[AsyncSession, Depends(get_db)],
     language: Annotated[Language | None, Depends(requested_language)],
-):
+) -> TokenResponse:
     """
     Sign up or sign in using Google OAuth2 token.
     Creates a new account if the user doesn't exist, or returns existing account info.
@@ -61,7 +62,7 @@ async def signup(
     if not user:
         user = await student_repo.create(
             Student(
-                email=user_info["email"], google_id=user_info["sub"], name=user_info.get("name", "")
+                email=user_info["email"], google_id=user_info["sub"], name=user_info["name"] or ""
             )
         )
     else:
@@ -72,7 +73,9 @@ async def signup(
 
 
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def login(oauth_data: OAuth2Request, db: Annotated[AsyncSession, Depends(get_db)]):
+async def login(
+    oauth_data: OAuth2Request, db: Annotated[AsyncSession, Depends(get_db)]
+) -> TokenResponse:
     """
     Login using Google OAuth2 token.
     """
@@ -86,7 +89,7 @@ async def login(oauth_data: OAuth2Request, db: Annotated[AsyncSession, Depends(g
     return await _token_response(db, user)
 
 
-def require_dev_login():
+def require_dev_login() -> None:
     """404 unless DEV_LOGIN is on, so production answers as if the route did not
     exist - the same code and body as an unknown route. Read per request (not at
     import) so tests can flip the setting."""
@@ -105,7 +108,7 @@ async def dev_login(
     payload: DevLoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
     language: Annotated[Language | None, Depends(requested_language)],
-):
+) -> TokenResponse:
     """
     Dev only: sign in as a fictitious student, no Google involved. Creates or
     reuses the student named `Fictitious <name>` (services/fictitious/identity.py).
@@ -127,7 +130,7 @@ async def dev_login(
 @router.post("/refresh", response_model=TokenRefreshResponse)
 async def refresh_tokens(
     payload: TokenRefreshRequest, db: Annotated[AsyncSession, Depends(get_db)]
-):
+) -> TokenRefreshResponse:
     """
     Refresh access and refresh tokens. Implements Refresh Token Rotation (RTR):
     the token presented is revoked and replaced, and presenting one that was
@@ -140,6 +143,10 @@ async def refresh_tokens(
         raise ApiError(ErrorCode.INVALID_REFRESH_TOKEN)
     student_id, new_refresh_token = rotated
     student = await StudentRepository(db).get_by_id(student_id)
+    if student is None:
+        # His tokens go with his row, so only an account deleted mid-request
+        # lands here - and that session really is over.
+        raise ApiError(ErrorCode.STUDENT_NO_LONGER_EXISTS)
     return TokenRefreshResponse(
         access_token=create_access_token(data={"sub": student.google_id}),
         refresh_token=new_refresh_token,
@@ -147,7 +154,9 @@ async def refresh_tokens(
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(payload: TokenRefreshRequest, db: Annotated[AsyncSession, Depends(get_db)]):
+async def logout(
+    payload: TokenRefreshRequest, db: Annotated[AsyncSession, Depends(get_db)]
+) -> Response:
     """
     Revoke a refresh token (logout).
     """
@@ -160,7 +169,7 @@ async def logout(payload: TokenRefreshRequest, db: Annotated[AsyncSession, Depen
 async def delete_account(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[Student, Depends(get_current_user)],
-):
+) -> Response:
     """Delete the signed-in student. Anything that fails on the way is a 500
     `internal_error` (core/errors/handlers.py), and the session closes without
     committing, so nothing is half deleted."""

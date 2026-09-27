@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -11,7 +12,7 @@ class RecentLesson(BaseModel):
     history since the `lessons` table went, and gets one again with #62.
     """
 
-    lesson_id: str
+    lesson_id: UUID
     date: date
     accuracy: float = Field(..., description="0..100")
     duration_seconds: int

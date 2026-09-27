@@ -34,7 +34,7 @@ async def onboarding_languages(client, prompt: str, headers: dict) -> list[Langu
         await client.post(
             "/api/v1/goals/study-plan", json={"prompt": prompt, "answers": []}, headers=headers
         )
-    return [call.call_args.args[-1] for call in (validate, generate, plan)]
+    return [call.call_args.kwargs["language"] for call in (validate, generate, plan)]
 
 
 async def test_onboarding_writes_in_the_language_the_app_sent(client):
@@ -62,4 +62,4 @@ async def test_the_tutor_writes_in_the_students_language(
     with patch("backend.api.v1.endpoints.tutor.gemini_messages_generator", return_value=reply) as g:
         await auth_client.post("/api/v1/tutor/messages", json={"message": "How do I start?"})
 
-    assert g.call_args.args[-1] == Language.FRENCH
+    assert g.call_args.kwargs["language"] == Language.FRENCH

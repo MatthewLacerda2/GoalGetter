@@ -12,6 +12,8 @@ reads what the step before it wrote cannot be allowed to run first - and, just
 as often, that no call happened at all, which is what a skip means.
 """
 
+import inspect
+import pkgutil
 from contextlib import contextmanager
 from unittest.mock import AsyncMock, patch
 
@@ -113,16 +115,28 @@ def resource(goal_id, link) -> Resource:
     )
 
 
-def recorder(calls: list, name: str, result):
-    """A stand-in for one Gemini use case: record it, then answer (or blow up)."""
+def recorder(calls: list, name: str, result, like):
+    """A stand-in for one Gemini use case: record it, then answer (or blow up).
 
-    async def record(*args):
-        calls.append((name, args))
+    The arguments are recorded in the order `like` - the use case it stands in
+    for - declares them, however the caller passed them: the jobs pass them by
+    name (#209), and the tests read them by position."""
+    signature = inspect.signature(like)
+
+    async def record(*args, **kwargs):
+        bound = signature.bind(*args, **kwargs)
+        bound.apply_defaults()
+        calls.append((name, tuple(bound.arguments.values())))
         if isinstance(result, Exception):
             raise result
         return result
 
     return record
+
+
+def stand_in(target: str, calls: list, name: str, result):
+    """Patch the use case at `target` with a `recorder` shaped like it."""
+    return patch(target, recorder(calls, name, result, pkgutil.resolve_name(target)))
 
 
 @contextmanager
@@ -136,14 +150,16 @@ def chain_gemini(
     argument - they are entry points, not services.
     """
     with (
-        patch(CONTEXT + ".gemini_generate_student_context", recorder(calls, "context", FIRST)),
-        patch(CONTEXT + ".gemini_review_student_context", recorder(calls, "review", reviewed)),
-        patch(QUESTIONS + ".generate_lesson_questions", recorder(calls, "questions", questions)),
-        patch(QUESTIONS + ".generate_placement_questions", recorder(calls, "placement", questions)),
-        patch(FRONTIER + ".get_gemini_embeddings", recorder(calls, "embedding", embedding)),
-        patch(
+        stand_in(CONTEXT + ".gemini_generate_student_context", calls, "context", FIRST),
+        stand_in(CONTEXT + ".gemini_review_student_context", calls, "review", reviewed),
+        stand_in(QUESTIONS + ".generate_lesson_questions", calls, "questions", questions),
+        stand_in(QUESTIONS + ".generate_placement_questions", calls, "placement", questions),
+        stand_in(FRONTIER + ".get_gemini_embeddings", calls, "embedding", embedding),
+        stand_in(
             RESOURCES + ".search_resources",
-            recorder(calls, "resources", ResourceSearch(list(found), "a query")),
+            calls,
+            "resources",
+            ResourceSearch(list(found), "a query"),
         ),
         patch(RESOURCES + ".search_videos", AsyncMock(return_value=[])),
         patch(RESOURCES + ".validate_resources", side_effect=lambda proposed, client: proposed),

@@ -56,7 +56,7 @@ async def list_messages(
         datetime | None, Query(description="Only exchanges older than this created_at")
     ] = None,
     limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
-):
+) -> list[ChatMessage]:
     """The active goal's exchanges, newest first. Pass the last one's
     `created_at` as `before` for the next (older) page."""
     return await ChatMessageRepository(db).list_by_goal(goal.id, limit, before)
@@ -68,7 +68,7 @@ async def send_message(
     goal: Annotated[Goal, Depends(get_active_goal)],
     current_user: Annotated[Student, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> ChatMessage:
     """Send the student's message with this goal's recent history and the
     student's still-valid contexts; store and return the exchange.
 
@@ -88,11 +88,11 @@ async def send_message(
     await db.commit()  # ends the reads: the connection is not held across Gemini (#219)
     reply = await run_gemini(
         gemini_messages_generator,
-        history,
-        contexts,
-        goal.name,
-        goal.description,
-        output_language(current_user.language, payload.message),
+        messages=history,
+        contexts=contexts,
+        goal_name=goal.name or "",
+        goal_description=goal.description or "",
+        language=output_language(current_user.language, payload.message),
     )
 
     exchange = await repo.create(
@@ -113,7 +113,7 @@ async def like_message(
     payload: LikeRequest,
     goal: Annotated[Goal, Depends(get_active_goal)],
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> ChatMessage:
     """Set the like on a reply. An exchange outside the active goal (someone
     else's, or another goal's) is 404, so its existence never leaks."""
     repo = ChatMessageRepository(db)

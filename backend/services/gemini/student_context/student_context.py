@@ -9,6 +9,8 @@ from backend.services.gemini.student_context.schema import (
     GeminiContextReview,
     GeminiStudentContext,
     GeminiStudentContextResponse,
+    RecentAnswer,
+    RecentChat,
     StudentGoal,
 )
 
@@ -38,8 +40,8 @@ async def gemini_generate_student_context(
 async def gemini_review_student_context(
     goals: list[StudentGoal],
     contexts: list[GeminiStudentContext],
-    recent_answers: list[dict],
-    recent_chat_history: list[dict],
+    recent_answers: list[RecentAnswer],
+    recent_chat_history: list[RecentChat],
     questions_answers: list[tuple[str, str]] | None,
     language: Language,
 ) -> GeminiContextReview:

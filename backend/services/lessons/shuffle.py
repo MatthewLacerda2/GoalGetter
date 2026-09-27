@@ -12,12 +12,13 @@ import contracts in backend/pyproject.toml).
 """
 
 import random
+import uuid
 
 from backend.models.question import Question
 
 
 def shuffled_question(
-    goal_id, text: str, options: list[str], right_index: int, rng: random.Random
+    goal_id: uuid.UUID, text: str, options: list[str], right_index: int, rng: random.Random
 ) -> Question:
     """The stored question: its four `options` in a random order, and
     `right_answer_index` following the one at `right_index` to wherever it landed."""

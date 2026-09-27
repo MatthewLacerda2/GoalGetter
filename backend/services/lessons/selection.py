@@ -30,15 +30,20 @@ is also the only way this is honestly testable.
 """
 
 import math
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
+from numpy.typing import ArrayLike
+
 from backend.core import clock
 from backend.core.vectors import cosine
+from backend.models.base import Embedding
+from backend.models.frontier import Frontier
 from backend.models.question import Question
 from backend.models.student_context import StudentContext
 from backend.repositories.student_answer_repository import AnswerRecord
-from backend.services.lessons.rasch import GUESS, expected_score, replay
+from backend.services.lessons.rasch import GUESS, GoalRatings, expected_score, replay
 
 # Where content belongs: his chance of answering correctly, aimed at 0.75.
 #
@@ -248,7 +253,7 @@ def forgetting_score(recall: Recall, now: datetime) -> float:
     return 1.0 - math.exp(-elapsed / (HORIZON_DAYS * HORIZON_GROWTH**recall.streak))
 
 
-def affinity(left, right) -> float:
+def affinity(left: ArrayLike | None, right: ArrayLike | None) -> float:
     """Closeness of two embeddings as a term in [0, 1], `NEUTRAL` when there is
     nothing to compare.
 
@@ -259,13 +264,13 @@ def affinity(left, right) -> float:
     return NEUTRAL if similarity is None else max(0.0, similarity)
 
 
-def read_recall(history: list[AnswerRecord], now: datetime) -> dict:
+def read_recall(history: list[AnswerRecord], now: datetime) -> dict[uuid.UUID, Recall]:
     """The window's reading of every question the student has ever answered.
 
     One pass, oldest answer first, which is the order the repository returns.
     """
     inside = now.timestamp() - WINDOW_DAYS * 86400.0
-    recalls: dict = {}
+    recalls: dict[uuid.UUID, Recall] = {}
     for record in history:
         recall = recalls.setdefault(record.question_id, Recall())
         recall.last_at = clock.as_utc(record.answered_at)
@@ -292,7 +297,7 @@ def context_affinity(question: Question, context: StudentContext | None) -> floa
 def rank_bank(
     bank: list[Question],
     history: list[AnswerRecord],
-    frontier=None,
+    frontier: Frontier | None = None,
     context: StudentContext | None = None,
     now: datetime | None = None,
 ) -> list[Ranked]:
@@ -312,7 +317,14 @@ def rank_bank(
     return [_rank_one(question, ratings, recalls, target, context, moment) for question in bank]
 
 
-def _rank_one(question, ratings, recalls, target, context, moment) -> Ranked:
+def _rank_one(
+    question: Question,
+    ratings: GoalRatings,
+    recalls: dict[uuid.UUID, Recall],
+    target: Embedding | None,
+    context: StudentContext | None,
+    moment: datetime,
+) -> Ranked:
     """One bank question's five terms. Split out of `rank_bank` only because
     `expected` is wanted twice: once as itself, once through the bell."""
     expected = expected_score(ratings.rating, ratings.difficulty[question.id])
@@ -331,7 +343,7 @@ def select_lesson(
     bank: list[Question],
     history: list[AnswerRecord],
     size: int,
-    frontier=None,
+    frontier: Frontier | None = None,
     context: StudentContext | None = None,
     now: datetime | None = None,
 ) -> list[Ranked]:
@@ -361,7 +373,7 @@ def select_lesson_questions(
     bank: list[Question],
     history: list[AnswerRecord],
     size: int,
-    frontier=None,
+    frontier: Frontier | None = None,
     context: StudentContext | None = None,
     now: datetime | None = None,
 ) -> list[Question]:
@@ -381,7 +393,7 @@ def _fill(ranked: list[Ranked], size: int) -> list[Ranked]:
     candidates = sorted(
         ranked, key=lambda entry: (entry.question.created_at, str(entry.question.id))
     )
-    nearest: dict = {}
+    nearest: dict[uuid.UUID, float] = {}
     chosen: list[Ranked] = []
     while candidates and len(chosen) < size:
         best = min(candidates, key=lambda entry: -entry.score(_diversity(nearest, entry)))
@@ -395,7 +407,7 @@ def _fill(ranked: list[Ranked], size: int) -> list[Ranked]:
     return chosen
 
 
-def _diversity(nearest: dict, entry: Ranked) -> float:
+def _diversity(nearest: dict[uuid.UUID, float], entry: Ranked) -> float:
     """How unlike everything already chosen this question is. `NEUTRAL` while
     nothing has been compared to it - an empty lesson, or a question the nightly
     backfill has not embedded yet - so a missing vector cannot pass for novelty.
