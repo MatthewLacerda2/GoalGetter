@@ -17,14 +17,14 @@ class EloChip extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: primary.withValues(alpha: 0.12),
+        color: primary.withValues(alpha: AppOpacity.faint),
         borderRadius: BorderRadius.circular(AppRadius.chip),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.trending_up, color: primary, size: 18),
-          const SizedBox(width: 6.0),
+          Icon(Icons.trending_up, color: primary, size: AppIconSize.sm),
+          const SizedBox(width: AppSpacing.gap6),
           Text(
             '$elo',
             style: Theme.of(context).textTheme.labelLarge?.copyWith(

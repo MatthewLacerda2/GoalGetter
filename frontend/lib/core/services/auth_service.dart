@@ -49,9 +49,6 @@ class AuthService {
   Future<void> storeSession(Map<String, dynamic> tokenResponse) async {
     await _storage.setAccessToken(tokenResponse['access_token'] as String);
     await _storage.setRefreshToken(tokenResponse['refresh_token'] as String);
-    await _storage.setUserInfo(
-      tokenResponse['student'] as Map<String, dynamic>,
-    );
     onSessionChanged?.call();
   }
 
@@ -86,7 +83,6 @@ class AuthService {
       _tokenResponse,
       headers: {'Authorization': 'Bearer $googleToken'},
     );
-    await _storage.setGoogleToken(googleToken);
     await storeSession(response);
   }
 

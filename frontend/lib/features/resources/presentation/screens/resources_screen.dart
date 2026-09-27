@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
+import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
 import 'package:goal_getter/features/resources/presentation/widgets/resource_tab.dart';
@@ -75,21 +76,21 @@ class _ResourceTabs extends StatelessWidget {
           TabBar(
             labelColor: scheme.primary,
             unselectedLabelColor: scheme.onSurfaceVariant,
-            dividerHeight: 1,
+            dividerHeight: AppStroke.hairline,
             dividerColor: scheme.outline,
             indicatorColor: scheme.primary,
             indicatorSize: TabBarIndicatorSize.tab,
             tabs: [
               Tab(
-                icon: const Icon(Icons.play_circle_outline, size: 22),
+                icon: const Icon(Icons.play_circle_outline, size: AppIconSize.tab),
                 text: '${l10n.videos} (${resources.youtube.length})',
               ),
               Tab(
-                icon: const Icon(Icons.menu_book_outlined, size: 22),
+                icon: const Icon(Icons.menu_book_outlined, size: AppIconSize.tab),
                 text: '${l10n.guides} (${resources.books.length})',
               ),
               Tab(
-                icon: const Icon(Icons.public, size: 22),
+                icon: const Icon(Icons.public, size: AppIconSize.tab),
                 text: '${l10n.sites} (${resources.websites.length})',
               ),
             ],

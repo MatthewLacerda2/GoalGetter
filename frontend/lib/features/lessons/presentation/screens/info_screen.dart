@@ -34,7 +34,7 @@ class InfoScreen extends StatelessWidget {
                 ),
               ),
               _InfoButton(label: buttonText, onPressed: onButtonPressed),
-              SizedBox(height: 8.0),
+              SizedBox(height: AppSpacing.xs),
             ],
           ),
         ),
@@ -69,17 +69,17 @@ class _InfoBody extends StatelessWidget {
               color: theme.colorScheme.onSurface,
             ),
           ),
-          SizedBox(height: 24.0),
+          SizedBox(height: AppSpacing.xl),
         ],
-        Icon(icon, color: theme.colorScheme.secondary, size: 140),
-        SizedBox(height: 48),
+        Icon(icon, color: theme.colorScheme.secondary, size: AppIconSize.hero),
+        SizedBox(height: AppSpacing.gap48),
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
             vertical: AppSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: theme.colorScheme.outline.withValues(alpha: 0.12),
+            color: theme.colorScheme.outline.withValues(alpha: AppOpacity.faint),
             borderRadius: BorderRadius.circular(AppRadius.chip),
           ),
           child: Text(

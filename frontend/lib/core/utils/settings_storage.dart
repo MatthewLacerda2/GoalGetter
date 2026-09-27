@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,8 +6,8 @@ import 'package:goal_getter/core/services/shared_preferences_provider.dart';
 part 'settings_storage.g.dart';
 
 /// Everything the app keeps on the device, in shared_preferences: the session
-/// (access token, refresh token, user info, Google token), the active goal id,
-/// and the preferences (language, notifications, theme).
+/// (access token and refresh token), the active goal id, and the preferences
+/// (language, notifications, theme).
 ///
 /// Two ways out: [clearSession] when the backend refuses the session (the
 /// preferences survive), and [clearAll] on sign-out, which deletes every key,
@@ -18,27 +17,15 @@ class SettingsStorage {
 
   SettingsStorage(this._prefs);
 
-  static SettingsStorage? _instance;
-
-  /// Initialize SettingsStorage with pre-loaded SharedPreferences
-  static void initialize(SharedPreferences prefs) {
-    _instance = SettingsStorage(prefs);
-  }
-
-  /// Singleton instance for static contexts (e.g. legacy/static calls)
-  static SettingsStorage get instance {
-    if (_instance == null) {
-      throw StateError('SettingsStorage has not been initialized. Call SettingsStorage.initialize(prefs) first.');
-    }
-    return _instance!;
-  }
-
   // --- Storage Keys ---
   static const String _languageKey = 'user_language';
   static const String _currentGoalIdKey = 'current_goal_id';
   static const String _tokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
   static const String _notificationsKey = 'notifications_on';
+  // Written by the app until #227 and read by nothing: the Google token
+  // (only POST /auth/signup needs it, once) and the student's profile. Still
+  // removed with the session, so a device that stored them drops them.
   static const String _googleTokenKey = 'google_token';
   static const String _userInfoKey = 'user_info';
   static const String _themeModeKey = 'theme_mode';
@@ -85,12 +72,6 @@ class SettingsStorage {
     final stored = _prefs.getString(_languageKey);
     if (stored != null && isSupportedLanguage(stored)) return stored;
     return defaultLanguage;
-  }
-
-  String? readStoredUserLanguageOrNull() {
-    final stored = _prefs.getString(_languageKey);
-    if (stored == null) return null;
-    return isSupportedLanguage(stored) ? stored : null;
   }
 
   String initUserLanguage({required Iterable<String> preferredLanguageCodes}) {
@@ -146,30 +127,6 @@ class SettingsStorage {
     return await _prefs.setString(_refreshTokenKey, token);
   }
 
-  String? getGoogleToken() {
-    return _prefs.getString(_googleTokenKey);
-  }
-
-  Future<bool> setGoogleToken(String token) async {
-    return await _prefs.setString(_googleTokenKey, token);
-  }
-
-  Map<String, dynamic>? getUserInfo() {
-    final userInfoString = _prefs.getString(_userInfoKey);
-    if (userInfoString != null) {
-      try {
-        return jsonDecode(userInfoString) as Map<String, dynamic>;
-      } catch (_) {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  Future<bool> setUserInfo(Map<String, dynamic> userInfo) async {
-    return await _prefs.setString(_userInfoKey, jsonEncode(userInfo));
-  }
-
   // --- Notifications Preference ---
 
   /// Off until the student turns it on.
@@ -210,19 +167,6 @@ class SettingsStorage {
   Future<void> clearAll() async {
     await _prefs.clear();
   }
-
-  // ================= STATIC BACKWARD COMPATIBILITY WRAPPERS =================
-
-  static String getUserLanguageSync() => instance.readUserLanguageSync();
-
-  static Future<String> getUserLanguage() => Future.value(instance.readUserLanguageSync());
-
-  static Future<String?> getStoredUserLanguageOrNull() => Future.value(instance.readStoredUserLanguageOrNull());
-
-  static Future<String> getOrInitUserLanguage({required Iterable<String> preferredLanguageCodes}) =>
-      Future.value(instance.initUserLanguage(preferredLanguageCodes: preferredLanguageCodes));
-
-  static Future<bool> setUserLanguage(String language) => instance.writeUserLanguage(language);
 }
 
 @Riverpod(keepAlive: true)

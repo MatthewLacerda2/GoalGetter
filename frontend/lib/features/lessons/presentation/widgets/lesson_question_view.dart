@@ -34,9 +34,9 @@ class LessonQuestionPage extends StatelessWidget {
       child: Column(
         children: [
           LessonProgressRow(index: state.index, total: state.questions.length),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xxl),
           LessonQuestionCard(question: question.question),
-          const SizedBox(height: 40),
+          const SizedBox(height: AppSpacing.gap40),
           Expanded(
             child: ListView.builder(
               itemCount: question.choices.length,
@@ -47,7 +47,7 @@ class LessonQuestionPage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.md),
           LessonAnswerButton(
             label: state.isRevealed ? l10n.continuate : l10n.enter,
             color: _buttonColor(context),
@@ -55,14 +55,14 @@ class LessonQuestionPage extends StatelessWidget {
                 ? null
                 : (state.isRevealed ? onContinue : onEnter),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.xs),
         ],
       ),
     );
   }
 
   Color _success(BuildContext context) =>
-      Theme.of(context).extension<CustomColors>()?.success ?? AppTheme.success;
+      CustomColors.of(context).success;
 
   /// Tapped, before the answer is entered; after it, right, wrong or neither.
   Color _choiceFill(BuildContext context, int index) {
@@ -70,14 +70,14 @@ class LessonQuestionPage extends StatelessWidget {
     final isSelected = state.selectedChoice == index;
     if (!state.isRevealed) {
       return isSelected
-          ? scheme.primary.withValues(alpha: 0.2)
+          ? scheme.primary.withValues(alpha: AppOpacity.tint)
           : scheme.surfaceContainerHigh;
     }
     if (index == state.current.question.correctAnswerIndex) {
-      return _success(context).withValues(alpha: 0.2);
+      return _success(context).withValues(alpha: AppOpacity.tint);
     }
-    if (isSelected) return scheme.error.withValues(alpha: 0.2);
-    return scheme.outline.withValues(alpha: 0.12);
+    if (isSelected) return scheme.error.withValues(alpha: AppOpacity.tint);
+    return scheme.outline.withValues(alpha: AppOpacity.faint);
   }
 
   /// Grey until a choice is tapped; once entered, whether it was right.
@@ -112,7 +112,7 @@ class LessonProgressRow extends StatelessWidget {
             color: theme.colorScheme.onSurface,
           ),
         ),
-        SizedBox(width: 16.0),
+        SizedBox(width: AppSpacing.md),
         Expanded(
           child: LinearProgressIndicator(
             value: (index + 1) / total,

@@ -75,6 +75,110 @@ abstract final class AppSpacing {
 
   /// 32 — the space around a screen's hero block.
   static const double xxl = 32;
+
+  // --- Off the scale ---
+  //
+  // The gaps screens wrote as `SizedBox(height: 10)` before the rule reached
+  // them (#227). Each keeps the value it had, so bringing gaps under the rule
+  // moved no pixel; named after the value, because that is all they are.
+  // Moving one onto the scale above is a visual change, to be made where a
+  // golden test (#226) shows it — and then the token goes.
+
+  static const double gap3 = 3;
+  static const double gap6 = 6;
+  static const double gap10 = 10;
+  static const double gap14 = 14;
+  static const double gap28 = 28;
+  static const double gap40 = 40;
+  static const double gap48 = 48;
+  static const double gap60 = 60;
+}
+
+/// How big an icon is drawn. [AppSizes.inlineIcon] and [AppSizes.stateIcon]
+/// are the two with a job of their own; these are the rest.
+abstract final class AppIconSize {
+  /// Inside a dense row of text: a lesson's time and accuracy.
+  static const double xs = 14;
+
+  /// A chip's icon, a list trailing chevron, a small icon button.
+  static const double sm = 18;
+
+  /// A tile's leading icon, a brand mark on a button.
+  static const double md = 20;
+
+  /// A tab's icon.
+  static const double tab = 22;
+
+  /// A stat's icon, a thumbnail's placeholder.
+  static const double lg = 24;
+
+  /// The icon on the big "start lesson" action.
+  static const double action = 26;
+
+  /// The bottom navigation bar.
+  static const double nav = 28;
+
+  /// The single icon a celebration or an info screen is built around.
+  static const double hero = 140;
+}
+
+/// Line widths: borders, strokes and dividers.
+abstract final class AppStroke {
+  /// A divider, an unselected card's border.
+  static const double hairline = 1;
+
+  /// A focused input's border.
+  static const double focus = 1.5;
+
+  /// A selected card's border, a progress spinner's stroke.
+  static const double thick = 2;
+}
+
+/// Alphas a colour is tinted with, from the faintest wash to nearly opaque.
+/// A tint is a colour decision, so its alpha is a token like the colour.
+abstract final class AppOpacity {
+  /// A selected option's wash.
+  static const double wash = 0.08;
+
+  /// A stat or a chip's fill, a quiet border.
+  static const double faint = 0.12;
+
+  /// The streak chip's fill.
+  static const double soft = 0.14;
+
+  /// An answer's fill once it is marked, a selectable option's border.
+  static const double tint = 0.2;
+
+  /// The composer's resting border.
+  static const double medium = 0.4;
+
+  /// A message still on its way.
+  static const double pending = 0.6;
+
+  /// Text in a colour that has to stay readable over a surface.
+  static const double strong = 0.8;
+}
+
+/// Adjustments to the text theme a few screens make: line heights and the
+/// letter spacing of an all-caps label.
+abstract final class AppType {
+  /// A tight headline.
+  static const double headingHeight = 1.2;
+
+  /// Running text the student types into.
+  static const double bodyHeight = 1.5;
+
+  /// Long text the student reads: a study plan, a tutor's reply.
+  static const double readingHeight = 1.6;
+
+  /// The letter spacing of a stat's caption.
+  static const double captionSpacing = 0.6;
+
+  /// The letter spacing of an all-caps section label.
+  static const double labelSpacing = 1.2;
+
+  /// The letter spacing of the profile's all-caps title.
+  static const double titleSpacing = 1.5;
 }
 
 /// The few sizes that are neither a gap nor a corner: measures a layout has to
@@ -112,4 +216,29 @@ abstract final class AppSizes {
   /// The app's icon at the top of the start screen, the one place it is
   /// drawn inside the app rather than by the platform (#180).
   static const double startIcon = 88;
+
+  /// A progress spinner standing in for a button's label or icon.
+  static const double spinner = 20;
+
+  /// A progress spinner inside a row of text.
+  static const double spinnerSmall = 18;
+
+  /// The progress bar under a questionnaire's app bar.
+  static const double progressBar = 6;
+
+  /// The dev menu's banner under its app bar.
+  static const double devBanner = 28;
+
+  /// A language's flag.
+  static const double flagWidth = 32;
+  static const double flagHeight = 24;
+
+  /// The rounded square a profile row's icon sits in.
+  static const double tileIcon = 40;
+
+  /// A resource's thumbnail.
+  static const double thumbnail = 56;
+
+  /// Google's sign-in button, which wears its brand's shadow.
+  static const double googleButtonElevation = 2;
 }

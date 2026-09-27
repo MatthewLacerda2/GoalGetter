@@ -30,7 +30,7 @@ class RecentLessonsList extends StatelessWidget {
           AppLocalizations.of(context).recentLessons,
           style: Theme.of(context).textTheme.titleSmall,
         ),
-        const SizedBox(height: 10.0),
+        const SizedBox(height: AppSpacing.gap10),
         if (shown.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
@@ -51,7 +51,7 @@ class RecentLessonsList extends StatelessWidget {
                 for (var i = 0; i < shown.length; i++) ...[
                   if (i > 0)
                     Divider(
-                      height: 1,
+                      height: AppStroke.hairline,
                       color: Theme.of(context).colorScheme.outline,
                     ),
                   _RecentLessonRow(lesson: shown[i]),
@@ -88,13 +88,13 @@ class _RecentLessonRow extends StatelessWidget {
             '${lesson.accuracy.toStringAsFixed(0)}%',
             style: Theme.of(context).textTheme.titleSmall,
           ),
-          const SizedBox(width: 12.0),
+          const SizedBox(width: AppSpacing.sm),
           Icon(
             Icons.schedule,
-            size: 14,
+            size: AppIconSize.xs,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(width: 3.0),
+          const SizedBox(width: AppSpacing.gap3),
           Text(
             _formatTime(lesson.durationSeconds),
             style: Theme.of(context).textTheme.bodyMedium,

@@ -147,14 +147,14 @@ class _GoalSummary extends StatelessWidget {
             if (goal.isActive) const ActiveGoalBadge(),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.xs),
         Text(
           '${l10n.elo} ${goal.currentElo}',
           style: theme.textTheme.titleMedium?.copyWith(
             color: theme.colorScheme.secondary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
         if (goal.description.isNotEmpty)
           MarkdownBody(data: goal.description)
         else
@@ -196,10 +196,10 @@ class _GoalActions extends StatelessWidget {
             busy: busy == _Busy.activating,
             onPressed: onSetActive,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.sm),
           _ActionButton(
             label: l10n.deleteGoal,
-            color: scheme.error.withValues(alpha: 0.8),
+            color: scheme.error.withValues(alpha: AppOpacity.strong),
             busy: busy == _Busy.deleting,
             onPressed: onDelete,
           ),
@@ -238,10 +238,10 @@ class _ActionButton extends StatelessWidget {
       ),
       child: busy
           ? SizedBox(
-              height: 18,
-              width: 18,
+              height: AppSizes.spinnerSmall,
+              width: AppSizes.spinnerSmall,
               child: CircularProgressIndicator(
-                strokeWidth: 2,
+                strokeWidth: AppStroke.thick,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
             )

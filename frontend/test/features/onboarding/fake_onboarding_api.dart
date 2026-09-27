@@ -40,9 +40,9 @@ const rateLimited = ApiException(429, 'HTTP 429');
 /// A backend that answers the fixtures above. A non-null error field makes
 /// that call throw it; the last request of each call is recorded.
 class FakeOnboardingApi implements OnboardingApi {
-  Object? questionsError;
-  Object? planError;
-  Object? createError;
+  Exception? questionsError;
+  Exception? planError;
+  Exception? createError;
   String? lastPrompt;
   List<ObjectiveAnswer>? lastAnswers;
   GoalDraft? lastCreated;

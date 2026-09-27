@@ -1,12 +1,20 @@
 /// The house rules that no single file can answer for.
 ///
-/// Three rules, all run once over the whole frontend by
+/// Four rules, all run once over the whole frontend by
 /// `tool/frontend_linter.dart`:
 ///
 ///  1. `unused-l10n-key` — a key defined in the ARB files and read nowhere;
 ///  2. `missing-translation` — a key in the template locale that another
 ///     locale does not have, so a translation can never be half-done;
-///  3. `orphan-file` — a `.dart` file under `lib/` that nothing imports.
+///  3. `orphan-file` — a `.dart` file under `lib/` that `lib/main.dart` does
+///     not reach;
+///  4. `unused-member` — a public member nothing in `lib/` names again
+///     (`tool/dead_members.dart`).
+///
+/// **Only the app is a reader** (#227). A key, a file or a member that only a
+/// test reaches is code nobody runs, kept alive by the test that exercises
+/// it; so `test/` and `tool/` never count as a use. Test helpers live under
+/// `test/`.
 ///
 /// They are pure functions over maps of path to content: the linter does the
 /// reading, this file does the deciding, and the tests pass literals.
@@ -15,6 +23,7 @@ library;
 import 'dart:convert';
 
 import 'dart_source.dart';
+import 'dead_members.dart';
 
 /// The locale every other one is measured against.
 const String templateLocale = 'en';
@@ -22,8 +31,8 @@ const String templateLocale = 'en';
 /// The package name in `pubspec.yaml`, as `package:` imports spell it.
 const String packagePrefix = 'package:goal_getter/';
 
-/// Files under `lib/` that are allowed to have no importer: the entry point
-/// Flutter calls itself.
+/// Where the app starts: every file under `lib/` must be reachable from here
+/// through imports, exports and parts.
 const Set<String> rootDartFiles = {'lib/main.dart'};
 
 /// A rule broken by the project rather than by one line of one file.
@@ -97,10 +106,12 @@ List<ProjectViolation> missingTranslationViolations(
     if (locale == templateLocale) continue;
     final missing = template.difference(localeKeys[locale]!).toList()..sort();
     for (final key in missing) {
-      violations.add(ProjectViolation(
-        'missing-translation',
-        "Key '$key' is in app_$templateLocale.arb and not in app_$locale.arb",
-      ));
+      violations.add(
+        ProjectViolation(
+          'missing-translation',
+          "Key '$key' is in app_$templateLocale.arb and not in app_$locale.arb",
+        ),
+      );
     }
   }
   return violations;
@@ -139,48 +150,69 @@ String normalizePath(String path) {
 /// halves. `package:` imports of other packages and `dart:` imports are not
 /// files of ours, so they are dropped; `part of` names a library rather than
 /// pulling a file in, so it is not a directive that reaches anything.
-Set<String> importedPaths(String path, String source) =>
-    {for (final (_, target) in directiveTargets(path, source)) target};
+Set<String> importedPaths(String path, String source) => {
+  for (final (_, target) in directiveTargets(path, source)) target,
+};
 
 /// [importedPaths], each with the offset in [source] where its directive
 /// ends, so a rule about one import can say which line it is on.
-Iterable<(int, String)> directiveTargets(String path, String source) sync* {
+Iterable<(int, String)> directiveTargets(String path, String source) =>
+    directiveUses(path, source).map((use) => (use.$1, use.$2));
+
+/// [directiveTargets], each with the whole directive that names it
+/// (`import 'x.dart' show y`), for a rule about how a file is imported.
+Iterable<(int, String, String)> directiveUses(
+  String path,
+  String source,
+) sync* {
   final dir = path.contains('/')
       ? path.substring(0, path.lastIndexOf('/'))
       : '';
   for (final directive in _directive.allMatches(source)) {
+    final text = directive.group(0)!.trim();
     for (final match in _directiveUri.allMatches(directive.group(1)!)) {
       final uri = match.group(1)!;
       if (uri.startsWith(packagePrefix)) {
-        yield (directive.end, 'lib/${uri.substring(packagePrefix.length)}');
+        yield (
+          directive.end,
+          'lib/${uri.substring(packagePrefix.length)}',
+          text,
+        );
       } else if (!uri.startsWith('package:') && !uri.startsWith('dart:')) {
-        yield (directive.end, normalizePath('$dir/$uri'));
+        yield (directive.end, normalizePath('$dir/$uri'), text);
       }
     }
   }
 }
 
-/// Files under `lib/` that no source in [sources] imports, exports or parts.
+/// Files under `lib/` that the app never reaches: not [rootDartFiles], and
+/// not pulled in, directly or through other files, by one.
 ///
-/// [sources] is every hand-written Dart file of the frontend keyed by its
-/// path relative to `frontend/` — `test/` and `tool/` included, because a file
-/// only a test reaches is still reached.
+/// Reachability rather than "somebody imports it": two dead files importing
+/// each other are still dead, and a file only a test imports is code the app
+/// never runs (#227).
 List<ProjectViolation> orphanFileViolations(Map<String, String> sources) {
   final reached = <String>{};
-  for (final entry in sources.entries) {
-    reached.addAll(importedPaths(entry.key, entry.value));
+  final queue = [...rootDartFiles.where(sources.containsKey)];
+  while (queue.isNotEmpty) {
+    final path = queue.removeLast();
+    if (!reached.add(path)) continue;
+    queue.addAll(
+      importedPaths(path, sources[path]!).where(sources.containsKey),
+    );
   }
-  final orphans = sources.keys
-      .where((path) => path.startsWith('lib/'))
-      .where((path) => !rootDartFiles.contains(path))
-      .where((path) => !reached.contains(path))
-      .toList()
-    ..sort();
+  final orphans =
+      sources.keys
+          .where((path) => path.startsWith('lib/'))
+          .where((path) => !reached.contains(path))
+          .toList()
+        ..sort();
   return [
     for (final path in orphans)
       ProjectViolation(
         'orphan-file',
-        '$path is imported by nothing: wire it up or delete it',
+        '$path is not reached from lib/main.dart: wire it up or delete it '
+            '(a test importing it does not count)',
       ),
   ];
 }
@@ -189,22 +221,25 @@ List<ProjectViolation> orphanFileViolations(Map<String, String> sources) {
 ///
 /// [dartSources] is every hand-written Dart file keyed by its path relative to
 /// `frontend/`; [arbSources] is the raw text of each `app_<locale>.arb` keyed
-/// by its locale.
+/// by its locale; [generated] is the `*.g.dart` files, which name the
+/// `@riverpod` functions they wrap.
 List<ProjectViolation> projectViolations(
   Map<String, String> dartSources,
-  Map<String, String> arbSources,
-) {
+  Map<String, String> arbSources, {
+  Map<String, String> generated = const {},
+}) {
   final localeKeys = arbSources.map(
     (locale, source) => MapEntry(locale, arbKeys(source)),
   );
   final template = localeKeys[templateLocale] ?? <String>{};
-  final readable = <String>[
+  final lib = {
     for (final entry in dartSources.entries)
-      if (!entry.key.startsWith('tool/')) stripToCode(entry.value),
-  ];
+      if (entry.key.startsWith('lib/')) entry.key: entry.value,
+  };
   return [
-    ...unusedKeyViolations(template, readable),
+    ...unusedKeyViolations(template, lib.values.map(stripToCode)),
     ...missingTranslationViolations(localeKeys),
     ...orphanFileViolations(dartSources),
+    ...unusedMemberViolations(lib, generated),
   ];
 }

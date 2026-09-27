@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/core/services/session.dart';
-import 'package:goal_getter/app/dev/dev_routes.dart';
+import 'package:goal_getter/app/dev/dev_routes.dart' show devRoutes;
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/app/home/home_shell.dart';

@@ -35,19 +35,19 @@ jobs:
       # depend on `front-version`, which fails if what the runner installed is
       # not what the pin asks for (#147).
       - run: flutter --version
-      # The committed pubspec.lock, exactly (#192). `--enforce-lockfile` fails
-      # the run when the lock is stale - a pubspec.yaml change pushed without
-      # the `flutter pub get` that rewrites it - instead of resolving something
-      # nobody reviewed; and it checks each package's content hash. Locally
-      # `make setup` runs a plain `pub get`, which honours the lock too but may
-      # update it: that is where the lock changes, and the diff is reviewed.
-      - run: flutter pub get --enforce-lockfile
-        working-directory: frontend
+      # The committed pubspec.lock, exactly (#192), is installed by the
+      # targets themselves: `front-lint` and `front-test` depend on
+      # `front-deps` (`flutter pub get --enforce-lockfile`), so a local run and
+      # this one install the same packages the same way (#227). It fails the
+      # run when the lock is stale - a pubspec.yaml change pushed without the
+      # `flutter pub get` that rewrites it - instead of resolving something
+      # nobody reviewed, and checks each package's content hash.
 
       # The same targets `make frontend` runs locally: the gates are defined
       # once, in the Makefile, and CI calls them.
       #
-      # `front-lint` is the 400-line file limit plus `dart analyze`, which
+      # `front-lint` is the house rules (`tool/frontend_linter.dart`) plus
+      # `dart analyze`, which
       # (unlike `flutter analyze`) runs the riverpod_lint plugin (#169). A
       # warning fails it (#101); the infos are a separate, larger backlog and
       # still only report. The flags live in the Makefile, so there is one place
@@ -57,3 +57,10 @@ jobs:
 
       - name: Test
         run: make front-test
+
+      # The committed `*.g.dart` providers match their sources (#225):
+      # build_runner regenerates them and the step fails if anything changed.
+      # Not in `make frontend` (1-2 minutes); the pre-push hook runs it when a
+      # push touches a generator input.
+      - name: Generated providers are fresh
+        run: make front-codegen

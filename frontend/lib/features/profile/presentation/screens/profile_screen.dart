@@ -37,25 +37,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               _goalsSection(l10n),
-              const SizedBox(height: 28),
+              const SizedBox(height: AppSpacing.gap28),
 
               _preferencesSection(l10n, currentLanguage),
-              const SizedBox(height: 28),
+              const SizedBox(height: AppSpacing.gap28),
 
               _buildLogoutButton(),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.lg),
               Center(
                 child: Text(
                   l10n.profileVersionTag,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        letterSpacing: 1.5,
+                        letterSpacing: AppType.titleSpacing,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
             ],
           ),
         ),
@@ -70,7 +70,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionLabel(l10n.goals),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpacing.gap10),
         _tile(
           icon: Icons.flag_outlined,
           title: l10n.manageGoals,
@@ -89,7 +89,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionLabel(l10n.preferences),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpacing.gap10),
         _tile(
           icon: Icons.language,
           title: l10n.language,
@@ -106,14 +106,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             onPicked: ref.read(languageSyncProvider).tellBackend,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.sm),
         _tile(
           icon: Icons.contrast,
           title: l10n.theme,
           trailing: ThemeModeValue(mode: ref.watch(themeModeProvider)),
           onTap: () => showThemeModeSheet(context, ref),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.sm),
         _tile(
           icon: Icons.notifications_none,
           title: l10n.notifications,
@@ -131,7 +131,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Text(
       text.toUpperCase(),
       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            letterSpacing: 1.2,
+            letterSpacing: AppType.labelSpacing,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
     );
@@ -164,15 +164,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: AppSizes.tileIcon,
+                height: AppSizes.tileIcon,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: scheme.surfaceContainer,
                 ),
-                child: Icon(icon, color: scheme.onSurfaceVariant, size: 20),
+                child: Icon(icon, color: scheme.onSurfaceVariant, size: AppIconSize.md),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpacing.gap14),
               Expanded(
                 child: Text(
                   title,

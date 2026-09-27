@@ -87,24 +87,24 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   l10n.tellWhatYourGoalIs,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    height: 1.2,
+                    height: AppType.headingHeight,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   l10n.beDetailedOfYourGoal,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.xl),
                 _promptField(l10n, isLoading: isLoading),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
                 _nextButton(l10n, isLoading: isLoading),
               ],
             ),
@@ -135,14 +135,14 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.card),
-          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2.0),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: AppStroke.thick),
         ),
         contentPadding: const EdgeInsets.all(AppSpacing.md),
       ),
       maxLength: 500,
       maxLines: 7,
       minLines: 5,
-      style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+      style: theme.textTheme.bodyLarge?.copyWith(height: AppType.bodyHeight),
       onChanged: (value) => setState(() {}),
       textInputAction: TextInputAction.newline,
     );
@@ -163,10 +163,10 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
         ),
         child: isLoading
             ? SizedBox(
-                height: 20,
-                width: 20,
+                height: AppSizes.spinner,
+                width: AppSizes.spinner,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: AppStroke.thick,
                   valueColor: AlwaysStoppedAnimation<Color>(scheme.onPrimary),
                 ),
               )

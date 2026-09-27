@@ -30,13 +30,13 @@ class QuestionOptionTile extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: isSelected
-                ? scheme.primary.withValues(alpha: 0.08)
+                ? scheme.primary.withValues(alpha: AppOpacity.wash)
                 : scheme.surfaceContainer,
             border: Border.all(
               color: isSelected
                   ? scheme.primary
-                  : scheme.outline.withValues(alpha: 0.2),
-              width: 2.0,
+                  : scheme.outline.withValues(alpha: AppOpacity.tint),
+              width: AppStroke.thick,
             ),
             borderRadius: BorderRadius.circular(AppRadius.card),
           ),

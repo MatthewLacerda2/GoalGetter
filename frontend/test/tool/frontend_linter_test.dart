@@ -4,119 +4,19 @@ import '../../tool/frontend_linter.dart';
 
 /// One test per rule in `tool/frontend_linter.dart`: a snippet that must fail
 /// and a snippet that must pass. A rule nobody has seen fail is a rule nobody
-/// can trust.
+/// can trust. The rules split into their own files have their tests beside
+/// this one: `design_rules_test.dart`, `string_rules_test.dart`,
+/// `layer_rules_test.dart` and `project_rules_test.dart`.
 
 const _screen = 'lib/features/home/presentation/screens/home_screen.dart';
 const _themeFile = 'lib/core/theme/app_theme.dart';
 const _devFile = 'lib/app/dev/dev_menu_screen.dart';
 const _coreFile = 'lib/core/widgets/failure.dart';
 
-/// One ARB file, as its raw text: the linter reads the files, not a model.
-String _arb(Map<String, String> messages) {
-  final entries = messages.entries
-      .map((e) => '  "${e.key}": "${e.value}"')
-      .join(',\n');
-  return '{\n$entries\n}';
-}
-
-List<String> _projectRules(
-  Map<String, String> dart,
-  Map<String, String> arb,
-) =>
-    projectViolations(dart, arb).map((v) => v.rule).toList();
-
 List<String> _rules(String source, {String path = _screen}) =>
     lintSource(path, source).map((v) => v.rule).toList();
 
 void main() {
-  group('no-color-literal', () {
-    test('fails on Colors.* and on a hex Color', () {
-      expect(
-        _rules('final a = Colors.red;'),
-        contains('no-color-literal'),
-      );
-      expect(
-        _rules('const a = Color(0xFF00FF00);'),
-        contains('no-color-literal'),
-      );
-      expect(
-        _rules('final a = Color.fromARGB(255, 1, 2, 3);'),
-        contains('no-color-literal'),
-      );
-    });
-
-    test('passes on a colour taken from the theme', () {
-      expect(
-        _rules('final a = Theme.of(context).colorScheme.primary;'),
-        isEmpty,
-      );
-    });
-
-    test('passes inside lib/core/theme/, where the values live', () {
-      expect(_rules('const a = Colors.red;', path: _themeFile), isEmpty);
-    });
-
-    test('ignores a colour named in a comment or a string', () {
-      expect(_rules('// Colors.red is forbidden here.'), isEmpty);
-      expect(_rules("final a = 'Color(0xFF0000FF)';"), isEmpty);
-    });
-  });
-
-  group('no-font-size', () {
-    test('fails on a hardcoded fontSize', () {
-      expect(
-        _rules('const s = TextStyle(fontSize: 14);'),
-        contains('no-font-size'),
-      );
-    });
-
-    test('passes on a size taken from the text theme', () {
-      expect(
-        _rules('final s = Theme.of(context).textTheme.bodyMedium;'),
-        isEmpty,
-      );
-    });
-  });
-
-  group('no-radius-literal', () {
-    test('fails on a radius written as a number', () {
-      expect(
-        _rules('final r = BorderRadius.circular(12);'),
-        contains('no-radius-literal'),
-      );
-      expect(
-        _rules('const r = Radius.circular(8.0);'),
-        contains('no-radius-literal'),
-      );
-    });
-
-    test('passes on an AppRadius token', () {
-      expect(_rules('final r = BorderRadius.circular(AppRadius.card);'), isEmpty);
-      expect(_rules('const r = AppRadius.cardBorder;'), isEmpty);
-    });
-  });
-
-  group('no-spacing-literal', () {
-    test('fails on a padding written as a number', () {
-      expect(
-        _rules('const p = EdgeInsets.all(16);'),
-        contains('no-spacing-literal'),
-      );
-      expect(
-        _rules('const p = EdgeInsets.symmetric(horizontal: 12, vertical: 8);'),
-        contains('no-spacing-literal'),
-      );
-    });
-
-    test('passes on an AppSpacing token, and on EdgeInsets.zero', () {
-      expect(
-        _rules('const p = EdgeInsets.all(AppSpacing.md);'),
-        isEmpty,
-      );
-      expect(_rules('const p = EdgeInsets.zero;'), isEmpty);
-    });
-  });
-
   group('function-length', () {
     String body(int statements) {
       final lines = List.generate(statements, (i) => '  final a$i = $i;');
@@ -148,46 +48,6 @@ void main() {
     test('fails at 401 lines and passes at 400', () {
       expect(_rules('${'// line\n' * 401}'), contains('file-length'));
       expect(_rules('${'// line\n' * 400}'), isEmpty);
-    });
-  });
-
-  group('hardcoded-string', () {
-    test('fails on a sentence written in Dart', () {
-      expect(_rules("const t = Text('Retry');"), contains('hardcoded-string'));
-      expect(
-        _rules("const f = TextField(hintText: 'Your answer');"),
-        contains('hardcoded-string'),
-      );
-      expect(
-        _rules("const i = IconButton(tooltip: 'Go back');"),
-        contains('hardcoded-string'),
-      );
-    });
-
-    test('fails on a format that spells a word of its own', () {
-      expect(_rules(r"final t = Text('${days}d');"),
-          contains('hardcoded-string'));
-    });
-
-    test('fails on a literal the screen draws exactly, even punctuation', () {
-      expect(_rules(r"final t = Text('  \u00b7  ');"),
-          contains('hardcoded-string'));
-    });
-
-    test('passes on a string that came from the ARB files', () {
-      expect(_rules('final t = Text(l10n.retry);'), isEmpty);
-      expect(_rules('final t = Text(AppLocalizations.of(context).no);'),
-          isEmpty);
-    });
-
-    test('passes on a value a screen only formats', () {
-      expect(_rules(r"final t = Text('$percent%');"), isEmpty);
-      expect(_rules(r"final t = Text('$index / $total');"), isEmpty);
-      expect(_rules("final t = Text('');"), isEmpty);
-    });
-
-    test('passes inside lib/app/dev/, the menu we run ourselves', () {
-      expect(_rules("const t = Text('Dev menu');", path: _devFile), isEmpty);
     });
   });
 
@@ -281,115 +141,64 @@ void main() {
       expect(_rules('// DevFixtures is for the dev menu.'), isEmpty);
       expect(_rules("final s = 'DevFixtures';"), isEmpty);
     });
-  });
 
-  group('unused-l10n-key', () {
-    test('fails on a key no Dart file names', () {
-      expect(
-        _projectRules(
-          {'lib/main.dart': 'final s = l10n.kept;'},
-          {'en': _arb({'kept': 'Kept', 'dead': 'Dead'})},
-        ),
-        ['unused-l10n-key'],
-      );
+    // #227: the name rule reads names, so an alias declared in lib/app/dev/
+    // carried the fixtures out under another one. Only `devRoutes` crosses.
+    test('fails on reaching lib/app/dev/ for anything but devRoutes', () {
+      const router = 'lib/app/router/app_router.dart';
+      for (final source in [
+        "import 'package:goal_getter/app/dev/dev_fixtures.dart';",
+        "import 'package:goal_getter/app/dev/dev_routes.dart';",
+        "import '../dev/dev_routes.dart' show devRoutes, Fx;",
+        "export 'package:goal_getter/app/dev/dev_routes.dart';",
+      ]) {
+        expect(
+          _rules(source, path: router),
+          contains('no-dev-fixture'),
+          reason: source,
+        );
+      }
     });
 
-    test('passes on a key read from code, even inside an interpolation', () {
+    test('passes on the router importing devRoutes alone', () {
       expect(
-        _projectRules(
-          {'lib/main.dart': r"final s = '${l10n.kept} (1)';"},
-          {'en': _arb({'kept': 'Kept'})},
-        ),
-        isEmpty,
-      );
-    });
-
-    test('a key named only inside a string or a comment is dead', () {
-      expect(
-        _projectRules(
-          {'lib/main.dart': "// kept\nfinal s = 'a kept thing';"},
-          {'en': _arb({'kept': 'Kept'})},
-        ),
-        ['unused-l10n-key'],
-      );
-    });
-  });
-
-  group('missing-translation', () {
-    test('fails on a key the template has and another locale does not', () {
-      expect(
-        _projectRules(
-          {'lib/main.dart': 'final s = l10n.hello;'},
-          {'en': _arb({'hello': 'Hello'}), 'pt': _arb({})},
-        ),
-        ['missing-translation'],
-      );
-    });
-
-    test('passes when every locale has every key', () {
-      expect(
-        _projectRules(
-          {'lib/main.dart': 'final s = l10n.hello;'},
-          {'en': _arb({'hello': 'Hello'}), 'pt': _arb({'hello': 'Ola'})},
+        _rules(
+          "import 'package:goal_getter/app/dev/dev_routes.dart'\n"
+          '    show devRoutes;',
+          path: 'lib/app/router/app_router.dart',
         ),
         isEmpty,
       );
     });
   });
 
-  group('orphan-file', () {
-    test('fails on a file under lib/ that nothing imports', () {
+  group('test-length', () {
+    String aTest(int statements) {
+      final lines = List.generate(statements, (i) => '    final a$i = $i;');
+      return "  test('t', () {\n${lines.join('\n')}\n  });\n";
+    }
+
+    const testFile = 'test/features/a_test.dart';
+
+    test('fails on a test of 51 code lines', () {
+      // test( + 49 statements + closing line = 51.
       expect(
-        _projectRules({'lib/a.dart': '', 'lib/main.dart': ''}, {}),
-        ['orphan-file'],
+        _rules('void main() {\n${aTest(49)}}\n', path: testFile),
+        contains('test-length'),
       );
     });
 
-    test('passes on a file a package: or a relative import reaches', () {
-      expect(
-        _projectRules({
-          'lib/a.dart': "import 'package:goal_getter/b.dart';",
-          'lib/b.dart': "import '../lib/c.dart';",
-          'lib/c.dart': '',
-          'lib/main.dart': "import 'a.dart';",
-        }, {}),
-        isEmpty,
-      );
+    test('passes on a test of 50 code lines', () {
+      expect(_rules('void main() {\n${aTest(48)}}\n', path: testFile), isEmpty);
     });
 
-    test('a file only a test reaches is reached', () {
-      expect(
-        _projectRules({
-          'lib/a.dart': '',
-          'test/a_test.dart': "import 'package:goal_getter/a.dart';",
-        }, {}),
-        isEmpty,
-      );
+    test("a test file's main is the list of its tests, not a function", () {
+      final many = List.generate(4, (_) => aTest(20)).join();
+      expect(_rules('void main() {\n$many}\n', path: testFile), isEmpty);
     });
 
-    // The web half of a conditional import is named after the `if`, not
-    // before it, and reading only the first URI made it an orphan (#84).
-    test('both halves of a conditional import are reached', () {
-      expect(
-        _projectRules({
-          'lib/main.dart':
-              "import 'a.dart' if (dart.library.js_interop) 'a_web.dart';",
-          'lib/a.dart': '',
-          'lib/a_web.dart': '',
-        }, {}),
-        isEmpty,
-      );
-    });
-
-    test('a library only its own part points back at is still an orphan', () {
-      expect(
-        _projectRules({
-          'lib/a.dart': "part 'a_part.dart';",
-          'lib/a_part.dart': "part of 'a.dart';",
-          'lib/main.dart': '',
-        }, {}),
-        ['orphan-file'],
-      );
+    test('a test outside test/ is not judged as one', () {
+      expect(_rules(aTest(49), path: 'tool/a.dart'), isEmpty);
     });
   });
 }

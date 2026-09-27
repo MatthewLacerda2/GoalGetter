@@ -98,7 +98,7 @@ void main() {
     expect(expired, 1);
     expect(storage.getAccessToken(), isNull);
     expect(storage.getRefreshToken(), isNull);
-    expect(storage.readStoredUserLanguageOrNull(), 'en',
+    expect(storage.readUserLanguageSync(), 'en',
         reason: 'an expired session is not a sign-out: preferences stay');
   });
 

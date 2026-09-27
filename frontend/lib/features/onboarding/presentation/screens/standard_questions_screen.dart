@@ -89,12 +89,12 @@ class _StandardQuestionsScreenState
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(6),
+          preferredSize: const Size.fromHeight(AppSizes.progressBar),
           child: LinearProgressIndicator(
             value: (state.index + 1) / _asked.length,
             backgroundColor: scheme.surfaceContainer,
             valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
-            minHeight: 6,
+            minHeight: AppSizes.progressBar,
           ),
         ),
       ),
@@ -145,7 +145,7 @@ class _QuestionView extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 24.0),
+          const SizedBox(height: AppSpacing.xl),
           for (final optionKey in question.optionKeys)
             if (standardOptionLabel(l10n, question.key, optionKey)
                 case final label?)

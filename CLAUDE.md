@@ -66,7 +66,15 @@ catches one ahead of it (#147). Upgrading is that one line plus an analyzer run,
 SDK at `~/development/flutter` moves with it.
 
 Run `make backend` or `make frontend` for the side you touched, or `make check`
-for both, and see it pass **before pushing**.
+for both, and see it pass **before pushing**. The frontend gates install exactly
+`pubspec.lock` first (`front-deps`), so a lock that moved since the last `pub get` is
+not a false red (#227); `make front-test FILE=test/...` runs one test file.
+
+**The Riverpod providers are generated, and the `*.g.dart` files are committed** (#225).
+After changing an `@riverpod` function or class, run **`make front-codegen`** (build_runner:
+~30 s warm, ~2 min cold) and commit what it rewrites; it fails when anything was stale, and
+CI runs it on every frontend pull request (the pre-push hook, when the push touches a file
+that parts a `.g.dart`).
 
 `make backend` is five gates, cheapest first:
 
@@ -156,12 +164,14 @@ the backend tests; if it fails, you have things to fix.
   easier to read — it keeps the exemption either way. No prompt needs the
   marker today: every one of them is far under 350 lines.
 - **50 lines** per endpoint and per test function.
-- **400 lines** per hand-written `.dart` file, and **60 code lines** per
-  function. `make front-lint` (`frontend/tool/frontend_linter.dart`) enforces
-  those, that the theme is the only source of colour, type, radius and spacing,
-  and that every string a student reads comes from the ARB files — a key read
-  nowhere, a key missing from a locale, a sentence written in Dart and a file
-  under `lib/` nobody imports all fail it.
+- **400 lines** per hand-written `.dart` file, **60 code lines** per function and
+  **50 per test**. `make front-lint` (`frontend/tool/frontend_linter.dart`) enforces
+  those, that the theme is the only source of colour (an alpha included), type,
+  radius, spacing and size — a `SizedBox(height: 24)` fails like an `EdgeInsets.all(16)` —
+  and that every string a student reads comes from the ARB files, in any named argument
+  of a constructor. A key read nowhere, a key missing from a locale, a file `lib/main.dart`
+  does not reach and a public member nothing in `lib/` names all fail it: **a test's use
+  does not count**, so a test never keeps dead code alive (#227).
 - **A Flutter feature is `data/` → controller → screen** (#222). `data/<feature>_api.dart`
   talks HTTP; a code-generated controller under `presentation/controllers/` holds the
   screen's state and calls the API; the screen only watches it. A feature's
@@ -400,11 +410,13 @@ remind him and ask.
 - **Nothing backs the database up.** Since #157 the data survives a restart, which
   is the point — and makes losing it possible in a way it never was. No issue covers
   this yet.
-- **Analyzer backlog: 0 warnings, 375 infos** (2026-09-26, `dart analyze` on `main`;
+- **Analyzer backlog: 0 warnings, 263 infos** (2026-09-27, `dart analyze` after #227;
   riverpod_lint contributes none). A warning now fails `make front-lint`, riverpod_lint's
-  included since it runs `dart analyze` rather than `flutter analyze` (#169); the infos are
-  a separate, larger backlog and still only report. Next step: clear them and let them
-  block too (`--fatal-infos`).
+  included since it runs `dart analyze` rather than `flutter analyze` (#169), and the lints
+  whose finding is a bug (`unawaited_futures`, `use_build_context_synchronously`,
+  `cast_nullable_to_non_nullable`, …) are warnings since #227 — the list and the reason
+  for each is `frontend/analysis_options.yaml`. The infos left are style and still only
+  report. Next step: clear them and let them block too (`--fatal-infos`).
 - **The deploy now runs a job that spends money.** `docker-compose.yml` carries a
   `nightly` service (#89, #96): one process that fills the null embeddings at **00:00**
   and runs the context → questions → resources chain for each qualifying student at
