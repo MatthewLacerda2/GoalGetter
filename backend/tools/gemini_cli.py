@@ -56,8 +56,8 @@ from backend.services.gemini.student_context.student_context import (
     gemini_review_student_context,
 )
 
-# A goal id is only a foreign key here: the resource search takes one to stamp
-# on the Resource rows it builds, and this command never stores them.
+# A goal id is only a foreign key here: the video search takes one to stamp on
+# the Resource rows it builds, and nothing that uses this stores them.
 UNSAVED_GOAL_ID = "00000000-0000-0000-0000-000000000000"
 
 # Every prompt names the student's language (#173); the command writes to an
@@ -224,7 +224,6 @@ USE_CASES: list[UseCase] = [
         "<goal-name> <goal-description> [student-context] [language: en|pt|es|fr|de]",
         2,
         lambda a: (
-            UNSAVED_GOAL_ID,
             a[0],
             a[1],
             a[2] if len(a) > 2 else None,

@@ -10,9 +10,12 @@ import re
 import httpx
 import pytest
 
+from backend.services.resources.found_pages import page_resources
 from backend.services.resources.link_validation import validate_resources
 from backend.tests.fixtures.captured import grounded_response, web_client
 from backend.tests.test_services.test_resource_search import described, run
+
+GOAL = "00000000-0000-0000-0000-000000000001"
 
 
 @pytest.mark.asyncio
@@ -29,7 +32,7 @@ async def test_the_captured_sources_become_the_pages_they_redirect_to():
         200, headers={"content-type": "application/pdf"}
     )
 
-    kept = await validate_resources(found.pages, client=web_client(web))
+    kept = await validate_resources(page_resources(GOAL, found.pages), client=web_client(web))
 
     assert [r.link for r in kept] == [
         "https://chess.com/page0",

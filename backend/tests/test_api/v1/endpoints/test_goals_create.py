@@ -4,8 +4,12 @@ import pytest
 from sqlalchemy import select
 
 from backend.models.goal import Goal
-from backend.repositories.onboarding_repository import UNKNOWN_AUTHOR, OnboardingRepository
-from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS, SYSTEM_AUTHOR
+from backend.repositories.onboarding_repository import (
+    SYSTEM_AUTHOR,
+    UNKNOWN_AUTHOR,
+    OnboardingRepository,
+)
+from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
 
 ENDPOINT = "/api/v1/goals"
 CHAIN = "backend.api.v1.endpoints.goals.kickoff_student_chain"

@@ -8,14 +8,12 @@ the first real student with no resources.
 import re
 
 from backend.core.language import Language
-from backend.models.resource import StudyResourceType
 from backend.services.gemini.resources.grounding import web_sources
 from backend.services.gemini.resources.schema import DescribedSource, DescribedSources
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.tests.fixtures.captured import grounded_response
 from backend.tests.fixtures.gemini_client import answer, api_error, fake_gemini
 
-GOAL = "00000000-0000-0000-0000-000000000001"
 REDIRECT = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/"
 
 
@@ -35,7 +33,7 @@ async def run(picks: DescribedSources, language=Language.PORTUGUESE, *failures):
     """The search against the captured grounded response, then `picks` as the
     description - after `failures`, which the describing call meets first."""
     with fake_gemini(grounded_response(), *failures, answer(picks)) as gemini:
-        found = await search_resources(GOAL, "Xadrez", "Aprender xadrez", "Beginner", [], language)
+        found = await search_resources("Xadrez", "Aprender xadrez", "Beginner", [], language)
     return found, gemini
 
 
@@ -75,15 +73,14 @@ async def test_three_of_each_type_at_most():
     found, _ = await run(described(*((n, "webpage") for n in range(6))))
 
     assert [page.name for page in found.pages] == ["N0", "N1", "N2"]
-    assert {page.resource_type for page in found.pages} == {StudyResourceType.webpage}
+    assert {page.resource_type for page in found.pages} == {"webpage"}
 
 
-async def test_the_rows_carry_the_description_and_the_video_query_and_no_embedding():
+async def test_the_pages_carry_the_description_and_the_video_query_and_no_embedding():
     found, gemini = await run(described((2, "pdf")))
 
     (page,) = found.pages
     assert (page.name, page.description, page.language) == ("N2", "d", "pt")
-    assert page.description_embedding is None
     assert found.video_query == "xadrez para iniciantes"
     assert gemini.embedded == []
 

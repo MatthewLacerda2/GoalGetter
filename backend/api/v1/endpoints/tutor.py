@@ -9,9 +9,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_active_goal
+from backend.api.v1.student_dependencies import get_current_user
 from backend.core import clock
 from backend.core.database import get_db
-from backend.core.security import get_current_user
 from backend.models.chat_message import ChatMessage
 from backend.models.goal import Goal
 from backend.models.student import Student

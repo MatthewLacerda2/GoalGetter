@@ -4,14 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.api.v1.student_dependencies import get_current_user, remember_language
 from backend.core import clock
 from backend.core.config import settings
 from backend.core.database import get_db
 from backend.core.language import Language, requested_language
 from backend.core.security import (
     create_access_token,
-    get_current_user,
-    remember_language,
     verify_google_token,
     verify_google_token_header,
 )

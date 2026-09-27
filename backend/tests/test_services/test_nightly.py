@@ -18,8 +18,9 @@ from unittest.mock import patch
 import pytest
 
 from backend.repositories.student_context_repository import StudentContextRepository
-from backend.services.jobs.nightly import decide, run_for_student, run_nightly
-from backend.tests.fixtures.jobs import NIGHTLY, chain_gemini, resource
+from backend.services.jobs.nightly import run_for_student, run_nightly
+from backend.services.jobs.nightly_decision import decide
+from backend.tests.fixtures.jobs import NIGHTLY, chain_gemini, page
 
 
 def utc(*args) -> datetime:
@@ -92,7 +93,7 @@ async def test_a_student_who_answered_something_gets_context_then_questions(
     await test_db.commit()
 
     calls = []
-    with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
+    with chain_gemini(test_db, calls, found=[page("https://good.dev/a")]):
         assert await run_nightly(THURSDAY_RUN) == (1, 1)
 
     assert [name for name, _ in calls] == ["context"]
@@ -108,7 +109,7 @@ async def test_resources_are_searched_on_monday_and_only_then(
     await test_db.commit()
 
     calls = []
-    with chain_gemini(test_db, calls, found=[resource(goal.id, "https://good.dev/a")]):
+    with chain_gemini(test_db, calls, found=[page("https://good.dev/a")]):
         assert await run_nightly(MONDAY_RUN) == (1, 1)
 
     assert [name for name, _ in calls] == ["context", "resources"]

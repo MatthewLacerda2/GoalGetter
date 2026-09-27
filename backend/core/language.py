@@ -8,7 +8,7 @@ already use, so the app's stored preference is the enum's value as is.
 the choice on every request in the `X-Student-Language` header — from the start
 screen's selector, defaulting to the phone's language, and from the profile —
 and the backend mirrors it onto `students.language` whenever it differs
-(`core/security.py`). That one mechanism is also how a student who signed up
+(`api/v1/student_dependencies.py`). That one mechanism is also how a student who signed up
 before the column existed gets one: his next request fills it. Until then the
 column is null, which honestly means "not told yet".
 

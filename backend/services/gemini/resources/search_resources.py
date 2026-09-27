@@ -8,14 +8,19 @@ every link this returns is one Google found; none is one Gemini remembers.
 
 Videos are not found here: the second call writes a search query, and
 `services/resources/youtube_search.py` asks the YouTube Data API for them.
+
+What comes back is content - `FoundPage`s - never `Resource` rows: the Gemini
+layer writes content and the caller decides what the database holds (#211, the
+import contracts in backend/pyproject.toml). `services/resources/found_pages.py`
+turns them into rows.
 """
 
 import logging
 from dataclasses import dataclass
+from typing import Literal
 
 from backend.core.config import settings
 from backend.core.language import Language
-from backend.models.resource import Resource, StudyResourceType
 from backend.services.gemini.client.gemini_call import generate, grounded_search
 from backend.services.gemini.resources.grounding import WebSource, numbered, web_sources
 from backend.services.gemini.resources.prompt import describe_prompt, search_prompt
@@ -27,17 +32,27 @@ logger = logging.getLogger(__name__)
 PER_TYPE = 3
 
 
+@dataclass(frozen=True)
+class FoundPage:
+    """One page the search found and Gemini described. `link` is still Google's
+    redirect (`validate_resources` resolves it); `language` is two letters."""
+
+    resource_type: Literal["webpage", "pdf"]
+    name: str
+    description: str
+    language: str
+    link: str
+
+
 @dataclass
 class ResourceSearch:
-    """What the search found: pages whose `link` is still Google's redirect
-    (`validate_resources` resolves it), and the query to find videos with."""
+    """What the search found, and the query to find videos with."""
 
-    pages: list[Resource]
+    pages: list[FoundPage]
     video_query: str
 
 
 async def search_resources(
-    goal_id: str,
     goal_name: str,
     goal_description: str,
     student_context: str | None = None,
@@ -71,13 +86,11 @@ async def search_resources(
         describe_prompt(goal_name, context, numbered(sources), tongue),
         DescribedSources,
     )
-    return ResourceSearch(pages_from(goal_id, sources, described.resources), described.video_query)
+    return ResourceSearch(pages_from(sources, described.resources), described.video_query)
 
 
-def pages_from(
-    goal_id: str, sources: list[WebSource], described: list[DescribedSource]
-) -> list[Resource]:
-    """A row per described source, its link the source's own. A number that
+def pages_from(sources: list[WebSource], described: list[DescribedSource]) -> list[FoundPage]:
+    """A page per described source, its link the source's own. A number that
     points at no source, or at one already taken, is dropped, and so is a
     fourth page of one type."""
     pages, used, per_type = [], set(), dict.fromkeys(("webpage", "pdf"), 0)
@@ -90,9 +103,8 @@ def pages_from(
         used.add(item.source)
         per_type[item.resource_type] += 1
         pages.append(
-            Resource(
-                goal_id=goal_id,
-                resource_type=StudyResourceType(item.resource_type),
+            FoundPage(
+                resource_type=item.resource_type,
                 name=item.name,
                 description=item.description,
                 language=item.language.lower()[:2],

@@ -5,23 +5,28 @@ A or D - a student learns the position before the subject, and his rating then
 measures that. Arithmetic decides what appears (CLAUDE.md), so the order is
 shuffled here, once, before the question is stored; from then on it is fixed and
 every screen shows the same order.
+
+It takes the question as plain values, not as Gemini's `LessonQuestionItem`:
+this is arithmetic, and arithmetic never imports the Gemini layer (#211, the
+import contracts in backend/pyproject.toml).
 """
 
 import random
 
 from backend.models.question import Question
-from backend.services.gemini.lesson.schema import LessonQuestionItem
 
 
-def shuffled_question(goal_id, item: LessonQuestionItem, rng: random.Random) -> Question:
-    """The stored question for `item`, its four options in a random order and
-    `right_answer_index` following the right one to wherever it landed."""
-    options = [item.option_a, item.option_b, item.option_c, item.option_d]
-    right = options[item.correct_option_index]
+def shuffled_question(
+    goal_id, text: str, options: list[str], right_index: int, rng: random.Random
+) -> Question:
+    """The stored question: its four `options` in a random order, and
+    `right_answer_index` following the one at `right_index` to wherever it landed."""
+    options = list(options)
+    right = options[right_index]
     rng.shuffle(options)
     return Question(
         goal_id=goal_id,
-        text=item.question,
+        text=text,
         option_a=options[0],
         option_b=options[1],
         option_c=options[2],

@@ -23,6 +23,7 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.gemini.client.gemini_guard import run_gemini_background
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.services.jobs.steps.language import student_language
+from backend.services.resources.found_pages import page_resources
 from backend.services.resources.link_validation import validate_resources
 from backend.services.resources.youtube_search import search_videos
 
@@ -56,11 +57,11 @@ async def _resources_for_goal(session, goal, reading: str, language: Language) -
     # Nobody is waiting on it, so each of its calls retries on the background
     # budget (backend/services/gemini/client/gemini_retry.py).
     search = await run_gemini_background(
-        search_resources, str(goal.id), goal.name, goal.description, reading, held, language
+        search_resources, goal.name, goal.description, reading, held, language
     )
     async with httpx.AsyncClient() as client:
         videos = await search_videos(client, str(goal.id), search.video_query, language)
-        found = search.pages + videos
+        found = page_resources(str(goal.id), search.pages) + videos
         logger.info("Found %d resources for goal %s", len(found), goal.id)
         verified = await validate_resources(found, client=client)
 

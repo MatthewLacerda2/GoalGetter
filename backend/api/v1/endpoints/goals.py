@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_owned_goal
+from backend.api.v1.student_dependencies import get_current_user
 from backend.core import clock
 from backend.core.database import get_db
 from backend.core.language import Language, requested_language
 from backend.core.rate_limiter import limiter
-from backend.core.security import get_current_user
 from backend.models.goal import Goal
 from backend.models.student import Student
 from backend.repositories.goal_repository import GoalRepository
@@ -35,6 +35,7 @@ from backend.services.gemini.onboarding.onboarding import generate_onboarding_qu
 from backend.services.gemini.onboarding.study_plan import generate_study_plan
 from backend.services.gemini.output_language import output_language
 from backend.services.jobs.student_chain import kickoff_student_chain
+from backend.services.onboarding.standard_answers import resolve_standard_answers
 from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
 
 router = APIRouter()
@@ -154,9 +155,8 @@ async def standard_answers(
     will (#132). Answers so far are worth keeping, so a partial list is normal
     and an empty one is a no-op.
     """
-    await OnboardingRepository(db).save_standard_answers(
-        goal.id, [(a.question_key, a.option_key, a.total_seconds) for a in payload.answers]
-    )
+    answers = [(a.question_key, a.option_key, a.total_seconds) for a in payload.answers]
+    await OnboardingRepository(db).save_standard_answers(goal.id, resolve_standard_answers(answers))
     await db.commit()
 
 

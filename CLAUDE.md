@@ -71,9 +71,10 @@ for both, and see it pass **before pushing**.
 `make backend` is five gates, cheapest first:
 
 - **`make back-lint`** — the house rules below (`backend/tests/backend_linter.py`),
-  then `ruff check` and `ruff format --check`. The rule set, and the reason for
-  each choice in it, is `backend/pyproject.toml`. **`make back-fix`** applies
-  exactly what this gate checks, so start there rather than editing by hand.
+  the layer contracts (import-linter), then `ruff check` and `ruff format --check`. The
+  rule set, the contracts, and the reason for each choice in them, is
+  `backend/pyproject.toml`. **`make back-fix`** applies what ruff checks, so start
+  there rather than editing by hand.
 - **`make back-deadcode`** — `vulture`: a function, class or method no other
   module reaches. The whitelist for what only FastAPI, SQLAlchemy or `mock`
   calls lives in `backend/tools/deadcode.py`, four names long, each naming its
@@ -141,7 +142,8 @@ goes into one — a Dockerfile that would break the deploy breaks the pull reque
 
 ## House rules
 
-`make back-lint` (`backend/tests/backend_linter.py`) enforces these. Run it before
+`make back-lint` (`backend/tests/backend_linter.py`, and import-linter for the
+layer contracts) enforces these. Run it before
 the backend tests; if it fails, you have things to fix.
 
 - **350 code lines** per `.py` file. Comment-only lines and docstrings are free;
@@ -167,9 +169,21 @@ the backend tests; if it fails, you have things to fix.
   no screen or widget imports `data/`. `make front-lint` enforces both;
   `frontend/tool/layer_rules.dart` says which folder holds what. A route's `extra`
   carries domain objects, never an icon, a colour or a translated string.
-- **Database access only through `backend/repositories/`.** No `select` /
-  `insert` / `update` / `delete` imports and no `db.execute` / `db.add` /
-  `db.delete` anywhere else.
+- **Database access only through `backend/repositories/`.** Anywhere else, the only
+  things imported from SQLAlchemy (or a driver) are `AsyncSession`, to annotate, and
+  `sqlalchemy.exc`, to catch; and nothing calls a statement method (`execute`,
+  `add_all`, `scalars`...) on anything, or `add` / `delete` / `get` on a session,
+  whatever it is named (#211). Tests and fixtures are exempt.
+- **The layer boundaries are import contracts** (#211), in `backend/pyproject.toml` under
+  `[tool.importlinter]`, each with its reason, and `make back-lint` checks them
+  (import-linter follows indirect imports too): `core/` imports no other layer;
+  `models/` and `repositories/` never import `services/` or `api/`; the arithmetic
+  (`services/lessons/`, `services/jobs/nightly_decision.py`) never reaches
+  `services/gemini/`; the Gemini layer never imports `models/` or `repositories/` — it
+  returns content and the caller builds the rows; and only `services/gemini/client/`
+  imports `google.genai`. A broken contract is fixed by moving the code, never by an
+  exemption. Whether an endpoint may call a repository directly is **not decided** and
+  has no contract.
 
 When a file or endpoint outgrows its limit, one of two things is true. Either the
 vision is unclear — then clap back at the user: ask, or point out what is wrong or
