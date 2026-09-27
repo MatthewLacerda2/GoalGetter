@@ -133,10 +133,11 @@ since there is no venv here. CI has no image and overrides the interpreter
 - **Never pipe `make` into a chain that decides a push.** `make check | tail && git
   push` pushes on a red gate — a pipeline exits with its *last* command's status.
   Run the gate on its own line and read it.
-- Setup failures read as such: `back-test` failing on `GEMINI_API_KEY` wants
-  `make env`; a test database that never comes up prints its own log (the image is
+- Setup failures read as such: `back-migrations` failing on `GEMINI_API_KEY` wants
+  `make env` (`back-test` reads no `.env`: the suite pins every setting it uses,
+  `backend/tests/fixtures/environment.py`, #207); a test database that never comes up prints its own log (the image is
   `pgvector/pgvector:pg18`, the stack's own);
-  missing Dart packages want `make setup`; `No module named ruff` (or vulture, or mypy)
+  missing Dart packages want `make setup`; `No module named ruff` (or vulture, mypy, hypothesis)
   means the backend image predates `backend/requirements.txt` — `make back-image`; a
   frontend gate failing on the Flutter version means the SDK moved without the pin, so bump
   `environment.flutter` and let the same pull request re-analyze.
