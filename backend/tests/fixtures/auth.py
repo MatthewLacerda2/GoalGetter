@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from backend.utils.envs import GOOGLE_CLIENT_ID
+from backend.core.config import settings
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def mock_google_verify():
         "email": "test@example.com",
         "email_verified": True,
         "name": "Test User",
-        "aud": GOOGLE_CLIENT_ID,
+        "aud": settings.GOOGLE_CLIENT_ID,
     }
 
     with patch("google.oauth2.id_token.verify_oauth2_token", return_value=default_profile) as mock:

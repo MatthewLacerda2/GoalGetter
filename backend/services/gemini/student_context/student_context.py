@@ -1,4 +1,6 @@
+from backend.core.config import settings
 from backend.core.language import Language
+from backend.services.gemini.client.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.student_context.prompt import (
     get_context_review_prompt,
     get_student_context_prompt,
@@ -9,8 +11,6 @@ from backend.services.gemini.student_context.schema import (
     GeminiStudentContextResponse,
     StudentGoal,
 )
-from backend.utils.envs import GEMINI_PREMIUM_MODEL
-from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 
 
 def gemini_generate_student_context(
@@ -22,7 +22,7 @@ def gemini_generate_student_context(
     """The first reading of a learner, from their onboarding and the goal they
     are working on (#87, 2026-09-26). One context per student, not one per goal."""
     client = get_client()
-    model = GEMINI_PREMIUM_MODEL
+    model = settings.GEMINI_PREMIUM_MODEL
     config = get_gemini_config(GeminiStudentContext.model_json_schema())
 
     full_prompt = get_student_context_prompt(
@@ -59,7 +59,7 @@ def gemini_review_student_context(
     so they are shown to every review rather than only to the first impression.
     """
     client = get_client()
-    model = GEMINI_PREMIUM_MODEL
+    model = settings.GEMINI_PREMIUM_MODEL
     config = get_gemini_config(GeminiContextReview.model_json_schema())
 
     full_prompt = get_context_review_prompt(

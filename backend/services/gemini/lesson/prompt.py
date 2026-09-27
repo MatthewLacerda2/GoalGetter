@@ -1,7 +1,7 @@
+from backend.core.config import settings
 from backend.core.language import Language
 from backend.services.gemini.lesson.schema import AnsweredQuestion
 from backend.services.gemini.student_context.schema import GeminiStudentContext
-from backend.utils.envs import QUESTIONS_PER_GENERATION
 
 # What every exercise must be, lesson or placement (the user, 2026-09-26).
 # "Exercise", not "question", on purpose: an item may be an instruction ("Pick
@@ -86,7 +86,7 @@ def get_lesson_generation_prompt(
     Exercises he got wrong, with the option he picked - what he believes instead:
     {format_wrong(answered_wrong or [])}
 
-    Write exactly {QUESTIONS_PER_GENERATION} exercises, as simple as possible while one
+    Write exactly {settings.QUESTIONS_PER_GENERATION} exercises, as simple as possible while one
     step past what he got right. With nothing right yet, that is the most basic of the
     subject. Some may revisit what he got wrong, from another angle.
 

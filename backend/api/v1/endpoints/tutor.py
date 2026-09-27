@@ -19,8 +19,8 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.schemas.tutor import ChatExchange, LikeRequest, TutorMessageRequest
 from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
+from backend.services.gemini.client.gemini_guard import run_gemini
 from backend.services.gemini.output_language import output_language
-from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
 
@@ -81,6 +81,7 @@ async def send_message(
         StudentContextToChat(state=c.state, metacognition=c.metacognition)
         for c in await StudentContextRepository(db).list_valid(goal.student_id)
     ]
+    await db.commit()  # ends the reads: the connection is not held across Gemini (#219)
     reply = await run_gemini(
         gemini_messages_generator,
         history,

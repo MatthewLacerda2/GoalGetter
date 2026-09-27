@@ -37,10 +37,12 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from backend.core.config import settings
 from backend.core.language import Language
 from backend.schemas.goal import ObjectiveAnswer
 from backend.services.gemini.chat.chat import gemini_messages_generator
 from backend.services.gemini.chat.schema import GeminiChatMessage, StudentContextToChat
+from backend.services.gemini.client import gemini_configs
 from backend.services.gemini.lesson.lesson_generation import generate_lesson_questions
 from backend.services.gemini.onboarding.goal_validation import get_prompt_validation
 from backend.services.gemini.onboarding.onboarding import generate_onboarding_questions
@@ -52,8 +54,6 @@ from backend.services.gemini.student_context.student_context import (
     gemini_generate_student_context,
     gemini_review_student_context,
 )
-from backend.utils.envs import GEMINI_FAST_MODEL, GEMINI_PREMIUM_MODEL
-from backend.utils.gemini import gemini_configs
 
 # A goal id is only a foreign key here: the resource search takes one to stamp
 # on the Resource rows it builds, and this command never stores them.
@@ -74,16 +74,24 @@ class UseCase:
     arguments this entry builds against the signature of the function it
     calls. Without it nothing catches a use case whose inputs changed (#120) -
     the arity usually still matches, so only the types give it away.
+
+    `model_setting` names the settings field that holds the model, not the
+    model itself: the table is built at import, and a name read here would be a
+    copy a patched or overridden setting never reaches (#215).
     """
 
     name: str
-    model: str
+    model_setting: str
     usage: str
     least_args: int
     build: Callable[[list[str]], tuple]
     call: Callable[..., Any]
     sample: tuple[str, ...]
     note: str = ""
+
+    @property
+    def model(self) -> str:
+        return getattr(settings, self.model_setting)
 
 
 def _answers(pairs: list[str]) -> list[ObjectiveAnswer]:
@@ -119,7 +127,7 @@ def _context(state: str, metacognition: str) -> list[GeminiStudentContext]:
 USE_CASES: list[UseCase] = [
     UseCase(
         "goal-validation",
-        GEMINI_PREMIUM_MODEL,
+        "GEMINI_PREMIUM_MODEL",
         "<prompt>",
         1,
         lambda a: (a[0], CLI_LANGUAGE),
@@ -128,7 +136,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "objective-questions",
-        GEMINI_PREMIUM_MODEL,
+        "GEMINI_PREMIUM_MODEL",
         "<goal-name> <goal-description>",
         2,
         lambda a: (a[0], a[1], CLI_LANGUAGE),
@@ -137,7 +145,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "study-plan",
-        GEMINI_PREMIUM_MODEL,
+        "GEMINI_PREMIUM_MODEL",
         "<prompt> [question=answer ...]",
         1,
         lambda a: (a[0], _answers(a[1:]), CLI_LANGUAGE),
@@ -146,7 +154,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "tutor-reply",
-        GEMINI_FAST_MODEL,
+        "GEMINI_FAST_MODEL",
         "<goal-name> <goal-description> <student-message>",
         3,
         lambda a: (_turn(a[2]), [StudentContextToChat()], a[0], a[1], CLI_LANGUAGE),
@@ -156,7 +164,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "lesson-questions",
-        GEMINI_FAST_MODEL,
+        "GEMINI_FAST_MODEL",
         "<goal-name> <goal-description> <frontier> <state> <metacognition>",
         5,
         lambda a: (a[0], a[1], a[2], _context(a[3], a[4]), [], [], CLI_LANGUAGE),
@@ -173,7 +181,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "placement",
-        GEMINI_FAST_MODEL,
+        "GEMINI_FAST_MODEL",
         "<goal-name> <what-he-typed> <state> <metacognition>",
         4,
         lambda a: (a[0], a[1], _context(a[2], a[3]), CLI_LANGUAGE),
@@ -183,7 +191,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "student-context",
-        GEMINI_PREMIUM_MODEL,
+        "GEMINI_PREMIUM_MODEL",
         "<goal-name> <goal-description> [onboarding-prompt]",
         2,
         lambda a: (_goal(a[0], a[1]), a[2] if len(a) > 2 else None, None, CLI_LANGUAGE),
@@ -193,7 +201,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "context-review",
-        GEMINI_PREMIUM_MODEL,
+        "GEMINI_PREMIUM_MODEL",
         "<goal-name> <goal-description> <state> <metacognition> [frontier]",
         4,
         lambda a: (
@@ -211,7 +219,7 @@ USE_CASES: list[UseCase] = [
     ),
     UseCase(
         "resource-search",
-        GEMINI_FAST_MODEL,
+        "GEMINI_FAST_MODEL",
         "<goal-name> <goal-description> [student-context] [language: en|pt|es|fr|de]",
         2,
         lambda a: (

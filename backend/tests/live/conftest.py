@@ -14,7 +14,7 @@ import httpx
 import pytest
 
 from backend.core.config import settings
-from backend.utils.gemini import gemini_configs
+from backend.services.gemini.client import gemini_configs
 
 CALLS: Counter[str] = Counter()
 

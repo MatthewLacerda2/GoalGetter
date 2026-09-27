@@ -3,10 +3,10 @@ from unittest.mock import patch
 import pytest
 from sqlalchemy import select
 
+from backend.core.config import settings
 from backend.models.goal import Goal
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS, SYSTEM_AUTHOR
-from backend.utils.envs import GEMINI_PREMIUM_MODEL
 
 ENDPOINT = "/api/v1/goals"
 CHAIN = "backend.api.v1.endpoints.goals.kickoff_student_chain"
@@ -75,7 +75,7 @@ async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
     rows = await OnboardingRepository(test_db).list_by_student(test_user.id)
     assert [(r.question, OnboardingRepository.answer_of(r), r.ai_model) for r in rows] == [
         ("What do you want to learn?", BODY["prompt"], SYSTEM_AUTHOR),
-        ("Experience?", "None", GEMINI_PREMIUM_MODEL),
+        ("Experience?", "None", settings.GEMINI_PREMIUM_MODEL),
     ]
 
 

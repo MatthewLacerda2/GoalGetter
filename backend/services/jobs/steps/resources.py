@@ -20,11 +20,11 @@ from backend.core.language import Language
 from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.resource_repository import ResourceRepository
 from backend.repositories.student_context_repository import StudentContextRepository
+from backend.services.gemini.client.gemini_guard import run_gemini_background
 from backend.services.gemini.resources.search_resources import search_resources
 from backend.services.jobs.steps.language import student_language
 from backend.services.resources.link_validation import validate_resources
 from backend.services.resources.youtube_search import search_videos
-from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ async def _resources_for_goal(session, goal, reading: str, language: Language) -
 
     # The Gemini client is synchronous and this is a slow, grounded search, so
     # keep it off the event loop. Nobody is waiting on it, so it retries on the
-    # background budget (backend/utils/gemini/gemini_retry.py).
+    # background budget (backend/services/gemini/client/gemini_retry.py).
     search = await run_gemini_background(
         search_resources, str(goal.id), goal.name, goal.description, reading, held, language
     )

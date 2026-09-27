@@ -11,11 +11,11 @@ from datetime import UTC, datetime
 
 import pytest
 
+from backend.core.config import settings
 from backend.models.question import Question
 from backend.services.lessons.generation import GENERATE_ABOVE, decide
 from backend.services.lessons.rasch import GUESS, expected_score
 from backend.services.lessons.selection import TARGET_SCORE, TOLERANCE_BELOW, Ranked
-from backend.utils.envs import PLACEMENT_SIZE
 
 T0 = datetime(2026, 9, 1, tzinfo=UTC)
 
@@ -45,7 +45,7 @@ def test_the_line_is_the_hard_edge_of_the_band_the_selection_serves():
 
 def test_a_lesson_he_would_mostly_miss_buys_nothing():
     """He is not short of material, he is short of practice"""
-    verdict = decide([entry(0.3), entry(0.4), entry(0.5)], answers=PLACEMENT_SIZE)
+    verdict = decide([entry(0.3), entry(0.4), entry(0.5)], answers=settings.PLACEMENT_SIZE)
 
     assert verdict.generate is False
     assert verdict.predicted == pytest.approx(0.4)
@@ -54,7 +54,7 @@ def test_a_lesson_he_would_mostly_miss_buys_nothing():
 
 def test_a_lesson_he_would_walk_through_buys_eight():
     """Too easy is the whole reason to spend a call"""
-    verdict = decide([entry(0.9), entry(0.9)], answers=PLACEMENT_SIZE)
+    verdict = decide([entry(0.9), entry(0.9)], answers=settings.PLACEMENT_SIZE)
 
     assert (verdict.generate, verdict.placement) == (True, False)
     assert "one step past what he holds" in verdict.reason
@@ -62,8 +62,10 @@ def test_a_lesson_he_would_walk_through_buys_eight():
 
 def test_the_line_itself_generates():
     """The user's "se passar de" is strict: exactly 40% wrong still buys eight"""
-    assert decide([entry(GENERATE_ABOVE)], answers=PLACEMENT_SIZE).generate is True
-    assert decide([entry(GENERATE_ABOVE - 0.001)], answers=PLACEMENT_SIZE).generate is False
+    assert decide([entry(GENERATE_ABOVE)], answers=settings.PLACEMENT_SIZE).generate is True
+    assert (
+        decide([entry(GENERATE_ABOVE - 0.001)], answers=settings.PLACEMENT_SIZE).generate is False
+    )
 
 
 def test_an_empty_bank_is_the_placement():
@@ -71,7 +73,7 @@ def test_an_empty_bank_is_the_placement():
     verdict = decide([], answers=0)
 
     assert (verdict.generate, verdict.placement, verdict.predicted) == (True, True, None)
-    assert f"placement: {PLACEMENT_SIZE}" in verdict.reason
+    assert f"placement: {settings.PLACEMENT_SIZE}" in verdict.reason
 
 
 def test_until_the_placement_is_answered_nothing_more_is_bought():
@@ -79,6 +81,15 @@ def test_until_the_placement_is_answered_nothing_more_is_bought():
     the lesson looks, there is nothing to write the next batch from"""
     easy = [entry(0.95), entry(0.95)]
 
-    assert decide(easy, answers=PLACEMENT_SIZE - 1).generate is False
-    assert "17 answers, under the 18" in decide(easy, answers=PLACEMENT_SIZE - 1).reason
-    assert decide(easy, answers=PLACEMENT_SIZE).generate is True
+    assert decide(easy, answers=settings.PLACEMENT_SIZE - 1).generate is False
+    assert "17 answers, under the 18" in decide(easy, answers=settings.PLACEMENT_SIZE - 1).reason
+    assert decide(easy, answers=settings.PLACEMENT_SIZE).generate is True
+
+
+def test_the_placement_size_is_read_when_deciding(monkeypatch):
+    """A patched setting reaches the rule: nothing copied it at import (#215)"""
+    monkeypatch.setattr(settings, "PLACEMENT_SIZE", 3)
+    easy = [entry(0.95), entry(0.95)]
+
+    assert decide(easy, answers=3).generate is True
+    assert "2 answers, under the 3" in decide(easy, answers=2).reason

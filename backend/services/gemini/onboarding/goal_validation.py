@@ -1,8 +1,8 @@
+from backend.core.config import settings
 from backend.core.language import Language
+from backend.services.gemini.client.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.onboarding.goal_validation_prompt import get_goal_validation_prompt
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation
-from backend.utils.envs import GEMINI_PREMIUM_MODEL
-from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 
 
 def get_prompt_validation(prompt: str, language: Language) -> GeminiGoalValidation:
@@ -11,7 +11,7 @@ def get_prompt_validation(prompt: str, language: Language) -> GeminiGoalValidati
     config = get_gemini_config(GeminiGoalValidation.model_json_schema())
 
     response = client.models.generate_content(
-        model=GEMINI_PREMIUM_MODEL,
+        model=settings.GEMINI_PREMIUM_MODEL,
         contents=get_goal_validation_prompt(prompt, language),
         config=config,
     )

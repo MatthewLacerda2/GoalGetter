@@ -33,7 +33,6 @@ PLACEHOLDERS = {
     "TEST_DATABASE_URL": "postgresql+asyncpg://build:smoke@127.0.0.1:1/build_smoke",
     "GEMINI_API_KEY": "build-smoke",
     "SECRET_KEY": "build-smoke",
-    "GOOGLE_REDIRECT_URI": "http://localhost/callback",
 }
 
 HTTP_METHODS = {"get", "put", "post", "delete", "options", "head", "patch", "trace"}

@@ -1,4 +1,5 @@
-"""Vector arithmetic the app does for itself, over the embeddings Gemini wrote.
+"""The embedding space: how wide a vector is, and the arithmetic the app does for
+itself over the embeddings Gemini wrote.
 
 Gemini writes the vectors; comparing them is arithmetic, and arithmetic lives
 here - free to run, testable without a network, the same answer every time.
@@ -11,6 +12,12 @@ confused the two would quietly treat an un-embedded row as an unrelated one.
 """
 
 import numpy as np
+
+# The width of every embedding column in the schema (the `Embedding` type in
+# backend/models/base.py) and of what the embedding call asks Gemini for
+# (backend/services/gemini/client/gemini_configs.py). A domain constant, not a
+# setting: the columns are built from it, so changing it is a migration.
+NUM_DIMENSIONS = 3072
 
 
 def cosine(left, right) -> float | None:

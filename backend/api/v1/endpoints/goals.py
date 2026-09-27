@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_owned_goal
 from backend.core import clock
+from backend.core.config import settings
 from backend.core.database import get_db
 from backend.core.language import Language, requested_language
 from backend.core.rate_limiter import limiter
@@ -24,6 +25,7 @@ from backend.schemas.goal import (
     StandardQuestionData,
     StudyPlanResponse,
 )
+from backend.services.gemini.client.gemini_guard import run_gemini
 from backend.services.gemini.onboarding.goal_validation import (
     get_prompt_validation,
     is_goal_validated,
@@ -33,8 +35,6 @@ from backend.services.gemini.onboarding.study_plan import generate_study_plan
 from backend.services.gemini.output_language import output_language
 from backend.services.jobs.student_chain import kickoff_student_chain
 from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS
-from backend.utils.envs import GEMINI_PREMIUM_MODEL
-from backend.utils.gemini.gemini_guard import run_gemini
 
 router = APIRouter()
 
@@ -122,7 +122,7 @@ async def create_goal(
         goal.id,
         payload.prompt,
         [(a.question, a.answer, a.total_seconds) for a in payload.answers],
-        GEMINI_PREMIUM_MODEL,
+        settings.GEMINI_PREMIUM_MODEL,
     )
     student_id = str(current_user.id)
     current_user.current_goal_id = goal.id

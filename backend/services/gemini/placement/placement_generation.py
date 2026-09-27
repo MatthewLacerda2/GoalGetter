@@ -1,9 +1,9 @@
+from backend.core.config import settings
 from backend.core.language import Language
+from backend.services.gemini.client.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.lesson.schema import GeminiLessonQuestionsResponse
 from backend.services.gemini.placement.prompt import get_placement_prompt
 from backend.services.gemini.student_context.schema import GeminiStudentContext
-from backend.utils.envs import GEMINI_FAST_MODEL
-from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 
 
 def generate_placement_questions(
@@ -31,6 +31,6 @@ def generate_placement_questions(
     # closed" (seen on the preview, 2026-09-26).
     client = get_client()
     response = client.models.generate_content(
-        model=GEMINI_FAST_MODEL, contents=prompt, config=config
+        model=settings.GEMINI_FAST_MODEL, contents=prompt, config=config
     )
     return GeminiLessonQuestionsResponse.model_validate_json(response.text)

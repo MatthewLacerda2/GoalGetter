@@ -15,9 +15,9 @@ import inspect
 import numpy as np
 import pytest
 
+from backend.core.vectors import NUM_DIMENSIONS
+from backend.services.gemini.client.gemini_configs import get_gemini_embeddings_batch
 from backend.tools.gemini_cli import USE_CASES
-from backend.utils.envs import NUM_DIMENSIONS
-from backend.utils.gemini.gemini_configs import get_gemini_embeddings_batch
 
 pytestmark = [pytest.mark.live, pytest.mark.usefixtures("gemini_key")]
 

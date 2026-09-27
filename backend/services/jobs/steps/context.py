@@ -31,6 +31,7 @@ from backend.repositories.goal_repository import GoalRepository
 from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
+from backend.services.gemini.client.gemini_guard import run_gemini_background
 from backend.services.gemini.student_context import (
     GeminiStudentContext,
     StudentGoal,
@@ -39,7 +40,6 @@ from backend.services.gemini.student_context import (
 )
 from backend.services.jobs.steps.frontier import apply_frontier_moves, current_definitions
 from backend.services.jobs.steps.language import student_language
-from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 

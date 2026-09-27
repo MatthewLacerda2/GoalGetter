@@ -11,8 +11,8 @@ import pytest
 from fastapi import HTTPException
 from google.genai.errors import APIError
 
-from backend.utils.gemini import gemini_guard
-from backend.utils.gemini.gemini_retry import (
+from backend.services.gemini.client import gemini_guard
+from backend.services.gemini.client.gemini_retry import (
     BACKGROUND_BUDGET,
     REQUEST_BUDGET,
     RetryBudget,

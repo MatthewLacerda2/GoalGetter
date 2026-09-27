@@ -8,7 +8,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase
 
-from backend.utils.envs import NUM_DIMENSIONS
+from backend.core.vectors import NUM_DIMENSIONS
 
 # An embedding column, as the models declare it. pgvector reads a vector back as
 # a float32 array, and the code writes one as whatever Gemini returned - a list.

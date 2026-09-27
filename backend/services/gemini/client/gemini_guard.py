@@ -3,7 +3,7 @@ import logging
 from fastapi import HTTPException
 from google.genai.errors import APIError
 
-from backend.utils.gemini.gemini_retry import (
+from backend.services.gemini.client.gemini_retry import (
     BACKGROUND_BUDGET,
     REQUEST_BUDGET,
     RETRYABLE_EXCEPTIONS,
@@ -17,7 +17,7 @@ async def run_gemini(func, *args):
     """Run a blocking Gemini SDK call for a request a user is waiting on, and
     surface upstream API errors to the client.
 
-    Retries what can recover on a short budget (backend/utils/gemini/gemini_retry.py)
+    Retries what can recover on a short budget (backend/services/gemini/client/gemini_retry.py)
     so a single blip does not become a failed screen, then gives up rather than
     holding the request open.
 

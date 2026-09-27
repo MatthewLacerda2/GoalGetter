@@ -15,17 +15,17 @@ from dataclasses import dataclass
 
 from google.genai import types
 
+from backend.core.config import settings
 from backend.core.language import Language
 from backend.models.resource import Resource, StudyResourceType
-from backend.services.gemini.resources.grounding import WebSource, numbered, web_sources
-from backend.services.gemini.resources.prompt import describe_prompt, search_prompt
-from backend.services.gemini.resources.schema import DescribedSource, DescribedSources
-from backend.utils.envs import GEMINI_FAST_MODEL
-from backend.utils.gemini.gemini_configs import (
+from backend.services.gemini.client.gemini_configs import (
     get_client,
     get_gemini_config,
     get_gemini_config_plain_text,
 )
+from backend.services.gemini.resources.grounding import WebSource, numbered, web_sources
+from backend.services.gemini.resources.prompt import describe_prompt, search_prompt
+from backend.services.gemini.resources.schema import DescribedSource, DescribedSources
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ def search_resources(
     tongue = language.english_name
 
     found = client.models.generate_content(
-        model=GEMINI_FAST_MODEL,
+        model=settings.GEMINI_FAST_MODEL,
         contents=search_prompt(goal_name, goal_description, context, existing_links or [], tongue),
         config=get_gemini_config_plain_text(tools=[types.Tool(google_search=types.GoogleSearch())]),
     )
@@ -73,7 +73,7 @@ def search_resources(
 
     described = DescribedSources.model_validate_json(
         client.models.generate_content(
-            model=GEMINI_FAST_MODEL,
+            model=settings.GEMINI_FAST_MODEL,
             contents=describe_prompt(goal_name, context, numbered(sources), tongue),
             config=get_gemini_config(DescribedSources.model_json_schema()),
         ).text

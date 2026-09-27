@@ -1,13 +1,13 @@
 import logging
 
+from backend.core.config import settings
 from backend.core.language import Language
+from backend.services.gemini.client.gemini_configs import get_client, get_gemini_config
 from backend.services.gemini.onboarding.onboarding_prompts import (
     MAX_WORDS,
     get_onboarding_questions_prompt,
 )
 from backend.services.gemini.onboarding.schema import GeminiOnboardingQuestionsResponse
-from backend.utils.envs import GEMINI_PREMIUM_MODEL
-from backend.utils.gemini.gemini_configs import get_client, get_gemini_config
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ def generate_onboarding_questions(
     The log is how a prompt that stopped being obeyed gets noticed.
     """
     client = get_client()
-    model = GEMINI_PREMIUM_MODEL
+    model = settings.GEMINI_PREMIUM_MODEL
     full_prompt = get_onboarding_questions_prompt(goal_name, goal_description, language)
     config = get_gemini_config(GeminiOnboardingQuestionsResponse.model_json_schema())
 

@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
+from backend.core.vectors import NUM_DIMENSIONS
 from backend.repositories.question_repository import QuestionRepository
 from backend.tests.fixtures.lessons import at
-from backend.utils.envs import NUM_DIMENSIONS
 
 
 @pytest.mark.asyncio

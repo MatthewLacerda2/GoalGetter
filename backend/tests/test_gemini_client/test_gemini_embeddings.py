@@ -9,8 +9,9 @@ contract (one vector per text) is decided by that request's shape (#163).
 import pytest
 from google.genai import Client
 
-from backend.utils.envs import EMBEDDING_MODEL, NUM_DIMENSIONS
-from backend.utils.gemini import gemini_configs
+from backend.core.vectors import NUM_DIMENSIONS
+from backend.services.gemini.client import gemini_configs
+from backend.services.gemini.client.gemini_configs import EMBEDDING_MODEL
 
 
 class Stop(Exception):

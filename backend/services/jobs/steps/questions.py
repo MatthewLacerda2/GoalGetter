@@ -26,6 +26,7 @@ from backend.repositories.onboarding_repository import OnboardingRepository
 from backend.repositories.question_repository import QuestionHistory, QuestionRepository
 from backend.repositories.student_answer_repository import StudentAnswerRepository
 from backend.repositories.student_context_repository import StudentContextRepository
+from backend.services.gemini.client.gemini_guard import run_gemini_background
 from backend.services.gemini.lesson import generate_lesson_questions
 from backend.services.gemini.lesson.schema import AnsweredQuestion
 from backend.services.gemini.placement import generate_placement_questions
@@ -35,7 +36,6 @@ from backend.services.lessons.generation import decide
 from backend.services.lessons.pacing import PACE_WINDOW, lesson_size
 from backend.services.lessons.selection import select_lesson
 from backend.services.lessons.shuffle import shuffled_question
-from backend.utils.gemini.gemini_guard import run_gemini_background
 
 logger = logging.getLogger(__name__)
 
