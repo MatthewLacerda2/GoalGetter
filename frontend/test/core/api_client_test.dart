@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -44,6 +45,9 @@ class FakeBackend {
   });
 }
 
+/// The body as it was decoded.
+Object? asIs(Object? json) => json;
+
 Future<SettingsStorage> signedInStorage() async {
   SharedPreferences.setMockInitialValues({
     'access_token': 'expired-access',
@@ -64,7 +68,7 @@ void main() {
       baseUrl: 'http://api.test',
     );
 
-    final results = await Future.wait([api.get('/goals'), api.get('/goals')]);
+    final results = await Future.wait([api.get('/goals', asIs), api.get('/goals', asIs)]);
 
     expect(backend.refreshCalls, 1);
     expect(results, [<dynamic>[], <dynamic>[]]);
@@ -84,7 +88,7 @@ void main() {
     );
 
     await expectLater(
-      api.get('/goals'),
+      api.get('/goals', asIs),
       throwsA(isA<ApiException>().having((e) => e.status, 'status', 401)),
     );
     expect(expired, 1);
@@ -105,7 +109,7 @@ void main() {
     );
 
     await expectLater(
-      api.get('/goals'),
+      api.get('/goals', asIs),
       throwsA(isA<ApiException>().having((e) => e.status, 'status', 503)),
       reason: 'not a 401: a screen reading 401 as signed-out must not here',
     );
@@ -124,7 +128,10 @@ void main() {
       onSessionExpired: () => expired++,
     );
 
-    await expectLater(api.get('/goals'), throwsA(isA<http.ClientException>()));
+    await expectLater(
+      api.get('/goals', asIs),
+      throwsA(isA<ServerUnreachable>()),
+    );
     expect(expired, 0);
     expect(storage.getRefreshToken(), 'r1');
   });
@@ -138,7 +145,7 @@ void main() {
       baseUrl: 'http://api.test',
     );
 
-    await expectLater(api.post('/auth/dev-login'), throwsA(isA<ApiException>()));
+    await expectLater(api.post('/auth/dev-login', asIs), throwsA(isA<ApiException>()));
     expect(backend.refreshCalls, 0);
   });
 
@@ -162,10 +169,63 @@ void main() {
       baseUrl: 'http://api.test',
     );
 
-    await api.get('/goals');
+    await api.get('/goals', asIs);
     await storage.writeUserLanguage('de');
-    await api.post('/auth/dev-login');
+    await api.post('/auth/dev-login', asIs);
 
     expect(sent, ['pt', 'de']);
+  });
+
+  group('every failure is an ApiFailure (#221)', () {
+    Future<ApiClient> answering(Future<http.Response> Function() reply) async =>
+        ApiClient(
+          httpClient: MockClient((_) => reply()),
+          storage: await signedInStorage(),
+          baseUrl: 'http://api.test',
+        );
+
+    test('a body the reader cannot read is a MalformedResponse', () async {
+      final api = await answering(() async => http.Response('{"a": 1}', 200));
+      await expectLater(
+        api.get('/goals', (json) => json! as List),
+        throwsA(
+          isA<MalformedResponse>()
+              .having((e) => e.path, 'path', '/goals')
+              .having((e) => e.cause, 'cause', isA<TypeError>()),
+        ),
+      );
+    });
+
+    test('a 2xx that is not JSON is a MalformedResponse', () async {
+      final api = await answering(() async => http.Response('<html>', 200));
+      await expectLater(
+        api.get('/goals', asIs),
+        throwsA(isA<MalformedResponse>()),
+      );
+    });
+
+    test('a transport failure is ServerUnreachable', () async {
+      final api = await answering(
+        () async => throw http.ClientException('Connection refused'),
+      );
+      await expectLater(
+        api.get('/goals', asIs),
+        throwsA(isA<ServerUnreachable>()),
+      );
+    });
+
+    testWidgets('no answer within the timeout is TimedOut', (tester) async {
+      final api = await answering(() => Completer<http.Response>().future);
+      Object? failure;
+      unawaited(api.get('/goals', asIs).then<void>(
+            (_) {},
+            onError: (Object e) => failure = e,
+          ));
+
+      await tester.pump(ApiClient.timeout - const Duration(seconds: 1));
+      expect(failure, isNull);
+      await tester.pump(const Duration(seconds: 1));
+      expect(failure, isA<TimedOut>());
+    });
   });
 }

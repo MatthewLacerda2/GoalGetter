@@ -1,18 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
+import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/tutor_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../api_fake.dart';
 import 'fake_tutor_api.dart';
 
 /// The tutor over [api], its first page loaded (or failed), kept alive and
 /// disposed with the test.
 Future<ProviderContainer> loaded(FakeTutorApi api) async {
+  SharedPreferences.setMockInitialValues({'current_goal_id': 'g1'});
+  final storage = SettingsStorage(await SharedPreferences.getInstance());
   final container = ProviderContainer(
     retry: noAutomaticRetry,
-    overrides: [tutorApiProvider.overrideWithValue(api)],
+    overrides: [
+      tutorApiProvider.overrideWithValue(api),
+      settingsStorageProvider.overrideWithValue(storage),
+    ],
   );
   addTearDown(container.dispose);
   container.listen(tutorControllerProvider, (_, __) {});
@@ -22,6 +34,20 @@ Future<ProviderContainer> loaded(FakeTutorApi api) async {
       .then<void>((_) {}, onError: (Object _) {});
   return container;
 }
+
+/// The tutor over the real [TutorApi], on [fake]'s backend.
+Future<ProviderContainer> loadedOver(ApiFake fake) async {
+  final container = ProviderContainer(
+    retry: noAutomaticRetry,
+    overrides: await fake.overrides(),
+  );
+  addTearDown(container.dispose);
+  container.listen(tutorControllerProvider, (_, __) {});
+  return container;
+}
+
+const _listKey = 'GET /tutor/messages';
+const _sendKey = 'POST /tutor/messages';
 
 extension on ProviderContainer {
   TutorController get tutor => read(tutorControllerProvider.notifier);
@@ -120,5 +146,141 @@ void main() {
     final sending = c.tutor.send('ciao');
     c.dispose(); // the student left the tutor
     await expectLater(sending, completion(isNull));
+  });
+
+  group('an answer the app cannot read, or none at all (#221)', () {
+    test('a chat that cannot be read is the error', () async {
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, '{"exchanges": []}')],
+      }));
+      await c
+          .read(tutorControllerProvider.future)
+          .then<void>((_) {}, onError: (Object _) {});
+      expect(c.async.error, isA<MalformedResponse>());
+    });
+
+    test('a reply that cannot be read fails the message', () async {
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, '[]')],
+        _sendKey: [(201, '{"id": 7}')],
+      }));
+      await c.read(tutorControllerProvider.future);
+
+      expect(await c.tutor.send('ciao'), isA<MalformedResponse>());
+      expect(c.chat.pending, const FailedMessage('ciao'));
+    });
+
+    testWidgets('a chat nobody answers ends in the error', (tester) async {
+      final c = await loadedOver(
+        ApiFake({}, held: {_listKey: ApiFake.never}),
+      );
+
+      await tester.pump(ApiClient.timeout + const Duration(seconds: 1));
+      expect(c.async.error, isA<TimedOut>());
+    });
+
+    testWidgets('a reply nobody answers fails the message', (tester) async {
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, '[]')],
+      }, held: {_sendKey: ApiFake.never}));
+      await tester.pump();
+      Object? failure;
+      unawaited(c.tutor.send('ciao').then((e) => failure = e));
+      await tester.pump();
+      expect(c.chat.pending, const SendingMessage('ciao'));
+
+      await tester.pump(ApiClient.timeout + const Duration(seconds: 1));
+      expect(failure, isA<TimedOut>());
+      expect(c.chat.pending, const FailedMessage('ciao'));
+    });
+  });
+
+  group('a goal switch (#220)', () {
+    String exchangeJson(String prompt) =>
+        '{"id": "$prompt", "prompt": "$prompt", "responses": ["ok"],'
+        ' "is_liked": false, "created_at": "2026-09-21T10:00:00.000000"}';
+    String chatJson(String prompt) => '[${exchangeJson(prompt)}]';
+
+    test("loads the new goal's chat", () async {
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, chatJson('on g1')), (200, chatJson('on g2'))],
+      }));
+      await c.read(tutorControllerProvider.future);
+      expect(ids(c), ['on g1']);
+
+      await c.read(activeGoalProvider.notifier).set('g2');
+      await c.read(tutorControllerProvider.future);
+      expect(ids(c), ['on g2']);
+    });
+
+    test('a reply that lands after it stays off the new chat', () async {
+      final reply = Completer<void>();
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, chatJson('on g1')), (200, chatJson('on g2'))],
+        _sendKey: [(201, exchangeJson('ciao'))],
+      }, held: {_sendKey: reply.future}));
+      await c.read(tutorControllerProvider.future);
+      final shown = <String>[];
+      c.listen(tutorControllerProvider, (_, next) {
+        if (next.value case TutorChat(:final exchanges)) {
+          shown.addAll(exchanges.map((e) => e.id));
+        }
+      });
+      final sending = c.tutor.send('ciao');
+
+      // Switched, and the reply lands before the new chat has been asked for.
+      await c.read(activeGoalProvider.notifier).set('g2');
+      reply.complete();
+      expect(await sending, isNull, reason: 'the server took it');
+
+      await c.read(tutorControllerProvider.future);
+      expect(ids(c), ['on g2']);
+      expect(c.chat.pending, isNull);
+      expect(shown, isNot(contains('ciao')), reason: 'not even for a frame');
+    });
+
+    test('a reply that lands after the new chat loaded stays off it', () async {
+      final reply = Completer<void>();
+      final c = await loadedOver(ApiFake({
+        _listKey: [(200, chatJson('on g1')), (200, chatJson('on g2'))],
+        _sendKey: [(201, exchangeJson('ciao'))],
+      }, held: {_sendKey: reply.future}));
+      await c.read(tutorControllerProvider.future);
+      final sending = c.tutor.send('ciao');
+
+      await c.read(activeGoalProvider.notifier).set('g2');
+      await c.read(tutorControllerProvider.future);
+      reply.complete();
+      await sending;
+
+      expect(ids(c), ['on g2']);
+    });
+
+    test('a reply landing before the rebuild stays off every chat', () async {
+      // Riverpod rebuilds a provider whose dependency changed on the next
+      // frame (a zero timer here), and until then the call's ref is still
+      // mounted: a reply that lands in between must not be written.
+      final reply = Completer<void>();
+      final api = FakeTutorApi([exchange(1)])..sendHeld = reply.future;
+      final c = await loaded(api);
+      final shown = <String>[];
+      c.listen(tutorControllerProvider, (_, next) {
+        if (next.value case TutorChat(:final exchanges)) {
+          shown.addAll(exchanges.map((e) => e.id));
+        }
+      });
+      final sending = c.tutor.send('ciao');
+
+      await c.read(activeGoalProvider.notifier).set('g2');
+      reply.complete();
+      expect(await sending, isNull);
+      api.stored
+        ..clear()
+        ..add(exchange(9)); // the new goal's chat
+
+      await c.read(tutorControllerProvider.future);
+      expect(ids(c), ['e9']);
+      expect(shown, isNot(contains('new')), reason: 'not even for a frame');
+    });
   });
 }

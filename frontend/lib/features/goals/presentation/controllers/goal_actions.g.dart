@@ -48,4 +48,4 @@ final class GoalActionsProvider
   }
 }
 
-String _$goalActionsHash() => r'96e4a781f80c668fd1645f296a6351ff5ee78be2';
+String _$goalActionsHash() => r'1649a172e02c6a436898225293fa57c0645e45cd';

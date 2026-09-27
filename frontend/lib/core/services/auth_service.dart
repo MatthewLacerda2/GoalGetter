@@ -54,10 +54,23 @@ class AuthService {
     onSessionChanged?.call();
   }
 
+  /// A `token_response`, checked where it is read: another shape is then the
+  /// client's `MalformedResponse`, not a `TypeError` inside [storeSession].
+  static Map<String, dynamic> _tokenResponse(Object? json) {
+    final response = json! as Map<String, dynamic>;
+    if (response['access_token'] is! String ||
+        response['refresh_token'] is! String ||
+        response['student'] is! Map<String, dynamic>) {
+      throw const FormatException('not a token_response');
+    }
+    return response;
+  }
+
   /// Dev only: signs in as the backend's `Fictitious <name>` student.
   Future<void> signInAsFictitious(String name) async {
-    final response = await _api.post('/auth/dev-login', body: {'name': name});
-    await storeSession(response! as Map<String, dynamic>);
+    await storeSession(
+      await _api.post('/auth/dev-login', _tokenResponse, body: {'name': name}),
+    );
   }
 
   /// Creates or fetches the student for a Google token (POST /auth/signup is
@@ -65,10 +78,11 @@ class AuthService {
   Future<void> signupWithGoogle(String googleToken) async {
     final response = await _api.post(
       '/auth/signup',
+      _tokenResponse,
       headers: {'Authorization': 'Bearer $googleToken'},
     );
     await _storage.setGoogleToken(googleToken);
-    await storeSession(response! as Map<String, dynamic>);
+    await storeSession(response);
   }
 
   /// Every Google sign-in, as the token POST /auth/signup accepts.
@@ -147,6 +161,7 @@ class AuthService {
       try {
         await _api.post(
           '/auth/logout',
+          ApiClient.ignoreBody,
           body: {'refresh_token': refreshToken},
         );
       } on Exception catch (e) {

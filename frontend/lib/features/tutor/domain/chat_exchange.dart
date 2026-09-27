@@ -13,7 +13,8 @@ class ChatExchange {
   factory ChatExchange.fromJson(Map<String, dynamic> json) => ChatExchange(
     id: json['id'] as String,
     prompt: json['prompt'] as String,
-    responses: (json['responses'] as List).cast<String>(),
+    // Copied, not `cast`: a lazy cast would throw while the chat draws.
+    responses: List<String>.from(json['responses'] as List),
     isLiked: json['is_liked'] as bool,
     createdAt: json['created_at'] as String,
   );

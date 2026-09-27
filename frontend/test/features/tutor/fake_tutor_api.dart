@@ -21,6 +21,9 @@ class FakeTutorApi implements TutorApi {
   Object? listError;
   Object? sendError;
   Object? likeError;
+
+  /// When set, [send] answers only once it completes.
+  Future<void>? sendHeld;
   final List<String?> beforeCalls = [];
 
   @override
@@ -36,6 +39,7 @@ class FakeTutorApi implements TutorApi {
 
   @override
   Future<ChatExchange> send(String message) async {
+    await sendHeld;
     if (sendError != null) throw sendError!;
     final created = ChatExchange(
       id: 'new',

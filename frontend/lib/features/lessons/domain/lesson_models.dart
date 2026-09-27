@@ -24,7 +24,8 @@ class MultipleChoiceQuestion {
       MultipleChoiceQuestion(
         id: json['id'] as String,
         question: json['question'] as String,
-        choices: (json['choices'] as List).cast<String>(),
+        // Copied, not `cast`: a lazy cast would throw while the lesson draws.
+        choices: List<String>.from(json['choices'] as List),
         correctAnswerIndex: json['correct_answer_index'] as int,
       );
 }

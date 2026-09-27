@@ -4,8 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_api.g.dart';
 
-/// GET /me (`backend/api/v1/endpoints/me.py`). Failures surface as
-/// `ApiException`.
+/// GET /me (`backend/api/v1/endpoints/me.py`). Failures surface as an
+/// `ApiFailure`.
 ///
 /// Nothing shows the profile any more; the call exists for its request
 /// header. Every signed-in request carries `X-Student-Language` and the
@@ -16,9 +16,7 @@ class ProfileApi {
 
   final ApiClient _api;
 
-  Future<void> me() async {
-    await _api.get('/me');
-  }
+  Future<void> me() => _api.get('/me', ApiClient.ignoreBody);
 }
 
 @riverpod

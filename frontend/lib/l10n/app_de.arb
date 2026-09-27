@@ -189,6 +189,8 @@
     "homeLoadFailed": "Dein Dashboard konnte nicht geladen werden",
     "retry": "Erneut versuchen",
     "serverUnreachable": "Der Server ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
+    "unreadableResponse": "Der Server hat so geantwortet, dass die App es nicht lesen kann. Versuche es später erneut.",
+    "serverTimedOut": "Der Server hat zu lange nicht geantwortet. Versuche es erneut.",
     "goalsLoadFailed": "Deine Ziele konnten nicht geladen werden",
     "activeGoalBadge": "Aktiv",
     "setActiveGoalFailed": "Dieses Ziel konnte nicht aktiviert werden",

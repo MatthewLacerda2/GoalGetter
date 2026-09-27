@@ -1,4 +1,5 @@
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/domain/chat_exchange.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.dart';
@@ -8,16 +9,22 @@ export 'package:goal_getter/features/tutor/presentation/controllers/tutor_state.
 
 part 'tutor_controller.g.dart';
 
-/// The chat with the tutor on the active goal. [build] loads its newest page;
-/// `ref.invalidate` loads it again - the retry after a failed load.
+/// The chat with the tutor on the active goal. [build] loads its newest page,
+/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again too - the retry after a failed load.
 ///
-/// Every call made after the first page holds on to the ref of the build it
-/// started in, and drops its answer when that ref is no longer mounted: the
-/// provider was disposed, or rebuilt into another chat.
+/// Every call made after the first page drops its answer once the chat it
+/// started on is gone ([_stillCurrent]).
 @riverpod
 class TutorController extends _$TutorController {
+  /// The active goal the chat on screen was loaded for.
+  String? _goal;
+
   @override
   Future<TutorState> build() async {
+    // The backend scopes the chat to the active goal on its own; watching it
+    // is what loads the new goal's chat when the student switches.
+    _goal = ref.watch(activeGoalProvider);
     try {
       final page = await ref.read(tutorApiProvider).list();
       return TutorChat(
@@ -44,6 +51,19 @@ class TutorController extends _$TutorController {
     _ => null,
   };
 
+  /// For a call starting now: whether its answer still belongs on screen.
+  ///
+  /// Not once the provider was disposed or rebuilt — its ref is unmounted
+  /// then. Nor once the active goal changed: Riverpod rebuilds on the next
+  /// frame, and until then the ref is still mounted, so a reply landing in
+  /// that gap would be written onto the old goal's chat — and a write there
+  /// cancels the rebuild, leaving the old chat on screen (#220, measured).
+  bool Function() _stillCurrent() {
+    final opened = ref;
+    final goal = _goal;
+    return () => opened.mounted && opened.read(activeGoalProvider) == goal;
+  }
+
   /// Applies [change] to the chat on screen, when there still is one.
   void _update(TutorChat Function(TutorChat) change) {
     final chat = _chat;
@@ -61,19 +81,19 @@ class TutorController extends _$TutorController {
     };
     if (chat == null || !canLoad) return;
     state = AsyncData(chat.withOlder(const LoadingOlderPages()));
-    final opened = ref;
+    final current = _stillCurrent();
     try {
-      final page = await opened
+      final page = await ref
           .read(tutorApiProvider)
           .list(before: chat.exchanges.first.createdAt);
-      if (!opened.mounted) return;
+      if (!current()) return;
       _update(
         (c) => c
             .withExchanges([...page.reversed, ...c.exchanges])
             .withOlder(_olderThan(page)),
       );
     } on Exception catch (e) {
-      if (opened.mounted) _update((c) => c.withOlder(OlderPagesFailed(e)));
+      if (current()) _update((c) => c.withOlder(OlderPagesFailed(e)));
     }
   }
 
@@ -85,17 +105,17 @@ class TutorController extends _$TutorController {
     final chat = _chat;
     if (message.isEmpty || chat == null || chat.isSending) return null;
     state = AsyncData(chat.withPending(SendingMessage(message)));
-    final opened = ref;
+    final current = _stillCurrent();
     try {
-      final exchange = await opened.read(tutorApiProvider).send(message);
-      if (opened.mounted) {
+      final exchange = await ref.read(tutorApiProvider).send(message);
+      if (current()) {
         _update(
           (c) => c.withExchanges([...c.exchanges, exchange]).withPending(null),
         );
       }
       return null;
     } on Exception catch (e) {
-      if (opened.mounted) _update((c) => c.withPending(FailedMessage(message)));
+      if (current()) _update((c) => c.withPending(FailedMessage(message)));
       return e;
     }
   }
@@ -104,15 +124,15 @@ class TutorController extends _$TutorController {
   /// the backend threw, with the like put back, or null when it was saved.
   Future<Object?> setLike(String exchangeId, bool isLiked) async {
     _replace(exchangeId, (e) => e.copyWith(isLiked: isLiked));
-    final opened = ref;
+    final current = _stillCurrent();
     try {
-      final saved = await opened
+      final saved = await ref
           .read(tutorApiProvider)
           .setLike(exchangeId, isLiked);
-      if (opened.mounted) _replace(exchangeId, (_) => saved);
+      if (current()) _replace(exchangeId, (_) => saved);
       return null;
     } on Exception catch (error) {
-      if (opened.mounted) {
+      if (current()) {
         _replace(exchangeId, (e) => e.copyWith(isLiked: !isLiked));
       }
       return error;

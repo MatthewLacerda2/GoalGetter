@@ -8,30 +8,30 @@ part of 'tutor_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The chat with the tutor on the active goal. [build] loads its newest page;
-/// `ref.invalidate` loads it again - the retry after a failed load.
+/// The chat with the tutor on the active goal. [build] loads its newest page,
+/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again too - the retry after a failed load.
 ///
-/// Every call made after the first page holds on to the ref of the build it
-/// started in, and drops its answer when that ref is no longer mounted: the
-/// provider was disposed, or rebuilt into another chat.
+/// Every call made after the first page drops its answer once the chat it
+/// started on is gone ([_stillCurrent]).
 
 @ProviderFor(TutorController)
 final tutorControllerProvider = TutorControllerProvider._();
 
-/// The chat with the tutor on the active goal. [build] loads its newest page;
-/// `ref.invalidate` loads it again - the retry after a failed load.
+/// The chat with the tutor on the active goal. [build] loads its newest page,
+/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again too - the retry after a failed load.
 ///
-/// Every call made after the first page holds on to the ref of the build it
-/// started in, and drops its answer when that ref is no longer mounted: the
-/// provider was disposed, or rebuilt into another chat.
+/// Every call made after the first page drops its answer once the chat it
+/// started on is gone ([_stillCurrent]).
 final class TutorControllerProvider
     extends $AsyncNotifierProvider<TutorController, TutorState> {
-  /// The chat with the tutor on the active goal. [build] loads its newest page;
-  /// `ref.invalidate` loads it again - the retry after a failed load.
+  /// The chat with the tutor on the active goal. [build] loads its newest page,
+  /// again whenever the active goal changes (#220); `ref.invalidate` loads it
+  /// again too - the retry after a failed load.
   ///
-  /// Every call made after the first page holds on to the ref of the build it
-  /// started in, and drops its answer when that ref is no longer mounted: the
-  /// provider was disposed, or rebuilt into another chat.
+  /// Every call made after the first page drops its answer once the chat it
+  /// started on is gone ([_stillCurrent]).
   TutorControllerProvider._()
     : super(
         from: null,
@@ -51,14 +51,14 @@ final class TutorControllerProvider
   TutorController create() => TutorController();
 }
 
-String _$tutorControllerHash() => r'6262f5aeac7a32db54bcd211c0616197e79fa556';
+String _$tutorControllerHash() => r'75373aa3f8901a41e09ac718dad5377affb8788a';
 
-/// The chat with the tutor on the active goal. [build] loads its newest page;
-/// `ref.invalidate` loads it again - the retry after a failed load.
+/// The chat with the tutor on the active goal. [build] loads its newest page,
+/// again whenever the active goal changes (#220); `ref.invalidate` loads it
+/// again too - the retry after a failed load.
 ///
-/// Every call made after the first page holds on to the ref of the build it
-/// started in, and drops its answer when that ref is no longer mounted: the
-/// provider was disposed, or rebuilt into another chat.
+/// Every call made after the first page drops its answer once the chat it
+/// started on is gone ([_stillCurrent]).
 
 abstract class _$TutorController extends $AsyncNotifier<TutorState> {
   FutureOr<TutorState> build();

@@ -2,18 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/services/shared_preferences_provider.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fake_tutor_api.dart';
 
 Future<void> pumpTutor(WidgetTester tester, FakeTutorApi api) async {
+  SharedPreferences.setMockInitialValues({'current_goal_id': 'g1'});
+  final prefs = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
       retry: noAutomaticRetry,
-      overrides: [tutorApiProvider.overrideWithValue(api)],
+      overrides: [
+        tutorApiProvider.overrideWithValue(api),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
       child: const MaterialApp(
         locale: Locale('en'),
         localizationsDelegates: [

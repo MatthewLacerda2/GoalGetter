@@ -21,8 +21,9 @@ part of 'lesson_controller.dart';
 /// [LessonState] it is handed. Time is read from `package:clock`, so a test
 /// decides how long a question was on screen.
 ///
-/// Opening is [build]: the screen watching the provider opens a lesson, and
-/// `ref.invalidate` opens a new one - the retry after a failed start.
+/// Opening is [build]: the screen watching the provider opens a lesson on the
+/// active goal ([activeGoalProvider], the goal Home and the Tutor are on too),
+/// and `ref.invalidate` opens a new one - the retry after a failed start.
 
 @ProviderFor(LessonController)
 final lessonControllerProvider = LessonControllerProvider._();
@@ -40,8 +41,9 @@ final lessonControllerProvider = LessonControllerProvider._();
 /// [LessonState] it is handed. Time is read from `package:clock`, so a test
 /// decides how long a question was on screen.
 ///
-/// Opening is [build]: the screen watching the provider opens a lesson, and
-/// `ref.invalidate` opens a new one - the retry after a failed start.
+/// Opening is [build]: the screen watching the provider opens a lesson on the
+/// active goal ([activeGoalProvider], the goal Home and the Tutor are on too),
+/// and `ref.invalidate` opens a new one - the retry after a failed start.
 final class LessonControllerProvider
     extends $AsyncNotifierProvider<LessonController, LessonState> {
   /// Runs one lesson on the active goal: open it, answer each question once
@@ -57,8 +59,9 @@ final class LessonControllerProvider
   /// [LessonState] it is handed. Time is read from `package:clock`, so a test
   /// decides how long a question was on screen.
   ///
-  /// Opening is [build]: the screen watching the provider opens a lesson, and
-  /// `ref.invalidate` opens a new one - the retry after a failed start.
+  /// Opening is [build]: the screen watching the provider opens a lesson on the
+  /// active goal ([activeGoalProvider], the goal Home and the Tutor are on too),
+  /// and `ref.invalidate` opens a new one - the retry after a failed start.
   LessonControllerProvider._()
     : super(
         from: null,
@@ -78,7 +81,7 @@ final class LessonControllerProvider
   LessonController create() => LessonController();
 }
 
-String _$lessonControllerHash() => r'67217fadedadc6c0f187e4d18fcca2122feebfa9';
+String _$lessonControllerHash() => r'89e08a7b8ca53be66d454fd3307d10fb018ee69b';
 
 /// Runs one lesson on the active goal: open it, answer each question once
 /// (graded inline for feedback), submit those answers as one batch, then
@@ -93,8 +96,9 @@ String _$lessonControllerHash() => r'67217fadedadc6c0f187e4d18fcca2122feebfa9';
 /// [LessonState] it is handed. Time is read from `package:clock`, so a test
 /// decides how long a question was on screen.
 ///
-/// Opening is [build]: the screen watching the provider opens a lesson, and
-/// `ref.invalidate` opens a new one - the retry after a failed start.
+/// Opening is [build]: the screen watching the provider opens a lesson on the
+/// active goal ([activeGoalProvider], the goal Home and the Tutor are on too),
+/// and `ref.invalidate` opens a new one - the retry after a failed start.
 
 abstract class _$LessonController extends $AsyncNotifier<LessonState> {
   FutureOr<LessonState> build();

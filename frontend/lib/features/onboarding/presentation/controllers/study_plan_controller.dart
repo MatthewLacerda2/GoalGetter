@@ -1,6 +1,6 @@
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
@@ -56,13 +56,13 @@ class StudyPlanController extends _$StudyPlanController {
       state = PlanNeedsSignIn();
       return;
     }
-    // Read before the call: the goal is stored as active even if the screen
-    // is gone by the time it exists.
-    final storage = ref.read(settingsStorageProvider);
+    // Read before the call: the goal is made active even if the screen is
+    // gone by the time it exists.
+    final activeGoal = ref.read(activeGoalProvider.notifier);
     state = PlanCommitting();
     try {
       final created = await ref.read(onboardingApiProvider).create(draft);
-      await storage.writeCurrentGoalId(created.id);
+      await activeGoal.set(created.id);
       pending.clear();
       if (ref.mounted) state = PlanCommitted(created);
     } on ApiException catch (e) {

@@ -32,7 +32,7 @@ final class LessonNotReady extends LessonState {
   int get hashCode => (LessonNotReady).hashCode;
 }
 
-/// The device holds no active goal, so there is nothing to open a lesson on.
+/// The student has no active goal, so there is nothing to open a lesson on.
 final class LessonNoActiveGoal extends LessonState {
   const LessonNoActiveGoal();
 

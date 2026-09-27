@@ -126,7 +126,8 @@ void main() {
 
   testWidgets('delete asks first, then lands on the list', (tester) async {
     final backend = await open(tester, {
-      'GET /goals': _twoGoals,
+      // After the delete the list reloads without g1, as the backend's would.
+      'GET /goals': [..._twoGoals, (200, '[${goalJson('g2', name: 'Chess')}]')],
       'DELETE /goals/g1': [(204, '')],
     }, at: '/goals/g1');
 
