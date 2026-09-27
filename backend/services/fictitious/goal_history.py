@@ -31,6 +31,11 @@ from backend.repositories.student_context_repository import StudentContextReposi
 from backend.services.fictitious.history_data import LESSON_SIZE
 from backend.services.lessons.rasch import replay
 
+# How far past today's midnight "a moment ago" starts at the earliest (#233).
+# A seeded lesson's answers precede its moment by at most LESSON_SIZE * 27
+# seconds (_seed_lessons), so five minutes keeps the whole lesson on today.
+_TODAY_FLOOR = timedelta(minutes=5)
+
 
 def moment(now: datetime, days_ago: int, hour: int | None, minute: int = 0) -> datetime:
     """An aware moment `days_ago` days before `now`, at `hour:minute` on the
@@ -38,9 +43,16 @@ def moment(now: datetime, days_ago: int, hour: int | None, minute: int = 0) -> d
     22:00 has to be 22:00 in APP_TIMEZONE and not in whatever zone the seeder
     happens to run in. `hour=None` means "today, a moment ago": `30 - minute`
     minutes before now, so a lesson (minute 0) lands before the chat about it
-    (minute 20)."""
+    (minute 20).
+
+    Seeded just after midnight, half an hour ago is yesterday (#233), so that
+    base is clamped to `_TODAY_FLOOR` past today's midnight. Seeded before
+    00:25 that puts a moment in the future, by 25 minutes at most - the only way
+    a lesson that takes time fits on a day that has barely begun. `minute` is
+    added after the clamp, so the lesson and its chat stay 20 minutes apart."""
     if hour is None:
-        return now - timedelta(minutes=30 - minute)
+        floor = clock.app_moment(clock.app_date(now)) + _TODAY_FLOOR
+        return max(now - timedelta(minutes=30), floor) + timedelta(minutes=minute)
     return clock.app_moment(clock.app_date(now) - timedelta(days=days_ago), hour, minute)
 
 
