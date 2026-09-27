@@ -6,23 +6,19 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
-import 'package:goal_getter/core/api/api_exception.dart';
-import 'package:goal_getter/core/services/auth_service.dart';
-import 'package:goal_getter/core/utils/settings_storage.dart';
-import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
-import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/study_plan_controller.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// Step 3 of goal creation: the goal's name, a short AI-generated summary of
 /// what the student will study (markdown), and confirm / start over.
 ///
-/// Confirming sends `POST /goals`, which needs a session. Without one the
-/// draft is held and the student goes to sign in; the sign-in brings them back
-/// here (see `routeAfterSignIn`). On success the goal is stored as active and
-/// the standard questions fill the wait while its first lesson generates
-/// (#132).
+/// Confirming is its controller's: `POST /goals`, which needs a session.
+/// Without one the draft is held and the student goes to sign in; the sign-in
+/// brings them back here (see `SignInLanding`). On success the goal is stored
+/// as active and the standard questions fill the wait while its first lesson
+/// generates (#132).
 class StudyPlanScreen extends ConsumerStatefulWidget {
   final GoalDraft draft;
 
@@ -33,58 +29,39 @@ class StudyPlanScreen extends ConsumerStatefulWidget {
 }
 
 class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
-  bool _isLoading = false;
+  StudyPlanControllerProvider get _provider =>
+      studyPlanControllerProvider(widget.draft);
 
-  Future<void> _confirm() async {
-    ref.read(pendingGoalDraftProvider.notifier).hold(widget.draft);
-    if (!ref.read(authServiceProvider).isSignedIn()) {
-      context.go(AppRoutes.start);
-      return;
-    }
-    setState(() => _isLoading = true);
-    try {
-      final created = await ref
-          .read(onboardingApiProvider)
-          .create(widget.draft);
-      await ref.read(settingsStorageProvider).writeCurrentGoalId(created.id);
-      ref.read(pendingGoalDraftProvider.notifier).clear();
-      if (mounted) {
+  StudyPlanController get _controller => ref.read(_provider.notifier);
+
+  void _onChanged(StudyPlanState next) {
+    switch (next) {
+      case PlanNeedsSignIn():
+        context.go(AppRoutes.start);
+      case PlanCommitted(:final goal):
         context.go(
           AppRoutes.standardQuestions,
           extra: StandardQuestionsArgs(
-            goalId: created.id,
-            questions: created.standardQuestions,
+            goalId: goal.id,
+            questions: goal.standardQuestions,
           ),
         );
-      }
-    } on ApiException catch (e) {
-      // A 401 the client could not refresh ended the session. The plan is
-      // open to visitors, so the router leaves him here: he goes to sign in
-      // as if he had none, and the held draft brings him back.
-      if (!mounted) return;
-      if (e.status == 401) {
-        context.go(AppRoutes.start);
-      } else {
-        _sayItFailed(e);
-      }
-    } on Exception catch (e) {
-      if (mounted) _sayItFailed(e);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      // The plan is untouched on screen, so the failure goes over it - at the
+      // top, where it does not cover the two buttons that failed.
+      case PlanCommitFailed(:final error):
+        showFailure(
+          context,
+          error,
+          onRetry: _controller.confirm,
+          position: FailurePosition.top,
+        );
+      case PlanShown() || PlanCommitting():
+        break;
     }
   }
 
-  /// The plan is untouched on screen, so the failure goes over it - at the
-  /// top, where it does not cover the two buttons that failed.
-  void _sayItFailed(Object error) => showFailure(
-        context,
-        error,
-        onRetry: _confirm,
-        position: FailurePosition.top,
-      );
-
-  void _deny() {
-    ref.read(pendingGoalDraftProvider.notifier).clear();
+  void _startOver() {
+    _controller.startOver();
     context.go(AppRoutes.goalPrompt);
   }
 
@@ -93,6 +70,8 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final plan = widget.draft.plan;
+    final isLoading = ref.watch(_provider) is PlanCommitting;
+    ref.listen(_provider, (_, next) => _onChanged(next));
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.studyPlan)),
@@ -128,9 +107,9 @@ class _StudyPlanScreenState extends ConsumerState<StudyPlanScreen> {
               ),
               const SizedBox(height: 20),
               _Actions(
-                isLoading: _isLoading,
-                onConfirm: _isLoading ? null : _confirm,
-                onDeny: _isLoading ? null : _deny,
+                isLoading: isLoading,
+                onConfirm: isLoading ? null : _controller.confirm,
+                onDeny: isLoading ? null : _startOver,
               ),
             ],
           ),

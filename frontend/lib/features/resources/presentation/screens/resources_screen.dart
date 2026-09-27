@@ -4,10 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
-import 'package:goal_getter/features/resources/data/resources_api.dart';
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
 import 'package:goal_getter/features/resources/presentation/widgets/resource_tab.dart';
 import 'package:goal_getter/features/resources/presentation/controllers/resources_controller.dart';
@@ -20,11 +18,6 @@ import 'package:goal_getter/features/resources/presentation/controllers/resource
 /// is still running, which is said as such rather than shown as an error.
 class ResourcesScreen extends ConsumerWidget {
   const ResourcesScreen({super.key});
-
-  static bool isNoActiveGoal(Object error) =>
-      error is ApiException &&
-      error.status == 404 &&
-      error.detail == ResourcesApi.noActiveGoalDetail;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

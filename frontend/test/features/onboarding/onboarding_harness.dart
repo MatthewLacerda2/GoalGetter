@@ -13,7 +13,7 @@ import 'package:goal_getter/features/onboarding/presentation/screens/standard_qu
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_screen.dart';
-import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/sign_in_landing.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,7 +28,10 @@ class _SignedInButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     body: TextButton(
-      onPressed: () => routeAfterSignIn(ref, context),
+      onPressed: () async {
+        final landing = await ref.read(signInLandingProvider).resolve();
+        if (context.mounted) context.go(landing.location, extra: landing.extra);
+      },
       child: const Text('START'),
     ),
   );

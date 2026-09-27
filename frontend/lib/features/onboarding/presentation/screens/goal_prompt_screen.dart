@@ -5,14 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
-import 'package:goal_getter/core/api/api_exception.dart';
-import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/goal_prompt_controller.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 
-/// Step 1 of goal creation: what the student wants to learn. Sends it to
-/// `POST /goals/objective-questions`; a 400 there is Gemini saying it is not a
-/// goal, and its reasoning is shown here so the student can rephrase.
+/// Step 1 of goal creation: what the student wants to learn. Its controller
+/// sends it to `POST /goals/objective-questions`; a 400 there is Gemini saying
+/// it is not a goal, and its reasoning is shown here so the student can
+/// rephrase.
 class GoalPromptScreen extends ConsumerStatefulWidget {
   const GoalPromptScreen({super.key});
 
@@ -26,7 +26,8 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
 
   final _promptFocusNode = FocusNode();
 
-  bool _isLoading = false;
+  GoalPromptController get _controller =>
+      ref.read(goalPromptControllerProvider.notifier);
 
   @override
   void initState() {
@@ -41,36 +42,26 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
     super.dispose();
   }
 
-  Future<void> _onEnterPressed() async {
-    final prompt = _promptController.text.trim();
-    if (prompt.length < 16) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).beDetailedOfYourGoal),
-        ),
-      );
-      return;
-    }
-    setState(() => _isLoading = true);
-    try {
-      final questions = await ref
-          .read(onboardingApiProvider)
-          .objectiveQuestions(prompt);
-      if (mounted) {
+  void _onEnterPressed() => _controller.ask(_promptController.text);
+
+  /// Each outcome of a send, said once as it arrives.
+  void _onChanged(GoalPromptState next) {
+    switch (next) {
+      case PromptTooShort():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).beDetailedOfYourGoal),
+          ),
+        );
+      case PromptAccepted(:final prompt, :final questions):
         context.push(
           AppRoutes.goalQuestions,
           extra: GoalQuestionsArgs(prompt: prompt, questions: questions),
         );
-      }
-    } on Exception catch (e) {
-      // A rejected prompt (400: Gemini saying it is not a goal) wants
-      // rephrasing, not the same request again.
-      final rejected = e is ApiException && e.status == 400;
-      if (mounted) {
-        showFailure(context, e, onRetry: rejected ? null : _onEnterPressed);
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      case PromptFailed(:final error, :final rejected):
+        showFailure(context, error, onRetry: rejected ? null : _onEnterPressed);
+      case PromptIdle() || PromptAsking():
+        break;
     }
   }
 
@@ -78,6 +69,8 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final isLoading = ref.watch(goalPromptControllerProvider) is PromptAsking;
+    ref.listen(goalPromptControllerProvider, (_, next) => _onChanged(next));
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.createGoal)),
@@ -110,9 +103,9 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _promptField(l10n),
+                _promptField(l10n, isLoading: isLoading),
                 const SizedBox(height: 16),
-                _nextButton(l10n),
+                _nextButton(l10n, isLoading: isLoading),
               ],
             ),
           ),
@@ -122,12 +115,12 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
   }
 
   /// The prompt itself: a roomy multi-line field with a 500-character budget.
-  Widget _promptField(AppLocalizations l10n) {
+  Widget _promptField(AppLocalizations l10n, {required bool isLoading}) {
     final theme = Theme.of(context);
     return TextFormField(
       controller: _promptController,
       focusNode: _promptFocusNode,
-      enabled: !_isLoading,
+      enabled: !isLoading,
       decoration: InputDecoration(
         hintText: l10n.yourAnswer,
         filled: true,
@@ -156,19 +149,19 @@ class _GoalPromptScreenState extends ConsumerState<GoalPromptScreen> {
   }
 
   /// Sends the prompt; a spinner takes the label while the call is in flight.
-  Widget _nextButton(AppLocalizations l10n) {
+  Widget _nextButton(AppLocalizations l10n, {required bool isLoading}) {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
-        onPressed: _isLoading ? null : _onEnterPressed,
+        onPressed: isLoading ? null : _onEnterPressed,
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.card),
           ),
         ),
-        child: _isLoading
+        child: isLoading
             ? SizedBox(
                 height: 20,
                 width: 20,

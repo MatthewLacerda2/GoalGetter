@@ -4,16 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
-import 'package:goal_getter/features/onboarding/presentation/controllers/question_timer.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/goal_questions_controller.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 
-/// Step 2 of goal creation: one objective question at a time. The last answer
-/// sends everything to `POST /goals/study-plan`; a failure there keeps every
-/// answer, and offers a retry or a way back to change them.
+/// Step 2 of goal creation: one objective question at a time, drawn from its
+/// controller. The last answer sends everything to `POST /goals/study-plan`; a
+/// failure there keeps every answer, and offers a retry or a way back to
+/// change them.
 class GoalQuestionsScreen extends ConsumerStatefulWidget {
   final List<ObjectiveQuestion> questions;
   final String prompt;
@@ -31,11 +31,6 @@ class GoalQuestionsScreen extends ConsumerStatefulWidget {
 
 class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
     with TickerProviderStateMixin {
-  late final List<String> _answers = List.filled(widget.questions.length, '');
-  late final QuestionTimer _timer = QuestionTimer(widget.questions.length);
-  int _currentQuestionIndex = 0;
-  bool _isLoading = false;
-
   late final AnimationController _slideController = AnimationController(
     duration: const Duration(milliseconds: 400),
     vsync: this,
@@ -53,12 +48,14 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
     end: 1.0,
   ).animate(_curve);
 
-  bool get _isLast => _currentQuestionIndex == widget.questions.length - 1;
+  GoalQuestionsControllerProvider get _provider =>
+      goalQuestionsControllerProvider(widget.prompt, widget.questions);
+
+  GoalQuestionsController get _controller => ref.read(_provider.notifier);
 
   @override
   void initState() {
     super.initState();
-    _timer.show(0);
     _slideController.forward();
   }
 
@@ -69,69 +66,38 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
   }
 
   void _onOptionSelected(String option) {
-    if (_isLoading) return;
-    _timer.stop();
-    setState(() => _answers[_currentQuestionIndex] = option);
+    if (!_controller.select(option)) return;
 
     // Brief delay to allow the user to see their selection before auto-advancing
     Future.delayed(const Duration(milliseconds: 250), () {
       if (!mounted) return;
-      _isLast ? _requestStudyPlan() : _moveBy(1);
+      ref.read(_provider).isLast ? _controller.requestPlan() : _moveBy(1);
     });
   }
 
   void _moveBy(int step) {
-    _timer.stop();
+    _controller.leave();
     _slideController.reverse().then((_) {
       if (!mounted) return;
-      setState(() => _currentQuestionIndex += step);
-      _timer.show(_currentQuestionIndex);
+      _controller.move(step);
       _slideController.forward();
     });
   }
 
-  Future<void> _requestStudyPlan() async {
-    setState(() => _isLoading = true);
-    final answers = [
-      for (var i = 0; i < widget.questions.length; i++)
-        ObjectiveAnswer(
-          question: widget.questions[i].question,
-          answer: _answers[i],
-          totalSeconds: _timer.secondsOn(i),
-        ),
-    ];
-    try {
-      final plan = await ref
-          .read(onboardingApiProvider)
-          .studyPlan(widget.prompt, answers);
-      if (mounted) {
-        // Back from the plan, he is on the last question again: its clock
-        // resumes, in case he changes that answer.
-        context
-            .push(
-              AppRoutes.studyPlan,
-              extra: GoalDraft(
-                prompt: widget.prompt,
-                answers: answers,
-                plan: plan,
-              ),
-            )
-            .then((_) {
-              if (mounted) _timer.show(_currentQuestionIndex);
-            });
-      }
-    } on Exception catch (e) {
-      // Every answer is still in `_answers`, so the retry sends the same ones.
-      if (mounted) {
-        showFailure(
-          context,
-          e,
-          title: AppLocalizations.of(context).onboardingPlanFailed,
-          onRetry: _requestStudyPlan,
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+  /// The plan arrived, or its request failed: each is said once.
+  void _onChanged(PlanRequest? previous, PlanRequest next) {
+    if (next is PlanReady && previous is! PlanReady) {
+      context.push(AppRoutes.studyPlan, extra: next.draft).then((_) {
+        if (mounted) _controller.resume();
+      });
+    }
+    if (next is PlanFailed && previous is! PlanFailed) {
+      showFailure(
+        context,
+        next.error,
+        title: AppLocalizations.of(context).onboardingPlanFailed,
+        onRetry: _controller.requestPlan,
+      );
     }
   }
 
@@ -139,8 +105,14 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final state = ref.watch(_provider);
+    ref.listen(
+      _provider,
+      (previous, next) => _onChanged(previous?.plan, next.plan),
+    );
+    final isLoading = state.plan is PlanLoading;
     final progress = widget.questions.isNotEmpty
-        ? (_currentQuestionIndex + 1) / widget.questions.length
+        ? (state.index + 1) / widget.questions.length
         : 0.0;
 
     return Scaffold(
@@ -148,10 +120,10 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
       appBar: AppBar(
         title: Text(l10n.questions),
         centerTitle: true,
-        leading: _currentQuestionIndex > 0
+        leading: state.index > 0
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: _isLoading ? null : () => _moveBy(-1),
+                onPressed: isLoading ? null : () => _moveBy(-1),
                 tooltip: l10n.onboardingPreviousQuestion,
               )
             : null,
@@ -160,7 +132,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
             child: Padding(
               padding: const EdgeInsets.only(right: AppSpacing.md),
               child: Text(
-                '${_currentQuestionIndex + 1}/${widget.questions.length}',
+                '${state.index + 1}/${widget.questions.length}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: scheme.onSurfaceVariant,
@@ -179,14 +151,14 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
           ),
         ),
       ),
-      body: _isLoading
+      body: isLoading
           ? _Generating(label: l10n.onboardingGeneratingPlan)
-          : _questionView(),
+          : _questionView(state),
     );
   }
 
-  Widget _questionView() {
-    final question = widget.questions[_currentQuestionIndex];
+  Widget _questionView(GoalQuestionsState state) {
+    final question = widget.questions[state.index];
     final scheme = Theme.of(context).colorScheme;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.xl),
@@ -216,7 +188,7 @@ class _GoalQuestionsScreenState extends ConsumerState<GoalQuestionsScreen>
               for (final option in question.options)
                 QuestionOptionTile(
                   option: option,
-                  isSelected: _answers[_currentQuestionIndex] == option,
+                  isSelected: state.answers[state.index] == option,
                   onTap: () => _onOptionSelected(option),
                 ),
             ],
