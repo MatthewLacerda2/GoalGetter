@@ -7,14 +7,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'resources_api.g.dart';
 
 /// `GET /resources` (`backend/api/v1/endpoints/resources.py`), scoped by the
-/// backend to the active goal. Without one it is 404 `No active goal`
-/// ([noActiveGoalDetail]).
+/// backend to the active goal. Without one it is `no_active_goal`.
 class ResourcesApi {
   const ResourcesApi(this._api);
-
-  /// The backend's `detail` for a goal-scoped read with no active goal
-  /// (`backend/api/v1/goal_dependencies.py::get_active_goal`).
-  static const noActiveGoalDetail = 'No active goal';
 
   final ApiClient _api;
 

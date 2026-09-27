@@ -1,9 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
 
 import '../contract/contract_client.dart';
+import '../contract/error_body.dart';
 import '../features/fake_backend.dart';
 import 'app_harness.dart';
 
@@ -46,8 +48,8 @@ class _TwoGoals {
               200,
             ),
           _ when key.endsWith('/lessons') =>
-            http.Response('{"detail": "still preparing"}', 409),
-          _ => http.Response('{"detail": "no route"}', 599),
+            http.Response(errorBody(ErrorCode.lessonsNotReady), 409),
+          _ => http.Response(noRoute, 599),
         };
       });
 }

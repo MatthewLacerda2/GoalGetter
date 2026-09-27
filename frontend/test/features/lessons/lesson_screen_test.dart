@@ -7,12 +7,14 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
+import '../../contract/error_body.dart';
 import '../api_fake.dart';
 import 'lesson_json.dart';
 
@@ -83,7 +85,7 @@ void main() {
   testWidgets('a 409 says the lessons are still being prepared',
       (tester) async {
     final fake = ApiFake({
-      startKey: [(409, '{"detail": "Lessons are still being prepared"}')],
+      startKey: [(409, errorBody(ErrorCode.lessonsNotReady))],
     });
     await pumpScreen(tester, await fake.overrides(), const LessonScreen());
 
@@ -99,7 +101,7 @@ void main() {
     final fake = ApiFake({
       startKey: [(201, lessonJson(8))],
       answersKey: [(200, evaluationJson)],
-      'GET /home': [(404, '{"detail": "No active goal"}')],
+      'GET /home': [(404, errorBody(ErrorCode.noActiveGoal))],
     });
     await pumpScreen(tester, await fake.overrides(), const LessonScreen());
 
@@ -124,7 +126,7 @@ void main() {
   testWidgets('a failed submit is a snackbar with a retry', (tester) async {
     final fake = ApiFake({
       startKey: [(201, lessonJson(1))],
-      answersKey: [(500, '{"detail": "boom"}')],
+      answersKey: [(500, crashed)],
     });
     await pumpScreen(tester, await fake.overrides(), const LessonScreen());
     await tester.tap(find.text('a'));
@@ -136,7 +138,7 @@ void main() {
 
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.text('Your answers were not saved'), findsOneWidget);
-    expect(find.text('boom'), findsOneWidget);
+    expect(find.textContaining('Something went wrong'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
     expect(find.text('Question 0?'), findsOneWidget);
   });
@@ -146,7 +148,7 @@ void main() {
     final fake = ApiFake({
       startKey: [(201, lessonJson(2))],
       answersKey: [(200, evaluationJson)],
-      'GET /home': [(404, '{"detail": "No active goal"}')],
+      'GET /home': [(404, errorBody(ErrorCode.noActiveGoal))],
     });
     await pumpRouted(tester, await fake.overrides());
 
@@ -177,10 +179,10 @@ void main() {
   testWidgets('a failed start offers a retry that opens a new lesson',
       (tester) async {
     final fake = ApiFake({
-      startKey: [(500, '{"detail": "boom"}'), (201, lessonJson(1))],
+      startKey: [(500, crashed), (201, lessonJson(1))],
     });
     await pumpScreen(tester, await fake.overrides(), const LessonScreen());
-    expect(find.text('boom'), findsOneWidget);
+    expect(find.textContaining('Something went wrong'), findsOneWidget);
 
     await tester.tap(find.text('Retry'));
     await tester.pumpAndSettle();

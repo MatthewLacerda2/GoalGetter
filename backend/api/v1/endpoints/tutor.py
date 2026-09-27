@@ -1,4 +1,4 @@
-"""The tutor chat, scoped to the student's active goal (404 `No active goal`
+"""The tutor chat, scoped to the student's active goal (404 `no_active_goal`
 without one). The API speaks in exchanges: one row per prompt + reply."""
 
 from datetime import datetime

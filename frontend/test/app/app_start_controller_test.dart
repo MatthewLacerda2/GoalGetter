@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../contract/contract_client.dart';
+import '../contract/error_body.dart';
 import '../features/fake_backend.dart';
 
 /// Launches with [stored] prefs against a backend whose GET /goals answers
@@ -76,7 +77,7 @@ void main() {
   test('a failed GET /goals with a stored active goal goes home', () async {
     final destination = await launch(
       {..._token, 'current_goal_id': 'g1'},
-      goalsBody: '{"detail": "boom"}',
+      goalsBody: crashed,
       status: 500,
     );
     expect(destination, AppStartDestination.authenticatedReady);
@@ -84,7 +85,7 @@ void main() {
 
   test('a failed GET /goals without one goes to the goals list', () async {
     final destination =
-        await launch(_token, goalsBody: '{"detail": "boom"}', status: 500);
+        await launch(_token, goalsBody: crashed, status: 500);
     expect(destination, AppStartDestination.authenticatedNeedsActiveGoal);
   });
 }

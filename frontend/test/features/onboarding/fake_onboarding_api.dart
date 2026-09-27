@@ -1,4 +1,5 @@
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
@@ -33,9 +34,24 @@ const created = CreatedGoal(
   ],
 );
 
-const geminiDown = ApiException(503, 'The model is overloaded');
-const notAGoal = ApiException(400, 'This does not describe something to learn');
-const rateLimited = ApiException(429, 'HTTP 429');
+const geminiDown = ApiException(
+  502,
+  'Gemini answered with an error',
+  code: ErrorCode.geminiFailed,
+);
+const notAGoal = ApiException(
+  400,
+  'This does not describe something to learn',
+  code: ErrorCode.notAGoal,
+);
+const rateLimited = ApiException(
+  429,
+  'Too many requests',
+  code: ErrorCode.tooManyRequests,
+);
+
+/// What the app says for [geminiDown], in English.
+const aiUnavailable = 'The AI is not answering right now';
 
 /// A backend that answers the fixtures above. A non-null error field makes
 /// that call throw it; the last request of each call is recorded.

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/app.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
@@ -11,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../contract/contract_client.dart';
+import '../contract/error_body.dart';
 import '../features/fake_backend.dart';
 import 'app_harness.dart';
 
@@ -23,7 +25,7 @@ final _activeGoal = '[${goalJson('g1', active: true, name: 'Chess')}]';
 const _home = '{"goal_name": "Chess", "current_elo": 1000,'
     ' "current_streak": 0, "recent_lessons": []}';
 
-const _expired = '{"detail": "expired"}';
+final _expired = errorBody(ErrorCode.invalidToken);
 
 /// A backend where GET /goals knows the student, GET /home answers
 /// [homeStatus] (401: his access token expired), POST /goals says the token
@@ -37,9 +39,11 @@ http.Client _backend(int refreshStatus, int homeStatus) =>
             ? http.Response(_home, 200)
             : http.Response(_expired, homeStatus),
         'POST /goals' => http.Response(_expired, 401),
-        'POST /auth/refresh' =>
-          http.Response('{"detail": "refused"}', refreshStatus),
-        _ => http.Response('{"detail": "no route"}', 599),
+        'POST /auth/refresh' => http.Response(
+            errorBody(ErrorCode.invalidRefreshToken),
+            refreshStatus,
+          ),
+        _ => http.Response(noRoute, 599),
       };
     });
 

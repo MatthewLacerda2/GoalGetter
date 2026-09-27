@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
@@ -15,6 +16,7 @@ import 'package:goal_getter/features/onboarding/presentation/controllers/pending
 import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_screen.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
+import '../../contract/error_body.dart';
 import '../fake_backend.dart';
 import 'fake_onboarding_api.dart';
 
@@ -156,14 +158,17 @@ void main() {
   ) async {
     final (router, google, storage) = await pumpStart(
       tester,
-      signup: (503, '{"detail": "The model is overloaded"}'),
+      signup: (503, errorBody(ErrorCode.googleUnreachable)),
       held: draft,
     );
 
     await googleSignsIn(tester, google);
 
     expect(find.text('Could not sign in'), findsOneWidget);
-    expect(find.text('The model is overloaded'), findsOneWidget);
+    expect(
+      find.text('Could not reach Google. Try again in a moment.'),
+      findsOneWidget,
+    );
     expect(storage.getAccessToken(), isEmpty);
     expect(_at(router), AppRoutes.start);
   });

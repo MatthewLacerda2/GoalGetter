@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../contract/contract_client.dart';
+import '../contract/error_body.dart';
 
 /// A canned answer: status and JSON body.
 typedef Reply = (int, String);
@@ -37,7 +38,7 @@ class FakeBackend {
             '${request.method} ${request.url.path.replaceFirst('/api/v1', '')}';
         calls.add(key);
         final queue = _replies[key];
-        if (queue == null) return http.Response('{"detail": "no route"}', 599);
+        if (queue == null) return http.Response(noRoute, 599);
         final (status, body) = queue.length > 1 ? queue.removeAt(0) : queue[0];
         return http.Response(body, status);
       }),

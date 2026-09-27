@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
@@ -87,7 +88,11 @@ void main() {
 
   test('no active goal is its own state, not an error', () async {
     final api = FakeTutorApi([])
-      ..listError = const ApiException(404, TutorApi.noActiveGoal);
+      ..listError = const ApiException(
+        404,
+        'No active goal',
+        code: ErrorCode.noActiveGoal,
+      );
     final c = await loaded(api);
     expect(c.async.value, const TutorNoActiveGoal());
   });

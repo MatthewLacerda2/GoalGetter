@@ -1,4 +1,5 @@
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -37,10 +38,10 @@ final class PromptFailed extends GoalPromptState {
 
   final Object error;
 
-  /// A 400 is Gemini saying the prompt is not a goal: its `detail` is its
-  /// reasoning, and the prompt wants rephrasing, not the same request again.
+  /// Gemini saying the prompt is not a goal: its `detail` is its reasoning,
+  /// and the prompt wants rephrasing, not the same request again.
   bool get rejected => switch (error) {
-    ApiException(status: 400) => true,
+    ApiException(code: ErrorCode.notAGoal) => true,
     _ => false,
   };
 }

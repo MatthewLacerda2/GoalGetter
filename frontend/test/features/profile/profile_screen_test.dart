@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
 
+import '../../contract/error_body.dart';
 import '../api_fake.dart';
 
 const meJson = '{"id": "s1", "name": "Fictitious Claude",'
@@ -50,7 +51,7 @@ void main() {
   });
 
   testWidgets('a failed GET /me after a pick shows nothing', (tester) async {
-    final fake = await pumpProfile(tester, (500, '{"detail": "boom"}'));
+    final fake = await pumpProfile(tester, (500, crashed));
 
     await pickGerman(tester);
 

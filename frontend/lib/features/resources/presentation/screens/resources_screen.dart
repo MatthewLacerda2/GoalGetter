@@ -14,7 +14,7 @@ import 'package:goal_getter/features/resources/presentation/controllers/resource
 /// The active goal's resources (`GET /resources`), one tab per kind.
 ///
 /// Four states, never confused: loading; failed, with a retry; no active goal
-/// (404 `No active goal`), with a way to pick one, since a retry would get the
+/// (`no_active_goal`), with a way to pick one, since a retry would get the
 /// same answer; and loaded, where three empty lists mean the background search
 /// is still running, which is said as such rather than shown as an error.
 class ResourcesScreen extends ConsumerWidget {

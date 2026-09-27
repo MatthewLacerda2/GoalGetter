@@ -43,7 +43,7 @@ class HomeScreen extends ConsumerWidget {
             title: AppLocalizations.of(context).homeLoadFailed,
             onRetry: () => ref.invalidate(homeControllerProvider),
           ),
-          // null: 404 No active goal.
+          // null: no_active_goal.
           data: (data) =>
               data == null ? const _EmptyState() : _Dashboard(data: data),
         ),

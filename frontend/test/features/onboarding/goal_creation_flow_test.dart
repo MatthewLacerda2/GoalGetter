@@ -58,7 +58,7 @@ void main() {
       extra: _questions,
     );
     await answer(tester);
-    expect(find.text(geminiDown.detail), findsOneWidget);
+    expect(find.textContaining(aiUnavailable), findsOneWidget);
 
     api.planError = null;
     await tester.tap(find.text('Retry'));
@@ -149,7 +149,7 @@ void main() {
     await pumpFlow(tester, api, initial: AppRoutes.studyPlan, extra: draft);
     await tester.tap(find.text('Start learning'));
     await tester.pumpAndSettle();
-    expect(find.text(geminiDown.detail), findsOneWidget);
+    expect(find.textContaining(aiUnavailable), findsOneWidget);
     expect(find.text(plan.goalName), findsOneWidget);
 
     api.createError = null;

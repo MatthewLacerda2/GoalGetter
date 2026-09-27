@@ -6,10 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
 
+import '../../contract/error_body.dart';
 import '../api_fake.dart';
 import 'lesson_json.dart';
 
@@ -163,7 +165,7 @@ void main() {
 
   test('a 409 on start is "still being prepared", not a spinner', () async {
     final fake = ApiFake({
-      startKey: [(409, '{"detail": "Lessons are still being prepared"}')],
+      startKey: [(409, errorBody(ErrorCode.lessonsNotReady))],
     });
     final c = await openedOver(fake);
     expect(c.async, const AsyncData<LessonState>(LessonNotReady()));
@@ -180,10 +182,10 @@ void main() {
     'a failed start is the error, and invalidating opens a new lesson',
     () async {
       final fake = ApiFake({
-        startKey: [(500, '{"detail": "boom"}'), (201, lessonJson(1))],
+        startKey: [(500, crashed), (201, lessonJson(1))],
       });
       final c = await openedOver(fake);
-      expect((c.async.error as ApiException?)?.detail, 'boom');
+      expect((c.async.error as ApiException?)?.code, ErrorCode.internalError);
 
       c.invalidate(lessonControllerProvider);
       await c.read(lessonControllerProvider.future);
@@ -194,14 +196,17 @@ void main() {
   test('a failed submit keeps the answers, and the retry sends them', () async {
     final fake = ApiFake({
       startKey: [(201, lessonJson(2))],
-      answersKey: [(500, '{"detail": "boom"}'), (200, evaluationJson)],
+      answersKey: [(500, crashed), (200, evaluationJson)],
     });
     final c = await openedOver(fake);
     await c.answer(0);
     await c.answer(1);
 
     final round = c.answering.round as FirstRound;
-    expect((round.submitFailure as ApiException?)?.detail, 'boom');
+    expect(
+      (round.submitFailure as ApiException?)?.code,
+      ErrorCode.internalError,
+    );
     expect(c.answering.isRevealed, isTrue);
     final firstTry = sentAnswers(fake);
 
@@ -214,7 +219,7 @@ void main() {
     final fake = ApiFake({
       startKey: [(201, lessonJson(1))],
       answersKey: [(200, evaluationJson)],
-      'GET /home': [(404, '{"detail": "No active goal"}')],
+      'GET /home': [(404, errorBody(ErrorCode.noActiveGoal))],
     });
     final c = await openedOver(fake);
     c.listen(homeControllerProvider, (_, __) {});

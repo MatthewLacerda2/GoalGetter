@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goal_detail_screen.dart';
 import 'package:goal_getter/features/goals/presentation/screens/goals_list_screen.dart';
 
+import '../../contract/error_body.dart';
 import '../fake_backend.dart';
 
 final _routes = [
@@ -81,11 +83,11 @@ void main() {
   testWidgets('a failed load shows the error and a retry that reloads',
       (tester) async {
     await open(tester, {
-      'GET /goals': [(500, '{"detail": "Database down"}'), ..._twoGoals],
+      'GET /goals': [(500, crashed), ..._twoGoals],
     });
 
     expect(find.text('Could not load your goals'), findsOneWidget);
-    expect(find.text('Database down'), findsOneWidget);
+    expect(find.textContaining('Something went wrong'), findsOneWidget);
 
     await tester.tap(find.text('Retry'));
     await tester.pumpAndSettle();
@@ -111,7 +113,7 @@ void main() {
       (tester) async {
     await open(tester, {
       'GET /goals': _twoGoals,
-      'PUT /goals/g2/set-active': [(404, '{"detail": "Goal not found"}')],
+      'PUT /goals/g2/set-active': [(404, errorBody(ErrorCode.goalNotFound))],
     }, at: '/goals/g2');
 
     await tester.tap(find.text('Set as current goal'));
@@ -119,7 +121,7 @@ void main() {
 
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.text('Could not make this your active goal'), findsOneWidget);
-    expect(find.text('Goal not found'), findsOneWidget);
+    expect(find.text('This goal no longer exists'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
     expect(find.text('Set as current goal'), findsOneWidget);
   });

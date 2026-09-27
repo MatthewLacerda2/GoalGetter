@@ -1,4 +1,5 @@
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/domain/chat_exchange.dart';
@@ -32,7 +33,7 @@ class TutorController extends _$TutorController {
         older: _olderThan(page),
       );
     } on ApiException catch (e) {
-      if (e.status == 404 && e.detail == TutorApi.noActiveGoal) {
+      if (e.code == ErrorCode.noActiveGoal) {
         return const TutorNoActiveGoal();
       }
       rethrow;
