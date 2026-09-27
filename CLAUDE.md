@@ -151,6 +151,13 @@ the backend tests; if it fails, you have things to fix.
   and that every string a student reads comes from the ARB files — a key read
   nowhere, a key missing from a locale, a sentence written in Dart and a file
   under `lib/` nobody imports all fail it.
+- **A Flutter feature is `data/` → controller → screen** (#222). `data/<feature>_api.dart`
+  talks HTTP; a code-generated controller under `presentation/controllers/` holds the
+  screen's state and calls the API; the screen only watches it. A feature's
+  `presentation/` holds `controllers/`, `screens/` and `widgets/` and nothing else, and
+  no screen or widget imports `data/`. `make front-lint` enforces both;
+  `frontend/tool/layer_rules.dart` says which folder holds what. A route's `extra`
+  carries domain objects, never an icon, a colour or a translated string.
 - **Database access only through `backend/repositories/`.** No `select` /
   `insert` / `update` / `delete` imports and no `db.execute` / `db.add` /
   `db.delete` anywhere else.

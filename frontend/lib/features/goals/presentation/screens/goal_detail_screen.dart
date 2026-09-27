@@ -8,13 +8,13 @@ import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goals_list_controller.dart';
-import 'package:goal_getter/features/goals/presentation/screens/goals_detail_screen.dart';
+import 'package:goal_getter/features/goals/presentation/widgets/goal_detail_view.dart';
 
 /// `/goals/:id`. The list hands the goal over through `extra`; a deep link or a
 /// web refresh loses `extra`, so the goal is then looked up in `GET /goals`
 /// (the same list, not a per-goal fetch, which does not exist).
-class GoalDetailRoute extends ConsumerWidget {
-  const GoalDetailRoute({super.key, required this.goalId, this.goal});
+class GoalDetailScreen extends ConsumerWidget {
+  const GoalDetailScreen({super.key, required this.goalId, this.goal});
 
   final String goalId;
   final Goal? goal;
@@ -22,7 +22,7 @@ class GoalDetailRoute extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final handedOver = goal;
-    if (handedOver != null) return GoalsDetailScreen(goal: handedOver);
+    if (handedOver != null) return GoalDetailView(goal: handedOver);
 
     final l10n = AppLocalizations.of(context);
     final goalsAsync = ref.watch(goalsListControllerProvider);
@@ -40,7 +40,7 @@ class GoalDetailRoute extends ConsumerWidget {
       data: (goals) {
         for (final candidate in goals) {
           if (candidate.id == goalId) {
-            return GoalsDetailScreen(goal: candidate);
+            return GoalDetailView(goal: candidate);
           }
         }
         return message(StateMessage(

@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/core/widgets/state_message.dart';
-import 'package:goal_getter/features/tutor/presentation/chat_bubbles.dart';
+import 'package:goal_getter/features/tutor/presentation/widgets/chat_bubbles.dart';
 import 'package:goal_getter/features/tutor/presentation/controllers/tutor_controller.dart';
 import 'package:goal_getter/features/tutor/presentation/widgets/chat_input.dart';
 import 'package:goal_getter/features/tutor/presentation/widgets/chat_message_bubble.dart';

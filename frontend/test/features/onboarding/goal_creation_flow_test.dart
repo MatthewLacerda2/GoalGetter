@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_screen.dart';
 
 import 'fake_onboarding_api.dart';
 import 'onboarding_harness.dart';

@@ -13,7 +13,7 @@ import 'package:goal_getter/app/startup/splash_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/start_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_prompt_screen.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/goal_questions_screen.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_screen.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
 import 'package:goal_getter/features/onboarding/presentation/screens/standard_questions_screen.dart';
@@ -21,11 +21,12 @@ import 'package:goal_getter/features/home/presentation/screens/home_screen.dart'
 import 'package:goal_getter/features/tutor/presentation/screens/tutor_screen.dart';
 import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
 import 'package:goal_getter/features/profile/presentation/screens/profile_screen.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/lesson_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/finish_lesson_screen.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
-import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
-import 'package:goal_getter/features/goals/presentation/screens/goal_detail_route.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goals_list_screen.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goal_detail_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -208,30 +209,22 @@ final List<RouteBase> _lessonRoutes = [
   GoRoute(
     path: AppRoutes.lessonFinish,
     redirect: (_, state) =>
-        _extra<FinishLessonArgs>(state) == null ? AppRoutes.home : null,
-    builder: (_, state) {
-      final args = _extra<FinishLessonArgs>(state)!;
-      return FinishLessonScreen(
-        title: args.title,
-        icon: args.icon,
-        timeSpent: args.timeSpent,
-        accuracy: args.accuracy,
-        elo: args.elo,
-      );
-    },
+        _extra<LessonEvaluation>(state) == null ? AppRoutes.home : null,
+    builder: (_, state) =>
+        FinishLessonScreen(evaluation: _extra<LessonEvaluation>(state)!),
   ),
 ];
 
 /// The goals list and one goal. The detail carries an id in its path, so its
-/// `extra` is only a shortcut: without one [GoalDetailRoute] fetches the goal.
+/// `extra` is only a shortcut: without one [GoalDetailScreen] fetches the goal.
 final List<RouteBase> _goalRoutes = [
   GoRoute(
     path: AppRoutes.goals,
-    builder: (_, __) => const ListGoalsScreen(),
+    builder: (_, __) => const GoalsListScreen(),
   ),
   GoRoute(
     path: '${AppRoutes.goals}/:id',
-    builder: (_, state) => GoalDetailRoute(
+    builder: (_, state) => GoalDetailScreen(
       goalId: state.pathParameters['id']!,
       goal: _extra<Goal>(state),
     ),

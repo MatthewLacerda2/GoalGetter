@@ -3,16 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/app/router/app_routes.dart';
-import 'package:goal_getter/app/router/route_args.dart';
-import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
-import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
 import 'package:goal_getter/features/lessons/presentation/controllers/lesson_controller.dart';
-import 'package:goal_getter/features/lessons/presentation/lesson_clock.dart';
 import 'package:goal_getter/features/lessons/presentation/screens/info_screen.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_cannot_start.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/lesson_question_view.dart';
-import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 /// The lesson, drawn from the [LessonState] its controller is in. It decides
@@ -95,7 +90,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     if (next is LessonFinished && previous is! LessonFinished) {
       context.pushReplacement(
         AppRoutes.lessonFinish,
-        extra: _finishArgs(next.evaluation),
+        extra: next.evaluation,
       );
     }
     final failed = _submitFailure(next);
@@ -113,37 +108,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     LessonAnswering(round: FirstRound(:final submitFailure)) => submitFailure,
     _ => null,
   };
-
-  /// The server's evaluation of the lesson's first round, as three tiles.
-  FinishLessonArgs _finishArgs(LessonEvaluation evaluation) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final elo = evaluation.elo;
-    return FinishLessonArgs(
-      title: l10n.lessonFinishedTitle,
-      icon: Icons.check_circle,
-      timeSpent: StatData(
-        title: l10n.lessonTime,
-        icon: Icons.timer,
-        text: formatLessonClock(
-          Duration(seconds: evaluation.totalSecondsSpent),
-        ),
-        color: theme.colorScheme.primary,
-      ),
-      accuracy: StatData(
-        title: l10n.lessonAccuracy,
-        icon: Icons.check_circle,
-        text: '${evaluation.studentAccuracy.toStringAsFixed(0)}%',
-        color: theme.extension<CustomColors>()?.success ?? AppTheme.success,
-      ),
-      elo: StatData(
-        title: l10n.elo,
-        icon: Icons.trending_up,
-        text: '${elo >= 0 ? '+' : ''}$elo',
-        color: theme.colorScheme.secondary,
-      ),
-    );
-  }
 }
 
 class _Spinner extends StatelessWidget {

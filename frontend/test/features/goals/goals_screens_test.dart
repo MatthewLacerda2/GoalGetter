@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
-import 'package:goal_getter/features/goals/presentation/screens/goal_detail_route.dart';
-import 'package:goal_getter/features/goals/presentation/screens/list_goals_screen.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goal_detail_screen.dart';
+import 'package:goal_getter/features/goals/presentation/screens/goals_list_screen.dart';
 
 import '../fake_backend.dart';
 
 final _routes = [
-  GoRoute(path: '/goals', builder: (_, __) => const ListGoalsScreen()),
+  GoRoute(path: '/goals', builder: (_, __) => const GoalsListScreen()),
   GoRoute(
     path: '/goals/:id',
-    builder: (_, state) => GoalDetailRoute(
+    builder: (_, state) => GoalDetailScreen(
       goalId: state.pathParameters['id']!,
       goal: state.extra as Goal?,
     ),
@@ -139,6 +139,6 @@ void main() {
 
     expect(backend.calls, contains('DELETE /goals/g1'));
     expect(backend.storage.readCurrentGoalId(), isNull);
-    expect(find.byType(ListGoalsScreen), findsOneWidget);
+    expect(find.byType(GoalsListScreen), findsOneWidget);
   });
 }

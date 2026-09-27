@@ -10,13 +10,15 @@
 ///  6. no user-facing string written in Dart — it comes from the ARB files;
 ///  7. no widget named after a failure outside `lib/core/`;
 ///  8. no `DevFixtures` named outside `lib/app/dev/`;
-///  9. no file under `lib/core/` imports `lib/app/`.
+///  9. no file under `lib/core/` imports `lib/app/`;
+/// 10. no screen or widget imports a feature's `data/`: a controller does;
+/// 11. a feature's `presentation/` holds `controllers/`, `screens/` and
+///     `widgets/`, and nothing else.
 ///
-/// Rule 9 keeps the layers pointing one way: `lib/app/` is the router and the
-/// screens it wires together, `lib/core/` is what every feature is built on.
-/// A core file that reached back into the app made the whole app one import
-/// cycle through the API client, which is how session expiry used to navigate
-/// (#224); the router now listens to the session instead.
+/// Rules 9-11 are about the shape of `lib/` rather than the text of a file:
+/// which layer may import which, and where a file of a feature goes. They and
+/// the reasoning behind them live in `tool/layer_rules.dart` — read it before
+/// adding a file to a feature.
 ///
 /// Rules 3-5 exist so the theme is the only place a colour, a type size, a
 /// corner or a gap is decided. `lib/core/theme/` is where those values live, so
@@ -40,9 +42,11 @@ library;
 import 'dart:io';
 
 import 'dart_source.dart';
+import 'layer_rules.dart';
 import 'project_rules.dart';
 
 export 'dart_source.dart';
+export 'layer_rules.dart';
 export 'project_rules.dart';
 
 /// A file is at most this many raw lines (CLAUDE.md, frontend house rules).
@@ -57,13 +61,6 @@ const String themeDir = 'lib/core/theme/';
 /// The one directory allowed to write user-facing strings in Dart and to name
 /// the fixtures: the dev menu is a tool for us, not a screen for a student.
 const String devDir = 'lib/app/dev/';
-
-/// The one directory allowed to define a widget named after a failure.
-const String coreDir = 'lib/core/';
-
-/// The app layer: the router and the screens it wires together. Nothing under
-/// [coreDir] may import it.
-const String appDir = 'lib/app/';
 
 /// The name endings that say "this widget is how a failure is shown".
 const List<String> failureSuffixes = [
@@ -91,9 +88,6 @@ bool isThemeFile(String path) => path.replaceAll('\\', '/').contains(themeDir);
 
 /// True when [path] may write user-facing strings in Dart and name a fixture.
 bool isDevFile(String path) => path.replaceAll('\\', '/').contains(devDir);
-
-/// True when [path] may define a widget named after a failure.
-bool isCoreFile(String path) => path.replaceAll('\\', '/').contains(coreDir);
 
 final RegExp _colorsDot = RegExp(r'\bColors\.[A-Za-z]');
 final RegExp _colorHex = RegExp(r'\bColor\s*\(\s*0x');
@@ -155,20 +149,6 @@ List<Violation> failureWidgets(String stripped) {
         ),
   ];
 }
-
-/// Imports from a file under [coreDir] that reach into [appDir]. Read from the
-/// raw source, since the URI is a string the stripped source blanks.
-List<Violation> coreImportsApp(String path, String source) => [
-      if (isCoreFile(path))
-        for (final (end, target) in directiveTargets(path, source))
-          if (target.startsWith(appDir))
-            Violation(
-              lineAt(source, end),
-              'core-imports-app',
-              'lib/core/ is what the app is built on and may not import '
-                  "lib/app/ ('$target'): expose state the app listens to",
-            ),
-    ];
 
 /// Numeric literal anywhere in the balanced argument list opening at [open].
 bool _hasNumericArgument(String stripped, int open) {
@@ -296,8 +276,9 @@ List<Violation> lintSource(String path, String source) {
     );
   }
 
+  // Only lib/core/ may define a widget named after a failure.
   if (!isCoreFile(path)) violations.addAll(failureWidgets(stripped));
-  violations.addAll(coreImportsApp(path, source));
+  violations.addAll(layerViolations(path, source));
 
   violations.sort((a, b) => a.line.compareTo(b.line));
   return violations;

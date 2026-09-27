@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
-import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/sign_in_landing.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 
 /// DEV_LOGIN builds only: signs in as `Fictitious <AppConfig.devLoginName>`
 /// through POST /auth/dev-login, then routes the way a launch would (or back
-/// to the goal being committed, see [routeAfterSignIn]).
+/// to the goal being committed, see [SignInLanding]).
 class DevLoginButton extends ConsumerStatefulWidget {
   const DevLoginButton({super.key});
 
@@ -27,7 +28,9 @@ class _DevLoginButtonState extends ConsumerState<DevLoginButton> {
       await ref
           .read(authServiceProvider)
           .signInAsFictitious(AppConfig.devLoginName);
-      if (mounted) await routeAfterSignIn(ref, context);
+      if (!mounted) return;
+      final landing = await ref.read(signInLandingProvider).resolve();
+      if (mounted) context.go(landing.location, extra: landing.extra);
     } on Exception catch (e) {
       if (!mounted) return;
       showFailure(

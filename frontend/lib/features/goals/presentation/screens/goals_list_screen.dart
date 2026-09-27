@@ -13,8 +13,8 @@ import 'package:goal_getter/core/theme/app_dimens.dart';
 /// The student's goals, from `GET /goals`. Tapping a card opens the detail
 /// screen with that same goal (no second fetch). Starting another goal is the
 /// floating button; with no goals yet the empty state offers it instead.
-class ListGoalsScreen extends ConsumerWidget {
-  const ListGoalsScreen({super.key});
+class GoalsListScreen extends ConsumerWidget {
+  const GoalsListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

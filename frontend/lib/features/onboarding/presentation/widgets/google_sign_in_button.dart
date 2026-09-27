@@ -4,13 +4,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:goal_getter/core/theme/app_dimens.dart';
 import 'package:goal_getter/core/theme/app_theme.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
-import 'package:goal_getter/features/onboarding/presentation/sign_in_routing.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/sign_in_landing.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 import 'google_rendered_button.dart'
@@ -38,7 +39,7 @@ enum _Ready {
 /// the very same stream. So everything after "Google said yes" is one path:
 /// exchange the token for a session (POST /auth/signup), then route.
 ///
-/// Where it routes is [routeAfterSignIn]: back to the goal draft the student
+/// Where it routes is [SignInLanding]: back to the goal draft the student
 /// was committing when there is one, else wherever a launch would go.
 class GoogleSignInButton extends ConsumerStatefulWidget {
   const GoogleSignInButton({super.key});
@@ -101,7 +102,9 @@ class _GoogleSignInButtonState extends ConsumerState<GoogleSignInButton> {
     setState(() => _isExchanging = true);
     try {
       await ref.read(authServiceProvider).signupWithGoogle(googleToken);
-      if (mounted) await routeAfterSignIn(ref, context);
+      if (!mounted) return;
+      final landing = await ref.read(signInLandingProvider).resolve();
+      if (mounted) context.go(landing.location, extra: landing.extra);
     } on Object catch (error) {
       _sayItFailed(error);
     } finally {

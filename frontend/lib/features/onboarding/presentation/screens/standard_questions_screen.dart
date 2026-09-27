@@ -5,18 +5,17 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
-import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
-import 'package:goal_getter/features/onboarding/presentation/question_timer.dart';
-import 'package:goal_getter/features/onboarding/presentation/standard_question_text.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/standard_questions_controller.dart';
+import 'package:goal_getter/features/onboarding/presentation/widgets/standard_question_text.dart';
 import 'package:goal_getter/features/onboarding/presentation/widgets/question_option_tile.dart';
 
 /// The last step of goal creation: the handful of questions we already know to
 /// ask, answered while the backend generates the first lesson (#132).
 ///
-/// **Nothing here blocks.** `POST /goals` has already fired the chain, so these
-/// answers are memory for the generations after the first, never an input it
-/// waits on: the student may answer all of them, some of them or none, and the
+/// **Nothing here blocks** (see its controller). `POST /goals` has already
+/// fired the chain, so these answers are memory for the generations after the
+/// first, never an input it waits on: the student may answer all of them, some of them or none, and the
 /// next screen is his first lesson either way. What happens when that lesson is
 /// not ready yet is the lesson screen's own "still preparing" message with a
 /// retry (#98), never a bounce to a home screen with nothing on it.
@@ -44,70 +43,37 @@ class _StandardQuestionsScreenState
   late final List<StandardQuestion> _asked = widget.questions
       .where((q) => standardQuestionText.containsKey(q.key))
       .toList();
-  late final QuestionTimer _timer = QuestionTimer(_asked.length);
-  final List<StandardAnswer> _answers = [];
-  int _index = 0;
-  bool _leaving = false;
+
+  StandardQuestionsControllerProvider get _provider =>
+      standardQuestionsControllerProvider(widget.goalId, _asked);
+
+  StandardQuestionsController get _controller => ref.read(_provider.notifier);
 
   @override
   void initState() {
     super.initState();
     if (_asked.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _finish());
-    } else {
-      _timer.show(0);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _controller.finish();
+      });
     }
   }
 
   void _pick(String optionKey) {
-    if (_leaving) return;
-    _timer.stop();
-    setState(() {
-      _answers.add(
-        StandardAnswer(
-          questionKey: _asked[_index].key,
-          optionKey: optionKey,
-          totalSeconds: _timer.secondsOn(_index),
-        ),
-      );
-    });
+    if (!_controller.pick(optionKey)) return;
     Future.delayed(const Duration(milliseconds: 250), () {
-      if (!mounted) return;
-      if (_index == _asked.length - 1) return _finish();
-      setState(() => _index += 1);
-      _timer.show(_index);
+      if (mounted) _controller.advance();
     });
-  }
-
-  /// Send what he answered and take him to his lesson.
-  ///
-  /// The send is not awaited and a failure is swallowed on purpose: these
-  /// answers are worth having and worth nothing at all compared with the lesson
-  /// he is on his way to, and there is no screen here on which to show him an
-  /// error about a question he has already finished with.
-  void _finish() {
-    if (_leaving) return;
-    _leaving = true;
-    if (_answers.isNotEmpty) {
-      ref
-          .read(onboardingApiProvider)
-          .sendStandardAnswers(widget.goalId, List.of(_answers))
-          .catchError((_) {});
-    }
-    context.go(AppRoutes.lesson);
-  }
-
-  String? _selected(String questionKey) {
-    for (final answer in _answers) {
-      if (answer.questionKey == questionKey) return answer.optionKey;
-    }
-    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final state = ref.watch(_provider);
+    ref.listen(_provider, (previous, next) {
+      if (next.done && previous?.done != true) context.go(AppRoutes.lesson);
+    });
     if (_asked.isEmpty) return const Scaffold();
 
     return Scaffold(
@@ -118,14 +84,14 @@ class _StandardQuestionsScreenState
         automaticallyImplyLeading: false,
         actions: [
           TextButton(
-            onPressed: _finish,
+            onPressed: _controller.finish,
             child: Text(l10n.standardQuestionsSkip),
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(6),
           child: LinearProgressIndicator(
-            value: (_index + 1) / _asked.length,
+            value: (state.index + 1) / _asked.length,
             backgroundColor: scheme.surfaceContainer,
             valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
             minHeight: 6,
@@ -133,9 +99,9 @@ class _StandardQuestionsScreenState
         ),
       ),
       body: _QuestionView(
-        key: ValueKey(_asked[_index].key),
-        question: _asked[_index],
-        selected: _selected(_asked[_index].key),
+        key: ValueKey(_asked[state.index].key),
+        question: _asked[state.index],
+        selected: state.selected(_asked[state.index].key),
         onPick: _pick,
       ),
     );

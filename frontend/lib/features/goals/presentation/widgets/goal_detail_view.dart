@@ -14,16 +14,16 @@ enum _Busy { none, activating, deleting }
 
 /// One goal, with the actions on it. It shows the goal it is given (an item of
 /// `GET /goals`) and never fetches one: there is no per-goal GET.
-class GoalsDetailScreen extends ConsumerStatefulWidget {
-  const GoalsDetailScreen({super.key, required this.goal});
+class GoalDetailView extends ConsumerStatefulWidget {
+  const GoalDetailView({super.key, required this.goal});
 
   final Goal goal;
 
   @override
-  ConsumerState<GoalsDetailScreen> createState() => _GoalsDetailScreenState();
+  ConsumerState<GoalDetailView> createState() => _GoalDetailViewState();
 }
 
-class _GoalsDetailScreenState extends ConsumerState<GoalsDetailScreen> {
+class _GoalDetailViewState extends ConsumerState<GoalDetailView> {
   _Busy _busy = _Busy.none;
 
   /// The two buttons sit at the bottom of the screen, so the snackbar that

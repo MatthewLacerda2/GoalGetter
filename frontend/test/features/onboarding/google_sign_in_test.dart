@@ -12,7 +12,7 @@ import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
-import 'package:goal_getter/features/onboarding/presentation/screens/study_plan.dart';
+import 'package:goal_getter/features/onboarding/presentation/screens/study_plan_screen.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 import '../fake_backend.dart';

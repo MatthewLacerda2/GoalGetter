@@ -3,25 +3,20 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 
+import 'package:goal_getter/core/theme/app_theme.dart';
+import 'package:goal_getter/features/lessons/domain/lesson_models.dart';
+import 'package:goal_getter/features/lessons/presentation/widgets/lesson_clock.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat.dart';
 import 'package:goal_getter/features/lessons/presentation/widgets/stat_data.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 
+/// The end of a lesson: the server's evaluation of its first round, as three
+/// tiles. The route hands over the [evaluation] itself (#222); how each number
+/// reads — its words, icon and colour — is decided here.
 class FinishLessonScreen extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final StatData timeSpent;
-  final StatData accuracy;
-  final StatData elo;
+  final LessonEvaluation evaluation;
 
-  FinishLessonScreen({
-    super.key,
-    required this.title,
-    required this.icon,
-    required this.timeSpent,
-    required this.accuracy,
-    required this.elo,
-  });
+  const FinishLessonScreen({super.key, required this.evaluation});
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +27,7 @@ class FinishLessonScreen extends StatelessWidget {
           padding: EdgeInsets.all(AppSpacing.md),
           child: Column(
             children: [
-              Expanded(
-                child: _Summary(
-                  title: title,
-                  icon: icon,
-                  timeSpent: timeSpent,
-                  accuracy: accuracy,
-                  elo: elo,
-                ),
-              ),
+              Expanded(child: _Summary(evaluation: evaluation)),
               const _ContinueButton(),
               SizedBox(height: 8.0),
             ],
@@ -51,37 +38,51 @@ class FinishLessonScreen extends StatelessWidget {
   }
 }
 
-/// The lesson's result: its name, the trophy, and the three stat tiles.
+/// The lesson's result: its title, the trophy, and the three stat tiles.
 class _Summary extends StatelessWidget {
-  const _Summary({
-    required this.title,
-    required this.icon,
-    required this.timeSpent,
-    required this.accuracy,
-    required this.elo,
-  });
+  const _Summary({required this.evaluation});
 
-  final String title;
-  final IconData icon;
-  final StatData timeSpent;
-  final StatData accuracy;
-  final StatData elo;
+  final LessonEvaluation evaluation;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final elo = evaluation.elo;
+    final timeSpent = StatData(
+      title: l10n.lessonTime,
+      icon: Icons.timer,
+      text: formatLessonClock(Duration(seconds: evaluation.totalSecondsSpent)),
+      color: theme.colorScheme.primary,
+    );
+    final accuracy = StatData(
+      title: l10n.lessonAccuracy,
+      icon: Icons.check_circle,
+      text: '${evaluation.studentAccuracy.toStringAsFixed(0)}%',
+      color: theme.extension<CustomColors>()?.success ?? AppTheme.success,
+    );
+    final eloStat = StatData(
+      title: l10n.elo,
+      icon: Icons.trending_up,
+      text: '${elo >= 0 ? '+' : ''}$elo',
+      color: theme.colorScheme.secondary,
+    );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          title,
+          l10n.lessonFinishedTitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineMedium?.copyWith(
             color: theme.colorScheme.onSurface,
           ),
         ),
         SizedBox(height: 24),
-        Icon(icon, color: theme.colorScheme.secondary, size: 140),
+        Icon(
+          Icons.check_circle,
+          color: theme.colorScheme.secondary,
+          size: 140,
+        ),
         SizedBox(height: 60),
         Row(
           children: [
@@ -89,7 +90,7 @@ class _Summary extends StatelessWidget {
             SizedBox(width: 12.0),
             Expanded(child: StatWidget(statData: accuracy)),
             SizedBox(width: 12.0),
-            Expanded(child: StatWidget(statData: elo)),
+            Expanded(child: StatWidget(statData: eloStat)),
           ],
         ),
       ],

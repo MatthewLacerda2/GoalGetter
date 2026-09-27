@@ -9,7 +9,7 @@ import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/core/utils/theme_mode_provider.dart';
 import 'package:goal_getter/core/widgets/language_picker.dart';
-import 'package:goal_getter/features/profile/data/profile_api.dart';
+import 'package:goal_getter/features/profile/presentation/controllers/language_sync.dart';
 import 'package:goal_getter/features/profile/presentation/widgets/theme_mode_sheet.dart';
 import 'package:goal_getter/core/theme/app_dimens.dart';
 
@@ -103,7 +103,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           onTap: () => showLanguagePicker(
             context,
             ref,
-            onPicked: _tellBackendTheLanguage,
+            onPicked: ref.read(languageSyncProvider).tellBackend,
           ),
         ),
         const SizedBox(height: 12),
@@ -208,18 +208,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       ),
     );
-  }
-
-  /// Any signed-in request carries `X-Student-Language` (ApiClient) and the
-  /// backend stores it (#172): one GET /me tells it the new language now
-  /// rather than on the next unrelated request. Best-effort — a failure only
-  /// delays that until the next request.
-  Future<void> _tellBackendTheLanguage() async {
-    try {
-      await ref.read(profileApiProvider).me();
-    } on Exception {
-      // Nothing to show: the picker already changed the app's language.
-    }
   }
 
   /// Persisted, so the switch survives a restart. Nothing reads it yet: the
