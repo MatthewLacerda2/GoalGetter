@@ -2,6 +2,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/goal_questions_controller.dart';
+import 'package:goal_getter/features/onboarding/presentation/controllers/study_plan_controller.dart';
 
 import '../fake_onboarding_api.dart';
 import 'onboarding_container.dart';
@@ -9,6 +10,7 @@ import 'onboarding_container.dart';
 const _second = ObjectiveQuestion(
   question: 'What for?',
   options: ['Travel', 'Work', 'Family', 'Fun'],
+  aiModel: 'gemini-pro',
 );
 const _questions = [question, _second];
 const _one = [question];
@@ -43,6 +45,27 @@ void main() {
       expect(ready.draft.prompt, 'Italian');
       expect(ready.draft.plan, plan);
     });
+  });
+
+  // #247: POST /goals is another request than the one that wrote the
+  // questions, so each answer carries back who wrote its question.
+  test('each answer sent to POST /goals names its question\'s model', () async {
+    final api = FakeOnboardingApi();
+    final (c, _) = await onboardingContainer(api);
+    final provider = goalQuestionsControllerProvider('Italian', _questions);
+    c.keep(provider);
+    final controller = c.read(provider.notifier)..select('None');
+    controller
+      ..move(1)
+      ..select('Travel');
+    await controller.requestPlan();
+    final draft = (c.read(provider).plan as PlanReady).draft;
+    final plan = studyPlanControllerProvider(draft);
+    c.keep(plan);
+    await c.read(plan.notifier).confirm();
+
+    final sent = api.lastCreated!.answers.map((a) => a.toJson()['ai_model']);
+    expect(sent, [question.aiModel, 'gemini-pro']);
   });
 
   test('a failed plan keeps every answer, and the retry sends them', () async {

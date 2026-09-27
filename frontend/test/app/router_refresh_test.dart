@@ -31,6 +31,7 @@ const _questions = GoalQuestionsArgs(
     ObjectiveQuestion(
       question: 'How much Italian do you have?',
       options: ['None'],
+      aiModel: 'gemini-3.8-flash',
     ),
   ],
 );
