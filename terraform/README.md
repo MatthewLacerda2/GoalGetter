@@ -1,190 +1,116 @@
-# Cloudflare Tunnel Terraform Configuration
+# Terraform
 
-This Terraform configuration sets up a Cloudflare Tunnel for GoalGetter, creating the tunnel resource, DNS records, and tunnel routing configuration.
+Two roots, each with its own provider, credentials and state:
 
-## Prerequisites
+| Folder | What it holds | Status |
+| --- | --- | --- |
+| `google/` | The Google Cloud project, its billing link, the APIs we call, their keys | Adopted from the live project (#108). `make tf` runs it. |
+| `cloudflare_backup/` | The Cloudflare Tunnel and its DNS record | Reference only, never run from here. Its own README. |
 
-1. **Cloudflare Account** - You need a Cloudflare account
-2. **Domain Added to Cloudflare FIRST** - Your domain must be added to Cloudflare BEFORE running Terraform (this is the "onboarding" step):
-   - Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) → "Add a Site"
-   - Enter your domain name
-   - Cloudflare will provide nameservers (you'll point your domain to these later at your registrar)
-   - **Important**: The domain must exist in your Cloudflare account before Terraform can manage it. Terraform will fail if the domain isn't already added to Cloudflare.
-3. **Cloudflare API Token** - Create an API token with the following permissions:
-   - Account: Cloudflare Tunnel: Edit
-   - Zone: Zone: Read, DNS: Edit
-4. **Account ID** - Found in Cloudflare dashboard (right sidebar on overview page)
+They are separate on purpose: a Google plan never needs a Cloudflare token, and
+the day Cloudflare joins it gets its own root, state and `make` target beside
+this one rather than a second provider in `google/`.
 
-## Getting Your Cloudflare API Token
+## Google Cloud (`google/`)
 
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/profile/api-tokens)
-2. Click "Create Token"
-3. Use "Edit Cloudflare Tunnel" template or create custom token with:
-   - Account: Cloudflare Tunnel: Edit
-   - Zone: Zone: Read, DNS: Edit
-4. Copy the token (you won't see it again!)
+Everything in it was created by hand in the console first, then **imported**,
+not recreated: a new project id, OAuth client or API key would each have to be
+chased through the app, `.env` and Google's console, and a deleted project id
+can never be reused. So the project and both keys carry `prevent_destroy`, and
+the project `deletion_policy = "PREVENT"` too.
 
-## Getting Your Account ID
+### What Terraform owns
 
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. Select any domain
-3. Scroll down to the right sidebar
-4. Copy your "Account ID"
+- **The project** `goalgetter-ai-tutor-1996` (number `330000594920`, name
+  "GoalGetter AI Tutor", no organization) and its **billing link** to account
+  `0118FD-436A50-6FFD59`.
+- **The two APIs GoalGetter calls**: `generativelanguage.googleapis.com` (the
+  Gemini API) and `youtube.googleapis.com` (YouTube Data API v3).
+- **Both API keys and their restrictions**, each limited to its one API:
+  `GoalGetter Gemini Key` → `generativelanguage.googleapis.com`, and
+  `GoalGetter YouTube Key` → `youtube.googleapis.com`. Neither has an
+  application restriction (referrer, IP), as in the console today; an IP one
+  would tie the keys to this home connection's address.
 
-## Setup Instructions
+**Which key the backend uses.** `.env` on the deploy machine holds the strings
+(`GEMINI_API_KEY`, `YOUTUBE_API_KEY`); they are never written in a `.tf` file.
+As of 2026-09-27 `YOUTUBE_API_KEY` is `GoalGetter YouTube Key`, but
+`GEMINI_API_KEY` is a key from another of the user's projects, not
+`GoalGetter Gemini Key` - #251.
 
-1. **Create `terraform.tfvars` file** (this file is gitignored):
+**Why only two services are declared.** The project also has 23 other APIs
+enabled that GoalGetter never calls - mostly the set Google switches on for every new
+project (BigQuery and its family, Cloud Storage, Logging, Monitoring, Cloud
+Trace, Datastore, Dataform, Dataplex, Analytics Hub, Cloud SQL, Service
+Management/Usage, `cloudapis`, telemetry) plus `cloudaicompanion` ("Gemini for
+Google Cloud", the console assistant - not the Gemini API the backend uses).
+Declaring them would make each one read as a dependency of the app; turning them
+off would be a live change nobody needs, and Terraform itself calls Service
+Usage. `google_project_service` only touches what it declares, so they stay as
+they are, unmanaged. The cost: a plan does not notice an API enabled by hand
+later. `gcloud services list --enabled --project goalgetter-ai-tutor-1996` shows
+the full list. Removing a declared API from `main.tf` stops managing it and never
+disables it (`disable_on_destroy = false`).
 
-   ```hcl
-   cloudflare_api_token = "your-api-token-here"
-   cloudflare_account_id = "your-account-id-here"
-   domain = "yourdomain.com"
-   subdomain = "@"  # Use "@" for root domain, or "app" for app.yourdomain.com
-   tunnel_name = "goalgetter-tunnel"  # Optional, defaults to this
-   ```
+### What Terraform cannot own: sign-in
 
-2. **Initialize Terraform**:
+The Google provider has no resource for the **OAuth consent screen** or a **web
+OAuth client** (`google_iap_brand`/`google_iap_client` are for Identity-Aware
+Proxy only). These stay manual, with or without Terraform. What exists, in
+project `goalgetter-ai-tutor-1996`:
 
-   ```bash
-   cd terraform
-   terraform init
-   ```
+- **Web client id**
+  `330000594920-iuok5ott835b3bb983e6dao0fanrrnmr.apps.googleusercontent.com`.
+  The frontend carries it (`frontend/lib/core/config/app_config.dart`, the
+  `GOOGLE_CLIENT_ID` define) and the backend checks every ID token's audience
+  against `GOOGLE_CLIENT_ID` in `.env` - the same value.
+- **Scopes** asked for: `openid`, `email`, `profile`
+  (`frontend/lib/core/services/auth_service.dart`).
+- **Authorized JavaScript origins** must include the public site,
+  `https://goalsgetter.org` (`BASE_URL`). On the web the app signs in through
+  Google's own rendered button, which checks the page's origin, so a new origin
+  (another domain, the tailnet preview once it has HTTPS) needs adding here
+  before sign-in works on it. The app uses no **redirect URI**.
 
-3. **Review the plan**:
+Neither gcloud nor any API reads a web client's origins or the consent screen,
+so the list above is what the code needs, not a copy of the console. To check or
+change them: [Google Cloud console](https://console.cloud.google.com/auth/clients?project=goalgetter-ai-tutor-1996)
+→ **Google Auth Platform** → **Clients** → the web client (origins, redirect
+URIs); **Branding** (app name, support e-mail, authorized domains); **Audience**
+(publishing status, test users); **Data access** (scopes).
 
-   ```bash
-   terraform plan
-   ```
+### How to run it
 
-4. **Apply the configuration**:
-
-   ```bash
-   terraform apply
-   ```
-
-5. **Get the tunnel token**:
-   After applying, Terraform will output the tunnel token. Copy it:
-
-   ```bash
-   terraform output -raw tunnel_token
-   ```
-
-   Or check the outputs:
-
-   ```bash
-   terraform output
-   ```
-
-6. **Add token to .env file**:
-   Add the tunnel token to your `.env` file:
-
-   ```
-   CLOUDFLARE_TUNNEL_TOKEN=<token-from-terraform-output>
-   ```
-
-7. **Point nameservers to Cloudflare** (Manual step):
-
-   - Go to your domain registrar
-   - Update nameservers to the ones provided by Cloudflare
-   - Cloudflare shows you the nameservers when you add the domain (in Prerequisites step 2)
-   - This step is done outside of Terraform
-   - DNS propagation can take up to 48 hours (usually much faster)
-
-8. **Start your services** (After DNS propagates):
-   - Run `docker-compose up -d` to start all services including cloudflared
-   - The cloudflared container will connect to Cloudflare using the tunnel token
-   - Your domain should now be accessible via the internet!
-
-## How It Works
-
-**Architecture:**
-
-```
-Internet → Cloudflare DNS → Cloudflare Tunnel → cloudflared (your machine) → frontend:80 (nginx)
-```
-
-**What Terraform Does:**
-
-- Creates a Cloudflare Tunnel resource in your Cloudflare account
-- Creates DNS records (CNAME) pointing your domain to the tunnel
-- Configures tunnel routing rules (domain → your local service)
-- Outputs a tunnel token for the cloudflared container
-
-**What Runs Locally:**
-
-- The `cloudflared` Docker container runs on **your local machine** (via docker-compose)
-- It establishes an **outbound connection** to Cloudflare (no need to open firewall ports)
-- The tunnel connects your local `frontend:80` service to Cloudflare's network
-- Traffic flows: Internet → Cloudflare → Tunnel → Your local Docker container → nginx
-
-**Benefits:**
-
-- No need to open ports on your router/firewall (outbound-only connection)
-- Cloudflare provides DDoS protection and SSL/TLS termination
-- Traffic is encrypted through the tunnel
-- Your services remain on localhost (not directly exposed to the internet)
-- Perfect for home servers without static IPs or port forwarding
-
-## Tunnel Configuration
-
-The tunnel is configured to:
-
-- Route traffic from your domain to the `frontend` service on port 80 (via Docker network)
-- Use Cloudflare's proxy (orange cloud) for DDoS protection and SSL/TLS
-- The cloudflared container runs on your local machine and connects to Cloudflare
-
-## Updating Configuration
-
-To update the tunnel configuration:
-
-1. Modify the Terraform files as needed
-2. Run `terraform plan` to see changes
-3. Run `terraform apply` to apply changes
-
-## Destroying Resources
-
-To remove all created resources:
+Terraform is not installed on this machine; the root `Makefile` runs the pinned
+official image (`TF_IMAGE`, matched by `required_version` in `google/main.tf`):
 
 ```bash
-terraform destroy
+make tf                         # terraform plan (init runs first, every time)
+make tf ARGS='plan -no-color'   # any subcommand: validate, fmt -check, output ...
+make tf ARGS=apply              # interactive: shows the plan and asks
 ```
 
-**Warning**: This will delete the tunnel and DNS records. Make sure you want to do this!
+Credentials are the active gcloud login (`gcloud auth login` when it expires):
+`make tf` exports `gcloud auth print-access-token` as
+`GOOGLE_OAUTH_ACCESS_TOKEN` and forwards it to the container by name. No service
+account key exists, and none is needed.
 
-## Troubleshooting
+**On a machine with no state** the plan reads
+`Plan: 5 to import, 0 to add, 0 to change, 0 to destroy.` - the import blocks in
+`google/imports.tf` adopt the live resources, and **0 / 0 / 0 is the proof the
+declaration matches the project**. `make tf ARGS=apply` then writes the local
+state and changes nothing in Google. From there on, `make tf` reports
+`No changes.` until someone edits the project in the console or a `.tf` file.
+Anything other than import-only on a stateless plan - above all a *create* or a
+*replace* - means stop and read it; do not apply.
 
-### Tunnel token not working
+### State and secrets
 
-- Make sure you copied the entire token (it's very long)
-- Check that the token is in your `.env` file as `CLOUDFLARE_TUNNEL_TOKEN`
-- Verify the cloudflared container can access the token
-- Check cloudflared logs: `docker logs goalgetter_cloudflared`
-
-### DNS not resolving
-
-- Check that nameservers are pointed to Cloudflare at your registrar
-- Verify DNS propagation with `dig yourdomain.com` or online tools
-- Check Cloudflare dashboard to see if the CNAME record exists
-- Wait for DNS propagation (can take up to 48 hours, usually much faster)
-
-### Tunnel connection issues
-
-- Check cloudflared container logs: `docker logs goalgetter_cloudflared`
-- Verify frontend service is running: `docker ps`
-- Ensure tunnel token is correct and not expired
-- Verify cloudflared container is on the same Docker network as frontend
-
-### Domain not found error in Terraform
-
-- Make sure you added the domain to Cloudflare FIRST (see Prerequisites step 2)
-- Verify the domain exists in your Cloudflare account
-- Check that you're using the correct domain name in `terraform.tfvars`
-
-## Notes
-
-- The tunnel token is sensitive - keep it secret
-- DNS changes can take up to 48 hours to propagate (usually much faster)
-- Cloudflare provides free SSL/TLS certificates automatically
-- The tunnel uses Cloudflare's network for DDoS protection
-- The cloudflared container must run continuously for the tunnel to work
-- All traffic flows through Cloudflare's network (they can see it, but it's encrypted)
+- **The state is local and never committed** (`terraform/google/terraform.tfstate`,
+  gitignored): it holds both API key strings (`key_string`). Losing it loses
+  nothing - the import blocks rebuild it.
+- **Never save a plan to a file** (`-out`): a saved plan carries the key strings
+  too. `*.tfplan` and `tfplan` are gitignored in case one is written anyway.
+- A plan printed to the terminal shows `key_string = (sensitive value)`; the
+  strings appear only where asked for in raw form (`terraform show -json`, the
+  state file itself).
