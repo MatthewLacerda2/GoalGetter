@@ -4,6 +4,14 @@ import os
 import sys
 import tokenize
 
+# Imported as `backend.tests.backend_linter` by its tests; run as a script
+# (`python3 backend/tests/backend_linter.py`) by make and the hooks, where only
+# this folder is on the path.
+if __package__:
+    from backend.tests.hub_rules import hub_violations
+else:
+    from hub_rules import hub_violations  # type: ignore[import-not-found, no-redef]
+
 # The database layer (#211). Outside repositories/ (and the few files that ARE
 # the database's plumbing, see `is_database_layer`) nothing may reach the
 # database. The rule looks at what the code does - what a name resolves to,
@@ -244,7 +252,10 @@ def check_source(source, norm_path):
     in_tests = "backend/tests/" in norm_path
     should_check_repo_pattern = not (is_database_layer(norm_path) or in_tests)
 
-    if not (should_check_repo_pattern or is_endpoint or is_test):
+    # 3. The hubs (hub_rules.py): each kind of thing is defined in one place.
+    should_check_hubs = not in_tests
+
+    if not (should_check_repo_pattern or should_check_hubs or is_endpoint or is_test):
         return errors
     try:
         tree = ast.parse(source, filename=norm_path)
@@ -254,8 +265,10 @@ def check_source(source, norm_path):
 
     if should_check_repo_pattern:
         errors += database_access(tree)
+    if should_check_hubs:
+        errors += hub_violations(tree, norm_path)
 
-    # 3. 50 lines per endpoint and per test function.
+    # 4. 50 lines per endpoint and per test function.
     for node in ast.walk(tree):
         if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
             continue

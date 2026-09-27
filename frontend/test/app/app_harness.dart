@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/app.dart';
 import 'package:goal_getter/app/router/app_router.dart';
 import 'package:goal_getter/core/api/api_providers.dart';
+import 'package:goal_getter/core/api/auth_api.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/services/session.dart';
 import 'package:goal_getter/core/services/shared_preferences_provider.dart';
@@ -46,7 +47,7 @@ Future<(GoRouter, SharedPreferences)> launchApp(
       sharedPreferencesProvider.overrideWithValue(prefs),
       httpClientProvider.overrideWithValue(backend),
       authServiceProvider.overrideWith((ref) => _NoGoogle(
-            api: ref.watch(apiClientProvider),
+            api: ref.watch(authApiProvider),
             storage: ref.watch(settingsStorageProvider),
             onSessionChanged: () => ref.read(signedInProvider.notifier).sync(),
           )),

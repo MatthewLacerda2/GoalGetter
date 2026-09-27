@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_client.dart';
+import 'package:goal_getter/core/api/auth_api.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +43,7 @@ Future<(AuthService, SharedPreferences, List<http.Request>)> signedIn(
     baseUrl: 'http://api.test',
   );
   final auth = AuthService(
-    api: api,
+    api: AuthApi(api),
     storage: storage,
     onSessionChanged: onSessionChanged,
   );

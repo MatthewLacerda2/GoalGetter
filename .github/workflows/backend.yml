@@ -38,6 +38,11 @@ jobs:
       - name: Lint
         run: make back-lint PY=python
 
+      # jscpd (#231): a block written twice instead of once in its hub. It runs
+      # from the image the Makefile pins, on the Docker the runner has.
+      - name: Duplicates
+        run: make back-dup
+
       # vulture: a function, class or method that no other module reaches. The
       # whitelist for what only FastAPI, SQLAlchemy or mock calls lives in
       # backend/tools/deadcode.py.

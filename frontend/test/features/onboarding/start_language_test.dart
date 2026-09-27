@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/api/auth_api.dart';
 import 'package:goal_getter/core/services/auth_service.dart';
 import 'package:goal_getter/core/utils/locale_provider.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
@@ -40,7 +41,7 @@ Future<FakeBackend> pumpFirstLaunch(
     overrides: [
       ...backend.overrides,
       authServiceProvider.overrideWithValue(
-        _IdleGoogle(api: backend.api, storage: backend.storage),
+        _IdleGoogle(api: AuthApi(backend.api), storage: backend.storage),
       ),
     ],
     child: Consumer(

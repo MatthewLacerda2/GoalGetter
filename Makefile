@@ -56,7 +56,7 @@ PY_LIVE    ?= $(subst --network host,--network host -e GEMINI_API_KEY -e YOUTUBE
 
 .DEFAULT_GOAL := help
 
-.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-types back-migrations back-revision back-test back-pure back-image migrate front-version front-deps front-lint front-test front-goldens front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
+.PHONY: deploy deploy-install deploy-log help check backend frontend gen-l10n back-lint back-fix back-deadcode back-build back-types back-migrations back-revision back-test back-pure back-dup back-image migrate front-version front-deps front-lint front-dup front-test front-goldens front-codegen ops-lint setup hooks env claude-token shot preview preview-down claude gemini nightly embeddings test-live
 
 help: ## Show this help
 	@grep -hE '^[a-z][a-z0-9-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -64,9 +64,9 @@ help: ## Show this help
 
 check: backend frontend ops-lint ## Run every gate (backend + frontend + shell scripts and Dockerfiles)
 
-backend: back-lint back-deadcode back-build back-types back-migrations back-test ## Backend: lint + dead code + build smoke + types + migrations + pytest
+backend: back-lint back-dup back-deadcode back-build back-types back-migrations back-test ## Backend: lint + duplicates + dead code + build smoke + types + migrations + pytest
 
-frontend: front-lint front-test ## Frontend: line limits + analyze + tests
+frontend: front-lint front-dup front-test ## Frontend: line limits + analyze + duplicates + tests
 
 # Cheapest first: the house rules are stdlib and instant, ruff is a second, the
 # build smoke needs no database, and only pytest needs one.
@@ -81,6 +81,24 @@ back-lint: ## Backend lint: house rules (file/endpoint/test length, repositories
 back-fix: ## Auto-fix exactly what back-lint checks (ruff check --fix + ruff format)
 	@-$(PY) -m ruff check --fix backend
 	@$(PY) -m ruff format backend
+
+# Duplicate code (#231): the same block written twice instead of written once
+# in its hub and imported. jscpd, from an image pinned by tag and digest like
+# shellcheck's and hadolint's (it is a single Rust binary, ~20 MB), reads the
+# worktree read-only with no network; any clone fails.
+#
+# The application only: backend/tests/ and frontend/test/ are left out, because a
+# test reads top to bottom on its own and shares through its fixtures, not by
+# import; so are migrations (alembic's own scaffold, one per revision) and
+# generated Dart. 60 tokens is the threshold: at jscpd's default of 50 the only
+# Python findings were two models' identical import headers and a prompt
+# builder's parameter list, which nothing can import once; from 60 up every
+# finding on 2026-09-27 was a block of logic or layout written twice.
+JSCPD_IMAGE := ghcr.io/kucherenko/jscpd:5.3.2@sha256:a0764b8f34b7ed7750fa9a9bd2f001de60ebf113d2b3fbeb1f14ef95e613e772
+JSCPD        = $(LINT_RUN) $(JSCPD_IMAGE) --min-tokens 60 --exit-code --fail-on-empty --reporters console --no-colors
+
+back-dup: ## Backend duplicate code (jscpd, pinned image): a block written twice fails
+	@$(JSCPD) --format python --ignore "backend/tests/**,backend/alembic/versions/**" backend
 
 back-deadcode: ## Backend whole-program dead-code gate (vulture; whitelist in backend/tools/deadcode.py)
 	@$(PY) -m backend.tools.deadcode
@@ -211,6 +229,10 @@ front-deps: ## Install exactly frontend/pubspec.lock's packages (pub get --enfor
 front-lint: front-version front-deps gen-l10n ## Frontend house rules (tool/frontend_linter.dart) + dart analyze (with riverpod_lint)
 	@cd frontend && $(DART) run tool/frontend_linter.dart
 	@cd frontend && $(DART) analyze
+
+# The frontend's half of the duplicate-code gate: see back-dup.
+front-dup: ## Frontend duplicate code (jscpd, pinned image): a block written twice fails
+	@$(JSCPD) --format dart --ignore "**/*.g.dart,**/l10n/generated/**" frontend/lib frontend/tool
 
 # `make front-test FILE=test/features/lessons/lesson_screen_test.dart` runs one
 # file (a directory works too); the path is relative to frontend/.

@@ -1,9 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
-import 'package:goal_getter/core/api/api_client.dart';
-import 'package:goal_getter/core/api/api_providers.dart';
-import 'package:goal_getter/core/api/api_route.dart';
+import 'package:goal_getter/core/api/auth_api.dart';
 import 'package:goal_getter/core/config/app_config.dart';
 import 'package:goal_getter/core/services/session.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
@@ -14,18 +12,18 @@ part 'auth_service.g.dart';
 
 /// Signs the student in and out of the backend.
 ///
-/// Every sign-in ends in [storeSession] with the backend's `token_response`
-/// (access token, refresh token, student). Two ways in: Google (the token goes
-/// to POST /auth/signup) and, in DEV_LOGIN builds, POST /auth/dev-login.
+/// Every sign-in ends in [storeSession] with the backend's tokens. Two ways
+/// in: Google (the token goes to POST /auth/signup) and, in DEV_LOGIN builds,
+/// POST /auth/dev-login. The calls themselves are [AuthApi]'s.
 class AuthService {
   AuthService({
-    required ApiClient api,
+    required AuthApi api,
     required SettingsStorage storage,
     this.onSessionChanged,
   })  : _api = api,
         _storage = storage;
 
-  final ApiClient _api;
+  final AuthApi _api;
   final SettingsStorage _storage;
 
   /// Called after a session is stored or cleared, so whoever mirrors it
@@ -45,45 +43,22 @@ class AuthService {
     _isGoogleInitialized = true;
   }
 
-  /// Persists a `token_response` the way the rest of the app reads it.
-  Future<void> storeSession(Map<String, dynamic> tokenResponse) async {
-    await _storage.setAccessToken(tokenResponse['access_token'] as String);
-    await _storage.setRefreshToken(tokenResponse['refresh_token'] as String);
+  /// Persists a session the way the rest of the app reads it.
+  Future<void> storeSession(SessionTokens tokens) async {
+    await _storage.setAccessToken(tokens.accessToken);
+    await _storage.setRefreshToken(tokens.refreshToken);
     onSessionChanged?.call();
-  }
-
-  /// A `token_response`, checked where it is read: another shape is then the
-  /// client's `MalformedResponse`, not a `TypeError` inside [storeSession].
-  static Map<String, dynamic> _tokenResponse(Object? json) {
-    final response = json! as Map<String, dynamic>;
-    if (response['access_token'] is! String ||
-        response['refresh_token'] is! String ||
-        response['student'] is! Map<String, dynamic>) {
-      throw const FormatException('not a token_response');
-    }
-    return response;
   }
 
   /// Dev only: signs in as the backend's `Fictitious <name>` student.
   Future<void> signInAsFictitious(String name) async {
-    await storeSession(
-      await _api.send(
-        ApiRoute.devLogin,
-        _tokenResponse,
-        body: {'name': name},
-      ),
-    );
+    await storeSession(await _api.devLogin(name));
   }
 
   /// Creates or fetches the student for a Google token (POST /auth/signup is
   /// idempotent) and stores the session.
   Future<void> signupWithGoogle(String googleToken) async {
-    final response = await _api.send(
-      ApiRoute.signup,
-      _tokenResponse,
-      headers: {'Authorization': 'Bearer $googleToken'},
-    );
-    await storeSession(response);
+    await storeSession(await _api.signup(googleToken));
   }
 
   /// Every Google sign-in, as the token POST /auth/signup accepts.
@@ -160,11 +135,7 @@ class AuthService {
     final refreshToken = _storage.getRefreshToken();
     if (refreshToken != null && refreshToken.isNotEmpty) {
       try {
-        await _api.send(
-          ApiRoute.logout,
-          ApiClient.ignoreBody,
-          body: {'refresh_token': refreshToken},
-        );
+        await _api.logout(refreshToken);
       } on Exception catch (e) {
         developer.log('Logout call failed, clearing locally anyway: $e');
       }
@@ -184,7 +155,7 @@ class AuthService {
 @Riverpod(keepAlive: true)
 AuthService authService(Ref ref) {
   return AuthService(
-    api: ref.watch(apiClientProvider),
+    api: ref.watch(authApiProvider),
     storage: ref.watch(settingsStorageProvider),
     onSessionChanged: () => ref.read(signedInProvider.notifier).sync(),
   );

@@ -17,6 +17,10 @@
 /// 10. no screen or widget imports a feature's `data/`: a controller does;
 /// 11. a feature's `presentation/` holds `controllers/`, `screens/` and
 ///     `widgets/`, and nothing else.
+/// 12. each kind of thing is defined in its hub — HTTP in `lib/core/api/`,
+///     backend calls in a `data/` layer, JSON in `domain/`, routes in
+///     `lib/app/router/`, a widget two features share in `lib/core/widgets/`
+///     (`tool/hub_rules.dart`, and CLAUDE.md's hub map).
 ///
 /// Rules 3-5 live in `tool/design_rules.dart`, rule 6 in
 /// `tool/string_rules.dart`, and rules 8-11 — the shape of `lib/` rather than
@@ -44,6 +48,7 @@ import 'dart:io';
 
 import 'dart_source.dart';
 import 'design_rules.dart';
+import 'hub_rules.dart';
 import 'layer_rules.dart';
 import 'project_rules.dart';
 import 'string_rules.dart';
@@ -52,6 +57,7 @@ import 'test_rules.dart';
 export 'dart_source.dart';
 export 'dead_members.dart';
 export 'design_rules.dart';
+export 'hub_rules.dart';
 export 'layer_rules.dart';
 export 'project_rules.dart';
 export 'string_rules.dart';
@@ -185,6 +191,7 @@ List<Violation> lintSource(String path, String source) {
     // Only lib/core/ may define a widget named after a failure.
     if (!isCoreFile(path)) violations.addAll(failureWidgets(stripped));
     violations.addAll(layerViolations(path, source));
+    violations.addAll(hubViolations(path, source, stripped));
   }
   violations.sort((a, b) => a.line.compareTo(b.line));
   return violations;
