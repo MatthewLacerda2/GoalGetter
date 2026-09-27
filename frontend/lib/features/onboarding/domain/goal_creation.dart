@@ -11,7 +11,7 @@ class ObjectiveQuestion {
   factory ObjectiveQuestion.fromJson(Map<String, dynamic> json) =>
       ObjectiveQuestion(
         question: json['question'] as String,
-        options: (json['options'] as List).cast<String>(),
+        options: List<String>.from(json['options'] as List),
       );
 }
 
@@ -68,7 +68,7 @@ class StandardQuestion {
   factory StandardQuestion.fromJson(Map<String, dynamic> json) =>
       StandardQuestion(
         key: json['key'] as String,
-        optionKeys: (json['options'] as List).cast<String>(),
+        optionKeys: List<String>.from(json['options'] as List),
       );
 }
 
