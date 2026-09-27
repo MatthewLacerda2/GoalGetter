@@ -3,9 +3,8 @@ from unittest.mock import patch
 import pytest
 from sqlalchemy import select
 
-from backend.core.config import settings
 from backend.models.goal import Goal
-from backend.repositories.onboarding_repository import OnboardingRepository
+from backend.repositories.onboarding_repository import UNKNOWN_AUTHOR, OnboardingRepository
 from backend.services.onboarding.standard_questions import STANDARD_QUESTIONS, SYSTEM_AUTHOR
 
 ENDPOINT = "/api/v1/goals"
@@ -67,15 +66,21 @@ async def test_create_goal_stores_the_onboarding_for_the_chain_to_read(
     auth_client, test_db, test_user
 ):
     """The answers are not handed to the chain, they are left where it reads them
-    (#88). Each row says who wrote the question it holds (#132)"""
+    (#88). Each row says who wrote the question it holds (#132): the model the
+    answer came back with (#216), and no guess when it came back with none"""
+    answers = [
+        {"question": "Experience?", "answer": "None", "ai_model": "gemini-then"},
+        {"question": "Why?", "answer": "Fun"},
+    ]
     with patch(CHAIN):
-        response = await auth_client.post(ENDPOINT, json=BODY)
+        response = await auth_client.post(ENDPOINT, json={**BODY, "answers": answers})
 
     assert response.status_code == 201
     rows = await OnboardingRepository(test_db).list_by_student(test_user.id)
     assert [(r.question, OnboardingRepository.answer_of(r), r.ai_model) for r in rows] == [
         ("What do you want to learn?", BODY["prompt"], SYSTEM_AUTHOR),
-        ("Experience?", "None", settings.GEMINI_PREMIUM_MODEL),
+        ("Experience?", "None", "gemini-then"),
+        ("Why?", "Fun", UNKNOWN_AUTHOR),
     ]
 
 

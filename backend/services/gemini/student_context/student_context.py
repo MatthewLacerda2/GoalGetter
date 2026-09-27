@@ -1,6 +1,6 @@
 from backend.core.config import settings
 from backend.core.language import Language
-from backend.services.gemini.client.gemini_configs import get_client, get_gemini_config
+from backend.services.gemini.client.gemini_call import generate
 from backend.services.gemini.student_context.prompt import (
     get_context_review_prompt,
     get_student_context_prompt,
@@ -13,7 +13,7 @@ from backend.services.gemini.student_context.schema import (
 )
 
 
-def gemini_generate_student_context(
+async def gemini_generate_student_context(
     goals: list[StudentGoal],
     onboarding_prompt: str | None,
     questions_answers: list[tuple[str, str]] | None,
@@ -21,10 +21,7 @@ def gemini_generate_student_context(
 ) -> GeminiStudentContextResponse:
     """The first reading of a learner, from their onboarding and the goal they
     are working on (#87, 2026-09-26). One context per student, not one per goal."""
-    client = get_client()
     model = settings.GEMINI_PREMIUM_MODEL
-    config = get_gemini_config(GeminiStudentContext.model_json_schema())
-
     full_prompt = get_student_context_prompt(
         goals=goals,
         onboarding_prompt=onboarding_prompt,
@@ -32,15 +29,13 @@ def gemini_generate_student_context(
         language=language,
     )
 
-    response = client.models.generate_content(model=model, contents=full_prompt, config=config)
-
-    context = GeminiStudentContext.model_validate_json(response.text)
+    context = await generate(model, full_prompt, GeminiStudentContext)
     return GeminiStudentContextResponse(
         state=context.state, metacognition=context.metacognition, ai_model=model
     )
 
 
-def gemini_review_student_context(
+async def gemini_review_student_context(
     goals: list[StudentGoal],
     contexts: list[GeminiStudentContext],
     recent_answers: list[dict],
@@ -58,10 +53,6 @@ def gemini_review_student_context(
     (#132). Facts about a person do not go stale the way a reading of him does,
     so they are shown to every review rather than only to the first impression.
     """
-    client = get_client()
-    model = settings.GEMINI_PREMIUM_MODEL
-    config = get_gemini_config(GeminiContextReview.model_json_schema())
-
     full_prompt = get_context_review_prompt(
         goals=goals,
         contexts=contexts,
@@ -70,7 +61,4 @@ def gemini_review_student_context(
         questions_answers=questions_answers,
         language=language,
     )
-
-    response = client.models.generate_content(model=model, contents=full_prompt, config=config)
-
-    return GeminiContextReview.model_validate_json(response.text)
+    return await generate(settings.GEMINI_PREMIUM_MODEL, full_prompt, GeminiContextReview)

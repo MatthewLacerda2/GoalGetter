@@ -5,27 +5,48 @@ a fuse that fails the test if anything reaches it, because a test suite that
 calls this command for real spends the project's money.
 """
 
+import ast
 import inspect
 
 import pytest
 from pydantic import TypeAdapter
 
 from backend.schemas.goal import ObjectiveAnswer
+from backend.services.gemini.client import gemini_call
 from backend.services.gemini.onboarding.schema import GeminiGoalValidation
+from backend.tests.fixtures.code import modules_under
 from backend.tools import gemini_cli
 
-# The use cases the command has to cover (issue #94).
-EXPECTED = {
-    "goal-validation",
-    "objective-questions",
-    "study-plan",
-    "tutor-reply",
-    "lesson-questions",
-    "placement",
-    "student-context",
-    "context-review",
-    "resource-search",
-}
+# The doors to Gemini a use case may call (#216). Anything that calls one of
+# them is a use case, whatever it is named.
+SHARED_CALLS = (gemini_call.generate, gemini_call.grounded_search)
+
+
+def _callee(module, func: ast.expr):
+    """The object a call expression names, looked up in the module it is in -
+    so `generate(...)`, an alias of it, and `gemini_call.generate(...)` are one."""
+    if isinstance(func, ast.Name):
+        return vars(module).get(func.id)
+    if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
+        return getattr(vars(module).get(func.value.id), func.attr, None)
+    return None
+
+
+def gemini_use_cases() -> set:
+    """Every function under `services/gemini/` that calls Gemini, read off the
+    code (#212): a new use case is found the moment it makes its first call,
+    with nobody having to list it anywhere."""
+    found = set()
+    for module in modules_under("services/gemini"):
+        if module is gemini_call:
+            continue
+        for node in ast.parse(inspect.getsource(module)).body:
+            if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+                continue
+            calls = [n for n in ast.walk(node) if isinstance(n, ast.Call)]
+            if any(_callee(module, call.func) in SHARED_CALLS for call in calls):
+                found.add(getattr(module, node.name))
+    return found
 
 
 @pytest.fixture(autouse=True)
@@ -36,15 +57,20 @@ def never_calls_gemini(monkeypatch):
     monkeypatch.setattr(gemini_cli, "run", fuse)
 
 
-def test_every_use_case_is_covered():
-    assert {case.name for case in gemini_cli.USE_CASES} == EXPECTED
+def test_every_function_that_calls_gemini_is_a_use_case_of_the_command():
+    """The command's list is what the live suite calls and what the prompt
+    rules are checked against, so a use case missing from it escapes both."""
+    listed = {case.call for case in gemini_cli.USE_CASES}
+
+    assert len(listed) == len(gemini_cli.USE_CASES)
+    assert gemini_use_cases() == listed
 
 
 def test_no_arguments_lists_the_use_cases_and_says_it_costs(capsys):
     assert gemini_cli.main(["gemini_cli"]) == 0
 
     printed = capsys.readouterr().out
-    assert all(name in printed for name in EXPECTED)
+    assert all(case.name in printed for case in gemini_cli.USE_CASES)
     assert "SPENDS REAL QUOTA" in printed
 
 

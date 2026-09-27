@@ -53,9 +53,8 @@ async def _resources_for_goal(session, goal, reading: str, language: Language) -
     repository = ResourceRepository(session)
     held = [resource.link for resource in await repository.list_by_goal(goal.id)]
 
-    # The Gemini client is synchronous and this is a slow, grounded search, so
-    # keep it off the event loop. Nobody is waiting on it, so it retries on the
-    # background budget (backend/services/gemini/client/gemini_retry.py).
+    # Nobody is waiting on it, so each of its calls retries on the background
+    # budget (backend/services/gemini/client/gemini_retry.py).
     search = await run_gemini_background(
         search_resources, str(goal.id), goal.name, goal.description, reading, held, language
     )

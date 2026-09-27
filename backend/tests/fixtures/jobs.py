@@ -109,9 +109,9 @@ def resource(goal_id, link) -> Resource:
 
 
 def recorder(calls: list, name: str, result):
-    """A stand-in for one Gemini call: record it, then answer (or blow up)."""
+    """A stand-in for one Gemini use case: record it, then answer (or blow up)."""
 
-    def record(*args):
+    async def record(*args):
         calls.append((name, args))
         if isinstance(result, Exception):
             raise result

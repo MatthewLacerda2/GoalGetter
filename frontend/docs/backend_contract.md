@@ -101,6 +101,11 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   - both calls, and the study plan's, write in the `X-Student-Language` header's
     language; without one, in the language the prompt is written in, else English.
   - **PUBLIC** (no auth) + rate-limited 20/min, so anyone can try the app.
+  - when Gemini fails (here, the study plan and the tutor alike): its own status
+    and message (429, 402, a 5xx) - except 401/403, which are about our key and
+    come as **502**; an answer with nothing in it (a safety block) is **502**;
+    a call past its deadline or a Gemini that cannot be reached is **504**
+    (#216). Never a 401: the app would read it as a sign-out.
 
 - **`POST /goals/study-plan`** ⚙️ ✅ — step 2: preview what the goal will be.
   request: `{ "prompt": "...", "answers": objective_answer[] }`
@@ -129,6 +134,10 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
     sentences**. What the student reads is the ARB entry each key maps to, in
     the five locales; the English the database stores for the prompts lives in
     `backend/services/onboarding/standard_questions.py`.
+  - each answer carries back the `ai_model` its question came with, and that is
+    what its row records as the question's author (#216) - the questions were
+    written by another request, so this one cannot know. An answer without it
+    is stored as `"unknown"`, never a guess.
   - stores the prompt and the onboarding answers (`onboarding_questions`), sets
     `students.current_goal_id`, then fires the **student chain** below with the
     student's id — the chain reads the onboarding back, it is not handed it. It
@@ -671,9 +680,11 @@ goal                    { "id": "...", "name": "...", "description": "...",
                           "current_elo": 920, "is_active": true, "created_at": "2026-05-31T00:00:00Z",
                           "updated_at": "2026-06-06T09:00:00Z" }
 
-objective_question      { "question": "...", "options": ["a","b","c","d"] }  // exactly 4
+objective_question      { "question": "...", "options": ["a","b","c","d"],   // exactly 4
+                          "ai_model": "gemini-..." }  // the model that wrote it (#216)
 objective_answer        { "question": "...", "answer": "<the selected option>",
-                          "total_seconds": 7 }  // unselected options omitted; seconds optional (#174)
+                          "total_seconds": 7,         // unselected options omitted; seconds optional (#174)
+                          "ai_model": "gemini-..." }  // its question's ai_model, sent back; optional (#216)
 
 home_dashboard          { "goal_name": "...", "current_elo": 920, "current_streak": 7,
                           "recent_lessons": [ recent_lesson ] }   // newest first

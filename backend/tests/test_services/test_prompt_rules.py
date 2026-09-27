@@ -7,6 +7,11 @@ No Gemini call: each prompt is rendered from its builder. A rule is pinned by a 
 - rule 1, his self-report is an *opinion*, and rule 2, the app teaches him
   *as far as he can go*, wherever Gemini reasons about him;
 - rule 7, the shortest output: a phrase of each prompt's own, below.
+
+`PROMPTS` is keyed by `make gemini`'s use cases, and has to cover every one of
+them (#212). That list is itself checked against every function that calls
+Gemini (`test_gemini_cli.py`), so a new use case cannot reach Gemini without a
+prompt here.
 """
 
 import pytest
@@ -31,6 +36,7 @@ from backend.services.gemini.student_context.prompt import (
     get_student_context_prompt,
 )
 from backend.services.gemini.student_context.schema import GeminiStudentContext, StudentGoal
+from backend.tools.gemini_cli import USE_CASES
 
 GOALS = [StudentGoal(name="Chess", description="Learn chess openings")]
 CONTEXTS = [GeminiStudentContext(state="Knows the moves", metacognition="Impatient")]
@@ -56,7 +62,7 @@ PROMPTS = {
         False,
         "shortest text that does the job",
     ),
-    "onboarding-questions": (
+    "objective-questions": (
         lambda lang: get_onboarding_questions_prompt("Chess", "Learn chess", lang),
         True,
         "at most 20 words. Shorter is better",
@@ -66,12 +72,12 @@ PROMPTS = {
         True,
         "at most 60 words",
     ),
-    "tutor": (
+    "tutor-reply": (
         lambda lang: chat_system_prompt("Chess", "Openings", [StudentContextToChat()], lang),
         True,
         "the shortest reply that does the job",
     ),
-    "lesson": (
+    "lesson-questions": (
         lambda lang: get_lesson_generation_prompt(
             "Chess", "Openings", "Endgames", CONTEXTS, [], [], lang
         ),
@@ -83,7 +89,7 @@ PROMPTS = {
         True,
         "Return only the exercises",
     ),
-    "first-context": (
+    "student-context": (
         lambda lang: get_student_context_prompt(GOALS, "I want chess", None, lang),
         True,
         "in as few words as that takes",
@@ -95,6 +101,10 @@ PROMPTS = {
     ),
     "resource-search": (resource_prompts, True, "Nothing else: no URLs, no introduction"),
 }
+
+
+def test_every_use_case_has_its_prompt_checked():
+    assert set(PROMPTS) == {case.name for case in USE_CASES}
 
 
 @pytest.mark.parametrize("name", PROMPTS)
@@ -139,7 +149,7 @@ def test_onboarding_asks_for_six_short_questions_and_no_self_rating():
     assert "familiarity/experience level" not in prompt
 
 
-@pytest.mark.parametrize("name", ["lesson", "placement"])
+@pytest.mark.parametrize("name", ["lesson-questions", "placement"])
 def test_exercises_are_short_plain_and_not_given_away_by_their_shape(name):
     """The user's rules of 2026-09-26: 20 words, an instruction is allowed, and
     plain options - "The beating heart" gave the answer away by its adjective"""
