@@ -265,6 +265,14 @@ gates prove the code runs; they do not prove it is the right change.
 - **Screens**: `DEV_MENU=true` opens a dev index of every screen, including the
   ones that need route arguments. Those run on fixtures; the rest call the backend,
   and without a session the router sends them to the start screen (#224).
+- **Golden tests** (`frontend/test/goldens/`, #226) draw each screen of the real app, in
+  light/English and dark/Portuguese, with Roboto from the pinned SDK and the app's own
+  icon fonts (no network), and compare it pixel for pixel inside `make front-test`. A red
+  one leaves the reference, the new image and their diff in `test/goldens/failures/` (on
+  CI, the `golden-failures` artifact). A change that moves a screen on purpose runs
+  **`make front-goldens`** and commits the PNGs it rewrote — read them first; the images
+  in the pull request's diff are the review. References are drawn here, on Linux with the
+  pinned Flutter, the same pair CI runs.
 - **Endpoints**: Swagger is at `/api/v1/docs` (e.g. `http://localhost:8001/api/v1/docs`).
 - **Signed-in screens, headless**: `make preview` builds the integrated app and serves it
   with its own backend, on its **own database**, at `:8093` (loopback and the tailnet only).

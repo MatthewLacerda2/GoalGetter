@@ -38,6 +38,10 @@ htmlcov/
 frontend/build/
 # `flutter test --coverage`.
 frontend/coverage/
+# What a failed golden writes (#226): the reference, the new image and their
+# diff, for reading, never for committing. The references themselves are
+# committed, under test/goldens/references/.
+frontend/test/goldens/failures/
 # Regenerated from the ARB files by `flutter pub get` and `make gen-l10n`.
 frontend/lib/l10n/generated/
 # Plugin registrants `flutter pub get` rewrites on every run. Android's and
