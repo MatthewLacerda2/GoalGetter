@@ -18,8 +18,13 @@
   — and ignores a missing or unknown value (#172, `backend/core/language.py`).
 - Field names are snake_case. There is no client generator: the Dart side is written by
   hand (see `CLAUDE.md`), so a rename here is a rename in two places.
-- Times are ISO-8601. Status codes and error shapes are intentionally **omitted**
-  (we'll pin those down when writing tests).
+- Times are ISO-8601.
+- **Errors** (#214): every 4xx and 5xx answers `{ "code": "...", "detail": "..." }`.
+  `code` is a member of `ErrorCode` (`backend/core/errors/codes.py`), which also
+  declares its status; the app switches on the code and never on `detail`, which is
+  English for logs. The one exception is `not_a_goal`, whose `detail` is Gemini's
+  reasoning in the student's language and is shown to him. The app mirrors the enum in
+  `frontend/lib/core/api/error_code.dart`; the contract test holds the two equal.
 - "Active goal" = `students.current_goal_id`. Goal-scoped reads (`/home`,
   `/resources`, `/tutor/*`) use it implicitly — no `goal_id` in the URL.
 - ⚙️ marks an endpoint that kicks off a **service** (LLM / scoring) we'll build
@@ -111,11 +116,14 @@ Router: `/api/v1/auth`. All of this exists already; do **not** rebuild.
   - `prompt` is at most 1000 characters, else 422 before any Gemini call (#217);
     the app's field caps at 500. Every Gemini-bound text has such a ceiling:
     `backend/schemas/text_limits.py`.
-  - when Gemini fails (here, the study plan and the tutor alike): its own status
-    and message (429, 402, a 5xx) - except 401/403, which are about our key and
-    come as **502**; an answer with nothing in it (a safety block) is **502**;
-    a call past its deadline or a Gemini that cannot be reached is **504**
-    (#216). Never a 401: the app would read it as a sign-out.
+  - when Gemini fails (here, the study plan and the tutor alike) it is always a
+    5xx with a code of its own (#214): 401/403 (our key) ⇒ **502**
+    `gemini_key_rejected`; 429 (our quota) ⇒ **503** `gemini_quota_exhausted`; any
+    other API error ⇒ **502** `gemini_failed`; an answer with nothing in it (a
+    safety block) ⇒ **502** `gemini_no_answer`; past its deadline ⇒ **504**
+    `gemini_timed_out`; unreachable ⇒ **504** `gemini_unreachable`. Never a 401: the
+    app would read it as a sign-out. A prompt that is not a goal ⇒ **400**
+    `not_a_goal`.
 
 - **`POST /goals/study-plan`** ⚙️ ✅ — step 2: preview what the goal will be.
   request: `{ "prompt": "...", "answers": objective_answer[] }`
@@ -199,7 +207,7 @@ else's (`get_owned_goal`), so a goal's existence never leaks.
 - **`GET /home`** — dashboard for the active goal: rating, streak and recent
   lessons.
   request: none (uses `current_goal_id`) · response: `home_dashboard`
-  - **404** `No active goal` without one (`get_active_goal`, as `/resources`);
+  - **404** `no_active_goal` without one (`get_active_goal`, as `/resources`);
     the app shows its empty state with a way to create a goal.
   - `recent_lessons`: the answers of this goal **grouped by their `lesson_id`**,
     newest first, at most **10** (the screen shows 4). Accuracy and seconds are
@@ -261,7 +269,7 @@ backend mints over the answers when they arrive (#131).
     last night's generation came back thin — refusing there would turn one bad
     night at Gemini into a lost day of study. The bank only grows, so a short
     lesson repairs itself.
-  - empty bank ⇒ **409** `"Lessons are still being prepared"`. Not the
+  - empty bank ⇒ **409** `lessons_not_ready`. Not the
     student's goal ⇒ 404.
   - `correct_answer_index` **is** included (the frontend grades inline; we accept
     that a determined user could read it via devtools). The server re-grades.
@@ -308,7 +316,7 @@ backend mints over the answers when they arrive (#131).
 ---
 
 ## Tutor — ✅ implemented & tested
-Scoped to the active goal (`current_goal_id`); no active goal ⇒ 404 `No active goal`.
+Scoped to the active goal (`current_goal_id`); no active goal ⇒ 404 `no_active_goal`.
 The API speaks in **exchanges**, not single messages: one row of `chat_messages`
 is the student's prompt plus the tutor's reply, and the reply is Gemini's array
 of short strings (WhatsApp-style bubbles). The client expands one exchange into a
@@ -344,7 +352,7 @@ user bubble plus one tutor bubble per `responses` entry.
   request: none (uses `current_goal_id`) · response:
   `{ "youtube": resource_item[], "books": resource_item[], "websites": resource_item[] }`
   - `pdf` → `books`, `webpage` → `websites`. `url` is the stored `link`.
-  - no active goal ⇒ **404 `No active goal`** (`get_active_goal`). A goal whose
+  - no active goal ⇒ **404 `no_active_goal`** (`get_active_goal`). A goal whose
     background job has not finished yet has three empty lists, not an error.
 
 ### Resource generation (the chain's third step) — ✅

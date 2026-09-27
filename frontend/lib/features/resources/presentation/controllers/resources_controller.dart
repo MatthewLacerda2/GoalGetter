@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/features/resources/data/resources_api.dart';
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
@@ -16,8 +17,6 @@ Future<GoalResources> resources(Ref ref) {
 }
 
 /// True when [error] is the backend saying there is no active goal to read
-/// resources for (404 `No active goal`): a retry would get the same answer.
+/// resources for (`no_active_goal`): a retry would get the same answer.
 bool isNoActiveGoal(Object error) =>
-    error is ApiException &&
-    error.status == 404 &&
-    error.detail == ResourcesApi.noActiveGoalDetail;
+    error is ApiException && error.code == ErrorCode.noActiveGoal;

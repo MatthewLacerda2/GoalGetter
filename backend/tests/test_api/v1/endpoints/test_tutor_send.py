@@ -49,13 +49,14 @@ async def test_send_gives_gemini_the_window_oldest_first(
     assert (name, description) == (goal.name, goal.description)
 
 
-async def test_send_keeps_gemini_status_code(auth_client, test_db, test_user, goal_factory):
+async def test_send_names_geminis_failure(auth_client, test_db, test_user, goal_factory):
     await goal_factory(test_user, active=True)
     err = APIError.__new__(APIError)
     err.code, err.message = 429, "RESOURCE_EXHAUSTED"
     with patch(GEMINI, side_effect=err):
         response = await auth_client.post(ENDPOINT, json={"message": "hi"})
-    assert response.status_code == 429
+    assert response.status_code == 503
+    assert response.json()["code"] == "gemini_quota_exhausted"
     assert (await test_db.execute(select(ChatMessage))).first() is None
 
 

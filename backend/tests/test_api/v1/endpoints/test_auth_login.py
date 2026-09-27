@@ -18,7 +18,7 @@ async def test_login_nonexistent_user(client, mock_google_verify):
     }
     response = await client.post("/api/v1/auth/login", json={"access_token": "valid_google_token"})
     assert response.status_code == 404
-    assert response.json()["detail"] == "User not found"
+    assert response.json()["code"] == "student_not_found"
 
 
 async def test_login_invalid_token(client, mock_google_verify):

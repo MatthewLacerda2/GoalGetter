@@ -1,5 +1,6 @@
 import 'package:clock/clock.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/features/home/presentation/controllers/home_controller.dart';
 import 'package:goal_getter/features/lessons/data/lessons_api.dart';
@@ -40,7 +41,7 @@ class LessonController extends _$LessonController {
     try {
       session = await ref.read(lessonsApiProvider).start(goalId);
     } on ApiException catch (e) {
-      if (e.status == LessonsApi.notReadyStatus) return const LessonNotReady();
+      if (e.code == ErrorCode.lessonsNotReady) return const LessonNotReady();
       rethrow;
     }
     // The backend answers 409 for an empty bank; treat an empty 201 the same.

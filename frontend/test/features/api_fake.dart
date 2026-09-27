@@ -14,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../contract/contract_client.dart';
+import '../contract/error_body.dart';
 
 /// A backend that answers `'<METHOD> <path>'` (path under /api/v1) with
 /// canned `(status, body)` replies, handed out in order (the last repeats),
@@ -50,7 +51,7 @@ class ApiFake {
         requests.add((key, request.body));
         await held[key];
         final queue = replies[key];
-        if (queue == null) return http.Response('{"detail": "no route"}', 599);
+        if (queue == null) return http.Response(noRoute, 599);
         final (status, body) = queue.length > 1 ? queue.removeAt(0) : queue[0];
         return http.Response(body, status);
       }, malformed: malformed),

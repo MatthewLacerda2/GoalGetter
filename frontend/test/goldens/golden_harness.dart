@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../app/app_harness.dart';
 import '../contract/contract_client.dart';
+import '../contract/error_body.dart';
 import 'student.dart';
 
 /// Golden tests (#226): each screen of the real app — its router, theme,
@@ -99,7 +100,7 @@ http.Client _backend(Set<String> slow) => contractClient((request) async {
           '${request.method} ${request.url.path.replaceFirst('/api/v1', '')}';
       if (slow.contains(key)) await Future<void>.delayed(_slowReply);
       final (status, body) =
-          studentReplies[key] ?? (599, '{"detail": "no route"}');
+          studentReplies[key] ?? (599, noRoute);
       return http.Response(body, status);
     });
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:goal_getter/features/onboarding/data/onboarding_api.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
@@ -49,12 +50,19 @@ void main() {
     expect(jsonDecode(sent.single.body), {'prompt': 'Learn Italian'});
   });
 
-  test('a 400 carries the reasoning as the detail', () async {
-    final api = await apiAnswering({'detail': 'Not a goal'}, [], status: 400);
+  test('not a goal carries its code, and the reasoning as the detail',
+      () async {
+    final api = await apiAnswering(
+      {'code': 'not_a_goal', 'detail': 'Not a goal'},
+      [],
+      status: 400,
+    );
     expect(
       api.objectiveQuestions('x'),
       throwsA(
-        isA<ApiException>().having((e) => e.detail, 'detail', 'Not a goal'),
+        isA<ApiException>()
+            .having((e) => e.code, 'code', ErrorCode.notAGoal)
+            .having((e) => e.detail, 'detail', 'Not a goal'),
       ),
     );
   });

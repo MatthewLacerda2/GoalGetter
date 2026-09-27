@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_client.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
 import 'package:goal_getter/core/api/api_route.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/utils/settings_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -156,11 +157,42 @@ void main() {
     expect(backend.refreshCalls, 0);
   });
 
-  test('errors carry the status and FastAPI detail', () {
-    final error = ApiException.fromBody(404, '{"detail": "No active goal"}');
+  test('errors carry the status, the code and the detail', () {
+    final error = ApiException.fromBody(
+      404,
+      '{"code": "no_active_goal", "detail": "No active goal"}',
+    );
     expect(error.status, 404);
+    expect(error.code, ErrorCode.noActiveGoal);
     expect(error.detail, 'No active goal');
-    expect(ApiException.fromBody(502, '<html>').detail, 'HTTP 502');
+    final proxyPage = ApiException.fromBody(502, '<html>');
+    expect((proxyPage.code, proxyPage.detail), (null, 'HTTP 502'));
+    final newer = ApiException.fromBody(418, '{"code": "from_the_future"}');
+    expect(newer.code, isNull);
+  });
+
+  test('Gemini refusing our key is a 5xx: the student stays signed in',
+      () async {
+    // #214: Gemini's own 401 used to reach the app as a 401 and sign him out.
+    final storage = await signedInStorage();
+    var expired = false;
+    final api = ApiClient(
+      httpClient: MockClient((_) async => http.Response(
+            '{"code": "gemini_key_rejected", "detail": "Gemini refused"}',
+            502,
+          )),
+      storage: storage,
+      baseUrl: 'http://api.test',
+      onSessionExpired: () => expired = true,
+    );
+
+    await expectLater(
+      api.send(ApiRoute.sendTutorMessage, asIs, body: {'message': 'hi'}),
+      throwsA(isA<ApiException>()
+          .having((e) => e.code, 'code', ErrorCode.geminiKeyRejected)),
+    );
+    expect(expired, isFalse);
+    expect(storage.getAccessToken(), 'expired-access');
   });
 
   test('every request carries the chosen language', () async {

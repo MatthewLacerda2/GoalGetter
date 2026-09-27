@@ -12,17 +12,16 @@ goal's existence never leaks to another student.
 
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.student_dependencies import get_current_user
 from backend.core.database import get_db
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.models.goal import Goal
 from backend.models.student import Student
 from backend.repositories.goal_repository import GoalRepository
-
-NO_ACTIVE_GOAL = "No active goal"
-GOAL_NOT_FOUND = "Goal not found"
 
 
 async def get_active_goal(
@@ -30,10 +29,10 @@ async def get_active_goal(
     db: AsyncSession = Depends(get_db),
 ) -> Goal:
     if current_user.current_goal_id is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_ACTIVE_GOAL)
+        raise ApiError(ErrorCode.NO_ACTIVE_GOAL)
     goal = await GoalRepository(db).get_by_id(current_user.current_goal_id)
     if goal is None or goal.student_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NO_ACTIVE_GOAL)
+        raise ApiError(ErrorCode.NO_ACTIVE_GOAL)
     return goal
 
 
@@ -44,5 +43,5 @@ async def get_owned_goal(
 ) -> Goal:
     goal = await GoalRepository(db).get_by_id(goal_id)
     if goal is None or goal.student_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=GOAL_NOT_FOUND)
+        raise ApiError(ErrorCode.GOAL_NOT_FOUND)
     return goal

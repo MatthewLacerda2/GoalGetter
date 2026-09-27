@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:goal_getter/core/api/error_code.dart';
+
 /// Every way a call to the backend can fail, as the API layer throws it
 /// (`ApiClient`). Four cases, one sentence each for the student
 /// (`core/utils/error_text.dart`), and a screen that switches on them is told
@@ -14,7 +16,7 @@ import 'dart:convert';
 /// All four are [Exception]s, so a controller's `on Exception` catches every
 /// one of them — a response that fails to parse used to throw a `TypeError`,
 /// which is an `Error`, got past those catches and left a spinner up forever
-/// (#221). The server's own error codes (#214) belong on [ApiException].
+/// (#221). The server's own error code (#214) is [ApiException.code].
 sealed class ApiFailure implements Exception {
   const ApiFailure({this.path});
 
@@ -22,38 +24,47 @@ sealed class ApiFailure implements Exception {
   final String? path;
 }
 
-/// A non-2xx answer from the backend.
+/// A non-2xx answer from the backend, whose body is
+/// `{"code": "...", "detail": "..."}` (#214).
 ///
-/// [detail] is the sentence to show or log: FastAPI's `{"detail": "..."}` when
-/// the body carries one, else the HTTP status. [rawDetail] keeps the body's
-/// `detail` unnarrowed, because FastAPI's 422 answers a list of field errors
-/// and a caller that wants them should not have to re-parse the body.
+/// [code] is what the app decides on; null when the body carries none this
+/// build knows (a proxy's error page, a newer backend), which is said as a
+/// generic failure. [detail] is English for the log — or the HTTP status when
+/// the body has none — and is never compared: the one code whose detail is
+/// shown is [ErrorCode.notAGoal], Gemini's reasoning in the student's language.
 class ApiException extends ApiFailure {
-  const ApiException(this.status, this.detail, {this.rawDetail, super.path});
+  const ApiException(this.status, this.detail, {this.code, super.path});
 
   /// Builds the exception from a response body, whatever shape it has.
   factory ApiException.fromBody(int status, String body, {String? path}) {
-    Object? raw;
+    Object? code;
+    Object? detail;
     try {
       final decoded = jsonDecode(body);
-      if (decoded is Map<String, dynamic>) raw = decoded['detail'];
+      if (decoded is Map<String, dynamic>) {
+        code = decoded['code'];
+        detail = decoded['detail'];
+      }
     } on FormatException {
       // Not JSON (a proxy error page, an empty body): keep the status.
     }
+    final forTheLog = detail is String && detail.isNotEmpty
+        ? detail
+        : 'HTTP $status';
     return ApiException(
       status,
-      readErrorDetail(raw, 'HTTP $status'),
-      rawDetail: raw,
+      forTheLog,
+      code: ErrorCode.fromWire(code),
       path: path,
     );
   }
 
   final int status;
   final String detail;
-  final Object? rawDetail;
+  final ErrorCode? code;
 
   @override
-  String toString() => 'ApiException($status, $detail)';
+  String toString() => 'ApiException($status, ${code?.wire}, $detail)';
 }
 
 /// A 2xx answer this build cannot read: not JSON, or JSON of another shape
@@ -86,20 +97,4 @@ class ServerUnreachable extends ApiFailure {
 
   @override
   String toString() => 'ServerUnreachable($path: $cause)';
-}
-
-/// The sentence carried by a FastAPI `detail`, in the order tried: a plain
-/// string (almost every endpoint); a 422's list of `{msg}` field errors,
-/// joined; anything else falls back to [fallback].
-String readErrorDetail(Object? detail, String fallback) {
-  if (detail is String && detail.isNotEmpty) return detail;
-  if (detail is List) {
-    final messages = detail
-        .whereType<Map<String, dynamic>>()
-        .map((error) => error['msg'])
-        .whereType<String>()
-        .toList();
-    if (messages.isNotEmpty) return messages.join('; ');
-  }
-  return fallback;
 }

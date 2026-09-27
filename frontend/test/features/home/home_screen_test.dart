@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:intl/intl.dart';
 import 'package:goal_getter/core/widgets/failure.dart';
 import 'package:goal_getter/features/home/presentation/screens/home_screen.dart';
 
+import '../../contract/error_body.dart';
 import '../api_fake.dart';
 
 String homeJson() {
@@ -33,7 +35,7 @@ void main() {
   });
 
   testWidgets('404 No active goal is the empty state', (tester) async {
-    await pumpHome(tester, (404, '{"detail": "No active goal"}'));
+    await pumpHome(tester, (404, errorBody(ErrorCode.noActiveGoal)));
 
     expect(find.text('No active goal yet'), findsOneWidget);
     expect(find.text('Create Goal'), findsOneWidget);
@@ -44,12 +46,12 @@ void main() {
   testWidgets('a failed load is an inline failure with a retry', (
     tester,
   ) async {
-    await pumpHome(tester, (500, '{"detail": "boom"}'));
+    await pumpHome(tester, (500, crashed));
 
     expect(find.byType(FailureView), findsOneWidget);
     expect(find.byType(SnackBar), findsNothing);
     expect(find.text('Could not load your dashboard'), findsOneWidget);
-    expect(find.text('boom'), findsOneWidget);
+    expect(find.textContaining('Something went wrong'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
   });
 }

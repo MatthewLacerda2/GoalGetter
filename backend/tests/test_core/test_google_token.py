@@ -20,7 +20,7 @@ async def test_a_rejected_id_token_is_401_without_the_exception_text(client, moc
     response = await client.post(SIGNUP, headers={"Authorization": "Bearer a.b.c"})
 
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid Google token"
+    assert response.json()["code"] == "invalid_google_token"
 
 
 async def test_google_certificates_out_of_reach_is_503(client, mock_google_verify):
@@ -40,7 +40,7 @@ async def test_a_rejected_access_token_is_401_without_the_exception_text(
         response = await client.post(SIGNUP, headers=ACCESS_TOKEN)
 
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid Google token"
+    assert response.json()["code"] == "invalid_google_token"
 
 
 async def test_google_userinfo_out_of_reach_is_503(client, mock_google_verify):

@@ -50,12 +50,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -92,12 +102,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -134,12 +154,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -169,12 +199,22 @@
           "204": {
             "description": "Successful Response"
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -188,6 +228,7 @@
           "auth"
         ],
         "summary": "Delete Account",
+        "description": "Delete the signed-in student. Anything that fails on the way is a 500\n`internal_error` (core/errors/handlers.py), and the session closes without\ncommitting, so nothing is half deleted.",
         "operationId": "delete_account_api_v1_auth_account_delete",
         "security": [
           {
@@ -218,12 +259,22 @@
           "204": {
             "description": "Successful Response"
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -284,12 +335,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -346,12 +407,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -413,12 +484,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -472,12 +553,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -542,12 +633,22 @@
           "204": {
             "description": "Successful Response"
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -609,12 +710,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -669,12 +780,22 @@
           "204": {
             "description": "Successful Response"
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -726,12 +847,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -793,12 +924,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -870,12 +1011,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -926,12 +1077,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -983,12 +1144,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1075,12 +1246,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1140,12 +1321,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1217,12 +1408,22 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "4XX": {
+            "description": "The request was refused",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "The server or a service it calls failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1327,6 +1528,57 @@
         ],
         "title": "ChatExchange",
         "description": "One exchange: the student's prompt and the tutor's reply bubbles. The\nclient renders it as one user bubble plus one tutor bubble per response."
+      },
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "invalid_request",
+          "route_not_found",
+          "method_not_allowed",
+          "too_many_requests",
+          "internal_error",
+          "not_signed_in",
+          "invalid_token",
+          "student_no_longer_exists",
+          "invalid_refresh_token",
+          "invalid_google_token",
+          "student_not_found",
+          "no_active_goal",
+          "goal_not_found",
+          "not_a_goal",
+          "lessons_not_ready",
+          "unknown_question",
+          "message_not_found",
+          "google_unreachable",
+          "gemini_no_answer",
+          "gemini_key_rejected",
+          "gemini_quota_exhausted",
+          "gemini_failed",
+          "gemini_timed_out",
+          "gemini_unreachable"
+        ],
+        "title": "ErrorCode",
+        "description": "The `code` of an error response. See the module docstring."
+      },
+      "ErrorResponse": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ErrorCode",
+            "description": "What went wrong. The app switches on this."
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail",
+            "description": "The same, in English, for a person reading a log."
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "description": "The body of every error the API answers (#214)."
       },
       "GoalCommitRequest": {
         "properties": {
@@ -1476,19 +1728,6 @@
         ],
         "title": "GoalResponse",
         "description": "One goal in GET /goals. Carries every field the goals list and the goal detail\nscreen show, so the detail screen needs no fetch of its own."
-      },
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
       },
       "HomeDashboard": {
         "properties": {
@@ -2146,46 +2385,6 @@
         ],
         "title": "UserProfile",
         "description": "GET /me: the signed-in student's profile header."
-      },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError"
       }
     },
     "securitySchemes": {

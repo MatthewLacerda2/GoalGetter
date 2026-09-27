@@ -1,17 +1,19 @@
-"""The tutor chat, scoped to the student's active goal (404 `No active goal`
+"""The tutor chat, scoped to the student's active goal (404 `no_active_goal`
 without one). The API speaks in exchanges: one row per prompt + reply."""
 
 from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.v1.goal_dependencies import get_active_goal
 from backend.api.v1.student_dependencies import get_current_user
 from backend.core import clock
 from backend.core.database import get_db
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.models.chat_message import ChatMessage
 from backend.models.goal import Goal
 from backend.models.student import Student
@@ -32,7 +34,6 @@ router = APIRouter()
 HISTORY_WINDOW = 10
 PAGE_SIZE = 20
 MAX_PAGE_SIZE = 50
-EXCHANGE_NOT_FOUND = "Message not found"
 
 
 def _history_turns(exchanges: list[ChatMessage]) -> list[GeminiChatMessage]:
@@ -118,7 +119,7 @@ async def like_message(
     repo = ChatMessageRepository(db)
     exchange = await repo.get_by_id(message_id)
     if exchange is None or exchange.goal_id != goal.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=EXCHANGE_NOT_FOUND)
+        raise ApiError(ErrorCode.MESSAGE_NOT_FOUND)
     exchange.is_liked = payload.is_liked
     await repo.update(exchange)
     await db.commit()

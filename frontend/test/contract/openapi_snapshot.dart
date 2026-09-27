@@ -43,14 +43,15 @@ class OpenApiSnapshot {
 
   /// Why [body], answered by [route] with [status], is not what the backend
   /// sends; empty when it is. A 2xx the backend does not declare is itself
-  /// an error. A non-2xx it does not declare is not checked: the backend
-  /// documents no error bodies yet, and when it does (#214) the same call
-  /// checks them.
+  /// an error. An error status is checked against its own entry or its range
+  /// (`4XX`, `5XX`), which every route declares as the error body (#214); one
+  /// the backend declares neither way is not checked.
   List<String> replyErrors(ApiRoute route, int status, String body) {
     final op = operation(route);
     if (op == null) return ['${route.method} ${route.template} is not served'];
     final responses = op['responses'] as Map<String, dynamic>;
-    final response = responses['$status'] as Map<String, dynamic>?;
+    final response = (responses['$status'] ?? responses['${status ~/ 100}XX'])
+        as Map<String, dynamic>?;
     final ok = status >= 200 && status < 300;
     if (response == null) {
       if (!ok) return const [];

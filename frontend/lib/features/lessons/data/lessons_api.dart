@@ -13,9 +13,6 @@ class LessonsApi {
 
   final ApiClient _api;
 
-  /// 409 on [start]: the goal's question bank is still empty.
-  static const notReadyStatus = 409;
-
   /// Opens a new lesson on [goalId]. Nothing is stored until [submit].
   Future<LessonSession> start(String goalId) => _api.send(
         ApiRoute.startLesson,

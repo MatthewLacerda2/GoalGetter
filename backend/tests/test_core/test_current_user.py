@@ -34,6 +34,7 @@ async def test_a_failing_student_lookup_does_not_sign_the_student_out(server):
         response = await server.get(ENDPOINT)
 
     assert response.status_code == 500
+    assert response.json() == {"code": "internal_error", "detail": "Internal server error"}
     assert "10.0.0.3" not in response.text
 
 
@@ -55,4 +56,4 @@ async def test_a_token_for_a_student_who_no_longer_exists_says_so(client):
     response = await client.get(ENDPOINT, headers={"Authorization": f"Bearer {token}"})
 
     assert response.status_code == 401
-    assert response.json()["detail"] == "Student no longer exists"
+    assert response.json()["code"] == "student_no_longer_exists"

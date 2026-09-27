@@ -4,13 +4,15 @@ from datetime import timedelta
 
 import httpx
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from google.auth.exceptions import TransportError
 from google.oauth2 import id_token
 
 from backend.core import clock
 from backend.core.config import settings
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.core.google_certs import GOOGLE_CERTS
 
 logger = logging.getLogger(__name__)
@@ -41,15 +43,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
 
 
-def _invalid_google_token() -> HTTPException:
-    return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google token")
+def _invalid_google_token() -> ApiError:
+    return ApiError(ErrorCode.INVALID_GOOGLE_TOKEN)
 
 
-def _google_unreachable() -> HTTPException:
+def _google_unreachable() -> ApiError:
     """Google did not answer: nothing is known about the token, so not a 401 (#186)."""
-    return HTTPException(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Could not reach Google"
-    )
+    return ApiError(ErrorCode.GOOGLE_UNREACHABLE)
 
 
 def _verify_id_token(token: str) -> dict:
@@ -125,7 +125,7 @@ def verify_token(token: str) -> dict:
         dict: The token payload
 
     Raises:
-        HTTPException: If the token is invalid
+        ApiError: INVALID_TOKEN, if the token is invalid
 
     `exp` is checked here, on `clock.now()` - the clock `create_access_token`
     stamped it with - and not by PyJWT, which reads the machine's time: with
@@ -145,9 +145,7 @@ def verify_token(token: str) -> dict:
             raise jwt.ExpiredSignatureError("Signature has expired")
         return payload
     except jwt.PyJWTError as err:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-        ) from err
+        raise ApiError(ErrorCode.INVALID_TOKEN) from err
 
 
 security = HTTPBearer()
@@ -162,7 +160,5 @@ async def verify_google_token_header(
     """
     google_token = credentials.credentials.strip()
     if not google_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Google token is empty"
-        )
+        raise _invalid_google_token()
     return await verify_google_token(google_token)

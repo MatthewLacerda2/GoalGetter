@@ -1,4 +1,5 @@
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/tutor/data/tutor_api.dart';
 import 'package:goal_getter/features/tutor/domain/chat_exchange.dart';
 
@@ -59,4 +60,8 @@ class FakeTutorApi implements TutorApi {
   }
 }
 
-const geminiDown = ApiException(503, 'The model is overloaded');
+const geminiDown = ApiException(
+  502,
+  'Gemini answered with an error',
+  code: ErrorCode.geminiFailed,
+);

@@ -7,16 +7,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'tutor_api.g.dart';
 
 /// `/tutor/messages`, scoped by the backend to the student's active goal: a
-/// student without one gets 404 `No active goal` from every call.
+/// student without one gets `no_active_goal` from every call.
 class TutorApi {
   TutorApi(this._api);
 
   final ApiClient _api;
 
   static const pageSize = 20;
-
-  /// The detail the backend answers when the student has no active goal.
-  static const noActiveGoal = 'No active goal';
 
   /// Newest first. [before] is the oldest loaded exchange's `createdAt`.
   Future<List<ChatExchange>> list({

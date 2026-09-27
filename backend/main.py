@@ -3,13 +3,13 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
-from slowapi import _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from backend.api.v1.endpoints import router as api_v1_router
 from backend.core.config import settings
 from backend.core.cors import PRODUCTION_ORIGINS, cors_origin_regex
+from backend.core.errors.handlers import install_error_handlers
+from backend.core.errors.response import ERROR_RESPONSES
 from backend.core.logging_middleware import LoggingMiddleware
 from backend.core.rate_limiter import limiter
 from backend.llms import get_llms_txt
@@ -45,12 +45,14 @@ app.add_middleware(
 )
 
 app.state.limiter = limiter
-
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
+# Every error answers {"code", "detail"}, the code from core/errors/codes.py
+# (#214), and every route under /api/v1 declares that body for its 4xx and 5xx.
+install_error_handlers(app)
+
 app.add_middleware(LoggingMiddleware)
-app.include_router(api_v1_router, prefix="/api/v1")
+app.include_router(api_v1_router, prefix="/api/v1", responses=ERROR_RESPONSES)
 
 
 @app.get("/api/v1/check")

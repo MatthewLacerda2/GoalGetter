@@ -65,7 +65,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.send));
     await tester.pumpAndSettle();
     expect(find.byType(SnackBar), findsOneWidget);
-    expect(find.textContaining('The model is overloaded'), findsOneWidget);
+    expect(find.textContaining('The AI is not answering'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
     final field = tester.widget<TextField>(find.byType(TextField));
     expect(field.controller!.text, 'ciao');

@@ -31,7 +31,7 @@ void main() {
     final api = FakeOnboardingApi()..questionsError = geminiDown;
     await pumpFlow(tester, api);
     await submit(tester);
-    expect(find.text(geminiDown.detail), findsOneWidget);
+    expect(find.textContaining(aiUnavailable), findsOneWidget);
     expect(fieldText(tester), _prompt);
 
     api.questionsError = null;

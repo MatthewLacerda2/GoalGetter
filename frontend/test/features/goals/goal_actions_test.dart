@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_exception.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/core/services/active_goal.dart';
 import 'package:goal_getter/core/utils/provider_retry.dart';
 import 'package:goal_getter/features/goals/domain/goal.dart';
 import 'package:goal_getter/features/goals/presentation/controllers/goal_actions.dart';
 
+import '../../contract/error_body.dart';
 import '../fake_backend.dart';
 
 Goal goal(String id, {bool active = false}) => Goal(
@@ -84,7 +86,7 @@ void main() {
 
   test('a failed delete throws and changes nothing locally', () async {
     final backend = FakeBackend({
-      'DELETE /goals/g1': [(404, '{"detail": "Goal not found"}')],
+      'DELETE /goals/g1': [(404, errorBody(ErrorCode.goalNotFound))],
     });
     final pending = (await actions(backend)).delete(goal('g1', active: true));
 

@@ -10,7 +10,7 @@ async def test_no_active_goal_is_404(auth_client, test_user, goal_factory):
     await goal_factory(test_user)
     response = await auth_client.get(ENDPOINT)
     assert response.status_code == 404
-    assert response.json()["detail"] == "No active goal"
+    assert response.json()["code"] == "no_active_goal"
 
 
 async def test_home_is_the_active_goals_dashboard(

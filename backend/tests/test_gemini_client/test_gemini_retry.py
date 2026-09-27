@@ -11,9 +11,10 @@ import asyncio
 
 import httpx
 import pytest
-from fastapi import HTTPException
 from google.genai.errors import APIError
 
+from backend.core.errors.api_error import ApiError
+from backend.core.errors.codes import ErrorCode
 from backend.services.gemini.client import gemini_guard
 from backend.services.gemini.client.gemini_retry import (
     BACKGROUND_BUDGET,
@@ -129,14 +130,22 @@ async def test_a_waiting_user_gets_the_shorter_budget():
     assert sum(clock.delays) < 1.0
 
 
-@pytest.mark.parametrize("code", [402, 429])
-async def test_request_surfaces_geminis_status_code(no_waiting, code):
-    call = Recorder(api_error(code))
+@pytest.mark.parametrize(
+    ("status", "code"),
+    [
+        (400, ErrorCode.GEMINI_FAILED),
+        (402, ErrorCode.GEMINI_FAILED),
+        (429, ErrorCode.GEMINI_QUOTA_EXHAUSTED),
+        (500, ErrorCode.GEMINI_FAILED),
+    ],
+)
+async def test_a_gemini_error_is_a_5xx_of_its_own(no_waiting, status, code):
+    """#214: whatever Gemini answered is our upstream failing, never the request"""
+    with pytest.raises(ApiError) as raised:
+        await gemini_guard.run_gemini(Recorder(api_error(status)).use_case)
 
-    with pytest.raises(HTTPException) as raised:
-        await gemini_guard.run_gemini(call.use_case)
-
-    assert raised.value.status_code == code
+    assert raised.value.code == code
+    assert raised.value.status_code >= 500
 
 
 async def test_request_retries_then_answers(no_waiting):
@@ -149,9 +158,10 @@ async def test_request_retries_then_answers(no_waiting):
 async def test_unreachable_gemini_is_a_504(no_waiting):
     call = Recorder(httpx.ConnectError("no route"))
 
-    with pytest.raises(HTTPException) as raised:
+    with pytest.raises(ApiError) as raised:
         await gemini_guard.run_gemini(call.use_case)
 
+    assert raised.value.code == ErrorCode.GEMINI_UNREACHABLE
     assert raised.value.status_code == 504
     assert call.calls == 2
 
@@ -162,7 +172,7 @@ async def test_background_work_raises_the_error_unchanged(no_waiting):
     with pytest.raises(APIError) as raised:
         await gemini_guard.run_gemini_background(call.use_case)
 
-    assert not isinstance(raised.value, HTTPException)
+    assert not isinstance(raised.value, ApiError)
     assert call.calls == 4
 
 
@@ -187,9 +197,10 @@ async def test_a_slow_call_is_asked_again_and_can_answer():
 async def test_a_request_past_its_deadline_is_a_504(no_waiting):
     call = Recorder(HANG)
 
-    with pytest.raises(HTTPException) as raised:
+    with pytest.raises(ApiError) as raised:
         await gemini_guard.run_gemini(call.use_case)
 
+    assert raised.value.code == ErrorCode.GEMINI_TIMED_OUT
     assert raised.value.status_code == 504
     assert call.calls == REQUEST_BUDGET.attempts
 
@@ -197,9 +208,10 @@ async def test_a_request_past_its_deadline_is_a_504(no_waiting):
 @pytest.mark.parametrize("code", [401, 403])
 async def test_a_refused_key_is_never_a_401_to_the_app(no_waiting, code):
     """The app reads a 401 as "you are signed out"; our key is not his session"""
-    with pytest.raises(HTTPException) as raised:
+    with pytest.raises(ApiError) as raised:
         await gemini_guard.run_gemini(Recorder(api_error(code)).use_case)
 
+    assert raised.value.code == ErrorCode.GEMINI_KEY_REJECTED
     assert raised.value.status_code == 502
 
 
@@ -207,7 +219,7 @@ async def test_the_budget_is_the_callers(no_waiting):
     """A use case does not say how hard to try: the entry point it runs in does"""
     request, background = Recorder(api_error(503)), Recorder(api_error(503))
 
-    with pytest.raises(HTTPException):
+    with pytest.raises(ApiError):
         await gemini_guard.run_gemini(request.use_case)
     with pytest.raises(APIError):
         await gemini_guard.run_gemini_background(background.use_case)

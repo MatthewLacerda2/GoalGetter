@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../contract/contract_client.dart';
+import '../contract/error_body.dart';
 
 /// Every key the app stores, so sign-out has something to delete.
 const _everything = {
@@ -28,7 +29,11 @@ Future<(AuthService, SharedPreferences, List<http.Request>)> signedIn(
   final sent = <http.Request>[];
   final client = contractClient((request) async {
     sent.add(request);
-    return http.Response('', logoutStatus);
+    final ok = logoutStatus < 300;
+    return http.Response(
+      ok ? '' : crashed,
+      logoutStatus,
+    );
   });
   final storage = SettingsStorage(prefs);
   final api = ApiClient(

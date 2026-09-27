@@ -31,7 +31,7 @@ async def test_refresh_revoked_or_invalid(client):
     """Test refresh fails with invalid or nonexistent token"""
     response = await _refresh(client, "nonexistent_token")
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid or expired refresh token"
+    assert response.json()["code"] == "invalid_refresh_token"
 
 
 async def test_replaying_a_rotated_token_revokes_its_successors(client, test_db, test_user):

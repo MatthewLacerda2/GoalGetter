@@ -6,11 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:goal_getter/app/router/app_router.dart';
 import 'package:goal_getter/app/router/app_routes.dart';
 import 'package:goal_getter/app/router/route_args.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/onboarding/domain/goal_creation.dart';
 import 'package:goal_getter/features/onboarding/domain/study_plan.dart';
 import 'package:goal_getter/features/onboarding/presentation/controllers/pending_goal_draft.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
+import '../contract/error_body.dart';
 import '../features/fake_backend.dart';
 
 /// A web refresh loses go_router's `extra`, and the four routes that took one
@@ -62,7 +64,7 @@ Future<GoRouter> pumpAt(
   final backend = FakeBackend({
     'GET /home': [(200, '{"goal_name": "Learn Italian", "current_elo": 1000,'
         ' "current_streak": 0, "recent_lessons": []}')],
-    'POST /goals/g1/lessons': [(409, '{"detail": "still preparing"}')],
+    'POST /goals/g1/lessons': [(409, errorBody(ErrorCode.lessonsNotReady))],
   });
   await backend.start({'current_goal_id': 'g1'});
   final container = ProviderContainer(overrides: backend.overrides);

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_getter/core/api/api_route.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/l10n/generated/app_localizations.dart';
 
 import 'openapi_snapshot.dart';
@@ -35,6 +36,15 @@ void main() {
       final filled = route.path({for (final p in route.params) p: 'x1'});
       expect(OpenApiSnapshot.routeOf(route.method, filled), route);
     }
+  });
+
+  test("the backend's error codes are the app's", () {
+    // #214: the app decides on these, so one it lacks would be said as a
+    // generic failure, and one it invents would never arrive.
+    expect(
+      openApi.schemaEnum('ErrorCode'),
+      unorderedEquals(ErrorCode.values.map((c) => c.wire)),
+    );
   });
 
   test("the backend's languages are the app's locales", () {
@@ -81,8 +91,17 @@ void main() {
     test('a success status the route never answers', () {
       expect(
         openApi.replyErrors(ApiRoute.createGoal, 200, '{}'),
-        ['POST /goals never answers 200; it answers 201, 422'],
+        ['POST /goals never answers 200; it answers 201, 4XX, 5XX'],
       );
+    });
+
+    test('an error body without its code', () {
+      const known = '{"code": "no_active_goal", "detail": "x"}';
+      expect(goalsReply(known, status: 404), isEmpty);
+      expect(goalsReply('{"detail": "Goal not found"}', status: 404),
+          [r'$: missing "code"']);
+      expect(goalsReply('{"code": "goal_gone", "detail": "x"}', status: 503),
+          [contains('"goal_gone" is not one of')]);
     });
 
     test('a schema keyword the check does not know fails, never passes', () {

@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:goal_getter/core/api/error_code.dart';
 import 'package:goal_getter/features/resources/domain/resource_item.dart';
 import 'package:goal_getter/features/resources/presentation/screens/resources_screen.dart';
 
+import '../../contract/error_body.dart';
 import '../fake_backend.dart';
 
 String item(String name, {String? image}) => jsonEncode({
@@ -61,7 +63,7 @@ void main() {
 
   testWidgets('a failed load is an error with a retry, not the empty state',
       (tester) async {
-    await open(tester, [(500, '{"detail": "Boom"}'), (200, _full)]);
+    await open(tester, [(500, crashed), (200, _full)]);
 
     expect(find.text('Could not load resources'), findsOneWidget);
     expect(find.text('Still looking for resources'), findsNothing);
@@ -73,7 +75,7 @@ void main() {
   });
 
   testWidgets('no active goal offers to pick one', (tester) async {
-    await open(tester, [(404, '{"detail": "No active goal"}')]);
+    await open(tester, [(404, errorBody(ErrorCode.noActiveGoal))]);
 
     expect(find.text('No active goal'), findsOneWidget);
     expect(find.text('Pick a goal'), findsOneWidget);
