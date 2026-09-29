@@ -39,7 +39,13 @@ class AuthService {
   /// Initializes GoogleSignIn; needed before the web button renders.
   Future<void> ensureInitialized() async {
     if (_isGoogleInitialized) return;
-    await GoogleSignIn.instance.initialize(clientId: AppConfig.googleClientId);
+    // Android ignores clientId and asks for the server (web) client instead,
+    // so the ID token's audience is the one the backend verifies. The web
+    // plugin takes clientId alone.
+    await GoogleSignIn.instance.initialize(
+      clientId: AppConfig.googleClientId,
+      serverClientId: kIsWeb ? null : AppConfig.googleClientId,
+    );
     _isGoogleInitialized = true;
   }
 

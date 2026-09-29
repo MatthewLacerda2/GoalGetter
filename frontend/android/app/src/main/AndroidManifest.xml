@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Flutter adds INTERNET only to the debug and profile manifests; a
+         release build without it cannot reach the backend. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="GoalGetter"
         android:name="${applicationName}"
